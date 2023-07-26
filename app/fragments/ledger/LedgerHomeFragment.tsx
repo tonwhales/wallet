@@ -27,6 +27,7 @@ import { resolveUrl } from "../../utils/resolveUrl";
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import { startWalletConfigSync } from "../../engine/sync/startWalletConfigSync";
 
 export const LedgerHomeFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -208,7 +209,6 @@ export const LedgerHomeFragment = fragment(() => {
             return;
         }
         try {
-            startWalletV4Sync(address, engine);
             engine.products.ledger.startSync(address);
         } catch {
             warn('Failed to parse Ledger address');

@@ -2,12 +2,13 @@ import { AppState } from "react-native";
 import { fetchWalletConfig } from "../api/fetchWalletConfig";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
+import { Address } from "ton";
 
-export function startWalletConfigSync(engine: Engine) {
+export function startWalletConfigSync(engine: Engine, address?: Address) {
 
     let sync = createEngineSync('wallet-config', engine, async () => {
-        let config = await fetchWalletConfig(engine.address, engine.isTestnet);
-        engine.persistence.walletConfig.setValue(engine.address, config);
+        let config = await fetchWalletConfig(address ?? engine.address, engine.isTestnet);
+        engine.persistence.walletConfig.setValue(address ?? engine.address, config);
     });
 
     // Invalidate on start

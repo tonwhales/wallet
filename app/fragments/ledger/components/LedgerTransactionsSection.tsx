@@ -17,7 +17,6 @@ export const LedgerTransactionsSection = React.memo(({
     address: Address,
     engine: Engine,
 }) => {
-    const { Theme } = useAppConfig();
     const openTransactionFragment = React.useCallback((transaction: string) => {
         navigation.navigate('LedgerTransactionPreview', { transaction });
     }, [navigation]);
@@ -47,14 +46,16 @@ export const LedgerTransactionsSection = React.memo(({
                 }}
                 collapsable={false}
             >
-                {section.items.map((t, i) => <LedgerTransactionView
-                    own={address}
-                    engine={engine}
-                    tx={t}
-                    separator={i < section.items.length - 1}
-                    key={'tx-' + t}
-                    onPress={openTransactionFragment}
-                />)}
+                {section.items.map((t, i) =>
+                    <LedgerTransactionView
+                        own={address}
+                        engine={engine}
+                        tx={t}
+                        separator={i < section.items.length - 1}
+                        key={'tx-' + t}
+                        onPress={openTransactionFragment}
+                    />
+                )}
             </View>
         </View>
     );

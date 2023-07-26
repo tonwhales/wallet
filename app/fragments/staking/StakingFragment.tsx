@@ -41,7 +41,7 @@ export const StakingFragment = fragment(() => {
     const pool = engine.products.whalesStakingPools.usePool(target);
     const poolParams = pool?.params;
     const member = pool?.member;
-    const staking = engine.products.whalesStakingPools.useStaking();
+    const staking = engine.products.whalesStakingPools.useStakingCurrent();
     const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
 
     let type: StakingPoolType = useMemo(() => {

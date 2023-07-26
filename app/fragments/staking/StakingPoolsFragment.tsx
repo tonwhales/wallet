@@ -15,6 +15,8 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
 import { ProductButton } from "../../components/products/ProductButton";
 import { StatusBar } from "expo-status-bar";
+import { useRoute } from "@react-navigation/native";
+import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -161,12 +163,28 @@ function Header(props: {
 }
 
 export const StakingPoolsFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
-    const navigation = useTypedNavigation();
+    const { AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerStakingPools';
     const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStaking();
-    const pools = staking.pools;
+
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch {
+            return;
+        }
+    }, [ledgerContext?.addr?.address]);
+    
+    const stakingMain = engine.products.whalesStakingPools.useStakingCurrent();
+    const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
+    const staking = isLedger ? ledgerStaking : stakingMain;
+
+    const pools = staking?.pools ?? [];
     const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
     const items: React.ReactElement[] = [];
     const processed = new Set<string>();
@@ -175,9 +193,8 @@ export const StakingPoolsFragment = fragment(() => {
     const onJoinTeam = useCallback(() => openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1'), []);
     const onEPNMore = useCallback(() => openWithInApp('https://epn.bz/'), []);
 
-
     // Await config
-    if (!staking.config) {
+    if (!staking?.config) {
         return (
             <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
                 <TopBar title={t('products.staking.title')} showBack />

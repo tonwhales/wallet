@@ -7,9 +7,11 @@ import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ProductBanner } from "./ProductBanner";
+import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
+import { Address } from "ton";
 
 import StakingIcon from '../../../assets/ic-staking.svg';
-import { ProductBanner } from "./ProductBanner";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -43,9 +45,18 @@ export const LedgerStakingProductComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    // const staking = engine.products.whalesStakingPools.useStaking();
-    // const cards = engine.products.holders.useCards();
-    // const showJoin = staking.total.eq(new BN(0));
+    const ledgerContext = useLedgerTransport();
+    const address = useMemo(() => {
+        if (!ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch {
+            return;
+        }
+    }, [ledgerContext?.addr?.address]);
+
+    const staking = engine.products.whalesStakingPools.useStaking(address);
+    const showJoin = !staking || staking.total.eq(new BN(0));
 
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -54,64 +65,60 @@ export const LedgerStakingProductComponent = React.memo(() => {
         }
     }, [apy]);
 
-    // if (!showJoin) {
-    //     return (
-    //         <TouchableHighlight
-    //             onPress={() => navigation.navigate('StakingPools')}
-    //             underlayColor={Theme.selector}
-    //             style={[style, { backgroundColor: Theme.lightGrey }]}
-    //         >
-    //             <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-    //                 <View style={icStyle}>
-    //                     <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
-    //                         <StakingIcon width={32} height={32} color={'white'} />
-    //                     </View>
-    //                 </View>
-    //                 <View style={{
-    //                     flexDirection: 'row',
-    //                     flexGrow: 1, flexShrink: 1, alignItems: 'center',
-    //                     justifyContent: 'space-between',
-    //                     overflow: 'hidden'
-    //                 }}>
-    //                     <View style={{ flexGrow: 1, flexShrink: 1 }}>
-    //                         <Text
-    //                             style={{ color: Theme.textColor, ...titleStyle }}
-    //                             ellipsizeMode={'tail'}
-    //                             numberOfLines={1}
-    //                         >
-    //                             {t('products.staking.title')}
-    //                         </Text>
-    //                         <Text style={{ color: Theme.darkGrey, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
-    //                             {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
-    //                         </Text>
-    //                     </View>
-    //                     <View style={{ alignItems: 'flex-end' }}>
-    //                         <Text style={{ color: Theme.textColor, ...titleStyle }}>
-    //                             <ValueComponent
-    //                                 value={staking.total}
-    //                             />
-    //                             {' TON'}
-    //                         </Text>
-    //                         <PriceComponent
-    //                             amount={staking.total}
-    //                             style={{
-    //                                 backgroundColor: Theme.transparent,
-    //                                 paddingHorizontal: 0, paddingVertical: 0,
-    //                                 alignSelf: 'flex-end',
-    //                                 height: undefined
-    //                             }}
-    //                             textStyle={{ color: Theme.darkGrey, ...subtitleStyle }}
-    //                         />
-    //                     </View>
-    //                 </View>
-    //             </View>
-    //         </TouchableHighlight>
-    //     );
-    // }
-
-    // if (cards.length > 0) {
-    //     return null;
-    // }
+    if (!showJoin) {
+        return (
+            <TouchableHighlight
+                onPress={() => navigation.navigate('LedgerStakingPools')}
+                underlayColor={Theme.selector}
+                style={[style, { backgroundColor: Theme.lightGrey }]}
+            >
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
+                    <View style={icStyle}>
+                        <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
+                            <StakingIcon width={32} height={32} color={'white'} />
+                        </View>
+                    </View>
+                    <View style={{
+                        flexDirection: 'row',
+                        flexGrow: 1, flexShrink: 1, alignItems: 'center',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden'
+                    }}>
+                        <View style={{ flexGrow: 1, flexShrink: 1 }}>
+                            <Text
+                                style={{ color: Theme.textColor, ...titleStyle }}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                {t('products.staking.title')}
+                            </Text>
+                            <Text style={{ color: Theme.darkGrey, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                                {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
+                            </Text>
+                        </View>
+                        <View style={{ alignItems: 'flex-end' }}>
+                            <Text style={{ color: Theme.textColor, ...titleStyle }}>
+                                <ValueComponent
+                                    value={staking.total}
+                                />
+                                {' TON'}
+                            </Text>
+                            <PriceComponent
+                                amount={staking.total}
+                                style={{
+                                    backgroundColor: Theme.transparent,
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                    height: undefined
+                                }}
+                                textStyle={{ color: Theme.darkGrey, ...subtitleStyle }}
+                            />
+                        </View>
+                    </View>
+                </View>
+            </TouchableHighlight>
+        );
+    }
 
     return (
         <ProductBanner

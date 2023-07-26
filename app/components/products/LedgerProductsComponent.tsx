@@ -1,5 +1,5 @@
 import BN from "bn.js"
-import React, { useLayoutEffect } from "react"
+import React, { useLayoutEffect, useMemo } from "react"
 import { LayoutAnimation, Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../assets/ic_sign.svg';
@@ -18,34 +18,13 @@ import { t } from "../../i18n/t";
 import { JettonsProductComponent } from "./JettonsProductComponent";
 import { LedgerStakingProductComponent } from "./LedgerStakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
+import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
+import { Address } from "ton";
 
 export const LedgerProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    // const oldWalletsBalance = engine.products.legacy.useState();
-    // const currentJob = engine.products.apps.useState();
-    // const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
-    // const cards = engine.products.holders.useCards();
-    // const totalStaked = engine.products.whalesStakingPools.useStaking().total;
-
-    // Resolve accounts
-    let accounts: React.ReactElement[] = [];
-    // if (oldWalletsBalance.gt(new BN(0))) {
-    //     accounts.push(
-    //         <AnimatedProductButton
-    //             entering={FadeInUp}
-    //             exiting={FadeOutDown}
-    //             key={'old-wallets'}
-    //             name={t('products.oldWallets.title')}
-    //             subtitle={t("products.oldWallets.subtitle")}
-    //             icon={OldWalletIcon}
-    //             value={oldWalletsBalance}
-    //             onPress={() => navigation.navigate('Migration')}
-    //             style={{ marginVertical: 4 }}
-    //         />
-    //     );
-    // }
 
     return (
         <View style={{ paddingHorizontal: 16 }}>
@@ -64,25 +43,6 @@ export const LedgerProductsComponent = React.memo(() => {
                 }}>
                     {t('common.products')}
                 </Text>
-                {/* {!(cards.length === 0 && totalStaked.eq(new BN(0))) && (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
-                        onPress={() => navigation.navigate('Products')}
-                    >
-                        <Text style={{
-                            fontSize: 15,
-                            fontWeight: '500',
-                            lineHeight: 20,
-                            color: Theme.accent,
-                        }}>
-                            {t('products.addNew')}
-                        </Text>
-                    </Pressable>
-                )} */}
             </View>
 
             <View style={{ marginTop: 8 }}>

@@ -54,7 +54,7 @@ export const WalletItem = memo((
                 }
             ]
         );
-    }, [walletSettings, selected, address]);
+    }, [walletSettings, selected, address, modal]);
 
     return (
         <Pressable

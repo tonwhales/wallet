@@ -6,10 +6,6 @@ import { TonTransport } from "ton-ledger";
 import { Alert, Platform } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
-import { startWalletV4Sync } from "../../../engine/sync/startWalletV4Sync";
-import { Address } from "ton";
-import { warn } from "../../../utils/log";
-import { useEngine } from "../../../engine/Engine";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }

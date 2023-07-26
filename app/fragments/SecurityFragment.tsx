@@ -31,6 +31,7 @@ export const SecurityFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const passcodeState = settings.usePasscodeState();
     const biometricsState = settings.useBiometricsState();
+    const lockAppWithAuthState = settings.useLockAppWithAuth();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
@@ -169,6 +170,29 @@ export const SecurityFragment = fragment(() => {
                             )}
                         </>
                     )}
+                </View>
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.lightGrey,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                }}>
+                    <ItemSwitch
+                        title={
+                            t(
+                                'secure.lockAppWithAuth',
+                                {
+                                    method: (!!biometricsProps && biometricsProps.state !== BiometricsState.NotSet)
+                                        ? biometricsProps.buttonText
+                                        : t('secure.methodPasscode')
+                                }
+                            )
+                        }
+                        value={lockAppWithAuthState}
+                        onChange={(newValue: boolean) => {
+                            engine.sharedPersistence.lockAppWithAuth.item().update(() => newValue);
+                        }}
+                    />
                 </View>
             </ScrollView>
         </View>

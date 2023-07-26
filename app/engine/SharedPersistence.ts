@@ -8,6 +8,7 @@ import { WalletSettings } from "./products/WalletsProduct";
 export class SharedPersistence {
     readonly version: number = 1;
     readonly walletSettings: PersistedCollection<Address, WalletSettings>;
+    readonly lockAppWithAuth: PersistedCollection<void, boolean>;
 
     constructor(sharedStorage: MMKV, engine: Engine) {
         if (sharedStorage.getNumber('storage-version') !== this.version) {
@@ -17,8 +18,10 @@ export class SharedPersistence {
 
         // Key formats
         const addressKey = (src: Address) => src.toFriendly({ testOnly: engine.isTestnet });
+        const voidKey = (src: void) => 'void';
 
         this.walletSettings = new PersistedCollection({ storage: sharedStorage, namespace: 'walletSettings', key: addressKey, codec: t.type({ name: nullableString, avatar: nullableNumber }), engine });
+        this.lockAppWithAuth = new PersistedCollection({ storage: sharedStorage, namespace: 'lockAppWithAuth', key: voidKey, codec: t.boolean, engine });
     }
 }
 

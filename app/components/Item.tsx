@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ImageSourcePropType, Pressable, Text, View, Image } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
+import { useRef } from 'react';
 
 export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const { Theme } = useAppConfig();
@@ -25,8 +26,14 @@ export const ItemSwitch = React.memo((props: {
     leftIconComponent?: any,
 }) => {
     const { Theme } = useAppConfig();
+
     return (
-        <View style={{ flexGrow: 1, alignItems: 'center', flexDirection: 'row', padding: 20, justifyContent: 'space-between' }}>
+        <Pressable
+            onPress={() => {
+                props.onChange(!props.value);
+            }}
+            style={{ flexGrow: 1, alignItems: 'center', flexDirection: 'row', padding: 20, justifyContent: 'space-between' }}
+        >
             {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}
             {!!props.leftIconComponent && (
                 <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }}>
@@ -51,6 +58,6 @@ export const ItemSwitch = React.memo((props: {
                 value={props.value}
                 onValueChange={props.onChange}
             />
-        </View>
+        </Pressable>
     )
 });

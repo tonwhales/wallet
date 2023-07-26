@@ -544,6 +544,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         onLaterMessage: 'Вы можете настроить защиту позже в настройках приложения',
         onLaterButton: 'Настроить позже',
         onBiometricsError: 'Ошибка подтверждения биометрии',
+        lockAppWithAuth: 'Блокировать приложение {{method}}',
+        methodPasscode: 'паролем',
     },
     backup: {
         title: 'Фраза восстановления',

@@ -544,7 +544,9 @@ export type LocalizationSchema = {
         onLaterTitle: string,
         onLaterMessage: string,
         onLaterButton: string,
-        onBiometricsError: string
+        onBiometricsError: string,
+        lockAppWithAuth: string,
+        methodPasscode: string
     },
     backup: {
         title: string,

@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, NativeSyntheticEvent, Platform, Share, Text, useWindowDimensions, View } from 'react-native';
+import { Image, NativeSyntheticEvent, Platform, Pressable, Share, Text, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
@@ -16,6 +16,10 @@ import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "r
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
+
+import IcIn from '../../../../assets//ic-tx-in.svg';
+import IcOut from '../../../../assets//ic-tx-out.svg';
+import { PriceComponent } from '../../../components/PriceComponent';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -211,92 +215,136 @@ export function LedgerTransactionView(props: {
     return (
         <ContextMenu
             actions={transactionActions}
-            onPress={handleAction}>
-            <TouchableHighlight
+            onPress={handleAction}
+        >
+            <Pressable
                 onPress={() => props.onPress(props.tx)}
-                underlayColor={Theme.selector}
-                style={{ backgroundColor: Theme.item }}
+                style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
-                <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
-                    <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+                <View style={{
+                    alignSelf: 'stretch',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }}>
+                    <View style={{
+                        width: 46, height: 46,
+                        borderRadius: 23,
+                        borderWidth: 0, marginRight: 10,
+                        justifyContent: 'center', alignItems: 'center',
+                        backgroundColor: Theme.lightGrey
+                    }}>
                         {parsed.status !== 'pending' && (
-                            <Avatar
-                                address={friendlyAddress}
-                                id={avatarId}
-                                size={42}
-                                image={tx.icon ? tx.icon : undefined}
-                                spam={spam}
-                                markContact={!!contact}
-                                verified={verified}
-                            />
+                            tx.base.kind === 'in'
+                                ? (<IcIn height={32} width={32} style={{ width: 32, height: 32 }} />)
+                                : (<IcOut height={32} width={32} style={{ width: 32, height: 32 }} />)
                         )}
                         {parsed.status === 'pending' && (
-                            <PendingTransactionAvatar kind={parsed.kind} address={friendlyAddress} avatarId={avatarId} />
+                            <PendingTransactionAvatar
+                                kind={tx.base.kind}
+                                address={friendlyAddress}
+                                avatarId={avatarId}
+                            />
                         )}
                     </View>
-                    <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                        <View style={{ flexDirection: 'row', marginTop: 10, marginRight: 10 }}>
+                    <View style={{ flex: 1, marginRight: 4 }}>
+                        <Text
+                            style={{ color: Theme.textColor, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                        >
+                            {op}
+                        </Text>
+                        {spam && (
                             <View style={{
-                                flexDirection: 'row',
-                                flexGrow: 1, flexBasis: 0, marginRight: 16,
+                                borderColor: Theme.textSecondaryBorder,
+                                borderWidth: 1,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                borderRadius: 4,
+                                paddingHorizontal: 4
                             }}>
-                                <Text
-                                    style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
-                                    ellipsizeMode="tail"
-                                    numberOfLines={1}>
-                                    {op}
-                                </Text>
-                                {spam && (
-                                    <View style={{
-                                        borderColor: '#ADB6BE',
-                                        borderWidth: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        borderRadius: 4,
-                                        marginLeft: 6,
-                                        paddingHorizontal: 4
-                                    }}>
-                                        <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
-                                    </View>
-                                )}
+                                <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                             </View>
-                            {parsed.status === 'failed' ? (
-                                <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
-                                    {t('tx.failed')}
-                                </Text>
-                            ) : (
-                                <Text
-                                    style={{
-                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
-                                        fontWeight: '400',
-                                        fontSize: 16,
-                                        marginRight: 2,
-                                    }}>
-                                    <ValueComponent
-                                        value={item.amount}
-                                        decimals={item.kind === 'token' ? item.decimals : undefined}
-                                    />
-                                    {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                </Text>
-                            )}
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
+                        )}
+                        <Text
+                            style={{ color: Theme.darkGrey, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {known
+                                ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress)
+                                : <AddressComponent address={operation.address} />
+                            }
+                            {' • ' + formatTime(parsed.time)}
+                        </Text>
+                    </View>
+                    <View>
+                        {parsed.status === 'failed' ? (
+                            <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
+                                {t('tx.failed')}
+                            </Text>
+                        ) : (
                             <Text
-                                style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                                ellipsizeMode="middle"
+                                style={{
+                                    color: tx.base.kind === 'in'
+                                        ? spam
+                                            ? Theme.textColor
+                                            : Theme.green
+                                        : Theme.textColor,
+                                    fontWeight: '600',
+                                    lineHeight: 24,
+                                    fontSize: 17,
+                                    marginRight: 2,
+                                }}
                                 numberOfLines={1}
                             >
-                                {known ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress) : <AddressComponent address={operation.address} />}
+                                {tx.base.kind === 'in' ? '+' : '-'}
+                                <ValueComponent
+                                    value={item.amount.abs()}
+                                    decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    precision={3}
+                                />
+                                {item.kind === 'token' ? ' ' + item.symbol : ' TON'}
                             </Text>
-                            {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
-                            <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
-                        </View>
-                        <View style={{ flexGrow: 1 }} />
-                        {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
+                        )}
+                        {item.kind !== 'token' && (
+                            <PriceComponent
+                                amount={item.amount.abs()}
+                                prefix={tx.base.kind === 'in' ? '+' : '-'}
+                                style={{
+                                    height: undefined,
+                                    backgroundColor: 'transparent',
+                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    alignSelf: 'flex-end',
+                                }}
+                                textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                            />
+                        )}
+                        {item.kind === 'token' && (
+                            <View style={{ flexGrow: 1 }} />
+                        )}
                     </View>
                 </View>
-            </TouchableHighlight>
+                {!!operation.comment && (
+                    <View style={{
+                        flexShrink: 1, alignSelf: 'flex-end',
+                        backgroundColor: Theme.lightGrey,
+                        marginTop: 8,
+                        paddingHorizontal: 10, paddingVertical: 8,
+                        borderRadius: 10, marginLeft: 46 + 10, height: 36
+                    }}>
+                        <Text
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                            style={{ color: Theme.textColor, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
+                        >
+                            {operation.comment}
+                        </Text>
+                    </View>
+                )}
+            </Pressable>
         </ContextMenu>
     );
 }

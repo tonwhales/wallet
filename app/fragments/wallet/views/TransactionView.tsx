@@ -16,6 +16,7 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { PriceComponent } from '../../../components/PriceComponent';
+
 import IcIn from '../../../../assets//ic-tx-in.svg';
 import IcOut from '../../../../assets//ic-tx-out.svg';
 

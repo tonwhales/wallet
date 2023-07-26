@@ -1,7 +1,7 @@
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, View, useWindowDimensions, Text, ScrollView } from "react-native";
 import { fragment } from "../../fragment";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
 import React, { useCallback, useMemo, useRef } from "react";
 import { Address } from "ton";
@@ -21,8 +21,7 @@ const WalletTransactions = React.memo((props: {
     address: Address,
     engine: Engine,
     navigation: TypedNavigation,
-    safeArea: EdgeInsets,
-    frameArea: Rect,
+    safeArea: EdgeInsets
 }) => {
     const transactionsSectioned = React.useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
@@ -73,10 +72,6 @@ const WalletTransactions = React.memo((props: {
                 <LoadingIndicator simple={true} />
             </View>
         );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 94 }} />
-        );
     }
 
     return (
@@ -89,7 +84,6 @@ const WalletTransactions = React.memo((props: {
 export const LedgerTransactionsFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const frameArea = useSafeAreaFrame();
     const engine = useEngine();
     const ledgerContext = useLedgerTransport();
     const address = useMemo(() => {
@@ -105,7 +99,6 @@ export const LedgerTransactionsFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const account = engine.products.ledger.useAccount();
     const navigation = useTypedNavigation();
-    const window = useWindowDimensions();
     const animRef = useRef<LottieView>(null);
 
     const onReachedEnd = useMemo(() => {
@@ -133,12 +126,10 @@ export const LedgerTransactionsFragment = fragment(() => {
     }, [onReachedEnd]);
 
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             <TabHeader title={t('transactions.history')} />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
-                contentInset={{ bottom: 52 }}
-                contentOffset={{ y: -(44 + safeArea.top), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={26}
                 removeClippedSubviews={true}
@@ -177,7 +168,6 @@ export const LedgerTransactionsFragment = fragment(() => {
                         engine={engine}
                         navigation={navigation}
                         safeArea={safeArea}
-                        frameArea={frameArea}
                     />
                 )}
             </ScrollView>

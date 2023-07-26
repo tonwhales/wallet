@@ -27,7 +27,6 @@ const WalletTransactions = React.memo((props: {
     engine: Engine,
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
-    frameArea: Rect,
     onLoadMore: () => void,
     style?: StyleProp<ViewStyle>,
     contentContainerStyle?: StyleProp<ViewStyle>,
@@ -230,7 +229,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                         navigation={navigation}
                                         safeArea={safeArea}
                                         onLoadMore={onReachedEnd}
-                                        frameArea={frameArea}
                                     />
                                 )}
                             </>

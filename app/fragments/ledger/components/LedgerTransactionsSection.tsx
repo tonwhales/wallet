@@ -22,17 +22,18 @@ export const LedgerTransactionsSection = React.memo(({
         navigation.navigate('LedgerTransactionPreview', { transaction });
     }, [navigation]);
     return (
-        <View>
+        <View style={{ backgroundColor: 'white' }}>
             <View
-                style={{ marginTop: 8, backgroundColor: Theme.background }}
+                style={{ marginTop: 8 }}
                 collapsable={false}
             >
                 <Text
                     style={{
-                        fontSize: 18,
-                        fontWeight: '700',
+                        fontSize: 17,
+                        fontWeight: '600',
                         marginHorizontal: 16,
-                        marginVertical: 8
+                        marginVertical: 8,
+                        lineHeight: 24
                     }}
                 >
                     {section.title}
@@ -41,9 +42,7 @@ export const LedgerTransactionsSection = React.memo(({
             <View
                 key={'s-' + section.title}
                 style={{
-                    marginHorizontal: 16,
                     borderRadius: 14,
-                    backgroundColor: 'white',
                     overflow: 'hidden'
                 }}
                 collapsable={false}

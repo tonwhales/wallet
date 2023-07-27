@@ -88,6 +88,10 @@ export class SettingsProduct {
         return useRecoilValue(this.#biometricsStateAtom);
     }
 
+    useLockAppWithAuth(): boolean {
+        return useRecoilValue(this.engine.sharedPersistence.lockAppWithAuth.item().atom) ?? false;
+    }
+
     setBiometricsState(newState: BiometricsState | null) {
         if (!newState) {
             storage.delete(biometricsStateKey);

@@ -9,30 +9,30 @@ function isPasscodeSetupShown(): boolean {
     return storage.getBoolean(wasPasscodeSetupShownKey) ?? false;
 }
 
-type OnboardingState = 'welcome' | 'upgrade-store' | 'passcode-setup' | 'backup' | 'sync' | 'home';
+type OnboardingState = 'Welcome' | 'WalletUpgrade' | 'PasscodeSetupInit' | 'WalletCreated' | 'Home' | 'AppStartAuth';
 
-export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): OnboardingState {
+export function resolveOnboarding(engine: Engine | null, isTestnet: boolean, appStart?: boolean): OnboardingState {
     const state = getAppState();
     const wasPasscodeSetupShown = isPasscodeSetupShown();
+    const authOnStart = engine?.sharedPersistence.lockAppWithAuth.item().value ?? false;
 
     if (state.selected >= 0) {
+        if (authOnStart && appStart) {
+            return 'AppStartAuth';
+        }
         const address = getCurrentAddress();
         if (isAddressSecured(address.address, isTestnet)) {
             const passcodeSet = getPasscodeState() === PasscodeState.Set;
             if (!wasPasscodeSetupShown && !passcodeSet) {
-                return 'passcode-setup';
+                return 'PasscodeSetupInit';
             }
-            if (engine && !engine.ready) {
-                return 'sync';
-            } else {
-                return 'home';
-            }
+            return 'Home';
         } else {
-            return 'backup';
+            return 'WalletCreated';
         }
     } else if (canUpgradeAppState()) {
-        return 'upgrade-store';
+        return 'WalletUpgrade';
     } else {
-        return 'welcome';
+        return 'Welcome';
     }
 }

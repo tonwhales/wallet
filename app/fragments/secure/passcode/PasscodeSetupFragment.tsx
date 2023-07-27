@@ -53,11 +53,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
         }
 
         if (init) {
-            if (engine && !engine.ready) {
-                navigation.navigateAndReplaceAll('Sync');
-            } else {
-                navigation.navigateAndReplaceAll('Home');
-            }
+            navigation.navigateAndReplaceAll('Home');
         }
     }, []);
 
@@ -78,11 +74,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                     (init && !isLocalAuth) // Lock migation to passcode from local auth
                         ? () => {
                             storage.set(wasPasscodeSetupShownKey, true);
-                            if (engine && !engine.ready) {
-                                navigation.navigateAndReplaceAll('Sync');
-                            } else {
-                                navigation.navigateAndReplaceAll('Home');
-                            }
+                            navigation.navigateAndReplaceAll('Home');
                         }
                         : undefined
                 }

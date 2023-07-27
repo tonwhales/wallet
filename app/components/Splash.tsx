@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { View, Image } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
@@ -8,17 +8,20 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
     const [visible, setVisible] = React.useState(true);
     const sharedOpacity = useSharedValue(1);
 
+    const onStarted = useCallback(() => {
+        SplashScreen.hideAsync();
+        setVisible(false);
+    }, []);
+
     useEffect(() => {
         if (hide && visible) {
             sharedOpacity.value = withTiming(
-                0.1,
-                {},
+                0.99,
+                { duration: 100 },
                 (finished, _) => {
                     if (finished) {
-                        runOnJS(SplashScreen.hideAsync)();
-                        sharedOpacity.value = withTiming(0, { duration: 500 }, (finished, _) => {
-                            runOnJS(setVisible)(false);
-                        });
+                        runOnJS(onStarted)();
+                        sharedOpacity.value = withTiming(0, { duration: 500 });
                     }
                 }
             );

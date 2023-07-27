@@ -51,6 +51,7 @@ export const PasscodeInput = React.memo((
     }, []);
 
     const onKeyPress = useCallback((key: PasscodeKey) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         if (key === PasscodeKey.LeftActionKey && !!onRetryBiometrics) {
             onRetryBiometrics();
         }

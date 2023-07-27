@@ -45,11 +45,8 @@ export const WalletBackupFragment = systemFragment(() => {
             if (init) {
                 reboot();
             }
-            if (engine && !engine.ready) {
-                navigation.navigateAndReplaceAll('Sync');
-            } else {
-                navigation.navigateAndReplaceAll('Home');
-            }
+            
+            navigation.navigateAndReplaceAll('Home');
         }
     }, [engine]);
     React.useEffect(() => {

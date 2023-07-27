@@ -46,7 +46,7 @@ export class ZenPayProduct {
             key: 'zenpay/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/status',
             get: ({ get }) => {
                 // Check status
-                let status: ZenPayAccountStatus = get(this.engine.persistence.zenPayStatus.item(engine.address).atom) || { state: 'need-enrolment' };
+                let status: ZenPayAccountStatus = get(this.engine.persistence.holdersStatus.item(engine.address).atom) || { state: 'need-enrolment' };
 
                 return status;
             }
@@ -55,7 +55,7 @@ export class ZenPayProduct {
             key: 'zenpay/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/state',
             get: ({ get }) => {
                 // Get state
-                let state: ZenPayState = get(this.engine.persistence.zenPayState.item(engine.address).atom) || { accounts: [] };
+                let state: ZenPayState = get(this.engine.persistence.holdersState.item(engine.address).atom) || { accounts: [] };
                 return state;
             }
         });
@@ -121,7 +121,7 @@ export class ZenPayProduct {
 
     // Update accounts
     async syncAccounts() {
-        const targetAccounts = this.engine.persistence.zenPayState.item(this.engine.address);
+        const targetAccounts = this.engine.persistence.holdersState.item(this.engine.address);
         try {
             let listRes = await fetchCardsPublic(this.engine.address, this.engine.isTestnet);
 
@@ -157,11 +157,11 @@ export class ZenPayProduct {
             warn(e);
         }
         try {
-            let status = this.engine.persistence.zenPayStatus.item(this.engine.address).value;
+            let status = this.engine.persistence.holdersStatus.item(this.engine.address).value;
             if (status && status?.state !== 'need-enrolment') {
                 const token = status.token;
                 const cards = await fetchCardsList(token);
-                this.engine.persistence.zenPayCards.item(this.engine.address).update((src) => {
+                this.engine.persistence.holdersCards.item(this.engine.address).update((src) => {
                     return cards;
                 });
             }
@@ -186,15 +186,15 @@ export class ZenPayProduct {
     async cleanup() {
         await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
         this.stopWatching();
-        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+        this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
             return null;
         });
-        this.engine.persistence.zenPayStatus.item(this.engine.address).update((src) => null);
+        this.engine.persistence.holdersStatus.item(this.engine.address).update((src) => null);
     }
 
     async doSync() {
         await this.#lock.inLock(async () => {
-            let targetStatus = this.engine.persistence.zenPayStatus.item(this.engine.address);
+            let targetStatus = this.engine.persistence.holdersStatus.item(this.engine.address);
             let status: ZenPayAccountStatus | null = targetStatus.value;
 
             // If not enrolled locally
@@ -238,7 +238,7 @@ export class ZenPayProduct {
                     if (account.state === 'no-ref') {
                         await this.engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
                         this.stopWatching();
-                        this.engine.persistence.zenPayState.item(this.engine.address).update((src) => {
+                        this.engine.persistence.holdersState.item(this.engine.address).update((src) => {
                             return null;
                         });
                     }

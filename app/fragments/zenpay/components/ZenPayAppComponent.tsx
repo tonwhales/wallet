@@ -104,8 +104,8 @@ export const ZenPayAppComponent = React.memo((
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
 
-        const cardsState = engine.persistence.zenPayCards.item(engine.address).value;
-        const accountState = engine.persistence.zenPayStatus.item(engine.address).value;
+        const cardsState = engine.persistence.holdersCards.item(engine.address).value;
+        const accountState = engine.persistence.holdersStatus.item(engine.address).value;
 
         const initialState = {
             ...accountState

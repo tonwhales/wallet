@@ -10,6 +10,10 @@ import { View, Text, Pressable } from 'react-native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ValueComponent } from '../ValueComponent';
 import { WImage } from '../WImage';
+import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
+import Animated from 'react-native-reanimated';
+
+import Verified from '../../../assets/ic-verified.svg';
 
 export const JettonProductItem = React.memo((props: {
     engine: Engine,
@@ -41,14 +45,10 @@ export const JettonProductItem = React.memo((props: {
         [],
     );
 
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+
     return (
         <Pressable
-            style={({ pressed }) => {
-                return {
-                    flex: 1,
-                    opacity: pressed ? 0.5 : 1,
-                }
-            }}
             onPress={() => {
                 if (props.onPress) {
                     props.onPress();
@@ -64,47 +64,60 @@ export const JettonProductItem = React.memo((props: {
                     callback: null
                 });
             }}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
             onLongPress={props.onLongPress ? props.onLongPress : promptDisable}
         >
-            <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20, }}>
-                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, overflow: 'hidden' }}>
-                    <WImage
-                        src={props.jetton.icon ? props.jetton.icon : undefined}
-                        width={46}
-                        heigh={46}
-                        borderRadius={23}
-                    />
-                </View>
-                <View style={{ marginLeft: 12, flex: 1 }}>
-                    <Text
-                        style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
-                        ellipsizeMode="tail"
-                        numberOfLines={1}
-                    >
-                        {props.jetton.name}
-                    </Text>
-                    <Text
-                        numberOfLines={1} ellipsizeMode={'tail'}
-                        style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.darkGrey }}
-                    >
-                        <Text style={{ flexShrink: 1 }}>
-                            {props.jetton.description}
+            <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+                <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20, }}>
+                    <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                        <WImage
+                            src={props.jetton.icon ? props.jetton.icon : undefined}
+                            width={46}
+                            heigh={46}
+                            borderRadius={23}
+                        />
+                        {isKnown && (
+                            <Verified
+                                height={16} width={16}
+                                style={{
+                                    height: 16, width: 16,
+                                    position: 'absolute', right: -2, bottom: -2,
+                                }}
+                            />
+                        )}
+                    </View>
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                        <Text
+                            style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {props.jetton.name}
                         </Text>
-                    </Text>
+                        <Text
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.darkGrey }}
+                        >
+                            <Text style={{ flexShrink: 1 }}>
+                                {props.jetton.description}
+                            </Text>
+                        </Text>
+                    </View>
+                    <View style={{ alignItems: 'flex-end' }}>
+                        <Text style={{
+                            color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600',
+                        }}>
+                            <ValueComponent
+                                value={balance}
+                                decimals={props.jetton.decimals}
+                            />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                        </Text>
+                        <View style={{ flexGrow: 1 }} />
+                    </View>
                 </View>
-                <View style={{ alignItems: 'flex-end' }}>
-                    <Text style={{
-                        color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600',
-                    }}>
-                        <ValueComponent
-                            value={balance}
-                            decimals={props.jetton.decimals}
-                        />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
-                    </Text>
-                    <View style={{ flexGrow: 1 }} />
-                </View>
-            </View>
-            {!props.last && (<View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />)}
+                {!props.last && (<View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />)}
+            </Animated.View>
         </Pressable>
     );
 });

@@ -72,6 +72,16 @@ export const ScreenHeader = React.memo((
                             tintColor={tintColor ?? Theme.accent}
                         />
                     )}
+                    {!!onClosePressed && !rightButton && (
+                        <>
+                            <View style={{ flexGrow: 1 }} />
+                            <CloseButton
+                                onPress={onClosePressed}
+                                tintColor={tintColor}
+                                style={{ marginRight: 16 }}
+                            />
+                        </>
+                    )}
                     {!onBackPressed && !!leftButton && (leftButton)}
                     {!onClosePressed && !!rightButton && (
                         <>

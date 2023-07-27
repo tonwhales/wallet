@@ -147,7 +147,7 @@ export class Persistence {
         // SpamFilter
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
 
-        // ZenPay
+        // Holders
         this.holdersStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: holdersStatusCodec, engine });
         this.holdersState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: holdersStateCodec, engine });
         this.holdersCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });

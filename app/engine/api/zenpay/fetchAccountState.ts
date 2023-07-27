@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as t from "io-ts";
-import { zenPayUrl } from '../../corp/ZenPayProduct';
+import { zenPayEndpoint } from '../../corp/ZenPayProduct';
 
 export type AccountState = t.TypeOf<typeof accountStateCodec>;
 
@@ -48,7 +48,7 @@ export const accountStateResCodec = t.type({
 
 export async function fetchAccountState(token: string) {
     let res = await axios.post(
-        'https://' + zenPayUrl + '/account/state',
+        'https://' + zenPayEndpoint + '/account/state',
         { token }
     );
 

@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
+import { RoundButton } from '../../../components/RoundButton';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -45,9 +46,9 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const [stableOfflineVersion, setStableOfflineVersion] = useState(engine.products.holders.stableOfflineVersion);
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
-    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineV;
+    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineVersion;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -78,6 +79,9 @@ export const HoldersAppComponent = React.memo((
             initialRoute: `${route}?lang=${lang}&currency=${currency}`,
         };
     }, [props, lang, currency, status]);
+
+    // Offline navigation state
+    const [offlineRoute, setOfflineRoute] = useState(source.initialRoute);
 
     // 
     // Track events
@@ -315,31 +319,58 @@ export const HoldersAppComponent = React.memo((
         }
     }, [onHardwareBackPress]);
 
-    const onContentProcessDidTerminate = useCallback(() => {
-        webRef.current?.reload();
-    }, []);
-
-    const [renderedOnce, setRenderedOnce] = useState(false);
-
+    const [offlineRender, setOfflineRender] = useState(0);
     const onLoadEnd = useCallback(() => {
-        if (renderedOnce) {
+        setLoaded(true);
+        opacity.value = 0;
+        if (
+            !useOfflineApp
+            || Platform.OS !== 'ios'
+            || offlineRender > 0
+        ) {
             return;
         }
-        setRenderedOnce(true);
-        opacity.value = 0;
-        setLoaded(true);
-        webRef.current?.reload();
-    }, [renderedOnce]);
+        // In case of iOS blank WebView with offline app
+        setOfflineRender(offlineRender + 1);
+    }, [offlineRender, useOfflineApp]);
+
+    const onContentProcessDidTerminate = useCallback(() => {
+        // In case of blank WebView without offline
+        if (!useOfflineApp) {
+            webRef.current?.reload();
+            return;
+        }
+        // In case of iOS blank WebView with offline app
+        // Rerender OfflineWebView to preserve FileSystem.documentDirectory navigation
+        if (Platform.OS === 'ios') {
+            setOfflineRender(offlineRender + 1);
+        }
+    }, [useOfflineApp]);
+
+    const onOfflineError = useCallback(async () => {
+        // force sync offline app resources
+        await engine.products.holders.forceSyncOfflineApp();
+
+        // check stable version
+        const stableVersion = await engine.products.holders.checkCurrentOfflineVersion();
+
+        // reset stable version & rerender OfflineWebView
+        if (stableVersion) {
+            setStableOfflineVersion(stableVersion.version);
+        }
+        setOfflineRender(offlineRender + 1);
+    }, []);
 
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 {useOfflineApp && (
                     <OfflineWebView
+                        key={`offline-rendered-once-${offlineRender}`}
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/`}
-                        initialRoute={source.initialRoute}
+                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/index.html`}
+                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/`}
+                        initialRoute={offlineRoute}
                         style={{
                             backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
@@ -356,6 +387,10 @@ export const HoldersAppComponent = React.memo((
                         onNavigationStateChange={(event: WebViewNavigation) => {
                             // Searching for supported query
                             onNavigation(event.url);
+                            // Persisting offline navigation state
+                            if (!event.url.includes(`${FileSystem.documentDirectory}holders`)) {
+                                setOfflineRoute(event.url.replace('file://', ''));
+                            }
                         }}
                         // Locking scroll, it's handled within the Web App
                         scrollEnabled={false}
@@ -374,6 +409,7 @@ export const HoldersAppComponent = React.memo((
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                         startInLoadingState={true}
+                        onError={onOfflineError}
                     />
                 )}
                 {!useOfflineApp && (

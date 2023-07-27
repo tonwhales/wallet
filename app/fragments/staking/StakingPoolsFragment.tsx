@@ -395,7 +395,7 @@ export const StakingPoolsFragment = fragment(() => {
     }
 
     useLayoutEffect(() => {
-        navigation.base.setOptions({
+        navigation.setOptions({
             headerShown: true,
             headerTitle: t('products.staking.title'),
         })

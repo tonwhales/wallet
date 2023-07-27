@@ -137,7 +137,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     useLayoutEffect(() => {
         navigation.setOptions({
-            headerTitle: t('Dev. tools'),
+            headerTitle: 'Dev. tools',
         })
     }, []);
 

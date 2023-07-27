@@ -148,9 +148,9 @@ export class Persistence {
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
 
         // Holders
-        this.holdersStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: holdersStatusCodec, engine });
-        this.holdersState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: holdersStateCodec, engine });
-        this.holdersCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
+        this.holdersStatus = new PersistedCollection({ storage, namespace: 'holdersStatus', key: addressKey, codec: holdersStatusCodec, engine });
+        this.holdersState = new PersistedCollection({ storage, namespace: 'holdersState', key: addressKey, codec: holdersStateCodec, engine });
+        this.holdersCards = new PersistedCollection({ storage, namespace: 'holdersAccount', key: addressKey, codec: cardsListCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });

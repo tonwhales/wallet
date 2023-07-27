@@ -19,7 +19,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 export function clearZenPay(engine: Engine) {
     const zenPayDomain = extractDomain(zenPayUrl);
     engine.persistence.domainKeys.setValue(zenPayDomain, null);
-    engine.persistence.zenPayState.setValue(engine.address, null);
+    engine.persistence.holdersState.setValue(engine.address, null);
     engine.products.zenPay.stopWatching();
     engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
 }

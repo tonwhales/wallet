@@ -80,9 +80,9 @@ export class Persistence {
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
-    readonly zenPayStatus: PersistedCollection<Address, ZenPayAccountStatus>;
-    readonly zenPayState: PersistedCollection<Address, ZenPayState>;
-    readonly zenPayCards: PersistedCollection<Address, ZenPayCardsList>;
+    readonly holdersStatus: PersistedCollection<Address, ZenPayAccountStatus>;
+    readonly holdersState: PersistedCollection<Address, ZenPayState>;
+    readonly holdersCards: PersistedCollection<Address, ZenPayCardsList>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -148,9 +148,9 @@ export class Persistence {
         this.spamFilterConfig = new PersistedCollection({ storage, namespace: 'spamFilter', key: voidKey, codec: spamFilterCodec, engine });
 
         // ZenPay
-        this.zenPayStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: zenPayStatusCodec, engine });
-        this.zenPayState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: zenPayStateCodec, engine });
-        this.zenPayCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
+        this.holdersStatus = new PersistedCollection({ storage, namespace: 'zenPayStatus', key: addressKey, codec: holdersStatusCodec, engine });
+        this.holdersState = new PersistedCollection({ storage, namespace: 'zenPayState', key: addressKey, codec: holdersStateCodec, engine });
+        this.holdersCards = new PersistedCollection({ storage, namespace: 'zenPayAccount', key: addressKey, codec: cardsListCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -212,6 +212,14 @@ const stakingPoolStateCodec = t.type({
         withdraw: c.bignum
     })
 });
+
+const holdersStatusCodec = t.union([
+    t.type({ state: t.literal('need-enrolment') }),
+    t.intersection([
+        t.type({ token: t.string }),
+        accountStateCodec
+    ])
+]);
 
 const contentSourceCodec = t.union([
     t.type({
@@ -329,7 +337,7 @@ const zenPayStatusCodec = t.union([
     ])
 ]);
 
-const zenPayStateCodec = t.type({
+const holdersStateCodec = t.type({
     accounts: t.array(t.type({
         id: t.string,
         address: t.string,

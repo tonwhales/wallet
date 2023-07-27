@@ -213,14 +213,6 @@ const stakingPoolStateCodec = t.type({
     })
 });
 
-const holdersStatusCodec = t.union([
-    t.type({ state: t.literal('need-enrolment') }),
-    t.intersection([
-        t.type({ token: t.string }),
-        accountStateCodec
-    ])
-]);
-
 const contentSourceCodec = t.union([
     t.type({
         type: t.literal('offchain'),
@@ -329,7 +321,7 @@ const spamFilterCodec = t.type({
     dontShowComments: t.union([t.boolean, t.null])
 });
 
-const zenPayStatusCodec = t.union([
+const holdersStatusCodec = t.union([
     t.type({ state: t.literal('need-enrolment') }),
     t.intersection([
         t.type({ token: t.string }),

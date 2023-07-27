@@ -12,7 +12,6 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
-import * as Application from 'expo-application';
 import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
@@ -439,7 +438,6 @@ export class HoldersProduct {
             this.stableOfflineVersion = fetchedApp.version;
         } catch {
             warn('Failed to sync offline app');
-            return;
         }
     }
 
@@ -481,7 +479,19 @@ export class HoldersProduct {
             return false;
         }
 
-        return this.isOfflineAppReady(stored);
+        const ready = await this.isOfflineAppReady(stored);
+        if (ready) {
+            this.stableOfflineVersion = ready.version;
+        } else {
+            const prev = this.getPrevOfflineVersion();
+            if (prev) {
+                const prevReady = await this.isOfflineAppReady(prev);
+                if (prevReady) {
+                    this.stableOfflineVersion = prevReady.version;
+                }
+            }
+        }
+        return ready;
     }
 
     async isOfflineAppReady(resMap: HoldersOfflineResMap) {
@@ -510,16 +520,6 @@ export class HoldersProduct {
         return false;
     }
 
-    wasNativeAppUpdated() {
-        return storage.getString('app-last-offline-sync-app-version') !== Application.nativeApplicationVersion;
-    }
-
-    setLastOfflineResSyncAppVersion(appVersion: string | null) {
-        if (appVersion) {
-            storage.set('app-last-offline-sync-app-version', appVersion);
-        }
-    }
-
     async offlinePreFlight() {
         const ready = await this.checkCurrentOfflineVersion();
         if (ready) {
@@ -528,11 +528,6 @@ export class HoldersProduct {
         const resMap = await this.syncOfflineApp();
         if (resMap) {
             this.stableOfflineVersion = resMap.version;
-        }
-
-        if (this.wasNativeAppUpdated()) {
-            await this.forceSyncOfflineApp();
-            this.setLastOfflineResSyncAppVersion(Application.nativeApplicationVersion);
         }
     }
 }

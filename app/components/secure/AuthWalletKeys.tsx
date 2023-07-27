@@ -91,7 +91,6 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
             auth.promise.reject();
         }
 
-        
         // Clear previous auth
         setAuth(null);
 

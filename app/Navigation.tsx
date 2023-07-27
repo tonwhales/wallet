@@ -73,6 +73,7 @@ import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransfe
 import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTransactionPreviewFragment';
 import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
+import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -135,7 +136,6 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
 const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Welcome', WelcomeFragment),
     fullScreen('Home', HomeFragment),
-    fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment, safeArea),
     genericScreen('LegalImport', LegalFragment, safeArea),
     genericScreen('WalletImport', WalletImportFragment, safeArea),
@@ -211,6 +211,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
     modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    fullScreen('AppStartAuth', AppStartAuthFragment),
 ];
 
 export const Navigation = React.memo(() => {
@@ -219,23 +220,8 @@ export const Navigation = React.memo(() => {
     const engine = useEngine();
 
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
-
-        if (onboarding === 'backup') {
-            return 'WalletCreated';
-        } else if (onboarding === 'home') {
-            return 'Home';
-        } else if (onboarding === 'sync') {
-            return 'Sync';
-        } else if (onboarding === 'welcome') {
-            return 'Welcome';
-        } else if (onboarding === 'upgrade-store') {
-            return 'WalletUpgrade';
-        } else if (onboarding === 'passcode-setup') {
-            return 'PasscodeSetupInit';
-        } else {
-            throw Error('Invalid onboarding state');
-        }
+        const onboarding = resolveOnboarding(engine, AppConfig.isTestnet, true);
+        return onboarding;
     }, []);
 
     // Splash

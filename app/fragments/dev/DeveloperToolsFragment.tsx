@@ -46,6 +46,7 @@ export const DeveloperToolsFragment = fragment(() => {
             const prev = await engine.products.holders.getPrevOfflineVersion();
             if (prev) {
                 const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+                setPrevOfflineVersion(prevReady ? prev : false);
             }
         })()
     }, [offlineApp, offlineAppEnabled]);

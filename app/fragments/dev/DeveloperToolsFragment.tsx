@@ -21,7 +21,7 @@ import { WalletKeys } from '../../storage/walletKeys';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { ItemSwitch } from '../../components/Item';
 
 export const DeveloperToolsFragment = fragment(() => {
@@ -33,7 +33,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const offlineApp = engine.products.holders.useOfflineApp();
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
-    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
+    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string, ready: boolean }>();
     const [offlineAppEnabled, setOfflineAppEnabled] = useState(storage.getBoolean('dev-tools:use-offline-app') ?? false);
 
     useEffect(() => {
@@ -46,7 +46,11 @@ export const DeveloperToolsFragment = fragment(() => {
             const prev = await engine.products.holders.getPrevOfflineVersion();
             if (prev) {
                 const prevReady = await engine.products.holders.isOfflineAppReady(prev);
-                setPrevOfflineVersion(prevReady ? prev : false);
+                const prevVersion = await engine.products.holders.getPrevOfflineVersion()?.version;
+                setPrevOfflineVersion({
+                    version: prevVersion ?? 'Unknown',
+                    ready: prevReady ? true : false,
+                });
             }
         })()
     }, [offlineApp, offlineAppEnabled]);
@@ -131,10 +135,17 @@ export const DeveloperToolsFragment = fragment(() => {
         )
     }, []);
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerTitle: t('Dev. tools'),
+        })
+    }, []);
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            backgroundColor: 'white'
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
@@ -145,12 +156,18 @@ export const DeveloperToolsFragment = fragment(() => {
                 }}
                 behavior={Platform.OS === 'ios' ? 'padding' : undefined}
             >
-
-
-                <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+                <ScrollView
+                    style={{
+                        flexGrow: 1, flexBasis: 0,
+                        paddingHorizontal: 16, marginTop: 0
+                    }}
+                    contentInset={{
+                        bottom: safeArea.bottom + 44,
+                    }}
+                >
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -166,7 +183,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -193,7 +210,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -209,7 +226,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
+                            <ItemButton title={`Prev. ${prevOfflineVersion?.version}`} hint={prevOfflineVersion ? 'Ready' : 'Not ready'} />
                         </View>
 
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
@@ -226,7 +243,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     {AppConfig.isTestnet && (
                         <View style={{
                             marginBottom: 16, marginTop: 17,
-                            backgroundColor: Theme.item,
+                            backgroundColor: Theme.lightGrey,
                             borderRadius: 14,
                             overflow: 'hidden',
                             justifyContent: 'center',

@@ -287,9 +287,11 @@ export const Avatar = React.memo((props: {
     let size = Math.floor(props.size * 0.6);
     let verifiedSize = Math.floor(props.size * 0.35);
 
-    const hash = props.hash !== undefined && props.hash !== null ? props.hash : avatarHash(props.id, avatarImages.length);
+    const hash = (props.hash !== undefined && props.hash !== null)
+        ? props.hash
+        : avatarHash(props.id, avatarImages.length);
     let Img = avatarImages[hash];
-    let color = avatarColors[hash];
+    let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
 
     if (!props.spam) {
@@ -305,7 +307,13 @@ export const Avatar = React.memo((props: {
     }
 
     return (
-        <View style={{ width: props.size, height: props.size, borderRadius: props.size / 2, backgroundColor: (!known || !known.ic) ? (props.backgroundColor || color) : undefined, alignItems: 'center', justifyContent: 'center' }}>
+        <View style={{
+            width: props.size,
+            height: props.size,
+            borderRadius: props.size / 2,
+            backgroundColor: (!known || !known.ic) ? (props.backgroundColor || color) : undefined,
+            alignItems: 'center', justifyContent: 'center'
+        }}>
             {img}
             <View style={{
                 width: props.size, height: props.size,

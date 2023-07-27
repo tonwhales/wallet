@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
+import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation, Image, Pressable } from "react-native";
 import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -18,6 +18,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { ScreenHeader } from "../components/ScreenHeader";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -46,12 +47,9 @@ export const ContactsFragment = fragment(() => {
 
     const onAddContact = useCallback(
         () => {
-            if (validAddress) {
-                setAddingAddress(false);
-                navigation.navigate('Contact', { address: validAddress });
-            }
+            navigation.navigate('Contact', { new: true });
         },
-        [validAddress],
+        [],
     );
 
     const contactsList = useMemo(() => {
@@ -132,38 +130,47 @@ export const ContactsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('contacts.title')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('contacts.title')}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader
+                title={t('contacts.title')}
+                onBackPressed={navigation.goBack}
+                rightButton={(
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onAddContact}
+                        hitSlop={
+                            Platform.select({
+                                ios: undefined,
+                                default: { top: 16, right: 16, bottom: 16, left: 16 },
+                            })
+                        }
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                            marginRight: 16,
+                        }}>
+                            {t('common.add')}
+                        </Text>
+                    </Pressable>
+                )}
+            />
+
             {(!contactsList || contactsList.length === 0) && (
                 <View style={{
-                    flex: 1,
-                    justifyContent: 'center', alignItems: 'center'
+                    flexGrow: 1,
+                    alignItems: 'center',
                 }}>
-                    <View style={{ alignItems: 'center', paddingHorizontal: 16, }}>
-                        <LottieView
-                            ref={anim}
-                            source={require('../../assets/animations/empty.json')}
-                            autoPlay={true}
-                            loop={true}
-                            style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                        />
+                    <Image style={{ marginTop: 80, flexShrink: 1 }} source={require('../../assets/banner_contacts.png')} />
+                    <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginHorizontal: 8,
-                            marginBottom: 8,
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            marginBottom: 16,
                             textAlign: 'center',
                             color: Theme.textColor,
                         }}
@@ -171,14 +178,13 @@ export const ContactsFragment = fragment(() => {
                             {t('contacts.empty')}
                         </Text>
                         <Text style={{
-                            fontSize: 16,
-                            color: Theme.priceSecondary
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400',
+                            color: Theme.darkGrey,
+                            textAlign: 'center'
                         }}>
                             {t('contacts.description')}
                         </Text>
-                    </View>
-                    <View style={{ width: '100%' }}>
-                        {transactionsComponents}
                     </View>
                 </View>
             )}
@@ -202,114 +208,6 @@ export const ContactsFragment = fragment(() => {
                     </View>
                 </ScrollView>
             )}
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
-                    position: 'absolute', bottom: 0, left: 16, right: 16,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
-            >
-                {addingAddress && (
-                    <>
-                        {Platform.OS === 'android' && (
-                            <Animated.View entering={FadeInDown}>
-                                <View style={{
-                                    marginBottom: 16, marginTop: 17,
-                                    backgroundColor: Theme.item,
-                                    borderRadius: 14,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <AddressDomainInput
-                                        input={addressDomainInput}
-                                        onInputChange={setAddressDomainInput}
-                                        target={target}
-                                        index={1}
-                                        ref={inputRef}
-                                        onTargetChange={setTarget}
-                                        onDomainChange={setDomain}
-                                        style={{
-                                            backgroundColor: Theme.transparent,
-                                            paddingHorizontal: 0,
-                                            marginHorizontal: 16,
-                                        }}
-                                        onSubmit={onAddContact}
-                                        labelText={t('contacts.contactAddress')}
-                                    />
-                                </View>
-                            </Animated.View>
-                        )}
-                        {Platform.OS !== 'android' && (
-                            <View style={{
-                                marginBottom: 16, marginTop: 17,
-                                backgroundColor: Theme.item,
-                                borderRadius: 14,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                            }}>
-                                <AddressDomainInput
-                                    input={addressDomainInput}
-                                    onInputChange={setAddressDomainInput}
-                                    target={target}
-                                    index={1}
-                                    ref={inputRef}
-                                    onTargetChange={setTarget}
-                                    onDomainChange={setDomain}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0,
-                                        marginHorizontal: 16,
-                                    }}
-                                    onSubmit={onAddContact}
-                                    labelText={t('contacts.contactAddress')}
-                                />
-                            </View>
-                        )}
-                    </>
-                )}
-                <View style={{ flexDirection: 'row', width: '100%' }}>
-                    {addingAddress && (
-                        <>
-                            {Platform.OS === 'android' && (
-                                <Animated.View entering={FadeInLeft} exiting={FadeOutRight}>
-                                    <RoundButton
-                                        title={t('common.cancel')}
-                                        disabled={!addingAddress}
-                                        onPress={() => setAddingAddress(false)}
-                                        display={'secondary'}
-                                        style={{ flexGrow: 1, marginRight: 8 }}
-                                    />
-                                </Animated.View>
-                            )}
-                            {Platform.OS !== 'android' && (
-                                <RoundButton
-                                    title={t('common.cancel')}
-                                    disabled={!addingAddress}
-                                    onPress={() => setAddingAddress(false)}
-                                    display={'secondary'}
-                                    style={{ flexGrow: 1, marginRight: 8 }}
-                                />
-                            )}
-                        </>
-                    )}
-                    <RoundButton
-                        title={addingAddress && editContact ? t('contacts.edit') : t('contacts.add')}
-                        style={{ flexGrow: 1 }}
-                        disabled={addingAddress && !validAddress}
-                        onPress={() => {
-                            if (addingAddress) {
-                                onAddContact();
-                                return;
-                            }
-                            setAddingAddress(true);
-                        }}
-                        display={'default'}
-                    />
-                </View>
-            </KeyboardAvoidingView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     )
 });

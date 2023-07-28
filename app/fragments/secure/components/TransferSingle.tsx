@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
@@ -19,7 +19,6 @@ import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import LottieView from 'lottie-react-native';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
 import Contact from '../../../../assets/ic_transfer_contact.svg';
@@ -46,6 +45,7 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { holdersUrl } from "../../../engine/holders/HoldersProduct";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { ScreenHeader } from "../../../components/ScreenHeader";
 
 type Props = {
     target: {
@@ -290,14 +290,6 @@ export const TransferSingle = React.memo((props: Props) => {
         }
     }, []);
 
-    const anim = React.useRef<LottieView>(null);
-
-    React.useLayoutEffect(() => {
-        setTimeout(() => {
-            anim.current?.play()
-        }, 300);
-    }, []);
-
     const inactiveAlert = React.useCallback(
         () => {
             Alert.alert(t('transfer.error.addressIsNotActive'),
@@ -310,38 +302,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
     return (
         <>
-            {!!order.app && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                    paddingHorizontal: Platform.OS === 'ios' ? 40 + 8 : 16,
-                }}>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 14,
-                        fontWeight: '600'
-                    }}>
-                        {t('transfer.requestsToSign', { app: order.app.title })}
-                    </Text>
-                    <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        marginTop: 6
-                    }}>
-                        <SignLock />
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 14,
-                            fontWeight: '400',
-                            marginLeft: 4,
-                            color: Theme.labelSecondary
-                        }}>
-                            {order.app.domain}
-                        </Text>
-                    </View>
-                </View>
-            )}
+            <ScreenHeader title={t('transfer.confirmTitle')} />
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
@@ -352,28 +313,10 @@ export const TransferSingle = React.memo((props: Props) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
-                        <LottieView
-                            ref={anim}
-                            source={require('../../../../assets/animations/sign.json')}
-                            style={{ width: 120, height: 120 }}
-                            autoPlay={false}
-                            loop={false}
-                        />
-                        {Platform.OS === 'ios' && (
-                            <Text style={{
-                                fontWeight: '700',
-                                fontSize: 30,
-                                textAlign: 'center'
-                            }}>
-                                {t('transfer.confirmTitle')}
-                            </Text>
-                        )}
-                    </View>
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: Theme.item,
+                            backgroundColor: Theme.lightGrey,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -381,6 +324,37 @@ export const TransferSingle = React.memo((props: Props) => {
                             marginBottom: 14
                         }}
                     >
+                        {!!order.app && (
+                            <View style={{
+                                marginBottom: 16,
+                                flexDirection: 'row', justifyContent: 'space-between',
+                                flexWrap: 'wrap', alignItems: 'flex-start',
+                            }}>
+                                <Text style={{
+                                    fontSize: 14,
+                                    fontWeight: '600',
+                                    flexShrink: 1,
+                                }}>
+                                    {t('transfer.requestsToSign', { app: order.app.title })}
+                                </Text>
+                                <View style={{
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    flexShrink: 1,
+                                }}>
+                                    <SignLock />
+                                    <Text style={{
+                                        textAlign: 'center',
+                                        fontSize: 14,
+                                        fontWeight: '400',
+                                        marginLeft: 4,
+                                        color: Theme.labelSecondary
+                                    }}>
+                                        {order.app.domain}
+                                    </Text>
+                                </View>
+                            </View>
+                        )}
                         <View>
                             {!jettonAmount && (
                                 <>
@@ -871,47 +845,51 @@ export const TransferSingle = React.memo((props: Props) => {
                         )}
                     </View>
                     <ItemGroup>
-                        <ItemCollapsible title={t('transfer.moreDetails')}>
-                            <ItemAddress
-                                title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                verified={!!known}
-                                contact={!!contact}
-                                secondary={known ? known.name : contact?.name ?? undefined}
-                            />
-                            {!!props.order.domain && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
-                                </>
-                            )}
-                            {!!operation.op && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
-                                </>
-                            )}
-                            {!operation.comment && !operation.op && !!text && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={text} />
-                                </>
-                            )}
-                            {!operation.comment && !operation.op && order.messages[0].payload && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.unknown')} text={order.messages[0].payload.hash().toString('base64')} />
-                                </>
-                            )}
-                            {!!jettonAmount && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.messages[0].amount) + ' TON'} />
-                                </>
-                            )}
-                            <ItemDivider />
-                            <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
-                        </ItemCollapsible>
+                        <ItemAddress
+                            title={t('common.from')}
+                            text={engine.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            secondary={known ? known.name : contact?.name ?? undefined}
+                        />
+                        <ItemDivider />
+                        <ItemAddress
+                            title={t('common.to')}
+                            text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            verified={!!known}
+                            contact={!!contact}
+                            secondary={known ? known.name : contact?.name ?? undefined}
+                        />
+                        {!!props.order.domain && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
+                            </>
+                        )}
+                        {!!operation.op && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.purpose')} text={operation.op} />
+                            </>
+                        )}
+                        {!operation.comment && !operation.op && !!text && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.purpose')} text={text} />
+                            </>
+                        )}
+                        {!operation.comment && !operation.op && order.messages[0].payload && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.unknown')} text={order.messages[0].payload.hash().toString('base64')} />
+                            </>
+                        )}
+                        {!!jettonAmount && (
+                            <>
+                                <ItemDivider />
+                                <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.messages[0].amount) + ' TON'} />
+                            </>
+                        )}
+                        <ItemDivider />
+                        <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
                     </ItemGroup>
                     <View style={{ height: 56 }} />
                 </View>

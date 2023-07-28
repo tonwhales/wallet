@@ -54,6 +54,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         done: 'Готово',
         mainWallet: 'Основной',
         walletName: 'Имя кошелька',
+        from: 'От',
+        to: 'Кому',
     },
     syncStatus: {
         connecting: 'Идет подключение',

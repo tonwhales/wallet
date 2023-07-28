@@ -55,6 +55,8 @@ export type LocalizationSchema = {
         done: string,
         mainWallet: string,
         walletName: string,
+        from: string,
+        to: string,
     },
     syncStatus: {
         connecting: string,

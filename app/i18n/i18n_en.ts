@@ -53,6 +53,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         done: 'Done',
         mainWallet: 'Main wallet',
         walletName: 'Wallet name',
+        from: 'From',
+        to: 'To'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -653,7 +655,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             enterCurrent: 'Enter your PIN code',
             enterPrevious: 'Enter your previous PIN code',
             enterNewDescription: 'Setting a password provides an additional layer of security when using the application',
-            changeLength: 'Use {{length}}-digit PIN code', 
+            changeLength: 'Use {{length}}-digit PIN code',
         }
     },
     report: {

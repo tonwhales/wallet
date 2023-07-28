@@ -7,11 +7,13 @@ export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<
     return (
         <View
             style={[{
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.lightGrey,
                 overflow: 'hidden',
                 borderRadius: 14,
                 alignItems: 'stretch',
                 flexDirection: 'column',
+                paddingHorizontal: 10,
+                paddingVertical: 20
             }, props.style]}
         >
             {props.children}

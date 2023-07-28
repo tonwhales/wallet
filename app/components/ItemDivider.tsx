@@ -4,5 +4,5 @@ import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemDivider = React.memo(() => {
     const { Theme } = useAppConfig();
-    return (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />);
+    return (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginHorizontal: 20, marginVertical: 16 }} />);
 });

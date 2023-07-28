@@ -174,7 +174,10 @@ export class SettingsProduct {
         });
     }
 
-    useContactAddress(address: Address) {
+    useContactAddress(address?: Address | null) {
+        if (!address) {
+            return undefined;
+        }
         return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
     }
 

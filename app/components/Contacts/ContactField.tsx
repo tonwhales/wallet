@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TextInput } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ATextInput, ATextInputRef } from "../ATextInput";
@@ -33,56 +33,43 @@ export const ContactField = React.memo((props: {
     }
 
     return (
-        <>
-            <ATextInput
-                key={`input-${props.index}`}
-                index={props.index}
-                ref={props.refs[props.index]}
-                onFocus={props.input.onFocus}
-                onSubmit={props.input.onSubmit}
-                blurOnSubmit={false}
-                returnKeyType={props.refs.length - 1 === props.index ? 'done' : 'next'}
+        <View style={{
+            backgroundColor: Theme.lightGrey,
+            paddingHorizontal: 20, marginTop: 20,
+            paddingVertical: 10,
+            width: '100%', borderRadius: 20
+        }}>
+            <TextInput
+                style={[
+                    {
+                        textAlignVertical: 'top',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400', color: Theme.textColor
+                    }
+                ]}
+                maxLength={126}
+                placeholder={label}
+                placeholderTextColor={Theme.placeholder}
+                multiline={false}
+                blurOnSubmit={true}
+                editable={props.input.editable}
                 value={value}
-                onValueChange={(newValue: string) => {
+                onFocus={() => {
+                    if (props.input.onFocus) {
+                        props.input.onFocus(props.index);
+                    }
+                }}
+                onChangeText={(newValue) => {
                     setValue(newValue);
                     props.onFieldChange(props.index - 1, newValue);
                 }}
-                placeholder={label}
-                keyboardType={'default'}
-                preventDefaultHeight
-                editable={props.input.editable}
-                enabled={props.input.enabled}
-                label={
-                    <View style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        overflow: 'hidden',
-                    }}>
-                        <Text style={{
-                            fontWeight: '500',
-                            fontSize: 12,
-                            color: Theme.label,
-                            alignSelf: 'flex-start',
-                        }}>
-                            {label}
-                        </Text>
-                    </View>
-                }
-                multiline
-                autoCorrect={false}
-                autoComplete={'off'}
-                style={{
-                    backgroundColor: Theme.transparent,
-                    paddingHorizontal: 0,
-                    marginHorizontal: 16,
+                onSubmitEditing={() => {
+                    if (props.input.onSubmit) {
+                        props.input.onSubmit(props.index);
+                    }
                 }}
             />
-            {(props.index + 1 < props.refs.length) && (
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-            )}
-        </>
+        </View>
     )
 
 });

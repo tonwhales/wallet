@@ -14,19 +14,15 @@ export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
     const engine = useEngine();
-    const account = engine.products.main.useAccount();
     const safeArea = useSafeAreaInsets();
     const settings = engine.products.settings;
     const contacts = settings.useContacts();
 
     const [search, setSearch] = useState('');
 
-    const onAddContact = useCallback(
-        () => {
-            navigation.navigate('Contact', { new: true });
-        },
-        [],
-    );
+    const onAddContact = useCallback(() => {
+        navigation.navigate('Contact', { isNew: true });
+    }, []);
 
     const contactsList = useMemo(() => {
         if (search && search.length > 0) {
@@ -76,9 +72,10 @@ export const ContactsFragment = fragment(() => {
             onBackPressed: navigation.goBack,
             headerSearchBarOptions: {
                 hideWhenScrolling: false,
+                hideNavigationBar: false,
                 onChangeText: (event) => setSearch(event.nativeEvent.text),
                 placeholder: t('contacts.search'),
-                onCancelButtonPress: () => setSearch(''),
+                onCancelButtonPress: () => setSearch('')
             },
         }
     );

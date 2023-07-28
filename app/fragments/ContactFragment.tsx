@@ -1,14 +1,12 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
-import { ATextInput, ATextInputRef } from "../components/ATextInput";
+import { ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
-import { CloseButton } from "../components/CloseButton";
 import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
 import { RoundButton } from "../components/RoundButton";
@@ -16,10 +14,15 @@ import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
-import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useScreenHeader } from "../components/ScreenHeader";
+import { copyText } from "../utils/copyText";
+import Share from 'react-native-share';
+
+import ShareIcon from '../../assets/ic_share_address_white.svg';
+import CopyIcon from '../../assets/ic-copy.svg';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -27,25 +30,27 @@ const requiredFields = [
 ];
 
 export const ContactFragment = fragment(() => {
-    const params = useParams<{ address: string, new?: boolean }>();
+    const params = useParams<{ address: string, isNew?: boolean }>();
     const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
-
-    try {
-        Address.parse(params.address);
-    } catch (e) {
-        warn(e);
-        navigation.goBack();
-    }
-    const address = useMemo(() => Address.parse(params.address), []);
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const settings = engine.products.settings;
-    const contact = settings.useContactAddress(Address.parse(params.address));
 
-    const [editing, setEditing] = useState(!contact);
+    const [address, setAddress] = useState(params.address ?? '');
+    const parsed = useMemo(() => {
+        try {
+            return Address.parse(address);
+        } catch {
+            return null
+        }
+    }, [address]);
+
+    const contact = settings.useContactAddress(params.isNew ? null : parsed);
+    const [editing, setEditing] = useState(!contact || params.isNew);
     const [name, setName] = useState(contact?.name);
     const [fields, setFields] = useState(contact?.fields || requiredFields);
+
 
     const hasChanges = useMemo(() => {
         if (name !== contact?.name) {
@@ -76,6 +81,10 @@ export const ContactFragment = fragment(() => {
 
     const onAction = useCallback(
         () => {
+            if (!parsed) {
+                Alert.alert(t('transfer.error.invalidAddress'));
+                return;
+            }
             // Dismiss keyboard for iOS
             if (Platform.OS === 'ios') {
                 Keyboard.dismiss();
@@ -99,21 +108,24 @@ export const ContactFragment = fragment(() => {
                 }
             }
 
-            settings.setContact(address, { name, fields });
+            settings.setContact(parsed, { name, fields });
             setEditing(false);
         },
-        [editing, fields, name, address],
+        [editing, fields, name, parsed],
     );
 
     const onDelete = useCallback(
         async () => {
+            if (!parsed) {
+                return;
+            }
             const confirmed = await confirmAlert('contacts.delete');
             if (confirmed) {
-                settings.removeContact(address);
+                settings.removeContact(parsed);
                 navigation.goBack();
             }
         },
-        [address],
+        [parsed],
     );
 
     const onFieldChange = useCallback((index: number, value: string) => {
@@ -178,202 +190,298 @@ export const ContactFragment = fragment(() => {
         }
     }, [refs]);
 
-    useLayoutEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [editing]);
+    const onCopy = useCallback(() => {
+        if (!parsed) {
+            return;
+        }
+        copyText(parsed.toFriendly({ testOnly: AppConfig.isTestnet }));
+    }, [parsed]);
 
+    const onShare = useCallback(() => {
+        if (!parsed) {
+            return;
+        }
+        Share.open({
+            title:t('contacts.title'),
+            message: `${name} \n${parsed.toFriendly({ testOnly: AppConfig.isTestnet })}`
+        });
+    }, [parsed]);
 
-    return (
-        <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-        }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('contacts.contact')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 12,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('contacts.contact')}
-                    </Text>
-                </View>
-            )}
-            <Animated.ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
-                automaticallyAdjustContentInsets={false}
-                ref={scrollRef}
-                scrollEventThrottle={16}
-            >
-                <View
-                    ref={containerRef}
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+        useScreenHeader(
+            navigation,
+            Theme,
+            {
+                title: t('contacts.title'),
+                headerShown: true,
+                headerLargeTitle: true,
+                tintColor: Theme.accent,
+                rightButton: (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onAction}
+                        hitSlop={
+                            Platform.select({
+                                ios: undefined,
+                                default: { top: 16, right: 16, bottom: 16, left: 16 },
+                            })
+                        }
+                        disabled={editing && !hasChanges}
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                        }}>
+                            {editing ? t('contacts.save') : t('contacts.edit')}
+                        </Text>
+                    </Pressable>
+                ),
+                onBackPressed: navigation.goBack,
+            }
+        );
+
+        return (
+            <View style={{
+                flex: 1,
+                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            }}>
+                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+                <Animated.ScrollView
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                    automaticallyAdjustContentInsets={false}
+                    ref={scrollRef}
+                    scrollEventThrottle={16}
                 >
-                    <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%'
-                    }}>
-                        <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, alignItems: 'center', justifyContent: 'center' }}>
-                            <Avatar address={params.address} id={params.address} size={84} image={undefined} />
-                        </View>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <View
+                        ref={containerRef}
+                        style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+                    >
+                        <View style={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100%'
+                        }}>
+                            <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center' }}>
+                                <Avatar address={address} id={address} size={100} image={undefined} backgroundColor={Theme.accent} />
+                            </View>
                             <Text style={{
-                                fontSize: 18,
-                                fontWeight: '700',
-                                marginVertical: 8,
-                                color: Theme.textColor
+                                fontSize: 32, lineHeight: 38,
+                                fontWeight: '600',
+                                color: Theme.textColor,
+                                marginTop: 16
                             }}>
-                                {`${params.address.slice(0, 6) + '...' + params.address.slice(params.address.length - 6)}`}
+                                {name}
                             </Text>
-                        </View>
-                        {!editing && (
-                            <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: Theme.item, borderRadius: 14 }}>
+                            {!params.isNew && (
+                                <Pressable
+                                    onPress={onCopy}
+                                    style={{ marginTop: 4, flexDirection: 'row', alignItems: 'center' }}
+                                >
+                                    <Text style={{
+                                        fontSize: 17, lineHeight: 24,
+                                        fontWeight: '400',
+                                        marginTop: 4,
+                                        color: Theme.darkGrey
+                                    }}>
+                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                    </Text>
+                                    <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={Theme.greyForIcon} />
+                                </Pressable>
+                            )}
+                            {!editing && !!parsed && (
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        marginTop: 24,
+                                        backgroundColor: Theme.lightGrey,
+                                        width: '100%',
+                                        justifyContent: 'center', alignItems: 'center',
+                                        borderRadius: 20,
+                                        padding: 10
+                                    }}
+                                >
                                     <TouchableHighlight
                                         onPress={() => {
                                             navigation.navigate(
                                                 'Assets',
-                                                { target: address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { target: parsed.toFriendly({ testOnly: AppConfig.isTestnet }) }
                                             );
                                         }}
                                         underlayColor={Theme.selector}
-                                        style={{ borderRadius: 14 }}
+                                        style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
                                     >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                            <View
+                                                style={{
+                                                    backgroundColor: Theme.accent,
+                                                    width: 32, height: 32,
+                                                    borderRadius: 16,
+                                                    alignItems: 'center', justifyContent: 'center'
+                                                }}>
                                                 <Image source={require('../../assets/ic_send.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                            <Text style={{
+                                                fontSize: 15, lineHeight: 20,
+                                                color: Theme.textColor,
+                                                marginTop: 6,
+                                                fontWeight: '500'
+                                            }}>
+                                                {t('wallet.actions.send')}
+                                            </Text>
+                                        </View>
+                                    </TouchableHighlight>
+                                    <TouchableHighlight
+                                        onPress={onShare}
+                                        underlayColor={Theme.selector}
+                                        style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
+                                    >
+                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                            <View
+                                                style={{
+                                                    backgroundColor: Theme.accent,
+                                                    width: 32, height: 32,
+                                                    borderRadius: 16,
+                                                    alignItems: 'center', justifyContent: 'center'
+                                                }}>
+                                                {/* <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} /> */}
+                                            </View>
+                                            <Text style={{
+                                                fontSize: 15, lineHeight: 20,
+                                                color: Theme.textColor,
+                                                marginTop: 6,
+                                                fontWeight: '500'
+                                            }}>
+                                                {t('common.share')}
+                                            </Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
-                            </View>
-                        )}
-                    </View>
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <ATextInput
-                            index={0}
-                            ref={refs[0]}
-                            onFocus={onFocus}
-                            value={name}
-                            onSubmit={() => {
-                                onSubmit(0)
-                            }}
-                            blurOnSubmit={false}
-                            onValueChange={setName}
-                            placeholder={t('contacts.name')}
-                            keyboardType={'default'}
-                            editable={editing}
-                            enabled={editing}
-                            preventDefaultHeight
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: Theme.label,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('contacts.name')}
-                                    </Text>
-                                </View>
-                            }
-                            multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
-                            style={{
-                                backgroundColor: Theme.transparent,
-                                paddingHorizontal: 0,
-                                marginHorizontal: 16,
-                            }}
-                        />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-                        {fields.map((field, index) => {
-                            return (
-                                <ContactField
-                                    fieldKey={field.key}
-                                    key={`input-${index}`}
-                                    index={index + 1}
-                                    refs={refs}
-                                    input={{
-                                        value: field.value || '',
-                                        onFocus: onFocus,
-                                        onSubmit: onSubmit,
-                                        editable: editing,
-                                        enabled: editing
-                                    }}
-                                    onFieldChange={onFieldChange}
-                                />
-                            )
-                        })}
-                    </View>
-                    {editing && !!contact && (
-                        <Item
-                            textColor={Theme.dangerZone}
-                            backgroundColor={Theme.background}
-                            title={t('contacts.delete')}
-                            onPress={onDelete}
-                        />
-                    )}
-                </View>
-            </Animated.ScrollView>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
-            >
-                <View style={{ flexDirection: 'row', width: '100%' }}>
-                    {editing && (
-                        <RoundButton
-                            title={t('common.cancel')}
-                            disabled={!editing}
-                            onPress={onAction}
-                            display={'secondary'}
-                            style={{ flexGrow: 1, marginRight: 8 }}
-                        />
-                    )}
-                    <RoundButton
-                        title={t(
-                            !!contact
-                                ? !editing
-                                    ? 'contacts.edit'
-                                    : 'contacts.save'
-                                : 'contacts.add'
-                        )}
-                        style={{ flexGrow: 1 }}
-                        disabled={editing && !hasChanges}
-                        onPress={onAction}
-                        display={editing && !hasChanges ? 'secondary' : 'default'}
-                    />
-                </View>
+                            )}
+                        </View>
 
-            </KeyboardAvoidingView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
-        </View>
-    )
-});
+                        {params.isNew && (
+                            <>
+                                <View style={{
+                                    backgroundColor: Theme.lightGrey,
+                                    paddingHorizontal: 20, marginTop: 20,
+                                    paddingVertical: 10,
+                                    width: '100%', borderRadius: 20
+                                }}>
+                                    <View style={{
+                                        width: '100%',
+                                        overflow: 'hidden',
+                                        position: 'relative',
+                                        marginBottom: 2
+                                    }}>
+                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                            {t('common.walletAddress')}
+                                        </Text>
+                                    </View>
+                                    <TextInput
+                                        style={[
+                                            {
+                                                paddingHorizontal: 0,
+                                                textAlignVertical: 'top',
+                                                fontSize: 17, lineHeight: 24,
+                                                fontWeight: '400', color: Theme.textColor
+                                            }
+                                        ]}
+                                        maxLength={48}
+                                        placeholder={t('common.walletAddress')}
+                                        placeholderTextColor={Theme.placeholder}
+                                        multiline={true}
+                                        blurOnSubmit={true}
+                                        editable={true}
+                                        value={address}
+                                        onChangeText={setAddress}
+                                    />
+                                </View>
+
+                                <View style={{
+                                    backgroundColor: Theme.lightGrey,
+                                    paddingHorizontal: 20, marginTop: 20,
+                                    paddingVertical: 10,
+                                    width: '100%', borderRadius: 20
+                                }}>
+                                    <TextInput
+                                        style={[
+                                            {
+                                                paddingVertical: 0,
+                                                paddingHorizontal: 0,
+                                                textAlignVertical: 'top',
+                                                fontSize: 17, lineHeight: 24,
+                                                fontWeight: '400', color: Theme.textColor
+                                            }
+                                        ]}
+                                        maxLength={126}
+                                        placeholder={t('contacts.name')}
+                                        placeholderTextColor={Theme.placeholder}
+                                        multiline={false}
+                                        blurOnSubmit={true}
+                                        editable={editing}
+                                        value={name}
+                                        onChangeText={setName}
+                                        onSubmitEditing={() => onSubmit(0)}
+                                    />
+                                </View>
+                                {fields.map((field, index) => {
+                                    return (
+                                        <ContactField
+                                            fieldKey={field.key}
+                                            key={`input-${index}`}
+                                            index={index + 1}
+                                            refs={refs}
+                                            input={{
+                                                value: field.value || '',
+                                                onFocus: onFocus,
+                                                onSubmit: onSubmit,
+                                                editable: editing,
+                                                enabled: editing
+                                            }}
+                                            onFieldChange={onFieldChange}
+                                        />
+                                    )
+                                })}
+                                {!!contact && (
+                                    <Item
+                                        textColor={Theme.dangerZone}
+                                        backgroundColor={Theme.background}
+                                        title={t('contacts.delete')}
+                                        onPress={onDelete}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </View>
+                </Animated.ScrollView>
+                {!params.isNew && (
+                    <KeyboardAvoidingView
+                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                        style={{
+                            marginHorizontal: 16, marginTop: 16,
+                            marginBottom: safeArea.bottom + 44 + 16,
+                        }}
+                        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+                    >
+                        <View style={{ flexDirection: 'row', width: '100%' }}>
+                            {editing && (
+                                <RoundButton
+                                    title={t('common.cancel')}
+                                    disabled={!editing}
+                                    onPress={onAction}
+                                    display={'secondary'}
+                                    style={{ flexGrow: 1, marginRight: 8 }}
+                                />
+                            )}
+                        </View>
+                    </KeyboardAvoidingView>
+                )}
+            </View>
+        )
+    });

@@ -697,7 +697,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         lastName: 'Last name',
         company: 'Company',
         add: 'Add Contact',
-        edit: 'Edit Contact',
+        edit: 'Edit',
         save: 'Save',
         notes: 'Notes',
         alert: {
@@ -711,6 +711,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.',
         contactAddress: 'Contacts address',
         search: 'Name or wallet address',
+        new: 'New contact',
     },
     currency: {
         USD: "United States dollar",

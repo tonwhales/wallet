@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect, useLayoutEffect } from "react"
+import React, { useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
@@ -7,8 +7,7 @@ import { ThemeType, useAppConfig } from "../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { t } from "../i18n/t";
 import { CloseButton } from "./CloseButton";
-import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
-import { SearchBarProps } from "react-native-screens";
+import { TypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 
 export function useScreenHeader(
@@ -37,7 +36,7 @@ export function useScreenHeader(
                             labelVisible
                             onPress={options.onBackPressed}
                             tintColor={options.tintColor ?? Theme.accent}
-                            style={{ marginLeft: -16 }}
+                            style={{ marginLeft: -12 }}
                         />
                         : null
                 );
@@ -50,7 +49,6 @@ export function useScreenHeader(
                         ? <CloseButton
                             onPress={options.onClosePressed}
                             tintColor={options.tintColor}
-                            style={{ marginRight: -16, backgroundColor: 'red' }}
                         />
                         : null
                 );

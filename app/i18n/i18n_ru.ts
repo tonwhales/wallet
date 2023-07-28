@@ -698,7 +698,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         lastName: 'Фамилия',
         company: 'Компания',
         add: 'Добавить Контакт',
-        edit: 'Редактировать Контакт',
+        edit: 'Редактировать',
         save: 'Сохранить',
         notes: 'Заметки',
         alert: {
@@ -712,6 +712,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         description: 'Вы можете легко добавить адрес в контакты, зажав любую транзакцию или адрес и во всплывшем меню выберете опцию \"Добавить адрес в контакты\"',
         contactAddress: 'Адрес контакта',
         search: 'Имя или адрес кошелька',
+        new: 'Новый контакт',
     },
     currency: {
         USD: "Доллар США",

@@ -43,8 +43,6 @@ export const CopyButton = React.memo(({
     const onCopy = useCallback(() => {
         copyText(body);
 
-
-
         doneShared.value = withTiming(
             1,
             { duration: 350, easing: Easing.bezier(0.25, 0.1, 0.25, 1) },

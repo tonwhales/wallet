@@ -712,7 +712,8 @@ export type LocalizationSchema = {
         empty: string,
         description: string,
         contactAddress: string,
-        search: string
+        search: string,
+        new: string
     },
     currency: {
         USD: string,

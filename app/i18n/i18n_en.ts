@@ -710,6 +710,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         empty: 'No contacts yet',
         description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.',
         contactAddress: 'Contacts address',
+        search: 'Name or wallet address',
     },
     currency: {
         USD: "United States dollar",

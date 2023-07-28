@@ -1,12 +1,63 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react"
+import React, { useEffect, useLayoutEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { ThemeType, useAppConfig } from "../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { t } from "../i18n/t";
 import { CloseButton } from "./CloseButton";
+import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
+import { SearchBarProps } from "react-native-screens";
+import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+
+export function useScreenHeader(
+    navigation: TypedNavigation,
+    Theme: ThemeType,
+    options: {
+        title?: string,
+        textColor?: string,
+        tintColor?: string,
+        onBackPressed?: () => void,
+        onClosePressed?: () => void,
+        rightButton?: React.ReactNode,
+        leftButton?: React.ReactNode,
+    } & NativeStackNavigationOptions
+) {
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: options.headerShown,
+            // headerLargeTitle: options.headerLargeTitle,
+            headerSearchBarOptions: options.headerSearchBarOptions,
+            headerLeft: () => {
+                return (
+                    options.leftButton ? options.leftButton : !!options.onBackPressed
+                        ? <HeaderBackButton
+                            label={t('common.back')}
+                            labelVisible
+                            onPress={options.onBackPressed}
+                            tintColor={options.tintColor ?? Theme.accent}
+                            style={{ marginLeft: -16 }}
+                        />
+                        : null
+                );
+            },
+            title: options.title,
+            headerBackVisible: true,
+            headerRight: () => {
+                return (
+                    options.rightButton ? options.rightButton : !!options.onClosePressed
+                        ? <CloseButton
+                            onPress={options.onClosePressed}
+                            tintColor={options.tintColor}
+                            style={{ marginRight: -16, backgroundColor: 'red' }}
+                        />
+                        : null
+                );
+            }
+        });
+    }, [navigation, options, Theme]);
+}
 
 export const ScreenHeader = React.memo((
     {

@@ -27,7 +27,7 @@ const requiredFields = [
 ];
 
 export const ContactFragment = fragment(() => {
-    const params = useParams<{ address: string }>();
+    const params = useParams<{ address: string, new?: boolean }>();
     const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
 

@@ -1,18 +1,21 @@
 import React, { useCallback, useMemo } from "react";
-import { TouchableHighlight, useWindowDimensions, View, Text } from "react-native";
+import { useWindowDimensions, View, Text, Pressable } from "react-native";
 import { Address } from "ton";
 import { AddressContact } from "../../engine/products/SettingsProduct";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import Animated from "react-native-reanimated";
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
     const { Theme } = useAppConfig();
     const address = useMemo(() => Address.parse(addr), [addr])
     const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
     const navigation = useTypedNavigation();
+
+    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     const lastName = useMemo(() => {
         if (contact.fields) {
@@ -20,51 +23,41 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
         }
     }, [contact]);
 
-    const onContact = useCallback(() => {
+    const onPress = useCallback(() => {
         navigation.navigate('Contact', { address: addr });
     }, [addr]);
 
     return (
-        <TouchableHighlight
-            onPress={onContact}
-            underlayColor={Theme.selector}
-            style={{ backgroundColor: Theme.item, borderRadius: 14, marginVertical: 4 }}
+        <Pressable
+            onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
-                <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+            <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
                         address={addr}
                         id={addr}
-                        size={42}
+                        size={46}
                     />
                 </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            flexGrow: 1, flexBasis: 0, marginRight: 16,
-                        }}>
-                            <Text
-                                style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }}
-                                ellipsizeMode={'tail'}
-                                numberOfLines={1}
-                            >
-                                {contact.name + (lastName ? ` ${lastName}` : '')}
-                            </Text>
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
-                        <Text
-                            style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                            ellipsizeMode="middle"
-                            numberOfLines={1}
-                        >
-                            <AddressComponent address={address} />
-                        </Text>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
+                <View style={{ flexGrow: 1, justifyContent: 'center' }}>
+                    <Text
+                        style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        ellipsizeMode={'tail'}
+                        numberOfLines={1}
+                    >
+                        {contact.name + (lastName ? ` ${lastName}` : '')}
+                    </Text>
+                    <Text
+                        style={{ color: Theme.darkGrey, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
+                        ellipsizeMode={'middle'}
+                        numberOfLines={1}
+                    >
+                        <AddressComponent address={address} />
+                    </Text>
                 </View>
-            </View>
-        </TouchableHighlight>
+            </Animated.View>
+        </Pressable>
     );
 });

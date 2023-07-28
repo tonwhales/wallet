@@ -16,7 +16,7 @@ export const CloseButton = React.memo((props: {
     }
     return (
         <Pressable
-            style={({ pressed }) => { return [props.style, { opacity: pressed ? 0.5 : 1 }] }}
+            style={({ pressed }) => { return [{ opacity: pressed ? 0.5 : 1 }, props.style] }}
             onPress={() => {
                 (props.onPress ?? navigation.goBack)();
             }}

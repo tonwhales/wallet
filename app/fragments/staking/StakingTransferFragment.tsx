@@ -29,6 +29,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useRoute } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
 import { useMemo } from 'react';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -307,28 +308,17 @@ export const StakingTransferFragment = fragment(() => {
     const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
 
     return (
-        <>
-            <AndroidToolbar
-                style={{ marginTop: safeArea.top }}
-                pageTitle={title}
-            />
+        <View style={{ flexGrow: 1, backgroundColor: 'white' }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
-                        {title}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader
+                title={title}
+                onClosePressed={navigation.goBack}
+            />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
@@ -340,11 +330,11 @@ export const StakingTransferFragment = fragment(() => {
                     <>
                         <View style={{
                             marginBottom: 0,
-                            backgroundColor: Theme.item,
+                            backgroundColor: Theme.lightGrey,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            padding: 15,
+                            padding: 20,
                         }}>
                             <View style={{
                                 flexDirection: 'row',
@@ -413,7 +403,7 @@ export const StakingTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             fontSize: 16,
-                                            color: Theme.item
+                                            color: Theme.lightGrey
                                         }}>
                                             {t('common.max')}
                                         </Text>
@@ -455,19 +445,17 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: Theme.lightGrey,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    paddingLeft: 16,
                                     marginTop: 14,
-                                    marginBottom: 15
+                                    marginBottom: 15,
+                                    padding: 20
                                 }}>
                                     <View style={{
                                         flexDirection: 'row', width: '100%',
                                         justifyContent: 'space-between', alignItems: 'center',
-                                        paddingRight: 16,
-                                        height: 55
                                     }}>
                                         <Text style={{
                                             fontSize: 16,
@@ -527,7 +515,7 @@ export const StakingTransferFragment = fragment(() => {
                     action={doContinue}
                 />
             </KeyboardAvoidingView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
-        </>
+            {/* <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} /> */}
+        </View>
     );
 });

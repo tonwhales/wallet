@@ -7,6 +7,7 @@ import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { PriceComponent } from "../PriceComponent";
 import { useEngine } from "../../engine/Engine";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ItemDivider } from "../ItemDivider";
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
@@ -25,11 +26,11 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
 
     return (
         <View style={{
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.lightGrey,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingLeft: 16,
+            padding: 20,
             marginTop: 20
         }}>
             {!!apyWithFee && (
@@ -37,7 +38,6 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     <View style={{
                         flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
                         height: 50
                     }}>
                         <Text style={{
@@ -54,13 +54,12 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                             {`${apyWithFee}%`}
                         </Text>
                     </View>
-                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                    <ItemDivider marginHorizontal={0} />
                 </>
             )}
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
                 height: 50
             }}>
                 <Text style={{
@@ -77,11 +76,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     {t('products.staking.info.frequency')}
                 </Text>
             </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <ItemDivider marginHorizontal={0} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
                 height: 50
             }}>
                 <Text style={{
@@ -104,11 +102,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             </View>
             {!AppConfig.isTestnet && !!poolFee && (
                 <>
-                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                    <ItemDivider marginHorizontal={0} />
                     <View style={{
                         flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
                         height: 50
                     }}>
                         <Text style={{
@@ -127,11 +124,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     </View>
                 </>
             )}
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <ItemDivider marginHorizontal={0} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
                 height: 55
             }}>
                 <Text style={{
@@ -159,11 +155,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     />
                 </View>
             </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <ItemDivider marginHorizontal={0} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
                 height: 55
             }}>
                 <Text style={{
@@ -191,11 +186,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     />
                 </View>
             </View>
-            <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+            <ItemDivider marginHorizontal={0} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                paddingRight: 16,
                 minHeight: 55
             }}>
                 <View style={{ flexDirection: 'row', flexShrink: 1, flexWrap: 'wrap' }}>
@@ -227,11 +221,10 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
             </View>
             {!!fee && (
                 <>
-                    <View style={{ height: 1, width: '100%', backgroundColor: Theme.divider, marginHorizontal: 4 }} />
+                    <ItemDivider marginHorizontal={0} />
                     <View style={{
                         flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
                         height: 55,
                     }}>
                         <Text style={{

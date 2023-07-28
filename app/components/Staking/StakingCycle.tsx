@@ -32,10 +32,11 @@ export const StakingCycle = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.lightGrey,
             minHeight: 70,
             borderRadius: 14,
             marginHorizontal: 16,
+            padding: 20,
             overflow: 'hidden',
         }, style]}>
             {locked && (
@@ -43,9 +44,6 @@ export const StakingCycle = React.memo((
                     <StakingCycleProgress left={left} />
                     <View style={{
                         flex: 1,
-                        paddingHorizontal: 16,
-                        paddingTop: 15,
-                        paddingBottom: 8
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
@@ -79,9 +77,6 @@ export const StakingCycle = React.memo((
                 <>
                     <View style={{
                         flex: 1,
-                        paddingHorizontal: 16,
-                        paddingTop: 15,
-                        paddingBottom: 8
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
                             <Text style={{

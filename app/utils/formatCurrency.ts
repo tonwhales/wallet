@@ -2,11 +2,11 @@ import { getNumberFormatSettings } from "react-native-localize";
 import { CurrencySymbols } from "../engine/products/PriceProduct";
 
 function toLocaleNumber(value: string) {
-    const { decimalSeparator } = getNumberFormatSettings();
+    // const { decimalSeparator } = getNumberFormatSettings();
 
-    if (decimalSeparator === ',') {
-        return `${value}`.replace('.', ',');
-    }
+    // if (decimalSeparator === ',') {
+    //     return `${value}`.replace('.', ',');
+    // }
     return value;
 }
 

@@ -89,6 +89,7 @@ export const StakingProductComponent = React.memo(() => {
                             <Text style={{ color: Theme.textColor, ...titleStyle }}>
                                 <ValueComponent
                                     value={staking.total}
+                                    precision={3}
                                 />
                                 {' TON'}
                             </Text>

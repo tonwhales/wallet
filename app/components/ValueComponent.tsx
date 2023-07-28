@@ -49,7 +49,7 @@ export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<Tex
         <Text>
             <Text>{r}</Text>
             <Text style={[props.centFontStyle]}>
-                ,{p[1].substring(
+                .{p[1].substring(
                     0,
                     precision // Show only the last two decimal places
                 )}

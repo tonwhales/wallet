@@ -43,7 +43,7 @@ export const StakingCalcComponent = React.memo((
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
         const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
         return (
-            <>
+            <View style={{ backgroundColor: Theme.lightGrey }}>
                 <Text style={{
                     fontSize: 16,
                     color: Theme.textColor,
@@ -57,7 +57,6 @@ export const StakingCalcComponent = React.memo((
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    paddingLeft: 16,
                     marginVertical: 10
                 }}>
                     <View style={{
@@ -165,7 +164,7 @@ export const StakingCalcComponent = React.memo((
                 }}>
                     {t('products.staking.calc.note')}
                 </Text>
-            </>
+            </View>
         )
     }
 
@@ -175,19 +174,17 @@ export const StakingCalcComponent = React.memo((
     const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
 
     return (
-        <>
+        <View style={{ backgroundColor: Theme.lightGrey }}>
             <View style={{
                 backgroundColor: Theme.item,
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center',
-                paddingLeft: 16,
                 marginVertical: 14
             }}>
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16,
                     height: 56
                 }}>
                     <Text style={{
@@ -224,7 +221,6 @@ export const StakingCalcComponent = React.memo((
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16,
                     height: 56
                 }}>
                     <Text style={{
@@ -261,7 +257,6 @@ export const StakingCalcComponent = React.memo((
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingRight: 16,
                     height: 56
                 }}>
                     <Text style={{
@@ -300,6 +295,6 @@ export const StakingCalcComponent = React.memo((
             }}>
                 {t('products.staking.calc.note')}
             </Text>
-        </>
+        </View>
     );
 })

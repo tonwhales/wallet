@@ -15,7 +15,7 @@ import { RoundButton } from "../../components/RoundButton";
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
 import { warn } from "../../utils/log";
-import { Pressable, View, Image , Text, TouchableHighlight} from "react-native";
+import { Pressable, View, Image, Text, TouchableHighlight } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -52,7 +52,7 @@ export const LedgerHomeFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
 
 
-    const onQRCodeRead = (src: string) => {
+    const onQRCodeRead = useCallback((src: string) => {
         try {
             let res = resolveUrl(src, AppConfig.isTestnet);
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
@@ -97,7 +97,7 @@ export const LedgerHomeFragment = fragment(() => {
         } catch {
             // Ignore
         }
-    };
+    }, []);
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);

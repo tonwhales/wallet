@@ -342,19 +342,8 @@ export class HoldersProduct {
         let fsPath = FileSystem.documentDirectory + `holders${version}/` + asset;
         let netPath = endpoint + '/' + asset;
 
-        FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
-
-        const stored = await FileSystem.downloadAsync(netPath, fsPath);
-
-        if (!(asset.endsWith('.js') || asset.endsWith('.html') || asset.endsWith('.css'))) {
-            return fsPath;
-        }
-        let file = await FileSystem.readAsStringAsync(stored.uri);
-        file = file.replaceAll(
-            '{{APP_PUBLIC_URL}}',
-            FileSystem.documentDirectory + `holders${version}/`
-        );
-        await FileSystem.writeAsStringAsync(stored.uri, file);
+        await FileSystem.makeDirectoryAsync(fsPath.split('/').slice(0, -1).join('/'), { intermediates: true });
+        await FileSystem.downloadAsync(netPath, fsPath);
 
         return fsPath;
     }
@@ -369,14 +358,7 @@ export class HoldersProduct {
         let uri = null;
         if (resMap.routes.length > 0 && resMap.routes[0].fileName === 'index.html') {
             uri = FileSystem.documentDirectory + `holders${normalizedVersion}/index.html`;
-            const stored = await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
-            uri = stored.uri;
-            let file = await FileSystem.readAsStringAsync(uri);
-            file = file.replaceAll(
-                '{{APP_PUBLIC_URL}}',
-                FileSystem.documentDirectory + `holders${normalizedVersion}/`
-            );
-            await FileSystem.writeAsStringAsync(uri, file);
+            await FileSystem.downloadAsync(endpoint + '/app-cache/index.html', uri);
         }
 
         const assets = resMap.resources.map(asset => this.downloadAsset(`${endpoint}/app-cache`, asset, normalizedVersion));
@@ -387,15 +369,13 @@ export class HoldersProduct {
 
     async syncOfflineApp() {
         const fetchedApp = await fetchHoldersResourceMap(holdersUrl);
-
         if (!fetchedApp) {
             return;
         }
 
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
-
         if (stored && stored.version === fetchedApp.version) {
-            return;
+            return stored.version;
         }
 
         try {
@@ -468,64 +448,60 @@ export class HoldersProduct {
         }
     }
 
-    async checkCurrentOfflineVersion() {
+    async cacheOfflineApp() {
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
         if (!stored) {
-            return false;
+            console.warn('trying to cache offline with no version stored');
+            return null;
         }
 
-        return this.isOfflineAppReady(stored);
-    }
+        const appDir = FileSystem.documentDirectory + `holders${normalizePath(stored.version)}/`;
+        const cacheDir = FileSystem.cacheDirectory + `holders${normalizePath(stored.version)}/`;
 
-    async isOfflineAppReady(resMap: HoldersOfflineResMap) {
-        const normalizedPath = normalizePath(resMap.version);
+        let lookupStack = [appDir];
+        while (lookupStack.length > 0) {
+            let next = lookupStack.shift()!;
+            let cacheNext = next.replace(appDir, cacheDir);
+            await FileSystem.makeDirectoryAsync(cacheNext, { intermediates: true });
 
-        const filesCheck: Promise<boolean>[] = [];
-        resMap.resources.forEach((asset) => {
-            filesCheck.push((async () => {
-                const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/${asset}`);
-                return info.exists;
-            })());
-        });
+            let entryPaths = await FileSystem.readDirectoryAsync(next);
+            let entries = await Promise.all(entryPaths.map(a => FileSystem.getInfoAsync(`${next}${a}`)));
 
-        filesCheck.push((async () => {
-            const info = await FileSystem.getInfoAsync(`${FileSystem.documentDirectory}holders${normalizedPath}/index.html`);
-            return info.exists;
-        })());
+            for (let entry of entries) {
+                let cacheUri = entry.uri.replace(appDir, cacheDir);
+                if (entry.isDirectory) {
+                    lookupStack.push(entry.uri);
+                } else {
+                    if (!(entry.uri.endsWith('.js') || entry.uri.endsWith('.html') || entry.uri.endsWith('.css'))) {
+                        await FileSystem.copyAsync({
+                            from: entry.uri,
+                            to: cacheUri,
+                        });
+                        continue;
+                    }
 
-        const files = await Promise.all(filesCheck);
-        const ready = files.every((f) => f);
-
-        if (ready) {
-            return { version: resMap.version };
+                    let file = await FileSystem.readAsStringAsync(entry.uri);
+                    file = file.replaceAll(
+                        '{{APP_PUBLIC_URL}}',
+                        cacheDir,
+                    );
+                    await FileSystem.writeAsStringAsync(cacheUri, file);
+                }
+            }
         }
 
-        return false;
-    }
-
-    wasNativeAppUpdated() {
-        return storage.getString('app-last-offline-sync-app-version') !== Application.nativeApplicationVersion;
-    }
-
-    setLastOfflineResSyncAppVersion(appVersion: string | null) {
-        if (appVersion) {
-            storage.set('app-last-offline-sync-app-version', appVersion);
-        }
+        return stored.version;
     }
 
     async offlinePreFlight() {
-        const ready = await this.checkCurrentOfflineVersion();
-        if (ready) {
-            this.stableOfflineVersion = ready.version;
-        }
-        const resMap = await this.syncOfflineApp();
-        if (resMap) {
-            this.stableOfflineVersion = resMap.version;
+        const stored = this.engine.persistence.holdersOfflineApp.item().value;
+        if (!stored) {
+            await this.syncOfflineApp();
+        } else {
+            this.syncOfflineApp();
         }
 
-        if (this.wasNativeAppUpdated()) {
-            await this.forceSyncOfflineApp();
-            this.setLastOfflineResSyncAppVersion(Application.nativeApplicationVersion);
-        }
+        let version = await this.cacheOfflineApp();
+        this.stableOfflineVersion = version;
     }
 }

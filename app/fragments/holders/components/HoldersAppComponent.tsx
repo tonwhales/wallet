@@ -300,8 +300,8 @@ export const HoldersAppComponent = React.memo((
                     >
                         <OfflineWebView
                             ref={webRef}
-                            uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                            baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineV)}/`}
+                            uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                            baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
                             initialRoute={source.initialRoute}
                             style={{
                                 backgroundColor: Theme.item,

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import { Platform, View, Text, ScrollView, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
@@ -20,6 +20,7 @@ import { getAppState, getCurrentAddress } from "../storage/appState";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { Address } from "ton";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { ScreenHeader } from "../components/ScreenHeader";
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);
@@ -36,15 +37,19 @@ export const LogoutFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const appStateManager = useAppStateManager();
     const authContext = useKeysAuth();
+    const dimentions = useWindowDimensions();
     const { showActionSheetWithOptions } = useActionSheet();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
     const engine = useEngine();
+    const wallets = engine.products.wallets;
+    const acc = getCurrentAddress();
+    const name = wallets.useWalletSettings(acc.address)?.name ?? t('common.wallet');
+
 
     const onLogout = React.useCallback(async () => {
         const appState = getAppState();
-        const acc = getCurrentAddress();
         const currentAddress = acc.address;
 
         try {
@@ -103,45 +108,44 @@ export const LogoutFragment = fragment(() => {
 
     return (
         <View style={{
-            flex: 1,
+            flexGrow: 1,
+            justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('common.logout')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('common.logout')}
-                    </Text>
+            <View style={{
+                height: (dimentions.height / 2),
+                backgroundColor: 'white', borderTopEndRadius: 20, borderTopStartRadius: 20,
+                padding: 16,
+            }}>
+                <Text style={{
+                    marginTop: 24,
+                    fontSize: 32, lineHeight: 38,
+                    fontWeight: '600',
+                    color: Theme.textColor,
+                }}
+                >
+                    {t('logout.title', { name })}
+                </Text>
+                <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
+                    {t('logout.logoutDescription')}
+                </Text>
+                <View style={{ flexGrow: 1 }} />
+                <View style={{ marginBottom: 16 + safeArea.bottom }}>
+                    <RoundButton
+                        title={t('common.logout')}
+                        onPress={logoutActionSheet}
+                        display={'default'}
+                        style={{ marginBottom: 16 }}
+                    />
+                    <RoundButton
+                        title={t('common.cancel')}
+                        onPress={navigation.goBack}
+                        display={'secondary'}
+                    />
                 </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
-                    paddingHorizontal: 16
-                }}>
-                    <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
-                            {t('settings.logoutDescription')}
-                        </Text>
-                    </View>
-                </View>
-            </ScrollView>
-            <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton
-                    title={t('common.logout')}
-                    onPress={logoutActionSheet}
-                    display={'danger_zone'}
-                />
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

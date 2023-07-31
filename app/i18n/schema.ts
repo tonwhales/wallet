@@ -77,7 +77,6 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         developerTools: string,
         spamFilter: string,
-        logoutDescription: string,
         primaryCurrency: string,
         experimental: string,
         support: {
@@ -693,6 +692,10 @@ export type LocalizationSchema = {
             title: string,
             message: string
         }
+    },
+    logout: {
+        title: string,
+        logoutDescription: string,
     },
     contacts: {
         title: string,

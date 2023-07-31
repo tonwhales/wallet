@@ -75,7 +75,6 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         privacyPolicy: 'Privacy policy',
         developerTools: 'Developer Tools',
         spamFilter: 'SPAM filter',
-        logoutDescription: 'This action will disconnect the wallet from this app and delete all of your data from this app. You will be able to restore your wallet using 24 secret words - or import another wallet.\n\nTON Wallets are located in the decentralized TON Blockchain. If you want a wallet to be deleted, simply transfer all the TON from it and leave it empty.',
         primaryCurrency: 'Primary currency',
         experimental: 'Experimental',
         support: {
@@ -691,6 +690,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             title: 'Are you sure you want to delete your account and all data from this application?',
             message: 'This action will delete your account and all data from this application.'
         }
+    },
+    logout: {
+        title: 'Are you sure you want to Log Out of {{name}}?',
+        logoutDescription: 'Access to the wallet will be disabled. Have you saved your private key?',
     },
     contacts: {
         title: 'Contacts',

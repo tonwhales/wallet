@@ -42,7 +42,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 setOfflineAppReady(false);
             }
             const ready = await engine.products.holders.checkCurrentOfflineVersion();
-            setOfflineAppReady(ready);
+            setOfflineAppReady(ready ? { version: ready } : false);
             const prev = await engine.products.holders.getPrevOfflineVersion();
             if (prev) {
                 const prevReady = await engine.products.holders.isOfflineAppReady(prev);

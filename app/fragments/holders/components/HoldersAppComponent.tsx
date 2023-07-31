@@ -28,7 +28,6 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
-import { RoundButton } from '../../../components/RoundButton';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -46,9 +45,9 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const [stableOfflineVersion, setStableOfflineVersion] = useState(engine.products.holders.stableOfflineVersion);
+    const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
-    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineVersion;
+    const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -348,20 +347,6 @@ export const HoldersAppComponent = React.memo((
         }
     }, [useOfflineApp]);
 
-    const onOfflineError = useCallback(async () => {
-        // force sync offline app resources
-        await engine.products.holders.forceSyncOfflineApp();
-
-        // check stable version
-        const stableVersion = await engine.products.holders.checkCurrentOfflineVersion();
-
-        // reset stable version & rerender OfflineWebView
-        if (stableVersion) {
-            setStableOfflineVersion(stableVersion.version);
-        }
-        setOfflineRender(offlineRender + 1);
-    }, []);
-
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
@@ -369,8 +354,8 @@ export const HoldersAppComponent = React.memo((
                     <OfflineWebView
                         key={`offline-rendered-once-${offlineRender}`}
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/index.html`}
-                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(stableOfflineVersion)}/`}
+                        uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
                         initialRoute={offlineRoute}
                         style={{
                             backgroundColor: Theme.item,
@@ -410,7 +395,6 @@ export const HoldersAppComponent = React.memo((
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
                         startInLoadingState={true}
-                        onError={onOfflineError}
                     />
                 )}
                 {!useOfflineApp && (

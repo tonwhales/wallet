@@ -52,9 +52,6 @@ export class HoldersProduct {
     watcher: null | (() => void) = null;
     stableOfflineVersion: string | null = null;
 
-    //TODO: REMOVE THIS, DEV DEMO ONLY
-    devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
-
     constructor(engine: Engine) {
         this.engine = engine;
 
@@ -503,5 +500,51 @@ export class HoldersProduct {
 
         let version = await this.cacheOfflineApp();
         this.stableOfflineVersion = version;
+    }
+
+    async isOfflineAppReady(resMap: HoldersOfflineResMap) {
+        const appDir = FileSystem.cacheDirectory + `holders${normalizePath(resMap.version)}/`;
+        const hasAppDirectory = await FileSystem.getInfoAsync(appDir);
+        if (!hasAppDirectory.exists) {
+            return false;
+        }
+
+        let lookupStack = [appDir];
+        while (lookupStack.length > 0) {
+            let next = lookupStack.shift()!;
+            let entryPaths = await FileSystem.readDirectoryAsync(next);
+            let entries = await Promise.all(entryPaths.map(a => FileSystem.getInfoAsync(`${next}${a}`)));
+
+            for (let entry of entries) {
+                if (entry.isDirectory) {
+                    lookupStack.push(entry.uri);
+                } else {
+                    if (!(entry.uri.endsWith('.js') || entry.uri.endsWith('.html') || entry.uri.endsWith('.css'))) {
+                        continue;
+                    }
+
+                    let file = await FileSystem.readAsStringAsync(entry.uri);
+                    if (file.includes('{{APP_PUBLIC_URL}}')) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
+    }
+
+    async checkCurrentOfflineVersion() {
+        const stored = this.engine.persistence.holdersOfflineApp.item().value;
+        if (!stored) {
+            return null;
+        }
+
+        const isReady = await this.isOfflineAppReady(stored);
+        if (isReady) {
+            return stored.version;
+        }
+
+        return null;
     }
 }

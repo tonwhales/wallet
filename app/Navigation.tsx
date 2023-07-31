@@ -117,6 +117,21 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
     );
 }
 
+function transparentModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    return (
+        <Stack.Screen
+            key={`modalScreen-${name}`}
+            name={name}
+            component={component}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                contentStyle: { backgroundColor: 'transparent' },
+            }}
+        />
+    );
+}
+
 function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
@@ -169,8 +184,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
-    modalScreen('Logout', LogoutFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
@@ -212,6 +225,9 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
+
+    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
+    transparentModalScreen('Logout', LogoutFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

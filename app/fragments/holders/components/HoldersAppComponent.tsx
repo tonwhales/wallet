@@ -46,7 +46,9 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
+    const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+    const useOfflineApp = !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -63,7 +65,6 @@ export const HoldersAppComponent = React.memo((
     );
     const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
 
     const source = useMemo(() => {
         let route = '';
@@ -152,6 +153,8 @@ export const HoldersAppComponent = React.memo((
                         status: {
                             state: accountState.state,
                             kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
+                            suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
+                            token: accountState.state === 'ok' ? accountState.token : null,
                         }
                     }
                 }
@@ -321,21 +324,17 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {offlineApp && (
+                {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}
-                        uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                        baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                        uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
-                        }}
-                        onLoadEnd={() => {
-                            setLoaded(true);
-                            opacity.value = 0;
                         }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
@@ -351,8 +350,6 @@ export const HoldersAppComponent = React.memo((
                         scrollEnabled={false}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
-                        allowFileAccessFromFileURLs={false}
-                        allowUniversalAccessFromFileURLs={false}
                         decelerationRate="normal"
                         allowsInlineMediaPlayback={true}
                         injectedJavaScriptBeforeContentLoaded={injectSource}
@@ -365,9 +362,10 @@ export const HoldersAppComponent = React.memo((
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
+                        startInLoadingState={true}
                     />
                 )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -378,10 +376,6 @@ export const HoldersAppComponent = React.memo((
                                 flexGrow: 1, flexBasis: 0, height: '100%',
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
                             }}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
@@ -414,28 +408,7 @@ export const HoldersAppComponent = React.memo((
                         />
                     </Animated.View>
                 )}
-                {offlineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                    </Animated.View>
-                )}
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}

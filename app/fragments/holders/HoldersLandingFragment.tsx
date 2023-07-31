@@ -33,7 +33,8 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const offlineApp = engine.persistence.holdersOfflineApp.item().value;
+    const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const useOfflineApp = !!stableOfflineV;
 
     //
     // View
@@ -171,12 +172,12 @@ export const HoldersLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {offlineApp && (
+                    {useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 ref={webRef}
-                                uri={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/index.html`}
-                                baseUrl={`${FileSystem.documentDirectory}holders${normalizePath(offlineApp.version)}/`}
+                                uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                                baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
                                     backgroundColor: Theme.item,
@@ -212,7 +213,7 @@ export const HoldersLandingFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {!offlineApp && (
+                    {!useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView
                                 ref={webRef}
@@ -254,7 +255,7 @@ export const HoldersLandingFragment = fragment(() => {
                         </Animated.View>
                     )}
                 </KeyboardAvoidingView>
-                {!offlineApp && (
+                {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
@@ -274,27 +275,6 @@ export const HoldersLandingFragment = fragment(() => {
                             </Pressable>
                         )}
                         <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
-                {offlineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
                     </Animated.View>
                 )}
                 <Animated.View

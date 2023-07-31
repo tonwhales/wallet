@@ -25,7 +25,6 @@ import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
-import { storage } from '../../../storage/storage';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
@@ -47,6 +46,7 @@ export const HoldersAppComponent = React.memo((
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
     const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
     const useOfflineApp = !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = useReducer(
@@ -153,6 +153,7 @@ export const HoldersAppComponent = React.memo((
                             state: accountState.state,
                             kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
                             suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
+                            token: accountState.state === 'ok' ? accountState.token : null,
                         }
                     }
                 }
@@ -323,14 +324,52 @@ export const HoldersAppComponent = React.memo((
         <>
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 {useOfflineApp && (
-                    <AnotherKeyboardAvoidingView
-                        style={{ backgroundColor: Theme.item, flexGrow: 1 }}
-                    >
-                        <OfflineWebView
+                    <OfflineWebView
+                        ref={webRef}
+                        uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
+                        initialRoute={source.initialRoute}
+                        style={{
+                            backgroundColor: Theme.item,
+                            flexGrow: 1, flexBasis: 0, height: '100%',
+                            alignSelf: 'stretch',
+                            marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        }}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                // Searching for supported query
+                                onNavigation(event.nativeEvent.url);
+                            }
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
+                        }}
+                        // Locking scroll, it's handled within the Web App
+                        scrollEnabled={false}
+                        contentInset={{ top: 0, bottom: 0 }}
+                        autoManageStatusBarEnabled={false}
+                        decelerationRate="normal"
+                        allowsInlineMediaPlayback={true}
+                        injectedJavaScriptBeforeContentLoaded={injectSource}
+                        onShouldStartLoadWithRequest={loadWithRequest}
+                        // In case of iOS blank WebView
+                        onContentProcessDidTerminate={onContentProcessDidTerminate}
+                        // In case of Android blank WebView
+                        onRenderProcessGone={onContentProcessDidTerminate}
+                        onMessage={handleWebViewMessage}
+                        keyboardDisplayRequiresUserAction={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        bounces={false}
+                        startInLoadingState={true}
+                    />
+                )}
+                {!useOfflineApp && (
+                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <WebView
                             ref={webRef}
-                            uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                            baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
-                            initialRoute={source.initialRoute}
+                            source={{ uri: source.url }}
+                            startInLoadingState={true}
                             style={{
                                 backgroundColor: Theme.item,
                                 flexGrow: 1, flexBasis: 0, height: '100%',
@@ -366,63 +405,39 @@ export const HoldersAppComponent = React.memo((
                             hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                             bounces={false}
                         />
-                    </AnotherKeyboardAvoidingView>
-                )}
-                {!useOfflineApp && (
-                    <AnotherKeyboardAvoidingView
-                        style={{ backgroundColor: Theme.item, flexGrow: 1 }}
-                    >
-                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                            <WebView
-                                ref={webRef}
-                                source={{ uri: source.url }}
-                                startInLoadingState={true}
-                                style={{
-                                    backgroundColor: Theme.item,
-                                    flexGrow: 1, flexBasis: 0, height: '100%',
-                                    alignSelf: 'stretch',
-                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
-                                }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
-                                onLoadProgress={(event) => {
-                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                        // Searching for supported query
-                                        onNavigation(event.nativeEvent.url);
-                                    }
-                                }}
-                                onNavigationStateChange={(event: WebViewNavigation) => {
-                                    // Searching for supported query
-                                    onNavigation(event.url);
-                                }}
-                                // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
-                                contentInset={{ top: 0, bottom: 0 }}
-                                autoManageStatusBarEnabled={false}
-                                allowFileAccessFromFileURLs={false}
-                                allowUniversalAccessFromFileURLs={false}
-                                decelerationRate="normal"
-                                allowsInlineMediaPlayback={true}
-                                injectedJavaScriptBeforeContentLoaded={injectSource}
-                                onShouldStartLoadWithRequest={loadWithRequest}
-                                // In case of iOS blank WebView
-                                onContentProcessDidTerminate={onContentProcessDidTerminate}
-                                // In case of Android blank WebView
-                                onRenderProcessGone={onContentProcessDidTerminate}
-                                onMessage={handleWebViewMessage}
-                                keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                                bounces={false}
-                            />
-                        </Animated.View>
-                    </AnotherKeyboardAvoidingView>
+                    </Animated.View>
                 )}
                 {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        </View>
+                        {Platform.OS === 'ios' && (
+                            <Pressable
+                                style={{ position: 'absolute', top: 22, right: 16 }}
+                                onPress={() => {
+                                    navigation.goBack();
+                                }} >
+                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                    {t('common.close')}
+                                </Text>
+                            </Pressable>
+                        )}
+                        <ActivityIndicator size="small" color={'#564CE2'} />
+                    </Animated.View>
+                )}
+                {mainButton && mainButton.isVisible && (
+                    <KeyboardAvoidingView
+                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
+                        keyboardVerticalOffset={Platform.OS === 'ios'
+                            ? bottomMargin
+                            : undefined
+                        }
                     >
                         <Animated.View
                             style={Platform.OS === 'android'

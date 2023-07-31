@@ -43,10 +43,13 @@ export const LogoutFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const reboot = useReboot();
     const engine = useEngine();
+    const wallets = engine.products.wallets;
+    const acc = getCurrentAddress();
+    const name = wallets.useWalletSettings(acc.address)?.name ?? t('common.wallet');
+
 
     const onLogout = React.useCallback(async () => {
         const appState = getAppState();
-        const acc = getCurrentAddress();
         const currentAddress = acc.address;
 
         try {
@@ -111,24 +114,30 @@ export const LogoutFragment = fragment(() => {
             paddingBottom: safeArea.bottom
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ height: (dimentions.height / 2), backgroundColor: 'white' }}>
+            <View style={{
+                height: (dimentions.height / 2),
+                backgroundColor: 'white', borderTopEndRadius: 20, borderTopStartRadius: 20,
+                padding: 16,
+            }}>
+                <Text style={{
+                    marginTop: 24,
+                    fontSize: 32, lineHeight: 38,
+                    fontWeight: '600',
+                    color: Theme.textColor,
+                }}
+                >
+                    {t('logout.title', { name })}
+                </Text>
+                <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
+                    {t('logout.logoutDescription')}
+                </Text>
                 <View style={{ flexGrow: 1 }} />
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
-                    paddingHorizontal: 16
-                }}>
-                    <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
-                            {t('settings.logoutDescription')}
-                        </Text>
-                    </View>
-                </View>
-                <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
+                <View style={{ marginBottom: 16 + safeArea.bottom }}>
                     <RoundButton
                         title={t('common.logout')}
                         onPress={logoutActionSheet}
-                        display={'danger_zone'}
+                        display={'default'}
+                        style={{ marginBottom: 16 }}
                     />
                     <RoundButton
                         title={t('common.cancel')}

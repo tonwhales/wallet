@@ -12,7 +12,12 @@ export type AWebViewRef = {
 }
 
 export const OfflineWebView = React.memo(React.forwardRef((
-    props: Omit<WebViewProps, "source"> & { uri: string, baseUrl: string, initialRoute?: string },
+    props: Omit<WebViewProps, "source">
+        & {
+            uri: string,
+            baseUrl: string,
+            initialRoute?: string
+        },
     ref: React.ForwardedRef<AWebViewRef>
 ) => {
     const tref = React.useRef<WebView>(null);
@@ -69,15 +74,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         return true;
                     }}
                     injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
-                    renderError={(eDomain, eCode, eDescr) => {
-                        return (
-                            <OfflineErrorComponent
-                                errorCode={eCode}
-                                errorDesc={eDescr}
-                                errorDomain={eDomain}
-                            />
-                        )
-                    }}
                 />
             )}
             {Platform.OS === 'ios' && (
@@ -108,15 +104,6 @@ export const OfflineWebView = React.memo(React.forwardRef((
                         return true;
                     }}
                     injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
-                    renderError={(eDomain, eCode, eDescr) => {
-                        return (
-                            <OfflineErrorComponent
-                                errorCode={eCode}
-                                errorDesc={eDescr}
-                                errorDomain={eDomain}
-                            />
-                        )
-                    }}
                 />
             )}
         </>

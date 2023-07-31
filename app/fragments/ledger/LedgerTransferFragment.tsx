@@ -32,7 +32,8 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const LedgerTransferFragment = fragment(() => {
-    const { addr } = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
+    const addr = ledgerContext?.addr;
     const { Theme, AppConfig } = useAppConfig();
     const address = useMemo(() => {
         if (addr) {

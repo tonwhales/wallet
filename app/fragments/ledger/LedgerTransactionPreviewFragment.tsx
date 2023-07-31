@@ -524,7 +524,8 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const params = useParams<{ transaction: string }>();
-    const { addr } = useLedgerTransport();
+    const ledgerContext = useLedgerTransport();
+    const addr = ledgerContext?.addr;
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);

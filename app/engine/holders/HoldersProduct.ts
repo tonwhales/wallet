@@ -53,6 +53,7 @@ export class HoldersProduct {
 
     //TODO: REMOVE THIS, DEV DEMO ONLY
     devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+    offlineResMigrated = storage.getBoolean('holders-offline-res-migrated');
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
@@ -500,6 +501,15 @@ export class HoldersProduct {
     }
 
     async offlinePreFlight() {
+        if (!this.offlineResMigrated) {
+            this.offlineResMigrated = true;
+            storage.set('holders-offline-res-migrated', true);
+            if (FileSystem.documentDirectory) {
+                await FileSystem.deleteAsync(FileSystem.documentDirectory, { idempotent: true })
+                this.engine.persistence.holdersOfflineApp.item().update(() => null);
+            }
+        }
+
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
         if (!stored) {
             await this.syncOfflineApp();

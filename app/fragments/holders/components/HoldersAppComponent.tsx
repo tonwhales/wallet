@@ -424,33 +424,6 @@ export const HoldersAppComponent = React.memo((
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                        <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
-                {mainButton && mainButton.isVisible && (
-                    <KeyboardAvoidingView
-                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
-                        keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin
-                            : undefined
-                        }
-                    >
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }

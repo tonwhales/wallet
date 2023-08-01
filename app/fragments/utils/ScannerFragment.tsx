@@ -81,8 +81,6 @@ export const ScannerFragment = systemFragment(() => {
     if (hasPermission === null) {
         return (
             <View style={styles.container}>
-                <ScreenHeader tintColor={'white'} onBackPressed={navigation.goBack} />
-                <View style={{ flexGrow: 1 }} />
                 <View style={{
                     alignSelf: 'center',
                     width: 170,
@@ -102,6 +100,16 @@ export const ScannerFragment = systemFragment(() => {
                         {t('qr.requestingPermission')}
                     </Text>
                 </View>
+                <ScreenHeader
+                    tintColor={'white'}
+                    style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
+                    onBackPressed={() => {
+                        setActive(false);
+                        setTimeout(() => {
+                            navigation.goBack();
+                        }, 10);
+                    }}
+                />
             </View>
         );
     }
@@ -109,7 +117,6 @@ export const ScannerFragment = systemFragment(() => {
     if (hasPermission === false) {
         return (
             <View style={[styles.container, { backgroundColor: 'white', alignItems: 'center' }]}>
-                <ScreenHeader tintColor={'white'} onBackPressed={navigation.goBack} />
                 <View style={{ flexGrow: 1 }} />
                 <View style={{
                     width: dimentions.window.width - 32,
@@ -133,7 +140,7 @@ export const ScannerFragment = systemFragment(() => {
                 }} />
                 <View style={{
                     height: 64,
-                    marginTop: 16, marginHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16,
+                    marginTop: 16, marginHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
                     alignSelf: 'stretch'
                 }}>
                     <RoundButton
@@ -151,6 +158,16 @@ export const ScannerFragment = systemFragment(() => {
                         })}
                     />
                 </View>
+                <ScreenHeader
+                    tintColor={Theme.accent}
+                    style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
+                    onBackPressed={() => {
+                        setActive(false);
+                        setTimeout(() => {
+                            navigation.goBack();
+                        }, 10);
+                    }}
+                />
             </View>
         );
     }

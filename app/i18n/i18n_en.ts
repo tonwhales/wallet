@@ -232,7 +232,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     qr: {
         title: 'Point camera at QR code',
-        requestingPermission: 'Requesting for camera permission...',
+        requestingPermission: 'Requesting camera permissions...',
         noPermission: 'Allow camera access to scan QR codes',
         requestPermission: 'Open settings',
         failedToReadFromImage: 'Failed to read QR code from image',

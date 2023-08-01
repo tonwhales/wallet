@@ -244,8 +244,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, AppConfig.isTestnet);
 
             // Navigate
-            navigation.goBack();
-            navigation.navigate('App', { url });
+            navigation.replace('App', { url });
         }
     }, [state, addExtension]);
 

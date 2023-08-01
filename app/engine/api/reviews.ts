@@ -81,13 +81,15 @@ export const extensionStatsCodec = t.union([
         metadata: t.union([appDataCodec, t.null]),
         verified: t.boolean,
         reportsSummary: reportsSummaryCodec,
-        rating: t.number
+        rating: t.number,
+        reviewsCount: t.number
     }),
     t.type({
         url: t.string,
         metadata: t.union([appDataCodec, t.null]),
         reportsSummary: reportsSummaryCodec,
-        rating: t.number
+        rating: t.number,
+        reviewsCount: t.number
     })
 ]);
 

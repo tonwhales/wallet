@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { AppData } from "../engine/api/fetchAppData";
 import { useEngine } from "../engine/Engine";
@@ -62,6 +62,10 @@ export const ConnectionButton = React.memo((
             return null;
         }
     }, [appData, appManifest, tonconnect]);
+
+    useEffect(() => {
+        engine.products.extensions.requestExtensionStatsUpdate(url);
+    }, [url]);
 
     return (
         <Pressable
@@ -132,6 +136,14 @@ export const ConnectionButton = React.memo((
                                 marginLeft: 4
                             }}>
                                 {stats.rating}
+                            </Text>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20,
+                                fontWeight: '400',
+                                color: Theme.darkGrey,
+                                marginLeft: 4
+                            }}>
+                                {`(${stats.reviewsCount})`}
                             </Text>
                         </View>
                     )}

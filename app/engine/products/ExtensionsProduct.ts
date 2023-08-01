@@ -119,7 +119,6 @@ export class ExtensionsProduct {
     }
     
     useExtensionStats(url: string) {
-        this.requestExtensionStatsUpdate(url);
         return useRecoilValue(this.engine.persistence.dAppsStats.item(url).atom);
     }
     

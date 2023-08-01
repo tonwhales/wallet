@@ -76,7 +76,7 @@ export const ItemCollapsible = React.memo((
                 </Animated.View>
             </Pressable>
             <Collapsible collapsed={collapsed}>
-                {!hideDivider && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
+                {!hideDivider && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />)}
                 {children}
             </Collapsible>
         </View>

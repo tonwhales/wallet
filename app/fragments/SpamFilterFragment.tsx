@@ -17,6 +17,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import SpamIcon from '../../assets/known/spam_icon.svg';
 import { useAppConfig } from "../utils/AppConfigContext";
 import { ProductButton } from "../components/products/ProductButton";
+import { ScreenHeader } from "../components/ScreenHeader";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -93,20 +94,7 @@ export const SpamFilterFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('settings.spamFilter')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('settings.spamFilter')}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader title={t('settings.spamFilter')} onClosePressed={navigation.goBack} />
             <ScrollView>
                 <View style={{
                     marginBottom: 16, marginTop: 17,
@@ -115,10 +103,10 @@ export const SpamFilterFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
+                        backgroundColor: Theme.lightGrey,
+                        borderRadius: 20,
                         justifyContent: 'center',
-                        paddingVertical: 10,
+                        padding: 20
                     }}>
                         <ATextInput
                             index={0}
@@ -134,7 +122,6 @@ export const SpamFilterFragment = fragment(() => {
                                 backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 paddingVertical: 0,
-                                marginHorizontal: 16
                             }}
                             label={
                                 <View style={{
@@ -161,21 +148,19 @@ export const SpamFilterFragment = fragment(() => {
                             color: Theme.label,
                             alignSelf: 'flex-start',
                             marginTop: 8,
-                            marginHorizontal: 16
                         }}>
                             {t('spamFilter.minAmountDescription', { amount: fromNano(min) })}
                         </Text>
-                        <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                        <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider }} />
                         <CheckBox
                             checked={!dontShowComments}
                             onToggle={() => {
                                 setDontShowComments(!dontShowComments);
                             }}
                             text={t('spamFilter.dontShowComments')}
-                            style={{ marginHorizontal: 16 }}
                         />
                     </View>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <View style={{ marginTop: 8 }} collapsable={false}>
                         <Text style={{
                             fontSize: 18,
                             fontWeight: '700',
@@ -227,7 +212,6 @@ export const SpamFilterFragment = fragment(() => {
                     display={disabled ? 'secondary' : 'default'}
                 />
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

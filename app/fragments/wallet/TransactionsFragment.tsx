@@ -154,6 +154,9 @@ function TransactionsComponent(props: { wallet: WalletState }) {
             <TabView
                 tabBarPosition={'top'}
                 renderTabBar={(props) => {
+                    if (account.transactions.length === 0) {
+                        return null;
+                    }
                     return (
                         <TabBar
                             {...props}

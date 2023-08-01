@@ -68,7 +68,7 @@ export const JettonProductItem = React.memo((props: {
             onPressOut={onPressOut}
             onLongPress={props.onLongPress ? props.onLongPress : promptDisable}
         >
-            <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+            <Animated.View style={[{ flexGrow: 1 }, animatedStyle]}>
                 <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20, }}>
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <WImage

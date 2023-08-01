@@ -26,6 +26,7 @@ import { useTrackScreen } from '../../analytics/mixpanel';
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import BN from 'bn.js';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -157,20 +158,22 @@ function WalletComponent(props: { wallet: WalletState }) {
                         </View>
                     </Pressable>
                     <View style={{ flexDirection: 'row' }}>
-                        <Pressable
-                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={openGraph}
-                        >
-                            <Chart
-                                style={{
-                                    height: 24,
-                                    width: 24,
-                                }}
-                                height={24}
-                                width={24}
-                                color={Theme.greyForIcon}
-                            />
-                        </Pressable>
+                        {account.transactions.length > 0 && (
+                            <Pressable
+                                style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                                onPress={openGraph}
+                            >
+                                <Chart
+                                    style={{
+                                        height: 24,
+                                        width: 24,
+                                    }}
+                                    height={24}
+                                    width={24}
+                                    color={Theme.greyForIcon}
+                                />
+                            </Pressable>
+                        )}
                         <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openScanner}
@@ -337,7 +340,7 @@ export const WalletFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <StatusBar style={'light'} />
+                <StatusBar style={'dark'} />
                 <LoadingIndicator />
             </View>
         );

@@ -9,7 +9,7 @@ import { ellipsiseAddress } from "../WalletAddress";
 import { useAppStateManager } from "../../engine/AppStateManager";
 
 import IcCheck from "../../../assets/ic-check.svg";
-import { useBottomSheet } from "../modal/BottomSheetModal";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const WalletItem = memo((
     {
@@ -24,9 +24,9 @@ export const WalletItem = memo((
 ) => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
+    const navigation = useTypedNavigation();
     const walletSettings = engine.products.wallets.useWalletSettings(address);
     const appStateManager = useAppStateManager();
-    const modal = useBottomSheet();
 
     const onSelectAccount = useCallback(() => {
         if (selected) return;
@@ -45,7 +45,7 @@ export const WalletItem = memo((
                 {
                     text: t('wallets.switchToAlertAction'),
                     onPress: () => {
-                        modal?.hide();
+                        navigation.goBack();
                         appStateManager.updateAppState({
                             ...appStateManager.current,
                             selected: index
@@ -54,7 +54,7 @@ export const WalletItem = memo((
                 }
             ]
         );
-    }, [walletSettings, selected, address, modal]);
+    }, [walletSettings, selected, address]);
 
     return (
         <Pressable

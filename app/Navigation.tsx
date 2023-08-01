@@ -16,7 +16,6 @@ import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
 import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/onboarding/TermsFragment';
-import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
@@ -74,6 +73,7 @@ import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTrans
 import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
+import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -228,6 +228,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     transparentModalScreen('Logout', LogoutFragment, safeArea),
+    transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

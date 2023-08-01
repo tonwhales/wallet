@@ -7,13 +7,8 @@ import { useEngine } from "../../engine/Engine";
 import { useCallback, useEffect, useMemo } from "react";
 import { Address, CellMessage } from "ton";
 import { useBottomSheet } from "../../components/modal/BottomSheetModal";
-import { useActionSheet } from "@expo/react-native-action-sheet";
 import { t } from "../../i18n/t";
-import { WalletSelector } from "../../components/wallet/WalletSelector";
-import { BlurView } from "expo-blur";
-import { RoundButton } from "../../components/RoundButton";
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
-import { startWalletV4Sync } from "../../engine/sync/startWalletV4Sync";
 import { warn } from "../../utils/log";
 import { Pressable, View, Image, Text, TouchableHighlight } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -24,10 +19,8 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
 import { resolveUrl } from "../../utils/resolveUrl";
 
-import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
-import { startWalletConfigSync } from "../../engine/sync/startWalletConfigSync";
 
 export const LedgerHomeFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -49,8 +42,6 @@ export const LedgerHomeFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const modal = useBottomSheet();
     const account = engine.products.ledger.useAccount();
-    const { showActionSheetWithOptions } = useActionSheet();
-
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
@@ -131,47 +122,9 @@ export const LedgerHomeFragment = fragment(() => {
         );
     }, []);
 
-    // Add new wallet account modal
-    const onAddNewAccount = useCallback(() => {
-        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
-        const cancelButtonIndex = 0;
-
-        showActionSheetWithOptions({
-            options,
-            cancelButtonIndex,
-        }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    modal?.hide();
-                    navigation.navigate('WalletCreate', { additionalWallet: true });
-                    break;
-                case 2:
-                    modal?.hide();
-                    navigation.navigate('WalletImport', { additionalWallet: true });
-                    break;
-                case 3:
-                    modal?.hide();
-                    navigation.navigate('Ledger');
-                    break;
-                default:
-                    break;
-            }
-        });
-    }, [modal]);
     // Wallet Account modal
     const onAccountPress = useCallback(() => {
-        modal?.hide();
-        modal?.show(
-            <WalletSelector />,
-            ['60%', '80%'],
-            <BlurView intensity={30} style={{ paddingBottom: safeArea.bottom, paddingHorizontal: 16 }}>
-                <RoundButton
-                    style={{ marginVertical: 16 }}
-                    onPress={onAddNewAccount}
-                    title={t('wallets.addNewTitle')}
-                />
-            </BlurView>
-        );
+        navigation.navigate('AccountSelector');
     }, [modal]);
 
     // ScrollView background color animation

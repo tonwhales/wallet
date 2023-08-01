@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, LayoutAnimation, Platform, Pressable, Text, View } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -15,17 +15,13 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useLayoutEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { useBottomSheet } from '../../components/modal/BottomSheetModal';
-import { WalletSelector } from '../../components/wallet/WalletSelector';
-import { RoundButton } from '../../components/RoundButton';
-import { BlurView } from 'expo-blur';
 import { Avatar } from '../../components/Avatar';
 import { useTrackScreen } from '../../analytics/mixpanel';
-import { useActionSheet } from '@expo/react-native-action-sheet';
 
 import Chart from '../../../assets/ic-chart.svg';
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
@@ -37,7 +33,6 @@ function WalletComponent(props: { wallet: WalletState }) {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const modal = useBottomSheet();
-    const { showActionSheetWithOptions } = useActionSheet();
     const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
     const walletSettings = engine.products.wallets.useWalletSettings(address);
@@ -64,47 +59,10 @@ function WalletComponent(props: { wallet: WalletState }) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [account]);
-    // Add new wallet account modal
-    const onAddNewAccount = useCallback(() => {
-        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
-        const cancelButtonIndex = 0;
 
-        showActionSheetWithOptions({
-            options,
-            cancelButtonIndex,
-        }, (selectedIndex?: number) => {
-            switch (selectedIndex) {
-                case 1:
-                    modal?.hide();
-                    navigation.navigate('WalletCreate', { additionalWallet: true });
-                    break;
-                case 2:
-                    modal?.hide();
-                    navigation.navigate('WalletImport', { additionalWallet: true });
-                    break;
-                case 3:
-                    modal?.hide();
-                    navigation.navigate('Ledger');
-                    break;
-                default:
-                    break;
-            }
-        });
-    }, [modal]);
     // Wallet Account modal
     const onAccountPress = useCallback(() => {
-        modal?.hide();
-        modal?.show(
-            <WalletSelector />,
-            ['60%', '80%'],
-            <BlurView intensity={30} style={{ paddingBottom: safeArea.bottom, paddingHorizontal: 16 }}>
-                <RoundButton
-                    style={{ marginVertical: 16 }}
-                    onPress={onAddNewAccount}
-                    title={t('wallets.addNewTitle')}
-                />
-            </BlurView>
-        );
+        navigation.navigate('AccountSelector');
     }, [modal]);
 
     // ScrollView background color animation

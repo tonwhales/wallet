@@ -1,11 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, View, Text } from 'react-native';
+import { Pressable, View, Text, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Chevron from '../../assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useAppConfig } from '../utils/AppConfigContext';
 
-export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { title?: string, children?: any, hideDivider?: boolean }) => {
+export const ItemCollapsible = React.memo((
+    {
+        title,
+        children,
+        hideDivider,
+        style,
+        titleStyle
+    }: {
+        title?: string,
+        children?: any,
+        hideDivider?: boolean,
+        style?: StyleProp<ViewStyle>,
+        titleStyle?: StyleProp<TextStyle>
+    }) => {
     const { Theme } = useAppConfig();
     const [collapsed, setCollapsed] = useState(true);
 
@@ -22,14 +35,15 @@ export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { t
     }, [collapsed])
 
     return (
-        <View>
+        <View style={[
+            { padding: 20, backgroundColor: Theme.lightGrey, borderRadius: 20 },
+            style
+        ]}>
             <Pressable
                 style={({ pressed }) => {
                     return {
                         opacity: pressed ? 0.3 : 1,
                         flexDirection: 'row',
-                        paddingHorizontal: 16,
-                        paddingVertical: 14,
                         justifyContent: 'center'
                     }
                 }}
@@ -38,24 +52,27 @@ export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { t
                 }}
             >
                 {!!title && (
-                    <Text style={{
+                    <Text style={[{
                         fontWeight: '400',
                         fontSize: 16,
                         color: Theme.textColor,
-                    }}>
+                        alignSelf: 'center'
+                    }, titleStyle]}>
                         {title}
                     </Text>
                 )}
                 <View style={{ flexGrow: 1 }} />
                 <Animated.View style={[
                     {
-                        height: 12, width: 12,
+                        height: 32, width: 32,
+                        borderRadius: 16,
                         justifyContent: 'center', alignItems: 'center',
-                        alignSelf: 'center'
+                        alignSelf: 'center',
+                        backgroundColor: Theme.mediumGrey
                     },
                     animatedChevron
                 ]}>
-                    <Chevron />
+                    <Chevron style={{ height: 12, width: 12 }} height={12} width={12} />
                 </Animated.View>
             </Pressable>
             <Collapsible collapsed={collapsed}>

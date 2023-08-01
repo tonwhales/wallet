@@ -38,6 +38,7 @@ import IcAlert from '../../../../assets/ic-alert.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
+import Verified from '../../../../assets/ic-verified.svg';
 
 type Props = {
     text: string | null,
@@ -505,72 +506,8 @@ export const TransferBatch = React.memo((props: Props) => {
                             }}
                             textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
                         />
-                        {/* <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
-                            {totalJettons.size > 0 && (
-                                <>
-                                    <View style={{ flexDirection: 'column', paddingHorizontal: 16, alignItems: 'flex-start' }}>
-                                        <View style={{ height: 30, flexDirection: 'row' }}>
-                                            <Text style={{
-                                                fontSize: 14,
-                                                fontWeight: '500',
-                                                color: Theme.textSecondary,
-                                                alignSelf: 'center',
-                                                flexGrow: 1, flexBasis: 0
-                                            }}>
-                                                {t('transfer.jettonGas')}
-                                            </Text>
-                                        </View>
-                                        <View style={{ flexDirection: 'column', paddingBottom: 4 }}>
-                                            <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
-                                                <Text style={{
-                                                    fontSize: 16,
-                                                    color: gas.unusual ? Theme.warningSecondary : Theme.textColor,
-                                                    fontWeight: gas.unusual ? '700' : '400'
-                                                }}>
-                                                    {(!AppConfig.isTestnet && price)
-                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
-                                                        : fromNano(gas.total) + ' TON'
-                                                    }
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        {gas.unusual && (
-                                            <Pressable
-                                                onPress={jettonsGasAlert}
-                                                style={({ pressed }) => {
-                                                    return {
-                                                        alignSelf: 'flex-start',
-                                                        flexDirection: 'row',
-                                                        borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
-                                                        paddingHorizontal: 8, paddingVertical: 4,
-                                                        marginBottom: 16,
-                                                        justifyContent: 'center', alignItems: 'center',
-                                                        opacity: pressed ? 0.3 : 1
-                                                    }
-                                                }}
-                                            >
-                                                <Text style={{
-                                                    fontSize: 14,
-                                                    fontWeight: '400',
-                                                    color: Theme.warningSecondary
-                                                }}>
-                                                    {t('transfer.unusualJettonsGas')}
-                                                </Text>
-                                                <Question style={{ marginLeft: 5 }} />
-                                            </Pressable>
-                                        )}
-                                    </View>
-                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 6 }} />
-                                </>
-                            )}
-                            <ItemLarge
-                                title={t('transfer.feeTotalTitle')}
-                                text={fromNano(fees) + ' TON'}
-                            />
-                        </ItemCollapsible> */}
                     </ItemGroup>
-                    <ItemGroup style={{ marginBottom: 16 }}>
+                    <ItemGroup>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -624,46 +561,35 @@ export const TransferBatch = React.memo((props: Props) => {
                                 />
                             </View>
                         </View>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Pressable
-                                onPress={jettonsGasAlert}
-                                style={({ pressed }) => {
-                                    return {
-                                        alignSelf: 'flex-start',
-                                        flexDirection: 'row',
-                                        width: '100%',
-                                        borderRadius: 12,
-                                        marginTop: 16,
-                                        paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
-                                        justifyContent: 'space-between', alignItems: 'center',
-                                        backgroundColor: 'white',
-                                        opacity: pressed ? 0.3 : 1
-                                    }
-                                }}
-                            >
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20,
-                                    fontWeight: '400',
-                                    color: Theme.red
-                                }}>
-                                    {t('transfer.unusualJettonsGas')}
-                                </Text>
-                                <IcAlert style={{ marginLeft: 5 }} />
-                            </Pressable>
-                        </View>
-                    </ItemGroup>
-                    <ItemGroup>
-                        {internals.map((i, index) => {
-                            return (
-                                <TransferComponent
-                                    key={'transfer' + index}
-                                    transfer={i}
-                                    first={index === 0}
-                                    last={index >= internals.length - 1}
-                                    index={index}
-                                />
-                            );
-                        })}
+                        {gas.unusual && (
+                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Pressable
+                                    onPress={jettonsGasAlert}
+                                    style={({ pressed }) => {
+                                        return {
+                                            alignSelf: 'flex-start',
+                                            flexDirection: 'row',
+                                            width: '100%',
+                                            borderRadius: 12,
+                                            marginTop: 16,
+                                            paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
+                                            justifyContent: 'space-between', alignItems: 'center',
+                                            backgroundColor: 'white',
+                                            opacity: pressed ? 0.3 : 1
+                                        }
+                                    }}
+                                >
+                                    <Text style={{
+                                        fontSize: 15, lineHeight: 20,
+                                        fontWeight: '400',
+                                        color: Theme.red
+                                    }}>
+                                        {t('transfer.unusualJettonsGas')}
+                                    </Text>
+                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                </Pressable>
+                            </View>
+                        )}
                     </ItemGroup>
 
                     {internals.map((i, index) => {
@@ -720,18 +646,52 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
                                                 <AddressComponent address={i.operation.address} end={4} />
                                             </Text>
-                                            {(i.contact || i.known) && (
-                                                <Text
-                                                    style={{
-                                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                        color: Theme.darkGrey,
-                                                        flexShrink: 1
-                                                    }}
-                                                    numberOfLines={1}
-                                                    ellipsizeMode={'tail'}
-                                                >
-                                                    {i.contact.name || i.known?.name}
-                                                </Text>
+                                            {i.known && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: Theme.darkGrey,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {i.known?.name}
+                                                    </Text>
+                                                    <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                                </View>
+                                            )}
+                                            {(!i.message.addr.active) && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: Theme.darkGrey,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {t('transfer.addressNotActive')}
+                                                    </Text>
+                                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                                </View>
+                                            )}
+                                            {i.spam && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: Theme.darkGrey,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {'SPAM'}
+                                                    </Text>
+                                                </View>
                                             )}
                                         </View>
                                     </View>

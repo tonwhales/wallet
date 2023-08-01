@@ -619,7 +619,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             </Text>
                                             {!i.jettonAmount && (
                                                 <PriceComponent
-                                                    amount={fees}
+                                                    amount={i.message.amount}
                                                     style={{
                                                         backgroundColor: Theme.transparent,
                                                         paddingHorizontal: 0,
@@ -695,6 +695,73 @@ export const TransferBatch = React.memo((props: Props) => {
                                             )}
                                         </View>
                                     </View>
+                                    {!!i.jettonAmount && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: Theme.darkGrey,
+                                                }}>
+                                                    {t('transfer.gasFee')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                        {fromNano(i.message.amount) + ' TON'}
+                                                    </Text>
+                                                    <PriceComponent
+                                                        amount={i.message.amount}
+                                                        style={{
+                                                            backgroundColor: Theme.transparent,
+                                                            paddingHorizontal: 0,
+                                                            alignSelf: 'flex-end'
+                                                        }}
+                                                        textStyle={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: Theme.darkGrey,
+                                                            flexShrink: 1
+                                                        }}
+                                                    />
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+                                    {!!i.operation.op && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: Theme.darkGrey,
+                                                }}>
+                                                    {t('transfer.purpose')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                        {i.operation.op}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+                                    {!!i.operation.comment && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: Theme.darkGrey,
+                                                }}>
+                                                    {t('transfer.commentLabel')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                        {i.operation.comment}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
                                 </ItemCollapsible>
                             </>
                         );

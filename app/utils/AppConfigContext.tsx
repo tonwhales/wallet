@@ -66,7 +66,8 @@ export type ThemeType = {
     mainViolet: string,
     accentRed: string,
     red: string,
-    lightRed: string
+    lightRed: string,
+    ton: string
 };
 
 const initialTheme = {
@@ -127,7 +128,8 @@ const initialTheme = {
     mainViolet: '#564CE2',
     accentRed: '#ff415c',
     red: '#FF415C',
-    lightRed: '#FCE7E8'
+    lightRed: '#FCE7E8',
+    ton: '#0088CC'
 }
 
 export const initialNavigationTheme: NavigationThemeType = {

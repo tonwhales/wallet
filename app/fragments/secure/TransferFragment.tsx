@@ -29,6 +29,7 @@ import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -406,13 +407,12 @@ export const TransferFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <ScreenHeader onBackPressed={navigation.goBack} onClosePressed={() => navigation.navigateAndReplaceAll('Home')} />
             <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
                 {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
                 {!!loadedProps && <TransferLoaded {...loadedProps} />}
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

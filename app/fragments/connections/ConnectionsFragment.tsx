@@ -251,6 +251,7 @@ export const ConnectionsFragment = fragment(() => {
                                 <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
                                         onRevoke={() => disconnectConnectApp(app.url)}
+                                        onPress={() => navigation.navigate('ConnectApp', { url: app.url })}
                                         url={app.url}
                                         name={app.name}
                                         tonconnect

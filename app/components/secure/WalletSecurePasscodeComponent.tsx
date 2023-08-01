@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
+import { getAppKey, getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
@@ -18,7 +18,9 @@ import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
-import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
+import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getApplicationKey, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
+import { useEffect } from 'react';
+import { useKeysAuth } from './AuthWalletKeys';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -26,11 +28,14 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 }) => {
     const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
+    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
     const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = React.useState(false);
+
+
 
     const onAfterImport = React.useCallback(() => {
         const address = getBackup();
@@ -40,6 +45,66 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         }
         markAddressSecured(address.address, AppConfig.isTestnet);
         reboot();
+    }, []);
+
+    useEffect(() => {
+        (async () => {
+            const appState = getAppState();
+            if (appState.addresses.length > 0) {
+                setLoading(true);
+                try {
+                    // Encrypted token
+                    let secretKeyEnc: Buffer | undefined = undefined;
+
+                    // Resolve key
+                    const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+
+                    // Resolve utility key
+                    const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
+
+                    // Resolve contract
+                    const contract = await contractFromPublicKey(key.publicKey);
+
+                    // Authenticate
+                    const passcodeState = getPasscodeState();
+                    const biometricsState = getBiometricsState();
+                    const useBiometrics = (biometricsState === BiometricsState.InUse);
+
+                    if (useBiometrics) {
+                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
+                    } else if (passcodeState === PasscodeState.Set) {
+                        const authRes = await authContext.authenticateWithPasscode();
+                        if (authRes) {
+                            secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
+                        }
+                    }
+
+                    if (!secretKeyEnc) {
+                        throw new Error('Invalid app key');
+                    }
+
+                    // Persist state
+                    const state = getAppState();
+                    setAppState({
+                        addresses: [
+                            ...state.addresses,
+                            {
+                                address: contract.address,
+                                publicKey: key.publicKey,
+                                secretKeyEnc, // With passcode
+                                utilityKey,
+                            }
+                        ],
+                        selected: state.addresses.length
+                    }, AppConfig.isTestnet);
+                    onAfterImport();
+                } catch {
+                    Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
+                } finally {
+                    setLoading(false);
+                }
+            }
+        })();
     }, []);
 
     const onConfirmed = React.useCallback(async (passcode: string) => {
@@ -127,7 +192,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     return (
         <>
-            {!state && (
+            {!state && !loading && (
                 <Animated.View
                     style={{
                         flex: 1,
@@ -142,7 +207,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 </Animated.View>
             )}
 
-            {state && (
+            {state && !loading && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
                     key={'content'}

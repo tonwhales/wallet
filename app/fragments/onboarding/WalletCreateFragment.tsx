@@ -16,6 +16,7 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
+import { StatusBar } from 'expo-status-bar';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -48,6 +49,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0
             }}
         >
+            <StatusBar style={'dark'} />
             {!state && (
                 <Animated.View
                     style={{

@@ -178,7 +178,7 @@ export const LegalFragment = systemFragment(() => {
             )}
             <View style={{ flexGrow: 1 }} />
             <View style={{
-                padding: 16,
+                paddingHorizontal: 16,
                 marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
                 alignSelf: 'stretch'
             }}>

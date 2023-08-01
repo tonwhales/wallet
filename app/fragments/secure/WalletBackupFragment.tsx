@@ -20,6 +20,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
+import { StatusBar } from 'expo-status-bar';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -45,7 +46,7 @@ export const WalletBackupFragment = systemFragment(() => {
             if (init) {
                 reboot();
             }
-            
+
             navigation.navigateAndReplaceAll('Home');
         }
     }, [engine]);
@@ -90,6 +91,7 @@ export const WalletBackupFragment = systemFragment(() => {
             exiting={FadeIn}
             key={"content"}
         >
+            <StatusBar style={Platform.OS === 'ios' ? init ? 'dark' : 'light' : 'dark'} />
             {!init && (
                 <ScreenHeader
                     title={t('create.backupTitle')}

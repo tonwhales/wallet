@@ -15,7 +15,7 @@ export type LocalizationSchema = {
         cancel: string,
         balance: string,
         walletAddress: string,
-        recepientAddress: string,
+        recipientAddress: string,
         copy: string,
         copiedAlert: string,
         copied: string,
@@ -83,7 +83,8 @@ export type LocalizationSchema = {
             form: string
         },
         telegram: string,
-        rateApp: string
+        rateApp: string,
+        deleteAccount: string,
     },
     wallet: {
         sync: string,

@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, Alert } from "react-native";
+import { Platform, View, Text, ScrollView, Alert, TextInput } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
@@ -49,8 +49,7 @@ export const DeleteAccountFragment = fragment(() => {
     const account = useItem(engine.model.wallet(engine.address));
     const addr = useMemo(() => getCurrentAddress(), []);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
-    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
-    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
+    const [recipientString, setRecipientString] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
 
     const onDeleteAccount = React.useCallback(() => {
         let ended = false;
@@ -98,7 +97,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             let targetAddress: Address;
             try {
-                targetAddress = Address.parse(targetAddressInput);
+                targetAddress = Address.parse(recipientString);
             } catch (error) {
                 Alert.alert(t('transfer.error.invalidAddress'));
                 ended = true;
@@ -240,7 +239,7 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
         });
-    }, [targetAddressInput]);
+    }, [recipientString, account]);
 
     const onContinue = React.useCallback(() => {
         const options = [t('common.cancel'), t('deleteAccount.action')];
@@ -249,7 +248,7 @@ export const DeleteAccountFragment = fragment(() => {
 
         showActionSheetWithOptions({
             title: t('deleteAccount.confirm.title'),
-            message: t('deleteAccount.confirm.message'),
+            message: t('deleteAccount.confirm.message', { address: recipientString }),
             options,
             destructiveButtonIndex,
             cancelButtonIndex,
@@ -265,118 +264,77 @@ export const DeleteAccountFragment = fragment(() => {
                     break;
             }
         });
-    }, [onDeleteAccount]);
+    }, [onDeleteAccount, recipientString]);
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            padding: 16
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('deleteAccount.title')} />
-            {Platform.OS === 'ios' && (
+            <Text style={{
+                marginTop: 24,
+                fontSize: 32, lineHeight: 38,
+                fontWeight: '600',
+                color: Theme.textColor,
+            }}
+            >
+                {t('deleteAccount.title')}
+            </Text>
+            <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
+                {t('logout.logoutDescription')}
+                {t('deleteAccount.description', { amount: '0.1' })}
+            </Text>
+            <View style={{
+                backgroundColor: Theme.lightGrey,
+                paddingHorizontal: 20, marginTop: 20,
+                paddingVertical: 10,
+                width: '100%', borderRadius: 20
+            }}>
                 <View style={{
-                    marginTop: 17,
-                    height: 32
+                    width: '100%',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    marginBottom: 2
                 }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('deleteAccount.title')}
+                    <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                        {t('common.recipientAddress')}
                     </Text>
                 </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
-                    paddingHorizontal: 16
-                }}>
-                    <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
-                            {t('deleteAccount.description', { amount: '0.1' })}
-                        </Text>
-                    </View>
-
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <ATextInput
-                            value={targetAddressInput}
-                            onValueChange={setTansferAddressInput}
-                            placeholder={t('common.walletAddress')}
-                            keyboardType="ascii-capable"
-                            preventDefaultHeight
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: Theme.label,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('transfer.sendTo')}
-                                    </Text>
-                                    {isKnown && (
-                                        <Animated.View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}
-                                            entering={FadeIn.duration(150)}
-                                            exiting={FadeOut.duration(150)}
-                                        >
-                                            <VerifiedIcon
-                                                width={14}
-                                                height={14}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 12,
-                                                color: Theme.labelSecondary,
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                                {KnownWallets(AppConfig.isTestnet)[targetAddressInput].name}
-                                            </Text>
-                                        </Animated.View>
-                                    )}
-                                </View>
-                            }
-                            multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
-                            style={{
-                                backgroundColor: Theme.transparent,
-                                paddingHorizontal: 0,
-                                marginHorizontal: 16,
-                            }}
-                            returnKeyType="next"
-                            blurOnSubmit={false}
-                        />
-                    </View>
-                </View>
-            </ScrollView>
-            <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton
-                    title={t('deleteAccount.action')}
-                    onPress={onContinue}
-                    display={'danger_zone'}
+                <TextInput
+                    style={[
+                        {
+                            paddingHorizontal: 0,
+                            textAlignVertical: 'top',
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400', color: Theme.textColor
+                        }
+                    ]}
+                    maxLength={48}
+                    placeholder={t('common.walletAddress')}
+                    placeholderTextColor={Theme.placeholder}
+                    multiline={true}
+                    blurOnSubmit={true}
+                    editable={true}
+                    value={recipientString}
+                    onChangeText={setRecipientString}
                 />
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ marginBottom: safeArea.bottom }}>
+                <RoundButton
+                    title={t('settings.deleteAccount')}
+                    onPress={onContinue}
+                    display={'default'}
+                    style={{ marginBottom: 16 }}
+                />
+                <RoundButton
+                    title={t('common.cancel')}
+                    onPress={navigation.goBack}
+                    display={'secondary'}
+                />
+            </View>
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
                     <View style={{ backgroundColor: Theme.item, padding: 16, borderRadius: 16 }}>

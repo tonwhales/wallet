@@ -13,7 +13,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         cancel: 'Cancel',
         balance: 'Balance',
         walletAddress: 'Wallet address',
-        recepientAddress: 'Recipient address',
+        recipientAddress: 'Recipient address',
         copy: 'Copy',
         copiedAlert: 'Copied to clipboard',
         copied: 'Copied',
@@ -82,6 +82,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         telegram: 'Telegram',
         rateApp: 'Rate app',
+        deleteAccount: 'Delete account',
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -652,7 +653,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             enterCurrent: 'Enter your PIN code',
             enterPrevious: 'Enter your previous PIN code',
             enterNewDescription: 'Setting a password provides an additional layer of security when using the application',
-            changeLength: 'Use {{length}}-digit PIN code', 
+            changeLength: 'Use {{length}}-digit PIN code',
         }
     },
     report: {
@@ -675,10 +676,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         posted: 'Your review is sent'
     },
     deleteAccount: {
-        title: 'Delete account',
+        title: 'Are you sure you want to Delete Account?',
         action: 'Delete account and all data',
         logOutAndDelete: 'Log Out and Delete all data',
-        description: 'To remove your account from the TON blockchain, you need to transfer all your TON coins to another wallet by sending a special transaction. This action will remove all accounts from that device and your blockchain account.\n\nTo complete this transaction, make sure you have more than {{amount}} of TON coins in your account before proceeding.',
+        description: 'This action will delete all data and currenly selected wallet from this device and your blockchain account\nYou need to transfer all your TON coins to another wallet. Before proceeding, make sure that you have more than {{amount}} TON on your account to complete the transaction',
         complete: 'Account deletion completed',
         error: {
             hasNfts: 'You have NFTs in your wallet, in order to delete the account, please send them to another wallet.',
@@ -686,7 +687,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
-            message: 'This action will delete your account and all data from this application.'
+            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified: {{address}}.\nPlease, check the recipient address carefully before proceeding.',
         }
     },
     logout: {

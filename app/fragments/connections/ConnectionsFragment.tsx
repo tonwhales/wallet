@@ -212,21 +212,21 @@ export const ConnectionsFragment = fragment(() => {
                     <ScrollView style={{ flexGrow: 1 }}>
                         <View style={{
                             marginBottom: 16, marginTop: 17,
-                            marginHorizontal: 16,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
                             flexShrink: 1,
                         }}>
                             {extensions.length > 0 && (
-                                <View style={{ marginTop: 8, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, alignSelf: 'flex-start', marginHorizontal: 16 }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
                                 </View>
                             )}
                             {extensions.map((app) => (
-                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
                                         onPress={() => openExtension(app.url)}
+                                        onRevoke={() => removeExtension(app.key)}
                                         onLongPress={() => removeExtension(app.key)}
                                         url={app.url}
                                         name={app.name}
@@ -234,12 +234,12 @@ export const ConnectionsFragment = fragment(() => {
                                 </View>
                             ))}
                             {(apps.length > 0 || tonconnectApps.length > 0) && (
-                                <View style={{ marginTop: 8, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, alignSelf: 'flex-start', marginHorizontal: 16 }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
                                 </View>
                             )}
                             {apps.map((app) => (
-                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
                                         onRevoke={() => disconnectApp(app.url)}
                                         url={app.url}
@@ -248,7 +248,7 @@ export const ConnectionsFragment = fragment(() => {
                                 </View>
                             ))}
                             {tonconnectApps.map((app) => (
-                                <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
+                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
                                         onRevoke={() => disconnectConnectApp(app.url)}
                                         url={app.url}

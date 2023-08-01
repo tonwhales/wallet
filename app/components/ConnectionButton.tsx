@@ -8,9 +8,12 @@ import { t } from "../i18n/t";
 import { WImage } from "./WImage";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import Star from '../../assets/ic-rating-star.svg';
 import { isUrl } from "../utils/resolveUrl";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
+import { Swipeable } from "react-native-gesture-handler";
+
+import Delete from '../../assets/ic-delete.svg';
+import Star from '../../assets/ic-rating-star.svg';
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -74,104 +77,104 @@ export const ConnectionButton = React.memo((
             onPress={onPress}
             onLongPress={onLongPress}
         >
-            <Animated.View style={[
-                {
-                    borderRadius: 14,
-                    backgroundColor: Theme.lightGrey, flexDirection: 'row',
-                    alignItems: 'center', justifyContent: 'center',
-                    paddingHorizontal: 20,
-                    paddingVertical: 20, flex: 1
-                },
-                animatedStyle
-            ]}>
-                <WImage
-                    heigh={56}
-                    width={56}
-                    src={app?.type === 'app-data' ? app?.image?.preview256 : app?.iconUrl}
-                    blurhash={app?.type === 'app-data' ? app?.image?.blurhash : undefined}
-                    borderRadius={12}
-                    style={{ marginRight: 12 }}
-                />
-                <View
-                    style={{
-                        flexDirection: 'column',
-                        flexGrow: 1, flexShrink: 1,
-                        justifyContent: 'center'
-                    }}
-                >
-                    {!!name && (
+            <Swipeable
+                containerStyle={{ flex: 1, paddingHorizontal: 16 }}
+                renderRightActions={!!onRevoke ? () => {
+                    return (
+                        <Pressable style={({ pressed }) => {
+                            return {
+                                height: '100%',
+                                paddingHorizontal: 24,
+                                borderRadius: 20,
+                                marginRight: 16,
+                                backgroundColor: Theme.lightRed,
+                                justifyContent: 'center', alignItems: 'center',
+                                opacity: pressed ? 0.5 : 1
+                            }
+                        }}
+                            onPress={onRevoke}
+                        >
+                            <Delete height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                    )
+                } : undefined}
+            >
+                <Animated.View style={[
+                    {
+                        flex: 1,
+                        padding: 20,
+                        borderRadius: 20,
+                        backgroundColor: Theme.lightGrey, flexDirection: 'row',
+                        alignItems: 'center', justifyContent: 'center',
+                    },
+                    animatedStyle
+                ]}>
+                    <WImage
+                        heigh={56}
+                        width={56}
+                        src={app?.type === 'app-data' ? app?.image?.preview256 : app?.iconUrl}
+                        blurhash={app?.type === 'app-data' ? app?.image?.blurhash : undefined}
+                        borderRadius={12}
+                        style={{ marginRight: 12 }}
+                    />
+                    <View
+                        style={{
+                            flexDirection: 'column',
+                            flexGrow: 1, flexShrink: 1,
+                            justifyContent: 'center'
+                        }}
+                    >
+                        {!!name && (
+                            <Text style={{
+                                fontSize: 17, lineHeight: 24,
+                                color: Theme.textColor,
+                                fontWeight: '600'
+                            }}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                {name}
+                            </Text>
+                        )}
                         <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            color: Theme.textColor,
-                            fontWeight: '600'
+                            fontSize: 15, lineHeight: 20,
+                            fontWeight: '400',
+                            color: Theme.darkGrey,
+                            flexShrink: 1
                         }}
                             numberOfLines={1}
                             ellipsizeMode={'tail'}
                         >
-                            {name}
+                            {description}
                         </Text>
-                    )}
-                    <Text style={{
-                        fontSize: 15, lineHeight: 20,
-                        fontWeight: '400',
-                        color: Theme.darkGrey,
-                        flexShrink: 1
-                    }}
-                        numberOfLines={1}
-                        ellipsizeMode={'tail'}
-                    >
-                        {description}
-                    </Text>
-                    {!!stats && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Star
-                                height={13}
-                                width={13}
-                                style={{ height: 13, width: 13 }}
-                            />
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20,
-                                fontWeight: '400',
-                                color: Theme.textColor,
-                                marginLeft: 4
-                            }}>
-                                {stats.rating}
-                            </Text>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20,
-                                fontWeight: '400',
-                                color: Theme.darkGrey,
-                                marginLeft: 4
-                            }}>
-                                {`(${stats.reviewsCount})`}
-                            </Text>
-                        </View>
-                    )}
-                </View>
-                {!!onRevoke && (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                marginLeft: 10,
-                                opacity: pressed ? 0.3 : 1,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }
-                        }}
-                        onPress={onRevoke}
-                    >
-                        <Text
-                            style={{
-                                fontWeight: '500',
-                                color: Theme.red,
-                                fontSize: 16
-                            }}
-                        >
-                            {t('common.delete')}
-                        </Text>
-                    </Pressable>
-                )}
-            </Animated.View>
+                        {!!stats && (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Star
+                                    height={13}
+                                    width={13}
+                                    style={{ height: 13, width: 13 }}
+                                />
+                                <Text style={{
+                                    fontSize: 15, lineHeight: 20,
+                                    fontWeight: '400',
+                                    color: Theme.textColor,
+                                    marginLeft: 4
+                                }}>
+                                    {stats.rating}
+                                </Text>
+                                <Text style={{
+                                    fontSize: 15, lineHeight: 20,
+                                    fontWeight: '400',
+                                    color: Theme.darkGrey,
+                                    marginLeft: 4
+                                }}>
+                                    {`(${stats.reviewsCount})`}
+                                </Text>
+                            </View>
+                        )}
+                    </View>
+                </Animated.View>
+            </Swipeable>
         </Pressable>
     );
 })

@@ -54,7 +54,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         mainWallet: 'Main wallet',
         walletName: 'Wallet name',
         from: 'From',
-        to: 'To'
+        to: 'To',
+        transaction: 'Transaction',
     },
     syncStatus: {
         connecting: 'Connecting',

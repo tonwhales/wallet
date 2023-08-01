@@ -31,6 +31,7 @@ import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -540,18 +541,9 @@ export const AuthenticateFragment = fragment(() => {
     } = useRoute().params as any;
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
-                </View>
-            )}
+            <ScreenHeader title={t('auth.title')} onClosePressed={navigation.goBack} />
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

@@ -147,26 +147,6 @@ export const ConnectionsFragment = fragment(() => {
 
     return (
         <View style={{ flex: 1 }}>
-            <TabHeader
-                title={t('home.browser')}
-                rightAction={
-                    <Pressable
-                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                        onPress={openScanner}
-                    >
-                        <Scanner
-                            style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
-                            }}
-                            height={24}
-                            width={24}
-                            color={Theme.greyForIcon}
-                        />
-                    </Pressable>
-                }
-            />
             {(
                 apps.length === 0
                 && extensions.length === 0
@@ -204,6 +184,26 @@ export const ConnectionsFragment = fragment(() => {
                         </Text>
                     </View>
                 )}
+            <TabHeader
+                title={t('home.browser')}
+                rightAction={
+                    <Pressable
+                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        onPress={openScanner}
+                    >
+                        <Scanner
+                            style={{
+                                height: 24,
+                                width: 24,
+                                marginLeft: 14
+                            }}
+                            height={24}
+                            width={24}
+                            color={Theme.greyForIcon}
+                        />
+                    </Pressable>
+                }
+            />
             {!(
                 apps.length === 0
                 && extensions.length === 0

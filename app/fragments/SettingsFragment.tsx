@@ -218,7 +218,7 @@ export const SettingsFragment = fragment(() => {
                     />
                     <ItemButton
                         dangerZone
-                        title={t('deleteAccount.title')}
+                        title={t('settings.deleteAccount')}
                         onPress={() => navigation.navigate('DeleteAccount')}
                     />
                 </View>

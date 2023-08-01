@@ -88,7 +88,7 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
                     <View style={{ flexGrow: 1 }} />
                     <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
                         <RoundButton
-                            title={t('common.start')}
+                            title={t('common.tryagain')}
                             onPress={onStart}
                             icon={<Image
                                 source={require('../../../assets/ic_privacy.png')}

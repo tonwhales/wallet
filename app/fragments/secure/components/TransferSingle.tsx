@@ -339,9 +339,9 @@ export const TransferSingle = React.memo((props: Props) => {
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
                     {!!order.app && (
                         <View style={{
-                            marginTop: 16,
-                            flexDirection: 'row', justifyContent: 'space-between',
-                            flexWrap: 'wrap', alignItems: 'flex-start',
+                            marginTop: 8,
+                            justifyContent: 'flex-start',
+                            alignItems: 'flex-start',
                         }}>
                             <Text style={{
                                 fontSize: 14,
@@ -429,7 +429,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             {!jettonAmount && (
                                 <Text style={{
                                     fontWeight: '600',
-                                    fontSize: 17, lineHeight: 24,
+                                    fontSize: 32, lineHeight: 38,
                                     color: Theme.textColor
                                 }}>
                                     {fromNano(order.messages[0].amount) + ' TON'}
@@ -439,7 +439,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                 <Text
                                     style={{
                                         fontWeight: '600',
-                                        fontSize: 17, lineHeight: 24,
+                                        fontSize: 32, lineHeight: 38,
                                         color: Theme.textColor
                                     }}
                                 >
@@ -548,33 +548,6 @@ export const TransferSingle = React.memo((props: Props) => {
                                 )}
                             </View>
                         </View>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
-                            }}>
-                                {t('transfer.feeTitle')}
-                            </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
-                                    {fromNano(fees) + ' TON'}
-                                </Text>
-                                <PriceComponent
-                                    amount={fees}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0,
-                                        alignSelf: 'flex-end'
-                                    }}
-                                    textStyle={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
-                                        flexShrink: 1
-                                    }}
-                                />
-                            </View>
-                        </View>
                         {!!operation.op && !jettonAmount && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
@@ -586,22 +559,38 @@ export const TransferSingle = React.memo((props: Props) => {
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
-                                        <View style={{
-                                            backgroundColor: Theme.item,
-                                            shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                            shadowOffset: {
-                                                height: 1,
-                                                width: 0
-                                            },
-                                            shadowRadius: 3,
-                                            shadowOpacity: 1,
-                                            height: 24, width: 24,
-                                            borderRadius: 24,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                            <WithStateInit />
-                                        </View>
+                                        {order?.app?.domain !== extractDomain(holdersUrl) && (
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <WithStateInit />
+                                            </View>
+                                        )}
+                                        {order?.app?.domain === extractDomain(holdersUrl) && (
+                                            <View style={{
+                                                height: 46, width: 34,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <Image
+                                                    style={{
+                                                        height: 46, width: 34,
+                                                    }}
+                                                    source={require('../../../../assets/ic_sign_card.png')}
+                                                />
+                                            </View>
+                                        )}
                                     </View>
                                 </View>
                             </>
@@ -617,22 +606,38 @@ export const TransferSingle = React.memo((props: Props) => {
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
-                                        <View style={{
-                                            backgroundColor: Theme.item,
-                                            shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                            shadowOffset: {
-                                                height: 1,
-                                                width: 0
-                                            },
-                                            shadowRadius: 3,
-                                            shadowOpacity: 1,
-                                            height: 24, width: 24,
-                                            borderRadius: 24,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                            <WithStateInit />
-                                        </View>
+                                        {order?.app?.domain !== extractDomain(holdersUrl) && (
+                                            <View style={{
+                                                backgroundColor: Theme.item,
+                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
+                                                shadowOffset: {
+                                                    height: 1,
+                                                    width: 0
+                                                },
+                                                shadowRadius: 3,
+                                                shadowOpacity: 1,
+                                                height: 24, width: 24,
+                                                borderRadius: 24,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <WithStateInit />
+                                            </View>
+                                        )}
+                                        {order?.app?.domain === extractDomain(holdersUrl) && (
+                                            <View style={{
+                                                height: 46, width: 34,
+                                                justifyContent: 'center',
+                                                alignItems: 'center',
+                                            }}>
+                                                <Image
+                                                    style={{
+                                                        height: 46, width: 34,
+                                                    }}
+                                                    source={require('../../../../assets/ic_sign_card.png')}
+                                                />
+                                            </View>
+                                        )}
                                     </View>
                                 </View>
                             </>
@@ -647,8 +652,8 @@ export const TransferSingle = React.memo((props: Props) => {
                                     }}>
                                         {t('transfer.purpose')}
                                     </Text>
-                                    <View style={{ alignItems: 'flex-end' }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                    <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor, textAlign: 'right' }}>
                                             {operation.op}
                                         </Text>
                                     </View>
@@ -666,7 +671,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         {t('transfer.comment')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor, textAlign: 'right' }}>
                                             {text}
                                         </Text>
                                     </View>
@@ -719,7 +724,35 @@ export const TransferSingle = React.memo((props: Props) => {
                                 </View>
                             </>
                         )}
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: Theme.darkGrey,
+                            }}>
+                                {t('transfer.feeTitle')}
+                            </Text>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                    {fromNano(fees) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    amount={fees}
+                                    style={{
+                                        backgroundColor: Theme.transparent,
+                                        paddingHorizontal: 0,
+                                        alignSelf: 'flex-end'
+                                    }}
+                                    textStyle={{
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: Theme.darkGrey,
+                                        flexShrink: 1
+                                    }}
+                                />
+                            </View>
+                        </View>
                     </ItemGroup>
+                    <View style={{ height: 54 }} />
                 </View>
             </ScrollView>
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>

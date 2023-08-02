@@ -367,20 +367,21 @@ export const TransferBatch = React.memo((props: Props) => {
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
                     {!!order.app && (
                         <View style={{
-                            paddingHorizontal: 16,
+                            marginTop: 8,
+                            justifyContent: 'flex-start',
+                            alignItems: 'flex-start',
                         }}>
                             <Text style={{
-                                textAlign: 'center',
                                 fontSize: 14,
-                                fontWeight: '600'
+                                fontWeight: '600',
+                                flexShrink: 1,
                             }}>
                                 {t('transfer.requestsToSign', { app: order.app.title })}
                             </Text>
                             <View style={{
-                                justifyContent: 'center',
                                 alignItems: 'center',
                                 flexDirection: 'row',
-                                marginTop: 6
+                                flexShrink: 1,
                             }}>
                                 <SignLock />
                                 <Text style={{

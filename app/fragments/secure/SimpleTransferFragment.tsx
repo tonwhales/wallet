@@ -178,79 +178,6 @@ export const SimpleTransferFragment = fragment(() => {
 
     }, [amount, target, domain, comment, stateInit, jettonState, params?.app]);
 
-    const doSend = useCallback(async () => {
-
-        let address: Address;
-        let isTestOnly: boolean;
-        let value: BN;
-
-        try {
-            let parsed = Address.parseFriendly(target);
-            address = parsed.address;
-            isTestOnly = parsed.isTestOnly;
-        } catch (e) {
-            Alert.alert(t('transfer.error.invalidAddress'));
-            return;
-        }
-
-        try {
-            const validAmount = amount.replace(',', '.');
-            // Manage jettons with decimals
-            if (jettonState) {
-                value = toBNWithDecimals(validAmount, jettonState.master.decimals);
-            } else {
-                value = toNano(validAmount);
-            }
-        } catch (e) {
-            console.warn(e);
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        if (value.isNeg()) {
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        // Might not happen
-        if (!order) {
-            return;
-        }
-
-        // Load contract
-        const contract = await contractFromPublicKey(acc.publicKey);
-
-        // Check if same address
-        if (address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
-        }
-
-        // Check amount
-        if (!value.eq(balance) && balance.lt(value)) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
-            return;
-        }
-        if (value.eq(new BN(0))) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
-        }
-
-        // Dismiss keyboard for iOS
-        if (Platform.OS === 'ios') {
-            Keyboard.dismiss();
-        }
-
-        // Navigate to transaction confirmation
-        navigation.navigateTransfer({
-            text: comment,
-            order,
-            job: params && params.job ? params.job : null,
-            callback,
-            back: params && params.back ? params.back + 1 : undefined
-        })
-    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
-
     // Estimate fee
     const config = engine.products.config.useConfig();
     const accountState = useRecoilValue(engine.persistence.liteAccounts.item(engine.address).atom);
@@ -453,6 +380,78 @@ export const SimpleTransferFragment = fragment(() => {
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
     const contact = engine.products.settings.useContact(target);
 
+    const doSend = useCallback(async () => {
+        let address: Address;
+        let isTestOnly: boolean;
+        let value: BN;
+
+        try {
+            let parsed = Address.parseFriendly(target);
+            address = parsed.address;
+            isTestOnly = parsed.isTestOnly;
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+
+        try {
+            const validAmount = amount.replace(',', '.');
+            // Manage jettons with decimals
+            if (jettonState) {
+                value = toBNWithDecimals(validAmount, jettonState.master.decimals);
+            } else {
+                value = toNano(validAmount);
+            }
+        } catch (e) {
+            console.warn(e);
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
+        }
+
+        if (value.isNeg()) {
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
+        }
+
+        // Might not happen
+        if (!order) {
+            return;
+        }
+
+        // Load contract
+        const contract = await contractFromPublicKey(acc.publicKey);
+
+        // Check if same address
+        if (address.equals(contract.address)) {
+            Alert.alert(t('transfer.error.sendingToYourself'));
+            return;
+        }
+
+        // Check amount
+        if (!value.eq(balance) && balance.lt(value)) {
+            Alert.alert(t('transfer.error.notEnoughCoins'));
+            return;
+        }
+        if (value.eq(new BN(0))) {
+            Alert.alert(t('transfer.error.zeroCoins'));
+            return;
+        }
+
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
+        }
+
+        // Navigate to transaction confirmation
+        navigation.navigateTransfer({
+            text: comment,
+            order,
+            job: params && params.job ? params.job : null,
+            callback,
+            back: params && params.back ? params.back + 1 : undefined
+        })
+    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
+
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
@@ -461,7 +460,9 @@ export const SimpleTransferFragment = fragment(() => {
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom - 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInsetAdjustmentBehavior="never"
+                contentInsetAdjustmentBehavior={'never'}
+                keyboardShouldPersistTaps={'always'}
+                keyboardDismissMode={'none'}
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
@@ -615,7 +616,6 @@ export const SimpleTransferFragment = fragment(() => {
                                 preventDefaultHeight
                                 preventDefaultLineHeight
                                 preventDefaultValuePadding
-                                // blurOnSubmit={false}
                                 onBlur={onBlur}
                             />
                         </Animated.View>
@@ -707,11 +707,20 @@ export const SimpleTransferFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <RoundButton
-                    disabled={!order}
-                    title={t('common.continue')}
-                    action={selectedInput ? async () => onSubmit(selectedInput) : doSend}
-                />
+                {selectedInput !== null
+                    ? <RoundButton
+                        title={t('common.continue')}
+                        onPress={() => {
+                            setSelectedInput(null);
+                            Keyboard.dismiss();
+                        }}
+                    />
+                    : <RoundButton
+                        disabled={!order}
+                        title={t('common.continue')}
+                        action={doSend}
+                    />
+                }
             </KeyboardAvoidingView>
         </Animated.View>
     );

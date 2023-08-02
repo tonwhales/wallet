@@ -29,6 +29,7 @@ import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearZenPay } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { fetchSeqno } from "../engine/api/fetchSeqno";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -48,7 +49,7 @@ export const DeleteAccountFragment = fragment(() => {
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
 
-    const onDeletetAccount = React.useCallback(() => {
+    const onDeleteAccount = React.useCallback(() => {
         let ended = false;
 
         async function confirm(title: LocalizedResources) {
@@ -140,7 +141,7 @@ export const DeleteAccountFragment = fragment(() => {
             // Read key
             let key: WalletKeys
             try {
-                key = await await authContext.authenticate({ cancelable: true });
+                key = await authContext.authenticate({ cancelable: true });
             } catch (e) {
                 setStatus(undefined);
                 navigation.goBack();
@@ -192,12 +193,15 @@ export const DeleteAccountFragment = fragment(() => {
                 extMessage.writeTo(msg);
 
                 // Sending transaction
-                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                await backoff('delete_account_transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));
+                    const block = await engine.client4.getLastBlock();
+                    const s = await fetchSeqno(engine.client4, block.last.seqno, addr.address);
+                    const isActive = (await engine.client4.getAccount(block.last.seqno, addr.address)).account.state.type === 'active';
+
                     // Check if wallet has been cleared
-                    if (s === 0) {
+                    if (s === 0 || isActive) {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(() => {
@@ -230,17 +234,17 @@ export const DeleteAccountFragment = fragment(() => {
                     destructiveButtonIndex: 1,
                     cancelButtonIndex: 0
                 },
-                (buttonIndex) => { if (buttonIndex === 1) onDeletetAccount(); }
+                (buttonIndex) => { if (buttonIndex === 1) onDeleteAccount(); }
             );
         } else {
             Alert.alert(
                 t('deleteAccount.confirm.title'),
                 t('deleteAccount.confirm.message'),
                 [{
-                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeletetAccount() }
+                    text: t('deleteAccount.action'), style: 'destructive', onPress: () => { onDeleteAccount() }
                 }, { text: t('common.cancel') }])
         }
-    }, [onDeletetAccount]);
+    }, [onDeleteAccount]);
 
     return (
         <View style={{

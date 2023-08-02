@@ -2,13 +2,13 @@ import { BN } from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode, WalletContractType } from 'ton';
+import { Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, WalletContractType } from 'ton';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { contractFromPublicKey, contractFromPublicKeyTyped } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -22,6 +22,7 @@ import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -65,32 +66,55 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                let wallet = engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
+                let wallet = contractFromPublicKeyTyped(key.keyPair.publicKey, type);
                 if (ended) {
                     return;
                 }
                 setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
 
-                const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
-                if (state.balance.gt(new BN(0))) {
+                const block = await engine.client4.getLastBlock();
+                const state = (await backoff('migration', () => engine.client4.getAccount(block.last.seqno, wallet.address))).account;
+                if (new BN(state.balance.coins, 10).gt(new BN(0))) {
                     setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
-                    wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
-                    const seqno = await backoff('migration', () => wallet.getSeqNo());
+                    const seqno = await fetchSeqno(engine.client4, block.last.seqno, wallet.address);
 
-                    // Transfer
-                    await backoff('migration', () => wallet.transfer({
-                        seqno,
+                    let intMessage: InternalMessage;
+
+                    intMessage = new InternalMessage({
                         to: targetContract.address,
                         value: new BN(0),
+                        bounce: false,
+                        body: new CommonMessageInfo({
+                            stateInit: seqno === 0 ? new StateInit({ code: wallet.source.initialCode, data: wallet.source.initialData }) : null,
+                            body: new CommentMessage('')
+                        })
+                    });
+
+                    // Transfer
+                    const transfer = wallet.createTransfer({
+                        seqno,
+                        order: intMessage,
                         sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE,
-                        secretKey: key.keyPair.secretKey,
-                        bounce: false
-                    }));
+                        secretKey: key.keyPair.secretKey
+                    });
+
+                    // Create external message
+                    let extMessage = new ExternalMessage({
+                        to: wallet.address,
+                        body: new CommonMessageInfo({
+                            stateInit: seqno === 0 ? new StateInit({ code: wallet.source.initialCode, data: wallet.source.initialData }) : null,
+                            body: new CellMessage(transfer)
+                        })
+                    });
+                    let msg = new Cell();
+                    extMessage.writeTo(msg);
+
+                    await backoff('migration_transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
                     while (!ended) {
-                        let s = await backoff('migration', () => wallet.getSeqNo());
+                        let s = await backoff('migration_seqno', () => fetchSeqno(engine.client4, block.last.seqno, wallet.address));
                         if (s > seqno) {
                             break;
                         }

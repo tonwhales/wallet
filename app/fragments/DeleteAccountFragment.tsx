@@ -31,6 +31,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { useActionSheet } from "@expo/react-native-action-sheet";
+import { fetchSeqno } from "../engine/api/fetchSeqno";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -195,12 +196,15 @@ export const DeleteAccountFragment = fragment(() => {
                 extMessage.writeTo(msg);
 
                 // Sending transaction
-                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                await backoff('delete_account_transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));
+                    const block = await engine.client4.getLastBlock();
+                    const isActive = (await engine.client4.getAccount(block.last.seqno, addr.address)).account.state.type === 'active';
+                    const s = await fetchSeqno(engine.client4, block.last.seqno, addr.address);
+                    
                     // Check if wallet has been cleared
-                    if (s === 0) {
+                    if (s === 0 || isActive) {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(async () => {
@@ -283,7 +287,6 @@ export const DeleteAccountFragment = fragment(() => {
                 {t('deleteAccount.title')}
             </Text>
             <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
-                {t('logout.logoutDescription')}
                 {t('deleteAccount.description', { amount: '0.1' })}
             </Text>
             <View style={{

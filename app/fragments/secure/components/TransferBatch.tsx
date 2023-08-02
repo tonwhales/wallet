@@ -21,13 +21,10 @@ import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { ItemAddress } from "../../../components/ItemAddress";
 import { ItemCollapsible } from "../../../components/ItemCollapsible";
-import { ItemDivider } from "../../../components/ItemDivider";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { RoundButton } from "../../../components/RoundButton";
-import { TransferComponent } from "../../../components/transactions/TransferComponent";
 import { WImage } from "../../../components/WImage";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useAppConfig } from "../../../utils/AppConfigContext";
@@ -36,7 +33,6 @@ import { AddressComponent } from "../../../components/AddressComponent";
 
 import IcAlert from '../../../../assets/ic-alert.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
-import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import Verified from '../../../../assets/ic-verified.svg';
 
@@ -357,18 +353,10 @@ export const TransferBatch = React.memo((props: Props) => {
         }
     }, []);
 
-    const anim = React.useRef<LottieView>(null);
-
-    React.useLayoutEffect(() => {
-        setTimeout(() => {
-            anim.current?.play()
-        }, 300);
-    }, []);
-
     return (
         <>
             <ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
                 keyboardShouldPersistTaps="always"

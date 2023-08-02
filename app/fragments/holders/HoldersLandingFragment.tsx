@@ -103,11 +103,10 @@ export const HoldersLandingFragment = fragment(() => {
 
             authOpacity.value = 0;
             setAuth(false);
-
-        } catch (error) {
+        } catch (error: any) {
             authOpacity.value = 0;
             setAuth(false);
-            Alert.alert(t('auth.failed'));
+            Alert.alert(t('auth.failed'), error?.message);
             warn(error);
         }
     }, [auth]);

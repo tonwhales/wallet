@@ -26,7 +26,7 @@ export async function fetchAccountToken(config: {
         }
     );
     if (!res.data.ok) {
-        throw Error('Failed to fetch card token');
+        throw Error('Failed to fetch account token');
     }
     return res.data.token as string;
 }

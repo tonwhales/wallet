@@ -76,30 +76,26 @@ export class HoldersProduct {
 
     async enroll(domain: string, authContext: AuthWalletKeysType) {
         let res = await (async () => {
-            //
             // Create domain key if needed
-            //
-
             let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
             if (!created) {
                 return false;
             }
 
-            // 
-            // Check holders token cloud value
-            // 
-
+            // Check holders stored token 
             let existing = this.getToken();
             if (existing && existing.toString().length > 0) {
                 return true;
             } else {
-                //
-                // Create signnature and fetch token
-                //
-
+                // Create signature and fetch token
+                let contract = contractFromPublicKey(this.engine.publicKey);
+                let signed
                 try {
-                    let contract = contractFromPublicKey(this.engine.publicKey);
-                    let signed = this.engine.products.keys.createDomainSignature(domain);
+                    signed = this.engine.products.keys.createDomainSignature(domain);
+                } catch {
+                    throw new Error('Failed to create domain signature');
+                }
+                try {
                     let token = await fetchAccountToken({
                         address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
                         walletConfig: contract.source.backup(),
@@ -112,7 +108,7 @@ export class HoldersProduct {
                     this.setToken(token);
                 } catch {
                     this.deleteToken();
-                    throw Error('Failed to create signature and fetch token');
+                    throw new Error('Failed to fetch account token');
                 }
             }
 

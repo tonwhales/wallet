@@ -32,9 +32,7 @@ export const WalletCreateFragment = systemFragment(() => {
             // Nice minimum delay for smooth animations
             // and secure feeling of key generation process
             // It is a little bit random - sometimes it takes few seconds, sometimes few milliseconds
-            const mnemonics = await minimumDelay(2500, (async () => {
-                return await mnemonicNew();
-            })());
+            const mnemonics = await mnemonicNew();
 
             // Persist state
             setState({ mnemonics: mnemonics.join(' ') });

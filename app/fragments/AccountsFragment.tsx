@@ -13,6 +13,8 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
 import { JettonProductItem } from "../components/products/JettonProductItem";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ItemGroup } from "../components/ItemGroup";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -79,20 +81,10 @@ export const AccountsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('products.accounts')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('products.accounts')}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader
+                title={t('products.accounts')}
+                onClosePressed={navigation.goBack}
+            />
             {jettons.length === 0 && (
                 <View style={{
                     flex: 1,
@@ -126,17 +118,20 @@ export const AccountsFragment = fragment(() => {
                 </View>
             )}
             {jettons.length > 0 && (
-                <ScrollView style={{ flexGrow: 1 }}>
+                <ScrollView
+                    style={{ flexGrow: 1 }}
+                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                    contentInset={{ bottom: safeArea.bottom + 62 /*ProductButton height*/ + 16 /* vertical margins */ }}
+                >
                     <View style={{
                         marginBottom: 16,
                         marginTop: 17,
                         borderRadius: 14,
                         flexShrink: 1,
                     }}>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8 }} collapsable={false}>
                             {disabled.length === 0 && (
                                 <Text style={{
-                                    marginHorizontal: 16,
                                     fontSize: 16,
                                     color: Theme.priceSecondary
                                 }}
@@ -148,7 +143,6 @@ export const AccountsFragment = fragment(() => {
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',
-                                    marginHorizontal: 16,
                                     marginVertical: 8,
                                     color: active.length > 0 ? Theme.textColor : Theme.textSecondary
                                 }}
@@ -157,22 +151,26 @@ export const AccountsFragment = fragment(() => {
                                 </Text>
                             )}
                         </View>
-                        {active.map((j) => {
-                            return (
-                                <JettonProductItem
-                                    key={'jt' + j.wallet.toFriendly()}
-                                    jetton={j}
-                                    engine={engine}
-                                    onPress={() => promptDisable(j.master, j.symbol)}
-                                />
-                            );
-                        })}
+                        {active.length > 0 && (
+                            <ItemGroup style={{ paddingHorizontal: 0, paddingVertical: 0 }}>
+                                {active.map((j, index) => {
+                                    return (
+                                        <JettonProductItem
+                                            key={'jt' + j.wallet.toFriendly()}
+                                            jetton={j}
+                                            engine={engine}
+                                            onPress={() => promptDisable(j.master, j.symbol)}
+                                            last={index === active.length - 1}
+                                        />
+                                    );
+                                })}
+                            </ItemGroup>
+                        )}
                         {disabled.length > 0 && (
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: active.length > 0 ? 16 : 8 }} collapsable={false}>
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',
-                                    marginHorizontal: 16,
                                     marginVertical: 8
                                 }}
                                 >
@@ -180,22 +178,26 @@ export const AccountsFragment = fragment(() => {
                                 </Text>
                             </View>
                         )}
-                        {disabled.map((j) => {
-                            return (
-                                <JettonProductItem
-                                    key={'jt' + j.wallet.toFriendly()}
-                                    jetton={j}
-                                    engine={engine}
-                                    onPress={() => promptActive(j.master, j.symbol)}
-                                    onLongPress={() => { }}
-                                />
-                            );
-                        })}
+                        {disabled.length > 0 && (
+                            <ItemGroup style={{ paddingHorizontal: 0, paddingVertical: 0 }}>
+                                {disabled.map((j, index) => {
+                                    return (
+                                        <JettonProductItem
+                                            key={'jt' + j.wallet.toFriendly()}
+                                            jetton={j}
+                                            engine={engine}
+                                            onPress={() => promptActive(j.master, j.symbol)}
+                                            onLongPress={() => { }}
+                                            last={index === disabled.length - 1}
+                                        />
+                                    );
+                                })}
+                            </ItemGroup>
+                        )}
                     </View>
                     <View style={{ height: 62 /*ProductButton height*/ + 16 /* vertical margins */ }} />
                 </ScrollView>
             )}
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

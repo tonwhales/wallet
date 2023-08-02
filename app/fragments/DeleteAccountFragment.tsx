@@ -200,9 +200,9 @@ export const DeleteAccountFragment = fragment(() => {
 
                 while (!ended) {
                     const block = await engine.client4.getLastBlock();
-                    const isActive = (await engine.client4.getAccount(block.last.seqno, addr.address)).account.state.type === 'active';
                     const s = await fetchSeqno(engine.client4, block.last.seqno, addr.address);
-                    
+                    const isActive = (await engine.client4.getAccount(block.last.seqno, addr.address)).account.state.type === 'active';
+
                     // Check if wallet has been cleared
                     if (s === 0 || isActive) {
                         setStatus('deleted');

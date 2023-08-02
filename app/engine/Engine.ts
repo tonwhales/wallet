@@ -41,7 +41,6 @@ export class Engine {
     readonly cloud: Cloud
 
     // Connector
-    readonly connector: Connector;
     readonly client4: TonClient4;
     readonly blocksWatcher: BlocksWatcher;
     readonly state: SyncStateManager = new SyncStateManager();
@@ -75,7 +74,6 @@ export class Engine {
         persistence: MMKV,
         sharedPersistence: MMKV,
         client4Endpoint: string,
-        connector: Connector,
         recoil: RecoilInterface,
         isTestnet: boolean
     ) {
@@ -85,7 +83,6 @@ export class Engine {
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.address = address;
         this.publicKey = publicKey;
-        this.connector = connector;
         this._destroyed = false;
         this.model = new Model(this);
         this.blocksWatcher = new BlocksWatcher(client4Endpoint, this.state);

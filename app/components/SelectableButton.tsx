@@ -71,7 +71,7 @@ export const SelectableButton = React.memo((
                         borderRadius: 12
                     }}>
                         {selected && (
-                            <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                            <IcCheck color={Theme.white} height={16} width={16} style={{ height: 16, width: 16 }} />
                         )}
                     </View>
                 )}

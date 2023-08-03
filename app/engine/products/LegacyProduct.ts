@@ -21,7 +21,7 @@ export class LegacyProduct {
         this.wallets.push(contractAddress(WalletV3R2Source.create({ publicKey: engine.publicKey, workchain: 0 })));
 
         this.atom = selector({
-            key: 'selector/legacy',
+            key: `${engine.sessionId}/selector/legacy`,
             get: ({ get }) => {
                 let b = new BN(0);
                 for (let w of this.wallets) {
@@ -35,7 +35,7 @@ export class LegacyProduct {
             dangerouslyAllowMutability: true
         });
         this.atomFull = selector({
-            key: 'selector/legacy/full',
+            key: `${engine.sessionId}/selector/legacy/full`,
             get: ({ get }) => {
                 let wallets: { address: Address, balance: BN }[] = [];
                 for (let w of this.wallets) {

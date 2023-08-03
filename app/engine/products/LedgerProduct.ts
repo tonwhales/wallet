@@ -144,15 +144,15 @@ export class LedgerProduct {
         startWalletConfigSync(this.engine, address);
         
         this.#atom = atom<WalletState | null>({
-            key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }),
+            key: `${this.engine.sessionId}/wallet/` + address.toFriendly({ testOnly: this.engine.isTestnet }),
             default: null,
             dangerouslyAllowMutability: true
         });
 
         this.#txsAtom = atomFamily<TransactionDescription, string>({
-            key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
+            key: `${this.engine.sessionId}/wallet/` + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
             default: selectorFamily({
-                key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
+                key: `${this.engine.sessionId}/wallet/` + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
                     let base = this.#txs.get(id);
                     if (!base) {

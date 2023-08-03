@@ -192,7 +192,7 @@ export const WalletCard = React.memo((
                             </Text>
                         </View>
 
-                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
+                        <Text style={{ fontSize: 14, color: Theme.white, opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Pressable
                                 style={({ pressed }) => {
@@ -204,7 +204,7 @@ export const WalletCard = React.memo((
                                 }}
                                 onPress={openGraph}
                             >
-                                <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                                <Text style={{ fontSize: 30, color: Theme.white, marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
                                     <ValueComponent value={balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                                 </Text>
                                 {balance.gt(new BN(0)) && <GraphIcon />}
@@ -239,7 +239,7 @@ export const WalletCard = React.memo((
                             elipsise
                             textStyle={{
                                 textAlign: 'left',
-                                color: 'white',
+                                color: Theme.white,
                                 fontWeight: '500',
                                 fontFamily: undefined
                             }}
@@ -282,13 +282,13 @@ export const WalletCard = React.memo((
                             resizeMode="stretch"
                             resizeMethod="resize"
                         />
-                        <Text style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
+                        <Text style={{ fontSize: 14, color: Theme.white, opacity: 0.8, marginTop: 16, marginLeft: 22 }}>{t('wallet.balanceTitle')}</Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <View style={{
                                 marginLeft: 22,
                                 flexDirection: 'row', alignItems: 'center'
                             }}>
-                                <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
+                                <Text style={{ fontSize: 30, color: Theme.white, marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
                                     <ValueComponent value={balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                                 </Text>
                             </View>
@@ -332,7 +332,7 @@ export const WalletCard = React.memo((
                                 elipsise
                                 textStyle={{
                                     textAlign: 'left',
-                                    color: 'white',
+                                    color: Theme.white,
                                     fontWeight: '500',
                                     fontFamily: undefined
                                 }}

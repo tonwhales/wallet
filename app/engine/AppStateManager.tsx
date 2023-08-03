@@ -14,9 +14,9 @@ export type AppStateManager = {
 
 export const AppStateManagerContext = React.createContext<AppStateManager | null>(null);
 
-export const AppStateManagerLoader = React.memo(({ children }: { children?: any }) => {
+export const AppStateManagerLoader = React.memo(({ children, sessionId }: { children?: any, sessionId: number }) => {
     const { AppConfig } = useAppConfig();
-    const reboot = useReboot()
+    const reboot = useReboot();
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
 
     const initAppState = React.useMemo(() => {
@@ -34,7 +34,14 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
 
             return {
                 state: storedAppState,
-                engine: createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet })
+                engine: createEngine({
+                    address: ex.address,
+                    publicKey: ex.publicKey,
+                    utilityKey: ex.utilityKey,
+                    recoilUpdater,
+                    isTestnet: AppConfig.isTestnet,
+                    sessionId
+                })
             }
         } else {
             return { state: storedAppState, engine: null };
@@ -46,22 +53,7 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
     const onAppStateUpdate = React.useCallback((newState: AppState) => {
         if (newState.selected !== undefined && newState.selected < newState.addresses.length) {
             storeAppState(newState, AppConfig.isTestnet);
-            if (newState.selected === -1) {
-                appState.engine?.destroy();
-                setAppState({ state: newState, engine: null });
-                return;
-            }
-            if (newState.selected !== appState.state.selected) {
-                appState.engine?.destroy();
-                const ex = newState.addresses[newState.selected];
-                mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                mixpanelFlush(AppConfig.isTestnet);
-
-                const storedAppState = getAppState();
-                const engine = createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet });
-
-                setAppState({ state: storedAppState, engine });
-            }
+            appState.engine?.destroy();
         }
         reboot();
 
@@ -77,7 +69,7 @@ export const AppStateManagerLoader = React.memo(({ children }: { children?: any 
     }, []);
 
     return (
-        <AppStateManagerContext.Provider value={{ updateAppState: onAppStateUpdate, current: appState.state }}>
+        <AppStateManagerContext.Provider value={{ updateAppState: onAppStateUpdate, current: initAppState.state }}>
             <EngineContext.Provider value={appState.engine}>
                 {children}
             </EngineContext.Provider>

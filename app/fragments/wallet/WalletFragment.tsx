@@ -15,7 +15,7 @@ import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
@@ -336,7 +336,16 @@ function WalletComponent(props: { wallet: WalletState }) {
 export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
+    const navigation = useTypedNavigation();
     useTrackScreen('Wallet', engine.isTestnet);
+
+    useEffect(() => {
+        if (!account) {
+            navigation.setOptions({ tabBarStyle: { display: 'none' } });
+            return;
+        }
+        navigation.setOptions({ tabBarStyle: { display: 'flex'  } });
+    }, [account, navigation]);
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>

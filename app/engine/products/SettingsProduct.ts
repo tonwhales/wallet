@@ -27,19 +27,19 @@ export class SettingsProduct {
         this.ledger = engine.cloud.get(`ledger-v${version}`, (src) => { src.on = false });
 
         this.#passcodeStateAtom = atom<PasscodeState | null>({
-            key: 'settings/passcode-state',
+            key: `${engine.sessionId}/settings/passcode-state`,
             default: getPasscodeState(),
             dangerouslyAllowMutability: true
         });
 
         this.#biometricsStateAtom = atom<BiometricsState | null>({
-            key: 'settings/biometrics-state',
+            key: `${engine.sessionId}/settings/biometrics-state`,
             default: getBiometricsState(),
             dangerouslyAllowMutability: true
         });
 
         this.#minAmountSelector = selector({
-            key: 'settings/spam/min-amount',
+            key: `${engine.sessionId}/settings/spam/min-amount`,
             get: ({ get }) => {
                 let config = get(this.engine.persistence.spamFilterConfig.item().atom);
                 if (!config) {
@@ -51,7 +51,7 @@ export class SettingsProduct {
         });
 
         this.#dontShowCommentsSelector = selector({
-            key: 'settings/spam/comments',
+            key: `${engine.sessionId}/settings/spam/comments`,
             get: ({ get }) => {
                 let config = get(this.engine.persistence.spamFilterConfig.item().atom);
                 if (!config) {
@@ -63,7 +63,7 @@ export class SettingsProduct {
         });
 
         this.#denyAddressSelector = selectorFamily<boolean, string>({
-            key: 'settings/spam/deny-list',
+            key: `${engine.sessionId}/settings/spam/deny-list`,
             get: (address) => ({ get }) => {
                 const list = get(this.addressBook.atom).denyList || [];
                 const res = !!list[address];
@@ -72,7 +72,7 @@ export class SettingsProduct {
         });
 
         this.#contactSelector = selectorFamily<AddressContact | undefined, string>({
-            key: 'settings/contacts',
+            key: `${engine.sessionId}/settings/contacts`,
             get: (address) => ({ get }) => {
                 const list = get(this.addressBook.atom).contacts || {};
                 return list[address];

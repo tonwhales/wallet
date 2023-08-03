@@ -73,7 +73,7 @@ export class WalletProduct {
         this.engine = engine;
         this.address = engine.address;
         this.#atom = atom<WalletState | null>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
+            key: `${this.engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
             default: null,
             dangerouslyAllowMutability: true
         });
@@ -92,7 +92,7 @@ export class WalletProduct {
         }
 
         this.#jettons = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/jettons',
+            key: `${this.engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/jettons',
             get: ({ get }) => {
 
                 // Load known jettons
@@ -163,9 +163,9 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         });
         this.#txsAtom = atomFamily<TransactionDescription, string>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
+            key: `${this.engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
             default: selectorFamily({
-                key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
+                key: `${this.engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
                     let base = this.#txs.get(id);
                     if (!base) {

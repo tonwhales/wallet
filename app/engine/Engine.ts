@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
 import { Address, TonClient4 } from "ton";
-import { Connector } from "./api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
@@ -65,6 +64,7 @@ export class Engine {
     readonly transactions: Transactions;
     readonly model: Model;
     readonly recoil: RecoilInterface;
+    readonly sessionId: number
     private _destroyed: boolean;
 
     constructor(
@@ -75,8 +75,10 @@ export class Engine {
         sharedPersistence: MMKV,
         client4Endpoint: string,
         recoil: RecoilInterface,
-        isTestnet: boolean
+        isTestnet: boolean,
+        sessionId: number
     ) {
+        this.sessionId = sessionId;
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
         this.sharedPersistence = new SharedPersistence(sharedPersistence, this);

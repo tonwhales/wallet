@@ -233,7 +233,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const { AppConfig, NavigationTheme } = useAppConfig();
+    const { AppConfig, NavigationTheme, Theme } = useAppConfig();
     const engine = useEngine();
 
     const initial = React.useMemo(() => {
@@ -329,7 +329,7 @@ export const Navigation = React.memo(() => {
                             title: '',
                             headerShadowVisible: false,
                             headerTransparent: false,
-                            headerStyle: { backgroundColor: 'white' }
+                            headerStyle: { backgroundColor: Theme.white }
                         }}
                     >
                         {navigation(safeArea)}

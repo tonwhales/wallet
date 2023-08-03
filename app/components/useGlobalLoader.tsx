@@ -67,7 +67,7 @@ export const GlobalLoaderProvider = React.memo((props: { children?: any }) => {
 
                 <Animated.View style={{ opacity: backgroundOpacity, backgroundColor: 'rgba(0,0,0,0.49)', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents={visible ? 'auto' : 'box-none'} />
                 <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }} pointerEvents="none">
-                    <Animated.View style={{ backgroundColor: 'white', width: 120, height: 120, borderRadius: 36, opacity: loaderOpacity, justifyContent: 'center', alignItems: 'center' }}>
+                    <Animated.View style={{ backgroundColor: Theme.white, width: 120, height: 120, borderRadius: 36, opacity: loaderOpacity, justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (<ActivityIndicator size="large" style={{ transform: [{ translateX: 2 }, { translateY: 2 }] }} />)}
                         {Platform.OS !== 'ios' && (<ActivityIndicator size={64} color={Theme.loader} animating={true} />)}
                     </Animated.View>

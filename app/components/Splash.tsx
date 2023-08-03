@@ -3,8 +3,10 @@ import { View, Image } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
 import { StatusBar } from "expo-status-bar";
+import { useAppConfig } from "../utils/AppConfigContext";
 
 export const Splash = React.memo(({ hide }: { hide: boolean }) => {
+    const { Theme } = useAppConfig();
     const [visible, setVisible] = React.useState(true);
     const sharedOpacity = useSharedValue(1);
 
@@ -44,7 +46,7 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: 'white',
+                    backgroundColor: Theme.white,
                 },
                 animatedStyle
             ]}

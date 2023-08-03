@@ -41,7 +41,7 @@ export class ExtensionsProduct {
         this.engine = engine;
         this.extensions = this.engine.cloud.get('wallet.extensions.v2', (src) => { src.installed = {} });
         this.#extensionsSelector = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/extensions',
+            key: `${engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: {

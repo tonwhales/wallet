@@ -24,7 +24,7 @@ export const Root = React.memo(() => {
                 <RebootContext.Provider value={reboot}>
                     <AppConfigContextProvider>
                         <RecoilRoot>
-                            <AppStateManagerLoader>
+                            <AppStateManagerLoader sessionId={sessionId}>
                                 <Navigation />
                             </AppStateManagerLoader>
                         </RecoilRoot>

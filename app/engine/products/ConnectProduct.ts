@@ -35,7 +35,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
         this.extensions = this.engine.cloud.get('wallet.tonconnect.extensions.v1', (src) => { src.installed = {} });
         this.pendingRequestsItem = this.engine.persistence.connectDAppRequests.item();
         this.#pendingRequestsSelector = selector({
-            key: 'tonconnect/requests',
+            key: `${engine.sessionId}/tonconnect/requests`,
             get: ({ get }) => {
                 let reqests = get(this.pendingRequestsItem.atom);
                 return reqests ?? [];
@@ -43,7 +43,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
             dangerouslyAllowMutability: true
         });
         this.#extensionsSelector = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/tonconnect/extensions',
+            key: `${engine.sessionId}/wallet/` + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/tonconnect/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: {

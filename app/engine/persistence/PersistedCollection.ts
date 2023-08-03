@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
-import { atom } from 'recoil';
+import { atom, useRecoilState } from 'recoil';
 import { createLogger } from '../../utils/log';
 import { Engine } from '../Engine';
 import { PersistedItem } from './PersistedItem';
@@ -38,7 +38,8 @@ export class PersistedCollection<K, T> extends EventEmitter {
         super();
         this.#engine = args.engine;
         this.#storage = args.storage;
-        this.#namespace = args.namespace;
+        this.#namespace = `${args.namespace}/${args.engine.sessionId}`;
+        console.log('namespace', this.#namespace);
         this.#key = args.key;
         this.#codec = args.codec;
     }

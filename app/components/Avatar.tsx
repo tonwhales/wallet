@@ -68,7 +68,7 @@ export const Avatar = React.memo((props: {
     dontShowVerified?: boolean,
     backgroundColor?: string
 }) => {
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
 
     let known = props.address ? KnownWallets(AppConfig.isTestnet)[props.address] : undefined;
     let size = Math.floor(props.size * 0.6);
@@ -98,7 +98,8 @@ export const Avatar = React.memo((props: {
             width: props.size,
             height: props.size,
             borderRadius: props.size / 2,
-            backgroundColor: (!known || !known.ic) ? (props.backgroundColor || color) : undefined,
+            backgroundColor: (!known || !known.ic) ? (props.backgroundColor ? Theme.white : color) : undefined,
+            borderColor: props.backgroundColor, borderWidth: 1,
             alignItems: 'center', justifyContent: 'center'
         }}>
             {img}

@@ -1,19 +1,13 @@
-import { HeaderBackButton } from "@react-navigation/elements";
-import { BlurView } from "expo-blur";
-import React, { useCallback, useLayoutEffect, useMemo } from "react";
-import { Ionicons } from '@expo/vector-icons';
-import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
+import React, { useCallback, useMemo } from "react";
+import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableHighlight } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "ton";
-import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
-import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import TopUpIcon from '../../../assets/ic_top_up.svg';
 import { StakingCycle } from "../../components/Staking/StakingCycle";
 import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -30,6 +24,8 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -207,6 +203,33 @@ export const StakingFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+            <ScreenHeader
+                style={{ marginTop: 32 }}
+                onBackPressed={navigation.goBack}
+                title={KnownPools(AppConfig.isTestnet)[params.pool].name}
+                rightButton={
+                    <Pressable
+                        onPress={openMoreInfo}
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.3 : 1,
+                                position: 'absolute',
+                                bottom: 12, right: 16
+                            }
+                        }}
+                    >
+                        <Text
+                            style={{
+                                color: Theme.accent,
+                                fontSize: 17, fontWeight: '600'
+                            }}
+                        >
+                            {t('products.staking.learnMore')}
+                        </Text>
+                    </Pressable>
+                }
+            />
+            <StatusBar style={'dark'} />
             <Animated.ScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
@@ -214,12 +237,12 @@ export const StakingFragment = fragment(() => {
                         ? safeArea.top + 44
                         : undefined,
                 }}
-                contentInset={{ top: isLedger ? 44 + 16 : 44, bottom: 52 }}
+                contentInset={{ top: isLedger ? 44 + 16 : 0, bottom: 52 }}
                 contentOffset={{ y: -(44 + (isLedger ? 0 : safeArea.top)), x: 0 }}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
             >
-                {Platform.OS === 'ios' && (<View style={{ height: isLedger ? 8 : safeArea.top }} />)}
+                {Platform.OS === 'ios' && isLedger && (<View style={{ height: isLedger ? 8 : safeArea.top }} />)}
                 <Animated.View
                     style={[
                         { ...cardOpacityStyle },
@@ -230,8 +253,7 @@ export const StakingFragment = fragment(() => {
                     ]}
                     collapsable={false}
                 >
-                    <Image
-                        source={require('../../../assets/staking_card.png')}
+                    <View
                         style={{
                             position: 'absolute',
                             top: 0,
@@ -239,10 +261,10 @@ export const StakingFragment = fragment(() => {
                             right: 0,
                             bottom: 0,
                             height: cardHeight,
-                            width: window.width - 32
+                            width: window.width - 32,
+                            backgroundColor: '#1F283E',
+                            borderRadius: 20
                         }}
-                        resizeMode="stretch"
-                        resizeMethod="resize"
                     />
 
                     <Text
@@ -292,6 +314,72 @@ export const StakingFragment = fragment(() => {
                         limitActions
                     />
                 </Animated.View>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        marginHorizontal: 16,
+                        backgroundColor: '#1F283E',
+                        borderRadius: 20,
+                        marginBottom: 16
+                    }}
+                    collapsable={false}
+                >
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
+                        <TouchableHighlight
+                            onPress={onTopUp}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
+                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                <View style={{
+                                    backgroundColor: Theme.accent,
+                                    width: 32, height: 32,
+                                    borderRadius: 16,
+                                    alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    <Image source={require('../../../assets/ic-plus.png')} />
+                                </View>
+                                <Text
+                                    style={{
+                                        fontSize: 15,
+                                        color: Theme.item,
+                                        marginTop: 6,
+                                        fontWeight: '400'
+                                    }}>
+                                    {t('products.staking.actions.top_up')}
+                                </Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
+                        <TouchableHighlight
+                            onPress={onUnstake}
+                            underlayColor={Theme.selector}
+                            style={{ borderRadius: 14 }}
+                        >
+                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                <View style={{
+                                    backgroundColor: Theme.accent,
+                                    width: 32, height: 32,
+                                    borderRadius: 16,
+                                    alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    <Image source={require('../../../assets/ic_receive.png')} />
+                                </View>
+                                <Text
+                                    style={{
+                                        fontSize: 15,
+                                        color: Theme.item,
+                                        marginTop: 6,
+                                        fontWeight: '400'
+                                    }}
+                                >
+                                    {t('products.staking.actions.withdraw')}
+                                </Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
+                </View>
                 <StakingPendingComponent
                     target={targetPool}
                     style={{ marginHorizontal: 16 }}
@@ -313,298 +401,6 @@ export const StakingFragment = fragment(() => {
                     <RestrictedPoolBanner type={type} />
                 )}
             </Animated.ScrollView >
-            {/* iOS Toolbar */}
-            {
-                Platform.OS === 'ios' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: isLedger ? 44 + 16 : safeArea.top + 44,
-                    }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: isLedger ? 8 : safeArea.top,
-                            paddingBottom: isLedger ? 8 : 0,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}>
-                            <View style={{
-                                width: '100%', height: 44,
-                                alignItems: 'center', justifyContent: 'center',
-                                flexDirection: 'row'
-                            }}>
-                                <HeaderBackButton
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0, bottom: 0
-                                    }}
-                                    label={t('common.back')}
-                                    labelVisible
-                                    onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
-                                        navigation.goBack();
-                                    }}
-                                    tintColor={Theme.accent}
-                                />
-                                <Animated.Text
-                                    style={[
-                                        { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                                        { position: 'relative', ...titleOpacityStyle },
-                                    ]}
-                                >
-                                    {t('products.staking.title')}
-                                </Animated.Text>
-                                <Animated.View
-                                    style={[
-                                        {
-                                            flex: 1,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            position: 'absolute',
-                                            top: 0, bottom: 0
-                                        },
-                                        { ...smallCardStyle },
-                                    ]}
-                                    pointerEvents="none"
-                                    collapsable={false}
-                                >
-                                    <View style={{
-                                        height: cardHeight,
-                                        width: window.width - 32,
-                                        flex: 1,
-                                        transform: [{ scale: 0.15 }],
-                                    }}>
-                                        <Image
-                                            source={require('../../../assets/staking_card.png')}
-                                            style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                height: cardHeight,
-                                                width: window.width - 32
-                                            }}
-                                            resizeMode="stretch"
-                                            resizeMethod="resize"
-                                        />
-
-                                        <Text
-                                            style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
-                                        >
-                                            {t('products.staking.balance')}
-                                        </Text>
-                                        <Text
-                                            style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                        >
-                                            <ValueComponent value={member?.balance || toNano('0')} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
-                                        </Text>
-                                        <View style={{ flexGrow: 1 }}>
-
-                                        </View>
-                                        <Text style={{ color: 'white', marginLeft: 22, marginBottom: 16, alignSelf: 'flex-start', fontWeight: '500' }} numberOfLines={1}>
-                                            <AddressComponent address={targetPool} />
-                                        </Text>
-                                    </View>
-                                </Animated.View>
-                                <Pressable
-                                    onPress={openMoreInfo}
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.3 : 1,
-                                            position: 'absolute',
-                                            bottom: 12, right: 16
-                                        }
-                                    }}
-                                >
-                                    <Text
-                                        style={{
-                                            color: Theme.accent,
-                                            fontSize: 17, fontWeight: '600'
-                                        }}
-                                    >
-                                        {t('products.staking.learnMore')}
-                                    </Text>
-                                </Pressable>
-                            </View>
-                        </BlurView>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View >
-                )
-            }
-            {/* Android Toolbar */}
-            {
-                Platform.OS === 'android' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{
-                            width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden',
-                            flexDirection: 'row'
-                        }}>
-                            <View style={{
-                                position: 'absolute',
-                                left: 16, bottom: 8
-                            }}>
-                                <TouchableNativeFeedback
-                                    onPress={() => {
-                                        if (params.backToHome) {
-                                            navigation.popToTop();
-                                            return;
-                                        }
-                                        navigation.goBack();
-                                    }}
-                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
-                                >
-                                    <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
-                                    </View>
-                                </TouchableNativeFeedback>
-                            </View>
-                            <Animated.Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
-                                { position: 'relative', ...titleOpacityStyle },
-                            ]}>
-                                {t('products.staking.title')}
-                            </Animated.Text>
-                            <Animated.View
-                                style={[
-                                    {
-                                        flex: 1,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        top: 0, bottom: 0
-                                    },
-                                    { ...smallCardStyle },
-                                ]}
-                                collapsable={false}
-                            >
-                                <View style={{
-                                    height: cardHeight,
-                                    width: window.width - 32,
-                                    flex: 1,
-                                    transform: [{ scale: 0.15 }],
-                                }}>
-                                    <Image
-                                        source={require('../../../assets/staking_card.png')}
-                                        style={{
-                                            position: 'absolute',
-                                            top: 0,
-                                            left: 0,
-                                            right: 0,
-                                            bottom: 0,
-                                            height: cardHeight,
-                                            width: window.width - 32
-                                        }}
-                                        resizeMode="stretch"
-                                        resizeMethod="resize"
-                                    />
-
-                                    <Text
-                                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
-                                    >
-                                        {t('products.staking.balance')}
-                                    </Text>
-                                    <Text
-                                        style={{ fontSize: 30, color: 'white', marginHorizontal: 22, fontWeight: '800', height: 40, marginTop: 2 }}
-                                    >
-                                        <ValueComponent
-                                            value={member?.balance || toNano('0')}
-                                            centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                        />
-                                    </Text>
-                                    <View style={{ flexGrow: 1 }}>
-
-                                    </View>
-                                    <Text
-                                        style={{ color: 'white', marginLeft: 22, marginBottom: 24, alignSelf: 'flex-start', fontWeight: '500' }}
-                                        numberOfLines={1}
-                                    >
-                                        <AddressComponent address={targetPool} />
-                                    </Text>
-                                </View>
-                            </Animated.View>
-                            <Pressable onPress={openMoreInfo} style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.3 : 1,
-                                    position: 'absolute', right: 16, bottom: 10,
-                                }
-                            }}>
-                                <Text
-                                    style={{
-                                        color: Theme.accent,
-                                        fontSize: 17, fontWeight: '600'
-                                    }}
-                                >
-                                    {t('products.staking.learnMore')}
-                                </Text>
-                            </Pressable>
-                        </View>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: Theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View>
-                )
-            }
-            <BlurView
-                style={{
-                    height: 64,
-                    position: 'absolute',
-                    paddingBottom: safeArea.bottom + 64,
-                    paddingTop: 8,
-                    left: 16, right: 16, bottom: 0,
-                    flexDirection: 'row',
-                    justifyContent: 'space-evenly'
-                }}
-            >
-                <RoundButton
-                    display={'secondary'}
-                    title={t('products.staking.actions.withdraw')}
-                    onPress={onUnstake}
-                    style={{
-                        flexGrow: 1,
-                        marginRight: 7,
-                        height: 56
-                    }}
-                    disabled={!canWithdraw}
-                />
-                <RoundButton
-                    title={t('products.staking.actions.top_up')}
-                    onPress={onTopUp}
-                    disabled={!available}
-                    style={{
-                        marginLeft: 7,
-                        height: 56,
-                        flexGrow: 1,
-                        maxWidth: (window.width - 32 - 14) / 2
-                    }}
-                    icon={<TopUpIcon />}
-                />
-            </BlurView>
         </View>
     );
 });

@@ -324,7 +324,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             actions: {
                 deposit: 'Deposit',
                 top_up: 'Top Up',
-                withdraw: 'Unstake'
+                withdraw: 'Withdraw',
             },
             join: {
                 title: 'Become a TON validator',

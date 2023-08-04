@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut, FadeOutDown, FadeOutUp } from 'react-native-reanimated';
 import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
@@ -118,8 +118,8 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             alignItems: 'center',
                         },
                     ]}
-                    exiting={FadeOut}
-                    entering={FadeIn}
+                    exiting={FadeOutUp}
+                    entering={FadeInDown}
                 >
                     <PasscodeInput
                         style={{ marginTop: 49 }}

@@ -39,7 +39,6 @@ export class PersistedCollection<K, T> extends EventEmitter {
         this.#engine = args.engine;
         this.#storage = args.storage;
         this.#namespace = `${args.namespace}/${args.engine.sessionId}`;
-        console.log('namespace', this.#namespace);
         this.#key = args.key;
         this.#codec = args.codec;
     }

@@ -92,7 +92,6 @@ export type ConfirmLoadedProps = {
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
-        console.log({ order: props.order })
         return <TransferSingle {...props} />
     }
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { RefObject, forwardRef, memo, useEffect, useState } from "react";
 import { View, TextInput, Text, Pressable } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
@@ -6,7 +6,7 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 
 import IcClear from '../../../assets/ic-clear.svg';
 
-export const ContactField = React.memo((props: {
+export const ContactField = memo(forwardRef((props: {
     input: {
         onFocus?: (index: number) => void,
         onBlur?: (index: number) => void,
@@ -17,9 +17,8 @@ export const ContactField = React.memo((props: {
     },
     fieldKey: string,
     index: number,
-    inputRef: React.RefObject<TextInput>,
     onFieldChange: (index: number, value: string) => void,
-}) => {
+}, ref: React.ForwardedRef<TextInput>) => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const [value, setValue] = useState(props.input.value || '');
@@ -48,10 +47,7 @@ export const ContactField = React.memo((props: {
                 flexDirection: 'row', alignItems: 'center',
             }}
             onPress={() => {
-                console.log('pressed', props.inputRef);
-                if (props.inputRef) {
-                    props.inputRef.current?.focus();
-                }
+                (ref as RefObject<TextInput>)?.current?.focus();
             }}
             hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
         >
@@ -67,7 +63,7 @@ export const ContactField = React.memo((props: {
                     </Text>
                 </View>
                 <TextInput
-                    ref={props.inputRef}
+                    ref={ref}
                     style={[
                         {
                             textAlignVertical: 'top',
@@ -120,6 +116,5 @@ export const ContactField = React.memo((props: {
                 </Pressable>
             )}
         </Pressable>
-    )
-
-});
+    );
+}));

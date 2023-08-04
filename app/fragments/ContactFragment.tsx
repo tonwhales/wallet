@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, Image, Alert, Keyboard, TouchableHighlight, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -40,26 +40,13 @@ export const ContactFragment = fragment(() => {
         try {
             return Address.parse(address);
         } catch {
-            return null
+            return null;
         }
     }, [address]);
-
     const contact = settings.useContactAddress(params.isNew ? null : parsed);
     const [editing, setEditing] = useState(!contact || params.isNew);
     const [name, setName] = useState(contact?.name);
     const [fields, setFields] = useState(contact?.fields || requiredFields);
-
-    const hasChanges = useMemo(() => {
-        if (name !== contact?.name) {
-            return true;
-        }
-        for (let i = 0; i < fields.length; i++) {
-            if (fields[i].value !== (contact?.fields || [])[i]?.value) {
-                return true;
-            }
-        }
-        return false
-    }, [fields, name, contact]);
 
     useEffect(() => {
         if (contact) {
@@ -127,22 +114,19 @@ export const ContactFragment = fragment(() => {
     }, [fields, setFields]);
 
     // Scroll with Keyboard
-    const [selectedInput, setSelectedInput] = React.useState(0);
-
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<TextInput>[] = [];
-        if (params.isNew) r.push(React.createRef<TextInput>()); // address input ref
-        r.push(React.createRef<TextInput>()); // name input ref
+    const [selectedInput, setSelectedInput] = useState(0);
+    const refs = useMemo(() => {
+        let r: RefObject<TextInput>[] = [];
+        if (params.isNew) r.push(createRef<TextInput>()); // address input ref
+        r.push(createRef<TextInput>()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(React.createRef<TextInput>());
+            r.push(createRef<TextInput>());
         }
         return r;
     }, [fields, params.isNew]);
-
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
-    const containerRef = useAnimatedRef<View>();
-
-    const scrollToInput = React.useCallback((index: number) => {
+    const containerRef = useAnimatedRef<Animated.View>();
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -151,32 +135,28 @@ export const ContactFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        if (refs.length - 1 === index) {
-            scrollTo(scrollRef, 0, 400, true);
-        }
         if (container) {
             scrollTo(scrollRef, 0, container.height - 44 * (index + 1), true);
-            return;
+        } else {
+            scrollTo(scrollRef, 0, 500, true);
         }
-        scrollTo(scrollRef, 0, 500, true);
-
     }, []);
 
     const keyboard = useKeyboard();
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
         runOnUI(scrollToInput)(index);
     }, []);
 
-    const onSubmit = React.useCallback((index: number) => {
+    const onSubmit = useCallback((index: number) => {
         let next = refs[index + 1]?.current;
         if (next) {
             next.focus();
@@ -205,7 +185,19 @@ export const ContactFragment = fragment(() => {
             return false;
         }
         return true;
-    }, [params,]);
+    }, [params]);
+
+    const hasChanges = useMemo(() => {
+        if (name !== contact?.name) {
+            return true;
+        }
+        for (let i = 0; i < fields.length; i++) {
+            if (fields[i].value !== (contact?.fields || [])[i]?.value) {
+                return true;
+            }
+        }
+        return false
+    }, [fields, name, contact]);
 
     const canSave = useMemo(() => {
         if (editing && !params.isNew) {
@@ -277,7 +269,7 @@ export const ContactFragment = fragment(() => {
                 ref={scrollRef}
                 scrollEventThrottle={16}
             >
-                <View
+                <Animated.View
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
@@ -512,7 +504,7 @@ export const ContactFragment = fragment(() => {
                                                 fieldKey={field.key}
                                                 key={`input-${index}`}
                                                 index={index + (params.isNew ? 2 : 1)}
-                                                inputRef={refs[index + (params.isNew ? 2 : 1)]}
+                                                ref={refs[index + (params.isNew ? 2 : 1)]}
                                                 input={{
                                                     value: field.value || '',
                                                     onFocus: onFocus,
@@ -537,7 +529,7 @@ export const ContactFragment = fragment(() => {
                             )}
                         </>
                     )}
-                </View>
+                </Animated.View>
             </Animated.ScrollView>
         </View>
     )

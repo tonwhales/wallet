@@ -34,44 +34,44 @@ export const StakingCycle = React.memo((
         <View style={[{
             backgroundColor: Theme.lightGrey,
             minHeight: 70,
-            borderRadius: 14,
+            borderRadius: 20,
             marginHorizontal: 16,
             padding: 20,
             overflow: 'hidden',
         }, style]}>
             {locked && (
-                <>
-                    <StakingCycleProgress left={left} />
+                <View style={{ flexDirection: 'row' }}>
                     <View style={{
-                        flex: 1,
+                        flex: 1, paddingRight: 20,
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
                                 color: Theme.textColor,
                                 fontWeight: '600',
-                                fontSize: 16
+                                fontSize: 17, lineHeight: 24
                             }}>
-                                {t('products.staking.nextCycle')}
+                                {t('products.staking.nextCycle') + ' '}
+                                <Countdown
+                                    left={left}
+                                    textStyle={{
+                                        color: Theme.textColor,
+                                        fontWeight: '600',
+                                        fontSize: 17, lineHeight: 24
+                                    }}
+                                />
                             </Text>
-                            <Countdown
-                                left={left}
-                                textStyle={{
-                                    fontWeight: '400',
-                                    color: Theme.textColor,
-                                    fontSize: 16
-                                }}
-                            />
                         </View>
                         <Text style={{
-                            color: Theme.textSecondary,
+                            color: Theme.darkGrey,
                             fontWeight: '400',
-                            fontSize: 13,
-                            marginTop: 8
+                            fontSize: 15, lineHeight: 20,
+                            marginTop: 2
                         }}>
                             {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
                         </Text>
                     </View>
-                </>
+                    <StakingCycleProgress left={left} />
+                </View>
             )}
             {!locked && (
                 <>

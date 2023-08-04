@@ -47,11 +47,11 @@ export const StakingPendingComponent = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.item,
-            borderRadius: 14,
+            backgroundColor: Theme.lightGrey,
+            borderRadius: 20,
             justifyContent: 'center',
             alignItems: 'center',
-            paddingLeft: 16,
+            padding: 20,
             marginBottom: 14
         }, style]}>
             {member.pendingDeposit.gtn(0) && (
@@ -167,19 +167,20 @@ export const StakingPendingComponent = React.memo((
                     <View style={{
                         height: 1, width: '100%',
                         backgroundColor: Theme.divider,
+                        marginVertical: 8
                     }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Pressable
                             style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })}
                             onPress={() => {
                                 navigation.navigateStaking({
-                                        target: target,
-                                        amount: member.withdraw,
-                                        lockAmount: true,
-                                        lockAddress: true,
-                                        lockComment: true,
-                                        action: 'withdraw_ready' as TransferAction,
-                                    });
+                                    target: target,
+                                    amount: member.withdraw,
+                                    lockAmount: true,
+                                    lockAddress: true,
+                                    lockComment: true,
+                                    action: 'withdraw_ready' as TransferAction,
+                                });
                             }}
                         >
                             <View style={{ height: 48, paddingLeft: 0, paddingRight: 16, alignItems: 'center', justifyContent: 'center', flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>
@@ -212,8 +213,7 @@ export const StakingPendingComponent = React.memo((
                         </Pressable>
                     </View>
                 </>
-            )
-            }
+            )}
         </View >
     );
 })

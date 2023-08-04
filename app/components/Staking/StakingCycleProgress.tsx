@@ -1,7 +1,8 @@
-import React, { useEffect, useRef } from "react"
-import { StyleProp, View, ViewStyle } from "react-native"
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import React, { useEffect } from "react"
+import { StyleProp, ViewStyle } from "react-native"
+import { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import CircularProgress from "../CircularProgress/CircularProgress";
 
 export const StakingCycleProgress = React.memo((
     {
@@ -21,7 +22,6 @@ export const StakingCycleProgress = React.memo((
     const { Theme, AppConfig } = useAppConfig();
     const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
     const progress = 100 - Math.floor((left * 100) / (full ? full : stakingCycle));
-    const ref = useRef<Animated.View>(null);
     const scale = useSharedValue(0);
 
     const progressStyle = useAnimatedStyle(() => {
@@ -38,35 +38,21 @@ export const StakingCycleProgress = React.memo((
     }, [progress]);
 
     return (
-        <Animated.View
-            ref={ref}
-            style={[{
-                position: 'absolute',
-                top: 0, left: 0, bottom: 0,
-            }, style, { ...progressStyle }]}
-        >
-            {!reverse && (<View
-                style={[{
-                    backgroundColor: color ? color : Theme.accent,
-                    height: 4,
-                    width: '100%',
-                }]}
-            />)}
-            <View
-                style={[{
-                    backgroundColor: color ? color : Theme.accent,
-                    flexGrow: 1,
-                    opacity: 0.1,
-                    width: '100%'
-                }]}
-            />
-            {reverse && (<View
-                style={[{
-                    backgroundColor: color ? color : Theme.accent,
-                    height: 4,
-                    width: '100%',
-                }]}
-            />)}
-        </Animated.View>
+        <CircularProgress
+            style={{
+                transform: [{ rotate: '-90deg' }],
+                marginRight: 4
+            }}
+            progress={progress}
+            animateFromValue={0}
+            duration={500}
+            size={58}
+            width={8}
+            backgroundColor={Theme.mediumGrey}
+            color={Theme.mediumMain}
+            fullColor={null}
+            loop={false}
+            containerColor={Theme.transparent}
+        />
     );
 })

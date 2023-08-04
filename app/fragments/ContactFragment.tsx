@@ -376,6 +376,41 @@ export const ContactFragment = fragment(() => {
                                 </TouchableHighlight>
                             </View>
                         )}
+
+                        {(!editing && fields.filter((f) => (f.value?.length ?? 0) > 0).length > 0) && (
+                            <View style={{
+                                backgroundColor: Theme.lightGrey,
+                                paddingHorizontal: 20, marginTop: 20,
+                                paddingVertical: 10,
+                                width: '100%', borderRadius: 20
+                            }}>
+                                {
+                                    fields.filter((f) => (f.value?.length ?? 0) > 0).map((field, index) => {
+                                        return (
+                                            <>
+                                                <ContactField
+                                                    fieldKey={field.key}
+                                                    key={`input-${index}`}
+                                                    index={index + (params.isNew ? 2 : 1)}
+                                                    ref={refs[index + (params.isNew ? 2 : 1)]}
+                                                    input={{
+                                                        value: field.value || '',
+                                                        onFocus: onFocus,
+                                                        onSubmit: onSubmit,
+                                                        editable: editing,
+                                                        enabled: editing
+                                                    }}
+                                                    onFieldChange={onFieldChange}
+                                                />
+                                                {index !== fields.filter((f) => (f.value?.length ?? 0) > 0).length - 1 && (
+                                                    <ItemDivider marginHorizontal={0} />
+                                                )}
+                                            </>
+                                        )
+                                    })
+                                }
+                            </View>
+                        )}
                     </View>
 
                     {editing && (

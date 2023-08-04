@@ -1,14 +1,12 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, Pressable, TextInput } from "react-native";
+import { Platform, View, Text, Image, Alert, Keyboard, TouchableHighlight, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
-import { ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
 import { ContactField } from "../components/Contacts/ContactField";
-import { Item } from "../components/Item";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
@@ -19,9 +17,9 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useScreenHeader } from "../components/ScreenHeader";
 import { copyText } from "../utils/copyText";
+import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 
-import ShareIcon from '../../assets/ic_share_address_white.svg';
 import CopyIcon from '../../assets/ic-copy.svg';
 
 const requiredFields = [
@@ -51,7 +49,6 @@ export const ContactFragment = fragment(() => {
     const [name, setName] = useState(contact?.name);
     const [fields, setFields] = useState(contact?.fields || requiredFields);
 
-
     const hasChanges = useMemo(() => {
         if (name !== contact?.name) {
             return true;
@@ -71,16 +68,12 @@ export const ContactFragment = fragment(() => {
         }
     }, [contact]);
 
-
-    const onCancel = useCallback(
-        () => {
-            setEditing(false);
-        },
-        [],
-    );
-
     const onAction = useCallback(
         () => {
+            if (!editing) {
+                setEditing(true);
+                return;
+            }
             if (!parsed) {
                 Alert.alert(t('transfer.error.invalidAddress'));
                 return;
@@ -89,10 +82,7 @@ export const ContactFragment = fragment(() => {
             if (Platform.OS === 'ios') {
                 Keyboard.dismiss();
             }
-            if (!editing) {
-                setEditing(true);
-                return;
-            }
+
             if (!name || name.length > 126) {
                 Alert.alert(t('contacts.alert.name'), t('contacts.alert.nameDescription'))
                 return;
@@ -140,13 +130,15 @@ export const ContactFragment = fragment(() => {
     const [selectedInput, setSelectedInput] = React.useState(0);
 
     const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
-        r.push(React.createRef()); // name input ref
+        let r: React.RefObject<TextInput>[] = [];
+        if (params.isNew) r.push(React.createRef<TextInput>()); // address input ref
+        r.push(React.createRef<TextInput>()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(React.createRef());
+            r.push(React.createRef<TextInput>());
         }
         return r;
-    }, [fields]);
+    }, [fields, params.isNew]);
+
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
@@ -159,13 +151,14 @@ export const ContactFragment = fragment(() => {
         }
 
         let container = measure(containerRef);
-        if (Platform.OS !== 'android' && container) {
-            scrollTo(scrollRef, 0, container.height, true);
-        }
-        if (Platform.OS === 'android') {
+        if (refs.length - 1 === index) {
             scrollTo(scrollRef, 0, 400, true);
         }
-        return;
+        if (container) {
+            scrollTo(scrollRef, 0, container.height - 44 * (index + 1), true);
+            return;
+        }
+        scrollTo(scrollRef, 0, 500, true);
 
     }, []);
 
@@ -179,8 +172,8 @@ export const ContactFragment = fragment(() => {
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
     const onFocus = React.useCallback((index: number) => {
-        runOnUI(scrollToInput)(index);
         setSelectedInput(index);
+        runOnUI(scrollToInput)(index);
     }, []);
 
     const onSubmit = React.useCallback((index: number) => {
@@ -202,83 +195,110 @@ export const ContactFragment = fragment(() => {
             return;
         }
         Share.open({
-            title:t('contacts.title'),
+            title: t('contacts.title'),
             message: `${name} \n${parsed.toFriendly({ testOnly: AppConfig.isTestnet })}`
         });
     }, [parsed]);
 
-        useScreenHeader(
-            navigation,
-            Theme,
-            {
-                title: t('contacts.title'),
-                headerShown: true,
-                headerLargeTitle: true,
-                tintColor: Theme.accent,
-                rightButton: (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                            }
-                        }}
-                        onPress={onAction}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                        disabled={editing && !hasChanges}
-                    >
-                        <Text style={{
-                            color: Theme.accent,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {editing ? t('contacts.save') : t('contacts.edit')}
-                        </Text>
-                    </Pressable>
-                ),
-                onBackPressed: navigation.goBack,
-            }
-        );
+    const ready = useMemo(() => {
+        if (!params.isNew || !parsed || name?.length === 0) {
+            return false;
+        }
+        return true;
+    }, [params,]);
 
-        return (
-            <View style={{
-                flex: 1,
-                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            }}>
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <Animated.ScrollView
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
-                    contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    automaticallyAdjustContentInsets={false}
-                    ref={scrollRef}
-                    scrollEventThrottle={16}
+    const canSave = useMemo(() => {
+        if (editing && !params.isNew) {
+            return hasChanges;
+        }
+        return params.isNew && ready;
+    }, [editing, hasChanges, params, ready]);
+
+    const reset = useCallback(() => {
+        setEditing(false);
+        setFields(contact?.fields || requiredFields);
+        setName(contact?.name);
+    }, []);
+
+    useScreenHeader(
+        navigation,
+        Theme,
+        {
+            title: t('contacts.title'),
+            headerShown: true,
+            headerLargeTitle: true,
+            tintColor: Theme.accent,
+            rightButton: (
+                <Pressable
+                    style={({ pressed }) => {
+                        return {
+                            opacity: pressed ? 0.5 : 1,
+                        }
+                    }}
+                    onPress={onAction}
+                    hitSlop={
+                        Platform.select({
+                            ios: undefined,
+                            default: { top: 16, right: 16, bottom: 16, left: 16 },
+                        })
+                    }
+                    disabled={editing ? !canSave : false}
                 >
-                    <View
-                        ref={containerRef}
-                        style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
-                    >
-                        <View style={{
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            width: '100%'
-                        }}>
-                            <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center' }}>
-                                <Avatar address={address} id={address} size={100} image={undefined} backgroundColor={Theme.accent} />
-                            </View>
-                            <Text style={{
-                                fontSize: 32, lineHeight: 38,
-                                fontWeight: '600',
-                                color: Theme.textColor,
-                                marginTop: 16
-                            }}>
-                                {name}
-                            </Text>
-                            {!params.isNew && (
+                    <Text style={{
+                        color: editing
+                            ? canSave
+                                ? Theme.accent
+                                : Theme.darkGrey
+                            : Theme.accent,
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '500',
+                    }}>
+                        {editing ? t('contacts.save') : t('contacts.edit')}
+                    </Text>
+                </Pressable>
+            ),
+            onBackPressed: (editing && !params.isNew)
+                ? reset
+                : navigation.goBack,
+        }
+    );
+
+    return (
+        <View style={{
+            flex: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+        }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <Animated.ScrollView
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                automaticallyAdjustContentInsets={false}
+                ref={scrollRef}
+                scrollEventThrottle={16}
+            >
+                <View
+                    ref={containerRef}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+                >
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        width: '100%'
+                    }}>
+                        <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
+                            <Avatar address={address} id={address} size={100} image={undefined} backgroundColor={Theme.accent} />
+                        </View>
+                        {!editing && (
+                            <>
+                                <Text style={{
+                                    fontSize: 32, lineHeight: 38,
+                                    fontWeight: '600',
+                                    color: Theme.textColor,
+                                    marginTop: 16
+                                }}>
+                                    {name}
+                                </Text>
                                 <Pressable
                                     onPress={onCopy}
                                     style={{ marginTop: 4, flexDirection: 'row', alignItems: 'center' }}
@@ -293,80 +313,109 @@ export const ContactFragment = fragment(() => {
                                     </Text>
                                     <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={Theme.greyForIcon} />
                                 </Pressable>
-                            )}
-                            {!editing && !!parsed && (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        marginTop: 24,
-                                        backgroundColor: Theme.lightGrey,
-                                        width: '100%',
-                                        justifyContent: 'center', alignItems: 'center',
-                                        borderRadius: 20,
-                                        padding: 10
+                            </>
+                        )}
+                        {!editing && !!parsed && (
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    marginTop: 24,
+                                    backgroundColor: Theme.lightGrey,
+                                    width: '100%',
+                                    justifyContent: 'center', alignItems: 'center',
+                                    borderRadius: 20,
+                                    padding: 10
+                                }}
+                            >
+                                <TouchableHighlight
+                                    onPress={() => {
+                                        navigation.navigate(
+                                            'Assets',
+                                            { target: parsed.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                        );
                                     }}
+                                    underlayColor={Theme.selector}
+                                    style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
                                 >
-                                    <TouchableHighlight
-                                        onPress={() => {
-                                            navigation.navigate(
-                                                'Assets',
-                                                { target: parsed.toFriendly({ testOnly: AppConfig.isTestnet }) }
-                                            );
-                                        }}
-                                        underlayColor={Theme.selector}
-                                        style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View
-                                                style={{
-                                                    backgroundColor: Theme.accent,
-                                                    width: 32, height: 32,
-                                                    borderRadius: 16,
-                                                    alignItems: 'center', justifyContent: 'center'
-                                                }}>
-                                                <Image source={require('../../assets/ic_send.png')} />
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: Theme.textColor,
-                                                marginTop: 6,
-                                                fontWeight: '500'
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View
+                                            style={{
+                                                backgroundColor: Theme.accent,
+                                                width: 32, height: 32,
+                                                borderRadius: 16,
+                                                alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                                {t('wallet.actions.send')}
-                                            </Text>
+                                            <Image source={require('../../assets/ic_send.png')} />
                                         </View>
-                                    </TouchableHighlight>
-                                    <TouchableHighlight
-                                        onPress={onShare}
-                                        underlayColor={Theme.selector}
-                                        style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View
-                                                style={{
-                                                    backgroundColor: Theme.accent,
-                                                    width: 32, height: 32,
-                                                    borderRadius: 16,
-                                                    alignItems: 'center', justifyContent: 'center'
-                                                }}>
-                                                {/* <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} /> */}
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: Theme.textColor,
-                                                marginTop: 6,
-                                                fontWeight: '500'
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: Theme.textColor,
+                                            marginTop: 6,
+                                            fontWeight: '500'
+                                        }}>
+                                            {t('wallet.actions.send')}
+                                        </Text>
+                                    </View>
+                                </TouchableHighlight>
+                                <TouchableHighlight
+                                    onPress={onShare}
+                                    underlayColor={Theme.selector}
+                                    style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View
+                                            style={{
+                                                backgroundColor: Theme.accent,
+                                                width: 32, height: 32,
+                                                borderRadius: 16,
+                                                alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                                {t('common.share')}
-                                            </Text>
+                                            {/* <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} /> */}
                                         </View>
-                                    </TouchableHighlight>
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: Theme.textColor,
+                                            marginTop: 6,
+                                            fontWeight: '500'
+                                        }}>
+                                            {t('common.share')}
+                                        </Text>
+                                    </View>
+                                </TouchableHighlight>
+                            </View>
+                        )}
+                    </View>
+
+                    {editing && (
+                        <>
+                            {!params.isNew && (
+                                <View style={{
+                                    backgroundColor: Theme.lightGrey,
+                                    paddingHorizontal: 20, marginTop: 20,
+                                    paddingVertical: 10,
+                                    width: '100%', borderRadius: 20
+                                }}>
+                                    <View style={{
+                                        width: '100%',
+                                        overflow: 'hidden',
+                                        position: 'relative',
+                                        marginBottom: 2
+                                    }}>
+                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                            {t('common.walletAddress')}
+                                        </Text>
+                                    </View>
+                                    <Text style={{
+                                        fontSize: 17, lineHeight: 24,
+                                        fontWeight: '400',
+                                        marginTop: 4,
+                                        color: Theme.darkGrey
+                                    }}>
+                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                    </Text>
                                 </View>
                             )}
-                        </View>
-
-                        {params.isNew && (
-                            <>
+                            {params.isNew && (
                                 <View style={{
                                     backgroundColor: Theme.lightGrey,
                                     paddingHorizontal: 20, marginTop: 20,
@@ -384,6 +433,7 @@ export const ContactFragment = fragment(() => {
                                         </Text>
                                     </View>
                                     <TextInput
+                                        ref={refs[0]}
                                         style={[
                                             {
                                                 paddingHorizontal: 0,
@@ -400,16 +450,38 @@ export const ContactFragment = fragment(() => {
                                         editable={true}
                                         value={address}
                                         onChangeText={setAddress}
+                                        onSubmitEditing={() => onSubmit(0)}
+                                        onFocus={() => onFocus(0)}
                                     />
                                 </View>
+                            )}
 
-                                <View style={{
-                                    backgroundColor: Theme.lightGrey,
-                                    paddingHorizontal: 20, marginTop: 20,
-                                    paddingVertical: 10,
-                                    width: '100%', borderRadius: 20
-                                }}>
+                            <View style={{
+                                backgroundColor: Theme.lightGrey,
+                                paddingHorizontal: 20, marginTop: 20,
+                                paddingVertical: 10,
+                                width: '100%', borderRadius: 20
+                            }}>
+                                <Pressable
+                                    onPress={() => {
+                                        if (refs[params.isNew ? 1 : 0]) {
+                                            refs[params.isNew ? 1 : 0].current?.focus();
+                                        }
+                                    }}
+                                    hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+                                >
+                                    <View style={{
+                                        width: '100%',
+                                        overflow: 'hidden',
+                                        position: 'relative',
+                                        marginBottom: 2
+                                    }}>
+                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                            {t('contacts.name')}
+                                        </Text>
+                                    </View>
                                     <TextInput
+                                        ref={refs[params.isNew ? 1 : 0]}
                                         style={[
                                             {
                                                 paddingVertical: 0,
@@ -427,61 +499,46 @@ export const ContactFragment = fragment(() => {
                                         editable={editing}
                                         value={name}
                                         onChangeText={setName}
-                                        onSubmitEditing={() => onSubmit(0)}
+                                        onSubmitEditing={() => onSubmit(params.isNew ? 1 : 0)}
+                                        onFocus={() => onFocus(params.isNew ? 1 : 0)}
                                     />
-                                </View>
+                                </Pressable>
+
                                 {fields.map((field, index) => {
                                     return (
-                                        <ContactField
-                                            fieldKey={field.key}
-                                            key={`input-${index}`}
-                                            index={index + 1}
-                                            refs={refs}
-                                            input={{
-                                                value: field.value || '',
-                                                onFocus: onFocus,
-                                                onSubmit: onSubmit,
-                                                editable: editing,
-                                                enabled: editing
-                                            }}
-                                            onFieldChange={onFieldChange}
-                                        />
+                                        <>
+                                            <ItemDivider marginHorizontal={0} />
+                                            <ContactField
+                                                fieldKey={field.key}
+                                                key={`input-${index}`}
+                                                index={index + (params.isNew ? 2 : 1)}
+                                                inputRef={refs[index + (params.isNew ? 2 : 1)]}
+                                                input={{
+                                                    value: field.value || '',
+                                                    onFocus: onFocus,
+                                                    onSubmit: onSubmit,
+                                                    editable: editing,
+                                                    enabled: editing
+                                                }}
+                                                onFieldChange={onFieldChange}
+                                            />
+                                        </>
                                     )
                                 })}
-                                {!!contact && (
-                                    <Item
-                                        textColor={Theme.dangerZone}
-                                        backgroundColor={Theme.background}
-                                        title={t('contacts.delete')}
-                                        onPress={onDelete}
-                                    />
-                                )}
-                            </>
-                        )}
-                    </View>
-                </Animated.ScrollView>
-                {!params.isNew && (
-                    <KeyboardAvoidingView
-                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        style={{
-                            marginHorizontal: 16, marginTop: 16,
-                            marginBottom: safeArea.bottom + 44 + 16,
-                        }}
-                        keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
-                    >
-                        <View style={{ flexDirection: 'row', width: '100%' }}>
-                            {editing && (
+                            </View>
+                            {!!contact && (
                                 <RoundButton
-                                    title={t('common.cancel')}
-                                    disabled={!editing}
-                                    onPress={onAction}
-                                    display={'secondary'}
-                                    style={{ flexGrow: 1, marginRight: 8 }}
+                                    display={'danger_zone_text'}
+                                    onPress={onDelete}
+                                    title={t('contacts.delete')}
+                                    style={{ marginTop: 16 }}
+
                                 />
                             )}
-                        </View>
-                    </KeyboardAvoidingView>
-                )}
-            </View>
-        )
-    });
+                        </>
+                    )}
+                </View>
+            </Animated.ScrollView>
+        </View>
+    )
+});

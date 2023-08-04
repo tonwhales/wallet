@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { View, Text, TextInput } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, TextInput, Text, Pressable } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
-import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useAppConfig } from "../../utils/AppConfigContext";
+
+import IcClear from '../../../assets/ic-clear.svg';
 
 export const ContactField = React.memo((props: {
     input: {
@@ -16,12 +17,13 @@ export const ContactField = React.memo((props: {
     },
     fieldKey: string,
     index: number,
-    refs: React.RefObject<ATextInputRef>[],
+    inputRef: React.RefObject<TextInput>,
     onFieldChange: (index: number, value: string) => void,
 }) => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
     const [value, setValue] = useState(props.input.value || '');
+    const [focused, setFocused] = useState(false);
     let label = engine.products.settings.useContactField(props.fieldKey);
 
     if (props.fieldKey === 'lastName') {
@@ -32,44 +34,92 @@ export const ContactField = React.memo((props: {
         label = t('contacts.notes');
     }
 
+    useEffect(() => {
+        if (props.input.value !== value) {
+            setValue(props.input.value || '');
+        }
+    }, [props.input.value]);
+
     return (
-        <View style={{
-            backgroundColor: Theme.lightGrey,
-            paddingHorizontal: 20, marginTop: 20,
-            paddingVertical: 10,
-            width: '100%', borderRadius: 20
-        }}>
-            <TextInput
-                style={[
-                    {
-                        textAlignVertical: 'top',
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '400', color: Theme.textColor
-                    }
-                ]}
-                maxLength={126}
-                placeholder={label}
-                placeholderTextColor={Theme.placeholder}
-                multiline={false}
-                blurOnSubmit={true}
-                editable={props.input.editable}
-                value={value}
-                onFocus={() => {
-                    if (props.input.onFocus) {
-                        props.input.onFocus(props.index);
-                    }
-                }}
-                onChangeText={(newValue) => {
-                    setValue(newValue);
-                    props.onFieldChange(props.index - 1, newValue);
-                }}
-                onSubmitEditing={() => {
-                    if (props.input.onSubmit) {
-                        props.input.onSubmit(props.index);
-                    }
-                }}
-            />
-        </View>
+        <Pressable
+            style={{
+                backgroundColor: Theme.lightGrey,
+                width: '100%', borderRadius: 20,
+                flexDirection: 'row', alignItems: 'center',
+            }}
+            onPress={() => {
+                console.log('pressed', props.inputRef);
+                if (props.inputRef) {
+                    props.inputRef.current?.focus();
+                }
+            }}
+            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
+        >
+            <View style={{ flexGrow: 1 }}>
+                <View style={{
+                    width: '100%',
+                    overflow: 'hidden',
+                    position: 'relative',
+                    marginBottom: 2
+                }}>
+                    <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                        {label}
+                    </Text>
+                </View>
+                <TextInput
+                    ref={props.inputRef}
+                    style={[
+                        {
+                            textAlignVertical: 'top',
+                            fontSize: 17,
+                            fontWeight: '400', color: Theme.textColor
+                        }
+                    ]}
+                    maxLength={126}
+                    placeholder={label}
+                    placeholderTextColor={Theme.placeholder}
+                    multiline={false}
+                    blurOnSubmit={true}
+                    editable={props.input.editable}
+                    value={value}
+                    onFocus={() => {
+                        setFocused(true);
+                        if (props.input.onFocus) {
+                            props.input.onFocus(props.index);
+                        }
+                    }}
+                    onBlur={() => {
+                        setFocused(false);
+                        if (props.input.onBlur) {
+                            props.input.onBlur(props.index);
+                        }
+                    }}
+                    onChangeText={setValue}
+                    onSubmitEditing={() => {
+                        if (props.input.onSubmit) {
+                            props.input.onSubmit(props.index);
+                        }
+                    }}
+                />
+            </View>
+            {value.length > 0 && focused && (
+                <Pressable
+                    style={({ pressed }) => {
+                        return { opacity: pressed ? 0.5 : 1, height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }
+                    }}
+                    onPress={() => {
+                        setValue('');
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                >
+                    <IcClear
+                        height={24} width={24}
+                        color={Theme.darkGrey}
+                        style={{ height: 24, width: 24, }}
+                    />
+                </Pressable>
+            )}
+        </Pressable>
     )
 
 });

@@ -1,6 +1,17 @@
 import { ThemeType } from "../utils/AppConfigContext";
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
+export type RoundButtonDisplay =
+    | 'default'
+    | 'outline'
+    | 'inverted'
+    | 'pro'
+    | 'telegram'
+    | 'text'
+    | 'secondary'
+    | 'secondary_contrast'
+    | 'disabled'
+    | 'danger_zone'
+    | 'danger_zone_text';
 
 export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisplay]: {
     textColor: string,
@@ -87,6 +98,15 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
             textColor: theme.accent,
+
+            backgroundPressedColor: theme.divider,
+            borderPressedColor: theme.divider,
+            textPressed: theme.accent,
+        },
+        danger_zone_text: {
+            backgroundColor: theme.transparent,
+            borderColor: theme.transparent,
+            textColor: theme.dangerZone,
 
             backgroundPressedColor: theme.divider,
             borderPressedColor: theme.divider,

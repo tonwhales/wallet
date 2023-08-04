@@ -98,7 +98,7 @@ export const Avatar = React.memo((props: {
             width: props.size,
             height: props.size,
             borderRadius: props.size / 2,
-            backgroundColor: (!known || !known.ic) ? (props.backgroundColor ? Theme.white : color) : undefined,
+            backgroundColor: (!known || !known.ic) ? Theme.white : undefined,
             borderColor: props.backgroundColor, borderWidth: 1,
             alignItems: 'center', justifyContent: 'center'
         }}>

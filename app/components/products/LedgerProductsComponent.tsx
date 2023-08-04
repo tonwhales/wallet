@@ -1,25 +1,11 @@
-import BN from "bn.js"
-import React, { useLayoutEffect, useMemo } from "react"
-import { LayoutAnimation, Pressable, Text, View } from "react-native"
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../assets/ic_transaction.svg';
-import { AnimatedProductButton } from "./AnimatedProductButton"
-import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { HoldersProductButton } from "./HoldersProductButton"
+import React, {  } from "react"
+import { Text, View } from "react-native"
 import { useEngine } from "../../engine/Engine";
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../engine/tonconnect/utils";
-import { extractDomain } from "../../engine/utils/extractDomain";
-import { getConnectionReferences } from "../../storage/appState";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { StakingProductComponent } from "./StakingProductComponent";
 import { t } from "../../i18n/t";
-import { JettonsProductComponent } from "./JettonsProductComponent";
 import { LedgerStakingProductComponent } from "./LedgerStakingProductComponent";
 import { LedgerJettonsProductComponent } from "./LedgerJettonsProductComponent";
-import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
-import { Address } from "ton";
 
 export const LedgerProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();

@@ -1,13 +1,12 @@
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { AppData } from "../engine/api/fetchAppData";
 import { useEngine } from "../engine/Engine";
 import { AppManifest } from "../engine/api/fetchManifest";
 import { extractDomain } from "../engine/utils/extractDomain";
-import { t } from "../i18n/t";
 import { WImage } from "./WImage";
 import { useAppConfig } from "../utils/AppConfigContext";
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { isUrl } from "../utils/resolveUrl";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import { Swipeable } from "react-native-gesture-handler";
@@ -68,7 +67,7 @@ export const ConnectionButton = React.memo((
 
     useEffect(() => {
         engine.products.extensions.requestExtensionStatsUpdate(url);
-    }, [url]);
+    }, []);
 
     return (
         <Pressable

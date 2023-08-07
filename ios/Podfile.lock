@@ -474,32 +474,7 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
-  - react-native-skia (0.1.172):
-    - React
-    - React-callinvoker
-    - React-Core
-    - react-native-skia/Api (= 0.1.172)
-    - react-native-skia/Jsi (= 0.1.172)
-    - react-native-skia/RNSkia (= 0.1.172)
-    - react-native-skia/SkiaHeaders (= 0.1.172)
-    - react-native-skia/Utils (= 0.1.172)
-  - react-native-skia/Api (0.1.172):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/Jsi (0.1.172):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/RNSkia (0.1.172):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/SkiaHeaders (0.1.172):
-    - React
-    - React-callinvoker
-    - React-Core
-  - react-native-skia/Utils (0.1.172):
+  - react-native-skia (0.1.200):
     - React
     - React-callinvoker
     - React-Core
@@ -1045,7 +1020,7 @@ SPEC CHECKSUMS:
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
-  react-native-skia: 9313b8213e95466ef784158190aac26ee6990b82
+  react-native-skia: d0b0aab6bb1f146eb6f379fb671b719deabd20fb
   react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
   React-perflogger: 0bb0522a12e058f6eb69d888bc16f40c16c4b907
   React-RCTActionSheet: bfd675a10f06a18728ea15d82082d48f228a213a
@@ -1080,6 +1055,6 @@ SPEC CHECKSUMS:
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: 1647daf638619a7875415c62ae030be7bfdcb453
+PODFILE CHECKSUM: 4b5f603bb9a1cda4d2d34bcb9a1f0ffa85f64502
 
 COCOAPODS: 1.12.1

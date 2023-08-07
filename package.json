@@ -23,7 +23,7 @@
     "@react-navigation/native": "6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@react-navigation/stack": "6.3.16",
-    "@shopify/react-native-skia": "0.1.172",
+    "@shopify/react-native-skia": "0.1.200",
     "@tonconnect/protocol": "2.0.1",
     "@types/bn.js": "^5.1.0",
     "@types/color": "^3.0.3",

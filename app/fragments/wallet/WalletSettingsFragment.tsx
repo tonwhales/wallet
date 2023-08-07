@@ -86,7 +86,7 @@ export const WalletSettingsFragment = fragment(() => {
                 >
                     <Avatar
                         size={100}
-                        backgroundColor={Theme.accent}
+                        borderColor={Theme.lightGrey}
                         id={''}
                         hash={avatar}
                     />

@@ -210,7 +210,8 @@ export const TransactionPreviewFragment = fragment(() => {
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: Theme.item,
+                        borderRadius: 60, borderWidth: 4,
+                        borderColor: Theme.lightGrey,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -221,6 +222,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             image={transaction.icon ? transaction.icon : undefined}
                             spam={spam}
                             verified={verified}
+                            borderWith={0}
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (

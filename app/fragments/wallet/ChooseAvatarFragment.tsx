@@ -23,7 +23,7 @@ export const ChooseAvatarFragment = fragment(() => {
 
 
     return (
-        <View style={{ backgroundColor: Theme.accent, flexGrow: 1 }}>
+        <View style={{ backgroundColor: Theme.white, flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
                 title={t('wallets.settings.changeAvatar')}
@@ -57,12 +57,17 @@ export const ChooseAvatarFragment = fragment(() => {
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                <Avatar size={300} id={""} hash={hashState} backgroundColor={'transparent'} />
+                <Avatar
+                    size={300}
+                    id={""}
+                    hash={hashState}
+                    borderColor={'transparent'}
+                />
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 borderTopLeftRadius: 20, borderTopRightRadius: 20,
-                backgroundColor: 'white',
+                backgroundColor: Theme.accent,
                 paddingTop: 20, paddingBottom: 16
             }}>
                 <ScrollView
@@ -79,16 +84,15 @@ export const ChooseAvatarFragment = fragment(() => {
                                     justifyContent: 'center', alignItems: 'center',
                                     width: 74, height: 74,
                                     marginRight: 8,
-                                    borderWidth: index === hashState ? 2 : 0,
-                                    backgroundColor: index === hashState ? 'white' : 'transparent',
-                                    borderColor: Theme.accent, borderRadius: 37
+                                    borderWidth: index === hashState ? 1 : 0,
+                                    borderColor: Theme.white, borderRadius: 37
                                 }}
                             >
                                 <Avatar
                                     size={62}
                                     id={""}
                                     hash={index}
-                                    backgroundColor={Theme.accent}
+                                    borderColor={Theme.accent}
                                 />
                             </Pressable>
                         )

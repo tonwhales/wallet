@@ -147,7 +147,7 @@ export const HomeFragment = fragment(() => {
                                         size={20}
                                         id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                         hash={walletSettings?.avatar}
-                                        backgroundColor={Theme.accent}
+                                        borderWith={0}
                                     />
                                 </View>
                             );

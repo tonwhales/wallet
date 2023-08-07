@@ -43,7 +43,7 @@ export const ProfileComponent = memo(() => {
                         size={46}
                         id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         hash={walletSettings?.avatar}
-                        backgroundColor={Theme.accent}
+                        borderWith={0}
                     />
                     <View style={{ paddingLeft: 12, alignSelf: 'stretch', justifyContent: 'center' }}>
                         <Text

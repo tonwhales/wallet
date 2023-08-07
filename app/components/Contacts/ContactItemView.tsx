@@ -39,6 +39,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
                         address={addr}
                         id={addr}
                         size={46}
+                        borderWith={0}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>

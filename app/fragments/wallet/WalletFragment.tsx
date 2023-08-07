@@ -130,7 +130,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 <Avatar
                                     id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                     size={24}
-                                    backgroundColor={Theme.accent}
+                                    borderWith={0}
                                     hash={walletSettings?.avatar}
                                 />
                             </View>

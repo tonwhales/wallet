@@ -66,7 +66,8 @@ export const Avatar = React.memo((props: {
     markContact?: boolean,
     verified?: boolean,
     dontShowVerified?: boolean,
-    backgroundColor?: string
+    borderColor?: string,
+    borderWith?: number,
 }) => {
     const { AppConfig, Theme } = useAppConfig();
 
@@ -99,32 +100,21 @@ export const Avatar = React.memo((props: {
             height: props.size,
             borderRadius: props.size / 2,
             backgroundColor: (!known || !known.ic) ? Theme.white : undefined,
-            borderColor: props.backgroundColor, borderWidth: 1,
+            borderColor: props.borderColor ?? color,
+            borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
             alignItems: 'center', justifyContent: 'center'
         }}>
             {img}
-            <View style={{
-                width: props.size, height: props.size,
-                borderRadius: props.size / 2,
-                borderWidth: 0.5,
-                borderColor: 'black',
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.06
-            }} />
             {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
                 <Verified
-                    style={{
-                        position: 'absolute', top: -1, right: -4
-                    }}
+                    style={{ position: 'absolute', top: -1, right: -4 }}
                     height={verifiedSize}
                     width={verifiedSize}
                 />
             )}
             {props.markContact && (
                 <ContactIcon
-                    style={{
-                        position: 'absolute', top: -1, right: -4
-                    }}
+                    style={{ position: 'absolute', top: -1, right: -4 }}
                     height={verifiedSize}
                     width={verifiedSize}
                 />

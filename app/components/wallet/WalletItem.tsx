@@ -78,7 +78,7 @@ export const WalletItem = memo((
                 alignItems: 'center'
             }}>
                 <Avatar
-                    backgroundColor={Theme.accent}
+                    borderWith={0}
                     id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                     size={46}
                     hash={walletSettings?.avatar}

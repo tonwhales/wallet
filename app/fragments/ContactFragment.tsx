@@ -279,7 +279,13 @@ export const ContactFragment = fragment(() => {
                         width: '100%'
                     }}>
                         <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
-                            <Avatar address={address} id={address} size={100} image={undefined} backgroundColor={Theme.accent} />
+                            <Avatar
+                                address={address}
+                                id={address}
+                                size={100}
+                                image={undefined}
+                                borderWith={0}
+                            />
                         </View>
                         {!editing && (
                             <>

@@ -98,7 +98,7 @@ export const ReceiveFragment = fragment(() => {
             ref={imageRef}
             style={{
                 flexGrow: 1,
-                justifyContent: 'space-between', 
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 backgroundColor: mainColor,
             }}
@@ -124,13 +124,13 @@ export const ReceiveFragment = fragment(() => {
                         height: 87, width: 87, borderRadius: 44,
                         position: 'absolute', top: -49,
                         alignSelf: 'center',
-                        backgroundColor: Theme.item,
+                        backgroundColor: mainColor,
                         justifyContent: 'center', alignItems: 'center',
                     }}>
                         <Avatar
                             id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                             size={84}
-                            backgroundColor={Theme.accent}
+                            borderWith={0}
                         />
                     </View>
                     <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>

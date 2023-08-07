@@ -6,7 +6,6 @@ import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../anal
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { zenPayUrl } from "../engine/corp/ZenPayProduct";
 import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
@@ -15,13 +14,18 @@ import { storage } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { Address } from "ton";
+import { holdersUrl } from "../engine/holders/HoldersProduct";
 
-export function clearZenPay(engine: Engine) {
-    const zenPayDomain = extractDomain(zenPayUrl);
-    engine.persistence.domainKeys.setValue(zenPayDomain, null);
-    engine.persistence.holdersState.setValue(engine.address, null);
-    engine.products.zenPay.stopWatching();
-    engine.cloud.update('zenpay-jwt', () => Buffer.from(''));
+export function clearHolders(engine: Engine, address?: Address) {
+    const holdersDomain = extractDomain(holdersUrl);
+    engine.products.holders.stopWatching();
+    engine.persistence.domainKeys.setValue(
+        `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${holdersDomain}`,
+        null
+    );
+    engine.persistence.holdersState.setValue(address ?? engine.address, null);
+    engine.products.holders.deleteToken();
 }
 
 export const LogoutFragment = fragment(() => {
@@ -44,7 +48,7 @@ export const LogoutFragment = fragment(() => {
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
                         storage.clearAll();
-                        clearZenPay(engine);
+                        clearHolders(engine);
                         mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                         mixpanelFlush(AppConfig.isTestnet);
@@ -59,7 +63,7 @@ export const LogoutFragment = fragment(() => {
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
                         storage.clearAll();
-                        clearZenPay(engine);
+                        clearHolders(engine);
                         mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
                         trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
                         mixpanelFlush(AppConfig.isTestnet);

@@ -21,7 +21,7 @@ import { AppData, appDataCodec, imagePreview } from "./api/fetchAppData";
 import { DomainSubkey } from "./products/ExtensionsProduct";
 import { SpamFilterConfig } from "../fragments/SpamFilterFragment";
 import { WalletConfig, walletConfigCodec } from "./api/fetchWalletConfig";
-import { ZenPayAccountStatus, ZenPayState } from "./corp/ZenPayProduct";
+import { HoldersAccountStatus, HoldersState } from "./holders/HoldersProduct";
 import { StakingAPY } from "./api/fetchApy";
 import { PriceState } from "./products/PriceProduct";
 import { AccountBalanceChart } from "./sync/startAccountBalanceChartSync";
@@ -30,12 +30,14 @@ import { ConnectedAppConnection, SendTransactionRequest } from "./tonconnect/typ
 import { walletTransactionCodec } from "./transactions/codecs";
 import { Transaction } from "./Transaction";
 import { appConnectionCodec, pendingSendTransactionRpcRequestCodec } from "./tonconnect/codecs";
-import { accountStateCodec } from "./api/zenpay/fetchAccountState";
-import { CardsList as ZenPayCardsList, cardsListCodec } from "./api/zenpay/fetchCards";
+import { accountStateCodec } from "./api/holders/fetchAccountState";
+import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fetchCards";
+import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
+import { CardNotification } from "./api/holders/fetchCardsTransactions";
 
 export class Persistence {
 
-    readonly version: number = 17;
+    readonly version: number = 18;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -80,9 +82,11 @@ export class Persistence {
 
     readonly spamFilterConfig: PersistedCollection<void, SpamFilterConfig>
 
-    readonly holdersStatus: PersistedCollection<Address, ZenPayAccountStatus>;
-    readonly holdersState: PersistedCollection<Address, ZenPayState>;
-    readonly holdersCards: PersistedCollection<Address, ZenPayCardsList>;
+    readonly holdersStatus: PersistedCollection<Address, HoldersAccountStatus>;
+    readonly holdersState: PersistedCollection<Address, HoldersState>;
+    readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
+    readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
+    readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -151,6 +155,8 @@ export class Persistence {
         this.holdersStatus = new PersistedCollection({ storage, namespace: 'holdersStatus', key: addressKey, codec: holdersStatusCodec, engine });
         this.holdersState = new PersistedCollection({ storage, namespace: 'holdersState', key: addressKey, codec: holdersStateCodec, engine });
         this.holdersCards = new PersistedCollection({ storage, namespace: 'holdersAccount', key: addressKey, codec: cardsListCodec, engine });
+        this.holdersOfflineApp = new PersistedCollection({ storage, namespace: 'holdersOfflineApp', key: voidKey, codec: holdersOfflineAppCodec, engine });
+        this.holdersCardTransactions = new PersistedCollection({ storage, namespace: 'holdersCardTransactions', key: stringKey, codec: holdersCardTransactionsCodec, engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });
@@ -338,9 +344,16 @@ const holdersStateCodec = t.type({
         type: t.union([t.literal('virtual'), t.literal('physical')]),
         card: t.type({
             lastFourDigits: t.union([t.string, t.undefined, t.null]),
+            productId: t.string,
+            personalizationCode: t.string,
+            provider: t.string,
+            kind: t.string,
+            tzOffset: t.number
         }),
     })),
 });
+
+const holdersCardTransactionsCodec = t.array(t.any);
 
 const apyCodec = t.type({
     apy: t.number

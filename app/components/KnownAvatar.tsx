@@ -1,10 +1,10 @@
 import React from "react";
-import { Image } from 'react-native';
 import { KnownWallet } from "../secure/KnownWallets";
+import FastImage from 'react-native-fast-image';
 
 export const KnownAvatar = React.memo((props: { size: number, wallet: KnownWallet }) => {
     return (
-        <Image
+        <FastImage
             style={{
                 width: props.size,
                 height: props.size,

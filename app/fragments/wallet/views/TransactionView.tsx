@@ -231,9 +231,11 @@ export function TransactionView(props: {
                         backgroundColor: Theme.lightGrey
                     }}>
                         {parsed.status !== 'pending' && (
-                            tx.base.kind === 'in'
-                                ? (<IcIn height={32} width={32} style={{ width: 32, height: 32 }} />)
-                                : (<IcOut height={32} width={32} style={{ width: 32, height: 32 }} />)
+                            <Avatar
+                                size={42}
+                                id={avatarId}
+                                borderWith={0}
+                            />
                         )}
                         {parsed.status === 'pending' && (
                             <PendingTransactionAvatar

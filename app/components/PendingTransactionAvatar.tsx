@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import { avatarHash } from "../utils/avatarHash";
-import { avatarColors, avatarImages } from "./Avatar";
+import { Avatar, avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
 import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
@@ -76,12 +76,7 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                {!known && (
-                    kind === 'in'
-                        ? (<IcIn height={32} width={32} style={{ width: 32, height: 32 }} />)
-                        : (<IcOut height={32} width={32} style={{ width: 32, height: 32 }} />)
-                )}
-                {known && <KnownAvatar size={42} wallet={known} />}
+                <Avatar size={42} id={avatarId} />
             </View>
             <CircularProgress
                 ref={ref}

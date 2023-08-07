@@ -1,13 +1,14 @@
 import * as React from 'react';
-import { View, Image } from 'react-native';
+import { View } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
-import SpamIcon from '../../assets/known/spam_icon.svg';
-
-import Verified from '../../assets/ic_verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 import { useAppConfig } from '../utils/AppConfigContext';
+import FastImage from 'react-native-fast-image';
+
+import SpamIcon from '../../assets/known/spam_icon.svg';
+import Verified from '../../assets/ic_verified.svg';
+import ContactIcon from '../../assets/ic_contacts.svg';
 
 export const avatarImages = [
     require('../../assets/avatars/0.webp'),
@@ -72,7 +73,6 @@ export const Avatar = React.memo((props: {
     const { AppConfig, Theme } = useAppConfig();
 
     let known = props.address ? KnownWallets(AppConfig.isTestnet)[props.address] : undefined;
-    let size = Math.floor(props.size * 0.6);
     let verifiedSize = Math.floor(props.size * 0.35);
 
     const hash = (props.hash !== undefined && props.hash !== null)
@@ -84,9 +84,19 @@ export const Avatar = React.memo((props: {
 
     if (!props.spam) {
         if (props.image) {
-            img = <Image source={{ uri: props.image }} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+            img = (
+                <FastImage
+                    source={{ uri: props.image }}
+                    style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+                />
+            );
         } else if (!known || (!known.ic) && imgSource) {
-            img = <Image source={imgSource} style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }} />;
+            img = (
+                <FastImage
+                    source={imgSource}
+                    style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+                />
+            );
         } else {
             img = <KnownAvatar size={props.size} wallet={known} />;
         }

@@ -157,6 +157,15 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     if (account.transactions.length === 0) {
                         return null;
                     }
+
+                    console.log({ holdersCards });
+                    const hasCardsNotifications = holdersCards.some((account) => {
+                        const cards = engine.products.holders.useCardsTransactions(account.id);
+                        return cards && cards.length > 0;
+                    });
+                    if (!hasCardsNotifications) {
+                        return null;
+                    }
                     return (
                         <TabBar
                             {...props}
@@ -166,16 +175,18 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             indicatorStyle={{ backgroundColor: 'transparent' }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
-                                return <PressableChip
-                                    key={`selector-item-${tabItemProps.route.key}`}
-                                    onPress={tabItemProps.onPress}
-                                    style={{ backgroundColor: focused ? Theme.accent : Theme.lightGrey, }}
-                                    textStyle={{ color: focused ? 'white' : Theme.textColor, }}
-                                    text={tabItemProps.route.title}
-                                />
+                                return (
+                                    <PressableChip
+                                        key={`selector-item-${tabItemProps.route.key}`}
+                                        onPress={tabItemProps.onPress}
+                                        style={{ backgroundColor: focused ? Theme.accent : Theme.lightGrey, }}
+                                        textStyle={{ color: focused ? 'white' : Theme.textColor, }}
+                                        text={tabItemProps.route.title}
+                                    />
+                                );
                             }}
                         />
-                    )
+                    );
                 }}
                 onIndexChange={(index: number) => {
                     setTab({ prev: tab.current, current: index });

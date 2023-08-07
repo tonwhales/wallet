@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -9,32 +9,44 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
-import { clearZenPay } from '../LogoutFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import { warn } from '../../utils/log';
-import { getCurrentAddress } from '../../storage/appState';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { clearHolders } from '../LogoutFragment';
+import { useEffect, useState } from 'react';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const authContext = useKeysAuth();
-    const acc = React.useMemo(() => getCurrentAddress(), []);
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
+    const offlineApp = engine.products.holders.useOfflineApp();
+
+    const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
+    const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
+
+    useEffect(() => {
+        (async () => {
+            const ready = await engine.products.holders.checkCurrentOfflineVersion();
+            setOfflineAppReady(ready ? { version: ready } : false);
+            const prev = await engine.products.holders.getPrevOfflineVersion();
+            if (prev) {
+                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+                setPrevOfflineVersion(prevReady ? prev : false);
+            }
+        })()
+    }, [offlineApp]);
 
     const reboot = useReboot();
-    const restart = React.useCallback(() => {
-        // TODO: Implement
-    }, [])
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
-        clearZenPay(engine);
+        clearHolders(engine);
         reboot();
     }, []);
 
@@ -102,7 +114,9 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+
+
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: Theme.item,
@@ -117,9 +131,6 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={"Restart app"} onPress={restart} />
                     </View>
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
@@ -137,7 +148,39 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         )}
                 </View>
-            </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: Theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
+                    </View>
+
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
+                            const app = engine.persistence.holdersOfflineApp.item().value;
+                            if (app) {
+                                engine.products.holders.cleanupPrevOfflineRes(app);
+                            }
+                            engine.persistence.holdersOfflineApp.item().update(() => null);
+                            await engine.products.holders.forceSyncOfflineApp();
+                        }} />
+                    </View>
+                </View>
+            </ScrollView>
         </View>
     );
 });

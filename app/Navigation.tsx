@@ -55,8 +55,6 @@ import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { LedgerRoot } from './fragments/ledger/LedgerRoot';
-import { ZenPayAppFragment } from './fragments/zenpay/ZenPayAppFragment';
-import { ZenPayLandingFragment } from './fragments/zenpay/ZenPayLandingFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -65,8 +63,10 @@ import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetup
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
 import { useAppConfig } from './utils/AppConfigContext';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
+import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
+import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
+import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
 
 const Stack = createNativeStackNavigator();
@@ -105,7 +105,7 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : undefined }
+                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined }
             }}
         />
     );
@@ -171,8 +171,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('ZenPayLanding', ZenPayLandingFragment, safeArea),
-    lockedModalScreen('ZenPay', ZenPayAppFragment, safeArea),
+    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
+    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}

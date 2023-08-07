@@ -43,9 +43,9 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { zenPayUrl } from "../../../engine/corp/ZenPayProduct";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { holdersUrl } from "../../../engine/holders/HoldersProduct";
 
 type Props = {
     target: {
@@ -831,7 +831,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         </View>
                                     )}
-                                    {order?.app?.domain !== extractDomain(zenPayUrl) && (
+                                    {order?.app?.domain !== extractDomain(holdersUrl) && (
                                         <View style={{
                                             backgroundColor: Theme.operationIcon,
                                             height: 40, width: 40,
@@ -849,7 +849,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             )}
                                         </View>
                                     )}
-                                    {order?.app?.domain === extractDomain(zenPayUrl) && (
+                                    {order?.app?.domain === extractDomain(holdersUrl) && (
                                         <View style={{
                                             height: 46, width: 34,
                                             justifyContent: 'center',

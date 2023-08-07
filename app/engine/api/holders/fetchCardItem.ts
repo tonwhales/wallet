@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { zenPayEndpoint } from "../../corp/ZenPayProduct";
+import { holdersEndpoint } from "../../holders/HoldersProduct";
 
 export const cardItemCodec = t.type({
   ok: t.boolean,
@@ -13,7 +13,7 @@ export const cardItemCodec = t.type({
 });
 
 export async function fetchCardItem(id: string) {
-  let res = await axios.post('https://' + zenPayEndpoint + "/card/get", { id });
+  let res = await axios.post('https://' + holdersEndpoint + "/card/get", { id });
 
   if (!cardItemCodec.is(res.data)) {
     throw Error("Invalid card item response");

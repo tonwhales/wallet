@@ -5,7 +5,7 @@ import { HoldersCardNotification } from "./HoldersCardNotification";
 
 export const HoldersCardTransactions = React.memo(({ id }: { id: string }) => {
     const engine = useEngine();
-    const txs = engine.products.holders.useCardsTransactions(id);
+    const txs = engine.products.holders.useCardTransactions(id);
 
     return (
         <View style={{ flexGrow: 1 }}>

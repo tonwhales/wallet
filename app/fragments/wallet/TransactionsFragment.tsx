@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, ViewStyle, StyleProp, Insets, PointProp } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -128,9 +128,36 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
-    const animRef = React.useRef<LottieView>(null);
+    const animRef = useRef<LottieView>(null);
+
+    const hasTxs = useMemo(() => {
+        return account.transactions.length !== 0;
+    }, [account.transactions.length]);
+
+    const hasCardsNotifications = useMemo(() => {
+        return holdersCards.some((account) => {
+            const cards = engine.products.holders.getCardTransactions(account.id);
+            return cards && cards.length > 0;
+        })
+    }, [holdersCards]);
+
+    const routes = useMemo(() => {
+        return [
+            { key: 'main', title: t('common.mainWallet') },
+            ...holdersCards.map((account) => {
+                const cards = engine.products.holders.getCardTransactions(account.id) ?? [];
+
+                if (cards.length === 0) return null;
+
+                return {
+                    key: account.id,
+                    title: t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits ?? '' })
+                };
+            }).filter((x) => !!x) as { key: string; title: string; }[]
+        ]
+    }, [holdersCards]);
 
     const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
 
@@ -154,15 +181,10 @@ function TransactionsComponent(props: { wallet: WalletState }) {
             <TabView
                 tabBarPosition={'top'}
                 renderTabBar={(props) => {
-                    if (account.transactions.length === 0) {
+                    if (!hasTxs) {
                         return null;
                     }
 
-                    console.log({ holdersCards });
-                    const hasCardsNotifications = holdersCards.some((account) => {
-                        const cards = engine.products.holders.useCardsTransactions(account.id);
-                        return cards && cards.length > 0;
-                    });
                     if (!hasCardsNotifications) {
                         return null;
                     }
@@ -170,7 +192,9 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         <TabBar
                             {...props}
                             scrollEnabled={true}
-                            style={{ backgroundColor: 'transparent', paddingVertical: 8 }}
+                            navigationState={{ index: tab.current, routes }}
+                            style={{ backgroundColor: 'transparent' }}
+                            gap={4}
                             contentContainerStyle={{ marginLeft: 8 }}
                             indicatorStyle={{ backgroundColor: 'transparent' }}
                             renderTabBarItem={(tabItemProps) => {
@@ -196,7 +220,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     routes: [
                         { key: 'main', title: t('common.mainWallet') },
                         ...holdersCards.map((account) => {
-                            const cards = engine.products.holders.useCardsTransactions(account.id);
+                            const cards = engine.products.holders.useCardTransactions(account.id);
                             if (!cards || cards.length === 0) {
                                 return null;
                             }
@@ -204,49 +228,44 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         }).filter((x) => !!x) as { key: string; title: string; }[]
                     ]
                 }}
+                offscreenPageLimit={1}
                 renderScene={(props: SceneRendererProps & { route: { key: string; title: string; } }) => {
                     if (props.route.key === 'main') {
-                        return (
-                            <>
-                                {account.transactions.length === 0 && (
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                                        <Pressable
-                                            onPress={() => {
-                                                animRef.current?.play();
-                                            }}>
-                                            <LottieView
-                                                ref={animRef}
-                                                source={require('../../../assets/animations/duck.json')}
-                                                autoPlay={true}
-                                                loop={false}
-                                                progress={0.2}
-                                                style={{ width: 192, height: 192 }}
-                                            />
-                                        </Pressable>
-                                        <Text style={{ fontSize: 16, color: Theme.label }}>
-                                            {t('wallet.empty.message')}
-                                        </Text>
-                                        <RoundButton
-                                            title={t('wallet.empty.receive')}
-                                            size="normal"
-                                            display="text"
-                                            onPress={() => navigation.navigate('Receive')}
+                        return hasTxs
+                            ? (
+                                <WalletTransactions
+                                    txs={account.transactions}
+                                    next={account.next}
+                                    address={address}
+                                    engine={engine}
+                                    navigation={navigation}
+                                    safeArea={safeArea}
+                                    onLoadMore={onReachedEnd}
+                                />
+                            )
+                            : (
+                                <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                                    <Pressable onPress={() => animRef.current?.play()}>
+                                        <LottieView
+                                            ref={animRef}
+                                            source={require('../../../assets/animations/duck.json')}
+                                            autoPlay={true}
+                                            loop={false}
+                                            progress={0.2}
+                                            style={{ width: 192, height: 192 }}
                                         />
-                                    </View>
-                                )}
-                                {account.transactions.length > 0 && (
-                                    <WalletTransactions
-                                        txs={account.transactions}
-                                        next={account.next}
-                                        address={address}
-                                        engine={engine}
-                                        navigation={navigation}
-                                        safeArea={safeArea}
-                                        onLoadMore={onReachedEnd}
+                                    </Pressable>
+                                    <Text style={{ fontSize: 16, color: Theme.label }}>
+                                        {t('wallet.empty.message')}
+                                    </Text>
+                                    <RoundButton
+                                        title={t('wallet.empty.receive')}
+                                        size="normal"
+                                        display="text"
+                                        onPress={() => navigation.navigate('Receive')}
                                     />
-                                )}
-                            </>
-                        )
+                                </View>
+                            )
                     } else {
                         return <HoldersCardTransactions id={props.route.key} />
                     }

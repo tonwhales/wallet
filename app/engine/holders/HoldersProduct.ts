@@ -184,7 +184,11 @@ export class HoldersProduct {
         }
     }
 
-    useCardsTransactions(id: string) {
+    getCardTransactions(id: string) {
+        return this.engine.persistence.holdersCardTransactions.item(id).value;
+    }
+
+    useCardTransactions(id: string) {
         return useRecoilValue(this.engine.persistence.holdersCardTransactions.item(id).atom);
     }
 

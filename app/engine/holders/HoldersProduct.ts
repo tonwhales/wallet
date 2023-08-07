@@ -53,14 +53,20 @@ export class HoldersProduct {
 
     //TODO: REMOVE THIS, DEV DEMO ONLY
     devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+    devUseOfflineMigrated = storage.getBoolean('dev-tools:use-offline-app-migrated');
     offlineResMigrated = storage.getBoolean('holders-offline-res-migrated');
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
+        if (!this.devUseOfflineMigrated) {
+            storage.delete('dev-tools:use-offline-app');
+            storage.set('dev-tools:use-offline-app-migrated', true);
+        }
+
         this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
         if (this.devUseOffline === undefined) {
-            storage.set('dev-tools:use-offline-app', true);
-            this.devUseOffline = true;
+            storage.set('dev-tools:use-offline-app', false);
+            this.devUseOffline = false;
         }
 
         this.engine = engine;

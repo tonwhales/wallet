@@ -123,10 +123,8 @@ const WalletTransactions = React.memo((props: {
 function TransactionsComponent(props: { wallet: WalletState }) {
     const engine = useEngine();
     const holdersCards = engine.products.holders.useCards();
-    const holdersStatus = engine.products.holders.useStatus();
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
@@ -181,22 +179,17 @@ function TransactionsComponent(props: { wallet: WalletState }) {
             <TabView
                 tabBarPosition={'top'}
                 renderTabBar={(props) => {
-                    if (!hasTxs) {
+                    if (!hasTxs || !hasCardsNotifications) {
                         return null;
                     }
 
-                    if (!hasCardsNotifications) {
-                        return null;
-                    }
                     return (
                         <TabBar
                             {...props}
                             scrollEnabled={true}
-                            navigationState={{ index: tab.current, routes }}
-                            style={{ backgroundColor: 'transparent' }}
-                            gap={4}
+                            style={{ backgroundColor: Theme.transparent, paddingVertical: 8 }}
                             contentContainerStyle={{ marginLeft: 8 }}
-                            indicatorStyle={{ backgroundColor: 'transparent' }}
+                            indicatorStyle={{ backgroundColor: Theme.transparent }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
                                 return (
@@ -204,7 +197,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                         key={`selector-item-${tabItemProps.route.key}`}
                                         onPress={tabItemProps.onPress}
                                         style={{ backgroundColor: focused ? Theme.accent : Theme.lightGrey, }}
-                                        textStyle={{ color: focused ? 'white' : Theme.textColor, }}
+                                        textStyle={{ color: focused ? Theme.white : Theme.textColor, }}
                                         text={tabItemProps.route.title}
                                     />
                                 );
@@ -215,19 +208,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 onIndexChange={(index: number) => {
                     setTab({ prev: tab.current, current: index });
                 }}
-                navigationState={{
-                    index: tab.current,
-                    routes: [
-                        { key: 'main', title: t('common.mainWallet') },
-                        ...holdersCards.map((account) => {
-                            const cards = engine.products.holders.useCardTransactions(account.id);
-                            if (!cards || cards.length === 0) {
-                                return null;
-                            }
-                            return { key: account.id, title: `Tonhub card${account.card.lastFourDigits ? ' ' + account.card.lastFourDigits : ''}` };
-                        }).filter((x) => !!x) as { key: string; title: string; }[]
-                    ]
-                }}
+                navigationState={{ index: tab.current, routes }}
                 offscreenPageLimit={1}
                 renderScene={(props: SceneRendererProps & { route: { key: string; title: string; } }) => {
                     if (props.route.key === 'main') {

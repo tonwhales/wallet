@@ -247,20 +247,6 @@ export const LedgerHomeFragment = fragment(() => {
                         </View>
                     </Pressable>
                     <View style={{ flexDirection: 'row' }}>
-                        {/* <Pressable
-                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={openGraph}
-                        >
-                            <Chart
-                                style={{
-                                    height: 24,
-                                    width: 24,
-                                }}
-                                height={24}
-                                width={24}
-                                color={Theme.greyForIcon}
-                            />
-                        </Pressable> */}
                         <Pressable
                             style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
                             onPress={openScanner}

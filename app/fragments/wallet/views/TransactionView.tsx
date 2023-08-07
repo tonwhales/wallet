@@ -233,6 +233,7 @@ export function TransactionView(props: {
                         {parsed.status !== 'pending' && (
                             <Avatar
                                 size={42}
+                                address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 id={avatarId}
                                 borderWith={0}
                             />

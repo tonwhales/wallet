@@ -12,17 +12,17 @@ export type AccountBalanceChart = {
     }[]
 }
 
-async function getMonthlyAccountBalanceChart(client4: TonClient4, address: Address) {
+export async function fetchAddressBalanceChart(client4: TonClient4, address: Address, from: number = 30 * 24 * 60 * 60 * 1000, hoursInterval: number = 24) {
     const zeroDate = new Date();
     zeroDate.setHours(0);
     zeroDate.setMinutes(0);
     zeroDate.setSeconds(0);
-    let fromTs = zeroDate.getTime() - 30 * 24 * 60 * 60 * 1000;
+    let fromTs = zeroDate.getTime() - from;
     fromTs = Math.floor(fromTs / 1000);
 
     let tillTs = Math.floor(zeroDate.getTime() / 1000);
     let keyTimePoints: number[] = [];
-    for (let ts = tillTs; ts > fromTs; ts -= 60 * 60 * 24) {
+    for (let ts = tillTs; ts > fromTs; ts -= 60 * 60 * hoursInterval) {
         keyTimePoints.push(ts);
     }
 
@@ -56,7 +56,7 @@ async function getMonthlyAccountBalanceChart(client4: TonClient4, address: Addre
 export function startAccountBalanceChartSync(engine: Engine) {
     // Sync balance chart
     let sync = createEngineSync('balanceChart', engine, async () => {
-        let data = await getMonthlyAccountBalanceChart(engine.client4, engine.address);
+        let data = await fetchAddressBalanceChart(engine.client4, engine.address);
         engine.persistence.accountBalanceChart.item(engine.address).update(() => data);
     });
 

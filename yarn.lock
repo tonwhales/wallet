@@ -8098,10 +8098,10 @@ react-native-gradle-plugin@^0.71.16:
   resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.71.17.tgz#cf780a27270f0a32dca8184eff91555d7627dd00"
   integrity sha512-OXXYgpISEqERwjSlaCiaQY6cTY5CH6j73gdkWpK0hedxtiWMWgH+i5TOi4hIGYitm9kQBeyDu+wim9fA8ROFJA==
 
-react-native-graph@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-graph/-/react-native-graph-0.3.0.tgz#c5f86faab94a5f885057f5e0840999651eeb6305"
-  integrity sha512-JhLzhyPlKwB32H6RmrQNH2hwMK2w/jWRGtAC1+fdF6kaqg679dXKUB+L0a5c72TUc9YiFW0eRnl6rZaD8Y3CyA==
+react-native-graph@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-graph/-/react-native-graph-1.0.2.tgz#960c682159e18f053322492c0572210c82076fc8"
+  integrity sha512-VjJcOrU6fSkvG/Gl9euAsPnTewQK/Fk2QdCgdgY4/lY/XuoFWF2m5oYK3g1OodEdPpB4xLUlGolskEmcON2yzA==
 
 react-native-inappbrowser-reborn@^3.6.3:
   version "3.7.0"

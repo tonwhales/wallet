@@ -1,34 +1,43 @@
-import { format } from "date-fns";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useMemo } from "react";
-import { Platform, TextInput, View, Text, TextInputProps, ScrollView } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Platform, TextInput, View, Text, TextInputProps, Pressable } from "react-native";
 import { GraphPoint, LineGraph } from "react-native-graph";
-import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
+import Animated, { useAnimatedProps, useAnimatedRef, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fromNano, toNano } from "ton";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { CloseButton } from "../../components/CloseButton";
-import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import * as Haptics from 'expo-haptics';
+import { fetchAddressBalanceChart } from "../../engine/sync/startAccountBalanceChartSync";
+
+const timeRangePoints = [
+    { label: '1D', index: 0, from: 24 * 60 * 60, hoursInterval: 1 },
+    { label: '1W', index: 1, from: 7 * 24 * 60 * 60, hoursInterval: 6 },
+    { label: '1M', index: 2, from: 30 * 24 * 60 * 60, hoursInterval: 24 },
+    { label: '3M', index: 3, from: 90 * 24 * 60 * 60, hoursInterval: 24 * 3 },
+    { label: '6M', index: 4, from: 180 * 24 * 60 * 60, hoursInterval: 24 * 3 * 2 },
+    { label: '1Y', index: 5, from: 365 * 24 * 60 * 60, hoursInterval: 24 * 3 * 4 },
+]
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
 export const AccountBalanceGraphFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const account = engine.products.main.useAccount();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
+    const chart = engine.products.main.useAccountBalanceChart();
+    const [balanceChart, setBalanceChart] = useState(chart);
     const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+    const [price, currency] = usePrice();
 
     const points: GraphPoint[] = useMemo(() => {
         const temp = (balanceChart?.chart || []).map((p) => {
@@ -52,8 +61,6 @@ export const AccountBalanceGraphFragment = fragment(() => {
         return temp;
     }, [balanceChart, account]);
 
-    const [price, currency] = usePrice();
-
     const rate = useMemo(() => {
         return price ? price.price.usd * price.price.rates[currency] : 0;
     }, [price, currency]);
@@ -62,196 +69,214 @@ export const AccountBalanceGraphFragment = fragment(() => {
         return fromNano(account?.balance || toNano('0'));
     }, [account]);
 
-    const balanceShared = useSharedValue(balance);
-    const pointerDate = useSharedValue('');
-    const priceShared = useSharedValue(`${formatCurrency((parseFloat(balance) * rate).toFixed(2), currency)}`);
-
-    useEffect(() => {
-        balanceShared.value = parseFloat(balance).toFixed(2);
-        priceShared.value = `${formatCurrency((parseFloat(balance) * rate).toFixed(2), currency)}`;
+    const balanceInCurrency = useMemo(() => {
+        return formatCurrency((parseFloat(balance) * rate).toFixed(2), currency);
     }, [balance, rate]);
+
+    const balanceShared = useSharedValue(balance);
+    const pointerDate = useSharedValue(formatDate(Math.floor(Date.now() / 1000), 'dd MMM'));
+    const priceShared = useSharedValue(balanceInCurrency);
 
     const onPointSelected = useCallback(
         (point: GraphPoint) => {
             balanceShared.value = point.value.toFixed(2);
-            priceShared.value = `${formatCurrency((parseFloat(point.value.toFixed(2)) * rate).toFixed(2), currency)}`;
-            pointerDate.value = `${formatDate(Math.floor(point.date.getTime() / 1000), 'dd MMM')}`;
+            priceShared.value = formatCurrency((parseFloat(point.value.toFixed(2)) * rate).toFixed(2), currency);
+            pointerDate.value = formatDate(Math.floor(point.date.getTime() / 1000), 'dd MMM');
         },
         [rate],
     );
 
     const onGraphGestureEnded = useCallback(() => {
         balanceShared.value = parseFloat(balance).toFixed(2);
-        priceShared.value = `${formatCurrency((parseFloat(balance) * rate).toFixed(2), currency)}`;
-        pointerDate.value = ''
+        priceShared.value = formatCurrency((parseFloat(balance) * rate).toFixed(2), currency);
+        pointerDate.value = formatDate(Math.floor(Date.now() / 1000), 'dd MMM');
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }, [balance, rate]);
 
     const animatedTonProps = useAnimatedProps(() => {
-        return {
-            text: `${balanceShared.value} TON`,
-        };
+        return { text: `${balanceShared.value} TON` };
     });
 
     const animatedPriceProps = useAnimatedProps(() => {
-        return {
-            text: `${priceShared.value}`,
-        };
+        return { text: priceShared.value };
     });
 
     const animatedPointerProps = useAnimatedProps(() => {
-        return {
-            text: `${pointerDate.value}`,
-        };
+        return { text: pointerDate.value };
     });
 
-    const close = useCallback(() => navigation.goBack(), []);
+    useEffect(() => {
+        balanceShared.value = parseFloat(balance).toFixed(2);
+        priceShared.value = balanceInCurrency;
+    }, [balance, balanceInCurrency]);
+
+    const [timeRange, setTimeRange] = useState<{ label: string, index: number }>(timeRangePoints[2]);
+    const [loading, setLoading] = useState(false);
+    const selectorRef = useAnimatedRef<Animated.View>();
+    const position = useSharedValue(0);
+
+    const animatedSelectorStyle = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            top: 0, bottom: 0,
+            left: withSpring(position.value, { duration: 500 })
+        }
+    });
+
+    const onTimeRangeChanged = useCallback((index: number) => {
+        if (index === 0) {
+            position.value = 4;
+        } else {
+            position.value = 48 * index + 4;
+        }
+    }, []);
+
+    useEffect(() => {
+        // Animate selector to the right position
+        onTimeRangeChanged(timeRange.index);
+
+        if (timeRange.index === 2) {
+            setBalanceChart(chart);
+            setLoading(false);
+            return;
+        }
+        // Update chart
+        if (!loading) {
+            (async () => {
+                setLoading(true);
+                const newChart = await fetchAddressBalanceChart(
+                    engine.client4,
+                    engine.address,
+                    timeRangePoints[timeRange.index].from * 1000,
+                    timeRangePoints[timeRange.index].hoursInterval
+                )
+                setBalanceChart(newChart);
+                setLoading(false);
+            })();
+        }
+
+    }, [timeRange]);
 
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom + 16,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('common.balance')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={{
+            <ScreenHeader title={t('common.balance')} onClosePressed={navigation.goBack} />
+            <View style={{ margin: 16 }}>
+                <AnimatedText
+                    animatedProps={animatedPointerProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                    style={{
+                        color: Theme.darkGrey,
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '500',
+                    }}
+                />
+                <AnimatedText
+                    animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                    style={{
+                        fontSize: 32, lineHeight: 40,
+                        color: Theme.textColor,
                         fontWeight: '600',
-                        marginLeft: 0,
-                        fontSize: 17,
-                        textAlign: 'center'
-                    }}>
-                        {t('common.balance')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginHorizontal: 16
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 14, marginTop: 16
-                    }]}>
-                        {t('common.balance')}
-                    </Text>
-                    <AnimatedText
-                        animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
-                        style={{
-                            fontSize: 30,
-                            color: Theme.textColor,
-                            marginRight: 8,
-                            fontWeight: '800',
-                            height: 40,
-                            marginTop: 2
-                        }}
-                        editable={false}
-                    />
-                    {(price && !AppConfig.isTestnet) && (
-                        <View style={[{
-                            backgroundColor: Theme.accent,
-                            borderRadius: 9,
-                            height: 24,
-                            alignSelf: 'flex-start',
-                            justifyContent: 'center',
-                            alignItems: 'flex-start',
-                            paddingVertical: 4, paddingHorizontal: 8,
-                            marginTop: 6
-                        }]}>
-                            <AnimatedText
-                                animatedProps={animatedPriceProps as Partial<Animated.AnimateProps<TextInputProps>>}
-                                style={{
-                                    height: 40,
-                                    marginTop: 2,
-                                    color: 'white',
-                                    fontSize: 14,
-                                    fontWeight: '600',
-                                    textAlign: "center",
-                                    lineHeight: 16
-                                }}
-                                editable={false}
-                            />
-                        </View>
-                    )}
-                </View>
-                {points.length > 0 && (
-                    <View>
-                        <LineGraph
-                            style={[{
-                                alignSelf: 'center',
-                                width: '100%', aspectRatio: 1.2,
-                                paddingHorizontal: 8,
-                            }]}
-                            selectionDotShadowColor={Theme.accent}
-                            verticalPadding={32}
-                            lineThickness={5}
-                            animated={true}
-                            color={Theme.accent}
-                            points={points}
-                            enablePanGesture={true}
-                            enableFadeInMask={true}
-                            gradientFillColors={[
-                                `${getSixDigitHex(Theme.accent)}00`,
-                                `${getSixDigitHex(Theme.accent)}ff`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}00`,
-                            ]}
-                            horizontalPadding={2}
-                            onPointSelected={onPointSelected}
-                            onGestureEnd={onGraphGestureEnded}
-                            indicatorPulsating={false}
-                            TopAxisLabel={() => <AnimatedText
-                                animatedProps={animatedPointerProps as Partial<Animated.AnimateProps<TextInputProps>>}
-                                style={{
-                                    height: 40,
-                                    marginTop: 2,
-                                    color: Theme.textColor,
-                                    fontSize: 14,
-                                    fontWeight: '600',
-                                    textAlign: "center",
-                                    lineHeight: 16
-                                }}
-                            />}
-                        />
-                        <View style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginHorizontal: 16
-                        }}>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 14, marginTop: 4
-                            }}>
-                                {formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
-                            </Text>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 14, marginTop: 4
-                            }}>
-                                {formatDate(Math.floor(points[points.length - 1].date.getTime() / 1000), 'dd MMM')}
-                            </Text>
-                        </View>
-                    </View>
-                )}
-            </ScrollView>
-            <View style={{
-                flexDirection: 'row',
-                alignItems: 'center', justifyContent: 'center',
-                paddingBottom: safeArea.bottom, paddingHorizontal: 16
-            }}>
-                <RoundButton
-                    title={t('common.close')}
-                    display={"secondary"}
-                    size={"large"}
-                    style={{ width: '100%' }}
-                    onPress={close}
+                    }}
+                    editable={false}
+                />
+                <AnimatedText
+                    animatedProps={animatedPriceProps as Partial<Animated.AnimateProps<TextInputProps>>}
+                    style={{
+                        marginTop: 2,
+                        color: Theme.green,
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                    }}
+                    editable={false}
                 />
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+            {points.length > 0 && (
+                <View style={{ margin: 16, borderRadius: 20, backgroundColor: Theme.lightGrey }}>
+                    <LineGraph
+                        style={[{
+                            alignSelf: 'center',
+                            width: '100%', aspectRatio: 1,
+                        }]}
+                        selectionDotShadowColor={Theme.accent}
+                        lineThickness={5}
+                        animated={true}
+                        color={loading ? Theme.darkGrey : Theme.accent}
+                        points={points}
+                        horizontalPadding={32}
+                        verticalPadding={32}
+                        enablePanGesture={true}
+                        enableFadeInMask={true}
+                        panGestureDelay={0}
+                        onGestureStart={Haptics.selectionAsync}
+                        onPointSelected={onPointSelected}
+                        onGestureEnd={onGraphGestureEnded}
+                        indicatorPulsating={false}
+                    />
+                    <View style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginTop: 16,
+                        paddingHorizontal: 16,
+                        paddingBottom: 16,
+                    }}>
+                        <Text style={{
+                            color: Theme.darkGrey,
+                            fontWeight: '500',
+                            fontSize: 17, lineHeight: 24,
+                        }}>
+                            {loading ? '...' : formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
+                        </Text>
+                        <Text style={{
+                            color: Theme.darkGrey,
+                            fontWeight: '500',
+                            fontSize: 17, lineHeight: 24,
+                        }}>
+                            {loading ? '...' : formatDate(Math.floor(points[points.length - 1].date.getTime() / 1000), 'dd MMM')}
+                        </Text>
+                    </View>
+                </View>
+            )}
+            <View style={{ flexGrow: 1 }} />
+            <View style={{
+                width: '100%',
+                justifyContent: 'center', alignItems: 'center',
+            }}>
+                <View style={{ flexDirection: 'row', }}>
+                    <Animated.View
+                        ref={selectorRef}
+                        style={[
+                            {
+                                backgroundColor: Theme.lightGrey,
+                                borderRadius: 12,
+                                width: 40
+                            },
+                            animatedSelectorStyle
+                        ]}
+                    />
+                    {timeRangePoints.map((point, index) => {
+                        return (
+                            <Pressable
+                                onPress={() => setTimeRange(timeRangePoints[index])}
+                                style={{
+                                    justifyContent: 'center', alignItems: 'center',
+                                    width: 48, height: 48
+                                }}
+                            >
+                                <Text style={{
+                                    color: Theme.darkGrey,
+                                }}>
+                                    {point.label}
+                                </Text>
+                            </Pressable>
+                        )
+                    })}
+                </View>
+            </View>
+            <View style={{ flexGrow: 1 }} />
         </View>
     );
 });

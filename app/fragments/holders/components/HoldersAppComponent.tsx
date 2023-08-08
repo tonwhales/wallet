@@ -29,6 +29,7 @@ import { HoldersAppParams } from '../HoldersAppFragment';
 import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
+import IcHolders from '../../../../assets/ic_holders.svg';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -37,7 +38,7 @@ function PulsingCardPlaceholder() {
         animation.value =
             withRepeat(
                 withTiming(1, {
-                    duration: 350,
+                    duration: 250,
                     easing: Easing.linear,
                 }),
                 -1,
@@ -80,18 +81,52 @@ function PulsingCardPlaceholder() {
 }
 
 function HoldersPlaceholder() {
-    return (
-        <View style={{
+    const animation = useSharedValue(0);
+
+    useEffect(() => {
+        animation.value =
+            withRepeat(
+                withTiming(1, {
+                    duration: 300,
+                    easing: Easing.linear,
+                }),
+                -1,
+                true,
+            );
+    }, []);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 0.8],
+            Extrapolate.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.01],
+            Extrapolate.CLAMP,
+        )
+        return {
             flex: 1,
-            position: 'absolute'
-        }}>
-            <Text>Pidor</Text>
-        </View>
+            alignSelf: 'center',
+            justifyContent: 'center',
+            marginBottom: 56,
+            opacity: opacity,
+            transform: [{ scale: scale }],
+        };
+    }, []);
+
+    return (
+        <Animated.View style={animatedStyles}>
+            <IcHolders color={'#eee'} />
+        </Animated.View>
     );
 }
 
 function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
 
     const [animationPlayed, setAnimationPlayed] = useState(loaded);
@@ -108,7 +143,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             backgroundColor: Theme.item,
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
+            opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
         };
     });
 
@@ -118,8 +153,8 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
                 opacity.value = 0;
                 setTimeout(() => {
                     setAnimationPlayed(true);
-                }, 300);
-            }, 200);
+                }, 150);
+            }, 250);
         }
     }, [loaded]);
 

@@ -91,7 +91,7 @@ export const DeveloperToolsFragment = fragment(() => {
         let url: URL
         try {
             url = new URL(link);
-            setHoldersAppUrl(url.toString());
+            setHoldersAppUrl(link);
         } catch (e) {
             warn(e)
             setHoldersAppUrl('');

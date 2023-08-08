@@ -196,6 +196,7 @@ export const HoldersLandingFragment = fragment(() => {
                     {useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
+                                key={`offline-rendered-${offlineRender}`}
                                 ref={webRef}
                                 uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                                 baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}

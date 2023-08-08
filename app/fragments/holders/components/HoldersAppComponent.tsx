@@ -490,7 +490,7 @@ export const HoldersAppComponent = React.memo((
             <View style={{ backgroundColor: Theme.item, flex: 1 }}>
                 {useOfflineApp ? (
                     <OfflineWebView
-                        key={`offline-rendered-once-${offlineRender}`}
+                        key={`offline-rendered-${offlineRender}`}
                         ref={webRef}
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}

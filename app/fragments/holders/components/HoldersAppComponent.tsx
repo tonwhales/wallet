@@ -465,22 +465,35 @@ export const HoldersAppComponent = React.memo((
         }
     }, [onHardwareBackPress]);
 
-    const onContentProcessDidTerminate = useCallback(() => {
-        webRef.current?.reload();
-    }, []);
+    const folderPath = `${FileSystem.cacheDirectory}holders`;
+    const [offlineRender, setOfflineRender] = useState(0);
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
     }, []);
+
+    const onContentProcessDidTerminate = useCallback(() => {
+        // In case of blank WebView without offline
+        if (!useOfflineApp) {
+            webRef.current?.reload();
+            return;
+        }
+        // In case of iOS blank WebView with offline app
+        // Re-render OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
+        if (Platform.OS === 'ios') {
+            setOfflineRender(offlineRender + 1);
+        }
+    }, [useOfflineApp, offlineRender]);
 
     return (
         <>
             <View style={{ backgroundColor: Theme.item, flex: 1 }}>
                 {useOfflineApp ? (
                     <OfflineWebView
+                        key={`offline-rendered-once-${offlineRender}`}
                         ref={webRef}
-                        uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                        baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
+                        uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,

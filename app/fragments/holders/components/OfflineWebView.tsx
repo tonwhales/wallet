@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
-import { OfflineErrorComponent } from "./OfflineErrorComponent";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;

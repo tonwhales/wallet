@@ -58,15 +58,13 @@ export class HoldersProduct {
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
-        if (!this.devUseOfflineMigrated) {
+        if (this.devUseOfflineMigrated) {
             storage.delete('dev-tools:use-offline-app');
-            storage.set('dev-tools:use-offline-app-migrated', true);
         }
-
         this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
         if (this.devUseOffline === undefined) {
-            storage.set('dev-tools:use-offline-app', false);
-            this.devUseOffline = false;
+            storage.set('dev-tools:use-offline-app', true);
+            this.devUseOffline = true;
         }
 
         this.engine = engine;

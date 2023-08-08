@@ -79,9 +79,6 @@ export const HoldersAppComponent = React.memo((
         };
     }, [props, lang, currency, status]);
 
-    // Offline navigation state
-    const [offlineRoute, setOfflineRoute] = useState(source.initialRoute);
-
     // 
     // Track events
     // 
@@ -356,7 +353,7 @@ export const HoldersAppComponent = React.memo((
                         ref={webRef}
                         uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
-                        initialRoute={offlineRoute}
+                        initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
@@ -373,10 +370,6 @@ export const HoldersAppComponent = React.memo((
                         onNavigationStateChange={(event: WebViewNavigation) => {
                             // Searching for supported query
                             onNavigation(event.url);
-                            // Persisting offline navigation state
-                            if (!event.url.includes(`${FileSystem.documentDirectory}holders`)) {
-                                setOfflineRoute(event.url.replace('file://', ''));
-                            }
                         }}
                         // Locking scroll, it's handled within the Web App
                         scrollEnabled={false}

@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
+import { Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { Easing, FadeIn, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -10,24 +9,153 @@ import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
 import { useEngine } from '../../../engine/Engine';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
-import { createInjectSource, dispatchMainButtonResponse, dispatchResponse } from '../../apps/components/inject/createInjectSource';
+import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
+import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
-import { HoldersAppParams } from '../HoldersAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { extractHoldersQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
-import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { HoldersAppParams } from '../HoldersAppFragment';
+import { BackPolicy } from '../types';
+import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
+
+function PulsingCardPlaceholder() {
+    const animation = useSharedValue(0);
+
+    useEffect(() => {
+        animation.value =
+            withRepeat(
+                withTiming(1, {
+                    duration: 350,
+                    easing: Easing.linear,
+                }),
+                -1,
+                true,
+            );
+    }, []);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 0.75],
+            Extrapolate.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.03],
+            Extrapolate.CLAMP,
+        )
+        return {
+            width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
+            opacity: opacity,
+            transform: [{ scale: scale }],
+        };
+    }, []);
+
+    return (
+        <Animated.View style={animatedStyles}>
+            <View style={{ width: 90, height: 20, backgroundColor: 'white', top: 22, left: 16, borderRadius: 8 }} />
+            <View style={{ marginTop: 4, width: 60, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+            <View style={{ display: 'flex', flexDirection: 'row', marginTop: 32 }}>
+                <View>
+                    <View style={{ width: 68, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+                    <View style={{ marginTop: 4, width: 90, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+                </View>
+            </View>
+        </Animated.View>
+    );
+}
+
+function HoldersPlaceholder() {
+    return (
+        <View style={{
+            flex: 1,
+            position: 'absolute'
+        }}>
+            <Text>Pidor</Text>
+        </View>
+    );
+}
+
+function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
+    const { Theme, AppConfig } = useAppConfig();
+    const navigation = useTypedNavigation();
+
+    const [animationPlayed, setAnimationPlayed] = useState(loaded);
+    const [showClose, setShowClose] = useState(false);
+
+    const opacity = useSharedValue(1);
+    const animatedStyles = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: Theme.item,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
+        };
+    });
+
+    useEffect(() => {
+        if (loaded) {
+            setTimeout(() => {
+                opacity.value = 0;
+                setTimeout(() => {
+                    setAnimationPlayed(true);
+                }, 300);
+            }, 200);
+        }
+    }, [loaded]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setShowClose(true);
+        }, 3000);
+    }, []);
+
+    if (animationPlayed) {
+        return null;
+    }
+
+    return (
+        <Animated.View
+            style={animatedStyles}
+        >
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
+            </View>
+            {type === 'card' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
+            {Platform.OS === 'ios' && showClose && (
+                <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
+                    <Pressable
+                        onPress={() => {
+                            navigation.goBack();
+                        }} >
+                        <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                            {t('common.close')}
+                        </Text>
+                    </Pressable>
+                </Animated.View>
+            )}
+        </Animated.View>
+    );
+}
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -49,7 +177,7 @@ export const HoldersAppComponent = React.memo((
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
     const useOfflineApp = !!stableOfflineV;
 
-    const [mainButton, dispatchMainButton] = useReducer(
+    const [mainButton, dispatchMainButton] = React.useReducer(
         reduceMainButton(),
         {
             text: '',
@@ -90,21 +218,7 @@ export const HoldersAppComponent = React.memo((
     //
     // View
     //
-    let [loaded, setLoaded] = useState(false);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: Theme.item,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
-        };
-    });
+    const [loaded, setLoaded] = useState(false);
 
     //
     // Navigation
@@ -320,10 +434,14 @@ export const HoldersAppComponent = React.memo((
         webRef.current?.reload();
     }, []);
 
+    const onLoadEnd = useCallback(() => {
+        setLoaded(true);
+    }, []);
+
     return (
         <>
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {useOfflineApp && (
+            <View style={{ backgroundColor: Theme.item, flex: 1 }}>
+                {useOfflineApp ? (
                     <OfflineWebView
                         ref={webRef}
                         uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
@@ -335,6 +453,7 @@ export const HoldersAppComponent = React.memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
+                        onLoadEnd={onLoadEnd}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -363,72 +482,49 @@ export const HoldersAppComponent = React.memo((
                         bounces={false}
                         startInLoadingState={true}
                     />
-                )}
-                {!useOfflineApp && (
-                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                        <WebView
-                            ref={webRef}
-                            source={{ uri: source.url }}
-                            startInLoadingState={true}
-                            style={{
-                                backgroundColor: Theme.item,
-                                flexGrow: 1, flexBasis: 0, height: '100%',
-                                alignSelf: 'stretch',
-                                marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadProgress={(event) => {
-                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                    // Searching for supported query
-                                    onNavigation(event.nativeEvent.url);
-                                }
-                            }}
-                            onNavigationStateChange={(event: WebViewNavigation) => {
+                ) : (
+                    <WebView
+                        ref={webRef}
+                        source={{ uri: source.url }}
+                        startInLoadingState={true}
+                        style={{
+                            backgroundColor: Theme.item,
+                            flexGrow: 1, flexBasis: 0, height: '100%',
+                            alignSelf: 'stretch',
+                            marginTop: Platform.OS === 'ios' ? 0 : 8,
+                        }}
+                        onLoadEnd={onLoadEnd}
+                        onLoadProgress={(event) => {
+                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
-                                onNavigation(event.url);
-                            }}
-                            // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
-                            contentInset={{ top: 0, bottom: 0 }}
-                            autoManageStatusBarEnabled={false}
-                            allowFileAccessFromFileURLs={false}
-                            allowUniversalAccessFromFileURLs={false}
-                            decelerationRate="normal"
-                            allowsInlineMediaPlayback={true}
-                            injectedJavaScriptBeforeContentLoaded={injectSource}
-                            onShouldStartLoadWithRequest={loadWithRequest}
-                            // In case of iOS blank WebView
-                            onContentProcessDidTerminate={onContentProcessDidTerminate}
-                            // In case of Android blank WebView
-                            onRenderProcessGone={onContentProcessDidTerminate}
-                            onMessage={handleWebViewMessage}
-                            keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                            bounces={false}
-                        />
-                    </Animated.View>
+                                onNavigation(event.nativeEvent.url);
+                            }
+                        }}
+                        onNavigationStateChange={(event: WebViewNavigation) => {
+                            // Searching for supported query
+                            onNavigation(event.url);
+                        }}
+                        // Locking scroll, it's handled within the Web App
+                        scrollEnabled={false}
+                        contentInset={{ top: 0, bottom: 0 }}
+                        autoManageStatusBarEnabled={false}
+                        allowFileAccessFromFileURLs={false}
+                        allowUniversalAccessFromFileURLs={false}
+                        decelerationRate="normal"
+                        allowsInlineMediaPlayback={true}
+                        injectedJavaScriptBeforeContentLoaded={injectSource}
+                        onShouldStartLoadWithRequest={loadWithRequest}
+                        // In case of iOS blank WebView
+                        onContentProcessDidTerminate={onContentProcessDidTerminate}
+                        // In case of Android blank WebView
+                        onRenderProcessGone={onContentProcessDidTerminate}
+                        onMessage={handleWebViewMessage}
+                        keyboardDisplayRequiresUserAction={false}
+                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        bounces={false}
+                    />
                 )}
-                {!useOfflineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                        <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
+                <WebViewLoader type={props.variant.type} loaded={loaded} />
                 {mainButton && mainButton.isVisible && (
                     <KeyboardAvoidingView
                         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}

@@ -33,6 +33,15 @@ export type ResolvedUrl = {
     query: ConnectQrQuery
 }
 
+export function isUrl(str: string): boolean {
+    try {
+        new URL(str);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
 export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
 

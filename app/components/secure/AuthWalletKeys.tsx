@@ -53,7 +53,10 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         const acc = getCurrentAddress();
         const passcodeState = getPasscodeState();
         const biometricsState = getBiometricsState();
-        const useBiometrics = (biometricsState === BiometricsState.InUse);
+        const useBiometrics = (
+            biometricsState === BiometricsState.InUse
+            || !biometricsState // Fallback for old versions without biometrics state set
+        );
 
         if (useBiometrics) {
             try {

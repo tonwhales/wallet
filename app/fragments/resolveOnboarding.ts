@@ -1,7 +1,7 @@
 import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
 import { Engine } from "../engine/Engine";
 import { storage } from "../storage/storage";
-import { PasscodeState, getPasscodeState } from "../storage/secureStorage";
+import { PasscodeState, getPasscodeState, loadKeyStorageType } from "../storage/secureStorage";
 
 export const wasPasscodeSetupShownKey = 'passcode-setup-shown';
 
@@ -9,7 +9,7 @@ function isPasscodeSetupShown(): boolean {
     return storage.getBoolean(wasPasscodeSetupShownKey) ?? false;
 }
 
-type OnboardingState = 'welcome' | 'upgrade-store' | 'passcode-setup' | 'backup' | 'sync' | 'home';
+type OnboardingState = 'welcome' | 'upgrade-store' | 'passcode-setup' | 'backup' | 'sync' | 'home' | 'android-key-store-migration';
 
 export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): OnboardingState {
     const state = getAppState();
@@ -19,14 +19,17 @@ export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): On
         const address = getCurrentAddress();
         if (isAddressSecured(address.address, isTestnet)) {
             const passcodeSet = getPasscodeState() === PasscodeState.Set;
+            const storageType = loadKeyStorageType();
+            const isKeyStore = storageType === 'key-store';
+
+            if (isKeyStore) {
+                return 'android-key-store-migration';
+            }
+
             if (!wasPasscodeSetupShown && !passcodeSet) {
                 return 'passcode-setup';
             }
-            if (engine && !engine.ready) {
-                return 'sync';
-            } else {
-                return 'home';
-            }
+            return 'home';
         } else {
             return 'backup';
         }

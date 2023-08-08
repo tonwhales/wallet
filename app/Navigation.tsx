@@ -67,6 +67,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
+import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -190,6 +191,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
+    modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {
@@ -227,14 +229,14 @@ export const Navigation = React.memo(() => {
             return 'WalletCreated';
         } else if (onboarding === 'home') {
             return 'Home';
-        } else if (onboarding === 'sync') {
-            return 'Sync';
         } else if (onboarding === 'welcome') {
             return 'Welcome';
         } else if (onboarding === 'upgrade-store') {
             return 'WalletUpgrade';
         } else if (onboarding === 'passcode-setup') {
             return 'PasscodeSetupInit';
+        } else if (onboarding === 'android-key-store-migration') {
+            return 'KeyStoreMigration';
         } else {
             throw Error('Invalid onboarding state');
         }

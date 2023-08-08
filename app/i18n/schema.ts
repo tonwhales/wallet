@@ -211,7 +211,10 @@ export type LocalizationSchema = {
         subtitle: string,
         inProgress: string,
         transfer: string,
-        check: string
+        check: string,
+        keyStoreTitle: string,
+        keyStoreSubtitle: string,
+        failed: string,
     },
     qr: {
         title: string,

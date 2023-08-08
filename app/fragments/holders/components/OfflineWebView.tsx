@@ -106,3 +106,5 @@ export const OfflineWebView = React.memo(React.forwardRef((
         </>
     );
 }));
+
+OfflineWebView.displayName = 'OfflineWebView';

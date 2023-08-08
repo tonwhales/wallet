@@ -28,6 +28,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
+import { WebViewErrorComponent } from './WebViewErrorComponent';
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -342,7 +343,7 @@ export const HoldersAppComponent = React.memo((
             <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 {useOfflineApp && (
                     <OfflineWebView
-                        key={`offline-rendered-once-${offlineRender}`}
+                        key={`offline-rendered-${offlineRender}`}
                         ref={webRef}
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
@@ -379,6 +380,16 @@ export const HoldersAppComponent = React.memo((
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        renderError={(errorDomain, errorCode, errorDesc) => {
+                            return (
+                                <WebViewErrorComponent
+                                    onReload={onContentProcessDidTerminate}
+                                    errorDomain={errorDomain}
+                                    errorCode={errorCode}
+                                    errorDesc={errorDesc}
+                                />
+                            )
+                        }}
                         bounces={false}
                         startInLoadingState={true}
                     />
@@ -433,7 +444,7 @@ export const HoldersAppComponent = React.memo((
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     >
                         <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar tintColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                            <AndroidToolbar tintColor={Theme.accent} onBack={() => navigation.goBack()} />
                         </View>
                         {Platform.OS === 'ios' && (
                             <Pressable
@@ -441,12 +452,12 @@ export const HoldersAppComponent = React.memo((
                                 onPress={() => {
                                     navigation.goBack();
                                 }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
+                                <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
                                     {t('common.close')}
                                 </Text>
                             </Pressable>
                         )}
-                        <ActivityIndicator size="small" color={'#564CE2'} />
+                        <ActivityIndicator size="small" color={Theme.accent} />
                     </Animated.View>
                 )}
                 {mainButton && mainButton.isVisible && (

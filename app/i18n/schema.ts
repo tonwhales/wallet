@@ -58,6 +58,10 @@ export type LocalizationSchema = {
         from: string,
         to: string,
         transaction: string,
+        somethingWentWrong: string,
+        checkInternetConnection: string,
+        reload: string,
+        errorOccurred: string,
     },
     syncStatus: {
         connecting: string,
@@ -819,6 +823,10 @@ export type LocalizationSchema = {
         settings: {
             changeAvatar: string
         }
+    },
+    webView: {
+        contactSupportOrTryToReload: string,
+        contactSupport: string,
     }
 };
 

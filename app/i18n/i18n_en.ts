@@ -56,6 +56,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         from: 'From',
         to: 'To',
         transaction: 'Transaction',
+        somethingWentWrong: 'Something went wrong',
+        checkInternetConnection: 'Check your internet connection',
+        reload: 'Reload',
+        errorOccurred: 'Error occurred: {{error}}', 
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -817,6 +821,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         settings: {
             changeAvatar: 'Change avatar',
         }
+    },
+    webView: {
+        contactSupportOrTryToReload: 'Contact support or try to reload the page',
+        contactSupport: 'Contact support',
     }
 };
 

@@ -57,6 +57,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         from: 'От',
         to: 'Кому',
         transaction: 'Транзакция',
+        somethingWentWrong: 'Что-то пошло не так',
+        checkInternetConnection: 'Проверьте подключение к интернету',
+        reload: 'Перезагрузить',
+        errorOccurred: 'Произошла ошибка: {{error}}',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -818,6 +822,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         settings: {
             changeAvatar: 'Изменить аватар',
         }
+    },
+    webView: {
+        contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
+        contactSupport: 'Связаться с поддержкой',
     }
 };
 

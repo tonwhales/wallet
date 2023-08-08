@@ -316,20 +316,13 @@ export const HoldersAppComponent = React.memo((
         }
     }, [onHardwareBackPress]);
 
+    const folderPath = `${FileSystem.cacheDirectory}holders`;
     const [offlineRender, setOfflineRender] = useState(0);
+
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
         opacity.value = 0;
-        if (
-            !useOfflineApp
-            || Platform.OS !== 'ios'
-            || offlineRender > 0
-        ) {
-            return;
-        }
-        // In case of iOS blank WebView with offline app
-        setOfflineRender(offlineRender + 1);
-    }, [offlineRender, useOfflineApp]);
+    }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
         // In case of blank WebView without offline
@@ -338,11 +331,11 @@ export const HoldersAppComponent = React.memo((
             return;
         }
         // In case of iOS blank WebView with offline app
-        // Rerender OfflineWebView to preserve FileSystem.documentDirectory navigation
+        // Rerender OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
         if (Platform.OS === 'ios') {
             setOfflineRender(offlineRender + 1);
         }
-    }, [useOfflineApp]);
+    }, [useOfflineApp, offlineRender]);
 
     return (
         <>
@@ -351,8 +344,8 @@ export const HoldersAppComponent = React.memo((
                     <OfflineWebView
                         key={`offline-rendered-once-${offlineRender}`}
                         ref={webRef}
-                        uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                        baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
+                        uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
                         style={{
                             backgroundColor: Theme.item,

@@ -198,7 +198,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
-                decelerationRate={'fast'}
+                decelerationRate={'normal'}
                 alwaysBounceVertical={false}
             >
                 <Animated.View

@@ -30,6 +30,7 @@ import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import IcHolders from '../../../../assets/ic_holders.svg';
+import { WebViewErrorComponent } from './WebViewErrorComponent';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -527,6 +528,16 @@ export const HoldersAppComponent = React.memo((
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        renderError={(errorDomain, errorCode, errorDesc) => {
+                            return (
+                                <WebViewErrorComponent
+                                    onReload={onContentProcessDidTerminate}
+                                    errorDomain={errorDomain}
+                                    errorCode={errorCode}
+                                    errorDesc={errorDesc}
+                                />
+                            )
+                        }}
                         bounces={false}
                         startInLoadingState={true}
                     />
@@ -570,6 +581,16 @@ export const HoldersAppComponent = React.memo((
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                         bounces={false}
+                        renderError={(errorDomain, errorCode, errorDesc) => {
+                            return (
+                                <WebViewErrorComponent
+                                    onReload={onContentProcessDidTerminate}
+                                    errorDomain={errorDomain}
+                                    errorCode={errorCode}
+                                    errorDesc={errorDesc}
+                                />
+                            )
+                        }}
                     />
                 )}
                 <WebViewLoader type={props.variant.type} loaded={loaded} />

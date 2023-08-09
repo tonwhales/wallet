@@ -46,6 +46,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         error: 'Error',
         wallet: 'Wallet',
         later: 'Later',
+        somethingWentWrong: 'Something went wrong',
+        checkInternetConnection: 'Check your internet connection',
+        reload: 'Reload',
+        errorOccurred: 'Error occurred: {{error}}',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -713,6 +717,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
         copySeedAlertAction: 'Copy',
         holdersOfflineApp: 'Holders Offline App',
+    },
+    webView: {
+        contactSupportOrTryToReload: 'Contact support or try to reload the page',
+        contactSupport: 'Contact support',
     }
 };
 

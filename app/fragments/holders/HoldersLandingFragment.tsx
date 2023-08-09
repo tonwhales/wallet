@@ -22,6 +22,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
+import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -230,6 +231,16 @@ export const HoldersLandingFragment = fragment(() => {
                                 bounces={false}
                                 startInLoadingState={true}
                                 onContentProcessDidTerminate={onContentProcessDidTerminate}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
                             />
                         </Animated.View>
                     )}
@@ -269,6 +280,16 @@ export const HoldersLandingFragment = fragment(() => {
                                 hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                                 bounces={false}
                                 onContentProcessDidTerminate={onContentProcessDidTerminate}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
                             />
                         </Animated.View>
                     )}

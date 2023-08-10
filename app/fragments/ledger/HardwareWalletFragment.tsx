@@ -18,11 +18,11 @@ export const HardwareWalletFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();
 
     const [searching, setSearching] = useState(false);
+    const [bleLocked, setBleLocked] = useState(false);
 
     const searchHID = useCallback(async () => {
-        setSearching(true);
+        setBleLocked(true);
         await ledgerContext?.startHIDSearch();
-        setSearching(false);
     }, [ledgerContext]);
 
     const searchBLE = useCallback(() => {
@@ -43,6 +43,12 @@ export const HardwareWalletFragment = fragment(() => {
             setSearching(false);
         }
     }, [ledgerContext?.bleSearchState]);
+
+    useEffect(() => {
+        if (ledgerContext?.ledgerConnection?.type === 'hid') {
+            navigation.navigate('LedgerSelectAccount');
+        }
+    }, [ledgerContext?.ledgerConnection]);
 
     return (
         <View style={{
@@ -123,6 +129,7 @@ export const HardwareWalletFragment = fragment(() => {
                 <RoundButton
                     title={Platform.OS === 'android' ? t('hardwareWallet.actions.connectBluetooth') : t('hardwareWallet.actions.connect')}
                     onPress={searchBLE}
+                    disabled={bleLocked}
                     loading={searching}
                     style={{
                         width: '100%',

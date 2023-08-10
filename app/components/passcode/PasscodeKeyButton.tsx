@@ -60,9 +60,9 @@ export const PasscodeKeyButton = React.memo((
             onPress={onPress}
             style={({ pressed }) => {
                 return {
-                    height: 60, width: 100,
+                    height: 60, width: 60,
                     justifyContent: 'center', alignItems: 'center',
-                    marginHorizontal: 10, borderRadius: 10,
+                    marginHorizontal: 30, borderRadius: 30,
                     backgroundColor: pressed ? Theme.lightGrey : undefined,
                 }
             }}

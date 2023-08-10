@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Platform, Text, Pressable, LayoutAnimation, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -19,11 +19,11 @@ import { useImage } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../utils/image/getMostPrevalentColorFromBytes";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
+import { Avatar } from "../../components/Avatar";
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import Chevron from '../../../assets/ic_chevron_forward.svg';
-import { Avatar } from "../../components/Avatar";
 
 export const ReceiveFragment = fragment(() => {
     const dimentions = useWindowDimensions();
@@ -129,7 +129,7 @@ export const ReceiveFragment = fragment(() => {
                     }}>
                         <Avatar
                             id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            size={84}
+                            size={77}
                             borderWith={0}
                         />
                     </View>
@@ -240,7 +240,7 @@ export const ReceiveFragment = fragment(() => {
                         backgroundColor: mainColor,
                         borderWidth: 0
                     }}
-                    body={link}
+                    body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                     textStyle={{
                         color: isDark ? 'white' : '#808080',
                         fontSize: 17, lineHeight: 24,

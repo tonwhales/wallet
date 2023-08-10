@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, TextInput } from "react-native";
+import { Pressable, View, Text, Platform, TextInput, ScrollView } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState, getCurrentAddress } from "../../storage/appState";
@@ -9,6 +9,7 @@ import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarImages } from "../../components/Avatar";
 import { useCallback, useMemo, useState } from "react";
 import { useEngine } from "../../engine/Engine";
+import { copyText } from "../../utils/copyText";
 
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -43,7 +44,7 @@ export const WalletSettingsFragment = fragment(() => {
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
-                title={name}
+                title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}
                 rightButton={
                     <Pressable
                         style={({ pressed }) => {
@@ -70,86 +71,92 @@ export const WalletSettingsFragment = fragment(() => {
                     </Pressable>
                 }
             />
-            <View style={{
-                marginTop: 16,
-                alignItems: 'center',
-                paddingHorizontal: 16, flexGrow: 1
-            }}>
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1,
-                            justifyContent: 'center', alignItems: 'center'
-                        }
-                    }}
-                    onPress={onChangeAvatar}
-                >
-                    <Avatar
-                        size={100}
-                        borderColor={Theme.lightGrey}
-                        id={''}
-                        hash={avatar}
-                    />
-                    <Text style={{
-                        color: Theme.accent,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '500',
-                        marginTop: 12,
-                    }}>
-                        {t('wallets.settings.changeAvatar')}
-                    </Text>
-                </Pressable>
+            <ScrollView>
                 <View style={{
-                    backgroundColor: Theme.lightGrey,
-                    paddingHorizontal: 20, marginTop: 20,
-                    paddingVertical: 10,
-                    width: '100%', borderRadius: 20
+                    marginTop: 16,
+                    alignItems: 'center',
+                    paddingHorizontal: 16, flexGrow: 1
                 }}>
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                                justifyContent: 'center', alignItems: 'center'
+                            }
+                        }}
+                        onPress={onChangeAvatar}
+                    >
+                        <Avatar
+                            size={100}
+                            borderColor={Theme.lightGrey}
+                            id={''}
+                            hash={avatar}
+                        />
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                            marginTop: 12,
+                        }}>
+                            {t('wallets.settings.changeAvatar')}
+                        </Text>
+                    </Pressable>
                     <View style={{
-                        width: '100%',
-                        overflow: 'hidden',
-                        position: 'relative',
-                        marginBottom: 2
+                        backgroundColor: Theme.lightGrey,
+                        paddingHorizontal: 20, marginTop: 20,
+                        paddingVertical: 10,
+                        width: '100%', borderRadius: 20
                     }}>
-                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                            {t('common.walletName')}
+                        <View style={{
+                            width: '100%',
+                            overflow: 'hidden',
+                        }}>
+                            <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                {t('common.walletName')}
+                            </Text>
+                        </View>
+                        <TextInput
+                            style={[
+                                {
+                                    paddingHorizontal: 0,
+                                    paddingVertical: 0,
+                                    includeFontPadding: false,
+                                    textAlignVertical: 'center',
+                                    fontSize: 17, lineHeight: 24,
+                                    fontWeight: '400', color: Theme.textColor,
+                                    paddingTop: 0,
+                                    paddingBottom: 0
+                                }
+                            ]}
+                            maxLength={64}
+                            placeholder={t('common.walletName')}
+                            placeholderTextColor={Theme.placeholder}
+                            multiline={true}
+                            blurOnSubmit={true}
+                            editable={true}
+                            value={name}
+                            onChangeText={setName}
+                        />
+                    </View>
+                    <View style={{
+                        backgroundColor: Theme.lightGrey,
+                        paddingVertical: 10,
+                        paddingHorizontal: 20,
+                        marginTop: 20,
+                        width: '100%', borderRadius: 20
+                    }}>
+                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '500' }}>
+                            {t('common.walletAddress')}
+                        </Text>
+                        <Text
+                            onPress={() => copyText(address.toFriendly({ testOnly: AppConfig.isTestnet }))}
+                            style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
+                        >
+                            {address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         </Text>
                     </View>
-                    <TextInput
-                        style={[
-                            {
-                                paddingHorizontal: 0,
-                                textAlignVertical: 'top',
-                                fontSize: 17, lineHeight: 24,
-                                fontWeight: '400', color: Theme.textColor
-                            }
-                        ]}
-                        maxLength={64}
-                        placeholder={t('common.walletName')}
-                        placeholderTextColor={Theme.placeholder}
-                        multiline={true}
-                        blurOnSubmit={true}
-                        editable={true}
-                        value={name}
-                        onChangeText={setName}
-                    />
                 </View>
-                <View style={{
-                    backgroundColor: Theme.lightGrey,
-                    padding: 20, marginTop: 20,
-                    width: '100%', borderRadius: 20
-                }}>
-                    <Text style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '500' }}>
-                        {t('common.walletAddress')}
-                    </Text>
-                    <Text
-                        style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
-                    >
-                        {address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                    </Text>
-                </View>
-                <View style={{ flexGrow: 1, backgroundColor: 'red' }} />
-            </View>
+            </ScrollView>
         </View>
     )
 });

@@ -10,9 +10,11 @@ import { t } from "../../i18n/t";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const AccountSelectorFragment = fragment(() => {
     const appStateManager = useAppStateManager();
+    const { Theme } = useAppConfig();
     const { showActionSheetWithOptions } = useActionSheet();
     const dimentions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
@@ -25,7 +27,7 @@ export const AccountSelectorFragment = fragment(() => {
         if (addressesCount === 1) {
             multiplier = .5;
         } else if (addressesCount === 2) {
-            multiplier = .6;
+            multiplier = .52;
         } else if (addressesCount === 3) {
             multiplier = .7;
         } else if (addressesCount === 4) {
@@ -68,7 +70,8 @@ export const AccountSelectorFragment = fragment(() => {
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{
                 height: (Math.floor(dimentions.height * heightMultiplier)),
-                backgroundColor: 'white', borderTopEndRadius: 20, borderTopStartRadius: 20,
+                backgroundColor: Theme.white,
+                borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,
                 paddingBottom: safeArea.bottom + 16
             }}>

@@ -24,13 +24,12 @@ export const WalletSelector = React.memo(() => {
     return (
         <View style={{
             flexGrow: 1,
-            paddingTop: 40
         }}>
             <Text style={{
-                fontSize: 32, fontWeight: '600',
-                lineHeight: 38,
+                fontSize: 17, lineHeight: 24,
+                fontWeight: '600',
                 color: Theme.textColor,
-                marginBottom: 16
+                marginBottom: 16, marginTop: 16,
             }}>
                 {t('common.wallets')}
             </Text>

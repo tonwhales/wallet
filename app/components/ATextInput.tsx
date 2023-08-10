@@ -107,7 +107,8 @@ export interface ATextInputProps {
     onSubmit?: (index: number) => void,
     index?: number,
     label?: any,
-    backgroundColor?: string
+    backgroundColor?: string,
+    textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
@@ -191,7 +192,11 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                 ? props.lineHeight
                                 : props.preventDefaultLineHeight ? undefined : 22,
                             fontWeight: props.fontWeight ? props.fontWeight : '400',
-                            textAlignVertical: props.multiline ? 'top' : 'center'
+                            textAlignVertical: props.textAlignVertical
+                                ? props.textAlignVertical
+                                : props.multiline
+                                    ? 'top'
+                                    : 'center'
                         }, props.inputStyle]}
                         textAlign={props.textAlign}
                         autoFocus={props.autoFocus}

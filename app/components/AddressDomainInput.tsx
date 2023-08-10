@@ -305,6 +305,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             editable={!resolving}
             enabled={!resolving}
             inputStyle={inputStyle}
+            lineHeight={24}
+            textAlignVertical={'center'}
             actionButtonRight={
                 !!onQRCodeRead
                     ? (

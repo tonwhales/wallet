@@ -600,7 +600,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 placeholder={jettonState ? jettonState.master.symbol ?? 'TON' : 'TON'}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: 'white',
+                                    backgroundColor: Theme.white,
                                     justifyContent: 'center', alignItems: 'center',
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
@@ -645,7 +645,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     flexShrink: 1,
                                     marginHorizontal: 0, marginVertical: 0,
                                     paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    fontSize: 17, lineHeight: 20,
+                                    fontSize: 17, lineHeight: 24,
                                     fontWeight: '400', color: Theme.textColor,
                                     textAlignVertical: 'center',
                                 }}
@@ -670,7 +670,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 autoCapitalize={'sentences'}
                                 style={{
                                     backgroundColor: Theme.lightGrey,
-                                    padding: 20, marginTop: 20
+                                    padding: 20, marginTop: 16
                                 }}
                                 inputStyle={{
                                     marginHorizontal: 0,
@@ -717,7 +717,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     : <RoundButton
                         disabled={!order}
-                        title={t('common.continue')}
+                        title={t('common.send')}
                         action={doSend}
                     />
                 }

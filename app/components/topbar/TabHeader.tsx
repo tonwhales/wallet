@@ -1,7 +1,8 @@
 import React from "react";
-import { StyleProp, View, ViewStyle, Text } from "react-native";
+import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { StatusBar } from "expo-status-bar";
 
 export const TabHeader = React.memo(({
     title,
@@ -25,6 +26,7 @@ export const TabHeader = React.memo(({
                 flexDirection: 'row'
             }, style
         ]}>
+            {Platform.OS === 'android' && <StatusBar style={'dark'} />}
             <Text
                 numberOfLines={1}
                 style={{

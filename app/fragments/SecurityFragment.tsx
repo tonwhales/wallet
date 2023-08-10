@@ -96,13 +96,13 @@ export const SecurityFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader onBackPressed={navigation.goBack} title={t('security.title')} />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
                     paddingHorizontal: 16,
+                    marginTop: Platform.OS === 'android' ? 16 : 0,
                     flexBasis: 0,
                     marginBottom: 52 + safeArea.bottom
                 }}

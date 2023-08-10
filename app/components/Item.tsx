@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { ImageSourcePropType, Pressable, Text, View, Image } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View, Image, Platform } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
-import { useRef } from 'react';
 
 export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const { Theme } = useAppConfig();
@@ -34,27 +33,30 @@ export const ItemSwitch = React.memo((props: {
             }}
             style={{ flexGrow: 1, alignItems: 'center', flexDirection: 'row', padding: 20, justifyContent: 'space-between' }}
         >
-            {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}
-            {!!props.leftIconComponent && (
-                <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }}>
-                    {props.leftIconComponent}
-                </View>
-            )}
-            <Text
-                style={{
-                    fontSize: 17, lineHeight: 24,
-                    fontWeight: '600',
-                    textAlignVertical: 'center',
-                    flexShrink: 1
-                }}
-            >
-                {props.title}
-            </Text>
+            <View style={{ flexDirection: 'row' }}>
+                {props.leftIcon && (<Image style={{ height: 24, width: 24, marginRight: 13 }} source={props.leftIcon} />)}
+                {!!props.leftIconComponent && (
+                    <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center', marginRight: 13 }}>
+                        {props.leftIconComponent}
+                    </View>
+                )}
+                <Text
+                    style={{
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '600',
+                        textAlignVertical: 'center',
+                        flexShrink: 1
+                    }}
+                >
+                    {props.title}
+                </Text>
+            </View>
             <Switch
                 trackColor={{
                     false: Theme.mediumGrey,
                     true: Theme.accent,
                 }}
+                thumbColor={(Platform.OS === 'android' && props.value) ? Theme.darkGrey : undefined}
                 value={props.value}
                 onValueChange={props.onChange}
             />

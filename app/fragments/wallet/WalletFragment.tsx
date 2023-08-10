@@ -266,11 +266,19 @@ function WalletComponent(props: { wallet: WalletState }) {
                     >
                         {
                             (!AppConfig.isTestnet && Platform.OS === 'android') && (
-                                <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
+                                <View style={{
+                                    flexGrow: 1, flexBasis: 0,
+                                    marginRight: 7,
+                                    borderRadius: 14,
+                                    padding: 10
+                                }}>
                                     <TouchableHighlight
                                         onPress={onOpenBuy}
                                         underlayColor={Theme.selector}
-                                        style={{ borderRadius: 14 }}
+                                        style={{
+                                            borderRadius: 14, flex: 1, paddingVertical: 10,
+                                            marginHorizontal: 20
+                                        }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                             <View style={{
@@ -281,17 +289,31 @@ function WalletComponent(props: { wallet: WalletState }) {
                                             }}>
                                                 <Image source={require('../../../assets/ic_buy.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 15, lineHeight: 20, color: Theme.item, marginTop: 6 }}>{t('wallet.actions.buy')}</Text>
+                                            <Text style={{
+                                                fontSize: 15, lineHeight: 20,
+                                                color: Theme.item,
+                                                marginTop: 6
+                                            }}>
+                                                {t('wallet.actions.buy')}
+                                            </Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
                             )
                         }
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
+                        <View style={{
+                            flexGrow: 1, flexBasis: 0,
+                            marginRight: 7,
+                            borderRadius: 14,
+                            padding: 10
+                        }}>
                             <TouchableHighlight
                                 onPress={() => navigation.navigate('Receive')}
                                 underlayColor={Theme.selector}
-                                style={{ borderRadius: 14 }}
+                                style={{
+                                    borderRadius: 14, flex: 1, paddingVertical: 10,
+                                    marginHorizontal: 20
+                                }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                     <View style={{
@@ -302,15 +324,30 @@ function WalletComponent(props: { wallet: WalletState }) {
                                     }}>
                                         <Image source={require('../../../assets/ic_receive.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: Theme.item,
+                                            marginTop: 6
+                                        }}>
+                                        {t('wallet.actions.receive')}
+                                    </Text>
                                 </View>
                             </TouchableHighlight>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
+                        <View style={{
+                            flexGrow: 1, flexBasis: 0,
+                            marginRight: 7,
+                            borderRadius: 14,
+                            padding: 10
+                        }}>
                             <TouchableHighlight
                                 onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
                                 underlayColor={Theme.selector}
-                                style={{ borderRadius: 14 }}
+                                style={{
+                                    borderRadius: 14, flex: 1, paddingVertical: 10,
+                                    marginHorizontal: 20
+                                }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                     <View style={{

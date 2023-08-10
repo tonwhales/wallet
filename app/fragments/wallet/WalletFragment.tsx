@@ -212,7 +212,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text style={{
                             fontSize: 32,
-                            color: 'white',
+                            color: Theme.white,
                             marginRight: 8,
                             fontWeight: '500',
                             lineHeight: 38,
@@ -220,7 +220,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             <ValueComponent precision={6} value={account.balance} />
                             <Text style={{
                                 fontSize: 17,
-                                lineHeight: 24,
+                                lineHeight: Platform.OS === 'ios' ? 24 : undefined,
                                 color: Theme.darkGrey,
                                 marginRight: 8,
                                 fontWeight: '500',
@@ -344,7 +344,7 @@ export const WalletFragment = fragment(() => {
             navigation.setOptions({ tabBarStyle: { display: 'none' } });
             return;
         }
-        navigation.setOptions({ tabBarStyle: { display: 'flex'  } });
+        navigation.setOptions({ tabBarStyle: { display: 'flex' } });
     }, [account, navigation]);
     if (!account) {
         return (

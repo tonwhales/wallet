@@ -10,7 +10,7 @@ import { useBottomSheet } from "../../components/modal/BottomSheetModal";
 import { t } from "../../i18n/t";
 import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { warn } from "../../utils/log";
-import { Pressable, View, Image, Text, TouchableHighlight } from "react-native";
+import { Pressable, View, Image, Text, TouchableHighlight, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -293,7 +293,7 @@ export const LedgerHomeFragment = fragment(() => {
                             <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
                             <Text style={{
                                 fontSize: 17,
-                                lineHeight: 24,
+                                lineHeight: Platform.OS === 'ios' ? 24 : undefined,
                                 color: Theme.darkGrey,
                                 marginRight: 8,
                                 fontWeight: '500',

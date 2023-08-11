@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
@@ -18,10 +18,15 @@ export const HoldersCardItem = React.memo((props: {
     account?: HoldersCard,
     last?: boolean,
     first?: boolean,
-    renderRightActions?: () => React.ReactNode
+    rightAction?: () => void
+    rightActionIcon?: any
 }) => {
     const { Theme } = useAppConfig();
     const image = holdersCardImageMap[props.account?.card.personalizationCode || 'classic'] || holdersCardImageMap['classic'];
+    const [swiping, setSwiping] = useState(false);
+    const [swipeOpened, setSwipeOpened] = useState(false);
+
+    const swipableRef = useRef<Swipeable>(null);
 
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -66,14 +71,18 @@ export const HoldersCardItem = React.memo((props: {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     return (
-        props.renderRightActions ? (
+        (props.rightAction) ? (
             <Pressable
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
+                onPressIn={swiping ? undefined : onPressIn}
+                onPressOut={swiping ? undefined : onPressOut}
                 style={{ flex: 1 }}
-                onPress={onPress}
+                onPress={swiping ? undefined : onPress}
             >
                 <Swipeable
+                    ref={swipableRef}
+                    onSwipeableWillOpen={() => setSwiping(true)}
+                    onSwipeableOpen={() => setSwipeOpened(true)}
+                    onSwipeableClose={() => setSwipeOpened(false)}
                     containerStyle={{
                         flex: 1
                     }}
@@ -86,7 +95,31 @@ export const HoldersCardItem = React.memo((props: {
                         borderBottomRightRadius: props.last ? 20 : 0,
                         overflow: 'hidden'
                     }}
-                    renderRightActions={props.renderRightActions}
+                    renderRightActions={() => {
+                        return (
+                            <Pressable
+                                style={{
+                                    marginRight: 16,
+                                    padding: 20,
+                                    justifyContent: 'center', alignItems: 'center',
+                                    borderTopLeftRadius: props.first ? 20 : 0,
+                                    borderTopRightRadius: props.first ? 20 : 0,
+                                    borderBottomLeftRadius: props.last ? 20 : 0,
+                                    borderBottomRightRadius: props.last ? 20 : 0,
+                                    backgroundColor: Theme.lightGrey,
+                                    overflow: 'hidden'
+                                }}
+                                onPress={() => {
+                                    swipableRef.current?.close();
+                                    if (props.rightAction) {
+                                        props.rightAction();
+                                    }
+                                }}
+                            >
+                                {props.rightActionIcon}
+                            </Pressable>
+                        )
+                    }}
                 >
                     <Animated.View style={[
                         {

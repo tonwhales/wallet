@@ -105,12 +105,12 @@ export const HoldersProductButton = React.memo(() => {
                 borderRadius: 20,
                 backgroundColor: Theme.lightGrey,
             }}>
-                {accounts.map((card, index) => {
+                {visibleList.map((card, index) => {
                     return (
                         <HoldersCardItem
                             key={`card-${index}`}
                             account={card}
-                            last={index === accounts.length - 1}
+                            last={true}
                         />
                     )
                 })}
@@ -127,28 +127,8 @@ export const HoldersProductButton = React.memo(() => {
                         account={item}
                         first={index === 0}
                         last={index === visibleList.length - 1}
-                        renderRightActions={() => {
-                            return (
-                                <Pressable
-                                    style={{
-                                        marginRight: 16,
-                                        padding: 20,
-                                        justifyContent: 'center', alignItems: 'center',
-                                        borderTopLeftRadius: index === 0 ? 20 : 0,
-                                        borderTopRightRadius: index === 0 ? 20 : 0,
-                                        borderBottomLeftRadius: index === visibleList.length - 1 ? 20 : 0,
-                                        borderBottomRightRadius: index === visibleList.length - 1 ? 20 : 0,
-                                        backgroundColor: Theme.lightGrey,
-                                        overflow: 'hidden'
-                                    }}
-                                    onPress={() => {
-                                        engine.products.holders.hideCard(item.id);
-                                    }}
-                                >
-                                    <Hide height={36} width={36} style={{ width: 36, height: 36 }} />
-                                </Pressable>
-                            )
-                        }}
+                        rightAction={() => engine.products.holders.hideCard(item.id)}
+                        rightActionIcon={<Hide height={36} width={36} style={{ width: 36, height: 36 }} />}
                     />
                 )
             })}
@@ -190,6 +170,7 @@ export const HoldersProductButton = React.memo(() => {
                         </Pressable>
                     </View>
                     <AnimatedChildrenCollapsible
+                        showDivider={false}
                         collapsed={collapsed}
                         items={hiddenList}
                         renderItem={(item, index) => {
@@ -199,28 +180,8 @@ export const HoldersProductButton = React.memo(() => {
                                     account={item}
                                     first={index === 0}
                                     last={index === hiddenList.length - 1}
-                                    renderRightActions={() => {
-                                        return (
-                                            <Pressable
-                                                style={{
-                                                    marginRight: 16,
-                                                    padding: 20,
-                                                    justifyContent: 'center', alignItems: 'center',
-                                                    borderTopLeftRadius: index === 0 ? 20 : 0,
-                                                    borderTopRightRadius: index === 0 ? 20 : 0,
-                                                    borderBottomLeftRadius: index === hiddenList.length - 1 ? 20 : 0,
-                                                    borderBottomRightRadius: index === hiddenList.length - 1 ? 20 : 0,
-                                                    backgroundColor: Theme.lightGrey,
-                                                    overflow: 'hidden'
-                                                }}
-                                                onPress={() => {
-                                                    engine.products.holders.showCard(item.id);
-                                                }}
-                                            >
-                                                <Show height={36} width={36} style={{ width: 36, height: 36 }} />
-                                            </Pressable>
-                                        )
-                                    }}
+                                    rightAction={() => engine.products.holders.showCard(item.id)}
+                                    rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                                 />
                             )
                         }}

@@ -8,11 +8,13 @@ export const AnimatedChildrenCollapsible = memo(({
     items,
     renderItem,
     itemHeight = 82,
+    showDivider = true,
 }: {
     collapsed: boolean,
     items: any[],
     renderItem: (item: any, index: number) => any,
     itemHeight?: number,
+    showDivider?: boolean,
 }) => {
     const { Theme } = useAppConfig();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
@@ -39,7 +41,7 @@ export const AnimatedChildrenCollapsible = memo(({
                         exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic).duration(100)}
                         style={{ height: itemHeight }}
                     >
-                        {index === 0 && (
+                        {index === 0 && showDivider && (
                             <View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />
                         )}
                         {renderItem(item, index)}

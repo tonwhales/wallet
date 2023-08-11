@@ -60,7 +60,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
-        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white, };
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
     });
 
     const viewCardStyle = useAnimatedStyle(() => {
@@ -71,12 +71,12 @@ function WalletComponent(props: { wallet: WalletState }) {
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
             <StatusBar style={'light'} />
             <WalletHeaderFragment />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
-                contentContainerStyle={{ paddingBottom: 16, backgroundColor: 'white' }}
+                contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
@@ -125,12 +125,34 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 }}>{' TON'}</Text>
                             </Text>
                         </View>
+                        <Animated.View
+                            style={[{
+                                position: 'absolute', top: 0, left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 260, width: 260,
+                                borderRadius: 260,
+                                overflow: 'hidden'
+                            },
+                                animatedStyle
+                            ]}
+                            pointerEvents={'none'}
+                        >
+                            <Image
+                                source={require('../../../assets/shine-blur.png')}
+                                style={{
+                                    height: 260, width: 260,
+                                }}
+                            />
+                        </Animated.View>
                         <View style={{
                             flexDirection: 'row', alignItems: 'center',
                             marginTop: 10
                         }}>
                             <Pressable onPress={navigateToCurrencySettings}>
-                                <PriceComponent amount={account.balance} />
+                                <PriceComponent
+                                    amount={account.balance}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                />
                             </Pressable>
                         </View>
                         <View style={{ flexGrow: 1 }} />
@@ -152,26 +174,6 @@ function WalletComponent(props: { wallet: WalletState }) {
                             }}
                             limitActions
                         />
-                        <Animated.View
-                            style={[{
-                                position: 'absolute', top: 0, left: '50%',
-                                marginTop: -20, marginLeft: -20,
-                                height: 260, width: 260,
-                                opacity: .44,
-                                borderRadius: 260,
-                                overflow: 'hidden'
-                            },
-                                animatedStyle
-                            ]}
-                            pointerEvents={'none'}
-                        >
-                            <Image
-                                source={require('../../../assets/shine-blur.png')}
-                                style={{
-                                    height: 260, width: 260,
-                                }}
-                            />
-                        </Animated.View>
                     </View>
                     <View
                         style={{
@@ -286,7 +288,6 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 position: 'absolute', top: '-175%', left: '50%',
                                 marginTop: -20, marginLeft: -20,
                                 height: 260, width: 260,
-                                opacity: .44,
                                 borderRadius: 260,
                                 overflow: 'hidden'
                             },

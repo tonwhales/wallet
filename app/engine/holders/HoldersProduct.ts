@@ -137,6 +137,22 @@ export class HoldersProduct {
         return useRecoilValue(this.engine.persistence.holdersOfflineApp.item().atom);
     }
 
+    useHiddenCards() {
+        return useRecoilValue(this.engine.persistence.holdersHiddenCards.item(this.engine.address).atom) || [];
+    }
+
+    hideCard(id: string) {
+        this.engine.persistence.holdersHiddenCards.item(this.engine.address).update((src) => {
+            return [...(src ?? []), id];
+        });
+    }
+
+    showCard(id: string) {
+        this.engine.persistence.holdersHiddenCards.item(this.engine.address).update((src) => {
+            return (src ?? []).filter((a) => a !== id);
+        });
+    }
+
     // Update accounts
     async syncAccounts() {
         const targetAccounts = this.engine.persistence.holdersState.item(this.engine.address);

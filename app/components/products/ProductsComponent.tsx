@@ -83,107 +83,114 @@ export const ProductsComponent = React.memo(() => {
     }, [oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
-        <View style={{ paddingHorizontal: 16 }}>
-            {tonconnect}
-            {currentJob && currentJob.job.type === 'transaction' && (
-                <AnimatedProductButton
-                    entering={FadeInUp}
-                    exiting={FadeOutDown}
-                    name={t('products.transactionRequest.title')}
-                    subtitle={t('products.transactionRequest.subtitle')}
-                    icon={TransactionIcon}
-                    value={null}
-                    onPress={() => {
-                        if (currentJob.job.type === 'transaction') {
-                            navigation.navigateTransfer({
-                                order: {
-                                    messages: [{
-                                        target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                        amount: currentJob.job.amount,
-                                        payload: currentJob.job.payload,
-                                        stateInit: currentJob.job.stateInit,
-                                        amountAll: false
-                                    }]
-                                },
-                                job: currentJob.jobRaw,
-                                text: currentJob.job.text,
-                                callback: null
-                            });
-                        }
-                    }}
-                />
-            )}
-            {currentJob && currentJob.job.type === 'sign' && (
-                <AnimatedProductButton
-                    entering={FadeInUp}
-                    exiting={FadeOutDown}
-                    name={t('products.signatureRequest.title')}
-                    subtitle={t('products.signatureRequest.subtitle')}
-                    icon={SignIcon}
-                    value={null}
-                    onPress={() => {
-                        if (currentJob.job.type === 'sign') {
-                            const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(currentJob.key));
-                            if (!connection) {
-                                return; // Just in case
-                            }
-                            navigation.navigateSign({
-                                text: currentJob.job.text,
-                                textCell: currentJob.job.textCell,
-                                payloadCell: currentJob.job.payloadCell,
-                                job: currentJob.jobRaw,
-                                callback: null,
-                                name: connection.name
-                            });
-                        }
-                    }}
-                />
-            )}
-
+        <View style={{ backgroundColor: Theme.walletBackground }}>
             <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between', alignItems: 'center',
-                marginTop: 16,
-                paddingVertical: 12,
-                marginBottom: 4
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                backgroundColor: Theme.white
             }}>
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                    color: Theme.textColor,
-                    lineHeight: 24,
-                }}>
-                    {t('common.products')}
-                </Text>
-                {!(cards.length === 0 && totalStaked.eq(new BN(0))) && (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1
+                {tonconnect}
+                {currentJob && currentJob.job.type === 'transaction' && (
+                    <AnimatedProductButton
+                        entering={FadeInUp}
+                        exiting={FadeOutDown}
+                        name={t('products.transactionRequest.title')}
+                        subtitle={t('products.transactionRequest.subtitle')}
+                        icon={TransactionIcon}
+                        value={null}
+                        onPress={() => {
+                            if (currentJob.job.type === 'transaction') {
+                                navigation.navigateTransfer({
+                                    order: {
+                                        messages: [{
+                                            target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                            amount: currentJob.job.amount,
+                                            payload: currentJob.job.payload,
+                                            stateInit: currentJob.job.stateInit,
+                                            amountAll: false
+                                        }]
+                                    },
+                                    job: currentJob.jobRaw,
+                                    text: currentJob.job.text,
+                                    callback: null
+                                });
                             }
                         }}
-                        onPress={() => navigation.navigate('Products')}
-                    >
-                        <Text style={{
-                            fontSize: 15,
-                            fontWeight: '500',
-                            lineHeight: 20,
-                            color: Theme.accent,
-                        }}>
-                            {t('products.addNew')}
-                        </Text>
-                    </Pressable>
+                    />
                 )}
-            </View>
+                {currentJob && currentJob.job.type === 'sign' && (
+                    <AnimatedProductButton
+                        entering={FadeInUp}
+                        exiting={FadeOutDown}
+                        name={t('products.signatureRequest.title')}
+                        subtitle={t('products.signatureRequest.subtitle')}
+                        icon={SignIcon}
+                        value={null}
+                        onPress={() => {
+                            if (currentJob.job.type === 'sign') {
+                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(currentJob.key));
+                                if (!connection) {
+                                    return; // Just in case
+                                }
+                                navigation.navigateSign({
+                                    text: currentJob.job.text,
+                                    textCell: currentJob.job.textCell,
+                                    payloadCell: currentJob.job.payloadCell,
+                                    job: currentJob.jobRaw,
+                                    callback: null,
+                                    name: connection.name
+                                });
+                            }
+                        }}
+                    />
+                )}
 
-            <HoldersProductButton key={'holders'} />
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    marginTop: 20,
+                    paddingVertical: 12,
+                    marginBottom: 4,
+                    paddingHorizontal: 16
+                }}>
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                        color: Theme.textColor,
+                        lineHeight: 24,
+                    }}>
+                        {t('common.products')}
+                    </Text>
+                    {!(cards.length === 0 && totalStaked.eq(new BN(0))) && (
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1
+                                }
+                            }}
+                            onPress={() => navigation.navigate('Products')}
+                        >
+                            <Text style={{
+                                fontSize: 15,
+                                fontWeight: '500',
+                                lineHeight: 20,
+                                color: Theme.accent,
+                            }}>
+                                {t('products.addNew')}
+                            </Text>
+                        </Pressable>
+                    )}
+                </View>
 
-            <View style={{ marginTop: 8 }}>
-                <StakingProductComponent key={'pool'} />
-            </View>
+                <HoldersProductButton key={'holders'} />
 
-            <View style={{ marginTop: 8 }}>
-                <JettonsProductComponent key={'jettons'} />
+                <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
+                    <StakingProductComponent key={'pool'} />
+                </View>
+
+                <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
+                    <JettonsProductComponent key={'jettons'} />
+                </View>
             </View>
         </View>
     )

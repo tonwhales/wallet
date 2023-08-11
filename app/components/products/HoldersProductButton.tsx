@@ -7,12 +7,13 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { holdersUrl } from "../../engine/holders/HoldersProduct";
-import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";
-import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
+
+import Hide from '../../../assets/ic-hide.svg';
+import Show from '../../../assets/ic-show.svg';
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('../../../assets/classic.png'),
@@ -25,12 +26,24 @@ export const HoldersProductButton = React.memo(() => {
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
+    const hiddenCards = engine.products.holders.useHiddenCards();
+    const visibleList = useMemo(() => {
+        return accounts.filter((item) => {
+            return !hiddenCards.includes(item.id);
+        });
+    }, [hiddenCards, accounts]);
+    const hiddenList = useMemo(() => {
+        return accounts.filter((item) => {
+            return hiddenCards.includes(item.id);
+        });
+    }, [hiddenCards, accounts]);
+
     const staking = engine.products.whalesStakingPools.useStakingCurrent();
     const status = engine.products.holders.useStatus();
     const [collapsed, setCollapsed] = useState(true);
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
-    
+
     const needsEnrolment = useMemo(() => {
         try {
             let domain = extractDomain(holdersUrl);
@@ -86,7 +99,7 @@ export const HoldersProductButton = React.memo(() => {
         );
     }
 
-    if (accounts.length <= 3) {
+    if (visibleList.length === 1) {
         return (
             <View style={{
                 borderRadius: 20,
@@ -106,129 +119,114 @@ export const HoldersProductButton = React.memo(() => {
     }
 
     return (
-        <View style={{
-            borderRadius: 20,
-            backgroundColor: Theme.lightGrey,
-        }}>
-            <Pressable
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                onPress={() => { setCollapsed(!collapsed) }}
-            >
-                <Animated.View style={[{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    padding: 20,
-                },
-                    animatedStyle]}>
-                    <View style={{ height: 46, width: 46, marginRight: 12 }}>
-                        <View style={{
-                            width: 38, height: 25,
-                            borderRadius: 5.7, borderWidth: 0,
-                            overflow: 'hidden',
-                            position: 'absolute', bottom: 18, left: 4, right: 4
-                        }}>
-                            <Image
-                                style={{ width: 42, height: 27, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[2].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                        </View>
-                        <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
-                        <View style={{
-                            width: 42, height: 27,
-                            borderRadius: 7, borderWidth: 0,
-                            overflow: 'hidden',
-                            position: 'absolute', bottom: 11, left: 2, right: 2
-                        }}>
-                            <Image
-                                style={{ width: 42, height: 27, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                        </View>
-                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
-                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
-                            <Image
-                                style={{ width: 46, height: 30, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[0].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                            {!!accounts[0].card.lastFourDigits && (
-                                <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
-                                    {accounts[0].card.lastFourDigits}
-                                </Text>
-                            )}
-                            {(accounts[0] && accounts[0].type === 'virtual') && (
-                                <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />
-                            )}
-                        </View>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17,
-                            lineHeight: 24,
-                            color: Theme.textColor,
-                        }}>
-                            {t('products.zenPay.card.cards', { count: accounts.length })}
-                        </Text>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 15,
-                            lineHeight: 20,
-                            color: Theme.darkGrey
-                        }}>
-                            {t('products.zenPay.card.eurSubtitle')}
-                        </Text>
-                    </View>
+        <View style={{}}>
+            {visibleList.map((item, index) => {
+                return (
+                    <HoldersCardItem
+                        key={`card-${index}`}
+                        account={item}
+                        first={index === 0}
+                        last={index === visibleList.length - 1}
+                        renderRightActions={() => {
+                            return (
+                                <Pressable
+                                    style={{
+                                        marginRight: 16,
+                                        padding: 20,
+                                        justifyContent: 'center', alignItems: 'center',
+                                        borderTopLeftRadius: index === 0 ? 20 : 0,
+                                        borderTopRightRadius: index === 0 ? 20 : 0,
+                                        borderBottomLeftRadius: index === visibleList.length - 1 ? 20 : 0,
+                                        borderBottomRightRadius: index === visibleList.length - 1 ? 20 : 0,
+                                        backgroundColor: Theme.lightGrey,
+                                        overflow: 'hidden'
+                                    }}
+                                    onPress={() => {
+                                        engine.products.holders.hideCard(item.id);
+                                    }}
+                                >
+                                    <Hide height={36} width={36} style={{ width: 36, height: 36 }} />
+                                </Pressable>
+                            )
+                        }}
+                    />
+                )
+            })}
+            {hiddenList.length > 0 && (
+                <>
                     <View style={{
-                        backgroundColor: Theme.accent,
-                        borderRadius: 16,
-                        alignSelf: 'center',
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        marginTop: 20,
+                        paddingVertical: 12,
+                        marginBottom: 4,
+                        paddingHorizontal: 16
                     }}>
-                        {collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {collapsed ? t('common.showAll') : t('common.hideAll')}
-                            </Animated.Text>
-                        )}
-                        {!collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {t('common.hideAll')}
-                            </Animated.Text>
-                        )}
+                        <Text style={{
+                            fontSize: 17,
+                            fontWeight: '600',
+                            color: Theme.textColor,
+                            lineHeight: 24,
+                        }}>
+                            {'Hidden cards'}
+                            {/* {t('common.products')} */}
+                        </Text>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1
+                                }
+                            }}
+                            onPress={() => setCollapsed(!collapsed)}
+                        >
+                            <Text style={{
+                                fontSize: 15,
+                                fontWeight: '500',
+                                lineHeight: 20,
+                                color: Theme.accent,
+                            }}>
+                                {collapsed ? 'Show' : 'Hide'}
+                            </Text>
+                        </Pressable>
                     </View>
-                </Animated.View>
-            </Pressable>
-            <AnimatedChildrenCollapsible
-                collapsed={collapsed}
-                items={accounts}
-                renderItem={(item, index) => {
-                    return (
-                        <HoldersCardItem
-                            key={`card-${index}`}
-                            account={item}
-                            last={index === accounts.length - 1}
-                        />
-                    )
-                }}
-            />
+                    <AnimatedChildrenCollapsible
+                        collapsed={collapsed}
+                        items={hiddenList}
+                        renderItem={(item, index) => {
+                            return (
+                                <HoldersCardItem
+                                    key={`card-${index}`}
+                                    account={item}
+                                    first={index === 0}
+                                    last={index === hiddenList.length - 1}
+                                    renderRightActions={() => {
+                                        return (
+                                            <Pressable
+                                                style={{
+                                                    marginRight: 16,
+                                                    padding: 20,
+                                                    justifyContent: 'center', alignItems: 'center',
+                                                    borderTopLeftRadius: index === 0 ? 20 : 0,
+                                                    borderTopRightRadius: index === 0 ? 20 : 0,
+                                                    borderBottomLeftRadius: index === hiddenList.length - 1 ? 20 : 0,
+                                                    borderBottomRightRadius: index === hiddenList.length - 1 ? 20 : 0,
+                                                    backgroundColor: Theme.lightGrey,
+                                                    overflow: 'hidden'
+                                                }}
+                                                onPress={() => {
+                                                    engine.products.holders.showCard(item.id);
+                                                }}
+                                            >
+                                                <Show height={36} width={36} style={{ width: 36, height: 36 }} />
+                                            </Pressable>
+                                        )
+                                    }}
+                                />
+                            )
+                        }}
+                    />
+                </>
+            )}
         </View>
     );
 })

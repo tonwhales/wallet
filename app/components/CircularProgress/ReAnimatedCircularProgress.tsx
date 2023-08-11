@@ -1,7 +1,7 @@
 import { StyleProp, View, ViewStyle } from "react-native";
 
 import { Svg, Circle } from 'react-native-svg';
-import Animated, { useAnimatedProps, useSharedValue, withSpring } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedProps, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { memo, useEffect } from "react";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -21,7 +21,7 @@ export const ReAnimatedCircularProgress = memo(({
     progress?: number,
     loop?: boolean
 }) => {
-    const progressCircle = useSharedValue(progress ? (1 - progress) : 1);
+    const progressCircle = useSharedValue(progress ? (progress - 1) : 1);
 
     const Circle_Length = 2 * Math.PI * (size / 2);
     const Radius = Circle_Length / (2 * Math.PI);
@@ -30,11 +30,19 @@ export const ReAnimatedCircularProgress = memo(({
         strokeDashoffset: Circle_Length * progressCircle.value,
     }));
 
+    const animateLoop = () => {
+        'worklet'
+        progressCircle.value = withRepeat(
+            withTiming(0, { duration: 2000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
+            -1,
+            true
+        );
+    }
+
     useEffect(() => {
-        progressCircle.value = withSpring(0, { duration: 2000 });
-        setTimeout(() => {
-            progressCircle.value = withSpring(-1, { duration: 2000 });
-        }, 2000);
+        if (loop) {
+            animateLoop();
+        }
     }, []);
 
     useEffect(() => {

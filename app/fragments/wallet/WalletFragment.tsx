@@ -31,12 +31,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [
-                {
-                    translateX: withTiming(animSensor.sensor.value.y * 100)
-                },
-                {
-                    translateY: withTiming(animSensor.sensor.value.x * 100)
-                },
+                { translateX: withTiming(animSensor.sensor.value.y * 85) },
+                { translateY: withTiming(animSensor.sensor.value.x * 85) },
             ]
         }
     });

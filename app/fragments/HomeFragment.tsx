@@ -129,28 +129,7 @@ export const HomeFragment = fragment(() => {
                         }
 
                         if (route.name === 'More') {
-                            return (
-                                <View style={{
-                                    height: 24, width: 24,
-                                    backgroundColor: focused ? Theme.accent : Theme.greyForIcon,
-                                    borderRadius: 12,
-                                    justifyContent: 'center', alignItems: 'center'
-                                }}>
-                                    <View
-                                        style={{
-                                            position: 'absolute', top: 1, left: 1, right: 1, bottom: 1,
-                                            borderRadius: 11,
-                                            backgroundColor: 'white'
-                                        }}
-                                    />
-                                    <Avatar
-                                        size={20}
-                                        id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        hash={walletSettings?.avatar}
-                                        borderWith={0}
-                                    />
-                                </View>
-                            );
+                            source = require('../../assets/ic-settings.png');
                         }
 
                         return (

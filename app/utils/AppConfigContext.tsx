@@ -72,6 +72,7 @@ export type ThemeType = {
     white: string,
     black: string,
     mediumMain: string,
+    walletBackground: string
 };
 
 const initialTheme = {
@@ -137,6 +138,7 @@ const initialTheme = {
     white: 'white',
     black: 'black',
     mediumMain: '#7D73F3',
+    walletBackground: '#09061C'
 }
 
 export const initialNavigationTheme: NavigationThemeType = {

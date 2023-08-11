@@ -23,6 +23,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { ItemSwitch } from '../../components/Item';
+import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -310,6 +311,11 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         </View>
                     )}
+                    <ReAnimatedCircularProgress
+                        size={16}
+                        color={Theme.white}
+                        style={{ backgroundColor: 'red' }}
+                    />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
@@ -82,6 +82,7 @@ export const HoldersCardItem = React.memo((props: {
                     ref={swipableRef}
                     onSwipeableWillOpen={() => setSwiping(true)}
                     onSwipeableOpen={() => setSwipeOpened(true)}
+                    onSwipeableWillClose={() => setSwiping(false)}
                     onSwipeableClose={() => setSwipeOpened(false)}
                     containerStyle={{
                         flex: 1
@@ -90,21 +91,19 @@ export const HoldersCardItem = React.memo((props: {
                     childrenContainerStyle={{
                         marginHorizontal: 16,
                         borderTopLeftRadius: props.first ? 20 : 0,
-                        borderTopRightRadius: props.first ? 20 : 0,
+                        borderTopRightRadius: props.first && !swiping ? 20 : 0,
                         borderBottomLeftRadius: props.last ? 20 : 0,
-                        borderBottomRightRadius: props.last ? 20 : 0,
+                        borderBottomRightRadius: props.last && !swiping ? 20 : 0,
                         overflow: 'hidden'
                     }}
                     renderRightActions={() => {
                         return (
                             <Pressable
                                 style={{
-                                    marginRight: 16,
+                                    right: -16,
                                     padding: 20,
                                     justifyContent: 'center', alignItems: 'center',
-                                    borderTopLeftRadius: props.first ? 20 : 0,
                                     borderTopRightRadius: props.first ? 20 : 0,
-                                    borderBottomLeftRadius: props.last ? 20 : 0,
                                     borderBottomRightRadius: props.last ? 20 : 0,
                                     backgroundColor: Theme.lightGrey,
                                     overflow: 'hidden'
@@ -199,7 +198,7 @@ export const HoldersCardItem = React.memo((props: {
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, marginHorizontal: 20, borderRadius: 20 }}
+                style={{ flex: 1, borderRadius: 20 }}
                 onPress={onPress}
             >
                 <Animated.View style={[{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', padding: 20 }, animatedStyle]}>

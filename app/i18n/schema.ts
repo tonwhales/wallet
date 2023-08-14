@@ -428,6 +428,7 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
+            hiddenCards: string,
             card: {
                 cards: string,
                 title: string,

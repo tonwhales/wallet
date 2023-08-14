@@ -101,20 +101,74 @@ export const HoldersProductButton = React.memo(() => {
 
     if (visibleList.length === 1) {
         return (
-            <View style={{
-                borderRadius: 20,
-                backgroundColor: Theme.lightGrey,
-            }}>
-                {visibleList.map((card, index) => {
-                    return (
-                        <HoldersCardItem
-                            key={`card-${index}`}
-                            account={card}
-                            last={true}
+            <>
+                <View style={{
+                    borderRadius: 20,
+                    backgroundColor: Theme.lightGrey,
+                    marginHorizontal: 16
+                }}>
+                    <HoldersCardItem
+                        key={`card-${visibleList[0].id}`}
+                        account={visibleList[0]}
+                        last={true}
+                    />
+                </View>
+                {hiddenList.length > 0 && (
+                    <>
+                        <View style={{
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            marginTop: 20,
+                            paddingVertical: 12,
+                            marginBottom: 4,
+                            paddingHorizontal: 16
+                        }}>
+                            <Text style={{
+                                fontSize: 17,
+                                fontWeight: '600',
+                                color: Theme.textColor,
+                                lineHeight: 24,
+                            }}>
+                                {t('products.zenPay.hiddenCards')}
+                            </Text>
+                            <Pressable
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1
+                                    }
+                                }}
+                                onPress={() => setCollapsed(!collapsed)}
+                            >
+                                <Text style={{
+                                    fontSize: 15,
+                                    fontWeight: '500',
+                                    lineHeight: 20,
+                                    color: Theme.accent,
+                                }}>
+                                    {collapsed ? 'Show' : 'Hide'}
+                                </Text>
+                            </Pressable>
+                        </View>
+                        <AnimatedChildrenCollapsible
+                            showDivider={false}
+                            collapsed={collapsed}
+                            items={hiddenList}
+                            renderItem={(item, index) => {
+                                return (
+                                    <HoldersCardItem
+                                        key={`card-${index}`}
+                                        account={item}
+                                        first={index === 0}
+                                        last={index === hiddenList.length - 1}
+                                        rightAction={() => engine.products.holders.showCard(item.id)}
+                                        rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                    />
+                                )
+                            }}
                         />
-                    )
-                })}
-            </View>
+                    </>
+                )}
+            </>
         );
     }
 
@@ -148,8 +202,7 @@ export const HoldersProductButton = React.memo(() => {
                             color: Theme.textColor,
                             lineHeight: 24,
                         }}>
-                            {'Hidden cards'}
-                            {/* {t('common.products')} */}
+                            {t('products.zenPay.hiddenCards')}
                         </Text>
                         <Pressable
                             style={({ pressed }) => {

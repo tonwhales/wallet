@@ -427,6 +427,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 setUpCard: 'Настройка карты',
                 pin: 'Смена PIN-кода',
             },
+            hiddenCards: 'Скрытые карты',
             card: {
                 cards: 'Карты ({{count}})',
                 title: 'Tonhub Card *{{cardNumber}}',

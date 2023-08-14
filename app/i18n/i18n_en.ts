@@ -426,6 +426,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
+            hiddenCards: 'Hidden cards',
             card: {
                 cards: '{{count}} Cards',
                 title: 'Tonhub Card *{{cardNumber}}',

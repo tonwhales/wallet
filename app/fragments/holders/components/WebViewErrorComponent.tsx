@@ -9,6 +9,7 @@ import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { openWithInApp } from "../../../utils/openWithInApp";
 
 export const WebViewErrorComponent = memo(({
     errorDomain,
@@ -107,7 +108,9 @@ export const WebViewErrorComponent = memo(({
                         <RoundButton
                             style={{ width: '100%' }}
                             display={'text'}
-                            onPress={onReload}
+                            onPress={() => {
+                                openWithInApp('https://t.me/WhalesSupportBot');
+                            }}
                             title={t('webView.contactSupport')}
                         />
                     )

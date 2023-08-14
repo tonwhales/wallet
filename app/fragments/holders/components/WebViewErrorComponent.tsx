@@ -56,30 +56,22 @@ export const WebViewErrorComponent = memo(({
                     paddingTop: 46, paddingBottom: safeArea.bottom,
                 }}>
                     <Text style={{
-                        fontSize: 32, lineHeight: 40,
+                        fontSize: 28, lineHeight: 32,
                         color: Theme.textColor,
-                        fontWeight: '600',
-                        marginBottom: 4,
-                        textAlign: 'center'
+                        fontWeight: '500',
+                        marginBottom: 16,
+                        textAlign: 'center', marginHorizontal: 16
                     }}>
                         {!networkState.isInternetReachable ?
                             t('webView.noInternet') :
                             t('common.somethingWentWrong')
                         }
                     </Text>
-                    <View style={{ flexGrow: 1 }} />
-                    <LottieView
-                        ref={animRef}
-                        source={require('../../../../assets/animations/flag.json')}
-                        style={{ width: 280, height: 280 }}
-                        autoPlay={true}
-                    />
-                    <View style={{ flexGrow: 1 }} />
                     {networkState.isInternetReachable && (
                         <Text style={{
                             color: Theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
+                            fontWeight: '400',
                             marginBottom: 8,
                             textAlign: 'center'
                         }}>
@@ -89,8 +81,8 @@ export const WebViewErrorComponent = memo(({
                     <Text style={{
                         color: Theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
-                        fontWeight: '500',
-                        marginBottom: 16,
+                        fontWeight: '400',
+                        marginBottom: 32,
                         textAlign: 'center'
                     }}>
                         {!networkState.isInternetReachable
@@ -98,12 +90,28 @@ export const WebViewErrorComponent = memo(({
                             : t('webView.contactSupportOrTryToReload')
                         }
                     </Text>
+                    <LottieView
+                        ref={animRef}
+                        source={require('../../../../assets/animations/flag.json')}
+                        style={{ width: 280, height: 280 }}
+                        autoPlay={true}
+                    />
+                    <View style={{ flexGrow: 1 }} />
                     <RoundButton
                         style={{ width: '100%' }}
                         display={'default'}
                         onPress={onReload}
                         title={t('common.reload')}
                     />
+                    {networkState.isInternetReachable && (
+                        <RoundButton
+                            style={{ width: '100%' }}
+                            display={'text'}
+                            onPress={onReload}
+                            title={t('webView.contactSupport')}
+                        />
+                    )
+                    }
                 </View>
             )
                 : (

@@ -43,7 +43,7 @@ export const ChooseAvatarFragment = fragment(() => {
                         }
                     >
                         <Text style={{
-                            color: hashState !== hash ? 'white' : Theme.darkGrey,
+                            color: hashState !== hash ? Theme.accent : Theme.darkGrey,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                             marginRight: 16,
@@ -52,8 +52,8 @@ export const ChooseAvatarFragment = fragment(() => {
                         </Text>
                     </Pressable>
                 }
-                textColor={'white'}
-                tintColor={'white'}
+                textColor={Theme.accent}
+                tintColor={Theme.accent}
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -67,7 +67,6 @@ export const ChooseAvatarFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 borderTopLeftRadius: 20, borderTopRightRadius: 20,
-                backgroundColor: Theme.accent,
                 paddingTop: 20, paddingBottom: 16
             }}>
                 <ScrollView
@@ -82,17 +81,18 @@ export const ChooseAvatarFragment = fragment(() => {
                                 onPress={() => setHash(index)}
                                 style={{
                                     justifyContent: 'center', alignItems: 'center',
-                                    width: 74, height: 74,
+                                    width: 72, height: 72,
                                     marginRight: 8,
                                     borderWidth: index === hashState ? 1 : 0,
-                                    borderColor: Theme.white, borderRadius: 37
+                                    borderColor: Theme.accent, 
+                                    borderRadius: 37
                                 }}
                             >
                                 <Avatar
-                                    size={62}
+                                    size={70}
                                     id={""}
                                     hash={index}
-                                    borderColor={Theme.accent}
+                                    borderColor={Theme.lightGrey}
                                 />
                             </Pressable>
                         )

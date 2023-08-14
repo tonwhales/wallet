@@ -33,6 +33,7 @@ export const WalletSettingsFragment = fragment(() => {
         if (name !== walletSettings?.name || avatar !== initHash) {
             engine.products.wallets.setWalletSettings(address, { name, avatar });
         }
+        navigation.goBack();
     }, [name, avatar, walletSettings]);
 
     const onChangeAvatar = useCallback(() => {

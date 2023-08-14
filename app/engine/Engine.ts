@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
 import { Address, TonClient4 } from "ton";
-import { Connector } from "./api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
@@ -37,7 +36,6 @@ export class Engine {
     readonly persistence: Persistence;
     readonly cloud: Cloud
 
-    // Connector
     readonly client4: TonClient4;
     readonly blocksWatcher: BlocksWatcher;
     readonly state: SyncStateManager = new SyncStateManager();

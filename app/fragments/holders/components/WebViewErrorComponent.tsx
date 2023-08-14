@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { View, Text, Platform, Pressable } from "react-native";
 import { t } from "../../../i18n/t";
 import { useAppConfig } from "../../../utils/AppConfigContext";
@@ -7,6 +7,8 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import LottieView from 'lottie-react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const WebViewErrorComponent = memo(({
     errorDomain,
@@ -21,55 +23,83 @@ export const WebViewErrorComponent = memo(({
 }) => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
+    const safeArea = useSafeAreaInsets();
     const [networkState, setNetworkState] = useState<Network.NetworkState | undefined>();
 
+    const animRef = useRef<LottieView>(null);
 
     useEffect(() => {
         (async () => {
             const netState = await Network.getNetworkStateAsync();
             setNetworkState(netState);
         })();
+        if (Platform.OS === 'ios') {
+            setTimeout(() => animRef.current?.play(), 300);
+        }
     }, []);
 
+    console.log('networkState', networkState);
 
     return (
         <View style={{
             flexGrow: 1,
+            height: '100%',
             justifyContent: 'center',
             alignItems: 'center',
             padding: 16
         }}>
             {!!networkState ? (
-                <View style={{ width: '100%' }}>
+                <View style={{
+                    width: '100%',
+                    flexGrow: 1,
+                    alignItems: 'center',
+                    paddingTop: 46, paddingBottom: safeArea.bottom,
+                }}>
                     <Text style={{
                         fontSize: 32, lineHeight: 40,
                         color: Theme.textColor,
                         fontWeight: '600',
-                        marginBottom: 4
+                        marginBottom: 4,
+                        textAlign: 'center'
                     }}>
-                        {t('common.somethingWentWrong')}
-                    </Text>
-                    <Text style={{
-                        color: Theme.textSecondary,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '500',
-                        marginBottom: 8
-                    }}>
-                        {networkState.isInternetReachable ?
-                            t('common.errorOccurred', { error: errorDesc, code: errorCode }) :
-                            t('common.checkInternetConnection')
+                        {!networkState.isInternetReachable ?
+                            t('webView.noInternet') :
+                            t('common.somethingWentWrong')
                         }
                     </Text>
+                    <View style={{ flexGrow: 1 }} />
+                    <LottieView
+                        ref={animRef}
+                        source={require('../../../../assets/animations/flag.json')}
+                        style={{ width: 280, height: 280 }}
+                        autoPlay={true}
+                    />
+                    <View style={{ flexGrow: 1 }} />
+                    {networkState.isInternetReachable && (
+                        <Text style={{
+                            color: Theme.textSecondary,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                            marginBottom: 8,
+                            textAlign: 'center'
+                        }}>
+                            {t('common.errorOccurred', { error: errorDesc, code: errorCode })}
+                        </Text>
+                    )}
                     <Text style={{
                         color: Theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
-                        marginBottom: 16
+                        marginBottom: 16,
+                        textAlign: 'center'
                     }}>
-                        {t('webView.contactSupportOrTryToReload')}
+                        {!networkState.isInternetReachable
+                            ? t('webView.checkInternetAndReload')
+                            : t('webView.contactSupportOrTryToReload')
+                        }
                     </Text>
-
                     <RoundButton
+                        style={{ width: '100%' }}
                         display={'default'}
                         onPress={onReload}
                         title={t('common.reload')}
@@ -94,7 +124,7 @@ export const WebViewErrorComponent = memo(({
                     style={{ position: 'absolute', top: 22, right: 16 }}
                     onPress={() => {
                         navigation.goBack();
-                    }} >
+                    }}>
                     <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
                         {t('common.close')}
                     </Text>

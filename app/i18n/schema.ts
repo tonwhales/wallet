@@ -721,8 +721,10 @@ export type LocalizationSchema = {
         holdersOfflineApp: string,
     },
     webView: {
+        noInternet: string,
         contactSupportOrTryToReload: string,
         contactSupport: string,
+        checkInternetAndReload: string,
     }
 };
 

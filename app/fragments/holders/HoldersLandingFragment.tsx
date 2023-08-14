@@ -22,6 +22,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
+import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -157,6 +158,27 @@ export const HoldersLandingFragment = fragment(() => {
         }
     }, [onEnroll]);
 
+    const folderPath = `${FileSystem.cacheDirectory}holders`;
+    const [offlineRender, setOfflineRender] = useState(0);
+
+    const onLoadEnd = useCallback(() => {
+        setLoaded(true);
+        opacity.value = 0;
+    }, []);
+
+    const onContentProcessDidTerminate = useCallback(() => {
+        // In case of blank WebView without offline
+        if (!useOfflineApp) {
+            webRef.current?.reload();
+            return;
+        }
+        // In case of iOS blank WebView with offline app
+        // Re-render OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
+        if (Platform.OS === 'ios') {
+            setOfflineRender(offlineRender + 1);
+        }
+    }, [useOfflineApp, offlineRender]);
+
     return (
         <View style={{
             flex: 1,
@@ -175,9 +197,10 @@ export const HoldersLandingFragment = fragment(() => {
                     {useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
+                                key={`offline-rendered-${offlineRender}`}
                                 ref={webRef}
-                                uri={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/index.html`}
-                                baseUrl={`${FileSystem.cacheDirectory}holders${normalizePath(stableOfflineV)}/`}
+                                uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
+                                baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
                                     backgroundColor: Theme.item,
@@ -185,10 +208,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
                                 }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
+                                onLoadEnd={onLoadEnd}
                                 onLoadProgress={(event) => {
                                     if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                         // Searching for supported query
@@ -210,6 +230,17 @@ export const HoldersLandingFragment = fragment(() => {
                                 hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                                 bounces={false}
                                 startInLoadingState={true}
+                                onContentProcessDidTerminate={onContentProcessDidTerminate}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
                             />
                         </Animated.View>
                     )}
@@ -225,10 +256,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
                                 }}
-                                onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
-                                }}
+                                onLoadEnd={onLoadEnd}
                                 onLoadProgress={(event) => {
                                     if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                         // Searching for supported query
@@ -251,6 +279,17 @@ export const HoldersLandingFragment = fragment(() => {
                                 keyboardDisplayRequiresUserAction={false}
                                 hideKeyboardAccessoryView={hideKeyboardAccessoryView}
                                 bounces={false}
+                                onContentProcessDidTerminate={onContentProcessDidTerminate}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
                             />
                         </Animated.View>
                     )}

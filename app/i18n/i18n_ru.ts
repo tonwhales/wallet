@@ -47,6 +47,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         error: 'Ошибка',
         wallet: 'Кошелек',
         later: 'Позже',
+        somethingWentWrong: 'Что-то пошло не так',
+        checkInternetConnection: 'Проверьте подключение к интернету',
+        reload: 'Перезагрузить',
+        errorOccurred: 'Произошла ошибка: {{error}}',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -690,7 +694,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         confirm: {
             add: 'Вы уверены, что хотите добавить это приложение?',
-            remove: 'Вы уверены что хотите удалить это приложение?'   
+            remove: 'Вы уверены что хотите удалить это приложение?'
         },
         errors: {
             noDevice: 'Устройство не найдено',
@@ -714,6 +718,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
         copySeedAlertAction: 'Скопировать',
         holdersOfflineApp: 'Holders Offline App',
+    },
+    webView: {
+        contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
+        contactSupport: 'Связаться с поддержкой',
     }
 };
 

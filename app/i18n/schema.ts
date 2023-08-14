@@ -47,7 +47,11 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
-        later: string
+        later: string,
+        somethingWentWrong: string,
+        checkInternetConnection: string,
+        reload: string,
+        errorOccurred: string,
     },
     syncStatus: {
         connecting: string,
@@ -715,6 +719,10 @@ export type LocalizationSchema = {
         copySeedAlertMessage: string,
         copySeedAlertAction: string,
         holdersOfflineApp: string,
+    },
+    webView: {
+        contactSupportOrTryToReload: string,
+        contactSupport: string,
     }
 };
 

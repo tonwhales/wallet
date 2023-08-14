@@ -39,8 +39,6 @@ export const WebViewErrorComponent = memo(({
         }
     }, []);
 
-    console.log('networkState', networkState);
-
     return (
         <View style={{
             flexGrow: 1,

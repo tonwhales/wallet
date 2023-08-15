@@ -20,7 +20,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 
@@ -91,7 +91,7 @@ export const HoldersLandingFragment = fragment(() => {
             }
 
             const domain = extractDomain(endpoint);
-            const res = await engine.products.holders.enroll(domain, authContext);
+            const res = await engine.products.holders.enroll(domain, authContext, { paddingTop: safeArea.top });
             if (!res) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;
@@ -178,14 +178,20 @@ export const HoldersLandingFragment = fragment(() => {
         }
     }, [useOfflineApp, offlineRender]);
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: false
+        })
+    }, [navigation]);
+
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingTop: safeArea.top,
             backgroundColor: Theme.item
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <StatusBar style={'dark'} />
+            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}

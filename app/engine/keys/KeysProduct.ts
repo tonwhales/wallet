@@ -5,7 +5,7 @@ import { WalletKeys } from "../../storage/walletKeys";
 import { warn } from "../../utils/log";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { Engine } from "../Engine";
-import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
+import { AuthParams, AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { storage } from "../../storage/storage";
 import { extractDomain } from "../utils/extractDomain";
 import { CloudValue } from "../cloud/CloudValue";
@@ -58,11 +58,16 @@ export class KeysProduct {
             // Clear prev
             this.engine.persistence.domainKeys.setValue(holdersDomain, null);
         }
-        
+
         storage.set('keys-product-version', currentVersion);
     }
 
-    async createDomainKeyIfNeeded(domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) {
+    async createDomainKeyIfNeeded(
+        domain: string,
+        authContext: AuthWalletKeysType,
+        keys?: WalletKeys,
+        authParams?: AuthParams
+    ) {
 
         // Normalize
         domain = domain.toLowerCase();
@@ -83,7 +88,7 @@ export class KeysProduct {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await authContext.authenticate({ cancelable: true });
+                walletKeys = await authContext.authenticate({ cancelable: true, ...authParams });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;

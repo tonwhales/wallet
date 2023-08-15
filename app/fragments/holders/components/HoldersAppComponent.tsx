@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { Easing, FadeIn, FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
@@ -28,7 +28,169 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
+import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
+
+function PulsingCardPlaceholder() {
+    const animation = useSharedValue(0);
+
+    useEffect(() => {
+        animation.value =
+            withRepeat(
+                withTiming(1, {
+                    duration: 250,
+                    easing: Easing.linear,
+                }),
+                -1,
+                true,
+            );
+    }, []);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 0.75],
+            Extrapolate.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.03],
+            Extrapolate.CLAMP,
+        )
+        return {
+            width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
+            opacity: opacity,
+            transform: [{ scale: scale }],
+        };
+    }, []);
+
+    return (
+        <Animated.View style={animatedStyles}>
+            <View style={{ width: 90, height: 20, backgroundColor: 'white', top: 22, left: 16, borderRadius: 8 }} />
+            <View style={{ marginTop: 4, width: 60, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+            <View style={{ display: 'flex', flexDirection: 'row', marginTop: 32 }}>
+                <View>
+                    <View style={{ width: 68, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+                    <View style={{ marginTop: 4, width: 90, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+                </View>
+            </View>
+        </Animated.View>
+    );
+}
+
+function HoldersPlaceholder() {
+    const animation = useSharedValue(0);
+
+    useEffect(() => {
+        animation.value =
+            withRepeat(
+                withTiming(1, {
+                    duration: 300,
+                    easing: Easing.linear,
+                }),
+                -1,
+                true,
+            );
+    }, []);
+
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 0.8],
+            Extrapolate.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.01],
+            Extrapolate.CLAMP,
+        )
+        return {
+            flex: 1,
+            alignSelf: 'center',
+            justifyContent: 'center',
+            marginBottom: 56,
+            opacity: opacity,
+            transform: [{ scale: scale }],
+        };
+    }, []);
+
+    return (
+        <Animated.View style={animatedStyles}>
+            <IcHolders color={'#eee'} />
+        </Animated.View>
+    );
+}
+
+function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
+    const { Theme } = useAppConfig();
+    const navigation = useTypedNavigation();
+
+    const [animationPlayed, setAnimationPlayed] = useState(loaded);
+    const [showClose, setShowClose] = useState(false);
+
+    const opacity = useSharedValue(1);
+    const animatedStyles = useAnimatedStyle(() => {
+        return {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: Theme.item,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
+        };
+    });
+
+    useEffect(() => {
+        if (loaded) {
+            setTimeout(() => {
+                opacity.value = 0;
+                setTimeout(() => {
+                    setAnimationPlayed(true);
+                }, 150);
+            }, 250);
+        }
+    }, [loaded]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setShowClose(true);
+        }, 3000);
+    }, []);
+
+    if (animationPlayed) {
+        return null;
+    }
+
+    return (
+        <Animated.View
+            style={animatedStyles}
+        >
+            <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
+                <AndroidToolbar tintColor={Theme.accent} onBack={() => navigation.goBack()} />
+            </View>
+            {type === 'card' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
+            {Platform.OS === 'ios' && showClose && (
+                <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
+                    <Pressable
+                        onPress={() => {
+                            navigation.goBack();
+                        }} >
+                        <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
+                            {t('common.close')}
+                        </Text>
+                    </Pressable>
+                </Animated.View>
+            )}
+        </Animated.View>
+    );
+}
 
 export const HoldersAppComponent = React.memo((
     props: {
@@ -91,21 +253,7 @@ export const HoldersAppComponent = React.memo((
     //
     // View
     //
-    let [loaded, setLoaded] = useState(false);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: Theme.item,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
-        };
-    });
+    const [loaded, setLoaded] = useState(false);
 
     //
     // Navigation
@@ -322,7 +470,6 @@ export const HoldersAppComponent = React.memo((
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
-        opacity.value = 0;
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
@@ -332,7 +479,7 @@ export const HoldersAppComponent = React.memo((
             return;
         }
         // In case of iOS blank WebView with offline app
-        // Rerender OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
+        // Re-render OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
         if (Platform.OS === 'ios') {
             setOfflineRender(offlineRender + 1);
         }
@@ -340,8 +487,8 @@ export const HoldersAppComponent = React.memo((
 
     return (
         <>
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                {useOfflineApp && (
+            <View style={{ backgroundColor: Theme.item, flex: 1 }}>
+                {useOfflineApp ? (
                     <OfflineWebView
                         key={`offline-rendered-${offlineRender}`}
                         ref={webRef}
@@ -393,8 +540,7 @@ export const HoldersAppComponent = React.memo((
                         bounces={false}
                         startInLoadingState={true}
                     />
-                )}
-                {!useOfflineApp && (
+                ) : (
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
@@ -438,42 +584,21 @@ export const HoldersAppComponent = React.memo((
                         />
                     </Animated.View>
                 )}
-                {!useOfflineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar tintColor={Theme.accent} onBack={() => navigation.goBack()} />
-                        </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
-                        <ActivityIndicator size="small" color={Theme.accent} />
-                    </Animated.View>
-                )}
+                <WebViewLoader type={props.variant.type} loaded={loaded} />
                 {mainButton && mainButton.isVisible && (
                     <KeyboardAvoidingView
                         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
+                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin
+                            ? bottomMargin + safeArea.bottom
                             : undefined
                         }
                     >
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }
-                                : { marginBottom: 16 }
+                                : { marginBottom: 0 }
                             }
                             entering={FadeInDown}
                             exiting={FadeOutDown}

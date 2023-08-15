@@ -13,6 +13,7 @@ import { storage } from '../../storage/storage';
 
 export type AuthParams = {
     backgroundColor?: string,
+    paddingTop?: number,
     cancelable?: boolean,
     useBiometrics?: boolean,
     passcodeLength?: number,
@@ -112,10 +113,11 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 <Animated.View
                     style={[
                         {
-                            backgroundColor: auth.params?.backgroundColor ?? 'white',
+                            backgroundColor: auth.params?.backgroundColor ?? Theme.white,
                             flexGrow: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
+                            paddingTop: auth.params?.paddingTop ?? 0,
                         },
                     ]}
                     exiting={FadeOutUp}
@@ -169,7 +171,11 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    position: 'absolute', top: Platform.OS === 'android' ? safeAreaInsets.top + 24 : 24, right: 16,
+                                    position: 'absolute',
+                                    top: Platform.OS === 'android'
+                                        ? safeAreaInsets.top + 24 + (auth.params?.paddingTop ?? 0)
+                                        : 24 + (auth.params?.paddingTop ?? 0),
+                                    right: 16,
                                     opacity: pressed ? 0.5 : 1,
                                 }
                             }}

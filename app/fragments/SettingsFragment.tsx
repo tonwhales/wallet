@@ -5,7 +5,6 @@ import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
-import { ProfileComponent } from './profile/ProfileComponent';
 import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
@@ -96,7 +95,6 @@ export const SettingsFragment = fragment(() => {
                     flexBasis: 0,
                 }}
             >
-                <ProfileComponent />
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     backgroundColor: Theme.lightGrey,

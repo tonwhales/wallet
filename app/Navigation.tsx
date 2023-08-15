@@ -187,8 +187,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Contact', ContactFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
-    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
-    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
@@ -229,6 +227,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     transparentModalScreen('Logout', LogoutFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
+
+    // Holders
+    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea),
+    genericScreen('Holders', HoldersAppFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

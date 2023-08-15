@@ -7,7 +7,7 @@ import { useEngine } from '../../engine/Engine';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { holdersUrl } from '../../engine/holders/HoldersProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -42,19 +42,28 @@ export const HoldersAppFragment = fragment(() => {
         return false;
     }, [status]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (needsEnrollment) {
             navigation.goBack();
         }
+        return () => {
+            engine.products.holders.offlinePreFlight();
+        }
     }, [needsEnrollment]);
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: false
+        });
+    }, [navigation]);
 
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingTop: safeArea.top,
             backgroundColor: Theme.item
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
 
             <HoldersAppComponent
                 title={t('products.zenPay.title')}

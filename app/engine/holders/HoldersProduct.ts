@@ -8,7 +8,7 @@ import { Engine } from "../Engine";
 import { watchHoldersAccountUpdates } from "./watchHoldersAccountUpdates";
 import { storage } from "../../storage/storage";
 import { fetchCardsList, fetchCardsPublic } from "../api/holders/fetchCards";
-import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
+import { AuthParams, AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
@@ -78,10 +78,10 @@ export class HoldersProduct {
         this.offlinePreFlight();
     }
 
-    async enroll(domain: string, authContext: AuthWalletKeysType) {
+    async enroll(domain: string, authContext: AuthWalletKeysType, authParams?: AuthParams) {
         let res = await (async () => {
             // Create domain key if needed
-            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
+            let created = await this.engine.products.keys.createDomainKeyIfNeeded(domain, authContext, undefined, authParams);
             if (!created) {
                 return false;
             }

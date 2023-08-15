@@ -74,6 +74,7 @@ import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSe
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -233,19 +234,19 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Holders', HoldersAppFragment, safeArea),
 ];
 
-export const Navigation = React.memo(() => {
+export const Navigation = memo(() => {
     const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme, Theme } = useAppConfig();
     const engine = useEngine();
-
-    const initial = React.useMemo(() => {
+    
+    const initial = useMemo(() => {
         const onboarding = resolveOnboarding(engine, AppConfig.isTestnet, true);
         return onboarding;
     }, []);
-
+    
     // Splash
-    const [hideSplash, setHideSplash] = React.useState(false);
-    const onMounted = React.useMemo(() => {
+    const [hideSplash, setHideSplash] = useState(false);
+    const onMounted = useMemo(() => {
         return () => {
             if (hideSplash) {
                 return;
@@ -256,7 +257,7 @@ export const Navigation = React.memo(() => {
 
     // Register token
     // TODO: register many tokens to subscribe to an array of addresses for pushes
-    React.useEffect(() => {
+    useEffect(() => {
         const state = getAppState();
         let ended = false;
         (async () => {
@@ -282,7 +283,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Grant accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {
@@ -300,7 +301,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Revoke accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {
@@ -318,7 +319,10 @@ export const Navigation = React.memo(() => {
     }, []);
 
     return (
-        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+        <View style={{
+            flexGrow: 1,
+            alignItems: 'stretch',
+        }}>
             <NavigationContainer
                 theme={NavigationTheme}
                 onReady={onMounted}

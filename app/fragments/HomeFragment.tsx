@@ -12,12 +12,15 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
-import { getConnectionReferences, getCurrentAddress } from '../storage/appState';
+import { getConnectionReferences } from '../storage/appState';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
-import { Avatar } from '../components/Avatar';
+import DeviceInfo from 'react-native-device-info';
+import { useLayoutEffect, useState } from 'react';
+import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
+import { Platform } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,9 +29,9 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
-    const address = getCurrentAddress().address;
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const walletSettings = engine.products.wallets.useWalletSettings(address);
+
+    const [curve, setCurve] = useState<number | undefined>(undefined);
 
     // Subscribe for links
     React.useEffect(() => {
@@ -109,62 +112,82 @@ export const HomeFragment = fragment(() => {
         });
     }, []);
 
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            (async () => {
+                const deviceId = DeviceInfo.getDeviceId();
+                const dCurve = getDeviceScreenCurve(deviceId);
+                setCurve(dCurve);
+                console.log({ deviceId, dCurve });
+            })();
+        }
+    }, []);
+
     return (
-        <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
-            <Tab.Navigator
-                initialRouteName={'Wallet'}
-                screenOptions={({ route }) => ({
-                    headerShown: false,
-                    header: undefined,
-                    unmountOnBlur: true,
-                    tabBarIcon: ({ focused }) => {
-                        let source = require('../../assets/ic-home.png');
+        <View style={{
+            flexGrow: 1,
+            backgroundColor: Theme.black,
+        }}>
+            <View style={{
+                flexGrow: 1, borderTopEndRadius: curve,
+                borderTopStartRadius: curve,
+                overflow: 'hidden'
+            }}>
+                <Tab.Navigator
+                    initialRouteName={'Wallet'}
+                    screenOptions={({ route }) => ({
+                        headerShown: false,
+                        header: undefined,
+                        unmountOnBlur: true,
+                        tabBarIcon: ({ focused }) => {
+                            let source = require('../../assets/ic-home.png');
 
-                        if (route.name === 'Transactions') {
-                            source = require('../../assets/ic-history.png');
+                            if (route.name === 'Transactions') {
+                                source = require('../../assets/ic-history.png');
+                            }
+
+                            if (route.name === 'Browser') {
+                                source = require('../../assets/ic-services.png');
+                            }
+
+                            if (route.name === 'More') {
+                                source = require('../../assets/ic-settings.png');
+                            }
+
+                            return (
+                                <Image
+                                    source={source}
+                                    style={{
+                                        tintColor: focused ? Theme.accent : Theme.greyForIcon,
+                                        height: 24, width: 24
+                                    }}
+                                />
+                            )
                         }
-
-                        if (route.name === 'Browser') {
-                            source = require('../../assets/ic-services.png');
-                        }
-
-                        if (route.name === 'More') {
-                            source = require('../../assets/ic-settings.png');
-                        }
-
-                        return (
-                            <Image
-                                source={source}
-                                style={{
-                                    tintColor: focused ? Theme.accent : Theme.greyForIcon,
-                                    height: 24, width: 24
-                                }}
-                            />
-                        )
-                    }
-                })}
-            >
-                <Tab.Screen
-                    options={{ title: t('home.home') }}
-                    name={'Wallet'}
-                    component={WalletFragment}
-                />
-                <Tab.Screen
-                    options={{ title: t('home.history') }}
-                    name={'Transactions'}
-                    component={TransactionsFragment}
-                />
-                <Tab.Screen
-                    options={{ title: t('home.browser') }}
-                    name={'Browser'}
-                    component={ConnectionsFragment}
-                />
-                <Tab.Screen
-                    options={{ title: t('home.more') }}
-                    name={'More'}
-                    component={SettingsFragment}
-                />
-            </Tab.Navigator>
+                    })}
+                >
+                    <Tab.Screen
+                        options={{ title: t('home.home') }}
+                        name={'Wallet'}
+                        component={WalletFragment}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.history') }}
+                        name={'Transactions'}
+                        component={TransactionsFragment}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.browser') }}
+                        name={'Browser'}
+                        component={ConnectionsFragment}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.more') }}
+                        name={'More'}
+                        component={SettingsFragment}
+                    />
+                </Tab.Navigator>
+            </View>
         </View>
     );
 }, true);

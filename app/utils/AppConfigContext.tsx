@@ -195,8 +195,8 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
         colors: {
             ...DefaultTheme.colors,
             primary: Theme.accent,
-            background: 'white',
-            card: 'white'
+            background: Theme.white,
+            card: Theme.white
         }
     }
 

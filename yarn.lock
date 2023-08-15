@@ -8070,6 +8070,11 @@ react-native-context-menu-view@^1.6.0:
   resolved "https://registry.yarnpkg.com/react-native-context-menu-view/-/react-native-context-menu-view-1.9.1.tgz#7feb5321839adf85ae7c7a8510682df3399e89d4"
   integrity sha512-mkRzC0RpGw1xPNh9tNLejpfEyGwSGI+2SCgxgfa+1YRBXxA7RfRvHJOAakItKnDH8zMqDj5CxZybIks+qhxT5A==
 
+react-native-device-info@^10.8.0:
+  version "10.8.0"
+  resolved "https://registry.yarnpkg.com/react-native-device-info/-/react-native-device-info-10.8.0.tgz#c331c94d65542f86bac197f223ee064c7e10a9ec"
+  integrity sha512-DE4/X82ZVhdcnR1Y21iTP46WSSJA/rHK3lmeqWfGGq1RKLwXTIdxmfbZZnYwryqJ+esrw2l4ND19qlgxDGby8A==
+
 react-native-fast-image@^8.6.3:
   version "8.6.3"
   resolved "https://registry.yarnpkg.com/react-native-fast-image/-/react-native-fast-image-8.6.3.tgz#6edc3f9190092a909d636d93eecbcc54a8822255"

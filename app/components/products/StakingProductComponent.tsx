@@ -63,7 +63,7 @@ export const StakingProductComponent = React.memo(() => {
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={icStyle}>
-                        <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
+                        <View style={{ backgroundColor: Theme.accent, ...icStyleInner }}>
                             <StakingIcon width={32} height={32} color={'white'} />
                         </View>
                     </View>

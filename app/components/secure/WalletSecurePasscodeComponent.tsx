@@ -18,7 +18,7 @@ import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
-import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getApplicationKey, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
+import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
 import { useEffect } from 'react';
 import { useKeysAuth } from './AuthWalletKeys';
 
@@ -34,8 +34,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = React.useState(false);
-
-
 
     const onAfterImport = React.useCallback(() => {
         const address = getBackup();

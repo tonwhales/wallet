@@ -5,7 +5,7 @@ export function useAnimatedPressedInOut() {
     const animatedValue = useSharedValue(1);
 
     const onPressIn = useCallback(() => {
-        animatedValue.value = withTiming(0.98, { duration: 100 });
+        animatedValue.value = withTiming(0.99, { duration: 100 });
     }, [animatedValue]);
 
     const onPressOut = useCallback(() => {

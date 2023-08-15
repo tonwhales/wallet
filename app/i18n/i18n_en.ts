@@ -428,8 +428,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             hiddenCards: 'Hidden cards',
             card: {
-                cards: '{{count}} Cards',
-                title: 'Tonhub Card *{{cardNumber}}',
+                cards: 'Holders cards',
+                title: 'Card *{{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
                 eurSubtitle: 'Tonhub EUR',
@@ -617,7 +617,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     jetton: {
         token: 'token',
-        productButtonTitle: '{{count}} Tokens',
+        productButtonTitle: '{{count}} Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
     },
     connections: {

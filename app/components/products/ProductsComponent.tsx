@@ -16,6 +16,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingProductComponent } from "./StakingProductComponent";
 import { t } from "../../i18n/t";
 import { JettonsProductComponent } from "./JettonsProductComponent";
+import { HoldersHiddenCards } from "./HoldersHiddenCards";
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -191,6 +192,8 @@ export const ProductsComponent = React.memo(() => {
                 <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
                     <JettonsProductComponent key={'jettons'} />
                 </View>
+
+                <HoldersHiddenCards />
             </View>
         </View>
     )

@@ -118,15 +118,6 @@ export class Engine {
         //
 
         startSync(this);
-
-        //
-        // Declare dependencies
-        //
-
-        // this._dependencies.push(this.sync);
-        // this._dependencies.push(this.products.main);
-        // this._dependencies.push(this.products.price);
-        // this._dependencies.push(this.products.whalesStakingPool);
     }
 
     get ready() {

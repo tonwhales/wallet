@@ -26,7 +26,7 @@ export const ItemCollapsible = React.memo((
 
     const animatedChevron = useAnimatedStyle(() => {
         return {
-            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, 180])}deg` }],
+            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }],
         }
     }, []);
 

@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
-import { getAppState, getCurrentAddress } from '../../storage/appState';
+import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
-import { resolveUrl } from '../../utils/resolveUrl';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -12,59 +11,35 @@ import { fragment } from '../../fragment';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
-import { useLinkNavigator } from "../../useLinkNavigator";
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
-import { useBottomSheet } from '../../components/modal/BottomSheetModal';
-import { Avatar } from '../../components/Avatar';
 import { useTrackScreen } from '../../analytics/mixpanel';
-
-import Chart from '../../../assets/ic-chart.svg';
-import ChevronDown from '../../../assets/ic-chevron-down.svg';
-import Scanner from '../../../assets/ic-scanner.svg';
-import BN from 'bn.js';
+import { WalletHeaderFragment } from './views/WalletHeaderFragment';
+import { toNano } from 'ton';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const modal = useBottomSheet();
     const address = useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
-    const walletSettings = engine.products.wallets.useWalletSettings(address);
-    const balanceChart = engine.products.main.useAccountBalanceChart();
     const account = props.wallet;
-    const currentWalletIndex = getAppState().selected;
+    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
 
-    const onQRCodeRead = (src: string) => {
-        try {
-            let res = resolveUrl(src, AppConfig.isTestnet);
-            if (res) {
-                linkNavigator(res);
-            }
-        } catch (error) {
-            // Ignore
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { translateX: withTiming(animSensor.sensor.value.y * 80) },
+                { translateY: withTiming(animSensor.sensor.value.x * 80) },
+            ]
         }
-    };
+    });
 
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const openGraph = useCallback(() => {
-        if (balanceChart && balanceChart.chart.length > 0) {
-            navigation.navigate('AccountBalanceGraph');
-        }
-    }, [account]);
-
-    // Wallet Account modal
-    const onAccountPress = useCallback(() => {
-        navigation.navigate('AccountSelector');
-    }, [modal]);
+    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(1);
@@ -86,181 +61,127 @@ function WalletComponent(props: { wallet: WalletState }) {
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
-        return { backgroundColor: scrollBackgroundColor.value === 0 ? '#131928' : 'white', };
-    });
-
-    const viewCardStyle = useAnimatedStyle(() => {
-        return {
-            borderBottomEndRadius: scrollBorderRadius.value,
-            borderBottomStartRadius: scrollBorderRadius.value,
-        }
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
             <StatusBar style={'light'} />
-            <View
-                style={{
-                    backgroundColor: '#131928',
-                    paddingTop: safeArea.top,
-                    paddingHorizontal: 16
-                }}
-                collapsable={false}
-            >
-                <View style={{
-                    height: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
-                        onPress={onAccountPress}
-                    >
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <View style={{
-                                width: 24, height: 24,
-                                backgroundColor: Theme.accent,
-                                borderRadius: 12
-                            }}>
-                                <Avatar
-                                    id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                    size={24}
-                                    borderWith={0}
-                                    hash={walletSettings?.avatar}
-                                />
-                            </View>
-                            <Text
-                                style={{
-                                    marginLeft: 12, fontWeight: '500',
-                                    fontSize: 17,
-                                    color: Theme.greyForIcon, maxWidth: '70%'
-                                }}
-                                ellipsizeMode='tail'
-                                numberOfLines={1}
-                            >
-                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
-                            </Text>
-                            <ChevronDown
-                                style={{
-                                    height: 16,
-                                    width: 16,
-                                    marginLeft: 8,
-                                }}
-                                height={16}
-                                width={16}
-                                color={Theme.greyForIcon}
-                            />
-                        </View>
-                    </Pressable>
-                    <View style={{ flexDirection: 'row' }}>
-                        {account.transactions.length > 0 && (
-                            <Pressable
-                                style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                                onPress={openGraph}
-                            >
-                                <Chart
-                                    style={{
-                                        height: 24,
-                                        width: 24,
-                                    }}
-                                    height={24}
-                                    width={24}
-                                    color={Theme.greyForIcon}
-                                />
-                            </Pressable>
-                        )}
-                        <Pressable
-                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={openScanner}
-                        >
-                            <Scanner
-                                style={{
-                                    height: 24,
-                                    width: 24,
-                                    marginLeft: 14
-                                }}
-                                height={24}
-                                width={24}
-                                color={Theme.greyForIcon}
-                            />
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
+            <WalletHeaderFragment />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
-                contentContainerStyle={{ paddingBottom: 16, backgroundColor: 'white' }}
+                contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
                 decelerationRate={'normal'}
                 alwaysBounceVertical={false}
             >
-                <Animated.View
-                    style={[{
-                        backgroundColor: '#131928',
-                        paddingHorizontal: 16,
-                        paddingVertical: 20,
-                    }, viewCardStyle]}
+                <View
+                    style={[
+                        {
+                            backgroundColor: Theme.walletBackground,
+                            paddingHorizontal: 16,
+                            paddingVertical: 20,
+                        },
+                    ]}
                     collapsable={false}
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        borderRadius: 20,
+                        paddingVertical: 16, paddingHorizontal: 20,
+                        overflow: 'hidden'
+                    }}>
                         <Text style={{
-                            fontSize: 32,
-                            color: Theme.white,
-                            marginRight: 8,
-                            fontWeight: '500',
-                            lineHeight: 38,
+                            color: Theme.white, opacity: 0.7,
+                            fontSize: 15, lineHeight: 20,
+                            fontWeight: '400',
+                            marginBottom: 14
                         }}>
-                            <ValueComponent precision={6} value={account.balance} />
+                            {t('common.balance')}
+                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{
-                                fontSize: 17,
-                                lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                                color: Theme.darkGrey,
+                                fontSize: 27,
+                                color: Theme.white,
                                 marginRight: 8,
                                 fontWeight: '500',
-                            }}>{' TON'}</Text>
-                        </Text>
+                                lineHeight: 32,
+                            }}>
+                                <ValueComponent precision={6} value={account.balance} />
+                                <Text style={{
+                                    fontSize: 17,
+                                    lineHeight: Platform.OS === 'ios' ? 24 : undefined,
+                                    color: Theme.white,
+                                    marginRight: 8,
+                                    fontWeight: '500',
+                                }}>{' TON'}</Text>
+                            </Text>
+                        </View>
+                        <Animated.View
+                            style={[{
+                                position: 'absolute', top: 0, left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 400, width: 400,
+                                borderRadius: 400,
+                                overflow: 'hidden'
+                            },
+                                animatedStyle
+                            ]}
+                            pointerEvents={'none'}
+                        >
+                            <Image
+                                source={require('../../../assets/shine-blur.png')}
+                                style={{ height: 400, width: 400 }}
+                            />
+                        </Animated.View>
+                        <View style={{
+                            flexDirection: 'row', alignItems: 'center',
+                            marginTop: 10
+                        }}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent
+                                    amount={account.balance}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                />
+                                <PriceComponent
+                                    showSign
+                                    amount={toNano(1)}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                                />
+                            </Pressable>
+                        </View>
+                        <View style={{ flexGrow: 1 }} />
+                        <WalletAddress
+                            value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            address={address}
+                            elipsise
+                            style={{
+                                marginTop: 20,
+                                alignSelf: 'flex-start',
+                            }}
+                            textStyle={{
+                                fontSize: 15,
+                                lineHeight: 20,
+                                textAlign: 'left',
+                                color: Theme.darkGrey,
+                                fontWeight: '400',
+                                fontFamily: undefined
+                            }}
+                            limitActions
+                        />
                     </View>
-                    <View style={{
-                        flexDirection: 'row', alignItems: 'center',
-                        marginTop: 8
-                    }}>
-                        <Pressable onPress={navigateToCurrencySettings}>
-                            <PriceComponent amount={account.balance} />
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                        address={address}
-                        elipsise
-                        style={{
-                            marginTop: 12,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            fontSize: 13,
-                            lineHeight: 18,
-                            textAlign: 'left',
-                            color: Theme.darkGrey,
-                            fontWeight: '400',
-                            fontFamily: undefined
-                        }}
-                        limitActions
-                    />
                     <View
                         style={{
                             flexDirection: 'row',
-                            marginHorizontal: 16,
-                            backgroundColor: '#1F283E',
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
                             borderRadius: 20,
-                            marginTop: 24
+                            marginTop: 16,
+                            overflow: 'hidden'
                         }}
                         collapsable={false}
                     >
@@ -362,8 +283,24 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 </View>
                             </TouchableHighlight>
                         </View>
+                        <Animated.View
+                            style={[{
+                                position: 'absolute', top: '-175%', left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 400, width: 400, borderRadius: 200,
+                                overflow: 'hidden'
+                            },
+                                animatedStyle
+                            ]}
+                            pointerEvents={'none'}
+                        >
+                            <Image
+                                source={require('../../../assets/shine-blur.png')}
+                                style={{ height: 400, width: 400 }}
+                            />
+                        </Animated.View>
                     </View>
-                </Animated.View>
+                </View>
                 <ProductsComponent />
             </Animated.ScrollView>
         </View>

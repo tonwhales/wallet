@@ -89,6 +89,7 @@ export class Persistence {
     readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
     readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
     readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
+    readonly holdersHiddenCards: PersistedCollection<Address, string[]>;
 
     constructor(storage: MMKV, engine: Engine) {
         if (storage.getNumber('storage-version') !== this.version) {
@@ -160,6 +161,7 @@ export class Persistence {
         this.holdersCards = new PersistedCollection({ storage, namespace: 'holdersAccount', key: addressKey, codec: cardsListCodec, engine });
         this.holdersOfflineApp = new PersistedCollection({ storage, namespace: 'holdersOfflineApp', key: voidKey, codec: holdersOfflineAppCodec, engine });
         this.holdersCardTransactions = new PersistedCollection({ storage, namespace: 'holdersCardTransactions', key: stringKey, codec: holdersCardTransactionsCodec, engine });
+        this.holdersHiddenCards = new PersistedCollection({ storage, namespace: 'holdersHiddenCards', key: addressKey, codec: t.array(t.string), engine });
 
         // Charts
         this.stakingChart = new PersistedCollection({ storage, namespace: 'stakingChart', key: addressWithTargetKey, codec: stakingWeeklyChartCodec, engine });

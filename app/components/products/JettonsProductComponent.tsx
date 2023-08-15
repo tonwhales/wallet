@@ -1,14 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { JettonProductItem } from "./JettonProductItem";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import Tokens from '../../../assets/ic-one.svg';
-import Collapsible from "react-native-collapsible";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+
+import Tokens from '../../../assets/ic-jettons.svg';
+import Chevron from '../../../assets/ic_chevron_down.svg'
 
 export const JettonsProductComponent = React.memo(() => {
     const engine = useEngine();
@@ -17,6 +18,18 @@ export const JettonsProductComponent = React.memo(() => {
 
     const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
     const [collapsed, setCollapsed] = useState(true);
+
+    const rotation = useSharedValue(0);
+
+    const animatedChevron = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }],
+        }
+    }, []);
+
+    useEffect(() => {
+        rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
+    }, [collapsed])
 
     if (jettons.length === 0) {
         return null;
@@ -70,29 +83,11 @@ export const JettonsProductComponent = React.memo(() => {
                         justifyContent: 'center', alignItems: 'center',
                         backgroundColor: Theme.accent
                     }}>
-                        <View style={{ height: 32, width: 32 }}>
-                            <View style={{ justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
-                                <View style={{
-                                    height: 17, width: 17,
-                                    position: 'absolute',
-                                    top: 3, right: 3,
-                                    backgroundColor: 'white',
-                                    borderRadius: 9
-                                }} />
-                                <View style={{
-                                    height: 24, width: 24,
-                                    position: 'absolute',
-                                    bottom: 3, left: 3,
-                                    backgroundColor: Theme.accent,
-                                    borderRadius: 12
-                                }} />
-                                <Tokens
-                                    height={20} width={20}
-                                    style={{ height: 20, width: 20, position: 'absolute', bottom: 3, left: 3 }}
-                                    color={'white'}
-                                />
-                            </View>
-                        </View>
+                        <Tokens
+                            height={32} width={32}
+                            style={{ height: 32, width: 32 }}
+                            color={Theme.white}
+                        />
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={{
@@ -112,40 +107,18 @@ export const JettonsProductComponent = React.memo(() => {
                             {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
                         </Text>
                     </View>
-                    <View style={{
-                        backgroundColor: Theme.accent,
-                        borderRadius: 16,
-                        alignSelf: 'center',
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                    }}>
-                        {collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {collapsed ? t('common.showAll') : t('common.hideAll')}
-                            </Animated.Text>
-                        )}
-                        {!collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {t('common.hideAll')}
-                            </Animated.Text>
-                        )}
-                    </View>
+                    <Animated.View style={[
+                        {
+                            height: 32, width: 32,
+                            borderRadius: 16,
+                            justifyContent: 'center', alignItems: 'center',
+                            alignSelf: 'center',
+                            backgroundColor: Theme.mediumGrey
+                        },
+                        animatedChevron
+                    ]}>
+                        <Chevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                    </Animated.View>
                 </Animated.View>
             </Pressable>
             <AnimatedChildrenCollapsible
@@ -162,6 +135,6 @@ export const JettonsProductComponent = React.memo(() => {
                     )
                 }}
             />
-        </View >
+        </View>
     );
 });

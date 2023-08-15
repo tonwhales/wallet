@@ -1,5 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react"
-import { View, Pressable, Text, Image } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { useEngine } from "../../engine/Engine";
 import { ProductBanner } from "./ProductBanner";
 import { t } from "../../i18n/t";
@@ -7,12 +6,16 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { holdersUrl } from "../../engine/holders/HoldersProduct";
-import Animated, { FadeIn, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import MCard from '../../../assets/ic-m-card.svg';
 import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";
-import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
+import { Pressable, View, Text, Image } from "react-native";
+import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
+
+import Chevron from '../../../assets/ic_chevron_down.svg'
+import Hide from '../../../assets/ic-hide.svg';
+import MCard from '../../../assets/ic-m-card.svg';
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('../../../assets/classic.png'),
@@ -21,16 +24,35 @@ export const holdersCardImageMap: { [key: string]: any } = {
 }
 
 export const HoldersProductButton = React.memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
+    const hiddenCards = engine.products.holders.useHiddenCards();
+    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
+    const visibleList = useMemo(() => {
+        return accounts.filter((item) => {
+            return !hiddenCards.includes(item.id);
+        });
+    }, [hiddenCards, accounts]);
+
     const staking = engine.products.whalesStakingPools.useStakingCurrent();
     const status = engine.products.holders.useStatus();
+
     const [collapsed, setCollapsed] = useState(true);
 
-    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
-    
+    const rotation = useSharedValue(0);
+
+    const animatedChevron = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }],
+        }
+    }, []);
+
+    useEffect(() => {
+        rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
+    }, [collapsed])
+
     const needsEnrolment = useMemo(() => {
         try {
             let domain = extractDomain(holdersUrl);
@@ -71,7 +93,6 @@ export const HoldersProductButton = React.memo(() => {
         return null;
     }
 
-
     if (accounts.length === 0) {
         if (staking.total.gt(new BN(0))) {
             return null;
@@ -86,149 +107,132 @@ export const HoldersProductButton = React.memo(() => {
         );
     }
 
-    if (accounts.length <= 3) {
+    const collapsedBorderStyle = useAnimatedStyle(() => {
+        return {
+            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
+            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
+        }
+    });
+
+    if (visibleList.length > 5) {
         return (
-            <View style={{
-                borderRadius: 20,
-                backgroundColor: Theme.lightGrey,
-            }}>
-                {accounts.map((card, index) => {
-                    return (
-                        <HoldersCardItem
-                            key={`card-${index}`}
-                            account={card}
-                            last={index === accounts.length - 1}
+            <>
+                <Pressable
+                    onPress={() => {
+                        setCollapsed(!collapsed)
+                    }}
+                    onPressIn={onPressIn}
+                    onPressOut={onPressOut}
+                    style={{ marginHorizontal: 16 }}
+                >
+                    <Animated.View style={[
+                        {
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            overflow: 'hidden',
+                            padding: 20,
+                            backgroundColor: Theme.lightGrey,
+                            borderTopEndRadius: 20,
+                            borderTopStartRadius: 20
+                        },
+                        collapsedBorderStyle
+                    ]}>
+                        <View style={{ width: 46, height: 46, borderRadius: 6, borderWidth: 0, justifyContent: 'center', marginRight: 12 }}>
+                            <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
+                                <Image
+                                    style={{ width: 46, height: 30, borderRadius: 6 }}
+                                    source={holdersCardImageMap[visibleList[0]?.card.personalizationCode || 'classic'] || holdersCardImageMap['classic']}
+                                />
+                                {!!visibleList[0]?.card.lastFourDigits && (
+                                    <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
+                                        {visibleList[0].card.lastFourDigits}
+                                    </Text>
+                                )}
+                                {!visibleList[0] && (
+                                    <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                                )}
+                                {(visibleList[0] && visibleList[0].type === 'virtual') && (
+                                    <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />
+                                )}
+                            </View>
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{
+                                fontWeight: '600',
+                                fontSize: 17,
+                                lineHeight: 24,
+                                color: Theme.textColor,
+                            }}>
+                                {t('products.zenPay.card.cards')}
+                            </Text>
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 15,
+                                lineHeight: 20,
+                                color: Theme.darkGrey
+                            }}>
+                                {t('products.zenPay.card.eurSubtitle')}
+                            </Text>
+                        </View>
+                        <Animated.View style={[
+                            {
+                                height: 32, width: 32,
+                                borderRadius: 16,
+                                justifyContent: 'center', alignItems: 'center',
+                                alignSelf: 'center',
+                                backgroundColor: Theme.mediumGrey
+                            },
+                            animatedChevron
+                        ]}>
+                            <Chevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                        </Animated.View>
+                    </Animated.View>
+                </Pressable>
+                <AnimatedChildrenCollapsible
+                    collapsed={collapsed}
+                    items={visibleList}
+                    divider={<View style={{ backgroundColor: Theme.lightGrey, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                        <View
+                            style={[
+                                {
+                                    backgroundColor: Theme.mediumGrey,
+                                    height: 1,
+                                },
+                            ]}
                         />
-                    )
-                })}
-            </View>
-        );
+                    </View>}
+                    renderItem={(item, index) => {
+                        return (
+                            <HoldersCardItem
+                                key={`card-${index}`}
+                                account={item}
+                                last={index === visibleList.length - 1}
+                                rightAction={() => engine.products.holders.hideCard(item.id)}
+                                rightActionIcon={<Hide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                                single={visibleList.length === 1}
+                            />
+                        )
+                    }}
+                />
+            </>
+        )
     }
 
     return (
-        <View style={{
-            borderRadius: 20,
-            backgroundColor: Theme.lightGrey,
-        }}>
-            <Pressable
-                onPressIn={onPressIn}
-                onPressOut={onPressOut}
-                onPress={() => { setCollapsed(!collapsed) }}
-            >
-                <Animated.View style={[{
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    overflow: 'hidden',
-                    padding: 20,
-                },
-                    animatedStyle]}>
-                    <View style={{ height: 46, width: 46, marginRight: 12 }}>
-                        <View style={{
-                            width: 38, height: 25,
-                            borderRadius: 5.7, borderWidth: 0,
-                            overflow: 'hidden',
-                            position: 'absolute', bottom: 18, left: 4, right: 4
-                        }}>
-                            <Image
-                                style={{ width: 42, height: 27, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[2].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                        </View>
-                        <View style={{ width: 42, height: 27, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 13, left: 2, right: 2 }} />
-                        <View style={{
-                            width: 42, height: 27,
-                            borderRadius: 7, borderWidth: 0,
-                            overflow: 'hidden',
-                            position: 'absolute', bottom: 11, left: 2, right: 2
-                        }}>
-                            <Image
-                                style={{ width: 42, height: 27, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[1].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                        </View>
-                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, backgroundColor: Theme.lightGrey, position: 'absolute', bottom: 2, left: 0, right: 0 }} />
-                        <View style={{ width: 46, height: 30, borderRadius: 7, borderWidth: 0, overflow: 'hidden', position: 'absolute', bottom: 0 }}>
-                            <Image
-                                style={{ width: 46, height: 30, borderRadius: 7 }}
-                                source={holdersCardImageMap[accounts[0].card.personalizationCode] || holdersCardImageMap['classic']}
-                            />
-                            {!!accounts[0].card.lastFourDigits && (
-                                <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
-                                    {accounts[0].card.lastFourDigits}
-                                </Text>
-                            )}
-                            {(accounts[0] && accounts[0].type === 'virtual') && (
-                                <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />
-                            )}
-                        </View>
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 17,
-                            lineHeight: 24,
-                            color: Theme.textColor,
-                        }}>
-                            {t('products.zenPay.card.cards', { count: accounts.length })}
-                        </Text>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 15,
-                            lineHeight: 20,
-                            color: Theme.darkGrey
-                        }}>
-                            {t('products.zenPay.card.eurSubtitle')}
-                        </Text>
-                    </View>
-                    <View style={{
-                        backgroundColor: Theme.accent,
-                        borderRadius: 16,
-                        alignSelf: 'center',
-                        paddingHorizontal: 10,
-                        paddingVertical: 4,
-                    }}>
-                        {collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {collapsed ? t('common.showAll') : t('common.hideAll')}
-                            </Animated.Text>
-                        )}
-                        {!collapsed && (
-                            <Animated.Text
-                                style={{
-                                    color: 'white',
-                                    fontWeight: '500',
-                                    fontSize: 15,
-                                    lineHeight: 20,
-                                }}
-                                entering={FadeIn}
-                            >
-                                {t('common.hideAll')}
-                            </Animated.Text>
-                        )}
-                    </View>
-                </Animated.View>
-            </Pressable>
-            <AnimatedChildrenCollapsible
-                collapsed={collapsed}
-                items={accounts}
-                renderItem={(item, index) => {
-                    return (
-                        <HoldersCardItem
-                            key={`card-${index}`}
-                            account={item}
-                            last={index === accounts.length - 1}
-                        />
-                    )
-                }}
-            />
-        </View>
+        <>
+            {visibleList.map((item, index) => {
+                return (
+                    <HoldersCardItem
+                        key={`card-${index}`}
+                        account={item}
+                        first={index === 0}
+                        last={index === visibleList.length - 1}
+                        rightAction={() => engine.products.holders.hideCard(item.id)}
+                        rightActionIcon={<Hide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                        single={visibleList.length === 1}
+                    />
+                )
+            })}
+        </>
     );
 })

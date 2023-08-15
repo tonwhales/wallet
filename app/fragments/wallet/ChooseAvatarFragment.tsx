@@ -21,7 +21,6 @@ export const ChooseAvatarFragment = fragment(() => {
         }
     }, [hashState]);
 
-
     return (
         <View style={{ backgroundColor: Theme.white, flexGrow: 1 }}>
             <ScreenHeader

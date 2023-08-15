@@ -18,12 +18,12 @@ import * as Haptics from 'expo-haptics';
 import { fetchAddressBalanceChart } from "../../engine/sync/startAccountBalanceChartSync";
 
 const timeRangePoints = [
-    { label: '1D', index: 0, from: 24 * 60 * 60, hoursInterval: 1 },
-    { label: '1W', index: 1, from: 7 * 24 * 60 * 60, hoursInterval: 6 },
+    { label: '1D', index: 0, from: 24 * 60 * 60, hoursInterval: 0.8 },
+    { label: '1W', index: 1, from: 7 * 24 * 60 * 60, hoursInterval: 5.6 },
     { label: '1M', index: 2, from: 30 * 24 * 60 * 60, hoursInterval: 24 },
-    { label: '3M', index: 3, from: 90 * 24 * 60 * 60, hoursInterval: 24 * 3 },
-    { label: '6M', index: 4, from: 180 * 24 * 60 * 60, hoursInterval: 24 * 3 * 2 },
-    { label: '1Y', index: 5, from: 365 * 24 * 60 * 60, hoursInterval: 24 * 3 * 4 },
+    { label: '3M', index: 3, from: 90 * 24 * 60 * 60, hoursInterval: 3 * 24 },
+    { label: '6M', index: 4, from: 180 * 24 * 60 * 60, hoursInterval: 6 * 24 },
+    { label: '1Y', index: 5, from: 365 * 24 * 60 * 60, hoursInterval: 12 * 24 }
 ]
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);

@@ -103,7 +103,7 @@ export const PasscodeSetup = React.memo((
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
 
-    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 6 });
+    const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 4 });
 
     return (
         <View style={[{ width: '100%', height: '100%', }, style]}>

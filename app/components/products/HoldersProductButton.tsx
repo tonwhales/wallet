@@ -84,7 +84,6 @@ export const HoldersProductButton = React.memo(() => {
         return null;
     }
 
-
     if (accounts.length === 0) {
         if (staking.total.gt(new BN(0))) {
             return null;
@@ -98,6 +97,7 @@ export const HoldersProductButton = React.memo(() => {
             />
         );
     }
+
 
     if (visibleList.length === 1) {
         return (

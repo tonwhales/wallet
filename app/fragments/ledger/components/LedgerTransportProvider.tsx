@@ -104,7 +104,6 @@ export const LedgerTransportProvider = memo(({ children }: { children: React.Rea
 
     const startHIDSearch = useCallback(async () => {
         let hid = await TransportHID.create();
-        console.log('hid', { hid });
         setLedgerConnection({ type: 'hid', transport: hid, device: null });
 
     }, []);

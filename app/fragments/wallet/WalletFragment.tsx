@@ -31,8 +31,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     const animatedStyle = useAnimatedStyle(() => {
         return {
             transform: [
-                { translateX: withTiming(animSensor.sensor.value.y * 85) },
-                { translateY: withTiming(animSensor.sensor.value.x * 85) },
+                { translateX: withTiming(animSensor.sensor.value.y * 80) },
+                { translateY: withTiming(animSensor.sensor.value.x * 80) },
             ]
         }
     });
@@ -61,13 +61,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     const scrollStyle = useAnimatedStyle(() => {
         return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
-    });
-
-    const viewCardStyle = useAnimatedStyle(() => {
-        return {
-            borderBottomEndRadius: scrollBorderRadius.value,
-            borderBottomStartRadius: scrollBorderRadius.value,
-        }
     });
 
     return (
@@ -129,8 +122,8 @@ function WalletComponent(props: { wallet: WalletState }) {
                             style={[{
                                 position: 'absolute', top: 0, left: '50%',
                                 marginTop: -20, marginLeft: -20,
-                                height: 260, width: 260,
-                                borderRadius: 260,
+                                height: 400, width: 400,
+                                borderRadius: 400,
                                 overflow: 'hidden'
                             },
                                 animatedStyle
@@ -139,9 +132,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         >
                             <Image
                                 source={require('../../../assets/shine-blur.png')}
-                                style={{
-                                    height: 260, width: 260,
-                                }}
+                                style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>
                         <View style={{
@@ -287,8 +278,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             style={[{
                                 position: 'absolute', top: '-175%', left: '50%',
                                 marginTop: -20, marginLeft: -20,
-                                height: 260, width: 260,
-                                borderRadius: 260,
+                                height: 400, width: 400, borderRadius: 200,
                                 overflow: 'hidden'
                             },
                                 animatedStyle
@@ -297,7 +287,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         >
                             <Image
                                 source={require('../../../assets/shine-blur.png')}
-                                style={{ height: 260, width: 260, }}
+                                style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>
                     </View>

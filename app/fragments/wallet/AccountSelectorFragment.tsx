@@ -11,6 +11,7 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { getAppState } from "../../storage/appState";
 
 export const AccountSelectorFragment = fragment(() => {
     const appStateManager = useAppStateManager();
@@ -37,7 +38,11 @@ export const AccountSelectorFragment = fragment(() => {
     }, [appStateManager.current.addresses, ledgerConnected]);
 
     const onAddNewAccount = useCallback(() => {
-        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const appState = getAppState();
+
+        const options = appState.addresses.length >= 3
+            ? [t('common.cancel'), t('hardwareWallet.actions.connect')]
+            : [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({

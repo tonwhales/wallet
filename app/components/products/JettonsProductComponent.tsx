@@ -88,6 +88,19 @@ export const JettonsProductComponent = React.memo(() => {
                             style={{ height: 32, width: 32 }}
                             color={Theme.white}
                         />
+                        <View style={{
+                            position: 'absolute',
+                            bottom: -5, right: -2,
+                            height: 16, borderRadius: 8,
+                            backgroundColor: Theme.accent,
+                            justifyContent: 'center', alignItems: 'center',
+                            borderWidth: 2, borderColor: Theme.white,
+                            paddingHorizontal: jettons.length > 9 ? 5 : 2.5
+                        }}>
+                            <Text style={{ fontSize: 10, fontWeight: '500', color: Theme.white }}>
+                                {jettons.length}
+                            </Text>
+                        </View>
                     </View>
                     <View style={{ flex: 1 }}>
                         <Text style={{
@@ -103,8 +116,11 @@ export const JettonsProductComponent = React.memo(() => {
                             fontSize: 15,
                             lineHeight: 20,
                             color: Theme.darkGrey
-                        }}>
-                            {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
+                        }}
+                            numberOfLines={1}
+                        >
+                            {jettons.map((j, index) => j.name).join(', ')}
+                            {/* {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })} */}
                         </Text>
                     </View>
                     <Animated.View style={[

@@ -151,6 +151,19 @@ export const HoldersProductButton = React.memo(() => {
                                     <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />
                                 )}
                             </View>
+                            <View style={{
+                                position: 'absolute',
+                                bottom: 3.5, right: -6,
+                                height: 16, borderRadius: 8,
+                                backgroundColor: Theme.accent,
+                                justifyContent: 'center', alignItems: 'center',
+                                borderWidth: 2, borderColor: Theme.white,
+                                paddingHorizontal: visibleList.length > 9 ? 5 : 2.5
+                            }}>
+                                <Text style={{ fontSize: 10, fontWeight: '500', color: Theme.white }}>
+                                    {visibleList.length}
+                                </Text>
+                            </View>
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{

@@ -618,7 +618,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     jetton: {
         token: 'токен',
-        productButtonTitle: '{{count}} Токенов',
+        productButtonTitle: 'Токены',
         productButtonSubtitle: '{{jettonName}} и {{count}} других',
     },
     connections: {

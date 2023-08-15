@@ -9,19 +9,20 @@ import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useCallback, useEffect, useState } from 'react';
 
 export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
     passcode: string,
     callback: (res: boolean) => void,
-    onLater?: () => void,
+    onLater?: () => void
     import?: boolean
 }) => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     // Action
-    const [loading, setLoading] = React.useState(false);
-    const onClick = React.useCallback(() => {
+    const [loading, setLoading] = useState(false);
+    const onClick = useCallback(() => {
         (async () => {
             setLoading(true);
             try {
@@ -77,7 +78,7 @@ export const WalletSecureComponent = React.memo((props: {
             break;
     }
 
-    const onLater = React.useCallback(() => {
+    const onLater = useCallback(() => {
         Alert.alert(
             t('secure.onLaterTitle'),
             t('secure.onLaterMessage'),

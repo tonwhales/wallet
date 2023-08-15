@@ -17,13 +17,18 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
 import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { HeaderBackButton } from "@react-navigation/elements";
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const { mnemonics } = useParams<{ mnemonics?: string }>();
-    const [state, setState] = React.useState<{ mnemonics: string, saved?: boolean } | null>(null);
-    React.useEffect(() => {
+    const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(null);
+
+    useEffect(() => {
         if (mnemonics) {
             setState({ mnemonics });
             return;
@@ -38,6 +43,65 @@ export const WalletCreateFragment = systemFragment(() => {
             setState({ mnemonics: mnemonics.join(' ') });
         })()
     }, []);
+
+    const onBack = useCallback((e: any) => {
+        if (state?.saved) {
+            e.preventDefault();
+            setState({ ...state, saved: false });
+            return;
+        }
+
+        navigation.base.dispatch(e.data.action);
+    }, [state, navigation]);
+
+    useLayoutEffect(() => {
+        if (Platform.OS === 'android') {
+            navigation.base.addListener('beforeRemove', onBack);
+        }
+        if (Platform.OS === 'ios') {
+            navigation.base.setOptions({
+                gestureEnabled: !state?.saved,
+                headerLeft: () => {
+                    return (
+                        <HeaderBackButton
+                            label={t('common.back')}
+                            labelVisible
+                            style={{ marginLeft: -13 }}
+                            onPress={() => {
+                                if (state?.saved) {
+                                    setState({ ...state, saved: false });
+                                } else {
+                                    navigation.base.goBack();
+                                }
+                            }}
+                            tintColor={Theme.accent}
+                        />
+                    )
+                },
+            });
+        }
+
+        return () => {
+            if (Platform.OS === 'android') {
+                navigation.base.removeListener('beforeRemove', onBack);
+            }
+            if (Platform.OS === 'ios') {
+                navigation.base.setOptions({
+                    headerLeft: () => {
+                        return (
+                            <HeaderBackButton
+                                style={{ marginLeft: -13 }}
+                                label={t('common.back')}
+                                labelVisible
+                                onPress={navigation.base.goBack}
+                                tintColor={Theme.accent}
+                            />
+                        )
+                    },
+                });
+            }
+        }
+    }, [navigation, onBack, state]);
 
     return (
         <View

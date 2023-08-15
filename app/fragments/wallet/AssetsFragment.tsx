@@ -99,11 +99,11 @@ export const AssetsFragment = fragment(() => {
         });
     }, [isLedgerScreen, callback]);
 
-    const onCallback = useCallback((address?: Address) => {
+    const onCallback = useCallback((selected?: { wallet: Address, master: Address }) => {
         if (callback) {
             setTimeout(() => {
                 navigation.goBack();
-                callback(address);
+                callback(selected);
             }, 10);
         }
     }, [callback]);

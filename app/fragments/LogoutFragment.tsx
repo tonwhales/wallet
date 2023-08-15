@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, View, Text, ScrollView, useWindowDimensions } from "react-native";
+import { Platform, View, Text, ScrollView, useWindowDimensions, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
@@ -114,6 +114,10 @@ export const LogoutFragment = fragment(() => {
             paddingBottom: safeArea.bottom
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <Pressable
+                onPress={navigation.goBack}
+                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
             <View style={{
                 height: (dimentions.height / 2),
                 backgroundColor: 'white', borderTopEndRadius: 20, borderTopStartRadius: 20,

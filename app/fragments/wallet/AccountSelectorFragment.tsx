@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo } from "react";
-import { Platform, View, useWindowDimensions } from "react-native";
+import { Platform, Pressable, View, useWindowDimensions } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useAppStateManager } from "../../engine/AppStateManager";
@@ -73,6 +73,10 @@ export const AccountSelectorFragment = fragment(() => {
             paddingBottom: safeArea.bottom
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <Pressable
+                onPress={navigation.goBack}
+                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            />
             <View style={{
                 height: (Math.floor(dimentions.height * heightMultiplier)),
                 backgroundColor: Theme.white,

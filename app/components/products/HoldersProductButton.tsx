@@ -10,7 +10,6 @@ import { HoldersCardItem } from "./HoldersCardItem";
 import BN from "bn.js";
 import { Pressable, View, Text, Image } from "react-native";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 
 import Chevron from '../../../assets/ic_chevron_down.svg'
@@ -29,7 +28,6 @@ export const HoldersProductButton = React.memo(() => {
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
     const hiddenCards = engine.products.holders.useHiddenCards();
-    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
     const visibleList = useMemo(() => {
         return accounts.filter((item) => {
             return !hiddenCards.includes(item.id);
@@ -72,6 +70,13 @@ export const HoldersProductButton = React.memo(() => {
         return false;
     }, [status]);
 
+    const collapsedBorderStyle = useAnimatedStyle(() => {
+        return {
+            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
+            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
+        }
+    });
+
     const onPress = useCallback(
         () => {
             if (needsEnrolment) {
@@ -107,13 +112,6 @@ export const HoldersProductButton = React.memo(() => {
         );
     }
 
-    const collapsedBorderStyle = useAnimatedStyle(() => {
-        return {
-            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
-            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
-        }
-    });
-
     if (visibleList.length > 5) {
         return (
             <>
@@ -121,8 +119,6 @@ export const HoldersProductButton = React.memo(() => {
                     onPress={() => {
                         setCollapsed(!collapsed)
                     }}
-                    onPressIn={onPressIn}
-                    onPressOut={onPressOut}
                     style={{ marginHorizontal: 16 }}
                 >
                     <Animated.View style={[
@@ -144,7 +140,7 @@ export const HoldersProductButton = React.memo(() => {
                                     source={holdersCardImageMap[visibleList[0]?.card.personalizationCode || 'classic'] || holdersCardImageMap['classic']}
                                 />
                                 {!!visibleList[0]?.card.lastFourDigits && (
-                                    <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
+                                    <Text style={{ color: Theme.white, fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
                                         {visibleList[0].card.lastFourDigits}
                                     </Text>
                                 )}

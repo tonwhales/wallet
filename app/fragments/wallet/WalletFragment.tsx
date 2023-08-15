@@ -19,6 +19,7 @@ import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useA
 import { StatusBar } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeaderFragment } from './views/WalletHeaderFragment';
+import { toNano } from 'ton';
 
 function WalletComponent(props: { wallet: WalletState }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -139,10 +140,18 @@ function WalletComponent(props: { wallet: WalletState }) {
                             flexDirection: 'row', alignItems: 'center',
                             marginTop: 10
                         }}>
-                            <Pressable onPress={navigateToCurrencySettings}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={navigateToCurrencySettings}
+                            >
                                 <PriceComponent
                                     amount={account.balance}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                />
+                                <PriceComponent
+                                    showSign
+                                    amount={toNano(1)}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
                                 />
                             </Pressable>
                         </View>

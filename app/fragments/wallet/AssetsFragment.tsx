@@ -26,7 +26,7 @@ export const AssetsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const { target, callback, selectedJetton } = useParams<{
         target: string,
-        callback?: (address?: Address) => void,
+        callback?: (selected?: { wallet: Address, master: Address }) => void,
         selectedJetton?: Address
     }>();
 
@@ -41,14 +41,11 @@ export const AssetsFragment = fragment(() => {
     }, [ledgerTransport, isLedgerScreen]);
 
     const ledgerJettons = engine.products.ledger.useJettons(address)?.jettons ?? [];
-    const ledgerAccount = engine.products.ledger.useAccount();
-
     const jettons = engine.products.main.useJettons();
-    const account = engine.products.main.useAccount();
 
-    const onJettonJettonSelected = useCallback((jetton: JettonState) => {
+    const onSelected = useCallback((jetton: JettonState) => {
         if (callback) {
-            onCallback(jetton.master);
+            onCallback({ wallet: jetton.wallet, master: jetton.master });
             return;
         }
         if (isLedgerScreen) {
@@ -156,7 +153,7 @@ export const AssetsFragment = fragment(() => {
                                 key={'jt' + j.wallet.toFriendly()}
                                 title={j.name}
                                 subtitle={j.description}
-                                onSelect={() => onJettonJettonSelected(j)}
+                                onSelect={() => onSelected(j)}
                                 icon={
                                     <View style={{ width: 46, height: 46 }}>
                                         <WImage

@@ -51,9 +51,9 @@ export const ReceiveFragment = fragment(() => {
         return !!KnownJettonMasters(AppConfig.isTestnet)[jetton?.master.toFriendly({ testOnly: AppConfig.isTestnet })];
     }, [jetton]);
 
-    const onAssetSelected = useCallback((address?: Address) => {
-        if (address) {
-            const data = engine.persistence.jettonMasters.item(address).value;
+    const onAssetSelected = useCallback((selected?: {master: Address, wallet: Address}) => {
+        if (selected) {
+            const data = engine.persistence.jettonMasters.item(selected.master).value;
             if (data) {
                 setJetton({ master: address, data });
                 return;

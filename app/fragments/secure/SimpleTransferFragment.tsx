@@ -73,8 +73,10 @@ export const SimpleTransferFragment = fragment(() => {
             return null;
         }
 
+
         let wallet = engine.persistence.jettonWallets.item(jetton).value;
         let master = null;
+        let walletAddress = jetton;
 
         if (wallet?.master) {
             master = engine.persistence.jettonMasters.item(wallet.master).value;
@@ -84,6 +86,7 @@ export const SimpleTransferFragment = fragment(() => {
                 const state = engine.persistence.jettonWallets.item(key).value;
                 if (state?.master?.equals(jetton)) {
                     wallet = state;
+                    walletAddress = key;
                     return;
                 }
             });
@@ -92,7 +95,7 @@ export const SimpleTransferFragment = fragment(() => {
         if (!master || !wallet) {
             return null;
         }
-        return { wallet, master };
+        return { wallet, master, walletAddress };
     }, [jetton]);
 
     const isVerified = useMemo(() => {
@@ -152,7 +155,7 @@ export const SimpleTransferFragment = fragment(() => {
         // Resolve jetton order
         if (jettonState) {
             return createJettonOrder({
-                wallet: params!.jetton!,
+                wallet: jettonState.walletAddress,
                 target: target,
                 domain: domain,
                 responseTarget: acc.address,
@@ -369,9 +372,9 @@ export const SimpleTransferFragment = fragment(() => {
         setSelectedInput(null);
     }, []);
 
-    const onAssetSelected = useCallback((address?: Address) => {
-        if (address) {
-            setJetton(address);
+    const onAssetSelected = useCallback((selected?: {master: Address, wallet: Address}) => {
+        if (selected) {
+            setJetton(selected.wallet);
             return;
         }
         setJetton(null);

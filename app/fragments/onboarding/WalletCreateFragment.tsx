@@ -180,23 +180,24 @@ export const WalletCreateFragment = systemFragment(() => {
                                 }}
                             />
                         )}
+                        <View style={{
+                            flexGrow: 1,
+                            alignSelf: 'stretch',
+                            justifyContent: 'flex-end',
+                            paddingVertical: 16,
+                            paddingTop: safeArea.bottom === 0 ? 0 : 24,
+                            width: '100%',
+                            marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
+                        }}>
+                            <RoundButton
+                                title={t('create.okSaved')}
+                                onPress={() => {
+                                    setState({ ...state, saved: true });
+                                }}
+                                style={{ height: 56 }}
+                            />
+                        </View>
                     </ScrollView>
-                    <View style={{
-                        flexGrow: 1,
-                        alignSelf: 'stretch',
-                        justifyContent: 'flex-end',
-                        padding: 16,
-                        width: '100%',
-                        marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 8
-                    }}>
-                        <RoundButton
-                            title={t('create.okSaved')}
-                            onPress={() => {
-                                setState({ ...state, saved: true });
-                            }}
-                            style={{ height: 56 }}
-                        />
-                    </View>
                 </>
             )}
             {state?.saved && (

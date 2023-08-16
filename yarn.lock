@@ -4602,10 +4602,10 @@ expo-splash-screen@~0.18.1:
     "@expo/configure-splash-screen" "^0.6.0"
     "@expo/prebuild-config" "6.0.0"
 
-expo-status-bar@~1.4.4:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-1.4.4.tgz#6874ccfda5a270d66f123a9f220735a76692d114"
-  integrity sha512-5DV0hIEWgatSC3UgQuAZBoQeaS9CqeWRZ3vzBR9R/+IUD87Adbi4FGhU10nymRqFXOizGsureButGZIXPs7zEA==
+expo-status-bar@~1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/expo-status-bar/-/expo-status-bar-1.6.0.tgz#e79ffdb9a84d2e0ec9a0dc7392d9ab364fefa9cf"
+  integrity sha512-e//Oi2WPdomMlMDD3skE4+1ZarKCJ/suvcB4Jo/nO427niKug5oppcPNYO+csR6y3ZglGuypS+3pp/hJ+Xp6fQ==
 
 expo-store-review@^6.4.0:
   version "6.4.0"

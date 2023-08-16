@@ -12,7 +12,7 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
-import { getAppState, getConnectionReferences } from '../storage/appState';
+import { getConnectionReferences } from '../storage/appState';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +21,7 @@ import DeviceInfo from 'react-native-device-info';
 import { useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
@@ -140,6 +141,7 @@ export const HomeFragment = fragment(() => {
                         unmountOnBlur: true,
                         tabBarIcon: ({ focused }) => {
                             let source = require('../../assets/ic-home.png');
+                            StatusBar
 
                             if (route.name === 'Transactions') {
                                 source = require('../../assets/ic-history.png');

@@ -118,6 +118,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             justifyContent: 'center',
                             alignItems: 'center',
                             paddingTop: auth.params?.paddingTop ?? 0,
+                            paddingBottom: safeAreaInsets.bottom === 0 ? 120 : safeAreaInsets.bottom,
                         },
                     ]}
                     exiting={FadeOutUp}

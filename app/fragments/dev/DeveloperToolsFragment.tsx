@@ -311,11 +311,6 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         </View>
                     )}
-                    <ReAnimatedCircularProgress
-                        size={16}
-                        color={Theme.white}
-                        style={{ backgroundColor: 'red' }}
-                    />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

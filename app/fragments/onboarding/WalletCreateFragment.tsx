@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, View, Text, ToastAndroid, Alert, ScrollView } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
 import { minimumDelay } from 'teslabot';
-import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOutDown, FadeOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
@@ -118,7 +118,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         flexGrow: 1, backgroundColor: Theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
-                    key="loading"
+                    key={'loading'}
                     exiting={FadeOutDown}
                 >
                     <AndroidToolbar />
@@ -209,10 +209,12 @@ export const WalletCreateFragment = systemFragment(() => {
                     }}
                     key={"content"}
                     entering={FadeIn}
+                    exiting={FadeOutRight}
                 >
                     <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={false}
+                        onBack={() => setState({ ...state, saved: false })}
                     />
                 </Animated.View>
             )}

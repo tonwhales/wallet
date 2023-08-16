@@ -10,6 +10,7 @@ import { Avatar, avatarImages } from "../../components/Avatar";
 import { useCallback, useMemo, useState } from "react";
 import { useEngine } from "../../engine/Engine";
 import { copyText } from "../../utils/copyText";
+import { StatusBar } from "expo-status-bar";
 
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -43,6 +44,7 @@ export const WalletSettingsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
                 title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}

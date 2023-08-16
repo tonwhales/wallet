@@ -76,7 +76,7 @@ export const LogoutFragment = fragment(() => {
 
         appStateManager.updateAppState({
             addresses: newAddresses,
-            selected: 0,
+            selected: newAddresses.length > 0 ? 0 : -1,
         });
 
     }, []);

@@ -262,6 +262,7 @@ export const WalletImportFragment = systemFragment(() => {
                     <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={true}
+                        onBack={() => setState(null)}
                     />
                 </Animated.View>
             )}

@@ -19,12 +19,14 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useKeysAuth } from './AuthWalletKeys';
+import { HeaderBackButton } from "@react-navigation/elements";
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
-    import: boolean
+    import: boolean,
+    onBack?: () => void,
 }) => {
     const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
@@ -175,7 +177,8 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     }
                     const account = getCurrentAddress();
                     markAddressSecured(account.address, AppConfig.isTestnet);
-                    reboot();
+                    // reboot();
+                    setState({ passcode, deviceEncryption });
                 }
                 navigation.navigate('WalletBackupInit');
             }
@@ -187,6 +190,92 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             setLoading(false);
         }
     }, []);
+
+    const resetConfirmedAddressState = useCallback(() => {
+        if (!state) {
+            return;
+        }
+
+        try {
+            const appState = getAppState();
+            const account = getCurrentAddress();
+
+            const newAddresses = appState.addresses.filter((a) => !a.address.equals(account.address));
+
+            if (newAddresses.length > 0) {
+                setAppState({
+                    addresses: newAddresses,
+                    selected: newAddresses.length - 1,
+                }, AppConfig.isTestnet);
+            } else {
+                setAppState({ addresses: [], selected: -1 }, AppConfig.isTestnet);
+            }
+        } catch {
+            // Ignore
+        }
+
+    }, [state]);
+
+    const onBack = useCallback((e: any) => {
+        if (props.onBack) {
+            e.preventDefault();
+            resetConfirmedAddressState();
+            props.onBack();
+            return;
+        }
+
+        navigation.base.dispatch(e.data.action);
+    }, [state, navigation, props.onBack, resetConfirmedAddressState]);
+
+    useLayoutEffect(() => {
+        if (Platform.OS === 'android') {
+            navigation.base.addListener('beforeRemove', onBack);
+        }
+        if (Platform.OS === 'ios') {
+            navigation.base.setOptions({
+                gestureEnabled: false,
+                headerLeft: () => {
+                    return (
+                        <HeaderBackButton
+                            label={t('common.back')}
+                            labelVisible
+                            style={{ marginLeft: -13 }}
+                            onPress={() => {
+                                if (props.onBack) {
+                                    resetConfirmedAddressState();
+                                    props.onBack();
+                                } else {
+                                    navigation.base.goBack();
+                                }
+                            }}
+                            tintColor={Theme.accent}
+                        />
+                    )
+                },
+            });
+        }
+
+        return () => {
+            if (Platform.OS === 'android') {
+                navigation.base.removeListener('beforeRemove', onBack);
+            }
+            if (Platform.OS === 'ios') {
+                navigation.base.setOptions({
+                    headerLeft: () => {
+                        return (
+                            <HeaderBackButton
+                                style={{ marginLeft: -13 }}
+                                label={t('common.back')}
+                                labelVisible
+                                onPress={navigation.base.goBack}
+                                tintColor={Theme.accent}
+                            />
+                        )
+                    },
+                });
+            }
+        }
+    }, [navigation, onBack, state, props.onBack, resetConfirmedAddressState]);
 
     return (
         <>

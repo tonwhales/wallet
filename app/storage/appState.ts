@@ -53,10 +53,16 @@ function parseAppState(src: any): t.TypeOf<typeof latestVersion> | null {
 }
 
 function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof latestVersion> {
+    // filter addresses duplicates 
+    const addresses = state.addresses.filter((v, i, a) => a.findIndex((t) => t.address.equals(v.address)) === i);
+    let selected = addresses.findIndex((v) => v.address.equals(state.addresses[state.selected].address));
+    if (selected < 0) {
+        selected = addresses.length > 0 ? addresses.length - 1 : -1;
+    }
     return {
         version: 2,
-        selected: state.selected,
-        addresses: state.addresses.map((v) => ({
+        selected: selected,
+        addresses: addresses.map((v) => ({
             address: v.address.toFriendly({ testOnly: isTestnet }),
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),

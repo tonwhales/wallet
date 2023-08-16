@@ -12,7 +12,7 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
-import { getConnectionReferences } from '../storage/appState';
+import { getAppState, getConnectionReferences } from '../storage/appState';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -118,7 +118,6 @@ export const HomeFragment = fragment(() => {
                 const deviceId = DeviceInfo.getDeviceId();
                 const dCurve = getDeviceScreenCurve(deviceId);
                 setCurve(dCurve);
-                console.log({ deviceId, dCurve });
             })();
         }
     }, []);

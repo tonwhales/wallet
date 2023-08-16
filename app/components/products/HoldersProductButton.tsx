@@ -103,12 +103,14 @@ export const HoldersProductButton = React.memo(() => {
             return null;
         }
         return (
-            <ProductBanner
-                title={t('products.zenPay.card.defaultTitle')}
-                subtitle={t('products.zenPay.card.defaultSubtitle')}
-                onPress={onPress}
-                illustration={require('../../../assets/banner-holders.png')}
-            />
+            <View style={{ paddingHorizontal: 16 }}>
+                <ProductBanner
+                    title={t('products.zenPay.card.defaultTitle')}
+                    subtitle={t('products.zenPay.card.defaultSubtitle')}
+                    onPress={onPress}
+                    illustration={require('../../../assets/banner-holders.png')}
+                />
+            </View>
         );
     }
 

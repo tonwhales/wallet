@@ -71,7 +71,7 @@ export const WalletCreateFragment = systemFragment(() => {
                                 if (state?.saved) {
                                     setState({ ...state, saved: false });
                                 } else {
-                                    navigation.base.goBack();
+                                    navigation.goBack();
                                 }
                             }}
                             tintColor={Theme.accent}
@@ -93,7 +93,7 @@ export const WalletCreateFragment = systemFragment(() => {
                                 style={{ marginLeft: -13 }}
                                 label={t('common.back')}
                                 labelVisible
-                                onPress={navigation.base.goBack}
+                                onPress={navigation.goBack}
                                 tintColor={Theme.accent}
                             />
                         )

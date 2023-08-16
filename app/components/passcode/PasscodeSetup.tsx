@@ -1,6 +1,6 @@
-import React, { useEffect, useReducer } from "react";
-import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
-import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
+import React, { memo, useCallback, useEffect, useLayoutEffect, useReducer } from "react";
+import { View, Text, Pressable, StyleProp, ViewStyle, Platform } from "react-native";
+import Animated, { FadeOutDown, SlideInRight } from "react-native-reanimated";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -9,6 +9,7 @@ import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
 import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
+import { HeaderBackButton } from "@react-navigation/elements";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -58,7 +59,7 @@ function reduceSteps() {
                 return {
                     step: 'input',
                     input: '',
-                    passcodeLength: 6
+                    passcodeLength: state.passcodeLength
                 };
             case 'loading':
                 return {
@@ -84,14 +85,15 @@ function reduceSteps() {
     };
 }
 
-export const PasscodeSetup = React.memo((
+export const PasscodeSetup = memo((
     {
         description,
         onReady,
         initial,
         onLater,
         showSuccess,
-        style
+        style,
+        onBack,
     }: {
         description?: string,
         onReady?: (pass: string) => Promise<void>,
@@ -99,16 +101,91 @@ export const PasscodeSetup = React.memo((
         initial?: boolean,
         showSuccess?: boolean,
         style?: StyleProp<ViewStyle>,
+        onBack?: () => void,
     }) => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 4 });
 
+    const goBack = useCallback((e: any) => {
+        if (state.step === 're-enter') {
+            e.preventDefault();
+            dispatch({ type: 'input', input: '' });
+            return;
+        }
+        if (onBack) {
+            e.preventDefault();
+            onBack();
+            return;
+        }
+
+        navigation.base.dispatch(e.data.action);
+    }, [state, navigation, onBack]);
+
+    useLayoutEffect(() => {
+        if (Platform.OS === 'android') {
+            navigation.base.addListener('beforeRemove', goBack);
+        }
+        if (Platform.OS === 'ios') {
+            navigation.base.setOptions({
+                gestureEnabled: false,
+                headerLeft: () => {
+                    return (
+                        <HeaderBackButton
+                            label={t('common.back')}
+                            labelVisible
+                            style={{ marginLeft: -13 }}
+                            onPress={() => {
+                                if (state.step === 're-enter') {
+                                    dispatch({ type: 'input', input: '' });
+                                    return;
+                                }
+                                if (onBack) {
+                                    onBack();
+                                } else {
+                                    navigation.base.goBack();
+                                }
+                            }}
+                            tintColor={Theme.accent}
+                        />
+                    )
+                },
+            });
+        }
+
+        return () => {
+            if (Platform.OS === 'android') {
+                navigation.base.removeListener('beforeRemove', goBack);
+            }
+            if (Platform.OS === 'ios') {
+                navigation.base.setOptions({
+                    headerLeft: () => {
+                        return (
+                            <HeaderBackButton
+                                style={{ marginLeft: -13 }}
+                                label={t('common.back')}
+                                labelVisible
+                                onPress={() => {
+                                    if (state.step === 're-enter') {
+                                        dispatch({ type: 'input', input: '' });
+                                        return;
+                                    }
+                                    navigation.goBack();
+                                }}
+                                tintColor={Theme.accent}
+                            />
+                        )
+                    },
+                });
+            }
+        }
+    }, [navigation, onBack, state, goBack]);
+
     return (
         <View style={[{ width: '100%', height: '100%', }, style]}>
             {state.step === 'input' && (
-                <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft}>
+                <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
                         description={description}
@@ -144,7 +221,7 @@ export const PasscodeSetup = React.memo((
             )}
 
             {state.step === 're-enter' && (
-                <Animated.View style={{ flexGrow: 1 }} exiting={SlideOutLeft} entering={SlideInRight}>
+                <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown} entering={SlideInRight}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.confirmNew')}
                         onEntered={(pass) => {

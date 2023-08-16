@@ -13,7 +13,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../passcode/PasscodeSetup';
-import Animated, { FadeIn, FadeOut, FadeOutDown } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, FadeOutDown, SlideOutRight } from 'react-native-reanimated';
 import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../LoadingIndicator';
@@ -245,7 +245,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                     resetConfirmedAddressState();
                                     props.onBack();
                                 } else {
-                                    navigation.base.goBack();
+                                    navigation.goBack();
                                 }
                             }}
                             tintColor={Theme.accent}
@@ -287,12 +287,12 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             ? safeArea.top
                             : undefined,
                     }}
-                    exiting={FadeOutDown}
                 >
                     <StatusBar style={'dark'} />
                     <PasscodeSetup
                         style={props.import ? { backgroundColor: Theme.item } : undefined}
                         onReady={onConfirmed}
+                        onBack={props.onBack}
                     />
                 </Animated.View>
             )}

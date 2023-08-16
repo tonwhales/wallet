@@ -126,7 +126,7 @@ export const WalletBackupFragment = systemFragment(() => {
                         </Text>
                     </>
                 )}
-                <View style={{ marginTop: init ? 0 : 40 }}>
+                <View style={{ marginTop: init ? 0 : 65 }}>
                     <MnemonicsView
                         mnemonics={mnemonics.join(' ')}
                         style={{
@@ -143,8 +143,9 @@ export const WalletBackupFragment = systemFragment(() => {
                         }}>
                             <Avatar
                                 id={address.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                size={65}
-                                borderColor={Theme.accent}
+                                size={77}
+                                borderColor={Theme.lightGrey}
+                                borderWith={3}
                             />
                         </View>
                     )}

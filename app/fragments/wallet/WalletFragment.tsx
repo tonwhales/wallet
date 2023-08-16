@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -193,12 +193,14 @@ function WalletComponent(props: { wallet: WalletState }) {
                                     borderRadius: 14,
                                     padding: 10
                                 }}>
-                                    <TouchableHighlight
+                                    <Pressable
                                         onPress={onOpenBuy}
-                                        underlayColor={Theme.selector}
-                                        style={{
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 20
+                                        style={({ pressed }) => {
+                                            return {
+                                                opacity: pressed ? 0.5 : 1,
+                                                borderRadius: 14, flex: 1, paddingVertical: 10,
+                                                marginHorizontal: 20
+                                            }
                                         }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
@@ -218,7 +220,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                                 {t('wallet.actions.buy')}
                                             </Text>
                                         </View>
-                                    </TouchableHighlight>
+                                    </Pressable>
                                 </View>
                             )
                         }
@@ -228,12 +230,14 @@ function WalletComponent(props: { wallet: WalletState }) {
                             borderRadius: 14,
                             padding: 10
                         }}>
-                            <TouchableHighlight
+                            <Pressable
                                 onPress={() => navigation.navigate('Receive')}
-                                underlayColor={Theme.selector}
-                                style={{
-                                    borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 20
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    }
                                 }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
@@ -254,7 +258,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                         {t('wallet.actions.receive')}
                                     </Text>
                                 </View>
-                            </TouchableHighlight>
+                            </Pressable>
                         </View>
                         <View style={{
                             flexGrow: 1, flexBasis: 0,
@@ -262,12 +266,14 @@ function WalletComponent(props: { wallet: WalletState }) {
                             borderRadius: 14,
                             padding: 10
                         }}>
-                            <TouchableHighlight
-                                onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })}
-                                underlayColor={Theme.selector}
-                                style={{
-                                    borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 20
+                            <Pressable
+                                onPress={() => navigation.navigateSimpleTransfer(nullTransfer)}
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    }
                                 }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
@@ -281,7 +287,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                     </View>
                                     <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                 </View>
-                            </TouchableHighlight>
+                            </Pressable>
                         </View>
                         <Animated.View
                             style={[{

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { ScrollView, View, StyleProp, ViewStyle } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useDimensions } from "@react-native-community/hooks";
@@ -32,6 +32,8 @@ export const WelcomeSlider = React.memo(({ style }: { style?: StyleProp<ViewStyl
     const dimensions = useDimensions();
     const slidesComponents = slides(AppConfig.isTestnet);
 
+    const scrollRef = useRef<ScrollView>(null);
+
     const [activeSlide, setActiveSlide] = React.useState(0);
 
     const onScroll = React.useCallback((event: any) => {
@@ -40,6 +42,19 @@ export const WelcomeSlider = React.memo(({ style }: { style?: StyleProp<ViewStyl
             setActiveSlide(slide);
         }
     }, [activeSlide]);
+
+    useEffect(() => {
+        const timerId = setTimeout(() => {
+            if (activeSlide < slidesComponents.length - 1) {
+                scrollRef.current?.scrollTo({ x: (activeSlide + 1) * dimensions.screen.width, animated: true });
+            } else {
+                scrollRef.current?.scrollTo({ x: 0, animated: true });
+            }
+        }, 3500);
+
+        return () => clearTimeout(timerId);
+
+    }, [activeSlide, slidesComponents.length]);
 
     return (
         <View style={[{ flex: 1 }, style]}>
@@ -64,6 +79,7 @@ export const WelcomeSlider = React.memo(({ style }: { style?: StyleProp<ViewStyl
                 )}
             </View>
             <ScrollView
+                ref={scrollRef}
                 horizontal={true}
                 pagingEnabled={true}
                 snapToAlignment={'center'}

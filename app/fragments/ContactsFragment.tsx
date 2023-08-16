@@ -91,7 +91,7 @@ export const ContactsFragment = fragment(() => {
                     flexGrow: 1,
                     alignItems: 'center',
                 }}>
-                    <Image style={{ marginTop: 80, flexShrink: 1 }} source={require('../../assets/banner_contacts.png')} />
+                    <Image style={{ flexShrink: 1 }} source={require('../../assets/banner_contacts.png')} />
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
@@ -112,6 +112,7 @@ export const ContactsFragment = fragment(() => {
                             {t('contacts.description')}
                         </Text>
                     </View>
+                    <View style={{ flexGrow: 1 }} />
                 </View>
             )}
             {(contactsList && contactsList.length > 0) && (

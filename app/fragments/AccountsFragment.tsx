@@ -121,15 +121,14 @@ export const AccountsFragment = fragment(() => {
                         marginBottom: 8,
                         textAlign: 'center',
                         color: Theme.textColor,
-                    }}
-                    >
+                    }}>
                         {t('accounts.noAccounts')}
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.priceSecondary
-                    }}
-                    >
+                        color: Theme.priceSecondary,
+                        textAlign: 'center',
+                    }}>
                         {t('accounts.description')}
                     </Text>
                 </View>

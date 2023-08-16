@@ -49,6 +49,14 @@ export const AccountSelectorFragment = fragment(() => {
             options,
             cancelButtonIndex,
         }, (selectedIndex?: number) => {
+
+            if (appState.addresses.length >= 3) {
+                if (selectedIndex === 1) {
+                    navigation.replace('Ledger');
+                }
+                return;
+            }
+            
             switch (selectedIndex) {
                 case 1:
                     navigation.replace('WalletCreate', { additionalWallet: true });

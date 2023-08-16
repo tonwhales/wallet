@@ -56,13 +56,19 @@ export const AccountSelectorFragment = fragment(() => {
                 }
                 return;
             }
-            
+
             switch (selectedIndex) {
                 case 1:
-                    navigation.replace('WalletCreate', { additionalWallet: true });
+                    navigation.goBack();
+                    setTimeout(() => {
+                        navigation.navigate('WalletCreate', { additionalWallet: true });
+                    }, 50);
                     break;
                 case 2:
-                    navigation.replace('WalletImport', { additionalWallet: true });
+                    navigation.goBack();
+                    setTimeout(() => {
+                        navigation.replace('WalletImport', { additionalWallet: true });
+                    }, 50);
                     break;
                 case 3:
                     navigation.replace('Ledger');

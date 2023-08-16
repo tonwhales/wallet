@@ -59,9 +59,9 @@ export const LegalFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: 'white',
+            backgroundColor: Theme.white,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
+            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) + 42 : 0,
         }}>
             <AndroidToolbar pageTitle={t('legal.title')} />
             {!isCreate && (
@@ -179,11 +179,11 @@ export const LegalFragment = systemFragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 paddingHorizontal: 16,
-                marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
+                marginBottom: 16,
                 alignSelf: 'stretch'
             }}>
                 <RoundButton loading={loading} title={t('common.continue')} onPress={onAccept} />
             </View>
-        </View >
+        </View>
     );
 });

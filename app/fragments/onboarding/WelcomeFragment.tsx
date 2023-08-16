@@ -34,7 +34,7 @@ export const WelcomeFragment = systemFragment(() => {
             <StatusBar style='dark' />
             <WelcomeSlider style={{ paddingTop: safeArea.top }} />
             <View style={{
-                height: 160, width: '100%',
+                width: '100%',
                 justifyContent: 'space-between',
                 padding: 16,
                 marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
@@ -42,7 +42,7 @@ export const WelcomeFragment = systemFragment(() => {
                 <RoundButton
                     title={t('welcome.createWallet')}
                     onPress={onCreatePressed}
-                    style={{ height: 56 }}
+                    style={{ height: 56, marginBottom: 16 }}
                 />
                 <RoundButton
                     title={t('welcome.importWallet')}

@@ -108,7 +108,7 @@ export const WalletCreateFragment = systemFragment(() => {
             style={{
                 flexGrow: 1,
                 paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) : 0
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) : 0
             }}
         >
             <StatusBar style={'dark'} />
@@ -185,10 +185,9 @@ export const WalletCreateFragment = systemFragment(() => {
                         flexGrow: 1,
                         alignSelf: 'stretch',
                         justifyContent: 'flex-end',
+                        padding: 16,
                         width: '100%',
-                        paddingVertical: 16,
-                        paddingHorizontal: 16,
-                        marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
+                        marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 8
                     }}>
                         <RoundButton
                             title={t('create.okSaved')}

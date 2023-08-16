@@ -656,7 +656,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             error: 'Incorrect PIN code',
             tryAgain: 'Try again',
             success: 'PIN code successfully set',
-            enterNew: 'Enter new PIN code',
+            enterNew: 'Create PIN code',
             confirmNew: 'Confirm new PIN code',
             enterCurrent: 'Enter your PIN code',
             enterPrevious: 'Enter your previous PIN code',

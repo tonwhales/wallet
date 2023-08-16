@@ -664,6 +664,8 @@ export type LocalizationSchema = {
             enterPrevious: string,
             enterNewDescription: string,
             changeLength: string,
+            forgotPasscode: string,
+            logoutAndReset: string,
         }
     },
     report: {

@@ -21,6 +21,7 @@ import * as Haptics from 'expo-haptics';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
 import { StatusBar } from 'expo-status-bar';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -30,11 +31,12 @@ export const WalletBackupFragment = systemFragment(() => {
     const init = route.name === 'WalletBackupInit';
     const reboot = useReboot();
     const back = route.params && (route.params as any).back === true;
-    const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
-    const address = React.useMemo(() => getBackup(), []);
+    const [mnemonics, setMnemonics] = useState<string[] | null>(null);
+    const address = useMemo(() => getBackup(), []);
     const engine = useEngine();
     const authContext = useKeysAuth();
-    const onComplete = React.useCallback(() => {
+
+    const onComplete = useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
@@ -50,10 +52,11 @@ export const WalletBackupFragment = systemFragment(() => {
             navigation.navigateAndReplaceAll('Home');
         }
     }, [engine]);
-    React.useEffect(() => {
+
+    useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: !init });
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -67,16 +70,9 @@ export const WalletBackupFragment = systemFragment(() => {
             deactivateKeepAwake('WalletBackupFragment')
         };
     }, []);
+
     if (!mnemonics) {
-        return (
-            <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item }}
-                exiting={FadeOutDown}
-                key={"loader"}
-            >
-                <ActivityIndicator color={Theme.loader} />
-            </Animated.View>
-        )
+        return null;
     }
 
     return (

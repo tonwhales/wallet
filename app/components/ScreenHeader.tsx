@@ -1,7 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
 import { ThemeType, useAppConfig } from "../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
@@ -26,7 +25,6 @@ export function useScreenHeader(
     useEffect(() => {
         navigation.setOptions({
             headerShown: options.headerShown,
-            // headerLargeTitle: options.headerLargeTitle,
             headerSearchBarOptions: options.headerSearchBarOptions,
             headerLeft: () => {
                 return (
@@ -78,7 +76,6 @@ export const ScreenHeader = React.memo((
         leftButton?: React.ReactNode,
     }
 ) => {
-    const safeArea = useSafeAreaInsets();
     const { Theme } = useAppConfig();
 
     return (
@@ -106,7 +103,7 @@ export const ScreenHeader = React.memo((
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,
-                            maxWidth: '70%'
+                            maxWidth: '60%'
                         }}
                             ellipsizeMode={'tail'}
                         >

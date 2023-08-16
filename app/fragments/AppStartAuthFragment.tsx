@@ -12,12 +12,12 @@ export const AppStartAuthFragment = fragment(() => {
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
 
     useEffect(() => {
         (async () => {
             try {
-                await authContext.authenticate({ backgroundColor: 'white', cancelable: false });
+                await authContext.authenticate({ backgroundColor: Theme.white, cancelable: false, showResetOnMaxAttempts: true });
                 const route = resolveOnboarding(engine, AppConfig.isTestnet, false);
                 navigation.navigateAndReplaceAll(route);
             } catch {

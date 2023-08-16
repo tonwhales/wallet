@@ -4,7 +4,6 @@ import { getCurrentAddress } from '../../storage/appState';
 import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
@@ -16,12 +15,13 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeaderFragment } from './views/WalletHeaderFragment';
 import { toNano } from 'ton';
+import BN from 'bn.js';
 
-function WalletComponent(props: { wallet: WalletState }) {
+function WalletComponent(props: { wallet: WalletState | null }) {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -66,7 +66,6 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
-            <StatusBar style={'light'} />
             <WalletHeaderFragment />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
@@ -109,7 +108,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 fontWeight: '500',
                                 lineHeight: 32,
                             }}>
-                                <ValueComponent precision={6} value={account.balance} />
+                                <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
                                 <Text style={{
                                     fontSize: 17,
                                     lineHeight: Platform.OS === 'ios' ? 24 : undefined,
@@ -145,7 +144,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                                 onPress={navigateToCurrencySettings}
                             >
                                 <PriceComponent
-                                    amount={account.balance}
+                                    amount={account?.balance ?? new BN(0)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                 />
                                 <PriceComponent
@@ -319,21 +318,10 @@ export const WalletFragment = fragment(() => {
     const navigation = useTypedNavigation();
     useTrackScreen('Wallet', engine.isTestnet);
 
-    useEffect(() => {
-        if (!account) {
-            navigation.setOptions({ tabBarStyle: { display: 'none' } });
-            return;
-        }
-        navigation.setOptions({ tabBarStyle: { display: 'flex' } });
-    }, [account, navigation]);
-    if (!account) {
-        return (
-            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <StatusBar style={'dark'} />
-                <LoadingIndicator />
-            </View>
-        );
-    } else {
-        return <WalletComponent wallet={account} />
-    }
+    return (
+        <>
+            <StatusBar style={'light'} />
+            <WalletComponent wallet={account} />
+        </>
+    );
 }, true);

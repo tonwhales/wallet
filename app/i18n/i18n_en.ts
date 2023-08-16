@@ -662,6 +662,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             enterPrevious: 'Enter your previous PIN code',
             enterNewDescription: 'Setting a password provides an additional layer of security when using the application',
             changeLength: 'Use {{length}}-digit PIN code',
+            forgotPasscode: 'Forgot PIN code?',
+            logoutAndReset: 'Log out and reset PIN code',
         }
     },
     report: {

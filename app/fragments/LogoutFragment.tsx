@@ -1,10 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import React from "react";
-import { Platform, View, Text, ScrollView, useWindowDimensions, Pressable } from "react-native";
+import { Platform, View, Text, useWindowDimensions, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
-import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { holdersUrl } from "../engine/holders/HoldersProduct";
 import { Engine, useEngine } from "../engine/Engine";
@@ -20,7 +18,6 @@ import { getAppState, getCurrentAddress } from "../storage/appState";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { Address } from "ton";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
-import { ScreenHeader } from "../components/ScreenHeader";
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);
@@ -45,15 +42,15 @@ export const LogoutFragment = fragment(() => {
     const engine = useEngine();
     const wallets = engine.products.wallets;
     const acc = getCurrentAddress();
-    const name = wallets.useWalletSettings(acc.address)?.name ?? t('common.wallet');
+    const appState = getAppState();
+    const name = wallets.useWalletSettings(acc.address)?.name ?? `${t('common.wallet')} ${appState.selected + 1}`;
 
 
     const onLogout = React.useCallback(async () => {
-        const appState = getAppState();
         const currentAddress = acc.address;
 
         try {
-            await authContext.authenticate({ cancelable: true });
+            await authContext.authenticate({ cancelable: true, showResetOnMaxAttempts: true });
         } catch (e) {
             navigation.goBack();
             return;
@@ -95,7 +92,6 @@ export const LogoutFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    // Create new wallet
                     onLogout();
                     break;
                 case cancelButtonIndex:
@@ -130,7 +126,7 @@ export const LogoutFragment = fragment(() => {
                     color: Theme.textColor,
                 }}
                 >
-                    {t('logout.title', { name })}
+                    {t('logout.title', { name: name.length > 20 ? name.slice(0, 10) + '...' + name.slice(-10) : name })}
                 </Text>
                 <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
                     {t('logout.logoutDescription')}

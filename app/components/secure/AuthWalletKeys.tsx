@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from 'react';
-import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut, FadeOutDown, FadeOutUp } from 'react-native-reanimated';
+import React, { useCallback, useEffect, useState } from 'react';
+import Animated, { FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
@@ -10,6 +10,10 @@ import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { storage } from '../../storage/storage';
+import { clearHolders } from '../../fragments/LogoutFragment';
+import { useReboot } from '../../utils/RebootContext';
+import { useEngine } from '../../engine/Engine';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 export type AuthParams = {
     backgroundColor?: string,
@@ -17,6 +21,7 @@ export type AuthParams = {
     cancelable?: boolean,
     useBiometrics?: boolean,
     passcodeLength?: number,
+    showResetOnMaxAttempts?: boolean,
 }
 
 export type AuthProps =
@@ -39,9 +44,14 @@ export type AuthWalletKeysType = {
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
+    const engine = useEngine();
+    const { showActionSheetWithOptions } = useActionSheet();
     const safeAreaInsets = useSafeAreaInsets();
     const { Theme } = useAppConfig();
+    const reboot = useReboot();
+
     const [auth, setAuth] = useState<AuthProps | null>(null);
+    const [attempts, setAttempts] = useState(0);
 
     const authenticate = useCallback(async (style?: AuthParams) => {
 
@@ -106,6 +116,40 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
         });
     }, [auth]);
 
+    const onFullReset = useCallback(() => {
+        storage.clearAll();
+        clearHolders(engine);
+        reboot();
+    }, [auth, engine]);
+
+    const fullResetActionSheet = React.useCallback(() => {
+        const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
+        const destructiveButtonIndex = 1;
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            title: t('confirm.logout.title'),
+            message: t('confirm.logout.message'),
+            options,
+            destructiveButtonIndex,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    onFullReset();
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
+    }, [onFullReset]);
+
+    useEffect(() => {
+        setAttempts(0);
+    }, [auth]);
+
     return (
         <AuthWalletKeysContext.Provider value={{ authenticate, authenticateWithPasscode }}>
             {props.children}
@@ -122,7 +166,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         },
                     ]}
                     exiting={FadeOutUp}
-                    entering={FadeInDown}
+                    entering={SlideInDown}
                 >
                     <PasscodeInput
                         style={{ marginTop: 49 }}
@@ -143,13 +187,32 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                                     auth.promise.resolve(keys);
                                 }
                             } catch {
-                                Alert.alert(t('security.passcodeSettings.error'));
-                                auth.promise.reject();
+                                setAttempts(attempts + 1);
+
+                                // Every 5 tries
+                                if (
+                                    attempts > 0 &&
+                                    attempts % 5 === 0
+                                ) {
+                                    auth.promise.reject();
+                                    setAuth(null);
+                                    return;
+                                }
+
+                                throw Error('Failed to load keys');
                             }
 
                             // Remove auth view
                             setAuth(null);
                         }}
+                        onLogoutAndReset={
+                            (auth.params?.showResetOnMaxAttempts
+                                && attempts > 0
+                                && attempts % 5 === 0
+                            )
+                                ? fullResetActionSheet
+                                : undefined
+                        }
                         passcodeLength={auth.params?.passcodeLength}
                         onRetryBiometrics={
                             (auth.params?.useBiometrics && auth.returns === 'keysOnly')

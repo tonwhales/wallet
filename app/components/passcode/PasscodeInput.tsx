@@ -21,7 +21,8 @@ export const PasscodeInput = React.memo((
         onRetryBiometrics,
         onEntered,
         passcodeLength = 6,
-        onPasscodeLengthChange
+        onPasscodeLengthChange,
+        onLogoutAndReset,
     }: {
         title?: string,
         description?: string,
@@ -30,6 +31,7 @@ export const PasscodeInput = React.memo((
         onEntered: (passcode: string | null) => Promise<void> | void,
         passcodeLength?: number,
         onPasscodeLengthChange?: (length: number) => void,
+        onLogoutAndReset?: () => void,
     }
 ) => {
     const { Theme } = useAppConfig();
@@ -213,9 +215,36 @@ export const PasscodeInput = React.memo((
                         >
                             <Text style={{
                                 fontSize: 15, lineHeight: 20,
-                                color: Theme.dangerZone
+                                color: Theme.accentRed
                             }}>
                                 {t('security.passcodeSettings.error')}
+                            </Text>
+                        </Animated.View>
+                    )}
+                    {!!onLogoutAndReset && (
+                        <Animated.View
+                            style={{
+                                position: 'absolute',
+                                top: 82, left: 0, right: 0,
+                                justifyContent: 'center', alignItems: 'center'
+                            }}
+                            entering={FadeIn}
+                            exiting={FadeOut}
+                        >
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20,
+                                color: Theme.darkGrey, marginBottom: 8
+                            }}>
+                                {t('security.passcodeSettings.forgotPasscode')}
+                            </Text>
+                            <Text
+                                style={{
+                                    fontSize: 15, lineHeight: 20,
+                                    color: Theme.accentRed
+                                }}
+                                onPress={onLogoutAndReset}
+                            >
+                                {t('security.passcodeSettings.logoutAndReset')}
                             </Text>
                         </Animated.View>
                     )}

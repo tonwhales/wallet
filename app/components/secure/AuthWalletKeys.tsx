@@ -9,7 +9,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { storage } from '../../storage/storage';
+import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
 import { clearHolders } from '../../fragments/LogoutFragment';
 import { useReboot } from '../../utils/RebootContext';
 import { useEngine } from '../../engine/Engine';
@@ -118,6 +118,9 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
 
     const onFullReset = useCallback(() => {
         storage.clearAll();
+        sharedStoragePersistence.clearAll();
+        storagePersistence.clearAll();
+
         clearHolders(engine);
         reboot();
     }, [auth, engine]);

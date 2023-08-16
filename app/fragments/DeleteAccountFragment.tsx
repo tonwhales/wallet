@@ -19,7 +19,7 @@ import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { KnownWallets } from "../secure/KnownWallets";
 import { getAppState, getCurrentAddress } from "../storage/appState";
-import { storage } from "../storage/storage";
+import { sharedStoragePersistence, storage, storagePersistence } from "../storage/storage";
 import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
@@ -218,6 +218,8 @@ export const DeleteAccountFragment = fragment(() => {
 
                             if (appState.addresses.length === 1) {
                                 storage.clearAll();
+                                sharedStoragePersistence.clearAll();
+                                storagePersistence.clearAll();
                                 clearHolders(engine);
                                 reboot();
                                 return;

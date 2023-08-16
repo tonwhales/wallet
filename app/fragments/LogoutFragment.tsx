@@ -9,7 +9,7 @@ import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { storage } from "../storage/storage";
+import { sharedStoragePersistence, storage, storagePersistence } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
@@ -62,6 +62,8 @@ export const LogoutFragment = fragment(() => {
 
         if (appState.addresses.length === 1) {
             storage.clearAll();
+            sharedStoragePersistence.clearAll();
+            storagePersistence.clearAll();
             clearHolders(engine);
             reboot();
             return;

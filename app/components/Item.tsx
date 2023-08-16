@@ -31,9 +31,14 @@ export const ItemSwitch = React.memo((props: {
             onPress={() => {
                 props.onChange(!props.value);
             }}
-            style={{ flexGrow: 1, alignItems: 'center', flexDirection: 'row', padding: 20, justifyContent: 'space-between' }}
+            style={{
+                flexGrow: 1,
+                alignItems: 'center', justifyContent: 'space-between',
+                flexDirection: 'row',
+                padding: 20,
+            }}
         >
-            <View style={{ flexDirection: 'row' }}>
+            <View style={{ flexDirection: 'row', flexShrink: 1, alignItems: 'center' }}>
                 {props.leftIcon && (<Image style={{ height: 24, width: 24, marginRight: 13 }} source={props.leftIcon} />)}
                 {!!props.leftIconComponent && (
                     <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center', marginRight: 13 }}>

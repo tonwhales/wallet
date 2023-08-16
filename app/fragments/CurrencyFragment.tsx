@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEngine } from "../engine/Engine";
@@ -14,6 +14,7 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import Animated from "react-native-reanimated";
 
 import IcCheck from "../../assets/ic-check.svg";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -36,19 +37,29 @@ export const CurrencyFragment = fragment(() => {
         [currency],
     );
 
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            navigation.setOptions({
+                headerShown: true,
+                title: t('settings.primaryCurrency'),
+            });
+        }
+    }, [navigation]);
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader
-                title={t('settings.primaryCurrency')}
-                onBackPressed={navigation.goBack}
+            <StatusBar style={'dark'} />
+            <AndroidToolbar
+                onBack={navigation.goBack}
+                style={{ height: 44, marginTop: 16 }}
+                pageTitle={t('settings.primaryCurrency')}
             />
             <ScrollView
                 style={{ marginTop: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 16 }}
+                contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
             >
                 <View style={{
                     backgroundColor: Theme.item,

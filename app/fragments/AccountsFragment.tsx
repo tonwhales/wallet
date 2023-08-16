@@ -15,6 +15,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { JettonProductItem } from "../components/products/JettonProductItem";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemGroup } from "../components/ItemGroup";
+import { useRoute } from "@react-navigation/native";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -43,6 +44,8 @@ export const AccountsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const engine = useEngine();
+    const route = useRoute();
+    const inSettings = route.name === 'AccountsSettings';
 
     const jettons = engine.products.main.useJettons();
     const active = jettons.filter((j) => !j.disabled);
@@ -69,22 +72,36 @@ export const AccountsFragment = fragment(() => {
     const anim = useRef<LottieView>(null);
     useLayoutEffect(() => {
         if (Platform.OS === 'ios') {
+            if (inSettings) {
+                navigation.setOptions({
+                    headerShown: true,
+                    title: t('products.accounts'),
+                })
+            }
             setTimeout(() => {
                 anim.current?.play()
             }, 300);
         }
-    }, []);
+    }, [navigation]);
 
     return (
         <View style={{
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader
-                title={t('products.accounts')}
-                onClosePressed={navigation.goBack}
-            />
+            <StatusBar style={(Platform.OS === 'ios' && !inSettings) ? 'light' : 'dark'} />
+            {!inSettings ? (
+                <ScreenHeader
+                    title={t('products.accounts')}
+                    onClosePressed={navigation.goBack}
+                />
+            ) : (
+                <AndroidToolbar
+                    onBack={navigation.goBack}
+                    style={{ height: 44, marginTop: 16 }}
+                    pageTitle={t('products.accounts')}
+                />
+            )}
             {jettons.length === 0 && (
                 <View style={{
                     flex: 1,

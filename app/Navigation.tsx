@@ -182,11 +182,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
-    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
-    modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('Contact', ContactFragment, safeArea),
-    modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
@@ -201,7 +197,6 @@ const navigation = (safeArea: EdgeInsets) => [
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />,
-    modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
@@ -209,6 +204,14 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
+
+    // Settings
+    genericScreen('Security', SecurityFragment, safeArea),
+    genericScreen('AccountsSettings', AccountsFragment, safeArea),
+    genericScreen('Contacts', ContactsFragment, safeArea),
+    genericScreen('Contact', ContactFragment, safeArea),
+    genericScreen('SpamFilter', SpamFilterFragment, safeArea),
+    genericScreen('Currency', CurrencyFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),
@@ -238,12 +241,12 @@ export const Navigation = memo(() => {
     const safeArea = useSafeAreaInsets();
     const { AppConfig, NavigationTheme, Theme } = useAppConfig();
     const engine = useEngine();
-    
+
     const initial = useMemo(() => {
         const onboarding = resolveOnboarding(engine, AppConfig.isTestnet, true);
         return onboarding;
     }, []);
-    
+
     // Splash
     const [hideSplash, setHideSplash] = useState(false);
     const onMounted = useMemo(() => {

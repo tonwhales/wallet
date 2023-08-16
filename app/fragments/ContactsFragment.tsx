@@ -69,7 +69,6 @@ export const ContactsFragment = fragment(() => {
                     </Text>
                 </Pressable>
             ),
-            onBackPressed: navigation.goBack,
             headerSearchBarOptions: {
                 hideWhenScrolling: false,
                 hideNavigationBar: false,
@@ -85,7 +84,7 @@ export const ContactsFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
 
             {(!contactsList || contactsList.length === 0) && (
                 <View style={{

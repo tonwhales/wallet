@@ -249,9 +249,6 @@ export const ContactFragment = fragment(() => {
                     </Text>
                 </Pressable>
             ),
-            onBackPressed: (editing && !params.isNew)
-                ? reset
-                : navigation.goBack,
         }
     );
 
@@ -260,7 +257,7 @@ export const ContactFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={'dark'} />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}

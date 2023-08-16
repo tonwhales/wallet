@@ -141,7 +141,7 @@ export const SettingsFragment = fragment(() => {
                     <ItemButton
                         leftIconComponent={<Accounts width={24} height={24} />}
                         title={t('products.accounts')}
-                        onPress={() => navigation.navigate('Accounts')}
+                        onPress={() => navigation.navigate('AccountsSettings')}
                     />
                 </View>
 

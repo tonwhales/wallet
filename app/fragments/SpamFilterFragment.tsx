@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "ton";
@@ -46,8 +46,7 @@ export const SpamFilterFragment = fragment(() => {
                 try {
                     let parsed = Address.parseFriendly(addr);
                     settings.removeFromDenyList(parsed.address);
-                } catch (e) {
-                    console.warn(e);
+                } catch {
                     Alert.alert(t('transfer.error.invalidAddress'));
                     return;
                 }
@@ -88,13 +87,27 @@ export const SpamFilterFragment = fragment(() => {
 
     const disabled = dontShowComments === dontShow && minValue === fromNano(min);
 
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            navigation.setOptions({
+                headerShown: true,
+                title: t('settings.spamFilter'),
+            });
+        }
+    }, [navigation]);
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader title={t('settings.spamFilter')} onClosePressed={navigation.goBack} />
+            <StatusBar style={'dark'} />
+            <AndroidToolbar
+                onBack={navigation.goBack}
+                style={{ height: 44, marginTop: 16 }}
+                pageTitle={t('settings.spamFilter')}
+            />
             <ScrollView>
                 <View style={{
                     marginBottom: 16, marginTop: 17,

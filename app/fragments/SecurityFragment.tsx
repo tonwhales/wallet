@@ -10,7 +10,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
 import TouchIos from '../../assets/ic_touch_ios.svg';
@@ -83,20 +83,31 @@ export const SecurityFragment = fragment(() => {
         }
 
     }, [biometricsState, deviceEncryption, passcodeState]);
-
-    useEffect(() => {
+    
+    useLayoutEffect(() => {
         (async () => {
             const encryption = await getDeviceEncryption();
             setDeviceEncryption(encryption);
         })();
-    }, []);
+
+        if (Platform.OS === 'ios') {
+            navigation.setOptions({
+                headerShown: true,
+                title: t('security.title'),
+            });
+        }
+    }, [navigation]);
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <ScreenHeader onBackPressed={navigation.goBack} title={t('security.title')} />
+            <AndroidToolbar
+                onBack={navigation.goBack}
+                style={{ height: 44, marginTop: 16 }}
+                pageTitle={t('security.title')}
+            />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{

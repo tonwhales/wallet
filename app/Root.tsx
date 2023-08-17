@@ -11,6 +11,7 @@ export const Root = React.memo(() => {
     const reboot = React.useCallback(() => {
         setSessionId((s) => s + 1);
     }, [setSessionId]);
+    
     return (
         <Animated.View
             key={'session-' + sessionId}

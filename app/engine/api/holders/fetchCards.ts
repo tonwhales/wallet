@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from "io-ts";
-import { holdersEndpoint } from "../../holders/HoldersProduct";
+import { holdersEndpoint } from "../../legacy/holders/HoldersProduct";
 import { Address } from "ton";
 
 export const cardListPublicCodec = t.union([

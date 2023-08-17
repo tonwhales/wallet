@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { holdersEndpoint } from '../../holders/HoldersProduct';
+import { holdersEndpoint } from '../../legacy/holders/HoldersProduct';
 
 export async function fetchAccountToken(config: {
     address: string,

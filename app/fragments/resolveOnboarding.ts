@@ -1,5 +1,4 @@
 import { canUpgradeAppState, getAppState, getCurrentAddress, isAddressSecured } from "../storage/appState";
-import { Engine } from "../engine/Engine";
 import { storage } from "../storage/storage";
 import { PasscodeState, getPasscodeState, loadKeyStorageType } from "../storage/secureStorage";
 
@@ -11,7 +10,7 @@ function isPasscodeSetupShown(): boolean {
 
 type OnboardingState = 'welcome' | 'upgrade-store' | 'passcode-setup' | 'backup' | 'sync' | 'home' | 'android-key-store-migration';
 
-export function resolveOnboarding(engine: Engine | null, isTestnet: boolean): OnboardingState {
+export function resolveOnboarding(isTestnet: boolean): OnboardingState {
     const state = getAppState();
     const wasPasscodeSetupShown = isPasscodeSetupShown();
 

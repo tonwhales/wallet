@@ -1,16 +1,16 @@
 import * as React from 'react';
 import { GlobalLoaderProvider } from './components/useGlobalLoader';
-import { Host } from 'react-native-portalize';
-import { Context } from 'react-native-portalize/lib/Host';
-import { PriceLoader } from './engine/PriceContext';
+import { PriceLoader } from './engine/legacy/PriceContext';
 import { useRoute } from '@react-navigation/native';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useAppConfig } from './utils/AppConfigContext';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
 
-export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
-    return React.memo((props) => {
-        const ctx = React.useContext(Context);
+export function fragment<T>(
+    Component: React.ComponentType<T>, 
+    doNotTrack?: boolean
+): React.ComponentType<React.PropsWithRef<T & JSX.IntrinsicAttributes>> {
+    return React.memo((props: T & JSX.IntrinsicAttributes) => {
         const { AppConfig } = useAppConfig();
 
         const route = useRoute();
@@ -19,24 +19,11 @@ export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?:
             useTrackScreen(name, AppConfig.isTestnet);
         }
 
-        if (ctx) {
-            return (
-                <GlobalLoaderProvider>
-                    <AuthWalletKeysContextProvider>
-                        <PriceLoader>
-                            <Component {...props} />
-                        </PriceLoader>
-                    </AuthWalletKeysContextProvider>
-                </GlobalLoaderProvider>
-            );
-        }
         return (
             <GlobalLoaderProvider>
                 <AuthWalletKeysContextProvider>
                     <PriceLoader>
-                        <Host>
-                            <Component {...props} />
-                        </Host>
+                        <Component {...props} />
                     </PriceLoader>
                 </AuthWalletKeysContextProvider>
             </GlobalLoaderProvider>

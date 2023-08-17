@@ -4,7 +4,7 @@ import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
-import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
 import { useItem } from "../../../engine/persistence/PersistedItem";
 import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
 import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";

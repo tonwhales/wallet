@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { holdersEndpoint } from '../../holders/HoldersProduct';
+import { holdersEndpoint } from '../../legacy/holders/HoldersProduct';
 import * as t from "io-ts";
 
 export type AccountState = t.TypeOf<typeof accountStateCodec>;

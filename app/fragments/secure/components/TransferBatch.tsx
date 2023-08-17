@@ -5,7 +5,7 @@ import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNan
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
-import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
 import { useItem } from "../../../engine/persistence/PersistedItem";
 import { usePrice } from "../../../engine/PriceContext";
 import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";

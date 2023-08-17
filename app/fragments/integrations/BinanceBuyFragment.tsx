@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo, useState } from "react";
-import { View, Text, Platform, Pressable } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { View, Text, Platform, Pressable, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -11,6 +11,8 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import Animated, { FadeOut } from "react-native-reanimated";
+import { extractDomain } from "../../engine/utils/extractDomain";
+import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
 
 export const BinanceBuyFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -35,6 +37,16 @@ export const BinanceBuyFragment = fragment(() => {
 
     const main = `https://app-dev.mass-network.com?${queryParams.toString()}`;
 
+    const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
+        if (extractDomain(event.url) === extractDomain(main)) {
+            return true;
+        }
+
+        // Open links in external browser
+        Linking.openURL(event.url);
+        return false;
+    }, [main]);
+
     if (!AppConfig.isTestnet) {
         return (
             <View style={{
@@ -50,6 +62,7 @@ export const BinanceBuyFragment = fragment(() => {
             </View>
         );
     }
+
 
     return (
         <View style={{
@@ -82,6 +95,7 @@ export const BinanceBuyFragment = fragment(() => {
                     source={{ uri: main }}
                     onLoadStart={() => setloading(true)}
                     onLoadEnd={() => setloading(false)}
+                    onShouldStartLoadWithRequest={loadWithRequest}
                 />
                 {loading && (
                     <Animated.View

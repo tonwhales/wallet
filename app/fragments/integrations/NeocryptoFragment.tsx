@@ -146,22 +146,6 @@ export const ConfirmLegal = React.memo((
 export const NeocryptoFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
 
-    if (AppConfig.isTestnet) {
-        return (
-            <View style={{
-                flexGrow: 1,
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    color: Theme.textColor
-                }}>
-                    {'Neocrypto service availible only on mainnet'}
-                </Text>
-            </View>
-        );
-    }
-
     const params = useParams<{
         amount?: string,
         fix_amount?: 'true' | 'false'
@@ -189,6 +173,22 @@ export const NeocryptoFragment = fragment(() => {
     const onOpenBuy = useCallback(() => {
         setAccepted(true);
     }, []);
+
+    if (AppConfig.isTestnet) {
+        return (
+            <View style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    color: Theme.textColor
+                }}>
+                    {'Neocrypto service availible only on mainnet'}
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <View style={{

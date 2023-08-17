@@ -74,7 +74,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                 onScroll={onScroll}
                 scrollEventThrottle={16}
                 decelerationRate={'normal'}
-                alwaysBounceVertical={false}
+                alwaysBounceVertical={true}
             >
                 <View
                     style={[

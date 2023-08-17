@@ -7,15 +7,14 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { StatusBar } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeaderFragment } from './views/WalletHeaderFragment';
 import { toNano } from 'ton';
@@ -307,6 +306,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                     </View>
                 </View>
                 <ProductsComponent />
+                <View style={{ height: 100, width: '100%', backgroundColor: Theme.white }} />
             </Animated.ScrollView>
         </View>
     );

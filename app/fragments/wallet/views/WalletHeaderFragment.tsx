@@ -114,6 +114,8 @@ export const WalletHeaderFragment = memo(() => {
                                 size={14}
                                 color={Theme.white}
                                 loop
+                                infinitRotate
+                                progress={0.8}
                             />
                         )}
                         {syncState === 'connecting' && (

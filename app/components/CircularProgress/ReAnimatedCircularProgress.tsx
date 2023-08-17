@@ -1,7 +1,7 @@
 import { StyleProp, View, ViewStyle } from "react-native";
 
 import { Svg, Circle } from 'react-native-svg';
-import Animated, { Easing, useAnimatedProps, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, interpolate, useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { memo, useEffect } from "react";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -12,16 +12,25 @@ export const ReAnimatedCircularProgress = memo(({
     strokeWidth,
     color,
     progress,
-    loop
+    loop,
+    infinitRotate
 }: {
     size: number,
     style?: StyleProp<ViewStyle>,
     strokeWidth?: number,
     color?: string,
     progress?: number,
-    loop?: boolean
+    loop?: boolean,
+    infinitRotate?: boolean
 }) => {
-    const progressCircle = useSharedValue(progress ? (progress - 1) : 1);
+    const progressCircle = useSharedValue(progress !== undefined ? (progress - 1) : 1);
+    const rotation = useSharedValue(0);
+
+    const animatedRotation = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${ rotation.value * 360}deg` }],
+        }
+    }, []);
 
     const Circle_Length = 2 * Math.PI * (size / 2);
     const Radius = Circle_Length / (2 * Math.PI);
@@ -40,24 +49,31 @@ export const ReAnimatedCircularProgress = memo(({
     }
 
     useEffect(() => {
-        if (loop) {
+        if (loop && !infinitRotate) {
             animateLoop();
+        }
+        if (infinitRotate) {
+            rotation.value = withRepeat(
+                withTiming(rotation.value + 1, { duration: 1500, easing: Easing.linear }),
+                -1,
+            );
         }
     }, []);
 
     useEffect(() => {
         if (progress !== undefined) {
-            progressCircle.value = withSpring(progress, { duration: 500 })
+            progressCircle.value = withSpring((progress - 1), { duration: 500 })
         }
     }, [progress]);
 
     return (
-        <View style={[{
+        <Animated.View style={[{
             height: size + 4,
             width: size + 4,
             justifyContent: 'center', alignItems: 'center'
         },
-            style
+            style,
+            animatedRotation
         ]}>
             <Svg
                 height={size + 2}
@@ -80,7 +96,6 @@ export const ReAnimatedCircularProgress = memo(({
                     strokeLinecap="round"
                 />
             </Svg>
-        </View>
-
+        </Animated.View>
     );
 })

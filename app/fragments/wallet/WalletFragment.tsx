@@ -166,12 +166,9 @@ function WalletComponent(props: { wallet: WalletState }) {
         }
     };
 
-    const onOpenBuy = React.useCallback(
-        () => {
-            navigation.navigate('Buy');
-        },
-        [],
-    );
+
+    const onOpenBuy = React.useCallback(() => navigation.navigate('Buy'), []);
+    const onOpenBinanceBuy = React.useCallback(() => navigation.navigate('BinanceBuy'), []);
 
     const openGraph = React.useCallback(() => {
         if (balanceChart && balanceChart.chart.length > 0) {
@@ -341,6 +338,18 @@ function WalletComponent(props: { wallet: WalletState }) {
                             </View>
                         )
                     }
+                    {AppConfig.isTestnet && (
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
+                            <TouchableHighlight onPress={onOpenBinanceBuy} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
+                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
+                                    <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                        <Image source={require('../../../assets/ic_buy.png')} />
+                                    </View>
+                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('wallet.actions.buy')}</Text>
+                                </View>
+                            </TouchableHighlight>
+                        </View>
+                    )}
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: Theme.item, borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={Theme.selector} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>

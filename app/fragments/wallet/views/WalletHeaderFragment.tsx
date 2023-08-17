@@ -89,7 +89,7 @@ export const WalletHeaderFragment = memo(() => {
                 </Pressable>
                 <Pressable
                     onPress={onAccountPress}
-                    style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}
+                    style={{ flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%' }}
                 >
                     <View style={{
                         flexDirection: 'row',
@@ -101,7 +101,7 @@ export const WalletHeaderFragment = memo(() => {
                             style={{
                                 fontWeight: '500',
                                 fontSize: 17, lineHeight: 24,
-                                color: Theme.white, maxWidth: '90%', flexShrink: 1,
+                                color: Theme.white, flexShrink: 1,
                                 marginRight: 8
                             }}
                             ellipsizeMode='tail'

@@ -63,7 +63,6 @@ export const BinanceBuyFragment = fragment(() => {
         );
     }
 
-
     return (
         <View style={{
             flex: 1,
@@ -95,6 +94,7 @@ export const BinanceBuyFragment = fragment(() => {
                     source={{ uri: main }}
                     onLoadStart={() => setloading(true)}
                     onLoadEnd={() => setloading(false)}
+                    autoManageStatusBarEnabled={false}
                     onShouldStartLoadWithRequest={loadWithRequest}
                 />
                 {loading && (

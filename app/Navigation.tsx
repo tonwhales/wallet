@@ -233,8 +233,8 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 
     // Holders
-    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea),
-    genericScreen('Holders', HoldersAppFragment, safeArea),
+    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
+    genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
 ];
 
 export const Navigation = memo(() => {

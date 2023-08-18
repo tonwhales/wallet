@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import Animated, { FadeOutUp, SlideInDown } from 'react-native-reanimated';
+import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown, Keyframe } from 'react-native-reanimated';
 import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
@@ -15,6 +15,11 @@ import { useReboot } from '../../utils/RebootContext';
 import { useEngine } from '../../engine/Engine';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 
+type EnteringAnimation = BaseAnimationBuilder
+    | typeof BaseAnimationBuilder
+    | EntryExitAnimationFunction
+    | Keyframe
+
 export type AuthParams = {
     backgroundColor?: string,
     paddingTop?: number,
@@ -22,6 +27,8 @@ export type AuthParams = {
     useBiometrics?: boolean,
     passcodeLength?: number,
     showResetOnMaxAttempts?: boolean,
+    description?: string,
+    enteringAnimation?: EnteringAnimation,
 }
 
 export type AuthProps =
@@ -169,11 +176,12 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         },
                     ]}
                     exiting={FadeOutUp}
-                    entering={SlideInDown}
+                    entering={auth.params?.enteringAnimation || SlideInDown}
                 >
                     <PasscodeInput
                         style={{ marginTop: 49 }}
                         title={t('security.passcodeSettings.enterCurrent')}
+                        description={auth.params?.description}
                         onEntered={async (pass) => {
                             if (!pass) {
                                 auth.promise.reject();

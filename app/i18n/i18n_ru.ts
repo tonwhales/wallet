@@ -829,6 +829,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     webView: {
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
+    },
+    appAuth: {
+        description: 'Чтобы продолжить вход в приложение',
     }
 };
 

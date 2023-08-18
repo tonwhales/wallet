@@ -830,6 +830,9 @@ export type LocalizationSchema = {
     webView: {
         contactSupportOrTryToReload: string,
         contactSupport: string,
+    },
+    appAuth: {
+        description: string,
     }
 };
 

@@ -29,7 +29,7 @@ import { WImage } from "../../../components/WImage";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { AddressComponent } from "../../../components/AddressComponent";
+import { AddressComponent } from "../../../components/address/AddressComponent";
 
 import IcAlert from '../../../../assets/ic-alert.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';

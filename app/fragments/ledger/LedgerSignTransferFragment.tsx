@@ -28,19 +28,9 @@ import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
-import TonSign from '../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../assets/ic_transfer_to.svg';
-import Contact from '../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../assets/ic_sign_staking.svg';
-import Question from '../../../assets/ic_question.svg';
 import { PriceComponent } from '../../components/PriceComponent';
 import { Avatar } from '../../components/Avatar';
-import { AddressComponent } from '../../components/AddressComponent';
+import { AddressComponent } from '../../components/address/AddressComponent';
 import { ItemCollapsible } from '../../components/ItemCollapsible';
 import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
@@ -58,13 +48,20 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 
+import TonSign from '../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../assets/ic_transfer_to.svg';
+import Contact from '../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../assets/ic_verified.svg';
+import TonSignGas from '../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../assets/ic_sign_lock.svg';
+import WithStateInit from '../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
+import Staking from '../../../assets/ic_sign_staking.svg';
+import Question from '../../../assets/ic_question.svg';
+
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
     text: string | null,
-}
-
-export type ATextInputRef = {
-    focus: () => void;
 }
 
 type ConfirmLoadedProps = {

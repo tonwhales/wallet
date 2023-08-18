@@ -5,6 +5,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 
 export type ATextInputRef = {
     focus: () => void;
+    blur?: () => void;
 }
 
 export interface ATextInputProps {
@@ -218,11 +219,11 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         onBlur={onBlur}
                         onSubmitEditing={onSubmit}
                     />
-                    {props.actionButtonRight && (
-                        props.actionButtonRight
-                    )}
                 </View>
             </View>
+            {props.actionButtonRight && (
+                props.actionButtonRight
+            )}
         </View>
     )
 }));

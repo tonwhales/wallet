@@ -4,7 +4,7 @@ import { Image, NativeSyntheticEvent, Platform, Pressable, Share, Text, useWindo
 import { Address } from 'ton';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
-import { AddressComponent } from '../../../components/AddressComponent';
+import { AddressComponent } from '../../../components/address/AddressComponent';
 import { TouchableHighlight } from 'react-native';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';

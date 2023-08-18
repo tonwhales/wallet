@@ -12,6 +12,9 @@ import { useEngine } from "../../engine/Engine";
 import { copyText } from "../../utils/copyText";
 import { StatusBar } from "expo-status-bar";
 
+import Clear from '../../../assets/ic-clear.svg';
+import Animated from "react-native-reanimated";
+
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
@@ -108,38 +111,51 @@ export const WalletSettingsFragment = fragment(() => {
                         backgroundColor: Theme.lightGrey,
                         paddingHorizontal: 20, marginTop: 20,
                         paddingVertical: 10,
-                        width: '100%', borderRadius: 20
+                        width: '100%', borderRadius: 20,
+                        flexDirection: 'row', alignItems: 'center',
                     }}>
-                        <View style={{
-                            width: '100%',
-                            overflow: 'hidden',
-                        }}>
-                            <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                                {t('common.walletName')}
-                            </Text>
+                        <View style={{ flexGrow: 1 }}>
+                            <View style={{
+                                width: '100%',
+                                overflow: 'hidden',
+                            }}>
+                                <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                    {t('common.walletName')}
+                                </Text>
+                            </View>
+                            <TextInput
+                                style={[
+                                    {
+                                        paddingHorizontal: 0,
+                                        paddingVertical: 0,
+                                        includeFontPadding: false,
+                                        textAlignVertical: 'center',
+                                        fontSize: 17, lineHeight: 24,
+                                        fontWeight: '400', color: Theme.textColor,
+                                        paddingTop: 0,
+                                        paddingBottom: 0
+                                    }
+                                ]}
+                                maxLength={64}
+                                placeholder={t('common.walletName')}
+                                placeholderTextColor={Theme.placeholder}
+                                multiline={true}
+                                blurOnSubmit={true}
+                                editable={true}
+                                value={name}
+                                onChangeText={setName}
+                            />
                         </View>
-                        <TextInput
-                            style={[
-                                {
-                                    paddingHorizontal: 0,
-                                    paddingVertical: 0,
-                                    includeFontPadding: false,
-                                    textAlignVertical: 'center',
-                                    fontSize: 17, lineHeight: 24,
-                                    fontWeight: '400', color: Theme.textColor,
-                                    paddingTop: 0,
-                                    paddingBottom: 0
-                                }
-                            ]}
-                            maxLength={64}
-                            placeholder={t('common.walletName')}
-                            placeholderTextColor={Theme.placeholder}
-                            multiline={true}
-                            blurOnSubmit={true}
-                            editable={true}
-                            value={name}
-                            onChangeText={setName}
-                        />
+                        {name.length > 0 && (
+                            <Animated.View>
+                                <Pressable
+                                    onPress={() => setName('')}
+                                    style={{ height: 24, width: 24, marginLeft: 8 }}
+                                >
+                                    <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Pressable>
+                            </Animated.View>
+                        )}
                     </View>
                     <View style={{
                         backgroundColor: Theme.lightGrey,

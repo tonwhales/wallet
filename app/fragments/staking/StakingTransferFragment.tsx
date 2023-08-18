@@ -7,7 +7,7 @@ import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, fromNano, toNano } from 'ton';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { ATextInput } from '../../components/ATextInput';
+import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
@@ -30,16 +30,6 @@ import { useRoute } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
 import { useMemo } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
-
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    fontSize: 17
-};
-
-export type ATextInputRef = {
-    focus: () => void;
-    blur: () => void;
-}
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 

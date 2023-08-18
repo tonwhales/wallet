@@ -1,6 +1,6 @@
 import { Text } from "react-native";
 import { Address } from "ton";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export function AddressComponent(props: { address: Address, start?: number, end?: number }) {
     const { AppConfig } = useAppConfig();

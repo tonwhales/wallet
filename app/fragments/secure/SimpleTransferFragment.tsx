@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeInDown, FadeOut, FadeOutDown, FadeIn } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
@@ -24,16 +24,17 @@ import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
-import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { WImage } from '../../components/WImage';
+import { AddressSearch } from '../../components/address/AddressSearch';
 
 import Verified from '../../../assets/ic-verified.svg';
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import Chevron from '../../../assets/ic_chevron_forward.svg';
+import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -66,13 +67,24 @@ export const SimpleTransferFragment = fragment(() => {
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = useState<BN | null>(null);
-    const [jetton, setJetton] = useState<Address | null>(params?.jetton || null); // master/wallet address
+    const [jetton, setJetton] = useState<Address | null>(params?.jetton || null);
+
+    const targetAddressValid = useMemo(() => {
+        if (target.length > 48) {
+            return false;
+        }
+        try {
+            Address.parseFriendly(target);
+            return true;
+        } catch {
+            return false;
+        }
+    }, [target]);
 
     const jettonState = useMemo(() => {
         if (!jetton) {
             return null;
         }
-
 
         let wallet = engine.persistence.jettonWallets.item(jetton).value;
         let master = null;
@@ -372,7 +384,7 @@ export const SimpleTransferFragment = fragment(() => {
         setSelectedInput(null);
     }, []);
 
-    const onAssetSelected = useCallback((selected?: {master: Address, wallet: Address}) => {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
         if (selected) {
             setJetton(selected.wallet);
             return;
@@ -455,10 +467,36 @@ export const SimpleTransferFragment = fragment(() => {
         })
     }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
 
+    const [selected, inputContinue, inputBack] = useMemo(() => {
+        const resetInput = () => {
+            Keyboard.dismiss();
+            setSelectedInput(null);
+        };
+        if (selectedInput === null) {
+            return [null, null, null];
+        }
+        if (selectedInput === 0) {
+            return ['amount', resetInput, resetInput];
+        }
+        if (selectedInput === 1) {
+            return ['address', targetAddressValid ? resetInput : null, resetInput];
+        }
+        if (selectedInput === 2) {
+            return ['comment', resetInput, resetInput];
+        }
+        return [null, null, null];
+    }, [selectedInput, targetAddressValid]);
+
+    console.log(target.length, targetAddressValid);
+
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader title={t('transfer.title')} onClosePressed={navigation.goBack} />
+            <ScreenHeader
+                title={t('transfer.title')}
+                onClosePressed={navigation.goBack}
+                onBackPressed={inputBack ? inputBack : undefined}
+            />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom - 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
@@ -474,7 +512,7 @@ export const SimpleTransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    {selectedInput === null && (
+                    {!selected && (
                         <Animated.View
                             layout={Layout.duration(300)}
                             style={{
@@ -550,7 +588,7 @@ export const SimpleTransferFragment = fragment(() => {
                             </Pressable>
                         </Animated.View>
                     )}
-                    {(selectedInput === null || selectedInput === 0) && (
+                    {(!selected || selected === 'amount') && (
                         <Animated.View
                             layout={Layout.duration(300)}
                             style={{
@@ -623,7 +661,7 @@ export const SimpleTransferFragment = fragment(() => {
                             />
                         </Animated.View>
                     )}
-                    {(selectedInput === null || selectedInput === 1) && (
+                    {(!selected || selected === 'address') && (
                         <Animated.View
                             layout={Layout.duration(300)}
                             style={{
@@ -640,15 +678,17 @@ export const SimpleTransferFragment = fragment(() => {
                                 onTargetChange={setTarget}
                                 onDomainChange={setDomain}
                                 style={{
-                                    margin: 0, padding: 20, paddingTop: 10,
+                                    margin: 0, padding: 20,
                                     paddingHorizontal: 20,
                                     backgroundColor: Theme.lightGrey,
+                                    alignItems: 'center',
                                 }}
                                 inputStyle={{
                                     flexShrink: 1,
                                     marginHorizontal: 0, marginVertical: 0,
                                     paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    fontSize: 17, lineHeight: 24,
+                                    paddingLeft: 0, paddingRight: 0,
+                                    fontSize: 17,
                                     fontWeight: '400', color: Theme.textColor,
                                     textAlignVertical: 'center',
                                 }}
@@ -657,10 +697,26 @@ export const SimpleTransferFragment = fragment(() => {
                                 contact={contact}
                                 onQRCodeRead={onQRCodeRead}
                                 onBlur={onBlur}
+                                invalid={!targetAddressValid}
                             />
+                            {selected === 'address' && (
+                                <Animated.View
+                                    style={{ marginTop: 32 }}
+                                    entering={FadeIn} exiting={FadeOut}
+                                >
+                                    <AddressSearch
+                                        onSelect={(address) => {
+                                            setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                            setSelectedInput(null);
+                                            Keyboard.dismiss();
+                                        }}
+                                        query={addressDomainInput}
+                                    />
+                                </Animated.View>
+                            )}
                         </Animated.View>
                     )}
-                    {(selectedInput === null || selectedInput === 2) && (
+                    {(!selected || selected === 'comment') && (
                         <Animated.View layout={Layout.duration(300)}>
                             <ATextInput
                                 value={comment}
@@ -701,22 +757,21 @@ export const SimpleTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
                 </View>
+                <View style={{ height: 56 }} />
             </Animated.ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={{
                     marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
+                    marginBottom: safeArea.bottom + 32,
                 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.bottom + 32 : 16}
             >
-                {selectedInput !== null
+                {!!selected
                     ? <RoundButton
                         title={t('common.continue')}
-                        onPress={() => {
-                            setSelectedInput(null);
-                            Keyboard.dismiss();
-                        }}
+                        disabled={!inputContinue}
+                        onPress={inputContinue ? inputContinue : undefined}
                     />
                     : <RoundButton
                         disabled={!order}

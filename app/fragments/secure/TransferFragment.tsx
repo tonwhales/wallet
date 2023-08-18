@@ -3,8 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, StateInit } from 'ton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit } from 'ton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -16,7 +15,6 @@ import { t } from '../../i18n/t';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
@@ -27,13 +25,8 @@ import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ScreenHeader } from '../../components/ScreenHeader';
-
-export type ATextInputRef = {
-    focus: () => void;
-}
 
 export type TransferFragmentProps = {
     text: string | null,

@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { WalletV4Source } from "ton-contracts";
-import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
@@ -30,6 +29,7 @@ import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { AddressDomainInput } from "../../components/address/AddressDomainInput";
 
 export const LedgerTransferFragment = fragment(() => {
     const ledgerContext = useLedgerTransport();

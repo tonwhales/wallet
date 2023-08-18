@@ -30,7 +30,6 @@ import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-import { ToastProvider } from './app/components/toast/ToastProvider';
 
 changeNavBarColor('white');
 

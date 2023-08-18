@@ -30,6 +30,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
+import { useKeyboard } from '@react-native-community/hooks';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -211,6 +212,7 @@ export const HoldersAppComponent = React.memo((
     const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
     const useOfflineApp = engine.products.holders.devUseOffline && !!stableOfflineV;
+    const keyboard = useKeyboard();
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -591,14 +593,14 @@ export const HoldersAppComponent = React.memo((
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
                         contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin + safeArea.bottom
+                            ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
                             : undefined
                         }
                     >
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }
-                                : { marginBottom: 0 }
+                                : { marginBottom: 32 }
                             }
                             entering={FadeInDown}
                             exiting={FadeOutDown}

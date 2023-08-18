@@ -103,9 +103,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
     }, []);
 
     const push = useCallback((component: React.ReactNode, duration?: number) => {
-        console.log('newShowing', showing.length);
         const newShowing = [...showing, { id: Date.now() + (duration || ToastDuration.DEFAULT), component, duration: duration || ToastDuration.DEFAULT }];
-        console.log('newShowing', newShowing.length);
         setShowing(newShowing);
     }, [showing]);
 
@@ -124,8 +122,6 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
             }
         }
     }, [showing]);
-
-    console.log('showing', showing.length);
 
     return (
         <ToastContext.Provider value={{ show, clear, push, pop }}>

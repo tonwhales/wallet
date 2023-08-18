@@ -487,8 +487,6 @@ export const SimpleTransferFragment = fragment(() => {
         return [null, null, null];
     }, [selectedInput, targetAddressValid]);
 
-    console.log(target.length, targetAddressValid);
-
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />

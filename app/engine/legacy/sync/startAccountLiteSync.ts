@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { AccountWatcher } from "../blocks/AccountWatcher";
+import { AccountWatcher } from "../../blocks/AccountWatcher";
 import { Engine } from "../Engine";
 
 export type LiteAccount = {

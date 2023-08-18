@@ -2,7 +2,6 @@ import React, { useCallback, useMemo } from "react";
 import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { t } from "../i18n/t";
-import { useEngine } from "../engine/Engine";
 import { confirmAlert } from "../utils/confirmAlert";
 import { Address } from "ton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
@@ -28,15 +27,15 @@ export const WalletAddress = React.memo((props: {
     previewBackgroundColor?: string
 }) => {
     const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
-    const settings = engine.products.settings;
+    // TODO: fix
+    // const settings = engine.products.settings;
     const friendlyAddress = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
         if (confirmed) {
-            settings.addToDenyList(addr);
+            // settings.addToDenyList(addr);
         }
     }, []);
 

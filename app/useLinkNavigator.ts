@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
-import { useEngine } from './engine/Engine';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
@@ -8,7 +7,6 @@ import BN from 'bn.js';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
 
     const handler = React.useCallback((resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {

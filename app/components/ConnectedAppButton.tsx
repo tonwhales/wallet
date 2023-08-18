@@ -1,12 +1,13 @@
 import React, { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
-import { AppData } from "../engine/api/fetchAppData";
-import { useEngine } from "../engine/Engine";
-import { AppManifest } from "../engine/api/fetchManifest";
-import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
 import { WImage } from "./WImage";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { AppData } from '../engine/api/fetchAppData';
+import { AppManifest } from '../engine/api/fetchManifest';
+import { useAppData } from '../engine/hooks/useAppData';
+import { useAppManifest } from '../engine/hooks/useAppManifest';
+import { extractDomain } from '../engine/utils/extractDomain';
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -24,9 +25,8 @@ export const ConnectedAppButton = React.memo((
     }
 ) => {
     const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const appData = engine.products.extensions.useAppData(url);
-    const appManifest = engine.products.tonConnect.useAppManifest(url);
+    const appData = useAppData(url);
+    const appManifest = useAppManifest(url);
     let app: AppInfo = useMemo(() => {
         if (appData) {
             return { ...appData, type: 'app-data' };

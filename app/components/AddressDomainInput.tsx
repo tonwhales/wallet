@@ -11,9 +11,11 @@ import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
-import { useEngine } from "../engine/Engine"
-import { AddressContact } from "../engine/products/SettingsProduct"
 import { useAppConfig } from "../utils/AppConfigContext"
+import { clients } from '../engine/clients'
+import { useClient4 } from '../engine/hooks/useClient4'
+import { useSelectedAddress } from '../engine/hooks/useSelectedAddress'
+import { AddressContact } from '../engine/legacy/products/SettingsProduct'
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -48,15 +50,16 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     labelText?: string,
     showToMainAddress?: boolean,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
-    const engine = useEngine();
     const { Theme, AppConfig } = useAppConfig();
+    const client = useClient4(AppConfig.isTestnet);
+    const selected = useSelectedAddress();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
 
     const tref = React.useRef<TextInput>(null);
     React.useImperativeHandle(ref, () => ({
         focus: () => {
-            tref.current!.focus();
+            tref.current!.focus();y
         },
     }));
 
@@ -82,7 +85,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
 
             setResolving(true);
             try {
-                const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, toResolve, DNS_CATEGORY_WALLET);
+                const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, toResolve, DNS_CATEGORY_WALLET);
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }
@@ -261,7 +264,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 }}
                                 hitSlop={8}
                                 onPress={() => {
-                                    onInputChange(engine.address.toFriendly({ testOnly: AppConfig.isTestnet }))
+                                    onInputChange(selected.address.toFriendly({ testOnly: AppConfig.isTestnet }))
                                 }}
                             >
                                 <Text style={{

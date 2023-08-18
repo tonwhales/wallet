@@ -5,7 +5,7 @@ import { Connector } from "../api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';
 import { AppProduct } from './products/AppProduct';
-import { BlocksWatcher } from './blocks/BlocksWatcher';
+import { BlocksWatcher } from '../blocks/BlocksWatcher';
 import { Persistence } from './Persistence';
 import { Transactions } from './transactions/Transactions';
 import { SyncStateManager } from './SyncStateManager';

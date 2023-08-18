@@ -88,7 +88,8 @@ export const ProductsComponent = React.memo(() => {
             <View style={{
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
-                backgroundColor: Theme.white
+                backgroundColor: Theme.white,
+                minHeight: 400
             }}>
                 {tonconnect}
                 {currentJob && currentJob.job.type === 'transaction' && (

@@ -7,6 +7,7 @@ import { useRoute } from '@react-navigation/native';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useAppConfig } from './utils/AppConfigContext';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
+import { ToastProvider } from './components/toast/ToastProvider';
 
 export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
     return React.memo((props) => {
@@ -24,7 +25,9 @@ export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?:
                 <GlobalLoaderProvider>
                     <AuthWalletKeysContextProvider>
                         <PriceLoader>
-                            <Component {...props} />
+                            <ToastProvider>
+                                <Component {...props} />
+                            </ToastProvider>
                         </PriceLoader>
                     </AuthWalletKeysContextProvider>
                 </GlobalLoaderProvider>
@@ -35,7 +38,9 @@ export function fragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?:
                 <AuthWalletKeysContextProvider>
                     <PriceLoader>
                         <Host>
-                            <Component {...props} />
+                            <ToastProvider>
+                                <Component {...props} />
+                            </ToastProvider>
                         </Host>
                     </PriceLoader>
                 </AuthWalletKeysContextProvider>

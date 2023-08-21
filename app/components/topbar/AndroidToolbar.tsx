@@ -9,7 +9,8 @@ export const AndroidToolbar = React.memo((props: {
     pageTitle?: string,
     onBack?: () => void,
     textColor?: string,
-    tintColor?: string
+    tintColor?: string,
+    titleComponent?: React.ReactNode,
 }) => {
     if (Platform.OS === 'ios') {
         return null;
@@ -38,7 +39,7 @@ export const AndroidToolbar = React.memo((props: {
                             navigation.goBack();
                         }
                     }}
-                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} 
+                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)}
                     hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
@@ -46,7 +47,7 @@ export const AndroidToolbar = React.memo((props: {
                     </View>
                 </TouchableNativeFeedback>
             )}
-            {!!props.pageTitle && (
+            {!!props.pageTitle && !props.titleComponent && (
                 <Text
                     style={{
                         alignItems: 'center',
@@ -63,6 +64,7 @@ export const AndroidToolbar = React.memo((props: {
                     {props.pageTitle}
                 </Text>
             )}
+            {!!props.titleComponent && (props.titleComponent)}
         </View>
     );
 });

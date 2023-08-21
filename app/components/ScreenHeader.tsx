@@ -64,7 +64,8 @@ export const ScreenHeader = React.memo((
         onBackPressed,
         onClosePressed,
         leftButton,
-        rightButton
+        rightButton,
+        titleComponent
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
@@ -74,6 +75,7 @@ export const ScreenHeader = React.memo((
         onClosePressed?: () => void,
         rightButton?: React.ReactNode,
         leftButton?: React.ReactNode,
+        titleComponent?: React.ReactNode,
     }
 ) => {
     const { Theme } = useAppConfig();
@@ -87,6 +89,7 @@ export const ScreenHeader = React.memo((
                 pageTitle={title}
                 tintColor={tintColor}
                 textColor={textColor}
+                titleComponent={titleComponent}
             />
             {Platform.OS === 'ios' && (
                 <View style={{
@@ -98,17 +101,20 @@ export const ScreenHeader = React.memo((
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                         justifyContent: 'center', alignItems: 'center'
                     }}>
-                        <Text style={{
-                            color: textColor ?? Theme.textColor,
-                            fontWeight: '600',
-                            fontSize: 17,
-                            lineHeight: 24,
-                            maxWidth: '60%'
-                        }}
-                            ellipsizeMode={'tail'}
-                        >
-                            {title}
-                        </Text>
+                        {!!title && !titleComponent && (
+                            <Text style={{
+                                color: textColor ?? Theme.textColor,
+                                fontWeight: '600',
+                                fontSize: 17,
+                                lineHeight: 24,
+                                maxWidth: '60%'
+                            }}
+                                ellipsizeMode={'tail'}
+                            >
+                                {title}
+                            </Text>
+                        )}
+                        {titleComponent}
                     </View>
                     {!!onBackPressed && !leftButton && (
                         <HeaderBackButton

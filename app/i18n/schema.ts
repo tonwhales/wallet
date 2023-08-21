@@ -16,6 +16,7 @@ export type LocalizationSchema = {
         balance: string,
         walletAddress: string,
         recipientAddress: string,
+        recipient: string,
         copy: string,
         copiedAlert: string,
         copied: string,
@@ -62,6 +63,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
+        recent: string
     },
     syncStatus: {
         connecting: string,
@@ -158,6 +160,7 @@ export type LocalizationSchema = {
         feeTotalTitle: string,
         purpose: string,
         comment: string,
+        commentDescription: string,
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
@@ -709,6 +712,8 @@ export type LocalizationSchema = {
     contacts: {
         title: string,
         contact: string,
+        contacts: string,
+        unknown: string,
         name: string,
         lastName: string,
         company: string,

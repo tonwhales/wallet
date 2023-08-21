@@ -40,7 +40,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     labelText,
     showToMainAddress,
     onQRCodeRead,
-    invalid
+    invalid,
+    autoFocus
 }: {
     style?: StyleProp<ViewStyle>,
     inputStyle?: StyleProp<TextStyle>,
@@ -60,6 +61,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     showToMainAddress?: boolean,
     onQRCodeRead?: (value: string) => void,
     invalid?: boolean
+    autoFocus?: boolean
 }, ref: React.ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
@@ -141,6 +143,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     return (
         <>
             <ATextInput
+                autoFocus={autoFocus}
                 value={input}
                 index={index}
                 ref={tref}
@@ -355,14 +358,14 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
                             </Pressable>
                         )
-                        : (
+                        : (focused && (
                             <Pressable
                                 onPress={() => onInputChange('')}
                                 style={{ height: 24, width: 24, marginLeft: 8 }}
                             >
                                 <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
                             </Pressable>
-                        )
+                        ))
                 }
             />
             {invalid && (input.length >= 48 || (!focused && input.length > 0)) && (

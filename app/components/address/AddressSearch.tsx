@@ -1,18 +1,63 @@
 import { memo, useMemo } from "react";
-import { ScrollView } from "react-native-gesture-handler";
 import { useEngine } from "../../engine/Engine";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { Address } from "ton";
 import { AddressSearchItemView } from "./AddressSearchItemView";
+import { t } from "../../i18n/t";
+import { ScrollView, Text } from "react-native";
+import { Transaction } from "../../engine/Transaction";
 
 export type AddressSearchItem = { address: Address, title: string, searchable: string, type: 'contact' | 'known', icon?: string };
 
 export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSelect?: (address: Address) => void }) => {
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
     const engine = useEngine();
-    const contacts = engine.products.settings.useContacts();
+    const main = engine.products.main;
+    const settings = engine.products.settings;
+    const contacts = settings.useContacts();
     const known = KnownWallets(AppConfig.isTestnet);
+
+    const txs = (main.useAccount()?.transactions ?? []);
+
+    const lastTxs = useMemo(() => {
+        const two = txs.slice(0, Math.max(txs.length - 2, 0));
+        const filtered = two.map((t, i) => {
+            const tx = main.getTransaction(t.id);
+            if (tx) {
+                return tx;
+            }
+        }).filter((t) => !!t) as Transaction[];
+
+        let addresses: Address[] = [];
+        if (filtered.length > 1) {
+            const first = filtered[0].address;
+            const second = filtered[1].address;
+            if (first && second && first.equals(second)) {
+                addresses = [first];
+            } else if (first && second && !first.equals(second)) {
+                addresses = [first, second];
+            } else if (first) {
+                addresses = [first];
+            } else if (second) {
+                addresses = [second];
+            }
+        }
+
+        // filter contacts
+        addresses = addresses.filter((a) => {
+            return !Object.keys(contacts).find((key) => {
+                try {
+                    const address = Address.parse(key);
+                    return address.equals(a);
+                } catch {
+                    return false;
+                }
+            });
+        });
+
+        return addresses;
+    }, [txs, main]);
 
     const searchItems = useMemo(() => {
         return [
@@ -61,7 +106,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
     }, [searchItems, query]);
 
 
-    if (!filtered || filtered.length === 0) {
+    if ((!filtered || filtered.length === 0) && lastTxs.length === 0) {
         return null;
     }
 
@@ -71,15 +116,54 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
             keyboardShouldPersistTaps={'always'}
             keyboardDismissMode={'none'}
         >
-            {filtered.map((item, index) => {
-                return (
-                    <AddressSearchItemView
-                        key={index}
-                        item={item}
-                        onPress={onSelect}
-                    />
-                );
-            })}
+            <>
+                {lastTxs.length > 0 && (
+                    <>
+                        <Text style={{
+                            fontSize: 17, fontWeight: '600',
+                            lineHeight: 24,
+                            color: Theme.textColor,
+                            marginBottom: 8
+                        }}>
+                            {t('common.recent')}
+                        </Text>
+                        {lastTxs.map((address, index) => {
+                            return (
+                                <AddressSearchItemView
+                                    key={index}
+                                    item={{
+                                        address: address,
+                                        title: t('contacts.unknown'),
+                                        searchable: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        type: 'contact'
+                                    }}
+                                    onPress={onSelect}
+                                />
+                            )
+                        })}
+                    </>
+                )}
+                {filtered.length > 0 && (
+                    <Text style={{
+                        fontSize: 17, fontWeight: '600',
+                        lineHeight: 24,
+                        color: Theme.textColor,
+                        marginBottom: 8,
+                        marginTop: lastTxs.length > 0 ? 24 : 0
+                    }}>
+                        {t('contacts.contacts')}
+                    </Text>
+                )}
+                {filtered.map((item, index) => {
+                    return (
+                        <AddressSearchItemView
+                            key={index}
+                            item={item}
+                            onPress={onSelect}
+                        />
+                    );
+                })}
+            </>
         </ScrollView>
     );
 });

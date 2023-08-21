@@ -683,14 +683,14 @@ export const TransferSingle = React.memo((props: Props) => {
                         {!!text && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
-                                <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                <View style={{ flexDirection: 'column', paddingHorizontal: 10 }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
                                         color: Theme.darkGrey,
                                     }}>
                                         {t('transfer.comment')}
                                     </Text>
-                                    <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
+                                    <View style={{ alignItems: 'flex-start', flexShrink: 1, marginTop: 2 }}>
                                         <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor, textAlign: 'right' }}>
                                             {text}
                                         </Text>

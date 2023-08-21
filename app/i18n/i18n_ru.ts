@@ -15,6 +15,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         balance: 'Баланс',
         walletAddress: 'Адрес кошелька',
         recipientAddress: 'Адрес получателя',
+        recipient: 'Получатель',
         copy: 'Скопировать',
         copiedAlert: 'Скопировано в буфер обмена',
         copied: 'Скопировано',
@@ -61,6 +62,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         checkInternetConnection: 'Проверьте подключение к интернету',
         reload: 'Перезагрузить',
         errorOccurred: 'Произошла ошибка: {{error}}',
+        recent: 'Недавние',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -144,6 +146,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         feeTotalTitle: 'Полная комиссия сети',
         purpose: 'Цель транзакции',
         comment: 'Cообщение (необязательное)',
+        commentDescription: 'Сообщение будет видно всем в блокчейне',
         commentRequired: 'Обязательный комментарий',
         commentLabel: 'Сообщение',
         checkComment: 'Проверьте перед отправкой',
@@ -708,6 +711,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     contacts: {
         title: 'Контакты',
         contact: 'Контакт',
+        unknown: 'Неизвестный контакт',
+        contacts: 'Мои контакты',
         name: 'Имя',
         lastName: 'Фамилия',
         company: 'Компания',

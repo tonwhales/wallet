@@ -495,6 +495,10 @@ export class WalletProduct {
         return useRecoilValue(this.#txsAtom(id));
     }
 
+    getTransaction(id: string) {
+        return this.#txs.get(id);
+    }
+
     usePlugins() {
         return useRecoilValue(this.#plugins);
     }

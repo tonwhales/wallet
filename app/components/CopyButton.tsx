@@ -6,7 +6,7 @@ import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { Toast, useToaster } from "./toast/ToastProvider";
+import { Toast, ToastDuration, useToaster } from "./toast/ToastProvider";
 
 const size = {
     height: 56,
@@ -46,7 +46,11 @@ export const CopyButton = React.memo(({
         copyText(body);
 
         toaster.push(
-            <Toast message={t('common.walletAddress') + ' ' + t('common.copied').toLowerCase()} />
+            {
+                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                type: 'default',
+                duration: ToastDuration.SHORT
+            }
         );
 
         doneShared.value = withTiming(
@@ -58,7 +62,7 @@ export const CopyButton = React.memo(({
                 }
             }
         );
-    }, [body]);
+    }, [body, toaster]);
 
     const doneStyle = useAnimatedStyle(() => {
         return { opacity: doneShared.value };

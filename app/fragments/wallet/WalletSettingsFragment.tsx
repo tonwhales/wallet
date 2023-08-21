@@ -11,12 +11,14 @@ import { useCallback, useMemo, useState } from "react";
 import { useEngine } from "../../engine/Engine";
 import { copyText } from "../../utils/copyText";
 import { StatusBar } from "expo-status-bar";
+import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
+import Animated from "react-native-reanimated";
 
 import Clear from '../../../assets/ic-clear.svg';
-import Animated from "react-native-reanimated";
 
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
+    const toaster = useToaster();
     const engine = useEngine();
     const appState = getAppState();
     const navigation = useTypedNavigation();
@@ -168,7 +170,16 @@ export const WalletSettingsFragment = fragment(() => {
                             {t('common.walletAddress')}
                         </Text>
                         <Text
-                            onPress={() => copyText(address.toFriendly({ testOnly: AppConfig.isTestnet }))}
+                            onPress={() => {
+                                copyText(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                toaster.push(
+                                    {
+                                        message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                                        type: 'default',
+                                        duration: ToastDuration.SHORT
+                                    }
+                                );
+                            }}
                             style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
                         >
                             {address.toFriendly({ testOnly: AppConfig.isTestnet })}

@@ -2,9 +2,9 @@ import { createContext, memo, useCallback, useContext, useEffect, useState } fro
 import { View, Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import DoneIcon from '../../../assets/ic-done.svg';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const Icons = {
     // 'warning': require('../../../assets/ic-warning.svg'),
@@ -15,20 +15,31 @@ const Icons = {
     'success': DoneIcon
 }
 
-const ToastContext = createContext<{
-    show: (component: React.ReactNode) => void;
-    clear: () => void;
-    push: (component: React.ReactNode) => void;
-    pop: () => void;
-} | null>(null);
-
 export enum ToastDuration {
     SHORT = 2000,
     DEFAULT = 3500,
     LONG = 6000
 }
 
-export const Toast = memo(({ message, type = 'default' }: { message: string, type?: 'warning' | 'default' | 'error' | 'success' }) => {
+export type ToastProps = {
+    message: string,
+    type: 'warning' | 'default' | 'error' | 'success',
+    onDestroy?: () => void,
+    duration?: ToastDuration
+}
+
+const ToastContext = createContext<{
+    show: (props: ToastProps) => void;
+    clear: () => void;
+    push: (props: ToastProps) => void;
+    pop: () => void;
+} | null>(null);
+
+export const Toast = memo(({
+    message,
+    type,
+    onDestroy,
+}: ToastProps) => {
     const { Theme } = useAppConfig();
 
     let Icon = Icons[type];
@@ -68,6 +79,14 @@ export const Toast = memo(({ message, type = 'default' }: { message: string, typ
         }
     }
 
+    useEffect(() => {
+        return () => {
+            if (onDestroy) {
+                onDestroy();
+            }
+        }
+    }, [onDestroy]);
+
     return (
         <View style={[
             {
@@ -92,36 +111,79 @@ export const Toast = memo(({ message, type = 'default' }: { message: string, typ
 
 export const ToastProvider = memo((props: { children: React.ReactNode }) => {
     const safeArea = useSafeAreaInsets();
-    const [showing, setShowing] = useState<{ id: number, component: any, duration: number }[]>([]);
+    const [showing, setShowing] = useState<{ id: number, component: any }[]>([]);
 
-    const show = useCallback((component: React.ReactNode, duration?: number) => {
-        setShowing([{ id: Date.now() + (duration || ToastDuration.DEFAULT), component, duration: duration || ToastDuration.DEFAULT }]);
+    const filterExpired = useCallback(() => {
+        const newShowing = showing.filter((c) => {
+            return c.id > Date.now();
+        });
+        setShowing(newShowing);
+        return newShowing;
+    }, [showing]);
+
+    const show = useCallback((props: ToastProps) => {
+        const id = Date.now() + (props.duration || ToastDuration.DEFAULT);
+        setShowing([
+            {
+                id,
+                component: (
+                    <Toast
+                        {...props}
+                        onDestroy={() => {
+                            if (props.onDestroy) {
+                                props.onDestroy();
+                            }
+                        }}
+                    />
+                ),
+            }
+        ])
     }, []);
 
     const clear = useCallback(() => {
         setShowing([]);
     }, []);
 
-    const push = useCallback((component: React.ReactNode, duration?: number) => {
-        const newShowing = [...showing, { id: Date.now() + (duration || ToastDuration.DEFAULT), component, duration: duration || ToastDuration.DEFAULT }];
+    const push = useCallback((props: ToastProps) => {
+        const filtered = filterExpired();
+        const id = Date.now() + (props.duration || ToastDuration.DEFAULT);
+        const newShowing = [
+            ...filtered,
+            {
+                id,
+                component: (
+                    <Toast
+                        {...props}
+                        onDestroy={() => {
+                            if (props.onDestroy) {
+                                props.onDestroy();
+                            }
+                        }}
+                    />
+                )
+            }
+        ];
         setShowing(newShowing);
-    }, [showing]);
+    }, [filterExpired]);
 
     const pop = useCallback(() => {
-        setShowing(showing.slice(0, showing.length - 1));
-    }, [showing]);
+        const filtered = filterExpired();
+        if (filtered.length > 0) {
+            setShowing(filtered.slice(0, filtered.length - 1));
+        }
+    }, [filterExpired]);
 
     useEffect(() => {
-        if (showing.length > 0) {
-            // Remove all that are expired
-            const timer = setTimeout(() => {
-                setShowing(showing.filter((c) => c.id > Date.now()));
-            }, showing[showing.length - 1].duration);
-            return () => {
-                clearTimeout(timer);
-            }
+        if (showing.length == 0) {
+            return;
         }
-    }, [showing]);
+        const interval = setInterval(() => {
+            filterExpired();
+        }, 100);
+        return () => {
+            clearInterval(interval);
+        }
+    }, [filterExpired, showing]);
 
     return (
         <ToastContext.Provider value={{ show, clear, push, pop }}>

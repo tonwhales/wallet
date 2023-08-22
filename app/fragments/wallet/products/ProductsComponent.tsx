@@ -14,35 +14,41 @@ import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
 import { useCurrentJob } from '../../../engine/hooks/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
+import { useExtensions } from '../../../engine/hooks/useExtensions';
+import { useLedger } from '../../../engine/hooks/useLedger';
+import { useTonConnectExtensions } from '../../../engine/hooks/useTonConnectExtenstions';
+import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnectPendingRequests';
+import { useCards } from '../../../engine/hooks/useCards';
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalance();
     const currentJob = useCurrentJob();
-    const jettons = useJettons().filter((j) => !j.disabled);
+    const jettons = useJettons().filter((j: any) => !j.disabled);
     const extensions = useExtensions();
     const ledger = useLedger();
     const cards = useCards();
-    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
-    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
+    const tonconnectExtensions = useTonConnectExtensions();
+    const tonconnectRequests = useTonConnectPendingRequests();
     const openExtension = React.useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {
             return; // Shouldn't happen
         }
-        let k = engine.persistence.domainKeys.getValue(domain);
-        if (!k) {
-            navigation.navigate('Install', { url });
-        } else {
-            navigation.navigate('App', { url });
-        }
+
+        navigation.navigate('Install', { url });
+        // let k = engine.persistence.domainKeys.getValue(domain);
+        // if (!k) {
+        //     navigation.navigate('Install', { url });
+        // } else {
+        //     navigation.navigate('App', { url });
+        // }
     }, []);
 
     // Resolve accounts
@@ -70,7 +76,6 @@ export const ProductsComponent = React.memo(() => {
                     key={'jt' + j.wallet.toFriendly()}
                     jetton={j}
                     navigation={navigation}
-                    engine={engine}
                 />
             );
         }
@@ -81,7 +86,8 @@ export const ProductsComponent = React.memo(() => {
             text: t('common.delete'),
             style: 'destructive',
             onPress: () => {
-                engine.products.extensions.removeExtension(key);
+                // TODO:
+                // removeExtension(key);
             }
         }]);
     }, []);
@@ -91,7 +97,8 @@ export const ProductsComponent = React.memo(() => {
             text: t('common.continue'),
             style: 'destructive',
             onPress: () => {
-                engine.products.settings.setLedger(false);
+                // TODO
+                // setLedger(false);
             }
         }]);
     }, []);
@@ -101,9 +108,9 @@ export const ProductsComponent = React.memo(() => {
 
     if (AppConfig.isTestnet) {
         cards.map((c) => {
-            apps.push(<HoldersProductButton engine={engine} key={c.id} account={c} />)
+            apps.push(<HoldersProductButton key={c.id} account={c} />)
         });
-        apps.push(<HoldersProductButton engine={engine} key={'zenpay-add'} />)
+        apps.push(<HoldersProductButton key={'zenpay-add'} />)
     }
 
     for (let e of extensions) {

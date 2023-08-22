@@ -4,11 +4,11 @@ import { Engine } from "../Engine";
 import { Job } from "../apps/Job";
 import { parseJob } from "../apps/parseJob";
 import EventEmitter from "events";
-import { backoff } from '../../utils/time';
-import { getAppInstanceKeyPair } from '../../storage/appState';
+import { backoff } from '../../../utils/time';
+import { getAppInstanceKeyPair } from '../../../storage/appState';
 import { delay } from 'teslabot';
 import axios from 'axios';
-import { warn } from '../../utils/log';
+import { warn } from '../../../utils/log';
 
 export class AppProduct {
 

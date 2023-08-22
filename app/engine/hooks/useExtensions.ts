@@ -1,3 +1,3 @@
 export function useExtensions() {
-    return [];
+    return [] as any[];
 }

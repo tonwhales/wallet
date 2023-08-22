@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import * as t from 'io-ts';
 import { MMKV } from 'react-native-mmkv';
 import { atom } from 'recoil';
-import { createLogger } from '../../utils/log';
+import { createLogger } from '../../../utils/log';
 import { Engine } from '../Engine';
 import { PersistedItem } from './PersistedItem';
 

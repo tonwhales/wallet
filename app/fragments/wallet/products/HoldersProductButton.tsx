@@ -3,12 +3,11 @@ import React, { useCallback } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useAppConfig } from "../../../utils/AppConfigContext";
-import { HoldersCard, holdersUrl } from "../../../engine/holders/HoldersProduct";
+import { HoldersCard, holdersUrl } from '../../../engine/legacy/holders/HoldersProduct';
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -19,7 +18,7 @@ const colorsMap: { [key: string]: string[] } = {
     'default-2': ['#792AF6', "#954CF9"], // Default
 }
 
-export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard, engine: Engine }) => {
+export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard }) => {
     const { Theme } = useAppConfig();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
@@ -120,7 +119,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                             >
                                 {!!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t(`products.zenPay.card.type.${account.type}`)}
+                                        {t(`products.zenPay.card.type.${account.type}` as any)}
                                     </Text>
                                 )}
                                 {!account && (

@@ -1,3 +1,5 @@
+import BN from 'bn.js';
+
 export function useSpamMinAmount() {
-    return 1;
+    return new BN(1);
 }

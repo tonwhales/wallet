@@ -27,11 +27,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
 import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
+import { createDomainSignature } from '../../../engine/effects/createDomainSignature';
+import { useAccount } from '../../../engine/hooks/useAccount';
+import { useCurrentAddress } from '../../../engine/hooks/useCurrentAddress';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -209,9 +211,12 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = usePrimaryCurrency();
-    const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const { address, publicKey } = useCurrentAddress();
+    // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
-    const useOfflineApp = !!stableOfflineV;
+
+    // TODO
+    const useOfflineApp = false;
 
     const [mainButton, dispatchMainButton] = React.useReducer(
         reduceMainButton(),
@@ -287,35 +292,37 @@ export const HoldersAppComponent = React.memo((
     // Injection
     //
     const injectSource = useMemo(() => {
-        const contract = contractFromPublicKey(engine.publicKey);
+        const contract = contractFromPublicKey(publicKey);
         const walletConfig = contract.source.backup();
         const walletType = contract.source.type;
         const domain = extractDomain(props.endpoint);
 
-        const cardsState = engine.persistence.holdersCards.item(engine.address).value;
-        const accountState = engine.persistence.holdersStatus.item(engine.address).value;
+        // TODO
+        // const cardsState = engine.persistence.holdersCards.item(engine.address).value;
+        // const accountState = engine.persistence.holdersStatus.item(engine.address).value;
 
-        const initialState = {
-            ...accountState
-                ? {
-                    account: {
-                        status: {
-                            state: accountState.state,
-                            kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
-                            suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
-                        },
-                        token: accountState.state === 'ok' ? accountState.token : engine.products.holders.getToken(),
-                    }
-                }
-                : {},
-            ...cardsState ? { cardsList: cardsState.accounts } : {},
-        }
+        // const initialState = {
+        //     ...accountState
+        //         ? {
+        //             account: {
+        //                 status: {
+        //                     state: accountState.state,
+        //                     kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
+        //                     suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
+        //                 },
+        //                 token: accountState.state === 'ok' ? accountState.token : engine.products.holders.getToken(),
+        //             }
+        //         }
+        //         : {},
+        //     ...(cardsState ? { cardsList: cardsState.accounts } : {}),
+        // }
+        const initialState = {};
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
         `;
 
-        let domainSign = engine.products.keys.createDomainSignature(domain);
+        let domainSign = createDomainSignature(domain);
 
         return createInjectSource(
             {
@@ -323,8 +330,8 @@ export const HoldersAppComponent = React.memo((
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
                 network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
-                address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                publicKey: engine.publicKey.toString('base64'),
+                address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                publicKey: publicKey.toString('base64'),
                 walletConfig,
                 walletType,
                 signature: domainSign.signature,
@@ -406,7 +413,7 @@ export const HoldersAppComponent = React.memo((
     }, []);
 
     const onCloseApp = useCallback(() => {
-        engine.products.holders.doSync();
+        // engine.products.holders.doSync();
         navigation.goBack();
         trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
     }, []);
@@ -490,57 +497,59 @@ export const HoldersAppComponent = React.memo((
         <>
             <View style={{ backgroundColor: Theme.item, flex: 1 }}>
                 {useOfflineApp ? (
-                    <OfflineWebView
-                        key={`offline-rendered-${offlineRender}`}
-                        ref={webRef}
-                        uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
-                        baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                        initialRoute={source.initialRoute}
-                        style={{
-                            backgroundColor: Theme.item,
-                            flexGrow: 1, flexBasis: 0, height: '100%',
-                            alignSelf: 'stretch',
-                            marginTop: Platform.OS === 'ios' ? 0 : 8,
-                        }}
-                        onLoadEnd={onLoadEnd}
-                        onLoadProgress={(event) => {
-                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                    <>
+                        {/* <OfflineWebView
+                            key={`offline-rendered-${offlineRender}`}
+                            ref={webRef}
+                            uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
+                            baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
+                            initialRoute={source.initialRoute}
+                            style={{
+                                backgroundColor: Theme.item,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={onLoadEnd}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                    // Searching for supported query
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
                                 // Searching for supported query
-                                onNavigation(event.nativeEvent.url);
-                            }
-                        }}
-                        onNavigationStateChange={(event: WebViewNavigation) => {
-                            // Searching for supported query
-                            onNavigation(event.url);
-                        }}
-                        // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
-                        contentInset={{ top: 0, bottom: 0 }}
-                        autoManageStatusBarEnabled={false}
-                        decelerationRate="normal"
-                        allowsInlineMediaPlayback={true}
-                        injectedJavaScriptBeforeContentLoaded={injectSource}
-                        onShouldStartLoadWithRequest={loadWithRequest}
-                        // In case of iOS blank WebView
-                        onContentProcessDidTerminate={onContentProcessDidTerminate}
-                        // In case of Android blank WebView
-                        onRenderProcessGone={onContentProcessDidTerminate}
-                        onMessage={handleWebViewMessage}
-                        keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                        renderError={(errorDomain, errorCode, errorDesc) => {
-                            return (
-                                <WebViewErrorComponent
-                                    onReload={onContentProcessDidTerminate}
-                                    errorDomain={errorDomain}
-                                    errorCode={errorCode}
-                                    errorDesc={errorDesc}
-                                />
-                            )
-                        }}
-                        bounces={false}
-                        startInLoadingState={true}
-                    />
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={false}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            onShouldStartLoadWithRequest={loadWithRequest}
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            renderError={(errorDomain, errorCode, errorDesc) => {
+                                return (
+                                    <WebViewErrorComponent
+                                        onReload={onContentProcessDidTerminate}
+                                        errorDomain={errorDomain}
+                                        errorCode={errorCode}
+                                        errorDesc={errorDesc}
+                                    />
+                                )
+                            }}
+                            bounces={false}
+                            startInLoadingState={true}
+                        /> */}
+                    </>
                 ) : (
                     <WebView
                         ref={webRef}

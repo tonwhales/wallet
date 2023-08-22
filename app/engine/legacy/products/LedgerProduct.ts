@@ -7,13 +7,13 @@ import { startHintSync } from "../sync/startHintSync";
 import { JettonsState, TransactionDescription, WalletState } from "./WalletProduct";
 import BN from "bn.js";
 import * as FileSystem from 'expo-file-system';
-import { t } from "../../i18n/t";
+import { t } from "../../../i18n/t";
 import { Transaction } from "../Transaction";
 import { createHistorySync } from "../sync/createHistorySync";
 import { ContractMetadata } from "../metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { resolveOperation } from "../transactions/resolveOperation";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { KnownJettonMasters } from "../../../secure/KnownWallets";
 import { startHintsTxSync } from "../sync/startHintsTxSync";
 import { startJettonWalletSync } from "../sync/startJettonWalletSync";
 

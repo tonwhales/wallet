@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { backoff } from "../../utils/time";
+import { backoff } from "../../../utils/time";
 
 export interface InvalidateSync {
     emit(event: 'invalidated'): boolean;

@@ -2,9 +2,9 @@ import BN from "bn.js"
 import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
-import { usePrice } from "../engine/PriceContext"
 import { formatCurrency } from "../utils/formatCurrency"
 import { useAppConfig } from "../utils/AppConfigContext"
+import { usePrice } from '../engine/hooks/usePrice'
 
 export const PriceComponent = React.memo((
     {

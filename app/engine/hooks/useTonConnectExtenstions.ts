@@ -1,3 +1,3 @@
 export function useTonConnectExtensions() {
-    return [];
+    return [] as any[];
 }

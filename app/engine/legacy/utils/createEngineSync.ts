@@ -1,4 +1,4 @@
-import { createLogger, log } from "../../utils/log";
+import { createLogger, log } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { InvalidateSync } from "./InvalidateSync";
 

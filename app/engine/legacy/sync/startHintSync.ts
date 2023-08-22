@@ -1,5 +1,5 @@
 import { Address } from "ton";
-import { createLogger } from "../../utils/log";
+import { createLogger } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 import { fetchMetadata } from "../metadata/fetchMetadata";

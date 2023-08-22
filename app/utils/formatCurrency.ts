@@ -1,5 +1,5 @@
 import { getNumberFormatSettings } from "react-native-localize";
-import { CurrencySymbols, PrimaryCurrency } from "../engine/products/PriceProduct";
+import { CurrencySymbols } from '../engine/legacy/products/PriceProduct';
 
 function toLocaleNumber(value: string) {
     const { decimalSeparator } = getNumberFormatSettings();

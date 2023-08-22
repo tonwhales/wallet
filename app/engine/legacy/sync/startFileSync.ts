@@ -1,10 +1,10 @@
 import { BoundedConcurrencyPool } from "teslabot";
 import { sha256_sync } from "ton-crypto";
-import { backoff } from "../../utils/time";
+import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
 import * as FileSystem from 'expo-file-system';
-import { createLogger } from "../../utils/log";
-import { resolveLink } from "../../utils/resolveLink";
+import { createLogger } from "../../../utils/log";
+import { resolveLink } from "../../../utils/resolveLink";
 
 let lock = new BoundedConcurrencyPool(16);
 let logger = createLogger('download');

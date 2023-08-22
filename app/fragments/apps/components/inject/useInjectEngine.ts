@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as t from 'io-ts';
 import { InjectEngine } from './InjectEngine';
-import * as c from '../../../../engine/utils/codecs';
+import * as c from '../../../../engine/legacy/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
 import { Cell, Slice } from 'ton';
 

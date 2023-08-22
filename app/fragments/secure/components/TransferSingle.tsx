@@ -4,11 +4,6 @@ import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
-import { useItem } from "../../../engine/persistence/PersistedItem";
-import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
-import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
-import { resolveOperation } from "../../../engine/transactions/resolveOperation";
 import { Order } from "../../../fragments/secure/ops/Order";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
@@ -44,10 +39,15 @@ import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { holdersUrl } from "../../../engine/holders/HoldersProduct";
 import { useContactAddress } from '../../../engine/hooks/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
+import { useAccount } from '../../../engine/hooks/useAccount';
+import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
+import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
+import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
+import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
+import { useClient4 } from '../../../engine/hooks/useClient4';
 
 type Props = {
     target: {
@@ -71,8 +71,9 @@ type Props = {
 export const TransferSingle = React.memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
+    const client = useClient4(AppConfig.isTestnet);
     const navigation = useTypedNavigation();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
     const {
         restricted,
         target,
@@ -242,12 +243,13 @@ export const TransferSingle = React.memo((props: Props) => {
         extMessage.writeTo(msg);
 
         // Sending transaction
-        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
-        if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
-        }
+        // TODO:
+        // if (job) {
+        //     await engine.products.apps.commitCommand(true, job, transfer);
+        // }
 
         // Notify callback
         if (callback) {
@@ -264,22 +266,22 @@ export const TransferSingle = React.memo((props: Props) => {
         trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
 
         // Register pending
-        engine.products.main.registerPending({
-            id: 'pending-' + account.seqno,
-            lt: null,
-            fees: fees,
-            amount: order.messages[0].amount.mul(new BN(-1)),
-            address: target.address,
-            seqno: account.seqno,
-            kind: 'out',
-            body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
-            status: 'pending',
-            time: Math.floor(Date.now() / 1000),
-            bounced: false,
-            prev: null,
-            mentioned: [],
-            hash: msg.hash(),
-        });
+        // engine.products.main.registerPending({
+        //     id: 'pending-' + account.seqno,
+        //     lt: null,
+        //     fees: fees,
+        //     amount: order.messages[0].amount.mul(new BN(-1)),
+        //     address: target.address,
+        //     seqno: account.seqno,
+        //     kind: 'out',
+        //     body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+        //     status: 'pending',
+        //     time: Math.floor(Date.now() / 1000),
+        //     bounced: false,
+        //     prev: null,
+        //     mentioned: [],
+        //     hash: msg.hash(),
+        // });
 
         // Reset stack to root
         if (props.back && props.back > 0) {

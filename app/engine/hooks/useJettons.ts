@@ -1,5 +1,5 @@
 import { Address } from 'ton';
 
-export function useJettons(owner: Address): any {
+export function useJettons(owner?: Address): any {
 
 }

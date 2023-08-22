@@ -5,13 +5,6 @@ import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNan
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
-import { useItem } from "../../../engine/persistence/PersistedItem";
-import { usePrice } from "../../../engine/PriceContext";
-import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
-import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
-import { resolveOperation } from "../../../engine/transactions/resolveOperation";
-import { createWalletTransferV4, internalFromSignRawMessage } from "../../../engine/utils/createWalletTransferV4";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
@@ -37,6 +30,14 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { useAccount } from '../../../engine/hooks/useAccount';
+import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
+import { useClient4 } from '../../../engine/hooks/useClient4';
+import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
+import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
+import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
+import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
+import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/createWalletTransferV4';
 
 type Props = {
     text: string | null,
@@ -70,7 +71,8 @@ export const TransferBatch = React.memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
+    const client = useClient4(AppConfig.isTestnet);
     const [price, currency] = usePrice();
     const {
         text,
@@ -96,7 +98,7 @@ export const TransferBatch = React.memo((props: Props) => {
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (message.metadata.jettonWallet) {
-                jettonMaster = engine.persistence.jettonMasters.item(message.metadata.jettonWallet!.master).value;
+                jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master);
             }
 
             let jettonAmount: BN | null = null;
@@ -144,18 +146,20 @@ export const TransferBatch = React.memo((props: Props) => {
                 jettonMaster
             });
 
-            const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
             const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
             let known: KnownWallet | undefined = undefined;
             if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
                 known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
             } else if (operation.title) {
                 known = { name: operation.title };
-            } else if (!!contact) { // Resolve contact known wallet
-                known = { name: contact.name }
             }
-            const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
+            // } else if (!!contact) { // Resolve contact known wallet
+            //     known = { name: contact.name }
+            // }
+            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+            // const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
+            const spam = false;
 
             temp.push({
                 message,
@@ -164,7 +168,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 known,
                 spam,
                 jettonAmount,
-                contact,
+                contact: null,
                 jettonMaster
             });
         }
@@ -304,12 +308,13 @@ export const TransferBatch = React.memo((props: Props) => {
         extMessage.writeTo(msg);
 
         // Sending transaction
-        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
-        if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
-        }
+        // TODO
+        // if (job) {
+        //     await engine.products.apps.commitCommand(true, job, transfer);
+        // }
 
         // Notify callback
         if (callback) {
@@ -326,22 +331,23 @@ export const TransferBatch = React.memo((props: Props) => {
         trackEvent(MixpanelEvent.Transfer, { order }, AppConfig.isTestnet);
 
         // Register pending
-        engine.products.main.registerPending({
-            id: 'pending-' + account.seqno,
-            lt: null,
-            fees: fees,
-            amount: totalAmount.mul(new BN(-1)),
-            address: null,
-            seqno: account.seqno,
-            kind: 'out',
-            body: null,
-            status: 'pending',
-            time: Math.floor(Date.now() / 1000),
-            bounced: false,
-            prev: null,
-            mentioned: [],
-            hash: msg.hash(),
-        });
+        // TODO
+        // engine.products.main.registerPending({
+        //     id: 'pending-' + account.seqno,
+        //     lt: null,
+        //     fees: fees,
+        //     amount: totalAmount.mul(new BN(-1)),
+        //     address: null,
+        //     seqno: account.seqno,
+        //     kind: 'out',
+        //     body: null,
+        //     status: 'pending',
+        //     time: Math.floor(Date.now() / 1000),
+        //     bounced: false,
+        //     prev: null,
+        //     mentioned: [],
+        //     hash: msg.hash(),
+        // });
 
         // Reset stack to root
         if (back && back > 0) {

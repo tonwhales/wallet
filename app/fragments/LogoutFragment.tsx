@@ -14,18 +14,18 @@ import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { Address } from "ton";
-import { holdersUrl } from "../engine/holders/HoldersProduct";
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
+import { holdersUrl } from '../engine/legacy/holders/HoldersProduct';
 
-export function clearHolders(engine: Engine, address?: Address) {
-    const holdersDomain = extractDomain(holdersUrl);
-    engine.products.holders.stopWatching();
-    engine.persistence.domainKeys.setValue(
-        `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${holdersDomain}`,
-        null
-    );
-    engine.persistence.holdersState.setValue(address ?? engine.address, null);
-    engine.products.holders.deleteToken();
+export function clearHolders(isTestnet: boolean, address?: Address) {
+    // const holdersDomain = extractDomain(holdersUrl);
+    // engine.products.holders.stopWatching();
+    // engine.persistence.domainKeys.setValue(
+    //     `${(address ?? engine.address).toFriendly({ testOnly: isTestnet })}/${holdersDomain}`,
+    //     null
+    // );
+    // engine.persistence.holdersState.setValue(address ?? engine.address, null);
+    // engine.products.holders.deleteToken();
 }
 
 export const LogoutFragment = fragment(() => {

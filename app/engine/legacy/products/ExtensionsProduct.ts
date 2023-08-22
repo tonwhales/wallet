@@ -1,11 +1,11 @@
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
 import { AppData, fetchAppData } from "../../api/fetchAppData";
 import { Engine } from "../Engine";
-import { warn } from "../../utils/log";
+import { warn } from "../../../utils/log";
 import { CloudValue } from "../cloud/CloudValue";
 import { AppState } from "react-native";
 import { sha256_sync } from "ton-crypto";
-import { toUrlSafe } from "../../utils/toUrlSafe";
+import { toUrlSafe } from "../../../utils/toUrlSafe";
 
 export type Extension = {
     key: string;

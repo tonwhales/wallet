@@ -1,7 +1,7 @@
 import { BoundedConcurrencyPool } from "teslabot";
-import { backoff } from "../../utils/time";
+import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
-import { resolveLink } from "../../utils/resolveLink";
+import { resolveLink } from "../../../utils/resolveLink";
 import { fetchAppData } from "../../api/fetchAppData";
 
 let lock = new BoundedConcurrencyPool(16);

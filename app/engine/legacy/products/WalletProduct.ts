@@ -10,10 +10,10 @@ import { createHistorySync } from "../sync/createHistorySync";
 import { Operation } from "../transactions/types";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { PluginState } from "../sync/startPluginSync";
-import { t } from "../../i18n/t";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { t } from "../../../i18n/t";
+import { KnownJettonMasters } from "../../../secure/KnownWallets";
 import { CloudValue } from "../cloud/CloudValue";
-import { storage } from "../../storage/storage";
+import { storage } from "../../../storage/storage";
 
 export type WalletState = {
     balance: BN;

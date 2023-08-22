@@ -23,17 +23,22 @@ import { PriceComponent } from "../../components/PriceComponent";
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
-import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { TransactionDescription } from "../../engine/products/WalletProduct";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
+import { useContactAddress } from '../../engine/hooks/useContactAddress';
+import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
+import { TransactionDescription } from '../../engine/legacy/products/WalletProduct';
+import { Body } from '../../engine/legacy/Transaction';
+import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
+import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
+import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
+import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 
-const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
+const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -97,7 +102,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
             '/' + txId
     }, [txId]);
 
-    const contact = engine.products.settings.useContactAddress(operation.address);
+    const contact = useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -109,11 +114,11 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
         known = { name: contact.name }
     }
 
-    const spamMinAmount = engine.products.settings.useSpamMinAmount();
-    const dontShowComments = engine.products.settings.useDontShowComments();
-    const isSpam = engine.products.settings.useDenyAddress(operation.address);
+    const spamMinAmount = useSpamMinAmount();
+    const dontShowComments = useDontShowComments();
+    const isSpam = useDenyAddress(operation.address);
 
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
             transaction.base.amount.abs().lt(spamMinAmount)

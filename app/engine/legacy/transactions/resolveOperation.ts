@@ -1,13 +1,13 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { ContractMetadata } from "../../engine/metadata/Metadata";
-import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { Body, Transaction } from "../../engine/Transaction";
+import { Body, Transaction } from "../../../engine/legacy/Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "../../engine/transactions/parseMessageBody";
+import { parseMessageBody } from "../../../engine/legacy/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
-import { t } from "../../i18n/t";
+import { t } from "../../../i18n/t";
+import { ContractMetadata } from '../metadata/Metadata';
+import { JettonMasterState } from '../sync/startJettonMasterSync';
+import { parseBody } from './parseWalletTransaction';
 
 export function resolveOperation(args: {
     account: Address,

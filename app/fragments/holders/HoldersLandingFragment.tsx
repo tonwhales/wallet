@@ -20,7 +20,6 @@ import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useRef, useState } from 'react';
-import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
 
@@ -33,8 +32,9 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = usePrimaryCurrency();
-    const stableOfflineV = engine.products.holders.stableOfflineVersion;
-    const useOfflineApp = !!stableOfflineV;
+    // TODO
+    // const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const useOfflineApp = false;
 
     //
     // View
@@ -81,22 +81,23 @@ export const HoldersLandingFragment = fragment(() => {
         setAuth(true);
 
         try {
-            const data = await engine.products.extensions.getAppData(endpoint);
-            if (!data) {
-                Alert.alert(t('auth.failed'));
-                authOpacity.value = 0;
-                setAuth(false);
-                return;
-            }
+            // TODO
+            // const data = await engine.products.extensions.getAppData(endpoint);
+            // if (!data) {
+            //     Alert.alert(t('auth.failed'));
+            //     authOpacity.value = 0;
+            //     setAuth(false);
+            //     return;
+            // }
 
-            const domain = extractDomain(endpoint);
-            const res = await engine.products.holders.enroll(domain, authContext);
-            if (!res) {
-                Alert.alert(t('auth.failed'));
-                authOpacity.value = 0;
-                setAuth(false)
-                return;
-            }
+            // const domain = extractDomain(endpoint);
+            // const res = await engine.products.holders.enroll(domain, authContext);
+            // if (!res) {
+            //     Alert.alert(t('auth.failed'));
+            //     authOpacity.value = 0;
+            //     setAuth(false)
+            //     return;
+            // }
 
             // Navigate to continue
             navigation.replace('Holders', onEnrollType);
@@ -193,7 +194,7 @@ export const HoldersLandingFragment = fragment(() => {
                         flexGrow: 1,
                     }}
                 >
-                    {useOfflineApp && (
+                    {/* TODO: {useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 key={`offline-rendered-${offlineRender}`}
@@ -242,7 +243,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 }}
                             />
                         </Animated.View>
-                    )}
+                    )} */}
                     {!useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView

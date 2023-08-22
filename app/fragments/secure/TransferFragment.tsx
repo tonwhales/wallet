@@ -17,17 +17,19 @@ import { ContractMetadata } from '../../engine/legacy/metadata/Metadata';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/legacy/metadata/fetchMetadata';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees } from '../../engine/estimate/estimateFees';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
-import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
-import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useConfig } from '../../engine/hooks/useConfig';
+import { useAccount } from '../../engine/hooks/useAccount';
+import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { getJettonMaster } from '../../engine/getters/getJettonMaster';
+import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
+import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
+import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/legacy/utils/createWalletTransferV4';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -99,9 +101,10 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 export const TransferFragment = fragment(() => {
     const { AppConfig } = useAppConfig();
     const params: TransferFragmentProps = useRoute().params! as any;
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const client = useClient4(AppConfig.isTestnet);
 
     // Memmoize all parameters just in case
     const from = React.useMemo(() => getCurrentAddress(), []);
@@ -112,19 +115,19 @@ export const TransferFragment = fragment(() => {
 
     // Auto-cancel job on unmount
     React.useEffect(() => {
-        return () => {
-            if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
-            }
-            if (params && params.callback) {
-                params.callback(false, null);
-            }
-        }
+        // return () => {
+        //     if (params && params.job) {
+        //         engine.products.apps.commitCommand(false, params.job, new Cell());
+        //     }
+        //     if (params && params.callback) {
+        //         params.callback(false, null);
+        //     }
+        // }
     }, []);
 
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
-    const netConfig = engine.products.config.useConfig();
+    const netConfig = useConfig();
     React.useEffect(() => {
 
         // Await data
@@ -166,7 +169,7 @@ export const TransferFragment = fragment(() => {
                             throw Error('Invalid domain');
                         }
 
-                        const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                        const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
                         if (!resolvedDomainWallet) {
                             throw Error('Error resolving domain wallet');
                         }
@@ -212,10 +215,10 @@ export const TransferFragment = fragment(() => {
                 ] = await Promise.all([
                     backoff('transfer', () => fetchConfig()),
                     backoff('transfer', async () => {
-                        let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                        let block = await backoff('transfer', () => client.getLastBlock());
                         return Promise.all([
-                            backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
-                            backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                         ])
                     }),
                 ])
@@ -244,10 +247,7 @@ export const TransferFragment = fragment(() => {
                                 let op = sc.readUintNumber(32);
                                 // Jetton transfer op
                                 if (op === 0xf8a7ea5) {
-                                    jettonMaster = engine
-                                        .persistence
-                                        .jettonMasters
-                                        .item(metadata.jettonWallet!.master).value;
+                                    jettonMaster = getJettonMaster(metadata.jettonWallet!.master);
                                 }
                             }
                         }
@@ -294,7 +294,7 @@ export const TransferFragment = fragment(() => {
                 return;
             }
 
-            const block = await backoff('transfer', () => engine.client4.getLastBlock());
+            const block = await backoff('transfer', () => client.getLastBlock());
             const config = await backoff('transfer', () => fetchConfig());
 
             const outMsgs: Cell[] = [];
@@ -308,8 +308,8 @@ export const TransferFragment = fragment(() => {
                     inMsgs.push(msg);
                     // Fetch data
                     const [metadata, state] = await Promise.all([
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, msg.to)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, msg.to))
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, msg.to)),
+                        backoff('transfer', () => client.getAccount(block.last.seqno, msg.to))
                     ]);
 
                     storageStats.push(state!.account.storageStat);
@@ -351,9 +351,10 @@ export const TransferFragment = fragment(() => {
                         }
                     }]);
                     exited = true;
-                    if (params && params.job) {
-                        engine.products.apps.commitCommand(false, params.job, new Cell());
-                    }
+                    // TODO:
+                    // if (params && params.job) {
+                    //     engine.products.apps.commitCommand(false, params.job, new Cell());
+                    // }
                     if (params && params.callback) {
                         params.callback(false, null);
                     }

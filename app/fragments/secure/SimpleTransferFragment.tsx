@@ -21,14 +21,17 @@ import MessageIcon from '../../../assets/ic_message.svg';
 import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
-import { useItem } from '../../engine/persistence/PersistedItem';
-import { estimateFees } from '../../engine/estimate/estimateFees';
-import { useRecoilValue } from 'recoil';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useAccount } from '../../engine/hooks/useAccount';
+import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
+import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
+import { useConfig } from '../../engine/hooks/useConfig';
+import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
+import { useContact } from '../../engine/hooks/useContact';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -54,7 +57,7 @@ export const SimpleTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -65,8 +68,8 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
-    const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
+    const jettonWallet = useJettonWallet(params.jetton!);
+    const jettonMaster = useJettonMaster(jettonWallet.master!);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = React.useMemo(() => {
         let value;
@@ -81,14 +84,14 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Auto-cancel job
     React.useEffect(() => {
-        return () => {
-            if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
-            }
-            if (params && params.callback) {
-                params.callback(false, null);
-            }
-        }
+        // return () => {
+        //     if (params && params.job) {
+        //         engine.products.apps.commitCommand(false, params.job, new Cell());
+        //     }
+        //     if (params && params.callback) {
+        //         params.callback(false, null);
+        //     }
+        // }
     }, []);
 
     // Resolve order
@@ -220,8 +223,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
-    const config = engine.products.config.useConfig();
-    const accountState = useRecoilValue(engine.persistence.liteAccounts.item(engine.address).atom);
+    const config = useConfig();
+    const accountState = useAccount();
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
@@ -291,8 +294,9 @@ export const SimpleTransferFragment = fragment(() => {
                     }).writeTo(inMsg);
                     let outMsg = new Cell();
                     intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
-                    setEstimation(local);
+                    // TODO:
+                    // let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
+                    // setEstimation(local);
                 }
             });
         });
@@ -387,7 +391,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
-    const contact = engine.products.settings.useContact(target);
+    const contact = useContact(target);
 
     return (
         <>

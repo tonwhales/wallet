@@ -1,8 +1,8 @@
 import BN from "bn.js";
 import { Address, Cell, parseTransaction } from "ton";
 import { Engine } from "../Engine";
-import { backoff } from '../../utils/time';
-import { createLogger } from '../../utils/log';
+import { backoff } from '../../../utils/time';
+import { createLogger } from '../../../utils/log';
 import { startDependentSync } from "./utils/startDependentSync";
 import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 

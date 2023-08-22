@@ -20,17 +20,17 @@ import { CloseButton } from '../../components/CloseButton';
 import { WImage } from '../../components/WImage';
 import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/api/fetchManifest';
-import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
-import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../engine/tonconnect/types';
-import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { isUrl } from '../../utils/resolveUrl';
+import { ConnectQrQuery, ReturnStrategy } from '../../engine/legacy/tonconnect/types';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/legacy/tonconnect/utils';
+import { ConnectReplyBuilder } from '../../engine/legacy/tonconnect/ConnectReplyBuilder';
+import { tonConnectDeviceInfo } from '../../engine/legacy/tonconnect/config';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -65,31 +65,32 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         (async () => {
             if (connectProps.type === 'qr') {
                 try {
-                    const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
+                    // TODO
+                    // const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
 
-                    if (handled) {
-                        checkProtocolVersionCapability(handled.protocolVersion);
-                        verifyConnectRequest(handled.request);
+                    // if (handled) {
+                    //     checkProtocolVersionCapability(handled.protocolVersion);
+                    //     verifyConnectRequest(handled.request);
 
-                        if (handled.manifest) {
-                            const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
+                    //     if (handled.manifest) {
+                    //         const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
 
-                            setState({
-                                type: 'initing',
-                                name: handled.manifest.name,
-                                url: handled.manifest.url,
-                                app: handled.manifest,
-                                protocolVersion: handled.protocolVersion,
-                                request: handled.request,
-                                clientSessionId: handled.clientSessionId,
-                                returnStrategy: handled.returnStrategy,
-                                domain: domain
-                            });
-                            return;
-                        }
-                        setState({ type: 'failed', returnStrategy: connectProps.query.ret });
-                        return;
-                    }
+                    //         setState({
+                    //             type: 'initing',
+                    //             name: handled.manifest.name,
+                    //             url: handled.manifest.url,
+                    //             app: handled.manifest,
+                    //             protocolVersion: handled.protocolVersion,
+                    //             request: handled.request,
+                    //             clientSessionId: handled.clientSessionId,
+                    //             returnStrategy: handled.returnStrategy,
+                    //             domain: domain
+                    //         });
+                    //         return;
+                    //     }
+                    //     setState({ type: 'failed', returnStrategy: connectProps.query.ret });
+                    //     return;
+                    // }
 
                 } catch (e) {
                     warn('Failed to handle deeplink');
@@ -100,22 +101,23 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             checkProtocolVersionCapability(connectProps.protocolVersion);
             verifyConnectRequest(connectProps.request);
 
-            const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
+            // TODO
+            // const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
 
-            if (manifest) {
-                const domain = isUrl(manifest.url) ? extractDomain(manifest.url) : manifest.url;
+            // if (manifest) {
+            //     const domain = isUrl(manifest.url) ? extractDomain(manifest.url) : manifest.url;
 
-                setState({
-                    type: 'initing',
-                    name: manifest.name,
-                    url: manifest.url,
-                    app: manifest,
-                    protocolVersion: connectProps.protocolVersion,
-                    request: connectProps.request,
-                    domain: domain
-                });
-                return;
-            }
+            //     setState({
+            //         type: 'initing',
+            //         name: manifest.name,
+            //         url: manifest.url,
+            //         app: manifest,
+            //         protocolVersion: connectProps.protocolVersion,
+            //         request: connectProps.request,
+            //         domain: domain
+            //     });
+            //     return;
+            // }
 
             setState({ type: 'failed' });
             return;
@@ -220,20 +222,21 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 // Save connection
-                engine.products.tonConnect.saveAppConnection(
-                    {
-                        name: state.app.name,
-                        url: state.app.url,
-                        iconUrl: state.app.iconUrl,
-                        autoConnectDisabled: false
-                    },
-                    {
-                        type: TonConnectBridgeType.Remote,
-                        sessionKeyPair: sessionCrypto.stringifyKeypair(),
-                        clientSessionId: state.clientSessionId,
-                        replyItems,
-                    },
-                );
+                // TODO: save connection
+                // engine.products.tonConnect.saveAppConnection(
+                //     {
+                //         name: state.app.name,
+                //         url: state.app.url,
+                //         iconUrl: state.app.iconUrl,
+                //         autoConnectDisabled: false
+                //     },
+                //     {
+                //         type: TonConnectBridgeType.Remote,
+                //         sessionKeyPair: sessionCrypto.stringifyKeypair(),
+                //         clientSessionId: state.clientSessionId,
+                //         replyItems,
+                //     },
+                // );
 
                 setState({ type: 'authorized', returnStrategy: state.returnStrategy });
                 return;

@@ -1,6 +1,6 @@
 import { AppRequest, RpcMethod, SessionCrypto, } from '@tonconnect/protocol';
-import { storage } from '../../storage/storage';
-import { createLogger, warn } from '../../utils/log';
+import { storage } from '../../../storage/storage';
+import { createLogger, warn } from '../../../utils/log';
 import { Engine } from '../Engine';
 import { bridgeUrl } from '../products/ConnectProduct';
 import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './types';

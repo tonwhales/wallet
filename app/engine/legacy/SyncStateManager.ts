@@ -1,4 +1,4 @@
-import { createLogger } from "../utils/log";
+import { createLogger } from "../../utils/log";
 import { ReactSync } from "./utils/ReactSync";
 
 const logger = createLogger('status');

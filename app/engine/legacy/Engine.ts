@@ -18,10 +18,10 @@ import { ExtensionsProduct } from './products/ExtensionsProduct';
 import { Cloud } from './cloud/Cloud';
 import { StakingPoolsProduct } from './products/StakingProduct';
 import { SettingsProduct } from './products/SettingsProduct';
-import { KeysProduct } from './legacy/keys/KeysProduct';
 import { HoldersProduct } from './holders/HoldersProduct';
 import { ConnectProduct } from './products/ConnectProduct';
 import { LedgerProduct } from './products/LedgerProduct';
+import { KeysProduct } from './keys/KeysProduct';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;

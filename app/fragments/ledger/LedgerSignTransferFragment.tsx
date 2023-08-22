@@ -19,12 +19,6 @@ import { ItemGroup } from '../../components/ItemGroup';
 import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
 import { CloseButton } from '../../components/CloseButton';
-import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { useItem } from '../../engine/persistence/PersistedItem';
-import { fetchMetadata } from '../../engine/legacy/metadata/fetchMetadata';
-import { resolveOperation } from '../../engine/transactions/resolveOperation';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import TonSign from '../../../assets/ic_ton_sign.svg';
@@ -43,7 +37,6 @@ import { AddressComponent } from '../../components/AddressComponent';
 import { ItemCollapsible } from '../../components/ItemCollapsible';
 import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { LedgerOrder } from '../secure/ops/Order';
 import { WalletV4Source } from 'ton-contracts';
 import { TonTransport } from 'ton-ledger';
@@ -57,6 +50,19 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useLedgerAccount } from '../../engine/hooks/useLedgerAccount';
+import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
+import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useContactAddress } from '../../engine/hooks/useContactAddress';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { useAccount } from '../../engine/hooks/useAccount';
+import { useConfig } from '../../engine/hooks/useConfig';
+import { fetchMetadata } from '../../engine/legacy/metadata/fetchMetadata';
+import { getJettonMaster } from '../../engine/getters/getJettonMaster';
+import { getLedgerWallet } from '../../engine/getters/getLedgerWallet';
+import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
+import { parseMessageBody } from '../../engine/legacy/transactions/parseMessageBody';
+import { resolveOperation } from '../../engine/legacy/transactions/resolveOperation';
+import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -89,6 +95,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const account = useLedgerAccount();
+    const client = useClient4(AppConfig.isTestnet);
     const {
         restricted,
         target,
@@ -141,7 +148,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
     // Contact wallets
-    const contact = engine.products.settings.useContactAddress(target.address);
+    const contact = useContactAddress(target.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -151,8 +158,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         known = { name: contact.name }
     }
 
-    const isSpam = engine.products.settings.useDenyAddress(target.address);
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+    const isSpam = useDenyAddress(target.address);
+    let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation
     const doSend = React.useCallback(async () => {
@@ -168,12 +175,12 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             // Fetch data
             const [[accountSeqno, account, targetState]] = await Promise.all([
                 backoff('transfer-fetch-data', async () => {
-                    let block = await backoff('ledger-lastblock', () => engine.client4.getLastBlock());
-                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(engine.client4, block.last.seqno, contract.address));
+                    let block = await backoff('ledger-lastblock', () => client.getLastBlock());
+                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(client, block.last.seqno, contract.address));
                     return Promise.all([
                         seqno,
-                        backoff('ledger-lite', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
-                        backoff('ledger-target', () => engine.client4.getAccount(block.last.seqno, address))
+                        backoff('ledger-lite', () => client.getAccountLite(block.last.seqno, contract.address)),
+                        backoff('ledger-target', () => client.getAccount(block.last.seqno, address))
                     ])
                 }),
             ]);
@@ -232,7 +239,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             await backoff('ledger-transfer', async () => {
                 try {
                     setTransferState('sending');
-                    await engine.client4.sendMessage(msg.toBoc({ idx: false }));
+                    await client.sendMessage(msg.toBoc({ idx: false }));
                 } catch (error) {
                     console.warn(error);
                 }
@@ -244,11 +251,10 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     if (!account.account.last) {
                         return;
                     }
-                    const latestStr = engine.products.ledger.getWallet(contract.address)?.transactions[0];
-                    const lastBlock = await engine.client4.getLastBlock();
-                    const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
+                    const lastBlock = await client.getLastBlock();
+                    const lite = await client.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    if (new BN(account.account.last.lt, 10).lt(new BN(latestStr ?? '0', 10))) {
+                    if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt || '0', 10))) {
                         setTransferState('sent');
                         navigation.goBack();
                         return;
@@ -924,7 +930,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     } = useRoute().params! as any;
 
     const { ledgerConnection, tonTransport, addr } = useTransport();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -937,6 +943,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
     const netConfig = useConfig();
+    const client = useClient4(useAppConfig().AppConfig.isTestnet);
 
     React.useEffect(() => {
 
@@ -981,7 +988,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                         throw Error('Invalid domain');
                     }
 
-                    const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                    const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
                     if (!resolvedDomainWallet) {
                         throw Error('Error resolving domain wallet');
                     }
@@ -1033,10 +1040,10 @@ export const LedgerSignTransferFragment = fragment(() => {
             ] = await Promise.all([
                 backoff('transfer', () => fetchConfig()),
                 backoff('transfer', async () => {
-                    let block = await backoff('transfer', () => engine.client4.getLastBlock());
+                    let block = await backoff('transfer', () => client.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                        backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                     ])
                 }),
             ])
@@ -1056,7 +1063,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (metadata.jettonWallet) {
-                jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+                jettonMaster = getJettonMaster(metadata.jettonWallet!.master);
             }
 
             // Estimate fee

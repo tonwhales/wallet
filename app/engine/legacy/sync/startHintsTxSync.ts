@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address } from "ton";
-import { createLogger } from "../../utils/log";
+import { createLogger } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { requestAllHintsIfNeeded } from "./ops";
 import { startDependentSync } from "./utils/startDependentSync";

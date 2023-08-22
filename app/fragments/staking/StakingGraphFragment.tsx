@@ -9,7 +9,6 @@ import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
@@ -21,6 +20,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 import { useStakingChart } from '../../engine/hooks/useStakingChart';
+import { usePrice } from '../../engine/hooks/usePrice';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -42,7 +42,7 @@ export const StakingGraphFragment = fragment(() => {
         }
     });
 
-    const [price, currency] = usePrice();
+    const [price, currency] = usePrrice();
 
     const rate = useMemo(() => {
         return price ? price.price.usd * price.price.rates[currency] : 0;

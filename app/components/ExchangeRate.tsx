@@ -1,9 +1,9 @@
 import React from "react"
 import { StyleProp, View, Text, ViewStyle } from "react-native"
-import { usePrice } from "../engine/PriceContext";
 import TonIcon from '../../assets/ton_icon.svg';
 import { formatCurrency } from "../utils/formatCurrency";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { usePrice } from '../engine/hooks/usePrice';
 
 export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
     const [price, currency] = usePrice();

@@ -1,8 +1,8 @@
 import BN from "bn.js";
 import { SyncValue } from "teslabot";
 import { Address, Cell, parseTransaction } from "ton";
-import { createLogger } from "../../utils/log";
-import { backoff } from "../../utils/time";
+import { createLogger } from "../../../utils/log";
+import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
 import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 import { FullAccount } from "./startAccountFullSync";

@@ -10,7 +10,8 @@ import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { holdersUrl } from '../../engine/holders/HoldersProduct';
+import { useHoldersStatus } from '../../engine/hooks/useHoldersStatus';
+import { holdersUrl } from '../../engine/legacy/holders/HoldersProduct';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -19,7 +20,7 @@ export const HoldersAppFragment = fragment(() => {
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const status = engine.products.holders.useStatus();
+    const status = useHoldersStatus();
 
     const needsEnrollment = useMemo(() => {
         try {
@@ -27,10 +28,10 @@ export const HoldersAppFragment = fragment(() => {
             if (!domain) {
                 return; // Shouldn't happen
             }
-            let domainKey = engine.products.keys.getDomainKey(domain);
-            if (!domainKey) {
-                return true;
-            }
+            // let domainKey = getDomainKey(domain);
+            // if (!domainKey) {
+            //     return true;
+            // }
             if (status.state === 'need-enrolment') {
                 return true;
             }

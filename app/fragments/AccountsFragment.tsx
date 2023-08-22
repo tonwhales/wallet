@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
-import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
@@ -13,6 +12,8 @@ import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useJettons } from '../engine/hooks/useJettons';
+import { markJettonDisabled } from '../engine/effects/markJettonDisabled';
+import { markJettonActive } from '../engine/effects/markJettonActive';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -42,8 +43,8 @@ export const AccountsFragment = fragment(() => {
     const navigation = useTypedNavigation();
 
     const jettons = useJettons();
-    const active = jettons.filter((j) => !j.disabled);
-    const disabled = jettons.filter((j) => j.disabled);
+    const active = jettons.filter((j: any) => !j.disabled);
+    const disabled = jettons.filter((j: any) => j.disabled);
 
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
@@ -156,7 +157,7 @@ export const AccountsFragment = fragment(() => {
                                 </Text>
                             )}
                         </View>
-                        {active.map((j) => {
+                        {active.map((j: any) => {
                             return (
                                 <JettonProduct
                                     key={'jt' + j.wallet.toFriendly()}
@@ -179,7 +180,7 @@ export const AccountsFragment = fragment(() => {
                                 </Text>
                             </View>
                         )}
-                        {disabled.map((j) => {
+                        {disabled.map((j: any) => {
                             return (
                                 <JettonProduct
                                     key={'jt' + j.wallet.toFriendly()}

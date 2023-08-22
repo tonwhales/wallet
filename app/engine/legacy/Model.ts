@@ -1,5 +1,5 @@
 import { Address } from 'ton';
-import { LazyMap } from '../utils/LazyMap';
+import { LazyMap } from '../../utils/LazyMap';
 import { FullAccount } from './sync/startAccountFullSync';
 import { LiteAccount } from './sync/startAccountLiteSync';
 import { PluginState } from './sync/startPluginSync';

@@ -18,7 +18,7 @@ import { startAppMetadataSync } from "./startAppMetadataSync";
 import { startWalletConfigSync } from "./startWalletConfigSync";
 import { startApySync } from "./startApySync";
 import { startAccountBalanceChartSync } from "./startAccountBalanceChartSync";
-import { createTracer } from '../../utils/tracer';
+import { createTracer } from '../../../utils/tracer';
 import { startHoldersSync } from "./startHoldersSync";
 
 export function startSync(engine: Engine) {

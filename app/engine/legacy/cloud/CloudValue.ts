@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import { InvalidateSync } from "../utils/InvalidateSync";
 import { Cloud } from "./Cloud";
-import { createLogger } from '../../utils/log';
+import { createLogger } from '../../../utils/log';
 import { atom, RecoilState, useRecoilValue } from 'recoil';
 import { AutomergeValue } from './AutomergeValue';
 

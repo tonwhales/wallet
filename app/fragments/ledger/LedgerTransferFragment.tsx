@@ -18,23 +18,27 @@ import { resolveUrl } from "../../utils/resolveUrl";
 import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
-import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
 import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { useItem } from "../../engine/persistence/PersistedItem";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerWallet } from '../../engine/hooks/useLedgerWallet';
 import { useConfig } from '../../engine/hooks/useConfig';
+import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
+import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
+import { useContact } from '../../engine/hooks/useContact';
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
     const { Theme, AppConfig } = useAppConfig();
+    const client = useClient4(AppConfig.isTestnet);
     const address = useMemo(() => {
         if (addr) {
             try {
@@ -58,8 +62,8 @@ export const LedgerTransferFragment = fragment(() => {
     const [comment, setComment] = React.useState(params?.comment ?? '');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
-    const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
-    const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
+    const jettonWallet = useJettonWallet(params.jetton);
+    const jettonMaster = useJettonMaster(jettonWallet.master);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = React.useMemo(() => {
         let value;
@@ -195,9 +199,9 @@ export const LedgerTransferFragment = fragment(() => {
                 const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
                 // Load contract
                 const contract = await contractFromPublicKey(addr.publicKey);
-                const seqno = (await engine.client4.getLastBlock()).last.seqno;
+                const seqno = (await client.getLastBlock()).last.seqno;
                 // Fetch account light state
-                const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
+                const accountState = (await backoff('account-state', () => client.getAccountLite(seqno, contract.address))).account;
 
 
                 // Parse order
@@ -343,7 +347,7 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
-    const contact = engine.products.settings.useContact(target);
+    const contact = useCrontact(target);
 
     return (
         <View style={{

@@ -9,7 +9,6 @@ import { fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
@@ -19,6 +18,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
 import { useAccount } from '../../engine/hooks/useAccount';
+import { usePrice } from '../../engine/hooks/usePrice';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -31,23 +31,24 @@ export const AccountBalanceGraphFragment = fragment(() => {
     // const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
     const points: GraphPoint[] = useMemo(() => {
-        const temp = (balanceChart?.chart || []).map((p) => {
+        const temp = (balanceChart?.chart || []).map((p: any) => {
             return {
                 value: parseFloat(fromNano(p.balance)),
                 date: new Date(p.ts)
             }
         });
 
-        if (account && last) {
-            const latest = engine.transactions.get(engine.address, last.lt.toString(10));
+        // TODO
+        // if (account && last) {
+        //     const latest = engine.transactions.get(engine.address, last.lt.toString(10));
 
-            if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
-                temp.push({
-                    value: parseFloat(fromNano(account.balance)),
-                    date: new Date(account.transactions[0].time * 1000)
-                });
-            }
-        }
+        //     if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
+        //         temp.push({
+        //             value: parseFloat(fromNano(account.balance)),
+        //             date: new Date(account.transactions[0].time * 1000)
+        //         });
+        //     }
+        // }
 
         return temp;
     }, [balanceChart, account]);

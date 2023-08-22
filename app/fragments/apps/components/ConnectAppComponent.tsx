@@ -12,8 +12,8 @@ import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useDAppBridge } from '../../../engine/tonconnect/useInjectConnectEngine';
 import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useDAppBridge } from '../../../engine/hooks/useDAppBridge';
 
 export const ConnectAppComponent = React.memo((props: {
     endpoint: string,

@@ -9,7 +9,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
@@ -100,7 +99,6 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 export const TransferFragment = fragment(() => {
     const { AppConfig } = useAppConfig();
     const params: TransferFragmentProps = useRoute().params! as any;
-    const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

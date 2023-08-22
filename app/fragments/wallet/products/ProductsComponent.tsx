@@ -2,7 +2,6 @@ import BN from "bn.js"
 import React, { useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
 import { ProductButton } from "./ProductButton"
-import { useEngine } from "../../../engine/Engine"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
@@ -18,17 +17,19 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { HoldersProductButton } from "./HoldersProductButton"
+import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
+import { useCurrentJob } from '../../../engine/hooks/useCurrentJob';
+import { useJettons } from '../../../engine/hooks/useJettons';
 
 export const ProductsComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const oldWalletsBalance = engine.products.legacy.useState();
-    const currentJob = engine.products.apps.useState();
-    const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
-    const extensions = engine.products.extensions.useExtensions();
-    const ledger = engine.products.settings.useLedger();
-    const cards = engine.products.holders.useCards();
+    const oldWalletsBalance = useOldWalletsBalance();
+    const currentJob = useCurrentJob();
+    const jettons = useJettons().filter((j) => !j.disabled);
+    const extensions = useExtensions();
+    const ledger = useLedger();
+    const cards = useCards();
     const tonconnectExtensions = engine.products.tonConnect.useExtensions();
     const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const openExtension = React.useCallback((url: string) => {

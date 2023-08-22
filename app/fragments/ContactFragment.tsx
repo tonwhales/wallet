@@ -12,7 +12,6 @@ import { CloseButton } from "../components/CloseButton";
 import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
@@ -20,6 +19,7 @@ import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useSettings } from '../engine/hooks/useSettings';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -39,9 +39,7 @@ export const ContactFragment = fragment(() => {
     }
     const address = useMemo(() => Address.parse(params.address), []);
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const settings = engine.products.settings;
-    const contact = settings.useContactAddress(Address.parse(params.address));
+    const contact = useContactAddress(Address.parse(params.address));
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);

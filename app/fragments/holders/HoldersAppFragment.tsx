@@ -3,7 +3,6 @@ import { fragment } from '../../fragment';
 import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useEngine } from '../../engine/Engine';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
@@ -17,7 +16,6 @@ export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account'
 
 export const HoldersAppFragment = fragment(() => {
     const { Theme } = useAppConfig();
-    const engine = useEngine();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

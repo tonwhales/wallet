@@ -15,7 +15,6 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
-import { useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
@@ -24,12 +23,16 @@ import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useContactAddress } from '../../engine/hooks/useContactAddress';
+import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
+import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
+import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
+import { useTransaction } from '../../engine/hooks/useTransaction';
+import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 
 export const TransactionPreviewFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -37,8 +40,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<{ transaction: string }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
-    let transaction = engine.products.main.useTransaction(params.transaction);
+    let transaction = useTransaction(params.transaction);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
@@ -105,7 +107,7 @@ export const TransactionPreviewFragment = fragment(() => {
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
-    const contact = engine.products.settings.useContactAddress(operation.address);
+    const contact = useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -117,11 +119,11 @@ export const TransactionPreviewFragment = fragment(() => {
         known = { name: contact.name }
     }
 
-    const spamMinAmount = engine.products.settings.useSpamMinAmount();
-    const dontShowComments = engine.products.settings.useDontShowComments();
-    const isSpam = engine.products.settings.useDenyAddress(operation.address);
+    const spamMinAmount = useSpamMinAmount();
+    const dontShowComments = useDontShowComments();
+    const isSpam = useDenyAddress(operation.address);
 
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
             transaction.base.amount.abs().lt(spamMinAmount)

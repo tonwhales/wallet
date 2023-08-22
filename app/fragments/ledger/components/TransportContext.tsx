@@ -6,10 +6,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
-import { startWalletV4Sync } from "../../../engine/sync/startWalletV4Sync";
-import { Address } from "ton";
 import { warn } from "../../../utils/log";
-import { useEngine } from "../../../engine/Engine";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -27,7 +24,6 @@ export const TransportContext = React.createContext<
 
 export const TransportProvider = ({ children }: { children: React.ReactNode }) => {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const [ledgerConnection, setLedgerConnection] = React.useState<TypedTransport | null>(null);
     const [tonTransport, setTonTransport] = React.useState<TonTransport | null>(null);
     const [addr, setAddr] = React.useState<LedgerAddress | null>(null);
@@ -54,9 +50,9 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
     const onSetAddress = useCallback((selected: LedgerAddress | null) => {
         setAddr(selected);
         try {
-            const parsed = Address.parse(selected!.address);
-            startWalletV4Sync(parsed, engine);
-            engine.products.ledger.startSync(parsed);
+            // const parsed = Address.parse(selected!.address);
+            // startWalletV4Sync(parsed, engine);
+            // engine.products.ledger.startSync(parsed);
         } catch (e) {
             warn('Failed to parse address');
         }

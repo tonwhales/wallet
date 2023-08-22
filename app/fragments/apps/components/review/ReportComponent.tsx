@@ -4,17 +4,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { postExtensionReport } from "../../../../engine/api/reviews";
-import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { Picker } from '@react-native-picker/picker';
 import { useAppConfig } from "../../../../utils/AppConfigContext";
+import { useAppData } from '../../../../engine/hooks/useAppData';
 
 export const ReportComponent = React.memo(({ url }: { url: string }) => {
-    const engine = useEngine();
     const { Theme, AppConfig } = useAppConfig();
-    const appData = engine.products.extensions.useAppData(url);
+    const appData = useAppData(url);
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const navigation = useTypedNavigation();

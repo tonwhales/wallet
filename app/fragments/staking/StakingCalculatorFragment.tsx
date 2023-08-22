@@ -10,19 +10,18 @@ import { CloseButton } from "../../components/CloseButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { StakingCalcComponent } from "../../components/Staking/StakingCalcComponent";
-import { useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useStakingPool } from '../../engine/hooks/useStakingPool';
 
 export const StakingCalculatorFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const params = useParams<{ target: Address }>();
-    const engine = useEngine();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
+    const pool = useStakingPool(params.target);
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();

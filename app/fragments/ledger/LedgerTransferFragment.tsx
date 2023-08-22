@@ -12,7 +12,6 @@ import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { resolveUrl } from "../../utils/resolveUrl";
@@ -30,6 +29,8 @@ import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useLedgerWallet } from '../../engine/hooks/useLedgerWallet';
+import { useConfig } from '../../engine/hooks/useConfig';
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
@@ -43,13 +44,12 @@ export const LedgerTransferFragment = fragment(() => {
             }
         }
     }, [addr]);
-    const engine = useEngine();
     const params: SimpleTransferParams | undefined = useParams();
 
-    const accountV4State = engine.products.ledger.useWallet(address);
+    const accountV4State = useLedgerWallet(address!);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const config = engine.products.config.useConfig();
+    const config = useConfig();
 
     // Input state
     const [target, setTarget] = React.useState(params?.target ?? '');

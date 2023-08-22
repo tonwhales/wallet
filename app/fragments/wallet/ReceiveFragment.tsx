@@ -12,19 +12,17 @@ import { useParams } from "../../utils/useParams";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { Address } from "ton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
-import { useEngine } from "../../engine/Engine";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
     const address = React.useMemo(() => {
         if (params.addr) {
@@ -36,13 +34,13 @@ export const ReceiveFragment = fragment(() => {
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
 
     const onAssetSelected = useCallback((address?: Address) => {
-        if (address) {
-            const data = engine.persistence.jettonMasters.item(address).value;
-            if (data) {
-                setJetton({ master: address, data });
-                return;
-            }
-        }
+        // if (address) {
+        //     const data = engine.persistence.jettonMasters.item(address).value;
+        //     if (data) {
+        //         setJetton({ master: address, data });
+        //         return;
+        //     }
+        // }
         setJetton(null);
     }, []);
 

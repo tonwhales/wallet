@@ -11,7 +11,6 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { warn } from '../../../utils/log';
 import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
-import { useEngine } from '../../../engine/Engine';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
@@ -130,7 +129,6 @@ export const AppComponent = React.memo((props: {
     // Injection
     //
 
-    const engine = useEngine();
     const injectSource = React.useMemo(() => {
         const contract = contractFromPublicKey(engine.publicKey);
         const walletConfig = contract.source.backup();

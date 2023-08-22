@@ -6,7 +6,6 @@ import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
@@ -17,9 +16,7 @@ import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const engine = useEngine();
     const reboot = useReboot();
-    const settings = engine?.products?.settings;
     const route = useRoute();
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();

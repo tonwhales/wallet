@@ -13,7 +13,6 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
-import { Engine, useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
@@ -32,6 +31,7 @@ import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
     const { Theme, AppConfig } = useAppConfig();
@@ -522,13 +522,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
 export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const { Theme } = useAppConfig();
-    const engine = useEngine();
     const params = useParams<{ transaction: string }>();
     const { addr } = useTransport();
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);
-    const transaction = engine.products.ledger.useTransaction(params.transaction);
+    const transaction = useLedgerTransaction(params.transaction);
     const navigation = useTypedNavigation();
 
     if (!transaction) {
@@ -550,7 +549,6 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
                 <LoadedTransaction
                     transaction={transaction}
                     transactionHash={transaction.base?.hash.toString('base64')}
-                    engine={engine}
                     address={address}
                 />
             )}

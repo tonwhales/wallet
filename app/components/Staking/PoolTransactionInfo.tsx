@@ -3,10 +3,10 @@ import React, { useMemo } from "react"
 import { View, Text } from "react-native"
 import { fromNano, toNano } from "ton";
 import { t } from "../../i18n/t";
-import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { PriceComponent } from "../PriceComponent";
-import { useEngine } from "../../engine/Engine";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useStakingApy } from '../../engine/hooks/useStakingApy';
+import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync';
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
     if (!pool) return null;
@@ -14,8 +14,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
     const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
     const withdrawFee = pool.params.withdrawFee.add(pool.params.receiptPrice);
     const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
-    const engine = useEngine();
-    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return (apy - apy * (poolFee / 100)).toFixed(3)

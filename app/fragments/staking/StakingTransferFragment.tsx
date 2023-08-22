@@ -12,7 +12,6 @@ import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useEngine } from '../../engine/Engine';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
@@ -23,10 +22,11 @@ import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
 import { LocalizedResources } from '../../i18n/schema';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useAccount } from '../../engine/hooks/useAccount';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -68,10 +68,9 @@ export const StakingTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const account = useAccount();
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
+    const pool = useStakingPool(params.target);
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');

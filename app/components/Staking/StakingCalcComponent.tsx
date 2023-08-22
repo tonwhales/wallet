@@ -2,14 +2,14 @@ import BN from "bn.js";
 import React, { useMemo } from "react"
 import { View, Text } from "react-native";
 import { fromNano, toNano } from "ton";
-import { useEngine } from "../../engine/Engine";
-import { StakingPoolState } from "../../engine/sync/startStakingPoolSync";
 import { t } from "../../i18n/t";
 import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useStakingApy } from '../../engine/hooks/useStakingApy';
+import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync';
 
 export const StakingCalcComponent = React.memo((
     {
@@ -29,8 +29,7 @@ export const StakingCalcComponent = React.memo((
         pool: StakingPoolState
     }) => {
     const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apy = useStakingApy()?.apy;
     const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {

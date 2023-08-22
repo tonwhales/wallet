@@ -4,7 +4,6 @@ import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
 import { useItem } from "../../../engine/persistence/PersistedItem";
 import { usePrice } from "../../../engine/PriceContext";
@@ -71,7 +70,6 @@ export const TransferBatch = React.memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const [price, currency] = usePrice();
     const {

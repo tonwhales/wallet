@@ -6,7 +6,6 @@ import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../anal
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
@@ -16,6 +15,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { Address } from "ton";
 import { holdersUrl } from "../engine/holders/HoldersProduct";
+import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);
@@ -33,7 +33,6 @@ export const LogoutFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
-    const engine = useEngine();
 
     const onDeletetAccount = React.useCallback(() => {
         if (Platform.OS === 'ios') {
@@ -47,12 +46,7 @@ export const LogoutFragment = fragment(() => {
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
-                        storage.clearAll();
-                        clearHolders(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
-                        reboot();
+                        onAccountDeleted(AppConfig.isTestnet);
                     }
                 }
             );
@@ -62,16 +56,11 @@ export const LogoutFragment = fragment(() => {
                 t('confirm.logout.message'),
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        storage.clearAll();
-                        clearHolders(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
-                        reboot();
+                        onAccountDeleted(AppConfig.isTestnet);
                     }
                 }, { text: t('common.cancel') }])
         }
-    }, []);
+    }, [AppConfig.isTestnet]);
 
     return (
         <View style={{

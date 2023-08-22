@@ -7,12 +7,12 @@ import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { WalletAddress } from "../../../components/WalletAddress";
-import { Engine, useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionsSection } from "./LedgerTransactionsSection";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useLedgerAccount } from '../../../engine/hooks/useLedgerAccount';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -93,9 +93,8 @@ export const LedgerApp = React.memo((props: {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
-    const engine = useEngine();
     const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
-    const account = engine.products.ledger.useAccount();
+    const account = useLedgerAccount();
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);

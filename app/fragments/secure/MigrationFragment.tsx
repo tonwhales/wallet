@@ -10,7 +10,6 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useEngine } from '../../engine/Engine';
 import { ValueComponent } from '../../components/ValueComponent';
 import { WalletAddress } from '../../components/WalletAddress';
 import { CloseButton } from '../../components/CloseButton';
@@ -35,7 +34,6 @@ const MigrationProcessFragment = fragment(() => {
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
-    const engine = useEngine();
 
     React.useEffect(() => {
         let ended = false;
@@ -123,7 +121,6 @@ export const MigrationFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const animRef = React.useRef<LottieView>(null);
 
     React.useEffect(() => {

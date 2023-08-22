@@ -5,7 +5,6 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
-import { useEngine } from "../../engine/Engine";
 import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -16,14 +15,15 @@ import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
+import { useJettons } from '../../engine/hooks/useJettons';
+import { useAccount } from '../../engine/hooks/useAccount';
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const jettons = engine.products.main.useJettons();
-    const account = engine.products.main.useAccount();
+    const jettons = useJettons();
+    const account = useAccount();
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
         navigation.navigateSimpleTransfer({
@@ -104,7 +104,6 @@ export const AssetsFragment = fragment(() => {
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}
-                                engine={engine}
                                 onPress={() => {
                                     if (callback) {
                                         onCallback(j.master);

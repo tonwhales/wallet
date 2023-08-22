@@ -3,7 +3,6 @@ import React from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
 import { useItem } from "../../../engine/persistence/PersistedItem";
 import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
@@ -46,6 +45,9 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { holdersUrl } from "../../../engine/holders/HoldersProduct";
+import { useContactAddress } from '../../../engine/hooks/useContactAddress';
+import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
+import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
 
 type Props = {
     target: {
@@ -70,7 +72,6 @@ export const TransferSingle = React.memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const {
         restricted,
@@ -118,7 +119,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
     const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
     // Contact wallets
-    const contact = engine.products.settings.useContactAddress(operation.address);
+    const contact = useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -130,8 +131,8 @@ export const TransferSingle = React.memo((props: Props) => {
         known = { name: contact.name }
     }
 
-    const isSpam = engine.products.settings.useDenyAddress(operation.address);
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+    const isSpam = useDenyAddress(operation.address);
+    let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
 
     // Confirmation

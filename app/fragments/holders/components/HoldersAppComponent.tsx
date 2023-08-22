@@ -7,7 +7,6 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { useEngine } from '../../../engine/Engine';
 import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
@@ -31,6 +30,8 @@ import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpo
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
+import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
+import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -203,12 +204,11 @@ export const HoldersAppComponent = React.memo((
 ) => {
     const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const status = engine.products.holders.useStatus();
+    const status = useHoldersStatus();
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
-    const currency = engine.products.price.usePrimaryCurrency();
+    const currency = usePrimaryCurrency();
     const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
     const useOfflineApp = !!stableOfflineV;

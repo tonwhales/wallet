@@ -8,7 +8,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
@@ -57,6 +56,7 @@ import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
+import { useLedgerAccount } from '../../engine/hooks/useLedgerAccount';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -88,8 +88,7 @@ type ConfirmLoadedProps = {
 const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const account = engine.products.ledger.useAccount();
+    const account = useLedgerAccount();
     const {
         restricted,
         target,
@@ -925,7 +924,6 @@ export const LedgerSignTransferFragment = fragment(() => {
     } = useRoute().params! as any;
 
     const { ledgerConnection, tonTransport, addr } = useTransport();
-    const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -938,7 +936,7 @@ export const LedgerSignTransferFragment = fragment(() => {
 
     // Fetch all required parameters
     const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
-    const netConfig = engine.products.config.useConfig();
+    const netConfig = useConfig();
 
     React.useEffect(() => {
 

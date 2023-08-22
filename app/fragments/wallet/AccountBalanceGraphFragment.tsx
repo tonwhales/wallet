@@ -9,7 +9,6 @@ import { fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -18,6 +17,8 @@ import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
+import { useAccount } from '../../engine/hooks/useAccount';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -25,10 +26,9 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
-    const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+    const account = useAccount();
+    const balanceChart = useAccountBalanceChart();
+    // const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
     const points: GraphPoint[] = useMemo(() => {
         const temp = (balanceChart?.chart || []).map((p) => {

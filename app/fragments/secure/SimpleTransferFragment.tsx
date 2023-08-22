@@ -14,7 +14,6 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useEngine } from '../../engine/Engine';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
@@ -55,7 +54,6 @@ export const SimpleTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
-    const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
 

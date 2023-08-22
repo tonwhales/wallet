@@ -21,7 +21,6 @@ import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
-import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { CheckBox } from '../../components/CheckBox';
@@ -52,7 +51,6 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
     const [addExtension, setAddExtension] = React.useState(false);
-    const engine = useEngine();
     React.useEffect(() => {
         let ended = false;
         backoff('authenticate', async () => {

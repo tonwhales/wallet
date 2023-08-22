@@ -12,8 +12,6 @@ import { CloseButton } from "../components/CloseButton";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { RoundButton } from "../components/RoundButton";
 import { contractFromPublicKey } from "../engine/contractFromPublicKey";
-import { useEngine } from "../engine/Engine";
-import { useItem } from "../engine/persistence/PersistedItem";
 import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
@@ -29,6 +27,10 @@ import { fetchNfts } from "../engine/api/fetchNfts";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { clearHolders } from "./LogoutFragment";
+import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
+import { clients } from '../engine/clients';
+import { useClient4 } from '../engine/hooks/useClient4';
+import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -41,9 +43,8 @@ export const DeleteAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const reboot = useReboot();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
-    const addr = useMemo(() => getCurrentAddress(), []);
+    const addr = useCurrentAddress();
+    const client = useClient4(AppConfig.isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
     const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
@@ -106,8 +107,8 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check target
             const targetState = await backoff('transfer', async () => {
-                let block = await backoff('transfer', () => engine.client4.getLastBlock());
-                return backoff('transfer', () => engine.client4.getAccount(block.last.seqno, targetParsed.address))
+                let block = await backoff('transfer', () => client.getLastBlock());
+                return backoff('transfer', () => client.getAccount(block.last.seqno, targetParsed.address))
             });
 
             const target = {
@@ -192,21 +193,16 @@ export const DeleteAccountFragment = fragment(() => {
                 extMessage.writeTo(msg);
 
                 // Sending transaction
-                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                await backoff('delete_account', () => client.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));
+                    let s = await backoff('seqno', () => contract.getSeqNo());
                     // Check if wallet has been cleared
                     if (s === 0) {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(() => {
-                            storage.clearAll();
-                            clearHolders(engine);
-                            mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
-                            trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                            mixpanelFlush(AppConfig.isTestnet);
-                            reboot();
+                           onAccountDeleted(AppConfig.isTestnet);
                         }, 2000);
                         break;
                     }

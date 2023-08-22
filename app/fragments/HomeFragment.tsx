@@ -13,7 +13,6 @@ import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
-import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
@@ -26,7 +25,6 @@ export const HomeFragment = fragment(() => {
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
-    const engine = useEngine();
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     // Subscribe for links

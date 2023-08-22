@@ -10,7 +10,6 @@ import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { formatDate, getDateKey } from "../utils/dates";
@@ -18,17 +17,17 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useContacts } from '../engine/hooks/useContacts';
+import { useAccountTransactions } from '../engine/hooks/useAccountTransactions';
+import { useAccount } from '../engine/hooks/useAccount';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    const transactions = account?.transactions ?? [];
     const safeArea = useSafeAreaInsets();
-    const settings = engine.products.settings;
-    const contacts = settings.useContacts();
-
+    const contacts = useContacts();
+    const account = useAccount();
+    const transactions = useAccountTransactions(account.address);
     const [addingAddress, setAddingAddress] = useState(false);
     const [domain, setDomain] = React.useState<string>();
     const [target, setTarget] = React.useState('');

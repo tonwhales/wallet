@@ -4,7 +4,6 @@ import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../components/CloseButton";
-import { useEngine } from "../../engine/Engine";
 import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -17,16 +16,17 @@ import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton"
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useJettons } from '../../engine/hooks/useJettons';
+import { useAccount } from '../../engine/hooks/useAccount';
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const { addr } = useTransport();
     const address = useMemo(() => Address.parse(addr!.address), [addr]);
-    const jettons = engine.products.ledger.useJettons(address)?.jettons ?? [];
-    const account = engine.products.ledger.useAccount();
+    const jettons = useJettons(address)?.jettons ?? [];
+    const account = useAccount();
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
         navigation.replace('LedgerTransfer', {
@@ -105,7 +105,6 @@ export const LedgerAssetsFragment = fragment(() => {
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
                                 navigation={navigation}
-                                engine={engine}
                                 onPress={() => {
                                     if (callback) {
                                         onCallback(j.master);

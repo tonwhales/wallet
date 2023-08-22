@@ -7,7 +7,6 @@ import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useEngine } from '../../../engine/Engine';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
@@ -90,10 +89,8 @@ export const ConnectAppComponent = React.memo((props: {
     // Injection
     //
 
-    const engine = useEngine();
     const { ref, isConnected, disconnect, ...webViewProps } = useDAppBridge(
         props.endpoint,
-        engine,
         navigation
     );
 

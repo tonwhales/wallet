@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView, TouchableNativeFeedback, ActivityIndicator, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Engine, useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
 import { ProductButton } from "../wallet/products/ProductButton";
@@ -17,6 +16,7 @@ import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
+import { useStaking } from '../../engine/hooks/useStaking';
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -166,8 +166,7 @@ export const StakingPoolsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStaking();
+    const staking = useStaking();
     const pools = staking.pools;
     const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
     const items: React.ReactElement[] = [];
@@ -225,7 +224,6 @@ export const StakingPoolsFragment = fragment(() => {
                 key={`best-${recommended.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                 address={recommended.address}
                 balance={recommended.balance}
-                engine={engine}
             />
         );
     }
@@ -255,7 +253,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`epn-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }
@@ -275,7 +272,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`nominators-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }
@@ -299,7 +295,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`club-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }
@@ -319,7 +314,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`lockup-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }
@@ -343,7 +337,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`team-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }
@@ -363,7 +356,6 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`tonkeeper-${pool.address.toFriendly({ testOnly: AppConfig.isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
-                    engine={engine}
                 />
             );
         }

@@ -8,16 +8,15 @@ import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
 import { ProfileComponent } from './profile/ProfileComponent';
-import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
+import { useOldWalletsBalance } from '../engine/hooks/useOldWalletsBalance';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const oldWalletsBalance = engine.products.legacy.useState();
+    const oldWalletsBalance = useOldWalletsBalance();
 
     const onVersionTap = React.useMemo(() => {
         let count = 0;

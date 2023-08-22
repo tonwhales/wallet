@@ -8,7 +8,6 @@ import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
-import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
@@ -20,16 +19,17 @@ import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
 import { ItemGroup } from "../components/ItemGroup"
+import { usePasscodeState } from '../engine/hooks/usePasscodeState'
+import { useBiometricsState } from '../engine/hooks/useBiometricsState'
+import { setBiometricsState } from '../engine/effects/setBiometricsState'
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const settings = engine.products.settings;
     const authContext = useKeysAuth();
     const { Theme } = useAppConfig();
-    const passcodeState = settings.usePasscodeState();
-    const biometricsState = settings.useBiometricsState();
+    const passcodeState = usePasscodeState();
+    const biometricsState = useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
     const biometricsProps = useMemo(() => {
@@ -160,7 +160,7 @@ export const SecurityFragment = fragment(() => {
                                                     } else {
                                                         await authContext.authenticate({ cancelable: true });
                                                     }
-                                                    settings.setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
+                                                    setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                                 } catch (e) {
                                                     warn('Failed to authenticate with passcode');
                                                 }

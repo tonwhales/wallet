@@ -1,6 +1,5 @@
 import React, { useMemo } from "react";
 import { BN } from "bn.js";
-import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { TouchableHighlight, View, Text, useWindowDimensions } from "react-native";
 import StakingIcon from '../../../assets/ic_staking.svg';
@@ -8,15 +7,16 @@ import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useStaking } from '../../engine/hooks/useStaking';
+import { useStakingApy } from '../../engine/hooks/useStakingApy';
 
 export const StakingProductComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStaking();
+    const staking = useStaking();
     const showJoin = staking.total.eq(new BN(0));
 
-    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy) {
             return (apy - apy * (5 / 100)).toFixed(2)

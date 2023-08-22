@@ -10,7 +10,6 @@ import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { getCurrentAddress } from '../../storage/appState';
 import { WalletKeys } from '../../storage/walletKeys';
-import { useEngine } from '../../engine/Engine';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { CloseButton } from '../../components/CloseButton';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -34,7 +33,6 @@ export const SignFragment = fragment(() => {
         callback: ((ok: boolean, result: Cell | null) => void) | null,
         name: string
     } = useRoute().params as any;
-    const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     React.useEffect(() => {
         return () => {

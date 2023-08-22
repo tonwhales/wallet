@@ -13,12 +13,12 @@ import { fragment } from '../../fragment';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
-import { useEngine } from '../../engine/Engine';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useAppData } from '../../engine/hooks/useAppData';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -31,10 +31,9 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
 
     // App Data
-    let appData = engine.products.extensions.useAppData(props.url);
+    let appData = useAppData(props.url);
 
     // Approve
     const acc = React.useMemo(() => getCurrentAddress(), []);

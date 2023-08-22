@@ -5,7 +5,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
-import { useEngine } from "../engine/Engine";
 import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
@@ -13,6 +12,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useJettons } from '../engine/hooks/useJettons';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -40,23 +40,22 @@ export const AccountsFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
 
-    const jettons = engine.products.main.useJettons();
+    const jettons = useJettons();
     const active = jettons.filter((j) => !j.disabled);
     const disabled = jettons.filter((j) => j.disabled);
 
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(true, symbol);
-            if (c) markJettonDisabled(engine, master);
+            if (c) markJettonDisabled(master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(false, symbol);
-            if (c) markJettonActive(engine, master);
+            if (c) markJettonActive(master);
         },
         [],
     );
@@ -163,7 +162,6 @@ export const AccountsFragment = fragment(() => {
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
-                                    engine={engine}
                                     onPress={() => promptDisable(j.master, j.symbol)}
                                 />
                             );
@@ -187,7 +185,6 @@ export const AccountsFragment = fragment(() => {
                                     key={'jt' + j.wallet.toFriendly()}
                                     jetton={j}
                                     navigation={navigation}
-                                    engine={engine}
                                     onPress={() => promptActive(j.master, j.symbol)}
                                     onLongPress={() => { }}
                                 />

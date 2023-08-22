@@ -5,7 +5,6 @@ import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
@@ -13,18 +12,19 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
 import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useClient4 } from '../../../engine/hooks/useClient4';
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
 export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const { tonTransport, setAddr, addr } = useTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
+    const client = useClient4(AppConfig.isTestnet);
 
     useEffect(() => {
         (async () => {
@@ -32,14 +32,14 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                 return;
             }
             const proms: Promise<LedgerAccount>[] = [];
-            const seqno = (await engine.client4.getLastBlock()).last.seqno;
+            const seqno = (await client.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
                     const path = pathFromAccountNumber(i, AppConfig.isTestnet);
                     const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
                     try {
                         const address = Address.parse(addr.address);
-                        const liteAcc = await engine.client4.getAccountLite(seqno, address);
+                        const liteAcc = await client.getAccountLite(seqno, address);
                         return { i, addr, balance: new BN(liteAcc.account.balance.coins, 10) };
                     } catch (error) {
                         return { i, addr, balance: new BN(0) };

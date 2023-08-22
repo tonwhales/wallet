@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { CloseButton } from '../../components/CloseButton';
 import { ConnectedAppButton } from '../../components/ConnectedAppButton';
-import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
@@ -18,6 +17,9 @@ import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useExtensions } from '../../engine/hooks/useExtensions';
+import { useTonConnectExtensions } from '../../engine/hooks/useTonConnectExtenstions';
+import { useLedger } from '../../engine/hooks/useLedger';
 
 type Item = {
     key: string;
@@ -53,10 +55,9 @@ export const ConnectionsFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const extensions = engine.products.extensions.useExtensions();
-    const tonconnectApps = engine.products.tonConnect.useExtensions();
-    const ledger = engine.products.settings.useLedger();
+    const extensions = useExtensions();
+    const tonconnectApps = useTonConnectExtensions();
+    const ledger = useLedger();
     let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
 
     let disconnectApp = React.useCallback((url: string) => {

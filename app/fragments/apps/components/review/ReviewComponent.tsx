@@ -5,17 +5,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { fetchExtensionReview, postExtensionReview } from "../../../../engine/api/reviews";
-import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
 import { useAppConfig } from "../../../../utils/AppConfigContext";
+import { useAppData } from '../../../../engine/hooks/useAppData';
 
 export const ReviewComponent = React.memo(({ url }: { url: string }) => {
     const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const appData = engine.products.extensions.useAppData(url);
+    const appData = useAppData(url);
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const navigation = useTypedNavigation();

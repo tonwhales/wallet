@@ -8,7 +8,6 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -27,7 +26,6 @@ export const WalletBackupFragment = systemFragment(() => {
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
-    const engine = useEngine();
     const authContext = useKeysAuth();
     const onComplete = React.useCallback(() => {
         let state = getAppState();

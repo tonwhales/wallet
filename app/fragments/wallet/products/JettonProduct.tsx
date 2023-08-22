@@ -2,16 +2,15 @@ import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Address } from 'ton';
-import { Engine } from '../../../engine/Engine';
-import { markJettonDisabled } from '../../../engine/sync/ops';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
+import { useAppConfig } from '../../../utils/AppConfigContext';
+import { onJettonDisabled } from '../../../engine/effects/markJettonDisabled';
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
-    engine: Engine,
     jetton: {
         master: Address;
         wallet: Address;
@@ -26,13 +25,14 @@ export const JettonProduct = React.memo((props: {
     onLongPress?: () => void
 }) => {
     let balance = props.jetton.balance;
+    const { AppConfig } = useAppConfig();
 
-    const isKnown = !!KnownJettonMasters(props.engine.isTestnet)[props.jetton.master.toFriendly({ testOnly: props.engine.isTestnet })];
+    const isKnown = !!KnownJettonMasters(AppConfig.isTestnet)[props.jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {
             const c = await confirmJettonAction(true, props.jetton.symbol);
-            if (c) markJettonDisabled(props.engine, props.jetton.master);
+            if (c) onJettonDisabled(props.jetton.master);
         },
         [],
     );

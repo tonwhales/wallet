@@ -11,8 +11,6 @@ import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
-import { getCurrentAddress } from "../../storage/appState";
-import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
 import { StakingCycle } from "../../components/Staking/StakingCycle";
@@ -29,20 +27,23 @@ import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { StakingPoolType } from "./StakingPoolsFragment";
+import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
+import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useStaking } from '../../engine/hooks/useStaking';
+import { useStakingChart } from '../../engine/hooks/useStakingChart';
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useCurrentAddress();
     const target = Address.parse(params.pool);
-    const pool = engine.products.whalesStakingPools.usePool(target);
+    const pool = useStakingPool(target);
     const poolParams = pool?.params;
     const member = pool?.member;
-    const staking = engine.products.whalesStakingPools.useStaking();
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
+    const staking = useStaking();
+    const stakingChart = useStakingChart(target);
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {

@@ -9,7 +9,6 @@ import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -20,6 +19,8 @@ import { KnownPools } from "../../utils/KnownPools";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useStakingChart } from '../../engine/hooks/useStakingChart';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -29,10 +30,9 @@ export const StakingGraphFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ pool: string }>();
     const target = Address.parse(params.pool);
-    const engine = useEngine();
-    const pool = engine.products.whalesStakingPools.usePool(target);
+    const pool = useStakingPool(target);
     const member = pool?.member;
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
+    const stakingChart = useStakingChart(target);
     const knownPool = KnownPools(AppConfig.isTestnet)[params.pool];
 
     const points: GraphPoint[] = (stakingChart?.chart || []).map((p) => {

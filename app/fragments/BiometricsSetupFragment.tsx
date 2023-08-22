@@ -5,7 +5,6 @@ import { systemFragment } from '../systemFragment';
 import { useAppConfig } from '../utils/AppConfigContext';
 import { useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
-import { useEngine } from '../engine/Engine';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../storage/secureStorage';
 import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -20,15 +19,15 @@ import { RoundButton } from '../components/RoundButton';
 import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
+import { useBiometricsState } from '../engine/hooks/useBiometricsState';
+import { setBiometricsState } from '../engine/effects/setBiometricsState';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
     const authContext = useKeysAuth();
-    const settings = engine.products.settings;
-    const biometricsState = settings.useBiometricsState();
+    const biometricsState = useBiometricsState();
 
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
@@ -100,7 +99,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
                     const authRes = await authContext.authenticateWithPasscode();
                     await encryptAndStoreAppKeyWithBiometrics(authRes.passcode);
 
-                    settings.setBiometricsState(BiometricsState.InUse);
+                    setBiometricsState(BiometricsState.InUse);
                 } catch (e) {
                     // Ignore
                     warn('Failed to generate new key');

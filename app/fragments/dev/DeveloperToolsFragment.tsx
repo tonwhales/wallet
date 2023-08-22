@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useEngine } from '../../engine/Engine';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
@@ -19,14 +18,14 @@ import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { clearHolders } from '../LogoutFragment';
 import { useEffect, useState } from 'react';
+import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const offlineApp = engine.products.holders.useOfflineApp();
+    const offlineApp = useOfflineApp();
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();

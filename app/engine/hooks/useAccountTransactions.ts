@@ -5,7 +5,8 @@ import { Clients } from '../clients';
 import { useMemo } from 'react';
 import { Address, RawTransaction, parseTransaction } from 'ton';
 
-export function useAccountTransactions(account: string) {
+export function useAccountTransactions(account: string): any[] {
+    return [];
     // const { AppConfig } = useAppConfig();
     // const client = AppConfig.isTestnet ? Clients.ton.testnet : Clients.ton.mainnet;
 

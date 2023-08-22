@@ -17,7 +17,6 @@ import SuccessIcon from '../../../assets/ic_success.svg';
 import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
-import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';
 import { AppManifest } from '../../engine/api/fetchManifest';
@@ -62,7 +61,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<SignState>({ type: 'loading' });
-    const engine = useEngine();
     React.useEffect(() => {
         (async () => {
             if (connectProps.type === 'qr') {

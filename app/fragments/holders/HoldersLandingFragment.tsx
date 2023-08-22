@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
-import { useEngine } from '../../engine/Engine';
 import { warn } from '../../utils/log';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
@@ -23,17 +22,17 @@ import * as FileSystem from 'expo-file-system';
 import { useCallback, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
+import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
-    const currency = engine.products.price.usePrimaryCurrency();
+    const currency = usePrimaryCurrency();
     const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const useOfflineApp = !!stableOfflineV;
 

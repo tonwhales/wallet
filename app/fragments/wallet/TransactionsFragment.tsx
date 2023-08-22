@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { Engine, useEngine } from "../../engine/Engine";
 import { WalletState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -15,6 +14,7 @@ import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useAccount } from '../../engine/hooks/useAccount';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -118,7 +118,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
     const account = props.wallet;
     const animRef = React.useRef<LottieView>(null);
 
@@ -257,8 +256,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 }
 
 export const TransactionsFragment = fragment(() => {
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
+    const account = useAccount();
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>

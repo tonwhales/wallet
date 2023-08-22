@@ -20,12 +20,14 @@ import { fragment } from '../../fragment';
 import BN from 'bn.js';
 import CircularProgress from '../../components/CircularProgress/CircularProgress';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { Engine, useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
+import { useSyncState } from '../../engine/hooks/useSyncState';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -68,9 +70,8 @@ function WalletComponent(props: { wallet: WalletState }) {
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
     const address = React.useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
-    const syncState = engine.state.use();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
+    const syncState = useSyncState();
+    const balanceChart = useAccountBalanceChart();
     const account = props.wallet;
 
     //
@@ -569,8 +570,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 }
 
 export const WalletFragment = fragment(() => {
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
+    const account = useAccount();
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>

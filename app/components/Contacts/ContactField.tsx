@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
-import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useContactField } from '../../engine/hooks/useContactField';
 
 export const ContactField = React.memo((props: {
     input: {
@@ -20,9 +20,8 @@ export const ContactField = React.memo((props: {
     onFieldChange: (index: number, value: string) => void,
 }) => {
     const { Theme } = useAppConfig();
-    const engine = useEngine();
     const [value, setValue] = useState(props.input.value || '');
-    let label = engine.products.settings.useContactField(props.fieldKey);
+    let label = useContactField(props.fieldKey);
 
     if (props.fieldKey === 'lastName') {
         label = t('contacts.lastName');

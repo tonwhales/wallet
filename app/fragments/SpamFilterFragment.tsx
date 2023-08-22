@@ -9,7 +9,6 @@ import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
@@ -17,6 +16,9 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
 import { useAppConfig } from "../utils/AppConfigContext";
+import { useDontShowComments } from '../engine/hooks/useDontShowComments';
+import { useSpamMinAmount } from '../engine/hooks/useSpamMinAmount';
+import { useDenyList } from '../engine/hooks/useDenyList';
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -27,11 +29,9 @@ export const SpamFilterFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const settings = engine.products.settings;
-    const dontShow = settings.useDontShowComments();
-    const min = settings.useSpamMinAmount();
-    const denyMap = settings.useDenyList();
+    const dontShow = useDontShowComments();
+    const min = useSpamMinAmount();
+    const denyMap = useDenyList();
     const denyList = React.useMemo(() => {
         return Object.keys(denyMap);
     }, [denyMap]);
@@ -44,7 +44,7 @@ export const SpamFilterFragment = fragment(() => {
             if (confirmed) {
                 try {
                     let parsed = Address.parseFriendly(addr);
-                    settings.removeFromDenyList(parsed.address);
+                    removeFromDenyList(parsed.address);
                 } catch (e) {
                     console.warn(e);
                     Alert.alert(t('transfer.error.invalidAddress'));
@@ -66,7 +66,7 @@ export const SpamFilterFragment = fragment(() => {
                     Alert.alert(t('transfer.error.invalidAmount'));
                     return;
                 }
-                settings.setSpamFilter({
+                setSpamFilter({
                     minAmount: value,
                     dontShowComments: dontShowComments
                 });

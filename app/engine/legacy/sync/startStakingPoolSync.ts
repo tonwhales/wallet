@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "ton";
-import { backoff } from "../../utils/time";
+import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
 

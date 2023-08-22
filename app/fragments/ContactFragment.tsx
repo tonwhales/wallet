@@ -1,7 +1,7 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
-import { Platform, View, Text, Image, Alert, Keyboard, TouchableHighlight, Pressable, TextInput } from "react-native";
+import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "ton";
@@ -21,6 +21,7 @@ import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 
 import CopyIcon from '../../assets/ic-copy.svg';
+import ShareIcon from '../../assets/ic-share-contact.svg';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -281,7 +282,8 @@ export const ContactFragment = fragment(() => {
                                 id={address}
                                 size={100}
                                 image={undefined}
-                                borderWith={0}
+                                borderWith={2}
+                                borderColor={Theme.lightGrey}
                             />
                         </View>
                         {!editing && (
@@ -322,15 +324,16 @@ export const ContactFragment = fragment(() => {
                                     padding: 10
                                 }}
                             >
-                                <TouchableHighlight
+                                <Pressable
                                     onPress={() => {
                                         navigation.navigate(
                                             'Assets',
                                             { target: parsed.toFriendly({ testOnly: AppConfig.isTestnet }) }
                                         );
                                     }}
-                                    underlayColor={Theme.selector}
-                                    style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
+                                    style={({ pressed }) => {
+                                        return { opacity: pressed ? 0.5 : 1, borderRadius: 14, padding: 10, flexGrow: 1 }
+                                    }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                         <View
@@ -351,11 +354,12 @@ export const ContactFragment = fragment(() => {
                                             {t('wallet.actions.send')}
                                         </Text>
                                     </View>
-                                </TouchableHighlight>
-                                <TouchableHighlight
+                                </Pressable>
+                                <Pressable
                                     onPress={onShare}
-                                    underlayColor={Theme.selector}
-                                    style={{ borderRadius: 14, padding: 10, flexGrow: 1 }}
+                                    style={({ pressed }) => {
+                                        return { opacity: pressed ? 0.5 : 1, borderRadius: 14, padding: 10, flexGrow: 1 }
+                                    }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                         <View
@@ -365,7 +369,7 @@ export const ContactFragment = fragment(() => {
                                                 borderRadius: 16,
                                                 alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                            {/* <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} /> */}
+                                            <ShareIcon height={24} width={24} color={'white'} style={{ height: 12, width: 12 }} />
                                         </View>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20,
@@ -376,7 +380,7 @@ export const ContactFragment = fragment(() => {
                                             {t('common.share')}
                                         </Text>
                                     </View>
-                                </TouchableHighlight>
+                                </Pressable>
                             </View>
                         )}
 

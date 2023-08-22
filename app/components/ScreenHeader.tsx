@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, StatusBarStyle } from "expo-status-bar";
 import React, { useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
@@ -65,7 +65,8 @@ export const ScreenHeader = React.memo((
         onClosePressed,
         leftButton,
         rightButton,
-        titleComponent
+        titleComponent,
+        statusBarStyle
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
@@ -76,13 +77,14 @@ export const ScreenHeader = React.memo((
         rightButton?: React.ReactNode,
         leftButton?: React.ReactNode,
         titleComponent?: React.ReactNode,
+        statusBarStyle?: StatusBarStyle
     }
 ) => {
     const { Theme } = useAppConfig();
 
     return (
         <View style={[{ width: '100%' }, style]}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={statusBarStyle || (Platform.OS === 'ios' ? 'light' : 'dark')} />
             <AndroidToolbar
                 onBack={onBackPressed}
                 style={{ height: 44, marginTop: 16 }}

@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView, Alert, ToastAndroid } from 'react-native';
-import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
+import { Platform, Text, View, ScrollView, Alert, ToastAndroid } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
@@ -18,7 +17,7 @@ import { warn } from '../../utils/log';
 import { MnemonicsView } from '../../components/MnemonicsView';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
-import { ScreenHeader } from '../../components/ScreenHeader';
+import { useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -56,8 +55,8 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
-                setMnemonics(keys.mnemonics);
+                // let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
+                // setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
                 return;
@@ -71,6 +70,16 @@ export const WalletBackupFragment = systemFragment(() => {
         };
     }, []);
 
+    useScreenHeader(
+        navigation,
+        Theme,
+        {
+            title: t('create.backupTitle'),
+            headerShown: true,
+            tintColor: Theme.accent,
+        }
+    );
+
     if (!mnemonics) {
         return null;
     }
@@ -81,19 +90,12 @@ export const WalletBackupFragment = systemFragment(() => {
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
                 backgroundColor: Theme.item,
-                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) : 0,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}
             key={"content"}
         >
-            <StatusBar style={Platform.OS === 'ios' ? init ? 'dark' : 'light' : 'dark'} />
-            {!init && (
-                <ScreenHeader
-                    title={t('create.backupTitle')}
-                    onBackPressed={navigation.goBack}
-                />
-            )}
+            <StatusBar style={'dark'} />
             <ScrollView
                 alwaysBounceVertical={false}
                 showsVerticalScrollIndicator={false}

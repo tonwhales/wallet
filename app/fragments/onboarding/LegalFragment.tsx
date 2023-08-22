@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
@@ -61,17 +61,18 @@ export const LegalFragment = systemFragment(() => {
 
     return (
         <View style={{
+            flex: 1,
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
             backgroundColor: Theme.white,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) + 42 : 0,
         }}>
-            <AndroidToolbar pageTitle={t('legal.title')} />
-            {!isCreate && (
-                <>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                        {Platform.OS === 'ios' && (
+            <AndroidToolbar />
+            <ScrollView style={{ flexGrow: 1, width: '100%' }}>
+                {!isCreate && (
+                    <>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
                             <Text style={{
                                 fontSize: 32, lineHeight: 38,
                                 fontWeight: '600',
@@ -81,68 +82,68 @@ export const LegalFragment = systemFragment(() => {
                             }}>
                                 {t('legal.title')}
                             </Text>
-                        )}
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '400',
-                            flexShrink: 1,
-                            color: Theme.darkGrey,
-                            marginBottom: 32
+                            <Text style={{
+                                textAlign: 'center',
+                                fontSize: 17, lineHeight: 24,
+                                fontWeight: '400',
+                                flexShrink: 1,
+                                color: Theme.darkGrey,
+                                marginBottom: 32
+                            }}>
+                                {t('legal.createSubtitle')}
+                            </Text>
+                        </View>
+                        <View style={{
+                            width: dimensions.screen.width, height: 300,
+                            justifyContent: 'center', alignItems: 'center',
                         }}>
-                            {t('legal.createSubtitle')}
-                        </Text>
-                    </View>
-                    <View style={{
-                        width: dimensions.screen.width, height: 300,
-                        justifyContent: 'center', alignItems: 'center',
-                    }}>
-                        <LottieView
-                            source={require('../../../assets/animations/paper.json')}
-                            autoPlay={true}
-                            loop={true}
-                            style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
-                        />
-                    </View>
-                </>
-            )}
-            {isCreate && (
-                <>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                        <Text style={{
-                            fontSize: 32, lineHeight: 38,
-                            fontWeight: '600',
-                            textAlign: 'center',
-                            color: Theme.textColor,
-                            marginBottom: 12, marginTop: 16
+                            <LottieView
+                                source={require('../../../assets/animations/paper.json')}
+                                autoPlay={true}
+                                loop={true}
+                                style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
+                            />
+                        </View>
+                    </>
+                )}
+                {isCreate && (
+                    <>
+                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+                            <Text style={{
+                                fontSize: 32, lineHeight: 38,
+                                fontWeight: '600',
+                                textAlign: 'center',
+                                color: Theme.textColor,
+                                marginBottom: 12, marginTop: 16
+                            }}>
+                                {t('legal.create')}
+                            </Text>
+                            <Text style={{
+                                textAlign: 'center',
+                                fontSize: 17, lineHeight: 24,
+                                fontWeight: '400',
+                                flexShrink: 1,
+                                color: Theme.darkGrey,
+                                marginBottom: 32
+                            }}>
+                                {t('legal.createSubtitle')}
+                            </Text>
+                        </View>
+                        <View style={{
+                            width: dimensions.screen.width, height: 300,
+                            justifyContent: 'center', alignItems: 'center',
                         }}>
-                            {t('legal.create')}
-                        </Text>
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '400',
-                            flexShrink: 1,
-                            color: Theme.darkGrey,
-                            marginBottom: 32
-                        }}>
-                            {t('legal.createSubtitle')}
-                        </Text>
-                    </View>
-                    <View style={{
-                        width: dimensions.screen.width, height: 300,
-                        justifyContent: 'center', alignItems: 'center',
-                    }}>
-                        <LottieView
-                            source={require('../../../assets/animations/paper.json')}
-                            autoPlay={true}
-                            loop={true}
-                            style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
-                        />
-                    </View>
-                </>
-            )}
-            <View style={{ flexGrow: 1 }} />
+                            <LottieView
+                                source={require('../../../assets/animations/paper.json')}
+                                autoPlay={true}
+                                loop={true}
+                                style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
+                            />
+                        </View>
+                    </>
+                )}
+                <View style={{ flexGrow: 1 }} />
+            </ScrollView>
             <Pressable
                 style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24 }}
                 onPress={() => setAccepted(!accepted)}
@@ -184,9 +185,8 @@ export const LegalFragment = systemFragment(() => {
                 </Text>
             </Pressable>
             <View style={{
-                paddingHorizontal: 16,
-                marginBottom: 16,
-                alignSelf: 'stretch'
+                padding: 16,
+                width: '100%'
             }}>
                 <RoundButton
                     disabled={!accepted}

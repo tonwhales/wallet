@@ -22,6 +22,7 @@ import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWi
 import { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useKeysAuth } from './AuthWalletKeys';
 import { HeaderBackButton } from "@react-navigation/elements";
+import { AndroidToolbar } from '../topbar/AndroidToolbar';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -170,7 +171,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
             const account = getCurrentAddress();
             markAddressSecured(account.address, AppConfig.isTestnet);
-            
+
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {
                 if (props.import) {
@@ -284,7 +285,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     style={{
                         flex: 1,
                         paddingTop: (Platform.OS === 'android')
-                            ? safeArea.top
+                            ? 0
                             : undefined,
                     }}
                 >
@@ -292,7 +293,14 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     <PasscodeSetup
                         style={props.import ? { backgroundColor: Theme.item } : undefined}
                         onReady={onConfirmed}
-                        onBack={props.onBack}
+                        onBack={() => {
+                            if (props.onBack) {
+                                resetConfirmedAddressState();
+                                props.onBack();
+                            } else {
+                                navigation.goBack();
+                            }
+                        }}
                     />
                 </Animated.View>
             )}

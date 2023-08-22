@@ -106,6 +106,7 @@ export const WalletCreateFragment = systemFragment(() => {
     return (
         <View
             style={{
+                flex: 1,
                 flexGrow: 1,
                 paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) : 0
@@ -134,6 +135,7 @@ export const WalletCreateFragment = systemFragment(() => {
             )}
             {state && !state?.saved && (
                 <>
+                    <AndroidToolbar />
                     <ScrollView
                         alwaysBounceVertical={false}
                         style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
@@ -180,24 +182,21 @@ export const WalletCreateFragment = systemFragment(() => {
                                 }}
                             />
                         )}
-                        <View style={{
-                            flexGrow: 1,
-                            alignSelf: 'stretch',
-                            justifyContent: 'flex-end',
-                            paddingVertical: 16,
-                            paddingTop: safeArea.bottom === 0 ? 0 : 24,
-                            width: '100%',
-                            marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
-                        }}>
-                            <RoundButton
-                                title={t('create.okSaved')}
-                                onPress={() => {
-                                    setState({ ...state, saved: true });
-                                }}
-                                style={{ height: 56 }}
-                            />
-                        </View>
+                        <View style={{ height: 56 + 16 }} />
                     </ScrollView>
+                    <View style={{
+                        justifyContent: 'flex-end',
+                        padding: 16,
+                        position: 'absolute', bottom: 0, left: 0, right: 0,
+                        paddingBottom: Platform.OS === 'ios' ? safeArea.bottom === 0 ? 48 : safeArea.bottom + 56 : undefined,
+                    }}>
+                        <RoundButton
+                            title={t('create.okSaved')}
+                            onPress={() => {
+                                setState({ ...state, saved: true });
+                            }}
+                        />
+                    </View>
                 </>
             )}
             {state?.saved && (
@@ -205,7 +204,6 @@ export const WalletCreateFragment = systemFragment(() => {
                     style={{
                         alignItems: 'center', justifyContent: 'center',
                         flexGrow: 1, backgroundColor: Theme.item,
-                        paddingTop: Platform.OS === 'android' ? safeArea.top : 0
                     }}
                     key={"content"}
                     entering={FadeIn}

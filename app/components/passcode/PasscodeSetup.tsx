@@ -10,6 +10,7 @@ import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
 import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
+import { AndroidToolbar } from "../topbar/AndroidToolbar";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -183,7 +184,18 @@ export const PasscodeSetup = memo((
     }, [navigation, onBack, state, goBack]);
 
     return (
-        <View style={[{ width: '100%', height: '100%', }, style]}>
+        <View style={[{ flex: 1, width: '100%', height: '100%', }, style]}>
+            <AndroidToolbar onBack={() => {
+                if (state.step === 're-enter') {
+                    dispatch({ type: 'input', input: '' });
+                    return;
+                }
+                if (onBack) {
+                    onBack();
+                } else {
+                    navigation.base.goBack();
+                }
+            }} />
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>
                     <PasscodeInput

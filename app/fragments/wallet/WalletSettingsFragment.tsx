@@ -29,6 +29,7 @@ export const WalletSettingsFragment = fragment(() => {
         : avatarHash(address.toFriendly({ testOnly: engine.isTestnet }), avatarImages.length);
 
     const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
+    const [nameFocused, setNameFocused] = useState(false);
     const [avatar, setAvatar] = useState(initHash);
 
     const hasChanges = useMemo(() => {
@@ -146,9 +147,11 @@ export const WalletSettingsFragment = fragment(() => {
                                 editable={true}
                                 value={name}
                                 onChangeText={setName}
+                                onFocus={() => setNameFocused(true)}
+                                onBlur={() => setNameFocused(false)}
                             />
                         </View>
-                        {name.length > 0 && (
+                        {name.length > 0 && nameFocused && (
                             <Animated.View>
                                 <Pressable
                                     onPress={() => setName('')}

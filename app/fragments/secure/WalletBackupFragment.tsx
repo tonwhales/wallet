@@ -55,8 +55,8 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         (async () => {
             try {
-                // let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
-                // setMnemonics(keys.mnemonics);
+                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
+                setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
                 return;

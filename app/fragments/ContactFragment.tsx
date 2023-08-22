@@ -186,7 +186,7 @@ export const ContactFragment = fragment(() => {
             return false;
         }
         return true;
-    }, [params]);
+    }, [params, name]);
 
     const hasChanges = useMemo(() => {
         if (name !== contact?.name) {

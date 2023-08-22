@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, Platform } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useAppStateManager } from "../../engine/AppStateManager";
 import { t } from "../../i18n/t";
@@ -29,7 +29,7 @@ export const WalletSelector = React.memo(() => {
                 fontSize: 17, lineHeight: 24,
                 fontWeight: '600',
                 color: Theme.textColor,
-                marginBottom: 16, marginTop: 16,
+                marginBottom: 16, marginTop: Platform.OS === 'ios' ? 16 : 0,
             }}>
                 {t('common.wallets')}
             </Text>

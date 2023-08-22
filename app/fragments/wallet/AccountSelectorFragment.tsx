@@ -12,6 +12,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { getAppState } from "../../storage/appState";
+import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const AccountSelectorFragment = fragment(() => {
     const appStateManager = useAppStateManager();
@@ -84,17 +85,23 @@ export const AccountSelectorFragment = fragment(() => {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom
+            paddingBottom: safeArea.bottom,
+            backgroundColor: Platform.OS === 'android' ? Theme.white : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <Pressable
-                onPress={navigation.goBack}
-                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
-            />
+            <AndroidToolbar />
+            {Platform.OS === 'ios' && (
+                <Pressable
+                    onPress={navigation.goBack}
+                    style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+                />
+            )}
             <View style={{
-                height: (Math.floor(dimentions.height * heightMultiplier)),
+                height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
+                flexGrow: Platform.OS === 'ios' ? 0 : 1,
                 backgroundColor: Theme.white,
-                borderTopEndRadius: 20, borderTopStartRadius: 20,
+                borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
+                borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                 padding: 16,
                 paddingBottom: safeArea.bottom + 16
             }}>

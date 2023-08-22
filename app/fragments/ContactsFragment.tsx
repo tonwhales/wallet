@@ -21,6 +21,7 @@ export const ContactsFragment = fragment(() => {
     const account = engine.products.main.useAccount();
     const transactions = (account?.transactions.slice(0, Math.min(account.transactions.length - 1, 10))) ?? [];
 
+    const [searchFocused, setSearchFocused] = useState(false);
     const [search, setSearch] = useState('');
 
     const onAddContact = useCallback(() => {
@@ -49,32 +50,37 @@ export const ContactsFragment = fragment(() => {
             headerLargeTitle: true,
             tintColor: Theme.accent,
             rightButton: (
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1,
+                !searchFocused ? (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onAddContact}
+                        hitSlop={
+                            Platform.select({
+                                ios: undefined,
+                                default: { top: 16, right: 16, bottom: 16, left: 16 },
+                            })
                         }
-                    }}
-                    onPress={onAddContact}
-                    hitSlop={
-                        Platform.select({
-                            ios: undefined,
-                            default: { top: 16, right: 16, bottom: 16, left: 16 },
-                        })
-                    }
-                >
-                    <Text style={{
-                        color: Theme.accent,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '500',
-                    }}>
-                        {t('common.add')}
-                    </Text>
-                </Pressable>
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                        }}>
+                            {t('common.add')}
+                        </Text>
+                    </Pressable>
+                )
+                    : undefined
             ),
             headerSearchBarOptions: {
                 hideWhenScrolling: false,
                 hideNavigationBar: false,
+                onFocus: () => setSearchFocused(true),
+                onBlur: () => setSearchFocused(false),
                 onChangeText: (event) => setSearch(event.nativeEvent.text),
                 placeholder: t('contacts.search'),
                 onCancelButtonPress: () => setSearch('')

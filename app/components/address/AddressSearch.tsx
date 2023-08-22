@@ -21,7 +21,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
     const txs = (main.useAccount()?.transactions ?? []);
 
     const lastTxs = useMemo(() => {
-        const two = txs.slice(0, Math.max(txs.length - 2, 0));
+        const two = txs.slice(0, Math.min(txs.length - 1, 2));
         const filtered = two.map((t, i) => {
             const tx = main.getTransaction(t.id);
             if (tx) {

@@ -457,6 +457,7 @@ export const ContactFragment = fragment(() => {
                                                 fontWeight: '400', color: Theme.textColor
                                             }
                                         ]}
+                                        autoFocus
                                         maxLength={126}
                                         placeholder={t('contacts.name')}
                                         placeholderTextColor={Theme.placeholder}

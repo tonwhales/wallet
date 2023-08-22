@@ -727,7 +727,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         delete: 'Delete contact',
         empty: 'No contacts yet',
-        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.',
+        description: 'You can add an address to your contacts long pressing on any transaction or address or using the \"Add\" button or from the list of recent contacts below',
         contactAddress: 'Contacts address',
         search: 'Name or wallet address',
         new: 'New contact',

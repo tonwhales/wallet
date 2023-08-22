@@ -9,6 +9,7 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useScreenHeader } from "../components/ScreenHeader";
+import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -17,6 +18,8 @@ export const ContactsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const settings = engine.products.settings;
     const contacts = settings.useContacts();
+    const account = engine.products.main.useAccount();
+    const transactions = (account?.transactions.slice(0, Math.min(account.transactions.length - 1, 10))) ?? [];
 
     const [search, setSearch] = useState('');
 
@@ -85,12 +88,12 @@ export const ContactsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={'dark'} />
-
             {(!contactsList || contactsList.length === 0) && (
-                <View style={{
-                    flexGrow: 1,
-                    alignItems: 'center',
-                }}>
+                <ScrollView
+                    style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
+                    showsVerticalScrollIndicator={true}
+                    contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
+                >
                     <Image style={{ flexShrink: 1 }} source={require('../../assets/banner_contacts.png')} />
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{
@@ -112,8 +115,13 @@ export const ContactsFragment = fragment(() => {
                             {t('contacts.description')}
                         </Text>
                     </View>
-                    <View style={{ flexGrow: 1 }} />
-                </View>
+
+                    <View style={{ marginTop: 16 }}>
+                        {transactions.map((tx) => {
+                            return (<ContactTransactionView key={`recent-${tx.id}`} tx={tx} />);
+                        })}
+                    </View>
+                </ScrollView>
             )}
             {(contactsList && contactsList.length > 0) && (
                 <ScrollView

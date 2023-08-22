@@ -836,6 +836,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     appAuth: {
         description: 'To continue logging in to the app',
+    },
+    screenCapture: {
+        title: 'Wow, cool screenshot, but it\'s not safe',
+        description: 'Unencrypted digital copies of your secret phrase are NOT recommended. Examples include saving copies on computer, on online accounts or by taking screenshots',
+        action: 'OK, I\'m taking the risk',
     }
 };
 

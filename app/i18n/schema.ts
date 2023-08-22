@@ -838,6 +838,11 @@ export type LocalizationSchema = {
     },
     appAuth: {
         description: string,
+    },
+    screenCapture: {
+        title: string,
+        description: string,
+        action: string,
     }
 };
 

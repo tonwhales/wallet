@@ -21,6 +21,7 @@ import { useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
 import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import * as ScreenCapture from 'expo-screen-capture';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -79,6 +80,21 @@ export const WalletBackupFragment = systemFragment(() => {
             tintColor: Theme.accent,
         }
     );
+
+    useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        if (Platform.OS === 'ios') {
+            subscription = ScreenCapture.addScreenshotListener(() => {
+                navigation.navigate('ScreenCapture');
+            });
+
+            ScreenCapture.preventScreenCaptureAsync('backup');
+        }
+        return () => {
+            ScreenCapture.allowScreenCaptureAsync('backup');
+            subscription?.remove();
+        };
+    }, []);
 
     if (!mnemonics) {
         return null;

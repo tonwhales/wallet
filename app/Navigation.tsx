@@ -75,6 +75,7 @@ import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAcco
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -231,10 +232,12 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     transparentModalScreen('Logout', LogoutFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
-
+    
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
+
+    transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
 ];
 
 export const Navigation = memo(() => {

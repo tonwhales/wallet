@@ -468,33 +468,33 @@ export const TransferSingle = React.memo((props: Props) => {
                             }}>
                                 {t('common.from')}
                             </Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <View style={{ alignItems: 'flex-end' }}>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ marginRight: 12 }}>
+                                        <Avatar
+                                            size={24}
+                                            id={engine.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            address={engine.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            borderWith={0}
+                                        />
+                                    </View>
                                     <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
                                         <AddressComponent address={engine.address} end={4} />
                                     </Text>
-                                    {walletSettings?.name && (
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: Theme.darkGrey,
-                                                flexShrink: 1
-                                            }}
-                                            numberOfLines={1}
-                                            ellipsizeMode={'tail'}
-                                        >
-                                            {walletSettings.name}
-                                        </Text>
-                                    )}
                                 </View>
-                                <View style={{ marginLeft: 12 }}>
-                                    <Avatar
-                                        size={46}
-                                        id={engine.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        address={engine.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        borderWith={0}
-                                    />
-                                </View>
+                                {walletSettings?.name && (
+                                    <Text
+                                        style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: Theme.darkGrey,
+                                            flexShrink: 1
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        {walletSettings.name}
+                                    </Text>
+                                )}
                             </View>
                         </View>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
@@ -505,67 +505,68 @@ export const TransferSingle = React.memo((props: Props) => {
                             }}>
                                 {t('common.to')}
                             </Text>
-                            <View style={{ flexDirection: 'row' }}>
-                                <View style={{ alignItems: 'flex-end' }}>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    <View style={{ marginRight: 12 }}>
+                                        <Avatar
+                                            size={24}
+                                            id={target.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            address={target.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            borderWith={0}
+                                            dontShowVerified
+                                        />
+                                    </View>
                                     <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
                                         <AddressComponent address={target.address} end={4} />
                                     </Text>
-                                    {known && (
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text
-                                                style={{
-                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
-                                                    flexShrink: 1
-                                                }}
-                                                numberOfLines={1}
-                                                ellipsizeMode={'tail'}
-                                            >
-                                                {known?.name}
-                                            </Text>
-                                            <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                        </View>
-                                    )}
-                                    {(!target.active && !order.messages[0].stateInit) && (
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text
-                                                style={{
-                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
-                                                    flexShrink: 1
-                                                }}
-                                                numberOfLines={1}
-                                                ellipsizeMode={'tail'}
-                                            >
-                                                {t('transfer.addressNotActive')}
-                                            </Text>
-                                            <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                        </View>
-                                    )}
-                                    {spam && (
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text
-                                                style={{
-                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
-                                                    flexShrink: 1
-                                                }}
-                                                numberOfLines={1}
-                                                ellipsizeMode={'tail'}
-                                            >
-                                                {'SPAM'}
-                                            </Text>
-                                        </View>
-                                    )}
                                 </View>
-                                <View style={{ marginLeft: 12 }}>
-                                    <Avatar
-                                        size={46}
-                                        id={target.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        address={target.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        borderWith={0}
-                                    />
-                                </View>
+                                {known && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                color: Theme.darkGrey,
+                                                flexShrink: 1
+                                            }}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {known?.name}
+                                        </Text>
+                                        <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                    </View>
+                                )}
+                                {(!target.active && !order.messages[0].stateInit) && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                color: Theme.darkGrey,
+                                                flexShrink: 1
+                                            }}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {t('transfer.addressNotActive')}
+                                        </Text>
+                                        <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                    </View>
+                                )}
+                                {spam && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={{
+                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                color: Theme.darkGrey,
+                                                flexShrink: 1
+                                            }}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {'SPAM'}
+                                        </Text>
+                                    </View>
+                                )}
                             </View>
                         </View>
                         {!!operation.op && !jettonAmount && (

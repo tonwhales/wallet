@@ -106,7 +106,7 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         danger_zone_text: {
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
-            textColor: theme.dangerZone,
+            textColor: theme.red,
 
             backgroundPressedColor: theme.divider,
             borderPressedColor: theme.divider,

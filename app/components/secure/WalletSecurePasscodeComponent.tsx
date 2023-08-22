@@ -13,7 +13,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../passcode/PasscodeSetup';
-import Animated, { FadeIn, FadeOut, FadeOutDown, SlideOutRight } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { WalletSecureComponent } from './WalletSecureComponent';
 import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEncryption';
 import { LoadingIndicator } from '../LoadingIndicator';
@@ -168,6 +168,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 || (deviceEncryption === 'device-passcode')
                 || (Platform.OS === 'android' && Platform.Version < 30);
 
+            const account = getCurrentAddress();
+            markAddressSecured(account.address, AppConfig.isTestnet);
+            
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {
                 if (props.import) {
@@ -175,8 +178,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     if (!state) {
                         throw Error('Invalid state');
                     }
-                    const account = getCurrentAddress();
-                    markAddressSecured(account.address, AppConfig.isTestnet);
                 }
                 reboot();
                 return;

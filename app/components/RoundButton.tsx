@@ -58,7 +58,7 @@ export const RoundButton = React.memo((props: {
             style={(p) => ([
                 {
                     borderWidth: 1,
-                    borderRadius: 14,
+                    borderRadius: 16,
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
                     opacity: props.disabled ? 0.5 : 1,

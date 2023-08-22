@@ -41,37 +41,24 @@ export const WalletSecureComponent = React.memo((props: {
         })();
     }, []);
 
-    let iconImage: ImageSourcePropType | undefined;
-    let icon: any | undefined;
     let buttonText = '';
     let title = t('secure.title');
     let text = t('secure.subtitle');
 
     switch (props.deviceEncryption) {
         case 'face':
-            iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/ic_face_id.png')
-                : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectFaceID')
                 : t('secure.protectBiometrics');
             break;
         case 'biometric':
         case 'fingerprint':
-            iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/ic_touch_id.png')
-                : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
             break;
         case 'passcode':
         case 'secret':
-            icon = <Ionicons
-                name="keypad"
-                size={20}
-                color="white"
-            />;
             buttonText = t('secure.protectPasscode');
             break;
         default:
@@ -106,41 +93,19 @@ export const WalletSecureComponent = React.memo((props: {
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ height: props.onLater ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
+                <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16, alignSelf: 'stretch' }}>
                     <RoundButton
                         onPress={onClick}
                         title={buttonText}
                         loading={loading}
-                        iconImage={iconImage}
-                        icon={icon}
                     />
                     {props.onLater && (
-                        <Pressable
+                        <RoundButton
+                            display={'secondary'}
+                            style={{ marginTop: 16 }}
                             onPress={onLater}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    alignSelf: 'center',
-                                    marginTop: 26,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }
-                            }}
-                            hitSlop={{
-                                top: 12,
-                                left: 100,
-                                bottom: 12,
-                                right: 100
-                            }}
-                        >
-                            <Text style={{
-                                fontSize: 17,
-                                fontWeight: '600',
-                                color: Theme.accent
-                            }}>
-                                {t('common.later')}
-                            </Text>
-                        </Pressable>
+                            title={t('common.later')}
+                        />
                     )}
                 </View>
             </View>

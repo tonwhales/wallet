@@ -508,7 +508,8 @@ export const SimpleTransferFragment = fragment(() => {
                         fontSize: 17, lineHeight: 24,
                         color: Theme.textColor,
                         fontWeight: '500',
-                        marginLeft: 6
+                        marginLeft: 6,
+                        minHeight: 24
                     }}>
                         {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
                     </Text>

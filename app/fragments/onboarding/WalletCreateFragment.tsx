@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Platform, View, Text, ToastAndroid, Alert, ScrollView } from 'react-native';
 import { mnemonicNew } from 'ton-crypto';
-import { minimumDelay } from 'teslabot';
 import Animated, { FadeIn, FadeOutDown, FadeOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
@@ -20,6 +19,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { HeaderBackButton } from "@react-navigation/elements";
+import * as ScreenCapture from 'expo-screen-capture';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -55,6 +55,12 @@ export const WalletCreateFragment = systemFragment(() => {
     }, [state, navigation]);
 
     useLayoutEffect(() => {
+
+        let subscription: ScreenCapture.Subscription;
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigate('ScreenCapture');
+        });
+
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', onBack);
         }
@@ -82,6 +88,7 @@ export const WalletCreateFragment = systemFragment(() => {
         }
 
         return () => {
+            subscription?.remove();
             if (Platform.OS === 'android') {
                 navigation.base.removeListener('beforeRemove', onBack);
             }

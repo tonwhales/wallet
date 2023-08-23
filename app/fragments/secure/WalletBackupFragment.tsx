@@ -83,15 +83,10 @@ export const WalletBackupFragment = systemFragment(() => {
 
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
-        if (Platform.OS === 'ios') {
-            subscription = ScreenCapture.addScreenshotListener(() => {
-                navigation.navigate('ScreenCapture');
-            });
-
-            ScreenCapture.preventScreenCaptureAsync('backup');
-        }
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigate('ScreenCapture');
+        });
         return () => {
-            ScreenCapture.allowScreenCaptureAsync('backup');
             subscription?.remove();
         };
     }, []);

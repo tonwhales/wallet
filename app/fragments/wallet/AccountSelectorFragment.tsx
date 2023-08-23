@@ -68,7 +68,7 @@ export const AccountSelectorFragment = fragment(() => {
                 case 2:
                     navigation.goBack();
                     setTimeout(() => {
-                        navigation.replace('WalletImport', { additionalWallet: true });
+                        navigation.navigate('WalletImport', { additionalWallet: true });
                     }, 50);
                     break;
                 case 3:

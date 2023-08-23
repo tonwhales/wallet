@@ -22,7 +22,6 @@ import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWi
 import { useCallback, useEffect, useLayoutEffect } from 'react';
 import { useKeysAuth } from './AuthWalletKeys';
 import { HeaderBackButton } from "@react-navigation/elements";
-import { AndroidToolbar } from '../topbar/AndroidToolbar';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -268,7 +267,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 style={{ marginLeft: -13 }}
                                 label={t('common.back')}
                                 labelVisible
-                                onPress={navigation.base.goBack}
+                                onPress={navigation.goBack}
                                 tintColor={Theme.accent}
                             />
                         )

@@ -14,6 +14,10 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { useLayoutEffect } from 'react';
+import { HeaderBackButton } from "@react-navigation/elements";
 
 export const wordsTrie = WordsListTrie();
 
@@ -227,11 +231,36 @@ export const WordInput = React.memo(React.forwardRef((props: {
 }));
 
 export const WalletImportFragment = systemFragment(() => {
+    const { Theme } = useAppConfig();
+    const navigation = useTypedNavigation();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
     const safeArea = useSafeAreaInsets();
+
+    useLayoutEffect(() => {
+
+        if (Platform.OS === 'ios') {
+            if (Platform.OS === 'ios') {
+                navigation.base.setOptions({
+                    headerLeft: () => {
+                        return (
+                            <HeaderBackButton
+                                style={{ marginLeft: -13 }}
+                                label={t('common.back')}
+                                labelVisible
+                                onPress={navigation.goBack}
+                                tintColor={Theme.accent}
+                            />
+                        )
+                    },
+                });
+            }
+        }
+
+
+    }, [navigation,]);
 
     return (
         <View

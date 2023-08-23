@@ -76,7 +76,7 @@ export const ContactsFragment = fragment(() => {
                 )
                     : undefined
             ),
-            headerSearchBarOptions: {
+            headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
                 hideWhenScrolling: false,
                 hideNavigationBar: false,
                 onFocus: () => setSearchFocused(true),
@@ -84,7 +84,7 @@ export const ContactsFragment = fragment(() => {
                 onChangeText: (event) => setSearch(event.nativeEvent.text),
                 placeholder: t('contacts.search'),
                 onCancelButtonPress: () => setSearch('')
-            },
+            } : undefined,
         }
     );
 

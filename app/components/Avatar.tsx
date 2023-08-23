@@ -7,7 +7,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import FastImage from 'react-native-fast-image';
 
 import SpamIcon from '../../assets/known/spam_icon.svg';
-import Verified from '../../assets/ic_verified.svg';
+import Verified from '../../assets/ic-verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
 
 export const avatarImages = [
@@ -117,7 +117,7 @@ export const Avatar = React.memo((props: {
             {img}
             {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
                 <Verified
-                    style={{ position: 'absolute', top: -1, right: -4 }}
+                    style={{ position: 'absolute', bottom: -2, right: -2 }}
                     height={verifiedSize}
                     width={verifiedSize}
                 />

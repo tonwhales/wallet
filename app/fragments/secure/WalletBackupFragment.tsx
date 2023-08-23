@@ -4,7 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, isAddressSecured, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
@@ -41,7 +41,12 @@ export const WalletBackupFragment = systemFragment(() => {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, AppConfig.isTestnet);
+        markAddressSecured(engine.address, AppConfig.isTestnet);
+        console.log(
+            'Address secured',
+            engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            isAddressSecured(engine.address, AppConfig.isTestnet)
+        );
         if (back) {
             navigation.goBack();
         } else {
@@ -51,7 +56,7 @@ export const WalletBackupFragment = systemFragment(() => {
 
             navigation.navigateAndReplaceAll('Home');
         }
-    }, [engine]);
+    }, [engine, address]);
 
     useEffect(() => {
         (async () => {
@@ -75,7 +80,7 @@ export const WalletBackupFragment = systemFragment(() => {
         navigation,
         Theme,
         {
-            title: t('create.backupTitle'),
+            title: !init ? t('create.backupTitle') : '',
             headerShown: true,
             tintColor: Theme.accent,
         }
@@ -139,7 +144,7 @@ export const WalletBackupFragment = systemFragment(() => {
                     <MnemonicsView
                         mnemonics={mnemonics.join(' ')}
                         style={{
-                            paddingTop: init ? 0 : 46,
+                            paddingTop: init ? 16 : 46,
                         }}
                     />
                     {!init && (

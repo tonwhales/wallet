@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, ViewStyle, StyleProp, Insets, PointProp } from "react-native";
-import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { Engine, useEngine } from "../../engine/Engine";
 import { WalletState } from "../../engine/products/WalletProduct";
@@ -19,6 +19,7 @@ import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../PressableChip";
+import { StatusBar } from "expo-status-bar";
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -175,6 +176,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <StatusBar style={'dark'} />
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -263,6 +265,7 @@ export const TransactionsFragment = fragment(() => {
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>
+                <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <LoadingIndicator />

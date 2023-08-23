@@ -25,6 +25,7 @@ import Privacy from '../../assets/ic-privacy.svg';
 import Support from '../../assets/ic-support.svg';
 import Telegram from '../../assets/ic-tg.svg';
 import RateApp from '../../assets/ic-rate-app.svg';
+import { StatusBar } from 'expo-status-bar';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -85,6 +86,7 @@ export const SettingsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={'dark'} />
             <TabHeader title={t('settings.title')} />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

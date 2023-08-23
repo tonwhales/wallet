@@ -21,7 +21,6 @@ import DeviceInfo from 'react-native-device-info';
 import { useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 
 const Tab = createBottomTabNavigator();
 
@@ -138,10 +137,9 @@ export const HomeFragment = fragment(() => {
                     screenOptions={({ route }) => ({
                         headerShown: false,
                         header: undefined,
-                        unmountOnBlur: true,
+                        unmountOnBlur: route.name !== 'Wallet',
                         tabBarIcon: ({ focused }) => {
                             let source = require('../../assets/ic-home.png');
-                            StatusBar
 
                             if (route.name === 'Transactions') {
                                 source = require('../../assets/ic-history.png');

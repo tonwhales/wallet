@@ -20,6 +20,7 @@ import { useLinkNavigator } from '../../useLinkNavigator';
 
 import Scanner from '../../../assets/ic-scanner-accent.svg';
 import { extractDomain } from '../../engine/utils/extractDomain';
+import { StatusBar } from 'expo-status-bar';
 
 type Item = {
     key: string;
@@ -147,6 +148,7 @@ export const ConnectionsFragment = fragment(() => {
 
     return (
         <View style={{ flex: 1 }}>
+            <StatusBar style={'dark'} />
             {(
                 apps.length === 0
                 && extensions.length === 0

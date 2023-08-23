@@ -26,16 +26,6 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     const navigation = useTypedNavigation();
     const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
-    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: withTiming(animSensor.sensor.value.y * 80) },
-                { translateY: withTiming(animSensor.sensor.value.x * 80) },
-            ]
-        }
-    });
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
@@ -61,6 +51,17 @@ function WalletComponent(props: { wallet: WalletState | null }) {
 
     const scrollStyle = useAnimatedStyle(() => {
         return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
+    });
+
+    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { translateX: withTiming(animSensor.sensor.value.y * 80) },
+                { translateY: withTiming(animSensor.sensor.value.x * 80) },
+            ]
+        }
     });
 
     return (
@@ -315,7 +316,6 @@ function WalletComponent(props: { wallet: WalletState | null }) {
 export const WalletFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
-    const navigation = useTypedNavigation();
     useTrackScreen('Wallet', engine.isTestnet);
 
     return (

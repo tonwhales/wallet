@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
@@ -137,7 +137,14 @@ export const TransferSingle = React.memo((props: Props) => {
     }
 
     const isSpam = engine.products.settings.useDenyAddress(operation.address);
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam;
+
+    const amount = useMemo(() => {
+        if (order.messages[0].amountAll) {
+            return account.balance;
+        }
+        return order.messages[0].amount;
+    }, [account, order]);
 
 
     // Confirmation
@@ -273,7 +280,7 @@ export const TransferSingle = React.memo((props: Props) => {
             id: 'pending-' + account.seqno,
             lt: null,
             fees: fees,
-            amount: order.messages[0].amount.mul(new BN(-1)),
+            amount: amount.mul(new BN(-1)),
             address: target.address,
             seqno: account.seqno,
             kind: 'out',
@@ -432,7 +439,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     fontSize: 32, lineHeight: 38,
                                     color: Theme.textColor
                                 }}>
-                                    {fromNano(order.messages[0].amount) + ' TON'}
+                                    {fromNano(amount) + ' TON'}
                                 </Text>
                             )}
                             {!!jettonAmount && (
@@ -449,7 +456,7 @@ export const TransferSingle = React.memo((props: Props) => {
                         </View>
                         {!jettonAmount && (
                             <PriceComponent
-                                amount={order.messages[0].amount}
+                                amount={amount}
                                 style={{
                                     backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0, marginTop: 2,

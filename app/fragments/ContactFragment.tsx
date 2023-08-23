@@ -261,7 +261,10 @@ export const ContactFragment = fragment(() => {
             <StatusBar style={'dark'} />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                contentInset={{
+                    bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom + 44 + 56) : 0.1 /* Some weird bug on iOS */,
+                    top: 0.1 /* Some weird bug on iOS */
+                }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}

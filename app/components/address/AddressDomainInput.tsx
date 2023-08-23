@@ -222,7 +222,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                     </Text>
                                 </Animated.View>
                             )}
-                        {focused && input.length > 0 && (
+                        {input.length > 0 && (
                             <Animated.View
                                 style={{
                                     flexDirection: 'row',
@@ -367,14 +367,12 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             </Pressable>
                         ))
                 }
+                error={
+                    invalid && (input.length >= 48 || (!focused && input.length > 0))
+                        ? t('transfer.error.invalidAddress')
+                        : undefined
+                }
             />
-            {invalid && (input.length >= 48 || (!focused && input.length > 0)) && (
-                <Animated.View style={{ marginTop: 2 }} entering={FadeInUp} exiting={FadeOutDown}>
-                    <Text style={{ color: Theme.red, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                        {t('transfer.error.invalidAddress')}
-                    </Text>
-                </Animated.View>
-            )}
         </>
     )
 }));

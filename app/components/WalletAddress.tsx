@@ -42,7 +42,7 @@ export const WalletAddress = React.memo((props: {
     }, []);
 
     const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
+        navigation.replace('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
     const addressLink = useMemo(() => {

@@ -17,10 +17,6 @@ import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import ContactIcon from '../../../assets/ic_contacts.svg';
-import CopyIcon from '../../../assets/ic_copy.svg';
-import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -30,6 +26,11 @@ import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useAppConfig } from "../../utils/AppConfigContext";
+
+import VerifiedIcon from '../../../assets/ic_verified.svg';
+import ContactIcon from '../../../assets/ic_contacts.svg';
+import CopyIcon from '../../../assets/ic_copy.svg';
+import ExplorerIcon from '../../../assets/ic_explorer.svg';
 
 export const TransactionPreviewFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -360,7 +361,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     }}
                                     onPress={() => {
                                         if (contact) {
-                                            navigation.navigate(
+                                            navigation.replace(
                                                 'Contact',
                                                 { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) }
                                             );

@@ -42,11 +42,6 @@ export const WalletBackupFragment = systemFragment(() => {
             throw Error('Invalid state');
         }
         markAddressSecured(engine.address, AppConfig.isTestnet);
-        console.log(
-            'Address secured',
-            engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            isAddressSecured(engine.address, AppConfig.isTestnet)
-        );
         if (back) {
             navigation.goBack();
         } else {

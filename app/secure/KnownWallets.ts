@@ -11,20 +11,20 @@ const Img_Neocrypto = require('../../assets/known/neocrypto.png');
 const Img_TonTake = require('../../assets/known/Img_TonTake.jpg');
 
 // Tegro
-const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.png');
+const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.webp');
 const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
 
 // NFT
 const Img_tonwhalesNFT = require('../../assets/known/tonwhalesNFT.png');
 
-const Img_kingyTON = require('../../assets/known/kingyTON.png');
+const Img_kingyTON = require('../../assets/known/kingyTON.webp');
 const Img_kingyru = require('../../assets/known/kingyru.png');
 const Img_thetrixter = require('../../assets/known/thetrixter.jpg');
 
-const Img_Web3TON = require('../../assets/known/Web3TON.jpg');
-const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.png');
+const Img_Web3TON = require('../../assets/known/Web3TON.webp');
+const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.webp');
 
-const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.png');
+const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.webp');
 
 const Img_TON_DUCKS = require('../../assets/known/TON_DUCKS.jpeg')
 

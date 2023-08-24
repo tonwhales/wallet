@@ -168,60 +168,6 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                         overflow: 'hidden',
                         minHeight: showToMainAddress ? 24 : undefined,
                     }, labelStyle]}>
-                        {(isKnown && target && !resolvedAddress && !resolving)
-                            && !focused
-                            && (
-                                <Animated.View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}
-                                    entering={FadeIn.duration(150)}
-                                    exiting={FadeOut.duration(150)}
-                                >
-                                    <VerifiedIcon
-                                        width={14}
-                                        height={14}
-                                        style={{ alignSelf: 'center', marginRight: 4 }}
-                                    />
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        color: Theme.labelSecondary,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {KnownWallets(AppConfig.isTestnet)[target].name}
-                                    </Text>
-                                </Animated.View>
-                            )}
-                        {(!isKnown && contact && !resolvedAddress && !resolving)
-                            && !focused
-                            && (
-                                <Animated.View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}
-                                    entering={FadeIn.duration(150)}
-                                    exiting={FadeOut.duration(150)}
-                                >
-                                    <ContactIcon
-                                        width={14}
-                                        height={14}
-                                        style={{ alignSelf: 'center', marginRight: 4 }}
-                                    />
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        color: Theme.labelSecondary,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {contact.name}
-                                    </Text>
-                                </Animated.View>
-                            )}
                         {input.length > 0 && (
                             <Animated.View
                                 style={{
@@ -239,26 +185,25 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                     alignSelf: 'flex-start',
                                 }}>
                                     {AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
-                                </Text>
-                            </Animated.View>
-                        )}
-                        {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
-                            <Animated.View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}
-                                entering={FadeIn.duration(150)}
-                                exiting={FadeOut.duration(150)}
-                            >
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 12,
-                                    color: Theme.labelSecondary,
-                                    alignSelf: 'flex-start',
-                                }}>
-                                    <AddressComponent address={resolvedAddress} />
+                                    {(!isKnown && contact && !resolvedAddress && !resolving)
+                                        && !focused
+                                        && (
+                                            <Text>
+                                                {` • ${contact.name}`}
+                                            </Text>
+                                        )}
+                                    {(isKnown && target && !resolvedAddress && !resolving)
+                                        && !focused
+                                        && (
+                                            <Text>
+                                                {` • ${KnownWallets(AppConfig.isTestnet)[target].name}`}
+                                            </Text>
+                                        )}
+                                    {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
+                                        <Text>
+                                            <AddressComponent address={resolvedAddress} />
+                                        </Text>
+                                    )}
                                 </Text>
                             </Animated.View>
                         )}

@@ -201,7 +201,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                         )}
                                     {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
                                         <Text>
-                                            <AddressComponent address={resolvedAddress} />
+                                            {' • '}
+                                            <AddressComponent start={4} address={resolvedAddress} />
                                         </Text>
                                     )}
                                 </Text>

@@ -184,6 +184,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
         notEnoughJettonsTitle: '⚠️ Not enough jettons',
         notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
+        aboutFees: 'About fees',
+        aboutFeesDescription: 'Blockchain transactions fees can vary depending on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. In general, the higher the demand for transaction processing on the blockchain, the higher the fees will be. Similarly, the larger the transaction size (transactions message/comment) the higher the fees will be.'
     },
     auth: {
         phoneVerify: 'Verify phone',

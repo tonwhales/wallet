@@ -100,7 +100,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
 
     const filtered = useMemo(() => {
         if (!query || query.length === 0) {
-            return searchItems.slice(0, 10);
+            return searchItems.slice(0, 5);
         }
         return searchItems.filter((i) => i.searchable.toLowerCase().includes(query.toLowerCase()));
     }, [searchItems, query]);

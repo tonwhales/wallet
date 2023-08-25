@@ -186,6 +186,8 @@ export type LocalizationSchema = {
         wrongJettonMessage: string,
         notEnoughJettonsTitle: string,
         notEnoughJettonsMessage: string,
+        aboutFees: string,
+        aboutFeesDescription: string,
     },
     auth: {
         phoneVerify: string,

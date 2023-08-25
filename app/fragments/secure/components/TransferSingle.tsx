@@ -1,6 +1,6 @@
 import BN from "bn.js";
-import React, { useEffect, useMemo, useState } from "react";
-import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Alert, View, Text, Pressable, ScrollView, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { useEngine } from "../../../engine/Engine";
@@ -24,33 +24,23 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Avatar } from "../../../components/Avatar";
-import { ItemDivider } from "../../../components/ItemDivider";
-import { ItemLarge } from "../../../components/ItemLarge";
-import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
-import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { holdersUrl } from "../../../engine/holders/HoldersProduct";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useImage } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../../utils/image/getMostPrevalentColorFromBytes";
 
-
 import TonSign from '../../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
-import Contact from '../../../../assets/ic_transfer_contact.svg';
 import WithStateInit from '../../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../../assets/ic_sign_staking.svg';
-import Question from '../../../../assets/ic_question.svg';
-import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
 import IcAlert from '../../../../assets/ic-alert.svg';
+import IcInfo from '../../../../assets/ic-info.svg';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import Verified from '../../../../assets/ic-verified.svg';
+import { openWithInApp } from "../../../utils/openWithInApp";
 
 type Props = {
     target: {
@@ -94,8 +84,15 @@ export const TransferSingle = React.memo((props: Props) => {
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
-    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
-    const jettonAmount = React.useMemo(() => {
+    let operation = resolveOperation({
+        body: body,
+        amount: order.messages[0].amount,
+        account: Address.parse(order.messages[0].target),
+        metadata,
+        jettonMaster
+    });
+
+    const jettonAmount = useMemo(() => {
         try {
             if (jettonMaster && order.messages[0].payload) {
                 const temp = order.messages[0].payload;
@@ -115,8 +112,8 @@ export const TransferSingle = React.memo((props: Props) => {
     }, [order]);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
             trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
         }
@@ -303,14 +300,22 @@ export const TransferSingle = React.memo((props: Props) => {
         }
     }, []);
 
-    const inactiveAlert = React.useCallback(
-        () => {
-            Alert.alert(t('transfer.error.addressIsNotActive'),
-                t('transfer.error.addressIsNotActiveDescription'),
-                [{ text: t('common.gotIt') }])
-        },
-        [],
-    );
+    const inactiveAlert = useCallback(() => {
+        Alert.alert(
+            t('transfer.error.addressIsNotActive'),
+            t('transfer.error.addressIsNotActiveDescription'),
+            [{ text: t('common.gotIt') }])
+    }, []);
+
+    const feesAlert = useCallback(() => {
+        Alert.alert(
+            t('transfer.aboutFees', { amount: fromNano(fees) }),
+            t('transfer.aboutFeesDescription'),
+            [
+                { text: 'More info', onPress: () => openWithInApp('https://ton.org') },
+                { text: t('common.gotIt') }
+            ]);
+    }, [])
 
     const [capColor, setCapColor] = useState(Theme.accent);
     const image = useImage(jettonMaster?.image?.preview256);
@@ -324,11 +329,13 @@ export const TransferSingle = React.memo((props: Props) => {
         setCapColor('#0088CC');
     }, [image]);
 
-    const jettonsGasAlert = React.useCallback(() => {
+    const jettonsGasAlert = useCallback(() => {
         if (!jettonAmount) return;
-        Alert.alert(t('transfer.unusualJettonsGasTitle', { amount: fromNano(order.messages[0].amount) }),
+        Alert.alert(
+            t('transfer.unusualJettonsGasTitle', { amount: fromNano(order.messages[0].amount) }),
             t('transfer.unusualJettonsGasMessage'),
-            [{ text: t('common.gotIt') }]);
+            [{ text: t('common.gotIt') }]
+        );
 
     }, [order.messages[0].amount, jettonAmount]);
 
@@ -467,7 +474,7 @@ export const TransferSingle = React.memo((props: Props) => {
                         )}
                     </ItemGroup>
 
-                    <ItemGroup>
+                    <ItemGroup style={{ marginBottom: 16 }}>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -527,8 +534,24 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <AddressComponent address={target.address} end={4} />
                                     </Text>
                                 </View>
-                                {known && (
-                                    <View style={{ flexDirection: 'row' }}>
+                                <View style={{ flexDirection: 'row' }}>
+                                    {!!known && (
+                                        <>
+                                            <Text
+                                                style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: Theme.darkGrey,
+                                                    flexShrink: 1
+                                                }}
+                                                numberOfLines={1}
+                                                ellipsizeMode={'tail'}
+                                            >
+                                                {known?.name.length > 16 ? known?.name.slice(0, 16) + '...' : known?.name}
+                                            </Text>
+                                            <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                        </>
+                                    )}
+                                    {!!order.domain && (
                                         <Text
                                             style={{
                                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -538,13 +561,15 @@ export const TransferSingle = React.memo((props: Props) => {
                                             numberOfLines={1}
                                             ellipsizeMode={'tail'}
                                         >
-                                            {known?.name}
+                                            {`${!!known ? ' • ' : ''}${order.domain.length > 16 ? order.domain.slice(0, 16) + '...' : order.domain}`}
                                         </Text>
-                                        <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                    </View>
-                                )}
+                                    )}
+                                </View>
                                 {(!target.active && !order.messages[0].stateInit) && (
-                                    <View style={{ flexDirection: 'row' }}>
+                                    <Pressable
+                                        style={{ flexDirection: 'row' }}
+                                        onPress={inactiveAlert}
+                                    >
                                         <Text
                                             style={{
                                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
@@ -557,7 +582,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             {t('transfer.addressNotActive')}
                                         </Text>
                                         <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                    </View>
+                                    </Pressable>
                                 )}
                                 {spam && (
                                     <View style={{ flexDirection: 'row' }}>
@@ -752,14 +777,25 @@ export const TransferSingle = React.memo((props: Props) => {
                                 </View>
                             </>
                         )}
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                    </ItemGroup>
+                    <ItemGroup>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
-                            }}>
-                                {t('transfer.feeTitle')}
-                            </Text>
+                            <Pressable
+                                onPress={feesAlert}
+                                style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
+                            >
+                                <Text style={{
+                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                    color: Theme.darkGrey,
+                                }}>
+                                    {t('transfer.feeTitle')}
+                                </Text>
+                                <IcInfo
+                                    height={16} width={16}
+                                    style={{ height: 16, width: 16, marginLeft: 10 }}
+                                    color={Theme.greyForIcon}
+                                />
+                            </Pressable>
                             <View style={{ alignItems: 'flex-end' }}>
                                 <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
                                     {fromNano(fees) + ' TON'}

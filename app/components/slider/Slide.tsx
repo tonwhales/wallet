@@ -62,7 +62,7 @@ export const Slide = React.memo((
                 width: dimensions.screen.width, height: 300,
                 justifyContent: 'center', alignItems: 'center',
             }}>
-                <Image source={illustration} />
+                <Image style={{ width: dimensions.screen.width, height: 300, }} source={illustration} />
             </View>
             <View style={{ flexGrow: 1 }} />
         </View>

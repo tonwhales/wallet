@@ -617,7 +617,6 @@ export const TonConnectAuthenticateFragment = fragment(() => {
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader title={t('auth.title')} onClosePressed={navigation.goBack} />
             <SignStateLoader connectProps={props} />
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
     );
 });

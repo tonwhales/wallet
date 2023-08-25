@@ -27,11 +27,11 @@ export const ScreenCaptureFragment = systemFragment(() => {
                 style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
             />
             <View style={{
-                height: '45%',
+                height: '50%',
                 backgroundColor: Theme.white,
                 borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,
-                paddingBottom: safeArea.bottom + 16
+                paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 16
             }}>
                 <Text style={{
                     fontSize: 32, lineHeight: 38,

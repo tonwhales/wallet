@@ -101,7 +101,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
                 backgroundColor: Theme.item,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom + 32) : 0,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}
             key={"content"}

@@ -673,6 +673,14 @@ export type LocalizationSchema = {
             forgotPasscode: string,
             logoutAndReset: string,
         }
+        auth: {
+            biometricsPermissionCheck: {
+                title: string,
+                message: string,
+                openSettings: string,
+                authenticate: string,
+            }
+        }
     },
     report: {
         title: string,

@@ -670,6 +670,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             changeLength: 'Use {{length}}-digit PIN code',
             forgotPasscode: 'Forgot PIN code?',
             logoutAndReset: 'Log out and reset PIN code',
+        },
+        auth: {
+            biometricsPermissionCheck: {
+                title: 'Permission required',
+                message: 'Please, allow the app access to biometrics for authentication',
+                openSettings: 'Open settings',
+                authenticate: 'Authenticate with Passcode',
+            }
         }
     },
     report: {

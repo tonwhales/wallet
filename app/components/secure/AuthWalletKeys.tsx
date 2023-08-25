@@ -4,7 +4,7 @@ import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
-import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey } from '../../storage/secureStorage';
+import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey, loadKeyStorageType } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
@@ -14,6 +14,8 @@ import { clearHolders } from '../../fragments/LogoutFragment';
 import { useReboot } from '../../utils/RebootContext';
 import { useEngine } from '../../engine/Engine';
 import { useActionSheet } from '@expo/react-native-action-sheet';
+import { PERMISSIONS, check, openSettings } from 'react-native-permissions';
+import * as LocalAuthentication from 'expo-local-authentication'
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
@@ -46,6 +48,53 @@ export type AuthProps =
 export type AuthWalletKeysType = {
     authenticate: (style?: AuthParams) => Promise<WalletKeys>,
     authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
+}
+
+async function checkBiometricsPermissions(passcodeState?: PasscodeState) {
+    const storageType = loadKeyStorageType();
+
+    if (storageType === 'local-authentication') {
+        if (passcodeState === PasscodeState.Set) {
+            return 'passcode';
+        } else {
+            return 'none';
+        }
+    }
+
+    if (storageType === 'key-store') { // Android Only
+        if (passcodeState === PasscodeState.Set) {
+            return 'biometrics-setup-again';
+        } else {
+            return 'corrupted';
+        }
+    }
+
+    if (storageType === 'secure-store' && Platform.OS === 'ios') {
+        const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        const faceIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
+        const touchIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
+        const checkFaceId = await check(PERMISSIONS.IOS.FACE_ID);
+
+        console.log({
+            supportedAuthTypes,
+            fadeIdSupported: faceIdSupported,
+            checkFaceId
+        })
+
+        if (!faceIdSupported && touchIdSupported) {
+            return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
+        }
+
+        if (faceIdSupported) {
+            if (checkFaceId === 'granted') {
+                return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
+            } else {
+                return 'biometrics-permission-check';
+            }
+        } else {
+            return passcodeState === PasscodeState.Set ? 'use-passcode' : 'corrupted';
+        }
+    }
 }
 
 export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | null>(null);
@@ -81,6 +130,31 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 return keys;
             } catch (e) {
+                const premissionsRes = await checkBiometricsPermissions();
+                if (premissionsRes === 'biometrics-permission-check') {
+                    await new Promise<void>(resolve => {
+                        Alert.alert(
+                            t('security.auth.biometricsPermissionCheck.title'),
+                            t('security.auth.biometricsPermissionCheck.message'),
+                            [
+                                {
+                                    text: passcodeState === PasscodeState.Set
+                                        ? t('security.auth.biometricsPermissionCheck.authenticate')
+                                        : t('common.cancel'),
+                                    onPress: () => resolve()
+                                },
+                                {
+                                    text: t('security.auth.biometricsPermissionCheck.openSettings'),
+                                    onPress: () => {
+                                        resolve();
+                                        openSettings()
+                                    }
+                                }
+                            ]
+                        );
+                    });
+                }
+                
                 warn('Failed to load wallet keys with biometrics');
 
                 // Retry with passcode

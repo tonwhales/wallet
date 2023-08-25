@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Text, Pressable, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, useWindowDimensions, ScrollView } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -51,7 +51,7 @@ export const ReceiveFragment = fragment(() => {
         return !!KnownJettonMasters(AppConfig.isTestnet)[jetton?.master.toFriendly({ testOnly: AppConfig.isTestnet })];
     }, [jetton]);
 
-    const onAssetSelected = useCallback((selected?: {master: Address, wallet: Address}) => {
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
         if (selected) {
             const data = engine.persistence.jettonMasters.item(selected.master).value;
             if (data) {
@@ -110,126 +110,129 @@ export const ReceiveFragment = fragment(() => {
                 textColor={isDark ? '#fff' : '#000'}
                 tintColor={isDark ? '#fff' : '#000'}
             />
-            <View style={{ paddingHorizontal: 40, width: '100%' }}>
-                <View style={{
-                    justifyContent: 'center',
-                    backgroundColor: Theme.item,
-                    borderRadius: 20,
-                    padding: 32,
-                    paddingTop: 52,
-                    marginTop: 81,
-                    marginBottom: 16
-                }}>
+            <ScrollView style={{ flexGrow: 1, width: '100%' }}>
+                <View style={{ paddingHorizontal: 40, width: '100%' }}>
                     <View style={{
-                        height: 87, width: 87, borderRadius: 44,
-                        position: 'absolute', top: -49,
-                        alignSelf: 'center',
-                        backgroundColor: mainColor,
-                        justifyContent: 'center', alignItems: 'center',
+                        justifyContent: 'center',
+                        backgroundColor: Theme.item,
+                        borderRadius: 20,
+                        padding: 32,
+                        paddingTop: 52,
+                        marginTop: 81,
+                        marginBottom: 16
                     }}>
-                        <Avatar
-                            id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            size={77}
-                            borderWith={0}
-                        />
-                    </View>
-                    <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
-                        <QRCode
-                            data={link}
-                            size={qrSize}
-                            icon={jetton?.data.image}
-                            color={mainColor}
-                        />
-                    </View>
-                </View>
-                <View style={{ backgroundColor: Theme.item, borderRadius: 20, padding: 20 }}>
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.3 : 1,
-                            }
-                        }}
-                        onPress={() => {
-                            if (params.ledger) {
-                                navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jetton?.master });
-                                return;
-                            }
-                            navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jetton?.master });
-                        }}
-                    >
                         <View style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
+                            height: 87, width: 87, borderRadius: 44,
+                            position: 'absolute', top: -49,
+                            alignSelf: 'center',
+                            backgroundColor: mainColor,
+                            justifyContent: 'center', alignItems: 'center',
                         }}>
+                            <Avatar
+                                id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                size={77}
+                                borderWith={0}
+                            />
+                        </View>
+                        <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
+                            <QRCode
+                                data={link}
+                                size={qrSize}
+                                icon={jetton?.data.image}
+                                color={mainColor}
+                            />
+                        </View>
+                    </View>
+                    <View style={{ backgroundColor: Theme.item, borderRadius: 20, padding: 20 }}>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.3 : 1,
+                                }
+                            }}
+                            onPress={() => {
+                                if (params.ledger) {
+                                    navigation.navigate('LedgerAssets', { callback: onAssetSelected, selectedJetton: jetton?.master });
+                                    return;
+                                }
+                                navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jetton?.master });
+                            }}
+                        >
                             <View style={{
                                 flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
                             }}>
-                                <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                    {!!jetton && (
-                                        <WImage
-                                            src={jetton.data.image?.preview256}
-                                            blurhash={jetton.data.image?.blurhash}
-                                            width={46}
-                                            heigh={46}
-                                            borderRadius={23}
-                                            lockLoading
-                                        />
-                                    )}
-                                    {!jetton && (
-                                        <TonIcon width={46} height={46} />
-                                    )}
-                                    {isVerified && (
-                                        <Verified
-                                            height={16} width={16}
+                                <View style={{
+                                    flexDirection: 'row',
+                                }}>
+                                    <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                                        {!!jetton && (
+                                            <WImage
+                                                src={jetton.data.image?.preview256}
+                                                blurhash={jetton.data.image?.blurhash}
+                                                width={46}
+                                                heigh={46}
+                                                borderRadius={23}
+                                                lockLoading
+                                            />
+                                        )}
+                                        {!jetton && (
+                                            <TonIcon width={46} height={46} />
+                                        )}
+                                        {isVerified && (
+                                            <Verified
+                                                height={16} width={16}
+                                                style={{
+                                                    height: 16, width: 16,
+                                                    position: 'absolute', right: -2, bottom: -2,
+                                                }}
+                                            />
+                                        )}
+                                    </View>
+                                    <View style={{ justifyContent: 'space-between' }}>
+                                        <Text style={{
+                                            fontSize: 17,
+                                            color: Theme.textColor,
+                                            fontWeight: '600',
+                                            lineHeight: 24
+                                        }}>
+                                            {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
+                                        </Text>
+                                        <Text
                                             style={{
-                                                height: 16, width: 16,
-                                                position: 'absolute', right: -2, bottom: -2,
+                                                fontSize: 15,
+                                                fontWeight: '400',
+                                                lineHeight: 20,
+                                                color: Theme.price,
                                             }}
-                                        />
-                                    )}
+                                            selectable={false}
+                                            ellipsizeMode={'middle'}
+                                        >
+                                            {
+                                                friendly.slice(0, 6)
+                                                + '...'
+                                                + friendly.slice(friendly.length - 6)
+                                            }
+                                        </Text>
+                                    </View>
                                 </View>
-                                <View style={{ justifyContent: 'space-between' }}>
-                                    <Text style={{
-                                        fontSize: 17,
-                                        color: Theme.textColor,
-                                        fontWeight: '600',
-                                        lineHeight: 24
-                                    }}>
-                                        {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            fontSize: 15,
-                                            fontWeight: '400',
-                                            lineHeight: 20,
-                                            color: Theme.price,
-                                        }}
-                                        selectable={false}
-                                        ellipsizeMode={'middle'}
-                                    >
-                                        {
-                                            friendly.slice(0, 6)
-                                            + '...'
-                                            + friendly.slice(friendly.length - 6)
-                                        }
-                                    </Text>
-                                </View>
+                                <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
                             </View>
-                            <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
-                        </View>
-                    </Pressable>
+                        </Pressable>
+                    </View>
                 </View>
-            </View>
+            </ScrollView>
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 width: '100%',
+                minHeight: 56 + 36 + 56,
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
-                paddingBottom: 16 + safeArea.bottom,
+                paddingBottom: 56 + safeArea.bottom === 0 ? 32 : safeArea.bottom,
                 paddingTop: 20 + 16,
                 paddingHorizontal: 16,
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.white,
                 borderTopEndRadius: 20,
                 borderTopStartRadius: 20,
                 opacity: isSharing ? 0 : 1,
@@ -238,7 +241,8 @@ export const ReceiveFragment = fragment(() => {
                     style={{
                         marginRight: 16,
                         backgroundColor: mainColor,
-                        borderWidth: 0
+                        borderWidth: 0,
+                        height: 56,
                     }}
                     body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                     textStyle={{
@@ -251,7 +255,8 @@ export const ReceiveFragment = fragment(() => {
                     style={{
                         marginRight: 8,
                         backgroundColor: mainColor,
-                        borderWidth: 0
+                        borderWidth: 0,
+                        height: 56,
                     }}
                     body={link}
                     textStyle={{

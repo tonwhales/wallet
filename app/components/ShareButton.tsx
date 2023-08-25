@@ -58,7 +58,7 @@ export const ShareButton = React.memo(({
                 {
                     flex: 1,
                     borderWidth: 1,
-                    borderRadius: 14,
+                    borderRadius: 16,
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
                     overflow: 'hidden'

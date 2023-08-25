@@ -99,8 +99,8 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
     }, [contacts, known]);
 
     const filtered = useMemo(() => {
-        if (!query) {
-            return [];
+        if (!query || query.length === 0) {
+            return searchItems.slice(0, 10);
         }
         return searchItems.filter((i) => i.searchable.toLowerCase().includes(query.toLowerCase()));
     }, [searchItems, query]);

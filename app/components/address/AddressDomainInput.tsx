@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle } from "react-native"
-import Animated, { FadeIn, FadeInDown, FadeInUp, FadeOut, FadeOutDown, FadeOutUp } from "react-native-reanimated"
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { Address } from "ton"
 import { AddressComponent } from "./AddressComponent"
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -15,8 +15,6 @@ import { useAppConfig } from "../../utils/AppConfigContext"
 import { useEngine } from "../../engine/Engine"
 import { AddressContact } from "../../engine/products/SettingsProduct"
 
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import ContactIcon from '../../../assets/ic_contacts.svg';
 import Scanner from '../../../assets/ic-scanner-accent.svg';
 import Clear from '../../../assets/ic-clear.svg';
 
@@ -154,7 +152,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                     }
                 }}
                 onValueChange={onInputChange}
-                placeholder={(AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress'))}
+                placeholder={t('common.domainOrAddressOrContact')}
                 keyboardType={'ascii-capable'}
                 autoCapitalize={'none'}
                 preventDefaultHeight

@@ -62,12 +62,12 @@ export const HardwareWalletFragment = fragment(() => {
             />
             {Platform.OS === 'ios' && (
                 <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
-                    <Image source={require('../../../assets/ledger_ios.png')} />
+                    <Image source={require('../../../assets/ledger_ios.webp')} />
                 </View>
             )}
             {Platform.OS === 'android' && (
                 <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
-                    <Image source={require('../../../assets/and_ledger.png')} />
+                    <Image source={require('../../../assets/and_ledger.webp')} />
                 </View>
             )}
             <View style={{

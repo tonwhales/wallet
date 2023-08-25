@@ -100,7 +100,7 @@ export const ContactsFragment = fragment(() => {
                     showsVerticalScrollIndicator={true}
                     contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
-                    <Image style={{ flexShrink: 1 }} source={require('../../assets/banner_contacts.png')} />
+                    <Image style={{ flexShrink: 1 }} source={require('../../assets/banner_contacts.webp')} />
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{
                             fontSize: 32, lineHeight: 38,

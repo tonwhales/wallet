@@ -10,20 +10,20 @@ const slides = (isTestnet: boolean) => [
         upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
         title: t('welcome.slide_1.title'),
         subtitle: t('welcome.slide_1.subtitle'),
-        illustration: require('../../../assets/slide_protected.png')
+        illustration: require('../../../assets/slide_protected.webp')
     },
     ...(isTestnet ?
         [{
             upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
             title: t('welcome.slide_2.title'),
             subtitle: t('welcome.slide_2.subtitle'),
-            illustration: require('../../../assets/slide_card.png')
+            illustration: require('../../../assets/slide_card.webp')
         }] : []),
     {
         upperNote: isTestnet ? t('welcome.sloganDev') : t('welcome.slogan'),
         title: t('welcome.slide_3.title'),
         subtitle: t('welcome.slide_3.subtitle'),
-        illustration: require('../../../assets/slide_fast.png')
+        illustration: require('../../../assets/slide_fast.webp')
     },
 ];
 

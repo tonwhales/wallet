@@ -131,7 +131,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.png')}
+                                source={require('../../../assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>
@@ -300,7 +300,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.png')}
+                                source={require('../../../assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>

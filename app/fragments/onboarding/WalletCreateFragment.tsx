@@ -146,6 +146,7 @@ export const WalletCreateFragment = systemFragment(() => {
                     <ScrollView
                         alwaysBounceVertical={false}
                         style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
+                        contentInset={{ bottom: safeArea.bottom + 56 + 16 }}
                     >
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
@@ -195,7 +196,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         justifyContent: 'flex-end',
                         padding: 16,
                         position: 'absolute', bottom: 0, left: 0, right: 0,
-                        paddingBottom: Platform.OS === 'ios' ? safeArea.bottom === 0 ? 48 : safeArea.bottom + 56 : undefined,
+                        paddingBottom: Platform.OS === 'ios' ? safeArea.bottom === 0 ? 56 : safeArea.bottom + 56 : undefined,
                     }}>
                         <RoundButton
                             title={t('create.okSaved')}

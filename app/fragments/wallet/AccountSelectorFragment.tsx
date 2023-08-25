@@ -85,7 +85,7 @@ export const AccountSelectorFragment = fragment(() => {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom,
+            paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
             backgroundColor: Platform.OS === 'android' ? Theme.white : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />

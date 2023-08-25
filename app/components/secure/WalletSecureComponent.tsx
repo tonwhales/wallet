@@ -93,7 +93,7 @@ export const WalletSecureComponent = React.memo((props: {
                     text={text}
                 />
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16, alignSelf: 'stretch' }}>
+                <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16, alignSelf: 'stretch' }}>
                     <RoundButton
                         onPress={onClick}
                         title={buttonText}

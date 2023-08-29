@@ -252,8 +252,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             padding: 10
                         }}>
                             <Pressable
-                                // onPress={() => navigation.navigate('Receive')}
-                                onPress={() => start()}
+                                onPress={() => navigation.navigate('Receive')}
                                 style={({ pressed }) => {
                                     return {
                                         opacity: pressed ? 0.5 : 1,

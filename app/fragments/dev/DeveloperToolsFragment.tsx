@@ -3,7 +3,7 @@ import { Alert, Platform, ToastAndroid, View, Text, KeyboardAvoidingView } from 
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storage, storagePersistence } from '../../storage/storage';
+import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
@@ -23,7 +23,7 @@ import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { ItemSwitch } from '../../components/Item';
-import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
+import { onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
 
 export const DeveloperToolsFragment = fragment(() => {
     const { Theme, AppConfig, setNetwork } = useAppConfig();
@@ -311,6 +311,12 @@ export const DeveloperToolsFragment = fragment(() => {
                             </View>
                         </View>
                     )}
+                    <RoundButton
+                        title={'Reset onboarding'}
+                        onPress={() => sharedStoragePersistence.delete(onboardingFinishedKey)}
+                        display={'default'}
+                        style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16, marginTop: 16 }}
+                    />
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

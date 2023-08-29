@@ -11,7 +11,7 @@ import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
@@ -19,6 +19,9 @@ import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeaderFragment } from './views/WalletHeaderFragment';
 import { toNano } from 'ton';
 import BN from 'bn.js';
+import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
+import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
+import { sharedStoragePersistence } from '../../storage/storage';
 
 function WalletComponent(props: { wallet: WalletState | null }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -26,6 +29,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     const navigation = useTypedNavigation();
     const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
+    const { start, copilotEvents, stop, visible } = useCopilot();
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
@@ -63,6 +67,16 @@ function WalletComponent(props: { wallet: WalletState | null }) {
             ]
         }
     });
+
+    useEffect(() => {
+        const onboardingShown = sharedStoragePersistence.getBoolean(onboardingFinishedKey);
+
+        if (!onboardingShown && !visible) {
+            setTimeout(() => {
+                start();
+            }, 1000);
+        }
+    }, [start, visible]);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
@@ -143,10 +157,18 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 style={{ flexDirection: 'row', alignItems: 'center' }}
                                 onPress={navigateToCurrencySettings}
                             >
-                                <PriceComponent
-                                    amount={account?.balance ?? new BN(0)}
-                                    style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
-                                />
+                                <CopilotStep
+                                    text={t('onboarding.price')}
+                                    order={3}
+                                    name={'thirdStep'}
+                                >
+                                    <OnboadingView>
+                                        <PriceComponent
+                                            amount={account?.balance ?? new BN(0)}
+                                            style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                        />
+                                    </OnboadingView>
+                                </CopilotStep>
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
@@ -230,7 +252,8 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             padding: 10
                         }}>
                             <Pressable
-                                onPress={() => navigation.navigate('Receive')}
+                                // onPress={() => navigation.navigate('Receive')}
+                                onPress={() => start()}
                                 style={({ pressed }) => {
                                     return {
                                         opacity: pressed ? 0.5 : 1,
@@ -321,7 +344,19 @@ export const WalletFragment = fragment(() => {
     return (
         <>
             <StatusBar style={'light'} />
-            <WalletComponent wallet={account} />
+            <CopilotProvider
+                arrowColor={'#1F1E25'}
+                tooltipStyle={{
+                    backgroundColor: '#1F1E25',
+                    borderRadius: 20, padding: 16
+                }}
+                margin={16}
+                stepNumberComponent={() => null}
+                tooltipComponent={CopilotTooltip}
+                svgMaskPath={defaultCopilotSvgPath}
+            >
+                <WalletComponent wallet={account} />
+            </CopilotProvider>
         </>
     );
 }, true);

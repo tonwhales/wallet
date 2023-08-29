@@ -854,6 +854,11 @@ export type LocalizationSchema = {
         title: string,
         description: string,
         action: string,
+    },
+    onboarding: {
+        avatar: string,
+        wallet: string,
+        price: string
     }
 };
 

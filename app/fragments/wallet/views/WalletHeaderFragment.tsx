@@ -11,10 +11,12 @@ import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
+import { CopilotStep } from "react-native-copilot";
 
 import Chart from '../../../../assets/ic-chart.svg';
 import Scanner from '../../../../assets/ic-scan-white.svg';
 import NoConnection from '../../../../assets/ic-no-connection.svg';
+import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 
 export const WalletHeaderFragment = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -74,63 +76,75 @@ export const WalletHeaderFragment = memo(() => {
                     }}
                     onPress={() => navigation.navigate('WalletSettings')}
                 >
-                    <View style={{
-                        width: 24, height: 24,
-                        backgroundColor: Theme.accent,
-                        borderRadius: 12
-                    }}>
-                        <Avatar
-                            id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                            size={24}
-                            borderWith={0}
-                            hash={walletSettings?.avatar}
-                        />
-                    </View>
+                    <CopilotStep
+                        text={t('onboarding.avatar')}
+                        order={1}
+                        name={'firstStep'}
+                    >
+                        <OnboadingView style={{
+                            width: 24, height: 24,
+                            backgroundColor: Theme.accent,
+                            borderRadius: 12
+                        }}>
+                            <Avatar
+                                id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                size={24}
+                                borderWith={0}
+                                hash={walletSettings?.avatar}
+                            />
+                        </OnboadingView>
+                    </CopilotStep>
                 </Pressable>
                 <Pressable
                     onPress={onAccountPress}
                     style={{ flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%' }}
                 >
-                    <View style={{
-                        flexDirection: 'row',
-                        backgroundColor: 'rgba(255,255,255,0.08)',
-                        borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
-                        alignItems: 'center'
-                    }}>
-                        <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 17, lineHeight: 24,
-                                color: Theme.white, flexShrink: 1,
-                                marginRight: 8
-                            }}
-                            ellipsizeMode='tail'
-                            numberOfLines={1}
-                        >
-                            {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
-                        </Text>
-                        {syncState === 'updating' && (
-                            <ReAnimatedCircularProgress
-                                size={14}
-                                color={Theme.white}
-                                loop
-                                infinitRotate
-                                progress={0.8}
-                            />
-                        )}
-                        {syncState === 'connecting' && (
-                            <NoConnection
-                                height={16}
-                                width={16}
-                                style={{ height: 16, width: 16 }}
-                            />
-                        )}
-                        {syncState === 'online' && (
-                            <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ backgroundColor: Theme.green, width: 8, height: 8, borderRadius: 4 }} />
-                            </View>
-                        )}
-                    </View>
+                    <CopilotStep
+                        text={t('onboarding.wallet')}
+                        order={2}
+                        name={'secondStep'}
+                    >
+                        <OnboadingView style={{
+                            flexDirection: 'row',
+                            backgroundColor: 'rgba(255,255,255,0.08)',
+                            borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                            alignItems: 'center'
+                        }}>
+                            <Text
+                                style={{
+                                    fontWeight: '500',
+                                    fontSize: 17, lineHeight: 24,
+                                    color: Theme.white, flexShrink: 1,
+                                    marginRight: 8
+                                }}
+                                ellipsizeMode='tail'
+                                numberOfLines={1}
+                            >
+                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
+                            </Text>
+                            {syncState === 'updating' && (
+                                <ReAnimatedCircularProgress
+                                    size={14}
+                                    color={Theme.white}
+                                    loop
+                                    infinitRotate
+                                    progress={0.8}
+                                />
+                            )}
+                            {syncState === 'connecting' && (
+                                <NoConnection
+                                    height={16}
+                                    width={16}
+                                    style={{ height: 16, width: 16 }}
+                                />
+                            )}
+                            {syncState === 'online' && (
+                                <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={{ backgroundColor: Theme.green, width: 8, height: 8, borderRadius: 4 }} />
+                                </View>
+                            )}
+                        </OnboadingView>
+                    </CopilotStep>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     {txs.length > 0 && (

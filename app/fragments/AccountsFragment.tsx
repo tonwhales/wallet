@@ -10,7 +10,7 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { useJettons } from '../engine/hooks/useJettons';
 import { markJettonDisabled } from '../engine/effects/markJettonDisabled';
 import { markJettonActive } from '../engine/effects/markJettonActive';
@@ -38,7 +38,7 @@ export async function confirmJettonAction(disable: boolean, symbol: string) {
 }
 
 export const AccountsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -111,14 +111,14 @@ export const AccountsFragment = fragment(() => {
                         fontWeight: '700',
                         marginBottom: 8,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                     }}
                     >
                         {t('accounts.noAccounts')}
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.priceSecondary
+                        color: theme.priceSecondary
                     }}
                     >
                         {t('accounts.description')}
@@ -133,12 +133,12 @@ export const AccountsFragment = fragment(() => {
                         borderRadius: 14,
                         flexShrink: 1,
                     }}>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                             {disabled.length === 0 && (
                                 <Text style={{
                                     marginHorizontal: 16,
                                     fontSize: 16,
-                                    color: Theme.priceSecondary
+                                    color: theme.priceSecondary
                                 }}
                                 >
                                     {t('accounts.description')}
@@ -150,7 +150,7 @@ export const AccountsFragment = fragment(() => {
                                     fontWeight: '700',
                                     marginHorizontal: 16,
                                     marginVertical: 8,
-                                    color: active.length > 0 ? Theme.textColor : Theme.textSecondary
+                                    color: active.length > 0 ? theme.textColor : theme.textSecondary
                                 }}
                                 >
                                     {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
@@ -168,7 +168,7 @@ export const AccountsFragment = fragment(() => {
                             );
                         })}
                         {disabled.length > 0 && (
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',

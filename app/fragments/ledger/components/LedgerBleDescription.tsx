@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Image, Text, Platform } from "react-native";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
 
     return (
@@ -22,7 +22,7 @@ export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void
                     source={require('../../../../assets/ic_ledger_x.png')}
                 />
                 <Text style={{
-                    color: Theme.textColor,
+                    color: theme.textColor,
                     fontWeight: '700',
                     fontSize: 20,
                     marginBottom: 32,
@@ -33,7 +33,7 @@ export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void
                 </Text>
                 <View style={{ justifyContent: 'center' }}>
                     <Text style={{
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '400',
                         fontSize: 16,
                         marginBottom: 12,
@@ -41,7 +41,7 @@ export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void
                         {t('hardwareWallet.bluetoothScanDescription_1')}
                     </Text>
                     <Text style={{
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '400',
                         fontSize: 16,
                         marginBottom: 12,
@@ -49,7 +49,7 @@ export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void
                         {t('hardwareWallet.bluetoothScanDescription_2')}
                     </Text>
                     <Text style={{
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '400',
                         fontSize: 16,
                         marginBottom: 12,
@@ -58,7 +58,7 @@ export const LedgerBleDescription = React.memo(({ onScan }: { onScan: () => void
                     </Text>
                     {Platform.OS === 'android' && (
                         <Text style={{
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             fontWeight: '400',
                             fontSize: 16,
                             marginBottom: 12,

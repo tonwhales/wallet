@@ -18,8 +18,9 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useAppConfig } from "../utils/AppConfigContext";
-import { useSettings } from '../engine/hooks/useSettings';
+import { useTheme } from '../engine/hooks/useTheme';
+import { useNetwork } from '../engine/hooks/useNetwork';
+import { useContactAddress } from '../engine/hooks/useContactAddress';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -29,7 +30,8 @@ const requiredFields = [
 export const ContactFragment = fragment(() => {
     const params = useParams<{ address: string }>();
     const navigation = useTypedNavigation();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     try {
         Address.parse(params.address);
@@ -224,34 +226,34 @@ export const ContactFragment = fragment(() => {
                         <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, alignItems: 'center', justifyContent: 'center' }}>
                             <Avatar address={params.address} id={params.address} size={84} image={undefined} />
                         </View>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                             <Text style={{
                                 fontSize: 18,
                                 fontWeight: '700',
                                 marginVertical: 8,
-                                color: Theme.textColor
+                                color: theme.textColor
                             }}>
                                 {`${params.address.slice(0, 6) + '...' + params.address.slice(params.address.length - 6)}`}
                             </Text>
                         </View>
                         {!editing && (
                             <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: Theme.item, borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.item, borderRadius: 14 }}>
                                     <TouchableHighlight
                                         onPress={() => {
                                             navigation.navigate(
                                                 'Assets',
-                                                { target: address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { target: address.toFriendly({ testOnly: isTestnet }) }
                                             );
                                         }}
-                                        underlayColor={Theme.selector}
+                                        underlayColor={theme.selector}
                                         style={{ borderRadius: 14 }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                            <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../assets/ic_send.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                            <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -260,7 +262,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -291,7 +293,7 @@ export const ContactFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('contacts.name')}
@@ -302,12 +304,12 @@ export const ContactFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
                         />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                         {fields.map((field, index) => {
                             return (
                                 <ContactField
@@ -329,8 +331,8 @@ export const ContactFragment = fragment(() => {
                     </View>
                     {editing && !!contact && (
                         <Item
-                            textColor={Theme.dangerZone}
-                            backgroundColor={Theme.background}
+                            textColor={theme.dangerZone}
+                            backgroundColor={theme.background}
                             title={t('contacts.delete')}
                             onPress={onDelete}
                         />

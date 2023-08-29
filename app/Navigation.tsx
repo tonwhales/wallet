@@ -35,7 +35,6 @@ import { StakingTransferFragment } from './fragments/staking/StakingTransferFrag
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
-import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -60,12 +59,13 @@ import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
-import { useAppConfig } from './utils/AppConfigContext';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
+import { useNetwork } from './engine/hooks/useNetwork';
+import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
 
 const Stack = createNativeStackNavigator();
 
@@ -194,10 +194,11 @@ const navigation = (safeArea: EdgeInsets) => [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const { AppConfig, NavigationTheme } = useAppConfig();
+    const navigationTheme = useNavigationTheme();
+    const { isTestnet } = useNetwork();
 
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding(AppConfig.isTestnet);
+        const onboarding = resolveOnboarding(isTestnet);
 
         if (onboarding === 'backup') {
             return 'WalletCreated';
@@ -243,7 +244,7 @@ export const Navigation = React.memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, state.addresses.map((v) => v.address), AppConfig.isTestnet);
+                        await registerPushToken(token, state.addresses.map((v) => v.address), isTestnet);
                     });
                 }
             }
@@ -292,7 +293,7 @@ export const Navigation = React.memo(() => {
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
             <NavigationContainer
-                theme={NavigationTheme}
+                theme={navigationTheme}
                 onReady={onMounted}
             >
                 <Stack.Navigator

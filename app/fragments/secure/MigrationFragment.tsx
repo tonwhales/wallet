@@ -19,8 +19,9 @@ import { t } from '../../i18n/t';
 import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -29,7 +30,8 @@ function ellipsiseAddress(src: string) {
 }
 
 const MigrationProcessFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -67,11 +69,11 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
+                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: isTestnet })) }));
 
                 const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
                 if (state.balance.gt(new BN(0))) {
-                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
+                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: isTestnet })) }));
                     wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
@@ -110,14 +112,15 @@ const MigrationProcessFragment = fragment(() => {
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
-                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: Theme.textColor, textAlign: 'center' }}>{status}</Text>
+                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textColor, textAlign: 'center' }}>{status}</Text>
             </View>
         </>
     );
 });
 
 export const MigrationFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();
@@ -177,7 +180,7 @@ export const MigrationFragment = systemFragment(() => {
                             textAlign: 'center',
                             marginTop: 26,
                             marginBottom: 10,
-                            color: Theme.textColor
+                            color: theme.textColor
                         }}
                     >
                         {t('migrate.title')}
@@ -188,7 +191,7 @@ export const MigrationFragment = systemFragment(() => {
                             fontSize: 16,
                             textAlign: 'center',
                             marginBottom: 10,
-                            color: Theme.textColor
+                            color: theme.textColor
                         }}
                     >
                         {t('migrate.subtitle')}
@@ -196,13 +199,13 @@ export const MigrationFragment = systemFragment(() => {
 
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
-                        marginHorizontal: 16, backgroundColor: Theme.item,
+                        marginHorizontal: 16, backgroundColor: theme.item,
                         borderRadius: 14,
                     }}>
 
                         {state.map((v, i) => (
                             <>
-                                {i > 0 && (<View style={{ height: 1, backgroundColor: Theme.divider }} />)}
+                                {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
                                 <View key={v.address.toFriendly()}
                                     style={{
                                         flexDirection: 'row',
@@ -214,7 +217,7 @@ export const MigrationFragment = systemFragment(() => {
                                     <WalletAddress
                                         address={v.address}
                                         elipsise
-                                        value={v.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                        value={v.address.toFriendly({ testOnly: isTestnet })}
                                         style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                     />
                                     <Text>

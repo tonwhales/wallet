@@ -3,7 +3,7 @@ import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "ton"
 import { formatCurrency } from "../utils/formatCurrency"
-import { useAppConfig } from "../utils/AppConfigContext"
+import { useTheme } from '../engine/hooks/useTheme';
 import { usePrice } from '../engine/hooks/usePrice'
 
 export const PriceComponent = React.memo((
@@ -21,7 +21,7 @@ export const PriceComponent = React.memo((
         suffix?: string
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [price, currency] = usePrice();
 
     if (!price) {
@@ -30,7 +30,7 @@ export const PriceComponent = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.accent,
+            backgroundColor: theme.accent,
             borderRadius: 9,
             height: 24,
             justifyContent: 'center',
@@ -39,7 +39,7 @@ export const PriceComponent = React.memo((
             paddingVertical: 4, paddingHorizontal: 8
         }, style]}>
             <Text style={[{
-                color: Theme.item,
+                color: theme.item,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16

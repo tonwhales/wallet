@@ -15,7 +15,7 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { useDontShowComments } from '../engine/hooks/useDontShowComments';
 import { useSpamMinAmount } from '../engine/hooks/useSpamMinAmount';
 import { useDenyList } from '../engine/hooks/useDenyList';
@@ -26,7 +26,7 @@ export type SpamFilterConfig = {
 }
 
 export const SpamFilterFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const dontShow = useDontShowComments();
@@ -115,7 +115,7 @@ export const SpamFilterFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         paddingVertical: 10,
@@ -131,7 +131,7 @@ export const SpamFilterFragment = fragment(() => {
                             preventDefaultValuePadding
                             blurOnSubmit={false}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 paddingVertical: 0,
                                 marginHorizontal: 16
@@ -147,7 +147,7 @@ export const SpamFilterFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('spamFilter.minAmount')}
@@ -158,14 +158,14 @@ export const SpamFilterFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: Theme.label,
+                            color: theme.label,
                             alignSelf: 'flex-start',
                             marginTop: 8,
                             marginHorizontal: 16
                         }}>
                             {t('spamFilter.minAmountDescription', { amount: fromNano(min) })}
                         </Text>
-                        <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                        <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
                         <CheckBox
                             checked={!dontShowComments}
                             onToggle={() => {
@@ -175,12 +175,12 @@ export const SpamFilterFragment = fragment(() => {
                             style={{ marginHorizontal: 16 }}
                         />
                     </View>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                         <Text style={{
                             fontSize: 18,
                             fontWeight: '700',
                             marginVertical: 8,
-                            color: Theme.textColor
+                            color: theme.textColor
                         }}>
                             {t('spamFilter.denyList')}
                         </Text>
@@ -190,13 +190,13 @@ export const SpamFilterFragment = fragment(() => {
                                     fontSize: 16,
                                     fontWeight: '700',
                                     marginVertical: 8,
-                                    color: Theme.textSecondary
+                                    color: theme.textSecondary
                                 }}>
                                     {t('spamFilter.denyListEmpty')}
                                 </Text>
                                 <Text style={{
                                     fontSize: 16,
-                                    color: Theme.priceSecondary,
+                                    color: theme.priceSecondary,
                                     marginVertical: 8,
                                 }}>
                                     {t('spamFilter.description')}

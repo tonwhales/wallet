@@ -18,7 +18,6 @@ import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import { useAppConfig } from '../../../utils/AppConfigContext';
 import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
@@ -34,6 +33,7 @@ import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
 import { createDomainSignature } from '../../../engine/effects/createDomainSignature';
 import { useAccount } from '../../../engine/hooks/useAccount';
 import { useCurrentAddress } from '../../../engine/hooks/useCurrentAddress';
+import { useTheme } from '../../../engine/hooks/useTheme';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -130,7 +130,7 @@ function HoldersPlaceholder() {
 }
 
 function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
 
     const [animationPlayed, setAnimationPlayed] = useState(loaded);
@@ -144,7 +144,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -205,7 +205,8 @@ export const HoldersAppComponent = React.memo((
     }
 ) => {
     const safeArea = useSafeAreaInsets();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const status = useHoldersStatus();
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
@@ -222,9 +223,9 @@ export const HoldersAppComponent = React.memo((
         reduceMainButton(),
         {
             text: '',
-            textColor: Theme.item,
-            color: Theme.accent,
-            disabledColor: Theme.disabled,
+            textColor: theme.item,
+            color: theme.accent,
+            disabledColor: theme.disabled,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,
@@ -254,7 +255,7 @@ export const HoldersAppComponent = React.memo((
     const start = useMemo(() => {
         return Date.now();
     }, []);
-    useTrackEvent(MixpanelEvent.Holders, { url: props.variant.type }, AppConfig.isTestnet);
+    useTrackEvent(MixpanelEvent.Holders, { url: props.variant.type }, isTestnet);
 
     //
     // View
@@ -264,14 +265,14 @@ export const HoldersAppComponent = React.memo((
     //
     // Navigation
     //
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
+        const resolved = resolveUrl(event.url, isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;
@@ -329,8 +330,8 @@ export const HoldersAppComponent = React.memo((
                 version: 1,
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
-                network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
-                address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                network: isTestnet ? 'testnet' : 'mainnet',
+                address: address.toFriendly({ testOnly: isTestnet }),
                 publicKey: publicKey.toString('base64'),
                 walletConfig,
                 walletType,
@@ -347,7 +348,7 @@ export const HoldersAppComponent = React.memo((
             true
         );
     }, []);
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, AppConfig.isTestnet);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -415,7 +416,7 @@ export const HoldersAppComponent = React.memo((
     const onCloseApp = useCallback(() => {
         // engine.products.holders.doSync();
         navigation.goBack();
-        trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, isTestnet);
     }, []);
 
     const safelyOpenUrl = useCallback((url: string) => {
@@ -495,7 +496,7 @@ export const HoldersAppComponent = React.memo((
 
     return (
         <>
-            <View style={{ backgroundColor: Theme.item, flex: 1 }}>
+            <View style={{ backgroundColor: theme.item, flex: 1 }}>
                 {useOfflineApp ? (
                     <>
                         {/* <OfflineWebView
@@ -505,7 +506,7 @@ export const HoldersAppComponent = React.memo((
                             baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                             initialRoute={source.initialRoute}
                             style={{
-                                backgroundColor: Theme.item,
+                                backgroundColor: theme.item,
                                 flexGrow: 1, flexBasis: 0, height: '100%',
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -556,7 +557,7 @@ export const HoldersAppComponent = React.memo((
                         source={{ uri: source.url }}
                         startInLoadingState={true}
                         style={{
-                            backgroundColor: Theme.item,
+                            backgroundColor: theme.item,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,

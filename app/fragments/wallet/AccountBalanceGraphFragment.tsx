@@ -15,7 +15,7 @@ import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
 import { useAccount } from '../../engine/hooks/useAccount';
 import { usePrice } from '../../engine/hooks/usePrice';
@@ -23,7 +23,8 @@ import { usePrice } from '../../engine/hooks/usePrice';
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
 export const AccountBalanceGraphFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const account = useAccount();
@@ -143,7 +144,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,
@@ -151,9 +152,9 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         }}
                         editable={false}
                     />
-                    {(price && !AppConfig.isTestnet) && (
+                    {(price && !isTestnet) && (
                         <View style={[{
-                            backgroundColor: Theme.accent,
+                            backgroundColor: theme.accent,
                             borderRadius: 9,
                             height: 24,
                             alignSelf: 'flex-start',
@@ -186,20 +187,20 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 width: '100%', aspectRatio: 1.2,
                                 paddingHorizontal: 8,
                             }]}
-                            selectionDotShadowColor={Theme.accent}
+                            selectionDotShadowColor={theme.accent}
                             verticalPadding={32}
                             lineThickness={5}
                             animated={true}
-                            color={Theme.accent}
+                            color={theme.accent}
                             points={points}
                             enablePanGesture={true}
                             enableFadeInMask={true}
                             gradientFillColors={[
-                                `${getSixDigitHex(Theme.accent)}00`,
-                                `${getSixDigitHex(Theme.accent)}ff`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}ff`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}00`,
                             ]}
                             horizontalPadding={2}
                             onPointSelected={onPointSelected}
@@ -210,7 +211,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 style={{
                                     height: 40,
                                     marginTop: 2,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     fontSize: 14,
                                     fontWeight: '600',
                                     textAlign: "center",

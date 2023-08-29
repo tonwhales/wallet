@@ -15,11 +15,11 @@ import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 
 export const StakingCalculatorFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const params = useParams<{ target: Address }>();
     const pool = useStakingPool(params.target);
     const navigation = useTypedNavigation();
@@ -91,7 +91,7 @@ export const StakingCalculatorFragment = fragment(() => {
                 >
                     <View style={{
                         marginBottom: 0,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -105,7 +105,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                             }}>
                                 {t('common.amount')}
                             </Text>
@@ -123,8 +123,8 @@ export const StakingCalculatorFragment = fragment(() => {
                                     placeholder={'0'}
                                     keyboardType={'numeric'}
                                     textAlign={'left'}
-                                    style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                    inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
+                                    style={{ paddingHorizontal: 0, backgroundColor: theme.transparent, marginTop: 4, flexShrink: 1 }}
+                                    inputStyle={{ color: theme.accent, flexGrow: 1, paddingTop: 0 }}
                                     fontWeight={'800'}
                                     fontSize={30}
                                     editable={true}
@@ -138,10 +138,10 @@ export const StakingCalculatorFragment = fragment(() => {
                             <PriceComponent
                                 amount={parseAmountToValidBN(amount)}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0
                                 }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                             />
                         </View>
                     </View>

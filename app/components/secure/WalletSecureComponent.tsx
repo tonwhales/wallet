@@ -8,7 +8,7 @@ import { RoundButton } from '../RoundButton';
 import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
@@ -17,7 +17,7 @@ export const WalletSecureComponent = React.memo((props: {
     onLater?: () => void,
     import?: boolean
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     // Action
     const [loading, setLoading] = React.useState(false);
@@ -93,7 +93,7 @@ export const WalletSecureComponent = React.memo((props: {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             justifyContent: 'center',
             alignContent: 'center'
         }}>
@@ -135,7 +135,7 @@ export const WalletSecureComponent = React.memo((props: {
                             <Text style={{
                                 fontSize: 17,
                                 fontWeight: '600',
-                                color: Theme.accentText
+                                color: theme.accentText
                             }}>
                                 {t('common.later')}
                             </Text>

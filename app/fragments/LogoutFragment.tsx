@@ -12,7 +12,7 @@ import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { Address } from "ton";
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 import { holdersUrl } from '../engine/legacy/holders/HoldersProduct';
@@ -29,7 +29,8 @@ export function clearHolders(isTestnet: boolean, address?: Address) {
 }
 
 export const LogoutFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
@@ -46,7 +47,7 @@ export const LogoutFragment = fragment(() => {
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
-                        onAccountDeleted(AppConfig.isTestnet);
+                        onAccountDeleted(isTestnet);
                     }
                 }
             );
@@ -56,11 +57,11 @@ export const LogoutFragment = fragment(() => {
                 t('confirm.logout.message'),
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        onAccountDeleted(AppConfig.isTestnet);
+                        onAccountDeleted(isTestnet);
                     }
                 }, { text: t('common.cancel') }])
         }
-    }, [AppConfig.isTestnet]);
+    }, [isTestnet]);
 
     return (
         <View style={{
@@ -89,7 +90,7 @@ export const LogoutFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
                             {t('settings.logoutDescription')}
                         </Text>
                     </View>

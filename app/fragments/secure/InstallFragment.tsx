@@ -16,9 +16,10 @@ import { CloseButton } from '../../components/CloseButton';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useAppData } from '../../engine/hooks/useAppData';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -28,7 +29,8 @@ const labelStyle: StyleProp<TextStyle> = {
 
 const SignStateLoader = React.memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
 
@@ -56,7 +58,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
 
         // Track installation
         success.current = true;
-        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain }, isTestnet);
 
         // Navigate
         navigation.goBack();
@@ -65,7 +67,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
     React.useEffect(() => {
         if (!success.current) {
             let domain = extractDomain(props.url);
-            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain }, isTestnet);
         }
     }, []);
 
@@ -96,14 +98,14 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     justifyContent: 'center',
                 }}>
                     <View style={{
-                        backgroundColor: Theme.divider,
+                        backgroundColor: theme.divider,
                         position: 'absolute',
                         left: 88, right: 88,
                         height: 1, top: 32
                     }} />
                     <View style={{
                         alignSelf: 'center',
-                        backgroundColor: Theme.accent,
+                        backgroundColor: theme.accent,
                         height: 30, width: 30,
                         borderRadius: 15
                     }}>
@@ -128,7 +130,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -141,7 +143,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '400',
-                            color: Theme.textSecondary
+                            color: theme.textSecondary
                         }}
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
@@ -159,7 +161,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: Theme.item
+                        backgroundColor: theme.item
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -170,7 +172,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             borderRadius: 10,
                             borderWidth: 0.5,
                             borderColor: 'black',
-                            backgroundColor: Theme.transparent,
+                            backgroundColor: theme.transparent,
                             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                             opacity: 0.06
                         }} />
@@ -180,7 +182,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginBottom: 4
                         }}
                     >
@@ -190,13 +192,13 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                         textAlign: 'center',
                         fontSize: 16,
                         fontWeight: '400',
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                     }}>
                         <Text>
                             {
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 4)
+                                acc.address.toFriendly({ testOnly: isTestnet }).slice(0, 4)
                                 + '...'
-                                + acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                                + acc.address.toFriendly({ testOnly: isTestnet }).slice(t.length - 6)
                             }
                         </Text>
                     </Text>
@@ -207,7 +209,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: Theme.textColor,
+                    color: theme.textColor,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -222,7 +224,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         marginBottom: 32,
                         opacity: 0.6
                     }}

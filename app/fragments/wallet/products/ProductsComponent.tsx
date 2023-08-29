@@ -14,7 +14,7 @@ import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
 import { useCurrentJob } from '../../../engine/hooks/useCurrentJob';
@@ -26,7 +26,8 @@ import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnec
 import { useCards } from '../../../engine/hooks/useCards';
 
 export const ProductsComponent = React.memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalance();
     const currentJob = useCurrentJob();
@@ -106,7 +107,7 @@ export const ProductsComponent = React.memo(() => {
     // Resolve apps
     let apps: React.ReactElement[] = [];
 
-    if (AppConfig.isTestnet) {
+    if (isTestnet) {
         cards.map((c) => {
             apps.push(<HoldersProductButton key={c.id} account={c} />)
         });
@@ -227,7 +228,7 @@ export const ProductsComponent = React.memo(() => {
                             navigation.navigateTransfer({
                                 order: {
                                     messages: [{
-                                        target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        target: currentJob.job.target.toFriendly({ testOnly: isTestnet }),
                                         amount: currentJob.job.amount,
                                         payload: currentJob.job.payload,
                                         stateInit: currentJob.job.stateInit,
@@ -275,7 +276,7 @@ export const ProductsComponent = React.memo(() => {
 
             {(apps.length > 0) && (
                 <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
                     </View>
                     {apps}
@@ -284,7 +285,7 @@ export const ProductsComponent = React.memo(() => {
 
             {accounts.length > 0 && (
                 <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                         <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
                     </View>
                     {accounts}

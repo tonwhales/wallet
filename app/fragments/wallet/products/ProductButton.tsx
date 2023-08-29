@@ -7,7 +7,8 @@ import { SvgProps } from 'react-native-svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useTheme } from '../../../engine/hooks/useTheme';
 
 export type ProductButtonProps = {
     name: string,
@@ -29,7 +30,8 @@ export type ProductButtonProps = {
 }
 
 export function ProductButton(props: ProductButtonProps) {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -38,11 +40,11 @@ export function ProductButton(props: ProductButtonProps) {
         <TouchableHighlight
             onPress={props.onPress}
             onLongPress={props.onLongPress}
-            underlayColor={Theme.selector}
+            underlayColor={theme.selector}
             style={[
                 {
                     alignSelf: 'stretch', borderRadius: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     marginHorizontal: 16, marginVertical: 8
                 },
                 props.style
@@ -52,7 +54,7 @@ export function ProductButton(props: ProductButtonProps) {
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                     {Icon && !props.image && (
                         <View style={[
-                            { backgroundColor: Theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
+                            { backgroundColor: theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
                             props.iconViewStyle
                         ]}>
                             <Icon width={props.iconProps?.width ?? 42} height={props.iconProps?.height ?? 42} color={props.iconProps?.color ?? 'white'} />
@@ -87,7 +89,7 @@ export function ProductButton(props: ProductButtonProps) {
                     }}>
                         <Text
                             style={{
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 fontSize: 16,
                                 marginRight: 16,
                                 fontWeight: '600',
@@ -99,19 +101,19 @@ export function ProductButton(props: ProductButtonProps) {
                             {props.name}
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? Theme.pricePositive : Theme.priceNegative, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? theme.pricePositive : theme.priceNegative, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
                             </Text>
                         )}
                         {(!!props.value && typeof props.value === 'string') && (
-                            <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            <Text style={{ color: theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 {props.value}
                             </Text>
                         )}
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
                         <Text
-                            style={{ color: Theme.textSubtitle, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                            style={{ color: theme.textSubtitle, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
@@ -124,12 +126,12 @@ export function ProductButton(props: ProductButtonProps) {
                                 <PriceComponent
                                     amount={props.value}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0, paddingVertical: 0,
                                         alignSelf: 'flex-end',
                                         marginTop: 2, height: 14
                                     }}
-                                    textStyle={{ color: Theme.textSubtitle, fontWeight: '400', fontSize: 12 }}
+                                    textStyle={{ color: theme.textSubtitle, fontWeight: '400', fontSize: 12 }}
                                 />
                             )
                         }

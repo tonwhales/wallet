@@ -11,10 +11,10 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const wordsTrie = WordsListTrie();
 
@@ -35,7 +35,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
     onFocus: (index: number) => void,
     onSubmit: (index: number, value: string) => void,
 }, ref: React.ForwardedRef<WordInputRef>) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     //
     // Internal state
@@ -145,7 +145,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         fontSize: 16, width: 40,
                         paddingVertical: 16,
                         textAlign: 'right',
-                        color: !isWrong ? Theme.textSubtitle : '#FF274E',
+                        color: !isWrong ? theme.textSubtitle : '#FF274E',
                     }}
                     onPress={() => {
                         tref.current?.focus();
@@ -215,7 +215,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
 }));
 
 export const WalletImportFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [state, setState] = React.useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -225,9 +225,9 @@ export const WalletImportFragment = systemFragment(() => {
 
     React.useLayoutEffect(() => {
         if (!state) {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } });
+            navigation.setOptions({ headerStyle: { backgroundColor: theme.background } });
         } else {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.item } });
+            navigation.setOptions({ headerStyle: { backgroundColor: theme.item } });
         }
     }, [navigation, state]);
 
@@ -243,12 +243,12 @@ export const WalletImportFragment = systemFragment(() => {
                     style={{
                         alignItems: 'center', justifyContent: 'center', flexGrow: 1,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-                        backgroundColor: Platform.OS === 'android' ? Theme.background : undefined
+                        backgroundColor: Platform.OS === 'android' ? theme.background : undefined
                     }}
                     key="loading"
                     exiting={FadeOutDown}
                 >
-                    <AndroidToolbar style={{ backgroundColor: Theme.background }} />
+                    <AndroidToolbar style={{ backgroundColor: theme.background }} />
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}

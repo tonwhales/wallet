@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { t } from "../i18n/t";
 import { WImage } from "./WImage";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { AppData } from '../engine/api/fetchAppData';
 import { AppManifest } from '../engine/api/fetchManifest';
 import { useAppData } from '../engine/hooks/useAppData';
@@ -24,7 +24,7 @@ export const ConnectedAppButton = React.memo((
         onRevoke?: () => void,
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const appData = useAppData(url);
     const appManifest = useAppManifest(url);
     let app: AppInfo = useMemo(() => {
@@ -40,7 +40,7 @@ export const ConnectedAppButton = React.memo((
     return (
         <View style={{
             height: 62, borderRadius: 14,
-            backgroundColor: Theme.item, flexDirection: 'row',
+            backgroundColor: theme.item, flexDirection: 'row',
             alignItems: 'center',
             padding: 10
         }}>
@@ -63,7 +63,7 @@ export const ConnectedAppButton = React.memo((
                 {!!name && (
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '600',
                         flex: 1,
                         marginBottom: 3
@@ -77,7 +77,7 @@ export const ConnectedAppButton = React.memo((
                 {!!url && (
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.price,
+                        color: theme.price,
                         fontWeight: '400',
                     }}
                         numberOfLines={1}
@@ -102,7 +102,7 @@ export const ConnectedAppButton = React.memo((
                 <Text
                     style={{
                         fontWeight: '500',
-                        color: Theme.delete,
+                        color: theme.delete,
                         fontSize: 16
                     }}
                 >

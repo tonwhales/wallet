@@ -23,10 +23,10 @@ import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../.
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
-import { LocalizedResources } from '../../i18n/schema';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 import { useAccount } from '../../engine/hooks/useAccount';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -65,7 +65,8 @@ export function actionTitle(action?: TransferAction) {
 }
 
 export const StakingTransferFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const account = useAccount();
@@ -100,7 +101,7 @@ export const StakingTransferFragment = fragment(() => {
             ? pool.params.minStake
                 .add(pool.params.receiptPrice)
                 .add(pool.params.depositFee)
-            : toNano(AppConfig.isTestnet ? '10.2' : '50');
+            : toNano(isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
             Alert.alert(t('transfer.error.invalidAddress'));
@@ -177,7 +178,7 @@ export const StakingTransferFragment = fragment(() => {
         navigation.navigateTransfer({
             order: {
                 messages: [{
-                    target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: params.target.toFriendly({ testOnly: isTestnet }),
                     payload,
                     amount: transferAmount,
                     amountAll: false,
@@ -297,7 +298,7 @@ export const StakingTransferFragment = fragment(() => {
                     <>
                         <View style={{
                             marginBottom: 0,
-                            backgroundColor: Theme.item,
+                            backgroundColor: theme.item,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -311,14 +312,14 @@ export const StakingTransferFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
-                                    color: Theme.textSubtitle,
+                                    color: theme.textSubtitle,
                                 }}>
                                     {t('common.amount')}
                                 </Text>
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: Theme.priceSecondary,
+                                    color: theme.priceSecondary,
                                 }}>
                                     <ValueComponent value={balance} precision={3} />
                                     {' TON'}
@@ -339,8 +340,8 @@ export const StakingTransferFragment = fragment(() => {
                                         placeholder={'0'}
                                         keyboardType={'numeric'}
                                         textAlign={'left'}
-                                        style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
+                                        style={{ paddingHorizontal: 0, backgroundColor: theme.transparent, marginTop: 4, flexShrink: 1 }}
+                                        inputStyle={{ color: theme.accent, flexGrow: 1, paddingTop: 0 }}
                                         fontWeight={'800'}
                                         fontSize={30}
                                         editable={!params?.lockAmount}
@@ -354,7 +355,7 @@ export const StakingTransferFragment = fragment(() => {
                                         style={({ pressed }) => {
                                             return [
                                                 {
-                                                    backgroundColor: Theme.accent,
+                                                    backgroundColor: theme.accent,
                                                     height: 24,
                                                     borderRadius: 40,
                                                     alignItems: 'center',
@@ -370,7 +371,7 @@ export const StakingTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             fontSize: 16,
-                                            color: Theme.item
+                                            color: theme.item
                                         }}>
                                             {t('common.max')}
                                         </Text>
@@ -379,16 +380,16 @@ export const StakingTransferFragment = fragment(() => {
                                 <PriceComponent
                                     amount={parseAmountToValidBN(amount)}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0
                                     }}
-                                    textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                    textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                                 />
                             </View>
                         </View>
                         {!!minAmountWarn && (
                             <Text style={{
-                                color: Theme.dangerZone,
+                                color: theme.dangerZone,
                                 fontWeight: '400',
                                 fontSize: 14,
                                 marginTop: 10
@@ -398,7 +399,7 @@ export const StakingTransferFragment = fragment(() => {
                         )}
                         {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
-                                {!AppConfig.isTestnet && (
+                                {!isTestnet && (
                                     <StakingCalcComponent
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
@@ -412,7 +413,7 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -428,7 +429,7 @@ export const StakingTransferFragment = fragment(() => {
                                     }}>
                                         <Text style={{
                                             fontSize: 16,
-                                            color: Theme.label
+                                            color: theme.label
                                         }}>
                                             {t('products.staking.info.withdrawFee')}
                                         </Text>
@@ -436,18 +437,18 @@ export const StakingTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 16,
-                                                color: Theme.textColor
+                                                color: theme.textColor
                                             }}>
                                                 {`${fromNano(withdrawFee)} TON`}
                                             </Text>
                                             <PriceComponent
                                                 amount={withdrawFee}
                                                 style={{
-                                                    backgroundColor: Theme.transparent,
+                                                    backgroundColor: theme.transparent,
                                                     paddingHorizontal: 0, paddingVertical: 2,
                                                     alignSelf: 'flex-end'
                                                 }}
-                                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                                             />
                                         </View>
                                     </View>

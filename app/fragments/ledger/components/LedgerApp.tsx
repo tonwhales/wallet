@@ -11,7 +11,7 @@ import { t } from "../../../i18n/t";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionsSection } from "./LedgerTransactionsSection";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { useLedgerAccount } from '../../../engine/hooks/useLedgerAccount';
 
 const WalletTransactions = React.memo((props: {
@@ -90,7 +90,8 @@ export const LedgerApp = React.memo((props: {
     account: number,
     address: { address: string, publicKey: Buffer },
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
@@ -172,7 +173,7 @@ export const LedgerApp = React.memo((props: {
                     <PriceComponent amount={account?.balance ?? toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        value={address.toFriendly({ testOnly: isTestnet })}
                         address={address}
                         elipsise
                         style={{
@@ -207,27 +208,27 @@ export const LedgerApp = React.memo((props: {
                                     }
                                 );
                             }}
-                            underlayColor={Theme.selector}
+                            underlayColor={theme.selector}
                             style={{ borderRadius: 14 }}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../../assets/ic_receive.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                                <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                         <TouchableHighlight
                             onPress={() => navigation.navigate('LedgerAssets')}
-                            underlayColor={Theme.selector} style={{ borderRadius: 14 }}
+                            underlayColor={theme.selector} style={{ borderRadius: 14 }}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../../assets/ic_send.png')} />
                                 </View>
-                                <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                             </View>
                         </TouchableHighlight>
                     </View>

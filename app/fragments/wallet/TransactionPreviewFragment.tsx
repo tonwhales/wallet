@@ -26,7 +26,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { useContactAddress } from '../../engine/hooks/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
@@ -35,14 +35,15 @@ import { useTransaction } from '../../engine/hooks/useTransaction';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 
 export const TransactionPreviewFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const params = useParams<{ transaction: string }>();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     let transaction = useTransaction(params.transaction);
     let operation = transaction.operation;
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -69,7 +70,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -92,9 +93,9 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!txId) {
             return null;
         }
-        return AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
+        return isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
             + '/explorer/address/' +
-            address.toFriendly({ testOnly: AppConfig.isTestnet }) +
+            address.toFriendly({ testOnly: isTestnet }) +
             '/' + txId
     }, [txId]);
 
@@ -102,8 +103,8 @@ export const TransactionPreviewFragment = fragment(() => {
         if (!txId) {
             return null;
         }
-        return `${AppConfig.isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${address.toFriendly({ testOnly: AppConfig.isTestnet })}/`
+        return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${address.toFriendly({ testOnly: isTestnet })}/`
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 
@@ -111,8 +112,8 @@ export const TransactionPreviewFragment = fragment(() => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
+    if (KnownWallets(isTestnet)[friendlyAddress]) {
+        known = KnownWallets(isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -128,8 +129,8 @@ export const TransactionPreviewFragment = fragment(() => {
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
-            && !AppConfig.isTestnet
+            && !KnownWallets(isTestnet)[friendlyAddress]
+            && !isTestnet
         ) && transaction.base.kind !== 'out';
 
     const onCopy = React.useCallback((text: string) => {
@@ -168,24 +169,24 @@ export const TransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
+            <Text style={{ color: theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
                 <View style={{
-                    borderColor: Theme.textSecondaryBorder,
+                    borderColor: theme.textSecondaryBorder,
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -194,7 +195,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     paddingHorizontal: 4,
                     marginBottom: 8
                 }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                    <Text style={{ color: theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                 </View>
             )}
             <ScrollView
@@ -204,7 +205,7 @@ export const TransactionPreviewFragment = fragment(() => {
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -212,7 +213,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: Theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -226,7 +227,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (
-                        <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                        <Text style={{ color: theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
@@ -235,8 +236,8 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     color: item.amount.gte(new BN(0))
                                         ? spam
-                                            ? Theme.textColor
-                                            : Theme.pricePositive
+                                            ? theme.textColor
+                                            : theme.pricePositive
                                         : '#000000',
                                     fontWeight: '800',
                                     fontSize: 36,
@@ -250,16 +251,16 @@ export const TransactionPreviewFragment = fragment(() => {
                                     precision={5}
                                 />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                {(item.kind === 'ton' && !AppConfig.isTestnet) ? ' ' + 'TON' : ''}
+                                {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
                                     amount={item.amount}
                                 />
                             )}
@@ -269,7 +270,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -279,7 +280,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -300,7 +301,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -310,7 +311,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -330,7 +331,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -345,7 +346,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -362,7 +363,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { address: operation.address.toFriendly({ testOnly: isTestnet }) }
                                             );
                                         }
                                     }}
@@ -394,7 +395,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.textSubtitle,
+                                                color: theme.textSubtitle,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -422,12 +423,12 @@ export const TransactionPreviewFragment = fragment(() => {
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={Theme.item}
+                                previewBackgroundColor={theme.item}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
+                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -435,14 +436,14 @@ export const TransactionPreviewFragment = fragment(() => {
                     </View>
                     {txId && explorerLink && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                             <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16 }}>
                                 <View>
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: Theme.textSubtitle
+                                        color: theme.textSubtitle
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -451,7 +452,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -475,13 +476,13 @@ export const TransactionPreviewFragment = fragment(() => {
                             </View>
                         </>
                     )}
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                     <View style={{ width: '100%', paddingVertical: 10, paddingHorizontal: 16 }}>
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: Theme.textSubtitle
+                            color: theme.textSubtitle
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
@@ -494,30 +495,30 @@ export const TransactionPreviewFragment = fragment(() => {
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
                                 {fromNano(transaction.base.fees)}
-                                {!AppConfig.isTestnet && (' TON (')}
+                                {!isTestnet && (' TON (')}
                             </Text>
                             <PriceComponent
                                 amount={transaction.base.fees}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
                                     paddingVertical: 0,
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
-                            {!AppConfig.isTestnet && (
+                            {!isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>
@@ -535,7 +536,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
                             onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                target: transaction.base.address!.toFriendly({ testOnly: isTestnet }),
                                 comment: transaction.base.body && transaction.base.body.type === 'comment' ? transaction.base.body.comment : null,
                                 amount: transaction.base.amount.neg(),
                                 job: null,

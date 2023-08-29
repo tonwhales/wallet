@@ -7,7 +7,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useAppConfig } from "../utils/AppConfigContext"
+import { useTheme } from '../engine/hooks/useTheme';
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
@@ -21,13 +21,13 @@ import { warn } from "../utils/log"
 import { ItemGroup } from "../components/ItemGroup"
 import { usePasscodeState } from '../engine/hooks/usePasscodeState'
 import { useBiometricsState } from '../engine/hooks/useBiometricsState'
-import { setBiometricsState } from '../engine/effects/setBiometricsState'
+import { setBiometricsState } from '../engine/effects/useSetBiometricsState'
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
@@ -113,7 +113,7 @@ export const SecurityFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    backgroundColor: Theme.background,
+                    backgroundColor: theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
                     marginBottom: 52 + safeArea.bottom
@@ -121,7 +121,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -146,7 +146,7 @@ export const SecurityFragment = fragment(() => {
                     )}
                     {biometricsProps && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemGroup>
                                     {!!biometricsProps.state && biometricsProps.state !== BiometricsState.NotSet && (

@@ -20,7 +20,8 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useTheme } from '../../../engine/hooks/useTheme';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -30,7 +31,8 @@ export const AppComponent = React.memo((props: {
     title: string,
     domainKey: DomainSubkey
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     // 
     // Track events
     // 
@@ -41,9 +43,9 @@ export const AppComponent = React.memo((props: {
     }, []);
     const close = React.useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, isTestnet);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' }, AppConfig.isTestnet);
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' }, isTestnet);
 
     // 
     // Actions menu
@@ -51,7 +53,7 @@ export const AppComponent = React.memo((props: {
 
     const onShare = React.useCallback(
         () => {
-            const link = generateAppLink(props.endpoint, props.title, AppConfig.isTestnet);
+            const link = generateAppLink(props.endpoint, props.title, isTestnet);
             if (Platform.OS === 'ios') {
                 Share.share({ title: t('receive.share.title'), url: link });
             } else {
@@ -101,14 +103,14 @@ export const AppComponent = React.memo((props: {
     // Navigation
     //
 
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
+        const resolved = resolveUrl(event.url, isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;
@@ -141,8 +143,8 @@ export const AppComponent = React.memo((props: {
             version: 1,
             platform: Platform.OS,
             platformVersion: Platform.Version,
-            network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
-            address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+            network: isTestnet ? 'testnet' : 'mainnet',
+            address: engine.address.toFriendly({ testOnly: isTestnet }),
             publicKey: engine.publicKey.toString('base64'),
             walletConfig,
             walletType,
@@ -156,7 +158,7 @@ export const AppComponent = React.memo((props: {
             }
         });
     }, []);
-    const injectionEngine = useInjectEngine(domain, props.title, AppConfig.isTestnet);
+    const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
     const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -259,7 +261,7 @@ export const AppComponent = React.memo((props: {
                     top: 0.5, left: 0, right: 0,
                     height: 0.5,
                     width: '100%',
-                    backgroundColor: Theme.headerDivider,
+                    backgroundColor: theme.headerDivider,
                     opacity: 0.08
                 }} />
             </View>

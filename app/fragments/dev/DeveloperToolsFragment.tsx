@@ -8,7 +8,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -19,9 +18,14 @@ import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { clearHolders } from '../LogoutFragment';
 import { useEffect, useState } from 'react';
 import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useSetNetwork } from '../../engine/effects/useSetNetwork';
 
 export const DeveloperToolsFragment = fragment(() => {
-    const { Theme, AppConfig, setNetwork } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const setNetwork = useSetNetwork();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -52,7 +56,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const switchNetwork = React.useCallback(
         () => {
             Alert.alert(
-                t('devTools.switchNetworkAlertTitle', { network: AppConfig.isTestnet ? 'Mainnet' : 'Testnet' }),
+                t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
                 t('devTools.switchNetworkAlertMessage'),
                 [
                     {
@@ -61,18 +65,18 @@ export const DeveloperToolsFragment = fragment(() => {
                     },
                     {
                         text: t('devTools.switchNetworkAlertAction'),
-                        onPress: () => setNetwork(!AppConfig.isTestnet),
+                        onPress: () => setNetwork(isTestnet ? 'testnet' : 'mainnet'),
                     }
                 ]
             );
         },
-        [AppConfig.isTestnet],
+        [isTestnet],
     );
 
     const copySeed = React.useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
+            walletKeys = await authContext.authenticate({ backgroundColor: theme.item });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {
@@ -113,12 +117,12 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
 
 
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -143,13 +147,13 @@ export const DeveloperToolsFragment = fragment(() => {
                         Application.applicationId === 'com.tonhub.wallet.testnet.debug'
                     ) && (
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                                <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',

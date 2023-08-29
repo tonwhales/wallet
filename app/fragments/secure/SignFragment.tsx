@@ -8,12 +8,11 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
-import { getCurrentAddress } from '../../storage/appState';
 import { WalletKeys } from '../../storage/walletKeys';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { CloseButton } from '../../components/CloseButton';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -22,7 +21,7 @@ const labelStyle: StyleProp<TextStyle> = {
 };
 
 export const SignFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const params: {
@@ -90,10 +89,10 @@ export const SignFragment = fragment(() => {
             )}
 
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('sign.message')}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{params.text}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: Theme.textSecondary, marginBottom: 32 }}>{t('sign.hint')}</Text>
+                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('sign.message')}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{params.text}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textSecondary, marginBottom: 32 }}>{t('sign.hint')}</Text>
                 <RoundButton title={t('sign.action')} action={approve} size="large" style={{ width: 200 }} />
             </View>
             {/* <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} /> */}

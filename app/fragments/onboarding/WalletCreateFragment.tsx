@@ -8,11 +8,11 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const WalletCreateFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{ mnemonics: string } | null>(null);
     React.useEffect(() => {
@@ -39,7 +39,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key="loading"
@@ -60,7 +60,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0
                     }}
                     key="content"

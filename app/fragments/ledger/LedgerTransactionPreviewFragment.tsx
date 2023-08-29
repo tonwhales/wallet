@@ -26,7 +26,7 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
 import { useContactAddress } from '../../engine/hooks/useContactAddress';
@@ -39,11 +39,12 @@ import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     let operation = transaction.operation;
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -70,7 +71,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -96,7 +97,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
         if (!transactionHash) {
             return null;
         }
-        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
+        return (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
             address.toFriendly() +
             '/' + txId
@@ -106,8 +107,8 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
+    if (KnownWallets(isTestnet)[friendlyAddress]) {
+        known = KnownWallets(isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -123,8 +124,8 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
         || (
             transaction.base.amount.abs().lt(spamMinAmount)
             && transaction.base.body?.type === 'comment'
-            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
-            && !AppConfig.isTestnet
+            && !KnownWallets(isTestnet)[friendlyAddress]
+            && !isTestnet
         ) && transaction.base.kind !== 'out';
 
     const onCopy = React.useCallback((body: string) => {
@@ -157,12 +158,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
+            <Text style={{ color: theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -176,7 +177,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                     paddingHorizontal: 4,
                     marginBottom: 8
                 }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                    <Text style={{ color: theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                 </View>
             )}
             <ScrollView
@@ -186,7 +187,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -194,7 +195,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: Theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -217,7 +218,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                 style={{
                                     color: item.amount.gte(new BN(0))
                                         ? spam
-                                            ? Theme.textColor
+                                            ? theme.textColor
                                             : '#4FAE42'
                                         : '#000000',
                                     fontWeight: '800',
@@ -232,7 +233,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                     precision={5}
                                 />
                                 {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                {(item.kind === 'ton' && !AppConfig.isTestnet) ? ' ' + 'TON' : ''}
+                                {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
@@ -241,7 +242,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
                                     amount={item.amount}
                                 />
                             )}
@@ -251,7 +252,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -261,7 +262,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -282,7 +283,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -292,7 +293,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -312,7 +313,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -327,7 +328,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -344,7 +345,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { address: operation.address.toFriendly({ testOnly: isTestnet }) }
                                             );
                                         }
                                     }}
@@ -376,7 +377,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.textSubtitle,
+                                                color: theme.textSubtitle,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -404,12 +405,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={Theme.item}
+                                previewBackgroundColor={theme.item}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
+                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -417,14 +418,14 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                     </View>
                     {txId && explorerLink && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                             <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16 }}>
                                 <View>
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: Theme.textSubtitle
+                                        color: theme.textSubtitle
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -433,7 +434,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -457,13 +458,13 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             </View>
                         </>
                     )}
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                     <View style={{ width: '100%', paddingVertical: 10, paddingHorizontal: 16 }}>
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: Theme.textSubtitle
+                            color: theme.textSubtitle
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
@@ -476,12 +477,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
                                 {fromNano(transaction.base.fees)}
-                                {!AppConfig.isTestnet && (' TON (')}
+                                {!isTestnet && (' TON (')}
                             </Text>
                             <PriceComponent
                                 amount={transaction.base.fees}
@@ -492,14 +493,14 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
-                            {!AppConfig.isTestnet && (
+                            {!isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>
@@ -526,7 +527,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
 
 export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const params = useParams<{ transaction: string }>();
     const { addr } = useTransport();
     const address = React.useMemo(() => {
@@ -543,7 +544,7 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             {!transaction && (

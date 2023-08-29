@@ -5,10 +5,10 @@ import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState } from '../../storage/secureStorage';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export type AuthParams = {
     backgroundColor?: string,
@@ -37,7 +37,7 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const safeAreaInsets = useSafeAreaInsets();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [auth, setAuth] = useState<AuthProps | null>(null);
 
     const authenticate = useCallback(async (style?: AuthParams) => {
@@ -110,7 +110,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 <Animated.View
                     style={[
                         {
-                            backgroundColor: auth.params?.backgroundColor ?? Theme.background,
+                            backgroundColor: auth.params?.backgroundColor ?? theme.background,
                             flexGrow: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -176,7 +176,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             }}
                         >
                             <Text style={{
-                                color: Theme.accent,
+                                color: theme.accent,
                                 fontSize: 17,
                                 fontWeight: '500',
                             }}>

@@ -15,7 +15,7 @@ import * as FileSystem from 'expo-file-system';
 import * as Application from 'expo-application';
 import { fetchCardsTransactions } from "../../api/holders/fetchCardsTransactions";
 
-// export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
+// export const holdersEndpoint = isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
 export const holdersUrl = 'https://stage.zenpay.org';
 const currentTokenVersion = 1;

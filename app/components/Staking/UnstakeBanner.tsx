@@ -6,9 +6,10 @@ import { fromNano, toNano } from "ton";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { useConnectPrice } from '../../engine/hooks/useConnectPrice';
 import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const UnstakeBanner = React.memo((
     {
@@ -26,7 +27,9 @@ export const UnstakeBanner = React.memo((
         amount?: string
     }
 ) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    
     const price = useConnectPrice();
     const currency = usePrimaryCurrency();
     const anim = useRef<LottieView>(null);
@@ -54,7 +57,7 @@ export const UnstakeBanner = React.memo((
 
     return (
         <View style={{
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -68,14 +71,14 @@ export const UnstakeBanner = React.memo((
                 style={{ width: 94, height: 94, marginBottom: 16, maxWidth: 140, maxHeight: 140 }}
             />
             <Text style={{
-                color: Theme.textColor,
+                color: theme.textColor,
                 fontSize: 16,
                 fontWeight: '600',
                 textAlign: 'center',
                 maxWidth: 240,
                 marginBottom: 10
             }}>
-                {AppConfig.isTestnet
+                {isTestnet
                     ? t('products.staking.banner.estimatedEarningsDev')
                     : t('products.staking.banner.estimatedEarnings',
                         {
@@ -85,7 +88,7 @@ export const UnstakeBanner = React.memo((
                     )}
             </Text>
             <Text style={{
-                color: Theme.label,
+                color: theme.label,
                 fontSize: 16,
                 fontWeight: '400'
             }}>

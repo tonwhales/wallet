@@ -16,10 +16,10 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useExtensions } from '../../engine/hooks/useExtensions';
 import { useTonConnectExtensions } from '../../engine/hooks/useTonConnectExtenstions';
 import { useLedger } from '../../engine/hooks/useLedger';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 type Item = {
     key: string;
@@ -52,7 +52,7 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const extensions = useExtensions();
@@ -193,14 +193,14 @@ export const ConnectionsFragment = fragment(() => {
                             marginHorizontal: 8,
                             marginBottom: 8,
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                         }}
                         >
                             {t('auth.noApps')}
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.priceSecondary,
+                            color: theme.priceSecondary,
                         }}>
                             {t('auth.apps.description')}
                         </Text>
@@ -208,7 +208,7 @@ export const ConnectionsFragment = fragment(() => {
                             position: 'absolute',
                             bottom: safeArea.bottom + 16, left: 0, right: 0
                         }}>
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
                                     {t('settings.experimental')}
                                 </Text>
@@ -244,12 +244,12 @@ export const ConnectionsFragment = fragment(() => {
                         }}>
                             <Text style={{
                                 fontSize: 16,
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                             }}>
                                 {t('auth.apps.description')}
                             </Text>
                             {extensions.length > 0 && (
-                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, backgroundColor: theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
                                 </View>
                             )}
@@ -263,7 +263,7 @@ export const ConnectionsFragment = fragment(() => {
                                 </View>
                             ))}
                             {(apps.length > 0 || tonconnectApps.length > 0) && (
-                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, backgroundColor: theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
                                 </View>
                             )}
@@ -288,7 +288,7 @@ export const ConnectionsFragment = fragment(() => {
                             ))}
                         </View>
                         <View style={{ width: '100%' }}>
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
                                     {t('settings.experimental')}
                                 </Text>

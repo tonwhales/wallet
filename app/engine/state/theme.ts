@@ -1,10 +1,6 @@
-import * as React from 'react';
-import * as Application from 'expo-application';
-import { storage, storagePersistence } from '../storage/storage';
-import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
-import { getCurrentAddress, markAddressSecured } from '../storage/appState';
-
-export const isTestnetKey = 'isTestnet';
+import { DefaultTheme, Theme as NavigationThemeType } from '@react-navigation/native';
+import { selector } from 'recoil';
+import { networkSelector } from './network';
 
 export type ThemeType = {
     textColor: string,
@@ -116,70 +112,32 @@ export const initialNavigationTheme: NavigationThemeType = {
     }
 };
 
-export const initialAppConfig = {
-    version: Application.nativeApplicationVersion,
-    isTestnet: (
-        Application.applicationId === 'com.tonhub.app.testnet' ||
-        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
-        Application.applicationId === 'com.tonhub.wallet.testnet' ||
-        Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
-        storage.getBoolean(isTestnetKey) === true
-    ),
-};
+export const themeSelector = selector({
+    key: 'theme',
+    get: ({ get }) => {
+        const isTestnet = get(networkSelector).isTestnet;
 
-export const AppConfigContext = React.createContext<{
-    AppConfig: {
-        version: string | null;
-        isTestnet: boolean;
-    },
-    setNetwork: (isTestnet: boolean) => void;
-    Theme: ThemeType;
-    NavigationTheme: NavigationThemeType;
-}>({
-    AppConfig: initialAppConfig,
-    setNetwork: () => { },
-    Theme: initialTheme,
-    NavigationTheme: initialNavigationTheme
-});
-
-export const AppConfigContextProvider = React.memo((props: { children: React.ReactNode }) => {
-    const [AppConfig, setAppConfig] = React.useState(initialAppConfig);
-
-    const Theme = {
-        ...initialTheme,
-        accent: AppConfig.isTestnet ? '#F3A203' : '#47A9F1',
-        accentDark: AppConfig.isTestnet ? '#F3A203' : '#288FD8',
-        accentText: AppConfig.isTestnet ? '#E99A02' : '#1C8FE3',
-    };
-
-    const NavigationTheme = {
-        dark: false,
-        colors: {
-            ...DefaultTheme.colors,
-            primary: Theme.accent,
-            background: Theme.background,
-            card: Theme.background
+        return {
+            ...initialTheme,
+            accent: isTestnet ? '#F3A203' : '#47A9F1',
+            accentDark: isTestnet ? '#F3A203' : '#288FD8',
+            accentText: isTestnet ? '#E99A02' : '#1C8FE3',
         }
     }
-
-    const setNetwork = (isTestnet: boolean) => {
-        const addr = getCurrentAddress();
-        markAddressSecured(addr.address, isTestnet);
-        storage.set(isTestnetKey, isTestnet);
-        setAppConfig({
-            ...AppConfig,
-            isTestnet,
-        });
-        storagePersistence.clearAll();
-    };
-
-    return (
-        <AppConfigContext.Provider value={{ AppConfig, setNetwork, Theme, NavigationTheme }}>
-            {props.children}
-        </AppConfigContext.Provider>
-    );
 });
 
-export function useAppConfig() {
-    return React.useContext(AppConfigContext);
-}
+export const navigationThemeSelector = selector({
+    key: 'theme/navigation',
+    get: ({ get }) => {
+        const theme = get(themeSelector);
+        return {
+            dark: false,
+            colors: {
+                ...DefaultTheme.colors,
+                primary: theme.accent,
+                background: theme.background,
+                card: theme.background
+            }
+        }
+    } 
+});

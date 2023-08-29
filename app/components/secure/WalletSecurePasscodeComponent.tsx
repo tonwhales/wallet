@@ -9,7 +9,6 @@ import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../passcode/PasscodeSetup';
@@ -19,12 +18,15 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean
 }) => {
-    const { AppConfig, Theme } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
@@ -38,7 +40,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, AppConfig.isTestnet);
+        markAddressSecured(address.address, isTestnet);
         reboot();
     }, []);
 
@@ -93,7 +95,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     }
                 ],
                 selected: state.addresses.length
-            }, AppConfig.isTestnet);
+            }, isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
 
@@ -111,7 +113,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         throw Error('Invalid state');
                     }
                     const account = getCurrentAddress();
-                    markAddressSecured(account.address, AppConfig.isTestnet);
+                    markAddressSecured(account.address, isTestnet);
                     reboot();
                 }
                 navigation.navigate('WalletBackupInit');
@@ -138,7 +140,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     exiting={FadeOutDown}
                 >
                     <StatusBar style={'dark'} />
-                    <PasscodeSetup style={props.import ? { backgroundColor: Theme.item } : undefined} onReady={onConfirmed} />
+                    <PasscodeSetup style={props.import ? { backgroundColor: theme.item } : undefined} onReady={onConfirmed} />
                 </Animated.View>
             )}
 

@@ -6,7 +6,7 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersCard, holdersUrl } from '../../../engine/legacy/holders/HoldersProduct';
 
 const colorsMap: { [key: string]: string[] } = {
@@ -19,7 +19,7 @@ const colorsMap: { [key: string]: string[] } = {
 }
 
 export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -66,10 +66,10 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
     return (
         <TouchableHighlight
             onPress={onPress}
-            underlayColor={Theme.selector}
+            underlayColor={theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >
@@ -102,11 +102,11 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                 {!!account && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                            <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                                 {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' :''}`}
                             </Text>
                             {!!account && account.balance && (
-                                <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                                <Text style={{ color: theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                     <ValueComponent value={account.balance} precision={2} />{' TON'}
                                 </Text>
                             )}
@@ -150,7 +150,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                                <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                                <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
                                     {t('products.zenPay.card.defaultTitle')}
                                 </Text>
                             </View>
@@ -167,7 +167,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                             </View>
                         </View>
                         <View style={{
-                            backgroundColor: Theme.accent,
+                            backgroundColor: theme.accent,
                             borderRadius: 70,
                             minWidth: 50, height: 30, paddingHorizontal: 8,
                             justifyContent: 'center',

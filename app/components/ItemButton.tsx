@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Pressable, View, Text, Image, ImageSourcePropType } from 'react-native';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks/useTheme';
 
 export const ItemButton = React.memo((props: {
     title?: string,
@@ -10,7 +10,7 @@ export const ItemButton = React.memo((props: {
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     return (
         <Pressable style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })} onPress={props.onPress}>
             <View style={{
@@ -31,7 +31,7 @@ export const ItemButton = React.memo((props: {
                         style={{
                             fontSize: 17,
                             textAlignVertical: 'center',
-                            color: props.dangerZone ? "#FF0000" : Theme.textColor,
+                            color: props.dangerZone ? "#FF0000" : theme.textColor,
                             marginLeft: 13,
                             lineHeight: 24,
                         }}
@@ -43,7 +43,7 @@ export const ItemButton = React.memo((props: {
                 </View>
                 {props.hint && (
                     <View style={{ flexGrow: 0, flexShrink: 0, paddingLeft: 8 }}>
-                        <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: Theme.textSecondary }}>
+                        <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: theme.textSecondary }}>
                             {props.hint}
                         </Text>
                     </View>

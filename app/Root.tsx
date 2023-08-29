@@ -5,7 +5,6 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RecoilRoot } from 'recoil';
 import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
-import { AppConfigContextProvider } from './utils/AppConfigContext';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 
@@ -16,7 +15,7 @@ export const Root = React.memo(() => {
     const reboot = React.useCallback(() => {
         setSessionId((s) => s + 1);
     }, [setSessionId]);
-    
+
     return (
         <Animated.View
             key={'session-' + sessionId}
@@ -25,14 +24,12 @@ export const Root = React.memo(() => {
             entering={FadeIn}
         >
             <RebootContext.Provider value={reboot}>
-                <AppConfigContextProvider>
+                <RecoilRoot>
                     <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION }} client={queryClient}>
-                        <RecoilRoot>
-                            <Navigation />
-                        </RecoilRoot>
+                        <Navigation />
                     </PersistQueryClientProvider>
-                </AppConfigContextProvider>
+                </RecoilRoot>
             </RebootContext.Provider>
-        </Animated.View>
+        </Animated.View >
     );
 });

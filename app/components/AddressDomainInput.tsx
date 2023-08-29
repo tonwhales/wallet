@@ -11,11 +11,11 @@ import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
-import { useAppConfig } from "../utils/AppConfigContext"
-import { clients } from '../engine/clients'
 import { useClient4 } from '../engine/hooks/useClient4'
 import { useSelectedAddress } from '../engine/hooks/useSelectedAddress'
 import { AddressContact } from '../engine/legacy/products/SettingsProduct'
+import { useNetwork } from '../engine/hooks/useNetwork'
+import { useTheme } from '../engine/hooks/useTheme'
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -50,8 +50,9 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     labelText?: string,
     showToMainAddress?: boolean,
 }, ref: React.ForwardedRef<ATextInputRef>) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const client = useClient4(AppConfig.isTestnet);
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const selected = useSelectedAddress();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
@@ -59,7 +60,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const tref = React.useRef<TextInput>(null);
     React.useImperativeHandle(ref, () => ({
         focus: () => {
-            tref.current!.focus();y
+            tref.current!.focus();
         },
     }));
 
@@ -92,7 +93,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
 
                 setResolvedAddress(resolvedWalletAddress);
-                onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+                onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: isTestnet }));
                 onDomainChange(toResolve);
             } catch (e) {
                 Alert.alert(t('transfer.error.invalidDomain'));
@@ -121,7 +122,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             ref={tref}
             onFocus={onFocus}
             onValueChange={onInputChange}
-            placeholder={AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
+            placeholder={isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
             keyboardType={'ascii-capable'}
             autoCapitalize={'none'}
             preventDefaultHeight
@@ -137,7 +138,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                     <Text style={{
                         fontWeight: '500',
                         fontSize: 12,
-                        color: Theme.label,
+                        color: theme.label,
                         alignSelf: 'flex-start',
                     }}>
                         {labelText ? labelText : t('transfer.sendTo')}
@@ -160,10 +161,10 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: Theme.labelSecondary,
+                                color: theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
-                                {KnownWallets(AppConfig.isTestnet)[target].name}
+                                {KnownWallets(isTestnet)[target].name}
                             </Text>
                         </Animated.View>
                     )}
@@ -185,14 +186,14 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: Theme.labelSecondary,
+                                color: theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 {contact.name}
                             </Text>
                         </Animated.View>
                     )}
-                    {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
+                    {(resolvedAddress && !resolving && !isTestnet) && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',
@@ -205,14 +206,14 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: Theme.labelSecondary,
+                                color: theme.labelSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 <AddressComponent address={resolvedAddress} />
                             </Text>
                         </Animated.View>
                     )}
-                    {(resolving && !AppConfig.isTestnet) && (
+                    {(resolving && !isTestnet) && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',
@@ -236,7 +237,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 backgroundColor={'#596080'}
                                 fullColor={null}
                                 loop={true}
-                                containerColor={Theme.transparent}
+                                containerColor={theme.transparent}
                             />
                         </Animated.View>
                     )}
@@ -254,7 +255,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 style={({ pressed }) => {
                                     return {
                                         opacity: pressed ? 0.5 : 1,
-                                        backgroundColor: Theme.accent,
+                                        backgroundColor: theme.accent,
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         paddingVertical: 4,
@@ -264,13 +265,13 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 }}
                                 hitSlop={8}
                                 onPress={() => {
-                                    onInputChange(selected.address.toFriendly({ testOnly: AppConfig.isTestnet }))
+                                    onInputChange(selected.address.toFriendly({ testOnly: isTestnet }))
                                 }}
                             >
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 12,
-                                    color: Theme.item,
+                                    color: theme.item,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('hardwareWallet.actions.mainAddress')}

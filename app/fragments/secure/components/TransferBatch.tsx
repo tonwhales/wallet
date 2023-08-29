@@ -28,7 +28,7 @@ import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useAccount } from '../../../engine/hooks/useAccount';
 import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
@@ -69,10 +69,11 @@ type Props = {
 
 export const TransferBatch = React.memo((props: Props) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const account = useAccount();
-    const client = useClient4(AppConfig.isTestnet);
+    const client = useClient4(isTestnet);
     const [price, currency] = usePrice();
     const {
         text,
@@ -117,7 +118,7 @@ export const TransferBatch = React.memo((props: Props) => {
             }
 
             if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
-                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: AppConfig.isTestnet });
+                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: isTestnet });
                 const value = totalJettons.get(addr);
                 if (!!value) {
                     value.jettonAmount = value.jettonAmount.add(jettonAmount);
@@ -146,18 +147,18 @@ export const TransferBatch = React.memo((props: Props) => {
                 jettonMaster
             });
 
-            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
+            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: isTestnet })];
+            const friendlyTarget = message.addr.address.toFriendly({ testOnly: isTestnet });
             let known: KnownWallet | undefined = undefined;
-            if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-                known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
+            if (KnownWallets(isTestnet)[friendlyTarget]) {
+                known = KnownWallets(isTestnet)[friendlyTarget];
             } else if (operation.title) {
                 known = { name: operation.title };
             }
             // } else if (!!contact) { // Resolve contact known wallet
             //     known = { name: contact.name }
             // }
-            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: isTestnet })];
             // const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
             const spam = false;
 
@@ -186,7 +187,7 @@ export const TransferBatch = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { order }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.TransferCancel, { order }, isTestnet);
         }
     }, []);
 
@@ -249,7 +250,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Create message
             const msg = internalFromSignRawMessage({
-                target: i.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                target: i.message.addr.address.toFriendly({ testOnly: isTestnet }),
                 amount: i.message.amount,
                 payload: i.message.payload,
                 amountAll: i.message.amountAll,
@@ -328,7 +329,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { order }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { order }, isTestnet);
 
         // Register pending
         // TODO
@@ -394,7 +395,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: Theme.labelSecondary
+                            color: theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -433,7 +434,7 @@ export const TransferBatch = React.memo((props: Props) => {
                         <Text style={{
                             fontWeight: '700',
                             fontSize: 20,
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginHorizontal: 16,
                             marginVertical: 16,
                         }}>
@@ -446,7 +447,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 alignItems: 'center'
                             }}>
                                 <View style={{
-                                    backgroundColor: Theme.accent,
+                                    backgroundColor: theme.accent,
                                     height: 20, width: 20,
                                     borderRadius: 20,
                                     justifyContent: 'center',
@@ -458,7 +459,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 20,
-                                    color: Theme.textColor
+                                    color: theme.textColor
                                 }}>
                                     {fromNano(totalAmount) + ' TON'}
                                 </Text>
@@ -466,11 +467,11 @@ export const TransferBatch = React.memo((props: Props) => {
                             <PriceComponent
                                 amount={totalAmount}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
                                     marginLeft: 48, marginTop: 4
                                 }}
-                                textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
                             />
                         </View>
                         {totalJettons.size > 0 && (
@@ -486,7 +487,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             alignItems: 'center'
                                         }}>
                                         <View style={{
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 20, width: 20,
                                             borderRadius: 20,
                                             justifyContent: 'center',
@@ -504,7 +505,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 20,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 marginLeft: 2
                                             }}>
                                                 {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
@@ -514,7 +515,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 )
                             })
                         )}
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
                         <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
                             {totalJettons.size > 0 && (
                                 <>
@@ -523,7 +524,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontSize: 14,
                                                 fontWeight: '500',
-                                                color: Theme.textSecondary,
+                                                color: theme.textSecondary,
                                                 alignSelf: 'center',
                                                 flexGrow: 1, flexBasis: 0
                                             }}>
@@ -534,10 +535,10 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
                                                 <Text style={{
                                                     fontSize: 16,
-                                                    color: gas.unusual ? Theme.warningSecondary : Theme.textColor,
+                                                    color: gas.unusual ? theme.warningSecondary : theme.textColor,
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
-                                                    {(!AppConfig.isTestnet && price)
+                                                    {(!isTestnet && price)
                                                         ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
                                                         : fromNano(gas.total) + ' TON'
                                                     }
@@ -552,7 +553,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginBottom: 16,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -563,7 +564,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>
@@ -571,7 +572,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             </Pressable>
                                         )}
                                     </View>
-                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 6 }} />
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginBottom: 6 }} />
                                 </>
                             )}
                             <ItemLarge
@@ -603,7 +604,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                         <ItemAddress
                                             key={'address' + index}
                                             title={`#${index + 1} ` + t('common.walletAddress')}
-                                            text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            text={i.operation.address.toFriendly({ testOnly: isTestnet })}
                                         />
                                         {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
                                     </>

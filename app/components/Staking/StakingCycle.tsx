@@ -3,7 +3,7 @@ import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { t } from "../../i18n/t"
 import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
-import { useAppConfig } from "../../utils/AppConfigContext"
+import { useTheme } from '../../engine/hooks/useTheme'
 
 export const StakingCycle = React.memo((
     {
@@ -18,7 +18,7 @@ export const StakingCycle = React.memo((
         locked: boolean
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
 
     useEffect(() => {
@@ -32,7 +32,7 @@ export const StakingCycle = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             minHeight: 70,
             borderRadius: 14,
             marginHorizontal: 16,
@@ -49,7 +49,7 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 fontWeight: '600',
                                 fontSize: 16
                             }}>
@@ -59,13 +59,13 @@ export const StakingCycle = React.memo((
                                 left={left}
                                 textStyle={{
                                     fontWeight: '400',
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     fontSize: 16
                                 }}
                             />
                         </View>
                         <Text style={{
-                            color: Theme.textSecondary,
+                            color: theme.textSecondary,
                             fontWeight: '400',
                             fontSize: 13,
                             marginTop: 8
@@ -85,14 +85,14 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
                             <Text style={{
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 fontWeight: '600',
                                 fontSize: 16
                             }}>
                                 {t('products.staking.info.cooldownTitle')}
                             </Text>
                             <Text style={{
-                                color: Theme.success,
+                                color: theme.success,
                                 fontSize: 16,
                                 fontVariant: ['tabular-nums']
                             }}
@@ -103,7 +103,7 @@ export const StakingCycle = React.memo((
                             </Text>
                         </View>
                         <Text style={{
-                            color: Theme.textSecondary,
+                            color: theme.textSecondary,
                             fontWeight: '400',
                             fontSize: 13,
                             marginTop: 8

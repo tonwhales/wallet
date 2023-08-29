@@ -7,10 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const WalletCreatedFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [loose, setLoose] = useState(false);
@@ -22,7 +22,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             flexGrow: 1,
             flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             paddingHorizontal: 16,
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -39,7 +39,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         marginTop: 20,
                         marginVertical: 16,
                         borderRadius: 14,
-                        backgroundColor: Theme.background,
+                        backgroundColor: theme.background,
                         paddingHorizontal: 16,
                         paddingVertical: 15
                     }}
@@ -56,7 +56,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={loose ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={loose ? Theme.accent : Theme.unchecked}
+                            color={loose ? theme.accent : theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -79,7 +79,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={share ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={share ? Theme.accent : Theme.unchecked}
+                            color={share ? theme.accent : theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -101,7 +101,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={responsibility ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={responsibility ? Theme.accent : Theme.unchecked}
+                            color={responsibility ? theme.accent : theme.unchecked}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1

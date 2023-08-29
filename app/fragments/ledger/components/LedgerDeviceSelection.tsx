@@ -8,14 +8,14 @@ import { BleDevice } from "./BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
 
 type StepScreen = { type: 'ongoing' } | { type: 'completed', success: boolean } | { type: 'permissions-failed' }
 
 export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { onSelectDevice: (device: any) => Promise<void>, onReset: () => void }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [scan, setScan] = useState<StepScreen>();
     const [devices, setDevices] = useState([]);
@@ -199,7 +199,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 />
             )}
             {!!scan && scan.type === 'ongoing' && (
-                <View style={{ marginTop: 8, backgroundColor: Theme.background, flexDirection: 'row' }} collapsable={false}>
+                <View style={{ marginTop: 8, backgroundColor: theme.background, flexDirection: 'row' }} collapsable={false}>
                     <Text style={{
                         fontSize: 18,
                         fontWeight: '700',
@@ -212,7 +212,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 </View>
             )}
             {!!scan && scan.type === 'completed' && (
-                <View style={{ marginTop: 8, backgroundColor: Theme.background, flexDirection: 'row' }} collapsable={false}>
+                <View style={{ marginTop: 8, backgroundColor: theme.background, flexDirection: 'row' }} collapsable={false}>
                     <Text style={{
                         fontSize: 18,
                         fontWeight: '700',
@@ -247,7 +247,7 @@ export const LedgerDeviceSelection = React.memo(({ onSelectDevice, onReset }: { 
                 left: 0, right: 0,
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: Theme.background,
+                backgroundColor: theme.background,
             }}>
                 <RoundButton
                     title={t('common.back')}

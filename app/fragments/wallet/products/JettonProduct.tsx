@@ -6,8 +6,8 @@ import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
-import { useAppConfig } from '../../../utils/AppConfigContext';
-import { onJettonDisabled } from '../../../engine/effects/markJettonDisabled';
+import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
@@ -25,14 +25,14 @@ export const JettonProduct = React.memo((props: {
     onLongPress?: () => void
 }) => {
     let balance = props.jetton.balance;
-    const { AppConfig } = useAppConfig();
+    const { isTestnet } = useNetwork();
 
-    const isKnown = !!KnownJettonMasters(AppConfig.isTestnet)[props.jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })];
+    const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toFriendly({ testOnly: isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {
             const c = await confirmJettonAction(true, props.jetton.symbol);
-            if (c) onJettonDisabled(props.jetton.master);
+            if (c) markJettonDisabled(props.jetton.master);
         },
         [],
     );

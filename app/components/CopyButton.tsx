@@ -6,7 +6,7 @@ import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import { iOSUIKit } from 'react-native-typography';
 import Animated, { EasingNode } from "react-native-reanimated";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 
 const size = {
     height: 56,
@@ -24,15 +24,15 @@ export const CopyButton = React.memo(({
     style?: StyleProp<ViewStyle>,
     disabled?: boolean
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const display = {
-        backgroundColor: Theme.secondaryButton,
-        borderColor: Theme.secondaryButton,
-        textColor: Theme.textColor,
+        backgroundColor: theme.secondaryButton,
+        borderColor: theme.secondaryButton,
+        textColor: theme.textColor,
     
-        backgroundPressedColor: Theme.selector,
-        borderPressedColor: Theme.selector,
-        textPressed: Theme.secondaryButtonText
+        backgroundPressedColor: theme.selector,
+        borderPressedColor: theme.selector,
+        textPressed: theme.secondaryButtonText
     }
     const doneOpacity = React.useMemo(() => new Animated.Value<number>(0), []);
 

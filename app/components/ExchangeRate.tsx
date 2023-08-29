@@ -2,14 +2,16 @@ import React from "react"
 import { StyleProp, View, Text, ViewStyle } from "react-native"
 import TonIcon from '../../assets/ton_icon.svg';
 import { formatCurrency } from "../utils/formatCurrency";
-import { useAppConfig } from "../utils/AppConfigContext";
 import { usePrice } from '../engine/hooks/usePrice';
+import { useTheme } from '../engine/hooks/useTheme';
+import { useNetwork } from '../engine/hooks/useNetwork';
 
 export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle> }) => {
     const [price, currency] = usePrice();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
-    if (!price || AppConfig.isTestnet) {
+    if (!price || isTestnet) {
         return <></>;
     }
 
@@ -27,13 +29,13 @@ export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle
             <View style={{
                 position: 'absolute',
                 top: 0, bottom: 0, left: 0, right: 0,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 opacity: 0.1,
                 borderRadius: 8
             }} />
             <TonIcon height={12} width={12} />
             <Text style={[{
-                color: Theme.item,
+                color: theme.item,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16,

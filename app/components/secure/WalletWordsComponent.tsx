@@ -1,6 +1,6 @@
 import React from "react";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
@@ -19,7 +19,7 @@ export const WalletWordsComponent = React.memo((props: {
         deviceEncryption: DeviceEncryption
     }) => void,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
@@ -198,7 +198,7 @@ export const WalletWordsComponent = React.memo((props: {
             onSubmit={onSubmit}
         />);
         if (i < 23) {
-            wordComponents.push(<View key={'sep-' + i} style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />);
+            wordComponents.push(<View key={'sep-' + i} style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 17 }} />);
         }
     }
 
@@ -232,7 +232,7 @@ export const WalletWordsComponent = React.memo((props: {
                         {t('import.subtitle')}
                     </Text>
                     <View style={{
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         width: '100%',
                     }}>

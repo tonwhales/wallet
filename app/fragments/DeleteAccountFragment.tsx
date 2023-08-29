@@ -24,7 +24,7 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { clearHolders } from "./LogoutFragment";
 import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
@@ -33,9 +33,10 @@ import { useClient4 } from '../engine/hooks/useClient4';
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 
 export const DeleteAccountFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const tresuresAddress = Address.parse(
-        AppConfig.isTestnet
+        isTestnet
             ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
             : 'EQCt2mgAsbnGFKRhlLjiJvScCYbe4lqEHRMvIs-IR7T-1J6p'
     );
@@ -44,10 +45,10 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const reboot = useReboot();
     const addr = useCurrentAddress();
-    const client = useClient4(AppConfig.isTestnet);
+    const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
-    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
-    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
+    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: isTestnet }));
+    const isKnown: boolean = !!KnownWallets(isTestnet)[targetAddressInput];
 
     const onDeleteAccount = React.useCallback(() => {
         let ended = false;
@@ -78,7 +79,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has nfts
             try {
-                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: AppConfig.isTestnet }), AppConfig.isTestnet);
+                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: isTestnet }), isTestnet);
                 if (nftsConnection.items && nftsConnection.items.length > 0) {
                     Alert.alert(t('deleteAccount.error.hasNfts'));
                     ended = true;
@@ -103,7 +104,7 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
 
-            const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+            const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: isTestnet }));
 
             // Check target
             const targetState = await backoff('transfer', async () => {
@@ -119,7 +120,7 @@ export const DeleteAccountFragment = fragment(() => {
             };
 
             // Check if trying to send to testnet
-            if (!AppConfig.isTestnet && target.isTestOnly) {
+            if (!isTestnet && target.isTestOnly) {
                 let cont = await confirm('transfer.error.addressIsForTestnet');
                 if (!cont) {
                     ended = true;
@@ -202,7 +203,7 @@ export const DeleteAccountFragment = fragment(() => {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(() => {
-                           onAccountDeleted(AppConfig.isTestnet);
+                           onAccountDeleted(isTestnet);
                         }, 2000);
                         break;
                     }
@@ -265,14 +266,14 @@ export const DeleteAccountFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
                             {t('deleteAccount.description', { amount: '0.1' })}
                         </Text>
                     </View>
 
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -294,7 +295,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -317,10 +318,10 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
-                                                {KnownWallets(AppConfig.isTestnet)[targetAddressInput].name}
+                                                {KnownWallets(isTestnet)[targetAddressInput].name}
                                             </Text>
                                         </Animated.View>
                                     )}
@@ -330,7 +331,7 @@ export const DeleteAccountFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
@@ -357,10 +358,10 @@ export const DeleteAccountFragment = fragment(() => {
             )}
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <View style={{ backgroundColor: Theme.item, padding: 16, borderRadius: 16 }}>
+                    <View style={{ backgroundColor: theme.item, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
-                            <Text style={{ color: Theme.textColor }}>
+                            <Text style={{ color: theme.textColor }}>
                                 {t('deleteAccount.complete')}
                             </Text>
                         )}

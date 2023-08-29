@@ -5,11 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useAppManifest } from '../../engine/hooks/useAppManifest';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const ConnectAppFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const url = (useRoute().params as any).url as string;
     const appData = useAppManifest(url);
     const safeArea = useSafeAreaInsets();
@@ -21,7 +21,7 @@ export const ConnectAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.background
+            backgroundColor: theme.background
         }}>
             <StatusBar style={'dark'} />
 

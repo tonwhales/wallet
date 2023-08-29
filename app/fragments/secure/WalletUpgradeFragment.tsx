@@ -9,15 +9,16 @@ import { systemFragment } from "../../systemFragment";
 import { doUpgrade } from "../../storage/appState";
 import { useReboot } from "../../utils/RebootContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const WalletUpgradeFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
     const navigation = useTypedNavigation();
     const onUpgrade = React.useCallback(async () => {
-        await doUpgrade(AppConfig.isTestnet);
+        await doUpgrade(isTestnet);
         reboot();
     }, []);
     const onBackup = React.useCallback(() => {
@@ -27,7 +28,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
         }}>
@@ -39,7 +40,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: Theme.textSubtitle,
+                    color: theme.textSubtitle,
                     fontSize: 16,
                     marginTop: 14,
                 }}>
@@ -64,7 +65,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: Theme.accentText
+                        color: theme.accentText
                     }}>
                         {t('secure.backup')}
                     </Text>

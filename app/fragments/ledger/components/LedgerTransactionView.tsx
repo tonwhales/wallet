@@ -11,11 +11,11 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
-import { Engine } from '../../../engine/Engine';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useTheme } from '../../../engine/hooks/useTheme';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -28,7 +28,8 @@ export function LedgerTransactionView(props: {
     engine: Engine,
     onPress: (src: string) => void
 }) {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -41,8 +42,8 @@ export function LedgerTransactionView(props: {
     let operation = tx.operation;
 
     // Operation
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let avatarId = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
+    let avatarId = operation.address.toFriendly({ testOnly: isTestnet });
     let item = operation.items[0];
     let amount = item.amount;
     let op: string;
@@ -73,8 +74,8 @@ export function LedgerTransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
+    if (KnownWallets(isTestnet)[friendlyAddress]) {
+        known = KnownWallets(isTestnet)[friendlyAddress];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -82,7 +83,7 @@ export function LedgerTransactionView(props: {
     }
 
     const verified = !!tx.verified
-        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
     const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
@@ -92,8 +93,8 @@ export function LedgerTransactionView(props: {
         || (
             parsed.amount.abs().lt(spamMinAmount)
             && tx.base.body?.type === 'comment'
-            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
-            && !AppConfig.isTestnet
+            && !KnownWallets(isTestnet)[friendlyAddress]
+            && !isTestnet
         ) && tx.base.kind !== 'out';
 
     // 
@@ -101,8 +102,8 @@ export function LedgerTransactionView(props: {
     // 
     const settings = props.engine.products.settings;
 
-    const addressLink = (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
-        + operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const addressLink = (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
+        + operation.address.toFriendly({ testOnly: isTestnet });
 
     const txId = React.useMemo(() => {
         if (!tx.base.lt) {
@@ -120,7 +121,7 @@ export function LedgerTransactionView(props: {
         if (!txId) {
             return null;
         }
-        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
+        return (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
             operation.address.toFriendly() +
             '/' + txId
@@ -149,12 +150,12 @@ export function LedgerTransactionView(props: {
     }, []);
 
     const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
+        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: isTestnet }) });
     }, []);
 
     const onRepeatTx = React.useCallback(() => {
         navigation.navigateLedgerTransfer({
-            target: tx.base.address!.toFriendly({ testOnly: AppConfig.isTestnet }),
+            target: tx.base.address!.toFriendly({ testOnly: isTestnet }),
             comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
             amount: tx.base.amount.neg(),
             job: null,
@@ -214,8 +215,8 @@ export function LedgerTransactionView(props: {
             onPress={handleAction}>
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}
-                underlayColor={Theme.selector}
-                style={{ backgroundColor: Theme.item }}
+                underlayColor={theme.selector}
+                style={{ backgroundColor: theme.item }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
@@ -242,7 +243,7 @@ export function LedgerTransactionView(props: {
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
                                 <Text
-                                    style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    style={{ color: theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}>
                                     {op}
@@ -257,7 +258,7 @@ export function LedgerTransactionView(props: {
                                         marginLeft: 6,
                                         paddingHorizontal: 4
                                     }}>
-                                        <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                                        <Text style={{ color: theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                                     </View>
                                 )}
                             </View>
@@ -268,7 +269,7 @@ export function LedgerTransactionView(props: {
                             ) : (
                                 <Text
                                     style={{
-                                        color: item.amount.gte(new BN(0)) ? spam ? Theme.textColor : '#4FAE42' : '#FF0000',
+                                        color: item.amount.gte(new BN(0)) ? spam ? theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,
@@ -283,17 +284,17 @@ export function LedgerTransactionView(props: {
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
                             <Text
-                                style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                                style={{ color: theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
                                 ellipsizeMode="middle"
                                 numberOfLines={1}
                             >
-                                {known ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress) : <AddressComponent address={operation.address} />}
+                                {known ? knownAddressLabel(known, isTestnet, friendlyAddress) : <AddressComponent address={operation.address} />}
                             </Text>
                             {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
-                            <Text style={{ color: Theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
+                            <Text style={{ color: theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(parsed.time)}</Text>
                         </View>
                         <View style={{ flexGrow: 1 }} />
-                        {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
+                        {props.separator && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider }} />)}
                     </View>
                 </View>
             </TouchableHighlight>

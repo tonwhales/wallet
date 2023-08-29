@@ -11,20 +11,21 @@ import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
 
 export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const { tonTransport, setAddr, addr } = useTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
-    const client = useClient4(AppConfig.isTestnet);
+    const client = useClient4(isTestnet);
 
     useEffect(() => {
         (async () => {
@@ -35,8 +36,8 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
             const seqno = (await client.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
-                    const path = pathFromAccountNumber(i, AppConfig.isTestnet);
-                    const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
+                    const path = pathFromAccountNumber(i, isTestnet);
+                    const addr = await tonTransport.getAddress(path, { testOnly: isTestnet });
                     try {
                         const address = Address.parse(addr.address);
                         const liteAcc = await client.getAccountLite(seqno, address);
@@ -60,9 +61,9 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                 return;
             }
             setSelected(acc.i);
-            let path = pathFromAccountNumber(acc.i, AppConfig.isTestnet);
+            let path = pathFromAccountNumber(acc.i, isTestnet);
             try {
-                await tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
+                await tonTransport.validateAddress(path, { testOnly: isTestnet });
                 setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
             } catch (e) {
@@ -88,7 +89,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
             <Text style={{
                 fontWeight: '600',
                 fontSize: 18,
-                color: Theme.textColor,
+                color: theme.textColor,
                 marginBottom: 16,
                 textAlign: 'center',
                 marginHorizontal: 16

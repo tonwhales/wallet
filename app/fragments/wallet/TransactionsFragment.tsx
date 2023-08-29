@@ -13,7 +13,7 @@ import { formatDate, getDateKey } from "../../utils/dates";
 import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { useAccount } from '../../engine/hooks/useAccount';
 
 const WalletTransactions = React.memo((props: {
@@ -113,7 +113,7 @@ const WalletTransactions = React.memo((props: {
 });
 
 function TransactionsComponent(props: { wallet: WalletState }) {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
@@ -152,7 +152,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             style={{ width: 192, height: 192 }}
                         />
                     </Pressable>
-                    <Text style={{ fontSize: 16, color: Theme.label }}>
+                    <Text style={{ fontSize: 16, color: theme.label }}>
                         {t('wallet.empty.message')}
                     </Text>
                     <RoundButton
@@ -183,7 +183,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                        <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
@@ -196,7 +196,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                 <Text style={[
                                     {
                                         fontSize: 22,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         fontWeight: '700',
                                         position: 'relative'
                                     }
@@ -210,7 +210,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -223,7 +223,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
+                        backgroundColor: theme.background,
                         paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -232,7 +232,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             <Text style={[
                                 {
                                     fontSize: 22,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     fontWeight: '700',
                                     position: 'relative'
                                 },
@@ -245,7 +245,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>

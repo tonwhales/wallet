@@ -1,7 +1,7 @@
 import { memo, useEffect, useState } from "react";
 import { View, Text, Platform, Pressable } from "react-native";
 import { t } from "../../../i18n/t";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import * as Network from 'expo-network';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
@@ -20,7 +20,7 @@ export const WebViewErrorComponent = memo(({
     onReload: () => void
 }) => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [networkState, setNetworkState] = useState<Network.NetworkState | undefined>();
 
 
@@ -43,14 +43,14 @@ export const WebViewErrorComponent = memo(({
                 <View style={{ width: '100%' }}>
                     <Text style={{
                         fontSize: 32, lineHeight: 40,
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '600',
                         marginBottom: 4
                     }}>
                         {t('common.somethingWentWrong')}
                     </Text>
                     <Text style={{
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                         marginBottom: 8
@@ -61,7 +61,7 @@ export const WebViewErrorComponent = memo(({
                         }
                     </Text>
                     <Text style={{
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                         marginBottom: 16
@@ -95,7 +95,7 @@ export const WebViewErrorComponent = memo(({
                     onPress={() => {
                         navigation.goBack();
                     }} >
-                    <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
+                    <Text style={{ color: theme.accent, fontWeight: '500', fontSize: 17 }}>
                         {t('common.close')}
                     </Text>
                 </Pressable>

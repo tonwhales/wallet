@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const StakingCycleProgress = React.memo((
     {
@@ -18,8 +18,9 @@ export const StakingCycleProgress = React.memo((
         reverse?: boolean
     }
 ) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const stakingCycle = AppConfig.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const stakingCycle = isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
     const progress = 100 - Math.floor((left * 100) / (full ? full : stakingCycle));
     const ref = useRef<Animated.View>(null);
     const scale = useSharedValue(0);
@@ -47,14 +48,14 @@ export const StakingCycleProgress = React.memo((
         >
             {!reverse && (<View
                 style={[{
-                    backgroundColor: color ? color : Theme.accent,
+                    backgroundColor: color ? color : theme.accent,
                     height: 4,
                     width: '100%',
                 }]}
             />)}
             <View
                 style={[{
-                    backgroundColor: color ? color : Theme.accent,
+                    backgroundColor: color ? color : theme.accent,
                     flexGrow: 1,
                     opacity: 0.1,
                     width: '100%'
@@ -62,7 +63,7 @@ export const StakingCycleProgress = React.memo((
             />
             {reverse && (<View
                 style={[{
-                    backgroundColor: color ? color : Theme.accent,
+                    backgroundColor: color ? color : theme.accent,
                     height: 4,
                     width: '100%',
                 }]}

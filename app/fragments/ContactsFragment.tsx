@@ -16,14 +16,14 @@ import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks/useTheme';
 import { useContacts } from '../engine/hooks/useContacts';
 import { useAccountTransactions } from '../engine/hooks/useAccountTransactions';
 import { useAccount } from '../engine/hooks/useAccount';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
     const account = useAccount();
@@ -85,19 +85,18 @@ export const ContactsFragment = fragment(() => {
         const views = [];
         for (let s of transactionsSectioned) {
             views.push(
-                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                     <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
                 </View>
             );
             views.push(
                 <View
                     key={'s-' + s.title}
-                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
+                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.item, overflow: 'hidden' }}
                     collapsable={false}
                 >
                     {s.items.map((t, i) => <TransactionView
-                        own={engine.address}
-                        engine={engine}
+                        own={account.address}
                         tx={t}
                         separator={i < s.items.length - 1}
                         key={'tx-' + t}
@@ -164,14 +163,14 @@ export const ContactsFragment = fragment(() => {
                             marginHorizontal: 8,
                             marginBottom: 8,
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                         }}
                         >
                             {t('contacts.empty')}
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.priceSecondary
+                            color: theme.priceSecondary
                         }}>
                             {t('contacts.description')}
                         </Text>
@@ -216,7 +215,7 @@ export const ContactsFragment = fragment(() => {
                             <Animated.View entering={FadeInDown}>
                                 <View style={{
                                     marginBottom: 16, marginTop: 17,
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -230,7 +229,7 @@ export const ContactsFragment = fragment(() => {
                                         onTargetChange={setTarget}
                                         onDomainChange={setDomain}
                                         style={{
-                                            backgroundColor: Theme.transparent,
+                                            backgroundColor: theme.transparent,
                                             paddingHorizontal: 0,
                                             marginHorizontal: 16,
                                         }}
@@ -243,7 +242,7 @@ export const ContactsFragment = fragment(() => {
                         {Platform.OS !== 'android' && (
                             <View style={{
                                 marginBottom: 16, marginTop: 17,
-                                backgroundColor: Theme.item,
+                                backgroundColor: theme.item,
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -257,7 +256,7 @@ export const ContactsFragment = fragment(() => {
                                     onTargetChange={setTarget}
                                     onDomainChange={setDomain}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
                                         marginHorizontal: 16,
                                     }}

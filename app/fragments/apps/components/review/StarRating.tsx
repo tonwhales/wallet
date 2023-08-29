@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react"
 import { Pressable, StyleProp, View, ViewStyle } from "react-native";
 import FilledStar from '../../../../../assets/ic_star_filled.svg';
 import Star from '../../../../../assets/ic_star_outline.svg';
-import { useAppConfig } from "../../../../utils/AppConfigContext";
+import { useTheme } from '../../../../engine/hooks/useTheme';
 
 const StarView = React.memo(({
     rate,
@@ -13,7 +13,8 @@ const StarView = React.memo(({
     rating: number,
     setRating: (value: number) => void
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     return (
         <Pressable
             style={({ pressed }) => {
@@ -30,7 +31,7 @@ const StarView = React.memo(({
                 setRating(rate);
             }}
         >
-            {rating > rate - 1 ? <FilledStar color={Theme.accent} width={54} height={54} /> : <Star color={Theme.secondaryButtonText} width={54} height={54} />}
+            {rating > rate - 1 ? <FilledStar color={theme.accent} width={54} height={54} /> : <Star color={theme.secondaryButtonText} width={54} height={54} />}
         </Pressable>
     )
 })

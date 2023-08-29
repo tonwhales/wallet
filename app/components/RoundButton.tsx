@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp, Text, View, ViewStyle, Image } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks/useTheme';
 import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
@@ -25,7 +25,7 @@ export const RoundButton = React.memo((props: {
     icon?: any,
     loadingStatus?: string
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     const [loading, setLoading] = React.useState(false);
     const doLoading = props.loading !== undefined ? props.loading : loading;
@@ -48,8 +48,8 @@ export const RoundButton = React.memo((props: {
 
     const size = sizes[props.size || 'large'];
     const display = props.disabled
-        ? roundButtonDisplays(Theme)['disabled']
-        : roundButtonDisplays(Theme)[props.display || 'default'];
+        ? roundButtonDisplays(theme)['disabled']
+        : roundButtonDisplays(theme)[props.display || 'default'];
 
     return (
         <Pressable

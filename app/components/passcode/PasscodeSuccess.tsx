@@ -2,10 +2,10 @@ import React from "react";
 import { Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string, onSuccess: () => void }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const animRef = React.useRef<LottieView>(null);
 
     React.useEffect(() => {
@@ -32,7 +32,7 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
             <Text style={{
                 fontWeight: '600',
                 fontSize: 17, marginBottom: 160, marginTop: 16,
-                color: Theme.textColor
+                color: theme.textColor
             }}>
                 {title}
             </Text>

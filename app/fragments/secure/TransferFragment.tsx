@@ -21,7 +21,6 @@ import { fetchMetadata } from '../../engine/legacy/metadata/fetchMetadata';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { useAccount } from '../../engine/hooks/useAccount';
 import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
@@ -30,6 +29,7 @@ import { getJettonMaster } from '../../engine/getters/getJettonMaster';
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/legacy/utils/createWalletTransferV4';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -99,12 +99,12 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 });
 
 export const TransferFragment = fragment(() => {
-    const { AppConfig } = useAppConfig();
+    const { isTestnet } = useNetwork();
     const params: TransferFragmentProps = useRoute().params! as any;
     const account = useAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const client = useClient4(AppConfig.isTestnet);
+    const client = useClient4(isTestnet);
 
     // Memmoize all parameters just in case
     const from = React.useMemo(() => getCurrentAddress(), []);
@@ -144,7 +144,7 @@ export const TransferFragment = fragment(() => {
 
             if (order.messages.length === 1) {
                 let target = Address.parseFriendly(
-                    Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
+                    Address.parse(params.order.messages[0].target).toFriendly({ testOnly: isTestnet })
                 );
 
                 if (order.domain) {

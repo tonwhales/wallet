@@ -9,14 +9,14 @@ import { t } from '../../i18n/t';
 import { useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useHoldersStatus } from '../../engine/hooks/useHoldersStatus';
 import { holdersUrl } from '../../engine/legacy/holders/HoldersProduct';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const HoldersAppFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -51,7 +51,7 @@ export const HoldersAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.item
+            backgroundColor: theme.item
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 

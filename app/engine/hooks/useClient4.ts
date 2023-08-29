@@ -1,4 +1,3 @@
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { clients } from '../clients';
 
 export function useClient4(testnet: boolean) {

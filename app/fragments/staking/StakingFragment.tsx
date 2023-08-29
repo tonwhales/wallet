@@ -25,7 +25,7 @@ import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
@@ -33,7 +33,8 @@ import { useStaking } from '../../engine/hooks/useStaking';
 import { useStakingChart } from '../../engine/hooks/useStakingChart';
 
 export const StakingFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
@@ -46,17 +47,17 @@ export const StakingFragment = fragment(() => {
     const stakingChart = useStakingChart(target);
 
     let type: StakingPoolType = useMemo(() => {
-        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
+        if (KnownPools(isTestnet)[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }
-        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
+        if (KnownPools(isTestnet)[params.pool].name.toLowerCase().includes('team')) {
             return 'team';
         }
         return 'nominators'
     }, [staking]);
 
     let available = useMemo(() => {
-        if (AppConfig.isTestnet) {
+        if (isTestnet) {
             return true;
         }
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
@@ -160,14 +161,14 @@ export const StakingFragment = fragment(() => {
 
     const openMoreInfo = useCallback(
         () => {
-            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
+            openWithInApp(isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
         },
         [],
     );
 
     const openGraph = useCallback(() => {
         if (!!stakingChart) {
-            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: AppConfig.isTestnet }) });
+            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: isTestnet }) });
         }
     }, [member]);
 
@@ -239,7 +240,7 @@ export const StakingFragment = fragment(() => {
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        value={target.toFriendly({ testOnly: isTestnet })}
                         address={target}
                         elipsise
                         style={{
@@ -272,7 +273,7 @@ export const StakingFragment = fragment(() => {
                         }}
                     />
                 )}
-                {!AppConfig.isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
+                {!isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}
@@ -285,7 +286,7 @@ export const StakingFragment = fragment(() => {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                        <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
@@ -312,11 +313,11 @@ export const StakingFragment = fragment(() => {
                                         }
                                         navigation.goBack();
                                     }}
-                                    tintColor={Theme.accent}
+                                    tintColor={theme.accent}
                                 />
                                 <Animated.Text
                                     style={[
-                                        { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                        { fontSize: 17, color: theme.textColor, fontWeight: '600' },
                                         { position: 'relative', ...titleOpacityStyle },
                                     ]}
                                 >
@@ -387,7 +388,7 @@ export const StakingFragment = fragment(() => {
                                 >
                                     <Text
                                         style={{
-                                            color: Theme.accent,
+                                            color: theme.accent,
                                             fontSize: 17, fontWeight: '600'
                                         }}
                                     >
@@ -401,7 +402,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -414,7 +415,7 @@ export const StakingFragment = fragment(() => {
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
+                        backgroundColor: theme.background,
                         paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -435,15 +436,15 @@ export const StakingFragment = fragment(() => {
                                         }
                                         navigation.goBack();
                                     }}
-                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
+                                    background={TouchableNativeFeedback.Ripple(theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                                 >
                                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
+                                        <Ionicons name="arrow-back-outline" size={28} color={theme.accent} />
                                     </View>
                                 </TouchableNativeFeedback>
                             </View>
                             <Animated.Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
                                 {t('products.staking.title')}
@@ -514,7 +515,7 @@ export const StakingFragment = fragment(() => {
                             }}>
                                 <Text
                                     style={{
-                                        color: Theme.accent,
+                                        color: theme.accent,
                                         fontSize: 17, fontWeight: '600'
                                     }}
                                 >
@@ -527,7 +528,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>

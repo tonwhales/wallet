@@ -2,11 +2,9 @@ import * as React from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { systemFragment } from '../systemFragment';
-import { useAppConfig } from '../utils/AppConfigContext';
 import { useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../storage/secureStorage';
-import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,10 +18,10 @@ import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
 import { useBiometricsState } from '../engine/hooks/useBiometricsState';
-import { setBiometricsState } from '../engine/effects/setBiometricsState';
+import { useTheme } from '../engine/hooks/useTheme';
 
 export const BiometricsSetupFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const authContext = useKeysAuth();
@@ -122,7 +120,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             justifyContent: 'center',
             alignContent: 'center'
         }}>

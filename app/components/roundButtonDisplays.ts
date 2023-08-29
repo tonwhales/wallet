@@ -1,4 +1,4 @@
-import { ThemeType } from "../utils/AppConfigContext";
+import { ThemeType } from '../engine/state/theme';
 
 export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
 

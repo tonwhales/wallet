@@ -25,7 +25,7 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerWallet } from '../../engine/hooks/useLedgerWallet';
 import { useConfig } from '../../engine/hooks/useConfig';
@@ -37,8 +37,9 @@ import { useContact } from '../../engine/hooks/useContact';
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();
-    const { Theme, AppConfig } = useAppConfig();
-    const client = useClient4(AppConfig.isTestnet);
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const address = useMemo(() => {
         if (addr) {
             try {
@@ -109,7 +110,7 @@ export const LedgerTransferFragment = fragment(() => {
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
                 payload: null
-            }, AppConfig.isTestnet);
+            }, isTestnet);
         }
 
         // Resolve order
@@ -256,13 +257,13 @@ export const LedgerTransferFragment = fragment(() => {
     }, [order, config, comment]);
 
     const onQRCodeRead = React.useCallback((src: string) => {
-        let res = resolveUrl(src, AppConfig.isTestnet);
+        let res = resolveUrl(src, isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
                 navigation.goBack();
 
                 const payloadOrder = createSimpleLedgerOrder({
-                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: res.address.toFriendly({ testOnly: isTestnet }),
                     text: res.comment,
                     payload: res.payload,
                     amount: res.amount ? res.amount : new BN(0),
@@ -275,7 +276,7 @@ export const LedgerTransferFragment = fragment(() => {
                     order: payloadOrder,
                 });
             } else {
-                setAddressDomainInput(res.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                setAddressDomainInput(res.address.toFriendly({ testOnly: isTestnet }));
                 if (res.amount) {
                     setAmount(fromNano(res.amount));
                 }
@@ -346,7 +347,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[target];
+    const isKnown: boolean = !!KnownWallets(isTestnet)[target];
     const contact = useCrontact(target);
 
     return (
@@ -425,17 +426,17 @@ export const LedgerTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? Theme.selector
+                                            ? theme.selector
                                             : 'white',
                                     },
                                     { borderRadius: 14 }
                                 ]}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                    <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_all_coins.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -445,17 +446,17 @@ export const LedgerTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? Theme.selector
+                                            ? theme.selector
                                             : 'white',
                                     },
                                     { borderRadius: 14 }
                                 ]}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                    <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
+                                    <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_scan_qr.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -486,7 +487,7 @@ export const LedgerTransferFragment = fragment(() => {
                             contact={contact}
                             showToMainAddress
                         />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 }} />
                         <ATextInput
                             value={comment}
                             index={2}

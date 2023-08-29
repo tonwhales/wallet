@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks/useTheme';
 
 export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<ViewStyle> }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     return (
         <View
             style={[{
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 overflow: 'hidden',
                 borderRadius: 14,
                 alignItems: 'stretch',

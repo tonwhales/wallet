@@ -7,10 +7,12 @@ import { StatusBar } from 'expo-status-bar';
 import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const WelcomeFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const onImportPressed = React.useCallback(() => {
@@ -32,7 +34,7 @@ export const WelcomeFragment = systemFragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
-            backgroundColor: Theme.item
+            backgroundColor: theme.item
         }}>
             <StatusBar style='dark' />
             <View style={{
@@ -44,7 +46,7 @@ export const WelcomeFragment = systemFragment(() => {
                     justifyContent: 'center', alignItems: 'center',
                 }}>
                     <Image source={
-                        AppConfig.isTestnet
+                        isTestnet
                             ? require('../../../assets/ic_diamond_test.png')
                             : require('../../../assets/ic_diamond.png')}
                     />
@@ -54,7 +56,7 @@ export const WelcomeFragment = systemFragment(() => {
                     marginTop: -42,
                     textAlign: 'center',
                 }}>
-                    {AppConfig.isTestnet ? t('welcome.titleDev') : t('welcome.title')}
+                    {isTestnet ? t('welcome.titleDev') : t('welcome.title')}
                 </Text>
                 <Text style={{
                     textAlign: 'center',
@@ -62,7 +64,7 @@ export const WelcomeFragment = systemFragment(() => {
                     marginTop: 14,
                     flexShrink: 1,
                 }}>
-                    {AppConfig.isTestnet ? t('welcome.subtitleDev') : t('welcome.subtitle')}
+                    {isTestnet ? t('welcome.subtitleDev') : t('welcome.subtitle')}
                 </Text>
             </View>
             <View style={{ height: 128, position: 'absolute', bottom: safeArea.bottom, left: 16, right: 16 }}>
@@ -82,7 +84,7 @@ export const WelcomeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: Theme.accentText
+                        color: theme.accentText
                     }}>
                         {t('welcome.importWallet')}
                     </Text>

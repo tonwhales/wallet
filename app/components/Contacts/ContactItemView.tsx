@@ -5,10 +5,10 @@ import { AddressContact } from "../../engine/products/SettingsProduct";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const address = useMemo(() => Address.parse(addr), [addr])
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -27,8 +27,8 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
     return (
         <TouchableHighlight
             onPress={onContact}
-            underlayColor={Theme.selector}
-            style={{ backgroundColor: Theme.item, borderRadius: 14, marginVertical: 4 }}
+            underlayColor={theme.selector}
+            style={{ backgroundColor: theme.item, borderRadius: 14, marginVertical: 4 }}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
@@ -45,7 +45,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
                             flexGrow: 1, flexBasis: 0, marginRight: 16,
                         }}>
                             <Text
-                                style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }}
+                                style={{ color: theme.textColor, fontSize: 16, fontWeight: '600' }}
                                 ellipsizeMode={'tail'}
                                 numberOfLines={1}
                             >
@@ -55,7 +55,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
                         <Text
-                            style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
+                            style={{ color: theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >

@@ -37,7 +37,7 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useContactAddress } from '../../../engine/hooks/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
@@ -70,8 +70,9 @@ type Props = {
 
 export const TransferSingle = React.memo((props: Props) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
-    const client = useClient4(AppConfig.isTestnet);
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const account = useAccount();
     const {
@@ -114,18 +115,18 @@ export const TransferSingle = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
         }
     }, []);
 
-    const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const friendlyTarget = target.address.toFriendly({ testOnly: isTestnet });
     // Contact wallets
     const contact = useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
+    if (KnownWallets(isTestnet)[friendlyTarget]) {
+        known = KnownWallets(isTestnet)[friendlyTarget];
     } else if (operation.title) {
         known = { name: operation.title };
     } else if (!!contact) { // Resolve contact known wallet
@@ -177,7 +178,7 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Check if trying to send to testnet
-        if (!AppConfig.isTestnet && target.isTestOnly) {
+        if (!isTestnet && target.isTestOnly) {
             let cont = await confirm('transfer.error.addressIsForTestnet');
             if (!cont) {
                 return;
@@ -263,7 +264,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
 
         // Register pending
         // engine.products.main.registerPending({
@@ -338,7 +339,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: Theme.labelSecondary
+                            color: theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -376,7 +377,7 @@ export const TransferSingle = React.memo((props: Props) => {
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: Theme.item,
+                            backgroundColor: theme.item,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -395,7 +396,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
                                             {`${fromNano(order.messages[0].amountAll ? account.balance : order.messages[0].amount)} TON`}
@@ -404,15 +405,15 @@ export const TransferSingle = React.memo((props: Props) => {
                                             prefix={'~'}
                                             amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                             style={{
-                                                backgroundColor: Theme.transparent,
+                                                backgroundColor: theme.transparent,
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
-                                            textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                            textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
                                         />
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
-                                                backgroundColor: Theme.background,
+                                                backgroundColor: theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
                                                 marginTop: 8,
@@ -438,7 +439,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <View style={{
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -474,7 +475,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         left: 17,
                                         width: 2,
                                         borderRadius: 2,
-                                        backgroundColor: Theme.divider
+                                        backgroundColor: theme.divider
                                     }} />
                                     <View style={{
                                         marginLeft: 40 + 6,
@@ -484,14 +485,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2
                                         }}>
                                             {`${jettonAmount} ${jettonMaster.symbol}`}
                                         </Text>
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
-                                                backgroundColor: Theme.background,
+                                                backgroundColor: theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
                                                 marginTop: 8
@@ -504,7 +505,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <View style={{
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -526,25 +527,25 @@ export const TransferSingle = React.memo((props: Props) => {
                                         marginTop: 20, marginBottom: 30,
                                         justifyContent: 'center'
                                     }}>
-                                        {!AppConfig.isTestnet && (
+                                        {!isTestnet && (
                                             <PriceComponent
                                                 prefix={`${t('transfer.gasFee')} ${fromNano(order.messages[0].amount)} TON (`}
                                                 suffix={')'}
                                                 amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
                                                 style={{
-                                                    backgroundColor: Theme.transparent,
+                                                    backgroundColor: theme.transparent,
                                                     paddingHorizontal: 0,
                                                     marginLeft: 2
                                                 }}
                                                 textStyle={{
-                                                    color: Theme.labelSecondary,
+                                                    color: theme.labelSecondary,
                                                     fontWeight: '400', fontSize: 14
                                                 }}
                                             />
                                         )}
-                                        {AppConfig.isTestnet && (
+                                        {isTestnet && (
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -552,7 +553,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         )}
                                         <View style={{
-                                            backgroundColor: Theme.item,
+                                            backgroundColor: theme.item,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
                                             shadowOffset: {
                                                 height: 1,
@@ -581,7 +582,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
                                             {`${contact?.name ?? known?.name}`}
@@ -597,7 +598,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 14,
-                                        color: Theme.labelSecondary,
+                                        color: theme.labelSecondary,
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
@@ -612,7 +613,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -623,7 +624,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -636,7 +637,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 position: 'absolute',
                                                 left: -48, top: 0, bottom: 0,
-                                                backgroundColor: Theme.contactIcon,
+                                                backgroundColor: theme.contactIcon,
                                                 height: 40, width: 40,
                                                 borderRadius: 40,
                                                 justifyContent: 'center',
@@ -648,7 +649,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: Theme.contactBorder,
+                                                borderColor: theme.contactBorder,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 4
                                             }}>
@@ -684,7 +685,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '700',
                                         fontSize: 20,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         marginLeft: 2
                                     }}>
                                         <AddressComponent address={operation.address} />
@@ -711,7 +712,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -722,7 +723,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -743,7 +744,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     left: 17,
                                     width: 2,
                                     borderRadius: 2,
-                                    backgroundColor: Theme.divider
+                                    backgroundColor: theme.divider
                                 }} />
                                 <View style={{
                                     marginLeft: 40 + 6,
@@ -752,14 +753,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!!operation.op && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: theme.item,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -780,14 +781,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!operation.comment && !operation.op && !!text && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: theme.item,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -815,7 +816,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 17,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                             }}>
                                                 {operation.op}
                                             </Text>
@@ -827,7 +828,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 flexShrink: 1,
                                                 fontWeight: '500',
                                                 fontSize: 14,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 opacity: 0.4
                                             }}>
                                                 {text}
@@ -836,7 +837,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     )}
                                     {order?.app?.domain !== extractDomain(holdersUrl) && (
                                         <View style={{
-                                            backgroundColor: Theme.operationIcon,
+                                            backgroundColor: theme.operationIcon,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -877,7 +878,7 @@ export const TransferSingle = React.memo((props: Props) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                text={operation.address.toFriendly({ testOnly: isTestnet })}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}

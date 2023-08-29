@@ -9,11 +9,11 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const HardwareWalletFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -55,7 +55,7 @@ export const HardwareWalletFragment = fragment(() => {
                     }}
                 />
                 <Text style={{
-                    color: Theme.textColor,
+                    color: theme.textColor,
                     fontWeight: '600',
                     fontSize: 18,
                     marginBottom: 16,
@@ -67,7 +67,7 @@ export const HardwareWalletFragment = fragment(() => {
                 </Text>
                 <View style={{ paddingHorizontal: 36, alignItems: 'center' }}>
                     <Text style={{
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '400',
                         fontSize: 16,
                         textAlign: 'center'
@@ -85,7 +85,7 @@ export const HardwareWalletFragment = fragment(() => {
                         onPress={() => openWithInApp('https://tonwhales.com/ledger')}
                     >
                         <Text style={{
-                            color: Theme.accent,
+                            color: theme.accent,
                             fontWeight: '600',
                             fontSize: 16,
                         }}>

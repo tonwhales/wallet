@@ -4,7 +4,7 @@ import { Address } from "ton";
 import { Engine } from "../../../engine/Engine";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionView } from "./LedgerTransactionView";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 
 export const LedgerTransactionsSection = React.memo(({
     section,
@@ -17,14 +17,14 @@ export const LedgerTransactionsSection = React.memo(({
     address: Address,
     engine: Engine,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const openTransactionFragment = React.useCallback((transaction: string) => {
         navigation.navigate('LedgerTransactionPreview', {transaction });
     }, [navigation]);
     return (
         <View>
             <View
-                style={{ marginTop: 8, backgroundColor: Theme.background }}
+                style={{ marginTop: 8, backgroundColor: theme.background }}
                 collapsable={false}
             >
                 <Text

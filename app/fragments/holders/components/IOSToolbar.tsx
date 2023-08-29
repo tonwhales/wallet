@@ -3,10 +3,10 @@ import { Platform, View, Text, Pressable } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { t } from "../../../i18n/t";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks/useTheme';
 
 export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTitle?: string, canGoBack: boolean, onBack: () => void }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     if (Platform.OS !== 'ios') {
         return null;
@@ -32,7 +32,7 @@ export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTi
                         label={t('common.back')}
                         labelVisible
                         onPress={onBack}
-                        tintColor={Theme.accent}
+                        tintColor={theme.accent}
                     />
                 </Animated.View>
             )}

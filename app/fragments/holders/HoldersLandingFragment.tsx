@@ -15,16 +15,16 @@ import { HoldersAppParams } from './HoldersAppFragment';
 import { extractHoldersQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
+import { useTheme } from '../../engine/hooks/useTheme';
 
 export const HoldersLandingFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -49,7 +49,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -65,7 +65,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -183,14 +183,14 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.item
+            backgroundColor: theme.item
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         flexGrow: 1,
                     }}
                 >
@@ -203,7 +203,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -251,7 +251,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                                 startInLoadingState={true}
                                 style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,

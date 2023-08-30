@@ -142,11 +142,29 @@ export const PasscodeInput = React.memo((
                 {!!title && (
                     <Text style={{
                         fontWeight: '600',
-                        fontSize: 17, marginBottom: 8,
+                        fontSize: 32, marginBottom: 12,
                         textAlign: 'center',
                     }}>
                         {title}
                     </Text>
+                )}
+                {description && (
+                    <Animated.View
+                        style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            paddingHorizontal: 16,
+                            marginBottom: 16
+                        }}
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                    >
+                        <Text style={{
+                            fontSize: 15, lineHeight: 20,
+                            color: Theme.textSecondary, textAlign: 'center'
+                        }}>
+                            {description}
+                        </Text>
+                    </Animated.View>
                 )}
                 <Animated.View style={[shakeStyle, { alignItems: 'center', width: '100%' }]}>
                     <PasscodeSteps
@@ -156,30 +174,11 @@ export const PasscodeInput = React.memo((
                         }}
                         passcodeLength={passcodeLength}
                     />
-                    {description && !isWrong && (
-                        <Animated.View
-                            style={{
-                                position: 'absolute',
-                                top: 54, left: 0, right: 0,
-                                justifyContent: 'center', alignItems: 'center',
-                                paddingHorizontal: 16,
-                            }}
-                            entering={FadeIn}
-                            exiting={FadeOut}
-                        >
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20,
-                                color: Theme.textSecondary, textAlign: 'center'
-                            }}>
-                                {description}
-                            </Text>
-                        </Animated.View>
-                    )}
                     {!!onPasscodeLengthChange && (
                         <Animated.View
                             style={{
                                 position: 'absolute',
-                                top: description && !isWrong ? 54 + 40 : 54, left: 0, right: 0,
+                                top: 54, left: 0, right: 0,
                                 justifyContent: 'center', alignItems: 'center',
                                 paddingHorizontal: 16,
                             }}

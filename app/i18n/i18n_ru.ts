@@ -561,6 +561,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         onBiometricsError: 'Ошибка подтверждения биометрии',
         lockAppWithAuth: 'Блокировать приложение {{method}}',
         methodPasscode: 'паролем',
+        passcodeSetupDescription: 'Пароль помогает защитить ваш кошелек от несанкционированного доступа',
     },
     backup: {
         title: 'Фраза восстановления',

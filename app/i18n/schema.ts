@@ -561,7 +561,8 @@ export type LocalizationSchema = {
         onLaterButton: string,
         onBiometricsError: string,
         lockAppWithAuth: string,
-        methodPasscode: string
+        methodPasscode: string,
+        passcodeSetupDescription: string
     },
     backup: {
         title: string,

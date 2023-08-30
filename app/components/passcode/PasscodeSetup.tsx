@@ -236,6 +236,7 @@ export const PasscodeSetup = memo((
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown} entering={SlideInRight}>
                     <PasscodeInput
                         title={t('security.passcodeSettings.confirmNew')}
+                        description={description}
                         onEntered={(pass) => {
                             if (pass !== state.input) {
                                 throw new Error('Passcode does not match');

@@ -67,7 +67,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
             {!init && (<AndroidToolbar />)}
             <StatusBar style={(Platform.OS === 'ios' && !init) ? 'light' : 'dark'} />
             <PasscodeSetup
-                description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
+                description={t('secure.passcodeSetupDescription')}
                 onReady={onPasscodeConfirmed}
                 initial={init}
                 onLater={

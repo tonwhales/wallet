@@ -560,6 +560,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onBiometricsError: 'Error authenticating with biometrics',
         lockAppWithAuth: 'Lock app with {{method}}',
         methodPasscode: 'passcode',
+        passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },
     backup: {
         title: 'Your recovery phrase',

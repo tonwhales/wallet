@@ -300,6 +300,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                 navigation.goBack();
                             }
                         }}
+                        description={t('secure.passcodeSetupDescription')}
                     />
                 </Animated.View>
             )}

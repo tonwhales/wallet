@@ -10,6 +10,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
+import { useDimensions } from "@react-native-community/hooks";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -20,6 +21,7 @@ export const ContactsFragment = fragment(() => {
     const contacts = settings.useContacts();
     const account = engine.products.main.useAccount();
     const transactions = (account?.transactions.slice(0, Math.min(account.transactions.length - 1, 10))) ?? [];
+    const dimentions = useDimensions();
 
     const [searchFocused, setSearchFocused] = useState(false);
     const [search, setSearch] = useState('');
@@ -88,6 +90,7 @@ export const ContactsFragment = fragment(() => {
         }
     );
 
+
     return (
         <View style={{
             flex: 1,
@@ -100,7 +103,15 @@ export const ContactsFragment = fragment(() => {
                     showsVerticalScrollIndicator={true}
                     contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
-                    <Image style={{ flexShrink: 1 }} source={require('../../assets/banner_contacts.webp')} />
+                    <Image
+                        resizeMode={'contain'}
+                        style={{
+                            width: dimentions.screen.width - 32,
+                            height: undefined,
+                            aspectRatio: 1,
+                        }}
+                        source={require('../../assets/banner_contacts.webp')}
+                    />
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{
                             fontSize: 32, lineHeight: 38,

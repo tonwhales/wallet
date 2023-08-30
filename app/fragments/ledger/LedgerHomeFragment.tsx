@@ -5,10 +5,10 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useEngine } from "../../engine/Engine";
 import { useCallback, useEffect, useMemo } from "react";
-import { Address, CellMessage } from "ton";
+import { Address, CellMessage, toNano } from "ton";
 import { useBottomSheet } from "../../components/modal/BottomSheetModal";
 import { t } from "../../i18n/t";
-import Animated, { useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
+import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { warn } from "../../utils/log";
 import { Pressable, View, Image, Text, TouchableHighlight, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
@@ -21,6 +21,7 @@ import { resolveUrl } from "../../utils/resolveUrl";
 
 import ChevronDown from '../../../assets/ic-chevron-down.svg';
 import Scanner from '../../../assets/ic-scanner.svg';
+import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
 
 export const LedgerHomeFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -40,8 +41,8 @@ export const LedgerHomeFragment = fragment(() => {
             return null;
         }
     }, [ledgerContext?.addr?.address]);
-    const modal = useBottomSheet();
     const account = engine.products.ledger.useAccount();
+    const modal = useBottomSheet();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
@@ -92,11 +93,6 @@ export const LedgerHomeFragment = fragment(() => {
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    // const openGraph = useCallback(() => {
-    //     if (balanceChart && balanceChart.chart.length > 0) {
-    //         navigation.navigate('AccountBalanceGraph');
-    //     }
-    // }, []);
     const navigateTransfer = useCallback(() => {
         navigation.navigate('LedgerTransfer', {
             amount: null,
@@ -122,11 +118,6 @@ export const LedgerHomeFragment = fragment(() => {
         );
     }, []);
 
-    // Wallet Account modal
-    const onAccountPress = useCallback(() => {
-        navigation.navigate('AccountSelector');
-    }, [modal]);
-
     // ScrollView background color animation
     const scrollBackgroundColor = useSharedValue(1);
     // Views border radius animation on scroll
@@ -147,13 +138,16 @@ export const LedgerHomeFragment = fragment(() => {
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
-        return { backgroundColor: scrollBackgroundColor.value === 0 ? '#131928' : 'white', };
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
     });
 
-    const viewCardStyle = useAnimatedStyle(() => {
+    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
+    const animatedStyle = useAnimatedStyle(() => {
         return {
-            borderBottomEndRadius: scrollBorderRadius.value,
-            borderBottomStartRadius: scrollBorderRadius.value,
+            transform: [
+                { translateX: withTiming(animSensor.sensor.value.y * 80) },
+                { translateY: withTiming(animSensor.sensor.value.x * 80) },
+            ]
         }
     });
 
@@ -166,7 +160,7 @@ export const LedgerHomeFragment = fragment(() => {
         } catch {
             warn('Failed to parse Ledger address');
         }
-    }, [address])
+    }, [address]);
 
     useEffect(() => {
         ledgerContext?.setFocused(true);
@@ -179,169 +173,149 @@ export const LedgerHomeFragment = fragment(() => {
         !ledgerContext?.tonTransport
         || !ledgerContext.addr
     ) {
-        navigation.navigateAndReplaceAll('Home')
+        navigation.navigateAndReplaceAll('Home');
         return null;
     }
 
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: Theme.item }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
             <StatusBar style={'light'} />
-            <View
-                style={{
-                    backgroundColor: '#131928',
-                    paddingTop: safeArea.top,
-                    paddingHorizontal: 16
-                }}
-                collapsable={false}
-            >
-                <View style={{
-                    height: 44,
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                }}>
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
-                        onPress={onAccountPress}
-                    >
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <View style={{
-                                width: 24, height: 24,
-                                backgroundColor: Theme.accent,
-                                borderRadius: 12
-                            }}>
-                                <Image
-                                    style={{
-                                        width: 24,
-                                        height: 24,
-                                    }}
-                                    source={require('../../../assets/ledger_device.png')}
-                                />
-                            </View>
-                            <Text
-                                style={{
-                                    marginLeft: 12, fontWeight: '500',
-                                    fontSize: 17,
-                                    color: Theme.greyForIcon, maxWidth: '70%'
-                                }}
-                                ellipsizeMode='tail'
-                                numberOfLines={1}
-                            >
-                                {t('hardwareWallet.ledger')}
-                            </Text>
-                            <ChevronDown
-                                style={{
-                                    height: 16,
-                                    width: 16,
-                                    marginLeft: 8,
-                                }}
-                                height={16}
-                                width={16}
-                                color={Theme.greyForIcon}
-                            />
-                        </View>
-                    </Pressable>
-                    <View style={{ flexDirection: 'row' }}>
-                        <Pressable
-                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={openScanner}
-                        >
-                            <Scanner
-                                style={{
-                                    height: 24,
-                                    width: 24,
-                                    marginLeft: 14
-                                }}
-                                height={24}
-                                width={24}
-                                color={Theme.greyForIcon}
-                            />
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
+            <LedgerWalletHeader />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
-                contentContainerStyle={{ paddingBottom: 16, backgroundColor: 'white' }}
+                contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}
                 scrollEventThrottle={16}
-                decelerationRate={'fast'}
-                alwaysBounceVertical={false}
+                decelerationRate={'normal'}
+                alwaysBounceVertical={true}
             >
-                <Animated.View
-                    style={[{
-                        backgroundColor: '#131928',
-                        paddingHorizontal: 16,
-                        paddingVertical: 20,
-                    }, viewCardStyle]}
+                <View
+                    style={[
+                        {
+                            backgroundColor: Theme.walletBackground,
+                            paddingHorizontal: 16,
+                            paddingVertical: 20,
+                        },
+                    ]}
                     collapsable={false}
                 >
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                        borderRadius: 20,
+                        paddingVertical: 16, paddingHorizontal: 20,
+                        overflow: 'hidden'
+                    }}>
                         <Text style={{
-                            fontSize: 32,
-                            color: 'white',
-                            marginRight: 8,
-                            fontWeight: '500',
-                            lineHeight: 38,
+                            color: Theme.white, opacity: 0.7,
+                            fontSize: 15, lineHeight: 20,
+                            fontWeight: '400',
+                            marginBottom: 14
                         }}>
-                            <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
+                            {t('common.balance')}
+                        </Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{
-                                fontSize: 17,
-                                lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                                color: Theme.darkGrey,
+                                fontSize: 27,
+                                color: Theme.white,
                                 marginRight: 8,
                                 fontWeight: '500',
-                            }}>{' TON'}</Text>
-                        </Text>
+                                lineHeight: 32,
+                            }}>
+                                <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
+                                <Text style={{
+                                    fontSize: 17,
+                                    lineHeight: Platform.OS === 'ios' ? 24 : undefined,
+                                    color: Theme.white,
+                                    marginRight: 8,
+                                    fontWeight: '500',
+                                }}>{' TON'}</Text>
+                            </Text>
+                        </View>
+                        <Animated.View
+                            style={[{
+                                position: 'absolute', top: 0, left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 400, width: 400,
+                                borderRadius: 400,
+                                overflow: 'hidden'
+                            },
+                                animatedStyle
+                            ]}
+                            pointerEvents={'none'}
+                        >
+                            <Image
+                                source={require('../../../assets/shine-blur.webp')}
+                                style={{ height: 400, width: 400 }}
+                            />
+                        </Animated.View>
+                        <View style={{
+                            flexDirection: 'row', alignItems: 'center',
+                            marginTop: 10
+                        }}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent
+                                    amount={account?.balance ?? new BN(0)}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                />
+                                <PriceComponent
+                                    showSign
+                                    amount={toNano(1)}
+                                    style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                                />
+                            </Pressable>
+                        </View>
+                        <View style={{ flexGrow: 1 }} />
+                        {address && (
+                            <WalletAddress
+                                value={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                address={address}
+                                elipsise
+                                style={{
+                                    marginTop: 20,
+                                    alignSelf: 'flex-start',
+                                }}
+                                textStyle={{
+                                    fontSize: 15,
+                                    lineHeight: 20,
+                                    textAlign: 'left',
+                                    color: Theme.darkGrey,
+                                    fontWeight: '400',
+                                    fontFamily: undefined
+                                }}
+                                limitActions
+                            />
+                        )}
                     </View>
-                    <View style={{
-                        flexDirection: 'row', alignItems: 'center',
-                        marginTop: 8
-                    }}>
-                        <Pressable onPress={navigateToCurrencySettings}>
-                            <PriceComponent amount={account?.balance ?? new BN(0)} />
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    <WalletAddress
-                        value={ledgerContext.addr.address}
-                        address={Address.parse(ledgerContext.addr.address)}
-                        elipsise
-                        style={{
-                            marginTop: 12,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            fontSize: 13,
-                            lineHeight: 18,
-                            textAlign: 'left',
-                            color: Theme.darkGrey,
-                            fontWeight: '400',
-                            fontFamily: undefined
-                        }}
-                        limitActions
-                    />
                     <View
                         style={{
                             flexDirection: 'row',
-                            marginHorizontal: 16,
-                            backgroundColor: '#1F283E',
+                            backgroundColor: 'rgba(255, 255, 255, 0.08)',
                             borderRadius: 20,
-                            marginTop: 24
+                            marginTop: 16,
+                            overflow: 'hidden'
                         }}
                         collapsable={false}
                     >
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
-                            <TouchableHighlight
+                        <View style={{
+                            flexGrow: 1, flexBasis: 0,
+                            marginRight: 7,
+                            borderRadius: 14,
+                            padding: 10
+                        }}>
+                            <Pressable
                                 onPress={navigateReceive}
-                                underlayColor={Theme.selector}
-                                style={{ borderRadius: 14 }}
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    }
+                                }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                     <View style={{
@@ -352,15 +326,32 @@ export const LedgerHomeFragment = fragment(() => {
                                     }}>
                                         <Image source={require('../../../assets/ic_receive.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: Theme.item,
+                                            marginTop: 6
+                                        }}>
+                                        {t('wallet.actions.receive')}
+                                    </Text>
                                 </View>
-                            </TouchableHighlight>
+                            </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
-                            <TouchableHighlight
+                        <View style={{
+                            flexGrow: 1, flexBasis: 0,
+                            marginRight: 7,
+                            borderRadius: 14,
+                            padding: 10
+                        }}>
+                            <Pressable
                                 onPress={navigateTransfer}
-                                underlayColor={Theme.selector}
-                                style={{ borderRadius: 14 }}
+                                style={({ pressed }) => {
+                                    return {
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    }
+                                }}
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                     <View style={{
@@ -373,11 +364,28 @@ export const LedgerHomeFragment = fragment(() => {
                                     </View>
                                     <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                 </View>
-                            </TouchableHighlight>
+                            </Pressable>
                         </View>
+                        <Animated.View
+                            style={[{
+                                position: 'absolute', top: '-175%', left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 400, width: 400, borderRadius: 200,
+                                overflow: 'hidden'
+                            },
+                                animatedStyle
+                            ]}
+                            pointerEvents={'none'}
+                        >
+                            <Image
+                                source={require('../../../assets/shine-blur.webp')}
+                                style={{ height: 400, width: 400 }}
+                            />
+                        </Animated.View>
                     </View>
-                </Animated.View>
+                </View>
                 <LedgerProductsComponent />
+                <View style={{ height: 100, width: '100%', backgroundColor: Theme.white }} />
             </Animated.ScrollView>
         </View>
     );

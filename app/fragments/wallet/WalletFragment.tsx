@@ -16,7 +16,7 @@ import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
-import { WalletHeaderFragment } from './views/WalletHeaderFragment';
+import { WalletHeader } from './views/WalletHeader';
 import { toNano } from 'ton';
 import BN from 'bn.js';
 import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
@@ -80,7 +80,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
-            <WalletHeaderFragment />
+            <WalletHeader />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
                 contentContainerStyle={{ paddingBottom: 16 }}

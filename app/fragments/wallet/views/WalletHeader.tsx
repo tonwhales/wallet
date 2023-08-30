@@ -12,13 +12,13 @@ import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { CopilotStep } from "react-native-copilot";
+import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 
 import Chart from '../../../../assets/ic-chart.svg';
 import Scanner from '../../../../assets/ic-scan-white.svg';
 import NoConnection from '../../../../assets/ic-no-connection.svg';
-import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 
-export const WalletHeaderFragment = memo(() => {
+export const WalletHeader = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const account = engine.products.main.useAccount();

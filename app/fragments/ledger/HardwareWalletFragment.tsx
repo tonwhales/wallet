@@ -10,12 +10,14 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
+import { useDimensions } from "@react-native-community/hooks";
 
 export const HardwareWalletFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const dimentions = useDimensions();
 
     const [searching, setSearching] = useState(false);
     const [bleLocked, setBleLocked] = useState(false);
@@ -61,13 +63,39 @@ export const HardwareWalletFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
             />
             {Platform.OS === 'ios' && (
-                <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
-                    <Image source={require('../../../assets/ledger_ios.webp')} />
+                <View style={{
+                    paddingHorizontal: 16,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginTop: 41, marginBottom: 33,
+                }}>
+                    <Image
+                        style={{
+                            width: dimentions.screen.width - 32,
+                            height: undefined,
+                            aspectRatio: 1,
+                            borderRadius: 20,
+                        }}
+                        source={require('../../../assets/ledger_ios.webp')}
+                        resizeMode={'contain'}
+                    />
                 </View>
             )}
             {Platform.OS === 'android' && (
-                <View style={{ paddingHorizontal: 16, justifyContent: 'center', alignItems: 'center', marginTop: 41, marginBottom: 33 }}>
-                    <Image source={require('../../../assets/and_ledger.webp')} />
+                <View style={{
+                    paddingHorizontal: 16,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginTop: 41, marginBottom: 33
+                }}>
+                    <Image
+                        style={{
+                            width: dimentions.screen.width - 32,
+                            height: undefined,
+                            aspectRatio: 1,
+                            borderRadius: 20,
+                        }}
+                        source={require('../../../assets/and_ledger.webp')}
+                        resizeMode={'contain'}
+                    />
                 </View>
             )}
             <View style={{

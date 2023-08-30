@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react"
+import React, { memo, useMemo, useState } from "react"
 import { View, Pressable, Text } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
@@ -14,7 +14,7 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('../../../assets/whales.png'),
 }
 
-export const HoldersHiddenCards = React.memo(() => {
+export const HoldersHiddenCards = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const accounts = engine.products.holders.useCards();
@@ -36,7 +36,7 @@ export const HoldersHiddenCards = React.memo(() => {
     }
 
     return (
-        <>
+        <View>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',
@@ -81,7 +81,7 @@ export const HoldersHiddenCards = React.memo(() => {
                             key={`card-${index}`}
                             account={item}
                             first={index === 0}
-                            
+
                             last={index === hiddenList.length - 1}
                             rightAction={() => engine.products.holders.showCard(item.id)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
@@ -90,6 +90,6 @@ export const HoldersHiddenCards = React.memo(() => {
                     )
                 }}
             />
-        </>
+        </View>
     );
 })

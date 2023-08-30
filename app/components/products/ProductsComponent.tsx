@@ -1,6 +1,6 @@
 import BN from "bn.js"
-import React, { useLayoutEffect } from "react"
-import { LayoutAnimation, Pressable, Text, View } from "react-native"
+import React, { ReactElement, memo } from "react"
+import { Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../assets/ic_transaction.svg';
@@ -18,7 +18,7 @@ import { t } from "../../i18n/t";
 import { JettonsProductComponent } from "./JettonsProductComponent";
 import { HoldersHiddenCards } from "./HoldersHiddenCards";
 
-export const ProductsComponent = React.memo(() => {
+export const ProductsComponent = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -29,7 +29,7 @@ export const ProductsComponent = React.memo(() => {
     const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
 
     // Resolve accounts
-    let accounts: React.ReactElement[] = [];
+    let accounts: ReactElement[] = [];
     if (oldWalletsBalance.gt(new BN(0))) {
         accounts.push(
             <AnimatedProductButton
@@ -47,7 +47,7 @@ export const ProductsComponent = React.memo(() => {
     }
 
     // Resolve tonconnect requests
-    let tonconnect: React.ReactElement[] = [];
+    let tonconnect: ReactElement[] = [];
     for (let r of tonconnectRequests) {
         const prepared = prepareTonConnectRequest(r, engine);
         if (r.method === 'sendTransaction' && prepared) {
@@ -78,10 +78,6 @@ export const ProductsComponent = React.memo(() => {
             );
         }
     }
-
-    useLayoutEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [oldWalletsBalance, currentJob, tonconnectRequests]);
 
     return (
         <View style={{ backgroundColor: Theme.walletBackground }}>
@@ -194,7 +190,7 @@ export const ProductsComponent = React.memo(() => {
                     <JettonsProductComponent key={'jettons'} />
                 </View>
 
-                <HoldersHiddenCards />
+                <HoldersHiddenCards key={'holders-hidden'}/>
             </View>
         </View>
     )

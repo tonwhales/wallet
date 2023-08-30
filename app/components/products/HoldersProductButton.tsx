@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react"
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { useEngine } from "../../engine/Engine";
 import { ProductBanner } from "./ProductBanner";
 import { t } from "../../i18n/t";
@@ -22,7 +22,7 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('../../../assets/whales.png'),
 }
 
-export const HoldersProductButton = React.memo(() => {
+export const HoldersProductButton = memo(() => {
     const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -230,7 +230,7 @@ export const HoldersProductButton = React.memo(() => {
     }
 
     return (
-        <>
+        <View>
             {visibleList.map((item, index) => {
                 return (
                     <HoldersCardItem
@@ -244,6 +244,6 @@ export const HoldersProductButton = React.memo(() => {
                     />
                 )
             })}
-        </>
+        </View>
     );
 })

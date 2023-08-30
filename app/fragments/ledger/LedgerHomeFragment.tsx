@@ -6,11 +6,10 @@ import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useEngine } from "../../engine/Engine";
 import { useCallback, useEffect, useMemo } from "react";
 import { Address, CellMessage, toNano } from "ton";
-import { useBottomSheet } from "../../components/modal/BottomSheetModal";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { warn } from "../../utils/log";
-import { Pressable, View, Image, Text, TouchableHighlight, Platform } from "react-native";
+import { Pressable, View, Image, Text, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -18,9 +17,6 @@ import BN from "bn.js";
 import { WalletAddress } from "../../components/WalletAddress";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
 import { resolveUrl } from "../../utils/resolveUrl";
-
-import ChevronDown from '../../../assets/ic-chevron-down.svg';
-import Scanner from '../../../assets/ic-scanner.svg';
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
 
 export const LedgerHomeFragment = fragment(() => {
@@ -42,7 +38,6 @@ export const LedgerHomeFragment = fragment(() => {
         }
     }, [ledgerContext?.addr?.address]);
     const account = engine.products.ledger.useAccount();
-    const modal = useBottomSheet();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {

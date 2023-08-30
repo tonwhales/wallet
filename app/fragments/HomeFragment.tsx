@@ -18,7 +18,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
 import DeviceInfo from 'react-native-device-info';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
 
@@ -29,12 +29,14 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const engine = useEngine();
+    const tonXRequest = engine.products.apps.useState();
+    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
 
     const [curve, setCurve] = useState<number | undefined>(undefined);
 
     // Subscribe for links
-    React.useEffect(() => {
+    useEffect(() => {
         return CachedLinking.setListener((link: string) => {
             if (link === '/job') {
                 let canceller = loader.show();
@@ -143,6 +145,18 @@ export const HomeFragment = fragment(() => {
 
                             if (route.name === 'Transactions') {
                                 source = require('../../assets/ic-history.png');
+
+                                if (!!tonXRequest || tonconnectRequests.length > 0) {
+                                    source = focused
+                                        ? require('../../assets/ic-history-active-badge.png')
+                                        : require('../../assets/ic-history-badge.png');
+                                    return (
+                                        <Image
+                                            source={source}
+                                            style={{ height: 24, width: 24 }}
+                                        />
+                                    )
+                                }
                             }
 
                             if (route.name === 'Browser') {

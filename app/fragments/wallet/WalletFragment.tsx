@@ -29,7 +29,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     const navigation = useTypedNavigation();
     const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
-    const { start, copilotEvents, stop, visible } = useCopilot();
+    const { start, visible } = useCopilot();
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);

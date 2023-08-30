@@ -1,7 +1,5 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
-import { dAppRequest } from "../../../engine/products/AppProduct";
-import { SendTransactionRequest } from "../../../engine/tonconnect/types";
 import Animated, { Layout } from "react-native-reanimated";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { t } from "../../../i18n/t";

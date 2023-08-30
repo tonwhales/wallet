@@ -264,11 +264,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             subtitle: 'Нажмите, чтобы перенести кошельки'
         },
         transactionRequest: {
-            title: 'Запрос транзакции',
+            title: 'Запрос на транзакцию',
             subtitle: 'Нажмите что бы посмотреть запрос'
         },
         signatureRequest: {
-            title: 'Запрос подписи',
+            title: 'Запрос на подпись',
             subtitle: 'Нажмите что бы посмотреть запрос'
         },
         staking: {

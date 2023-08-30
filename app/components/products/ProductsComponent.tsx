@@ -2,15 +2,10 @@ import BN from "bn.js"
 import React, { ReactElement, memo } from "react"
 import { Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../assets/ic_transaction.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useEngine } from "../../engine/Engine";
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../engine/tonconnect/utils";
-import { extractDomain } from "../../engine/utils/extractDomain";
-import { getConnectionReferences } from "../../storage/appState";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingProductComponent } from "./StakingProductComponent";
@@ -19,12 +14,10 @@ import { JettonsProductComponent } from "./JettonsProductComponent";
 import { HoldersHiddenCards } from "./HoldersHiddenCards";
 
 export const ProductsComponent = memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
-    const currentJob = engine.products.apps.useState();
-    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
     const cards = engine.products.holders.useCards();
     const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
 
@@ -46,39 +39,6 @@ export const ProductsComponent = memo(() => {
         );
     }
 
-    // Resolve tonconnect requests
-    let tonconnect: ReactElement[] = [];
-    for (let r of tonconnectRequests) {
-        const prepared = prepareTonConnectRequest(r, engine);
-        if (r.method === 'sendTransaction' && prepared) {
-            tonconnect.push(
-                <AnimatedProductButton
-                    key={r.from}
-                    entering={FadeInUp}
-                    exiting={FadeOutDown}
-                    name={t('products.transactionRequest.title')}
-                    subtitle={t('products.transactionRequest.subtitle')}
-                    icon={TransactionIcon}
-                    value={null}
-                    onPress={() => {
-                        navigation.navigateTransfer({
-                            text: null,
-                            order: {
-                                messages: prepared.messages,
-                                app: (prepared.app && prepared.app.connectedApp) ? {
-                                    title: prepared.app.connectedApp.name,
-                                    domain: extractDomain(prepared.app.connectedApp.url),
-                                } : undefined
-                            },
-                            job: null,
-                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
-                        })
-                    }}
-                />
-            );
-        }
-    }
-
     return (
         <View style={{ backgroundColor: Theme.walletBackground }}>
             <View style={{
@@ -87,62 +47,6 @@ export const ProductsComponent = memo(() => {
                 backgroundColor: Theme.white,
                 minHeight: 400
             }}>
-                {tonconnect}
-                {currentJob && currentJob.job.type === 'transaction' && (
-                    <AnimatedProductButton
-                        entering={FadeInUp}
-                        exiting={FadeOutDown}
-                        name={t('products.transactionRequest.title')}
-                        subtitle={t('products.transactionRequest.subtitle')}
-                        icon={TransactionIcon}
-                        value={null}
-                        onPress={() => {
-                            if (currentJob.job.type === 'transaction') {
-                                navigation.navigateTransfer({
-                                    order: {
-                                        messages: [{
-                                            target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                            amount: currentJob.job.amount,
-                                            payload: currentJob.job.payload,
-                                            stateInit: currentJob.job.stateInit,
-                                            amountAll: false
-                                        }]
-                                    },
-                                    job: currentJob.jobRaw,
-                                    text: currentJob.job.text,
-                                    callback: null
-                                });
-                            }
-                        }}
-                    />
-                )}
-                {currentJob && currentJob.job.type === 'sign' && (
-                    <AnimatedProductButton
-                        entering={FadeInUp}
-                        exiting={FadeOutDown}
-                        name={t('products.signatureRequest.title')}
-                        subtitle={t('products.signatureRequest.subtitle')}
-                        icon={SignIcon}
-                        value={null}
-                        onPress={() => {
-                            if (currentJob.job.type === 'sign') {
-                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(currentJob.key));
-                                if (!connection) {
-                                    return; // Just in case
-                                }
-                                navigation.navigateSign({
-                                    text: currentJob.job.text,
-                                    textCell: currentJob.job.textCell,
-                                    payloadCell: currentJob.job.payloadCell,
-                                    job: currentJob.jobRaw,
-                                    callback: null,
-                                    name: connection.name
-                                });
-                            }
-                        }}
-                    />
-                )}
-
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',

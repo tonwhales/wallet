@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, ViewStyle, StyleProp, Insets, PointProp } from "react-native";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -20,8 +20,9 @@ import { useTrackScreen } from "../../analytics/mixpanel";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../PressableChip";
 import { StatusBar } from "expo-status-bar";
+import { RequestsView } from "./views/RequestsView";
 
-const WalletTransactions = React.memo((props: {
+const WalletTransactions = memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
     address: Address,
@@ -116,6 +117,7 @@ const WalletTransactions = React.memo((props: {
             contentInset={props.contentInset}
             contentOffset={props.contentOffset}
         >
+            <RequestsView />
             {components}
         </ScrollView>
     );
@@ -212,8 +214,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                 }}
                 navigationState={{ index: tab.current, routes }}
                 offscreenPageLimit={1}
-                renderScene={(props: SceneRendererProps & { route: { key: string; title: string; } }) => {
-                    if (props.route.key === 'main') {
+                renderScene={(sceneProps: SceneRendererProps & { route: { key: string; title: string; } }) => {
+                    if (sceneProps.route.key === 'main') {
                         return hasTxs
                             ? (
                                 <WalletTransactions
@@ -227,30 +229,33 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                 />
                             )
                             : (
-                                <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                                    <Pressable onPress={() => animRef.current?.play()}>
-                                        <LottieView
-                                            ref={animRef}
-                                            source={require('../../../assets/animations/duck.json')}
-                                            autoPlay={true}
-                                            loop={false}
-                                            progress={0.2}
-                                            style={{ width: 192, height: 192 }}
+                                <View>
+                                    <RequestsView />
+                                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
+                                        <Pressable onPress={() => animRef.current?.play()}>
+                                            <LottieView
+                                                ref={animRef}
+                                                source={require('../../../assets/animations/duck.json')}
+                                                autoPlay={true}
+                                                loop={false}
+                                                progress={0.2}
+                                                style={{ width: 192, height: 192 }}
+                                            />
+                                        </Pressable>
+                                        <Text style={{ fontSize: 16, color: Theme.label }}>
+                                            {t('wallet.empty.message')}
+                                        </Text>
+                                        <RoundButton
+                                            title={t('wallet.empty.receive')}
+                                            size="normal"
+                                            display="text"
+                                            onPress={() => navigation.navigate('Receive')}
                                         />
-                                    </Pressable>
-                                    <Text style={{ fontSize: 16, color: Theme.label }}>
-                                        {t('wallet.empty.message')}
-                                    </Text>
-                                    <RoundButton
-                                        title={t('wallet.empty.receive')}
-                                        size="normal"
-                                        display="text"
-                                        onPress={() => navigation.navigate('Receive')}
-                                    />
+                                    </View>
                                 </View>
                             )
                     } else {
-                        return <HoldersCardTransactions id={props.route.key} />
+                        return <HoldersCardTransactions id={sceneProps.route.key} />
                     }
                 }}
             />

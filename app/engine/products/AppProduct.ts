@@ -10,18 +10,20 @@ import { delay } from 'teslabot';
 import axios from 'axios';
 import { warn } from '../../utils/log';
 
+export type dAppRequest = {
+    expires: number;
+    key: Buffer;
+    appPublicKey: Buffer;
+    job: Job;
+    jobCell: Cell;
+    jobRaw: string;
+}
+
 export class AppProduct {
 
     readonly engine: Engine;
     private _destroyed: boolean;
-    private _state: {
-        expires: number;
-        key: Buffer;
-        appPublicKey: Buffer;
-        job: Job;
-        jobCell: Cell;
-        jobRaw: string;
-    } | null = null
+    private _state: dAppRequest | null = null
     private _eventEmitter: EventEmitter = new EventEmitter();
     private _completed = new Set<string>();
 

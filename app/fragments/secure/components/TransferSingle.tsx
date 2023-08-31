@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, View, Text, Pressable, ScrollView, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
@@ -33,6 +33,7 @@ import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useImage } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../../utils/image/getMostPrevalentColorFromBytes";
+import { openWithInApp } from "../../../utils/openWithInApp";
 
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import WithStateInit from '../../../../assets/ic_sign_contract.svg';
@@ -40,7 +41,6 @@ import IcAlert from '../../../../assets/ic-alert.svg';
 import IcInfo from '../../../../assets/ic-info.svg';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import Verified from '../../../../assets/ic-verified.svg';
-import { openWithInApp } from "../../../utils/openWithInApp";
 
 type Props = {
     target: {
@@ -61,7 +61,7 @@ type Props = {
     back?: number
 }
 
-export const TransferSingle = React.memo((props: Props) => {
+export const TransferSingle = memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
@@ -145,7 +145,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
+    const doSend = useCallback(async () => {
         async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
                 Alert.alert(t(title), t('transfer.confirm'), [{

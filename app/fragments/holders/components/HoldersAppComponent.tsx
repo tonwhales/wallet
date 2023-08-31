@@ -31,6 +31,7 @@ import { normalizePath } from '../../../engine/holders/HoldersProduct';
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { useKeyboard } from '@react-native-community/hooks';
+import { usePulsatingStyle } from '../../../components/skeletons/usePulsatingStyle';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -47,28 +48,19 @@ function PulsingCardPlaceholder() {
             );
     }, []);
 
-    const animatedStyles = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 0.75],
-            Extrapolate.CLAMP
-        );
-        const scale = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 1.03],
-            Extrapolate.CLAMP,
-        )
-        return {
-            width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
-            opacity: opacity,
-            transform: [{ scale: scale }],
-        };
-    }, []);
+    const animatedStyles = usePulsatingStyle(animation);
 
     return (
-        <Animated.View style={animatedStyles}>
+        <Animated.View style={[
+            {
+                width: 268, height: 153,
+                position: 'absolute',
+                backgroundColor: '#eee',
+                top: 80,
+                borderRadius: 21,
+            },
+            animatedStyles
+        ]}>
             <View style={{ width: 90, height: 20, backgroundColor: 'white', top: 22, left: 16, borderRadius: 8 }} />
             <View style={{ marginTop: 4, width: 60, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
             <View style={{ display: 'flex', flexDirection: 'row', marginTop: 32 }}>

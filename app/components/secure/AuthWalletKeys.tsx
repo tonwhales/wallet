@@ -71,22 +71,19 @@ async function checkBiometricsPermissions(passcodeState?: PasscodeState) {
 
     if (storageType === 'secure-store' && Platform.OS === 'ios') {
         const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+        const faceIdPemission = await check(PERMISSIONS.IOS.FACE_ID);
+
+        const level = await LocalAuthentication.getEnrolledLevelAsync();
+
         const faceIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
         const touchIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
-        const checkFaceId = await check(PERMISSIONS.IOS.FACE_ID);
-
-        console.log({
-            supportedAuthTypes,
-            fadeIdSupported: faceIdSupported,
-            checkFaceId
-        })
 
         if (!faceIdSupported && touchIdSupported) {
             return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
         }
 
         if (faceIdSupported) {
-            if (checkFaceId === 'granted') {
+            if (faceIdPemission === 'granted') {
                 return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
             } else {
                 return 'biometrics-permission-check';
@@ -154,7 +151,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                         );
                     });
                 }
-                
+
                 warn('Failed to load wallet keys with biometrics');
 
                 // Retry with passcode

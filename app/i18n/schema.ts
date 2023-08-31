@@ -64,7 +64,8 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        recent: string
+        recent: string, 
+        ok: string
     },
     syncStatus: {
         connecting: string,
@@ -681,6 +682,23 @@ export type LocalizationSchema = {
                 message: string,
                 openSettings: string,
                 authenticate: string,
+            },
+            biometricsSetupAgain: {
+                title: string,
+                message: string,
+                setup: string,
+                authenticate: string,
+            },
+            biometricsCooldown: {
+                title: string,
+                message: string,
+            },
+            biometricsCorrupted: {
+                title: string,
+                message: string,
+                messageLogout: string,
+                logout: string,
+                restore: string,
             }
         }
     },

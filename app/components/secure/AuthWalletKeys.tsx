@@ -6,16 +6,19 @@ import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey, loadKeyStorageType } from '../../storage/secureStorage';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { getCurrentAddress } from '../../storage/appState';
+import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
 import { clearHolders } from '../../fragments/LogoutFragment';
 import { useReboot } from '../../utils/RebootContext';
-import { useEngine } from '../../engine/Engine';
+import { Engine, useEngine } from '../../engine/Engine';
 import { useActionSheet } from '@expo/react-native-action-sheet';
-import { PERMISSIONS, check, openSettings } from 'react-native-permissions';
+import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { AppStateManager, useAppStateManager } from '../../engine/AppStateManager';
+import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from '../../analytics/mixpanel';
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
@@ -31,6 +34,7 @@ export type AuthParams = {
     showResetOnMaxAttempts?: boolean,
     description?: string,
     enteringAnimation?: EnteringAnimation,
+    isAppStart?: boolean,
 }
 
 export type AuthProps =
@@ -50,12 +54,44 @@ export type AuthWalletKeysType = {
     authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
 }
 
-async function checkBiometricsPermissions(passcodeState?: PasscodeState) {
+function logoutAndReset(
+    isTestnet: boolean,
+    engine: Engine,
+    reboot: () => void,
+    appStateManager: AppStateManager
+) {
+    const acc = getCurrentAddress();
+    const appState = getAppState();
+
+    mixpanelReset(isTestnet) // Clear super properties and generates a new random distinctId
+    trackEvent(MixpanelEvent.Reset, undefined, isTestnet);
+    mixpanelFlush(isTestnet);
+
+    if (appState.addresses.length === 1) {
+        storage.clearAll();
+        sharedStoragePersistence.clearAll();
+        storagePersistence.clearAll();
+        clearHolders(engine);
+        reboot();
+        return;
+    }
+
+    clearHolders(engine, acc.address);
+
+    const newAddresses = appState.addresses.filter((address) => !address.address.equals(acc.address));
+
+    appStateManager.updateAppState({
+        addresses: newAddresses,
+        selected: newAddresses.length > 0 ? 0 : -1,
+    });
+}
+
+async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
     const storageType = loadKeyStorageType();
 
     if (storageType === 'local-authentication') {
         if (passcodeState === PasscodeState.Set) {
-            return 'passcode';
+            return 'use-passcode';
         } else {
             return 'none';
         }
@@ -71,22 +107,30 @@ async function checkBiometricsPermissions(passcodeState?: PasscodeState) {
 
     if (storageType === 'secure-store' && Platform.OS === 'ios') {
         const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
-        const faceIdPemission = await check(PERMISSIONS.IOS.FACE_ID);
-
-        const level = await LocalAuthentication.getEnrolledLevelAsync();
+        const faceIdPemissionStatus = await check(PERMISSIONS.IOS.FACE_ID);
 
         const faceIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
         const touchIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
+
 
         if (!faceIdSupported && touchIdSupported) {
             return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
         }
 
         if (faceIdSupported) {
-            if (faceIdPemission === 'granted') {
+            if (faceIdPemissionStatus === 'granted') {
                 return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
-            } else {
+            } else if (faceIdPemissionStatus === 'blocked') {
                 return 'biometrics-permission-check';
+            } else if (faceIdPemissionStatus === 'unavailable' || faceIdPemissionStatus === 'limited') {
+                return 'biometrics-cooldown';
+            } else {
+                const res = await request(PERMISSIONS.IOS.FACE_ID);
+                if (res === 'granted') {
+                    return 'biometrics-cancelled';
+                } else {
+                    return 'biometrics-permission-check';
+                }
             }
         } else {
             return passcodeState === PasscodeState.Set ? 'use-passcode' : 'corrupted';
@@ -98,9 +142,11 @@ export const AuthWalletKeysContext = React.createContext<AuthWalletKeysType | nu
 
 export const AuthWalletKeysContextProvider = React.memo((props: { children?: any }) => {
     const engine = useEngine();
+    const navigation = useTypedNavigation();
+    const appStateManager = useAppStateManager();
     const { showActionSheetWithOptions } = useActionSheet();
     const safeAreaInsets = useSafeAreaInsets();
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const reboot = useReboot();
 
     const [auth, setAuth] = useState<AuthProps | null>(null);
@@ -127,7 +173,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 return keys;
             } catch (e) {
-                const premissionsRes = await checkBiometricsPermissions();
+                const premissionsRes = await checkBiometricsPermissions(passcodeState);
                 if (premissionsRes === 'biometrics-permission-check') {
                     await new Promise<void>(resolve => {
                         Alert.alert(
@@ -150,9 +196,71 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                             ]
                         );
                     });
-                }
+                } else if (premissionsRes === 'biometrics-setup-again' && !style?.isAppStart) {
+                    const isSetup = await new Promise<boolean>(resolve => {
+                        Alert.alert(
+                            t('security.auth.biometricsSetupAgain.title'),
+                            t('security.auth.biometricsSetupAgain.message'),
+                            [
+                                {
+                                    text: t('security.auth.biometricsSetupAgain.authenticate'),
+                                    onPress: () => resolve(false)
+                                },
+                                {
+                                    text: t('security.auth.biometricsSetupAgain.setup'),
+                                    onPress: () => {
+                                        resolve(true);
+                                        navigation.navigate('BiometricsSetup');
+                                    }
+                                }
+                            ]
+                        );
+                    });
 
-                warn('Failed to load wallet keys with biometrics');
+                    if (isSetup) {
+                        throw Error('Setting up biometrics');
+                    }
+                } else if (premissionsRes === 'biometrics-cooldown') {
+                    await new Promise<void>(resolve => {
+                        Alert.alert(
+                            t('security.auth.biometricsCooldown.title'),
+                            t('security.auth.biometricsCooldown.message'),
+                            [
+                                {
+                                    text: t('common.ok'),
+                                    onPress: () => resolve()
+                                },
+                            ]
+                        );
+                    });
+                } else if (premissionsRes === 'corrupted') {
+                    const appState = getAppState();
+                    await new Promise<void>(resolve => {
+                        Alert.alert(
+                            t('security.auth.biometricsCorrupted.title'),
+                            appState.addresses.length > 1
+                                ? t('security.auth.biometricsCorrupted.messageLogout')
+                                : t('security.auth.biometricsCorrupted.message'),
+                            [
+                                {
+                                    text: appState.addresses.length > 1
+                                        ? t('security.auth.biometricsCorrupted.logout')
+                                        : t('security.auth.biometricsCorrupted.restore'),
+                                    onPress: () => {
+                                        resolve();
+                                        logoutAndReset(
+                                            AppConfig.isTestnet,
+                                            engine,
+                                            reboot,
+                                            appStateManager
+                                        );
+                                    },
+                                    style: 'destructive'
+                                },
+                            ]
+                        );
+                    });
+                }
 
                 // Retry with passcode
                 if (passcodeState === PasscodeState.Set) {

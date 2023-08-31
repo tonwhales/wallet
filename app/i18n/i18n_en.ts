@@ -63,6 +63,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         reload: 'Reload',
         errorOccurred: 'Error occurred: {{error}}', 
         recent: 'Recent',
+        ok: 'OK',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -679,6 +680,23 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Please, allow the app access to biometrics for authentication',
                 openSettings: 'Open settings',
                 authenticate: 'Authenticate with Passcode',
+            },
+            biometricsSetupAgain: {
+                title: 'Biometrics setup',
+                message: 'Please, setup biometrics again with passcode',
+                setup: 'Setup',
+                authenticate: 'Authenticate with Passcode',
+            },
+            biometricsCooldown: {
+                title: 'Biometrics cooldown',
+                message: 'Please, try again in later, or lock your device and unlock it again with devices passcode to enable biometrics',
+            },
+            biometricsCorrupted: {
+                title: 'Biometrics corrupted and no PIN code set',
+                message: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Restore\" (you will be logged out of you current wallet) and enter your 24 secret words',
+                messageLogout: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Logout\" (you will be logged out of you current wallet) and add your wallet again',
+                logout: 'Logout',
+                restore: 'Restore',
             }
         }
     },

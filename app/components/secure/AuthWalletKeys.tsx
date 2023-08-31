@@ -105,13 +105,12 @@ async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
         }
     }
 
-    if (storageType === 'secure-store' && Platform.OS === 'ios') {
-        const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+    const supportedAuthTypes = await LocalAuthentication.supportedAuthenticationTypesAsync();
+    const faceIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
+    const touchIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
+
+    if (Platform.OS === 'ios') {
         const faceIdPemissionStatus = await check(PERMISSIONS.IOS.FACE_ID);
-
-        const faceIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FACIAL_RECOGNITION);
-        const touchIdSupported = supportedAuthTypes.includes(LocalAuthentication.AuthenticationType.FINGERPRINT);
-
 
         if (!faceIdSupported && touchIdSupported) {
             return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
@@ -132,6 +131,14 @@ async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
                     return 'biometrics-permission-check';
                 }
             }
+        } else {
+            return passcodeState === PasscodeState.Set ? 'use-passcode' : 'corrupted';
+        }
+    } else { // Android
+        const level = await LocalAuthentication.getEnrolledLevelAsync();
+
+        if ((faceIdSupported || touchIdSupported) && level === LocalAuthentication.SecurityLevel.BIOMETRIC) {
+            return passcodeState === PasscodeState.Set ? 'biometrics-setup-again-and' : 'corrupted';
         } else {
             return passcodeState === PasscodeState.Set ? 'use-passcode' : 'corrupted';
         }

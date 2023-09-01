@@ -267,7 +267,11 @@ export const TransactionsFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     useTrackScreen('History', engine.isTestnet);
-    useFocusEffect(() => setStatusBarStyle('dark'));
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>

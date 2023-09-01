@@ -338,7 +338,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             actions: {
                 deposit: 'Внести',
                 top_up: 'Пополнить',
-                withdraw: 'Вывести'
+                withdraw: 'Вывести',
+                calc: 'Calculate',
             },
             join: {
                 title: 'Стань валидатором TON',

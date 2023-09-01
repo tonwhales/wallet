@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableHighlight } from "react-native";
-import Animated, { } from "react-native-reanimated";
+import Animated, { SensorType, useAnimatedSensor, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "ton";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -55,7 +55,17 @@ export const StakingFragment = fragment(() => {
     const stakingCurrent = engine.products.whalesStakingPools.useStakingCurrent();
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
     const staking = isLedger ? ledgerStaking : stakingCurrent;
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(targetPool);
+
+    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
+
+    const animatedStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { translateX: withTiming(animSensor.sensor.value.y * 80) },
+                { translateY: withTiming(animSensor.sensor.value.x * 80) },
+            ]
+        }
+    });
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
@@ -180,6 +190,7 @@ export const StakingFragment = fragment(() => {
                             backgroundColor: Theme.walletBackground,
                             borderRadius: 20,
                             paddingHorizontal: 20, paddingVertical: 16,
+                            overflow: 'hidden'
                         }
                     ]}
                     collapsable={false}
@@ -208,6 +219,22 @@ export const StakingFragment = fragment(() => {
                             opacity: 0.5
                         }}>{' TON'}</Text>
                     </Text>
+                    <Animated.View
+                        style={[{
+                            position: 'absolute', top: 0, left: '50%',
+                            marginTop: -20, marginLeft: -20,
+                            height: 400, width: 400,
+                            overflow: 'hidden'
+                        },
+                            animatedStyle
+                        ]}
+                        pointerEvents={'none'}
+                    >
+                        <Image
+                            source={require('../../../assets/shine-blur.webp')}
+                            style={{ height: 400, width: 400 }}
+                        />
+                    </Animated.View>
                     <View style={{
                         flexDirection: 'row', alignItems: 'center',
                         marginTop: 10
@@ -256,10 +283,16 @@ export const StakingFragment = fragment(() => {
                     collapsable={false}
                 >
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
-                        <TouchableHighlight
+                        <Pressable
                             onPress={onTopUp}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
+                            disabled={!available}
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: (pressed || !available) ? 0.5 : 1,
+                                    borderRadius: 14, flex: 1, paddingVertical: 10,
+                                    marginHorizontal: 10
+                                }
+                            }}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                 <View style={{
@@ -280,13 +313,30 @@ export const StakingFragment = fragment(() => {
                                     {t('products.staking.actions.top_up')}
                                 </Text>
                             </View>
-                        </TouchableHighlight>
+                        </Pressable>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
-                        <TouchableHighlight
+                        <Pressable
                             onPress={onUnstake}
-                            underlayColor={Theme.selector}
-                            style={{ borderRadius: 14 }}
+                            disabled={
+                                (member?.balance || new BN(0))
+                                    .add(member?.pendingWithdraw || new BN(0))
+                                    .add(member?.withdraw || new BN(0))
+                                    .eq(new BN(0))
+                            }
+                            style={({ pressed }) => {
+                                return {
+                                    opacity:
+                                        ((member?.balance || new BN(0))
+                                            .add(member?.pendingWithdraw || new BN(0))
+                                            .add(member?.withdraw || new BN(0))
+                                            .eq(new BN(0))
+                                            || pressed
+                                        ) ? 0.5 : 1,
+                                    borderRadius: 14, flex: 1, paddingVertical: 10,
+                                    marginHorizontal: 4
+                                }
+                            }}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                 <View style={{
@@ -308,7 +358,42 @@ export const StakingFragment = fragment(() => {
                                     {t('products.staking.actions.withdraw')}
                                 </Text>
                             </View>
-                        </TouchableHighlight>
+                        </Pressable>
+                    </View>
+                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
+                        <Pressable
+                            onPress={() => {
+                                navigation.navigateStakingCalculator({ target: targetPool })
+                            }}
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                    borderRadius: 14, flex: 1, paddingVertical: 10,
+                                    marginHorizontal: 4
+                                }
+                            }}
+                        >
+                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                <View style={{
+                                    backgroundColor: Theme.accent,
+                                    width: 32, height: 32,
+                                    borderRadius: 16,
+                                    alignItems: 'center', justifyContent: 'center'
+                                }}>
+                                    <Image source={require('../../../assets/ic-staking-calc.png')} />
+                                </View>
+                                <Text
+                                    style={{
+                                        fontSize: 15,
+                                        color: Theme.textColor,
+                                        marginTop: 6,
+                                        fontWeight: '400'
+                                    }}
+                                >
+                                    {t('products.staking.actions.calc')}
+                                </Text>
+                            </View>
+                        </Pressable>
                     </View>
                 </View>
                 <StakingPendingComponent
@@ -325,7 +410,6 @@ export const StakingFragment = fragment(() => {
                         }}
                     />
                 )}
-                {!AppConfig.isTestnet && <CalculatorButton target={targetPool} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}

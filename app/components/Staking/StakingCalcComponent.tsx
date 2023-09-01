@@ -174,9 +174,10 @@ export const StakingCalcComponent = React.memo((
     const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
 
     return (
-        <View style={{ backgroundColor: Theme.lightGrey }}>
+        <View style={{}}>
             <View style={{
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.lightGrey,
+                padding: 16,
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center',

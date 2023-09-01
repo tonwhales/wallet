@@ -292,6 +292,7 @@ export type LocalizationSchema = {
                 top_up: string,
                 deposit: string,
                 withdraw: string,
+                calc: string,
             },
             pools: {
                 title: string,

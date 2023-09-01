@@ -1,5 +1,5 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,6 +17,8 @@ import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const StakingCalculatorFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -61,23 +63,19 @@ export const StakingCalculatorFragment = fragment(() => {
             }
         }, [setAmount]);
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Platform.OS === 'ios' ? 'light' : 'dark');
+        }, 100);
+    });
+
     return (
         <>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar
-                style={{ marginTop: safeArea.top }}
-                pageTitle={t('products.staking.calc.text')}
+            <ScreenHeader
+                title={t('products.staking.calc.text')}
+                onClosePressed={navigation.goBack}
             />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                }}>
-                    <Text style={{ textAlign: 'center', lineHeight: 32, fontWeight: '600', fontSize: 17 }}>
-                        {t('products.staking.calc.text')}
-                    </Text>
-                </View>
-            )}
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
@@ -92,7 +90,7 @@ export const StakingCalculatorFragment = fragment(() => {
                 >
                     <View style={{
                         marginBottom: 0,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -167,7 +165,6 @@ export const StakingCalculatorFragment = fragment(() => {
                     action={async () => navigation.goBack()}
                 />
             </KeyboardAvoidingView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </>
 
     );

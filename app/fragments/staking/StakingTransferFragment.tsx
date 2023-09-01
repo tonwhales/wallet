@@ -1,14 +1,12 @@
 import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, fromNano, toNano } from 'ton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
-import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -26,9 +24,9 @@ import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
 import { useAppConfig } from '../../utils/AppConfigContext';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
-import { useMemo } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
@@ -83,9 +81,9 @@ export const StakingTransferFragment = fragment(() => {
     const pool = engine.products.whalesStakingPools.usePool(params.target, ledgerAddress);
     const member = pool?.member
 
-    const [title, setTitle] = React.useState('');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
+    const [title, setTitle] = useState('');
+    const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
+    const [minAmountWarn, setMinAmountWarn] = useState<string>();
 
     let balance = account?.balance || new BN(0);
     if (params?.action === 'withdraw') {
@@ -98,13 +96,13 @@ export const StakingTransferFragment = fragment(() => {
         balance = member?.withdraw || toNano(0);
     }
 
-    const onSetAmount = React.useCallback(
+    const onSetAmount = useCallback(
         (newAmount: string) => {
             setMinAmountWarn(undefined);
             setAmount(newAmount);
         }, []);
 
-    const doContinue = React.useCallback(async () => {
+    const doContinue = useCallback(async () => {
         let value: BN;
         let minAmount = pool?.params.minStake
             ? pool.params.minStake
@@ -242,7 +240,7 @@ export const StakingTransferFragment = fragment(() => {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -262,11 +260,11 @@ export const StakingTransferFragment = fragment(() => {
     }, []);
 
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         if (amount === '0') {
             setAmount('');
         }
@@ -274,7 +272,7 @@ export const StakingTransferFragment = fragment(() => {
         setSelectedInput(index);
     }, [amount]);
 
-    const onAddAll = React.useCallback(() => {
+    const onAddAll = useCallback(() => {
         let addAmount = balance;
         if (params?.action === 'deposit' || params?.action === 'top_up') {
             // Account for withdraw fee need to unstake 
@@ -287,15 +285,21 @@ export const StakingTransferFragment = fragment(() => {
         onSetAmount(fromNano(addAmount));
     }, [balance, params, pool]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         setTitle(actionTitle(params?.action));
     }, [params?.action]);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
     const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Platform.OS === 'ios' ? 'light' : 'dark');
+        }, 100);
+    });
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: 'white' }}>

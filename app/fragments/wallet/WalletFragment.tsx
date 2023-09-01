@@ -26,6 +26,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen, genericScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
+import { ProductsFragment } from '../ProductsFragment';
 
 function WalletComponent(props: { wallet: WalletState | null }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -370,6 +371,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
+    fullScreen('Products', ProductsFragment),
 ]
 
 export const WalletNavigationStack = memo(() => {

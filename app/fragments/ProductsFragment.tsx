@@ -6,16 +6,15 @@ import { t } from "../i18n/t";
 import { ProductBanner } from "../components/products/ProductBanner";
 import { useEngine } from "../engine/Engine";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { useCallback, useMemo } from "react";
+import { useCallback, useLayoutEffect, useMemo } from "react";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { holdersUrl } from "../engine/holders/HoldersProduct";
-import { BN } from "bn.js";
+import { StatusBar } from "expo-status-bar";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
     const engine = useEngine();
-    const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
     const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -47,7 +46,7 @@ export const ProductsFragment = fragment(() => {
     const onHolders = useCallback(
         () => {
             if (needsEnrolment) {
-                navigation.replace(
+                navigation.navigate(
                     'HoldersLanding',
                     {
                         endpoint: holdersUrl,
@@ -56,17 +55,21 @@ export const ProductsFragment = fragment(() => {
                 );
                 return;
             }
-            navigation.replace('Holders', { type: 'account' });
+            navigation.navigate('Holders', { type: 'account' });
         },
         [needsEnrolment],
     );
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: true,
+            title: t('products.addNew'),
+        })
+    }, []);
+
     return (
-        <View style={{ backgroundColor: 'white', flexGrow: 1 }}>
-            <View style={{ height: 64 }} />
-            <Text style={{ marginHorizontal: 16, fontSize: 32, fontWeight: '600', lineHeight: 38, flexShrink: 1 }}>
-                {t('products.addNew')}
-            </Text>
+        <View style={{ backgroundColor: Theme.white, flexGrow: 1 }}>
+            <StatusBar style={'dark'} />
             <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
                 {AppConfig.isTestnet && (
                     <ProductBanner
@@ -87,7 +90,6 @@ export const ProductsFragment = fragment(() => {
                     />
                 </View>
             </ScrollView>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

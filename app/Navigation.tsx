@@ -199,7 +199,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
-    modalScreen('Products', ProductsFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
@@ -230,7 +229,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     transparentModalScreen('Logout', LogoutFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
-    
+
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),

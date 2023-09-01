@@ -139,6 +139,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     color: Theme.white,
                                     marginRight: 8,
                                     fontWeight: '500',
+                                    opacity: 0.5
                                 }}>{' TON'}</Text>
                             </Text>
                         </View>
@@ -350,6 +351,12 @@ export const WalletFragment = fragment(() => {
     const account = engine.products.main.useAccount();
     useTrackScreen('Wallet', engine.isTestnet);
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('light');
+        }, 100);
+    });
+
     return (
         <>
             <CopilotProvider
@@ -381,8 +388,6 @@ const navigation = (safeArea: EdgeInsets) => [
 export const WalletNavigationStack = memo(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-
-    useFocusEffect(() => setStatusBarStyle('light'));
 
     return (
         <Stack.Navigator

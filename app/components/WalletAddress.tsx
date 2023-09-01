@@ -12,7 +12,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 export function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
         + '...'
-        + src.slice(src.length - 4)
+        + src.slice(src.length - 6)
 }
 
 export const WalletAddress = React.memo((props: {

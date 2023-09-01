@@ -35,7 +35,6 @@ export const StakingCycle = React.memo((
             backgroundColor: Theme.lightGrey,
             minHeight: 70,
             borderRadius: 20,
-            marginHorizontal: 16,
             padding: 20,
             overflow: 'hidden',
         }, style]}>

@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableHighlight } from "react-native";
-import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import Animated, { } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "ton";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -17,15 +17,17 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
-import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
-import { BN } from "bn.js";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+
+import GraphIcon from '../../../assets/ic_graph.svg';
+import InfoIcon from '../../../assets/ic-info-accent.svg';
+import BN from "bn.js";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -72,83 +74,6 @@ export const StakingFragment = fragment(() => {
         return !!staking?.config!.pools.find((v2) => Address.parse(v2).equals(targetPool))
     }, [staking, targetPool]);
 
-    let canWithdraw = useMemo(() => {
-        return member?.balance.add(member.withdraw).gt(new BN(0));
-    }, [member]);
-
-    const window = useWindowDimensions();
-
-    // Animating wallet card
-    const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
-    const cardOpacity = useSharedValue(1);
-    const smallCardOpacity = useSharedValue(0);
-    const titleOpacity = useSharedValue(1);
-    const smallCardY = useSharedValue(Math.floor(cardHeight * 0.15));
-
-    const onScroll = useAnimatedScrollHandler((event) => {
-        if ((event.contentOffset.y + 28 - cardHeight) >= 0) { // Fully scrolled
-            cardOpacity.value = 0;
-            smallCardOpacity.value = 1;
-            titleOpacity.value = 0;
-            smallCardY.value = - Math.floor(cardHeight * 0.15 / 2);
-        } else { // Visible
-            cardOpacity.value = 1;
-            smallCardOpacity.value = 0;
-            titleOpacity.value = 1;
-            smallCardY.value = Math.floor(cardHeight * 0.15 / 2);
-        }
-    }, [cardHeight]);
-
-    const cardOpacityStyle = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(cardOpacity.value, {
-                duration: 300,
-                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            }),
-        };
-    }, []);
-
-    const smallCardStyle = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(smallCardOpacity.value, {
-                duration: 300,
-                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            }),
-            transform: [
-                {
-                    translateY: Math.floor(cardHeight * 0.15 / 2),
-                },
-                {
-                    translateY: -Math.floor(cardHeight * 0.15 / 2),
-                },
-                {
-                    translateY: withTiming(smallCardY.value, {
-                        duration: 300,
-                        easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-                    }),
-                },
-                {
-                    translateY: Math.floor(cardHeight * 0.15 / 2) - Math.floor(window.height * 0.013),
-                },
-                {
-                    translateX: -Math.floor((window.width - 32) * 0.15 / 2),
-                },
-                {
-                    translateX: Math.floor((window.width - 32) * 0.15 / 2)
-                }
-            ],
-        };
-    }, [cardHeight, window]);
-
-    const titleOpacityStyle = useAnimatedStyle(() => {
-        return {
-            opacity: withTiming(titleOpacity.value, {
-                duration: 300,
-                easing: Easing.bezier(0.25, 0.1, 0.25, 1),
-            }),
-        };
-    }, []);
-
     const onTopUp = useCallback(() => {
         if (isLedger) {
             navigation.navigate('LedgerStakingTransfer', {
@@ -194,19 +119,19 @@ export const StakingFragment = fragment(() => {
         [],
     );
 
-    const openGraph = useCallback(() => {
-        if (!!stakingChart) {
-            navigation.navigate('StakingGraph', { pool: targetPool.toFriendly({ testOnly: AppConfig.isTestnet }) });
-        }
-    }, [member]);
+    const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <ScreenHeader
                 style={{ marginTop: 32 }}
                 onBackPressed={navigation.goBack}
-                title={KnownPools(AppConfig.isTestnet)[params.pool].name}
                 rightButton={
                     <Pressable
                         onPress={openMoreInfo}
@@ -218,109 +143,115 @@ export const StakingFragment = fragment(() => {
                             }
                         }}
                     >
-                        <Text
-                            style={{
-                                color: Theme.accent,
-                                fontSize: 17, fontWeight: '600'
-                            }}
-                        >
-                            {t('products.staking.learnMore')}
+                        <InfoIcon height={26} width={26} style={{ height: 26, width: 26 }} />
+                    </Pressable>
+                }
+                titleComponent={
+                    <Pressable style={{
+                        alignItems: 'center', backgroundColor: Theme.lightGrey,
+                        paddingHorizontal: 16, paddingVertical: 8, borderRadius: 32,
+                        maxWidth: '70%'
+                    }}>
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            color: Theme.textColor,
+                            fontWeight: '500',
+                        }}>
+                            {KnownPools(AppConfig.isTestnet)[params.pool].name}
                         </Text>
                     </Pressable>
                 }
             />
-            <StatusBar style={'dark'} />
             <Animated.ScrollView
                 contentContainerStyle={{
                     flexGrow: 1,
                     paddingTop: Platform.OS === 'android'
                         ? safeArea.top + 44
                         : undefined,
+                    paddingHorizontal: 16,
                 }}
-                contentInset={{ top: isLedger ? 44 + 16 : 0, bottom: 52 }}
-                contentOffset={{ y: -(44 + (isLedger ? 0 : safeArea.top)), x: 0 }}
-                onScroll={onScroll}
+                contentInset={{ top: isLedger ? 44 + 16 : 0 }}
                 scrollEventThrottle={16}
             >
-                {Platform.OS === 'ios' && isLedger && (<View style={{ height: isLedger ? 8 : safeArea.top }} />)}
-                <Animated.View
+                <View
                     style={[
-                        { ...cardOpacityStyle },
                         {
-                            marginHorizontal: 16, marginVertical: 16,
-                            height: cardHeight,
+                            marginVertical: 16,
+                            backgroundColor: Theme.walletBackground,
+                            borderRadius: 20,
+                            paddingHorizontal: 20, paddingVertical: 16,
                         }
                     ]}
                     collapsable={false}
                 >
-                    <View
-                        style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: cardHeight,
-                            width: window.width - 32,
-                            backgroundColor: '#1F283E',
-                            borderRadius: 20
-                        }}
-                    />
-
                     <Text
-                        style={{ fontSize: 14, color: 'white', opacity: 0.8, marginTop: 22, marginLeft: 22 }}
+                        style={{
+                            fontSize: 15, lineHeight: 20,
+                            color: Theme.white,
+                            opacity: 0.7,
+                        }}
                     >
                         {t('products.staking.balance')}
                     </Text>
-                    {!isLedger && (
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Pressable
-                                style={({ pressed }) => {
-                                    return {
-                                        opacity: pressed && stakingChart ? 0.3 : 1,
-                                        marginLeft: 22,
-                                        flexDirection: 'row', alignItems: 'center'
-                                    };
-                                }}
-                                onPress={openGraph}
-                            >
-                                <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
-                                    <ValueComponent
-                                        value={member?.balance || toNano('0')}
-                                        centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }}
-                                    />
-                                </Text>
-                                {!!stakingChart && <GraphIcon />}
-                            </Pressable>
-                        </View>
-                    )}
-                    <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
-                    <View style={{ flexGrow: 1 }} />
+                    <Text style={{ fontSize: 27, color: Theme.white, fontWeight: '600', marginTop: 14 }}>
+                        <ValueComponent
+                            value={member?.balance || new BN(0)}
+                            precision={4}
+                            centFontStyle={{ opacity: 0.5 }}
+                        />
+                        <Text style={{
+                            fontSize: 17,
+                            lineHeight: Platform.OS === 'ios' ? 24 : undefined,
+                            color: Theme.white,
+                            marginRight: 8,
+                            fontWeight: '500',
+                            opacity: 0.5
+                        }}>{' TON'}</Text>
+                    </Text>
+                    <View style={{
+                        flexDirection: 'row', alignItems: 'center',
+                        marginTop: 10
+                    }}>
+                        <Pressable
+                            style={{ flexDirection: 'row', alignItems: 'center' }}
+                            onPress={navigateToCurrencySettings}
+                        >
+                            <PriceComponent
+                                amount={member?.balance || new BN(0)}
+                                style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                            />
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                            />
+                        </Pressable>
+                    </View>
                     <WalletAddress
                         value={targetPool.toFriendly({ testOnly: AppConfig.isTestnet })}
                         address={targetPool}
                         elipsise
                         style={{
-                            marginLeft: 22,
-                            marginBottom: 16,
+                            marginTop: 20,
                             alignSelf: 'flex-start',
                         }}
                         textStyle={{
+                            fontSize: 15,
+                            lineHeight: 20,
                             textAlign: 'left',
-                            color: 'white',
-                            fontWeight: '500',
+                            color: Theme.darkGrey,
+                            fontWeight: '400',
                             fontFamily: undefined
                         }}
                         limitActions
                     />
-                </Animated.View>
+                </View>
                 <View
                     style={{
                         flexDirection: 'row',
-                        marginHorizontal: 16,
-                        backgroundColor: '#1F283E',
+                        backgroundColor: Theme.lightGrey,
                         borderRadius: 20,
-                        marginBottom: 16
+                        marginBottom: 16, marginTop: 32
                     }}
                     collapsable={false}
                 >
@@ -342,7 +273,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         fontSize: 15,
-                                        color: Theme.item,
+                                        color: Theme.textColor,
                                         marginTop: 6,
                                         fontWeight: '400'
                                     }}>
@@ -369,7 +300,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         fontSize: 15,
-                                        color: Theme.item,
+                                        color: Theme.textColor,
                                         marginTop: 6,
                                         fontWeight: '400'
                                     }}
@@ -382,7 +313,6 @@ export const StakingFragment = fragment(() => {
                 </View>
                 <StakingPendingComponent
                     target={targetPool}
-                    style={{ marginHorizontal: 16 }}
                     params={poolParams}
                     member={member}
                 />
@@ -391,7 +321,6 @@ export const StakingFragment = fragment(() => {
                         stakeUntil={pool.params.stakeUntil}
                         locked={pool.params.locked}
                         style={{
-                            marginHorizontal: 16,
                             marginBottom: 14
                         }}
                     />

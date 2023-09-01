@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Platform, View, Text, useWindowDimensions, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
@@ -45,8 +45,10 @@ export const LogoutFragment = fragment(() => {
     const appState = getAppState();
     const name = wallets.useWalletSettings(acc.address)?.name ?? `${t('common.wallet')} ${appState.selected + 1}`;
 
+    const [isShown, setIsShown] = useState(false);
 
-    const onLogout = React.useCallback(async () => {
+
+    const onLogout = useCallback(async () => {
         const currentAddress = acc.address;
 
         try {
@@ -80,10 +82,15 @@ export const LogoutFragment = fragment(() => {
 
     }, []);
 
-    const logoutActionSheet = React.useCallback(() => {
+    const showLogoutActSheet = useCallback(() => {
+        if (isShown) {
+            return;
+        }
         const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
         const destructiveButtonIndex = 1;
         const cancelButtonIndex = 0;
+
+        setIsShown(true);
 
         showActionSheetWithOptions({
             title: t('confirm.logout.title'),
@@ -101,8 +108,9 @@ export const LogoutFragment = fragment(() => {
                 default:
                     break;
             }
+            setIsShown(false);
         });
-    }, []);
+    }, [isShown]);
 
     return (
         <View style={{
@@ -137,7 +145,7 @@ export const LogoutFragment = fragment(() => {
                 <View style={{ marginBottom: 16 + safeArea.bottom }}>
                     <RoundButton
                         title={t('common.logout')}
-                        onPress={logoutActionSheet}
+                        onPress={showLogoutActSheet}
                         display={'default'}
                         style={{ marginBottom: 16 }}
                     />

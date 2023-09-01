@@ -14,7 +14,7 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
 import { toNano } from 'ton';
@@ -27,6 +27,7 @@ import { fullScreen, genericScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
 import { ProductsFragment } from '../ProductsFragment';
+import { useFocusEffect } from '@react-navigation/native';
 
 function WalletComponent(props: { wallet: WalletState | null }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -127,7 +128,11 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 fontWeight: '500',
                                 lineHeight: 32,
                             }}>
-                                <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
+                                <ValueComponent
+                                    precision={4}
+                                    value={account?.balance ?? new BN(0)}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
                                 <Text style={{
                                     fontSize: 17,
                                     lineHeight: Platform.OS === 'ios' ? 24 : undefined,
@@ -347,7 +352,6 @@ export const WalletFragment = fragment(() => {
 
     return (
         <>
-            <StatusBar style={'light'} />
             <CopilotProvider
                 arrowColor={'#1F1E25'}
                 tooltipStyle={{
@@ -377,6 +381,8 @@ const navigation = (safeArea: EdgeInsets) => [
 export const WalletNavigationStack = memo(() => {
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
+
+    useFocusEffect(() => setStatusBarStyle('light'));
 
     return (
         <Stack.Navigator

@@ -19,8 +19,9 @@ import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../PressableChip";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { RequestsView } from "./views/RequestsView";
+import { useFocusEffect } from "@react-navigation/native";
 
 const WalletTransactions = memo((props: {
     txs: { id: string, time: number }[],
@@ -178,7 +179,6 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
     return (
         <View style={{ flex: 1, backgroundColor: 'white' }}>
-            <StatusBar style={'dark'} />
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -267,6 +267,7 @@ export const TransactionsFragment = fragment(() => {
     const engine = useEngine();
     const account = engine.products.main.useAccount();
     useTrackScreen('History', engine.isTestnet);
+    useFocusEffect(() => setStatusBarStyle('dark'));
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: 'white' }}>

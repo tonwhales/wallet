@@ -294,6 +294,7 @@ export type LocalizationSchema = {
                 withdraw: string,
             },
             pools: {
+                title: string,
                 active: string,
                 best: string,
                 alternatives: string,

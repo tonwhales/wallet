@@ -9,7 +9,8 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { useCallback, useLayoutEffect, useMemo } from "react";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { holdersUrl } from "../engine/holders/HoldersProduct";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -66,6 +67,12 @@ export const ProductsFragment = fragment(() => {
             title: t('products.addNew'),
         })
     }, []);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
 
     return (
         <View style={{ backgroundColor: Theme.white, flexGrow: 1 }}>

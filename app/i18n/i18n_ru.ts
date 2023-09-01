@@ -283,6 +283,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 devPromo: 'Приумножайте тестовые монеты'
             },
             pools: {
+                title: 'Стейкинг пулы',
                 active: 'Активные пулы',
                 best: 'Наилучший пул',
                 alternatives: 'Альтернативы',

@@ -29,7 +29,7 @@ export type ProductButtonProps = {
 }
 
 export function ProductButton(props: ProductButtonProps) {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

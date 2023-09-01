@@ -139,7 +139,7 @@ export const HomeFragment = fragment(() => {
                     screenOptions={({ route }) => ({
                         headerShown: false,
                         header: undefined,
-                        unmountOnBlur: route.name !== 'Wallet-Stack',
+                        unmountOnBlur: false,
                         tabBarIcon: ({ focused }) => {
                             let source = require('../../assets/ic-home.png');
 

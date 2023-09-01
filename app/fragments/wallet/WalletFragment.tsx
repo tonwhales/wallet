@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
@@ -11,7 +11,7 @@ import { useEngine } from '../../engine/Engine';
 import { WalletState } from '../../engine/products/WalletProduct';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
-import { useCallback, useEffect, useMemo } from 'react';
+import { memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { StatusBar } from 'expo-status-bar';
@@ -22,6 +22,10 @@ import BN from 'bn.js';
 import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
 import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
 import { sharedStoragePersistence } from '../../storage/storage';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { fullScreen, genericScreen } from '../../Navigation';
+import { StakingFragment } from '../staking/StakingFragment';
+import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
 
 function WalletComponent(props: { wallet: WalletState | null }) {
     const { Theme, AppConfig } = useAppConfig();
@@ -359,3 +363,31 @@ export const WalletFragment = fragment(() => {
         </>
     );
 }, true);
+
+const Stack = createNativeStackNavigator();
+
+const navigation = (safeArea: EdgeInsets) => [
+    fullScreen('Wallet', WalletFragment),
+    fullScreen('Staking', StakingFragment),
+    fullScreen('StakingPools', StakingPoolsFragment),
+]
+
+export const WalletNavigationStack = memo(() => {
+    const { Theme } = useAppConfig();
+    const safeArea = useSafeAreaInsets();
+
+    return (
+        <Stack.Navigator
+            initialRouteName={'Wallet'}
+            screenOptions={{
+                headerBackTitle: t('common.back'),
+                title: '',
+                headerShadowVisible: false,
+                headerTransparent: false,
+                headerStyle: { backgroundColor: Theme.white }
+            }}
+        >
+            {navigation(safeArea)}
+        </Stack.Navigator>
+    );
+});

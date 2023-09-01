@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image, View } from 'react-native';
 import { fragment } from "../fragment";
-import { WalletFragment } from './wallet/WalletFragment';
+import { WalletFragment, WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';
@@ -135,11 +135,11 @@ export const HomeFragment = fragment(() => {
                 overflow: 'hidden'
             }}>
                 <Tab.Navigator
-                    initialRouteName={'Wallet'}
+                    initialRouteName={'Wallet-Stack'}
                     screenOptions={({ route }) => ({
                         headerShown: false,
                         header: undefined,
-                        unmountOnBlur: route.name !== 'Wallet',
+                        unmountOnBlur: route.name !== 'Wallet-Stack',
                         tabBarIcon: ({ focused }) => {
                             let source = require('../../assets/ic-home.png');
 
@@ -181,8 +181,8 @@ export const HomeFragment = fragment(() => {
                 >
                     <Tab.Screen
                         options={{ title: t('home.home') }}
-                        name={'Wallet'}
-                        component={WalletFragment}
+                        name={'Wallet-Stack'}
+                        component={WalletNavigationStack}
                     />
                     <Tab.Screen
                         options={{ title: t('home.history') }}

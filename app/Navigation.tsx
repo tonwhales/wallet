@@ -79,7 +79,7 @@ import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 
 const Stack = createNativeStackNavigator();
 
-function fullScreen(name: string, component: React.ComponentType<any>) {
+export function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
             key={`fullScreen-${name}`}
@@ -90,7 +90,7 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
+export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
@@ -177,8 +177,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
-    fullScreen('Staking', StakingFragment),
-    fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
 import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useEngine } from '../../engine/Engine';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
@@ -12,6 +12,7 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { holdersUrl } from '../../engine/holders/HoldersProduct';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -56,6 +57,12 @@ export const HoldersAppFragment = fragment(() => {
             headerShown: false
         });
     }, [navigation]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
 
     return (
         <View style={{

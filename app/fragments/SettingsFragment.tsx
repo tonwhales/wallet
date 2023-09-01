@@ -25,7 +25,8 @@ import Privacy from '../../assets/ic-privacy.svg';
 import Support from '../../assets/ic-support.svg';
 import Telegram from '../../assets/ic-tg.svg';
 import RateApp from '../../assets/ic-rate-app.svg';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -57,7 +58,7 @@ export const SettingsFragment = fragment(() => {
     const onRateApp = useCallback(async () => {
         if (await StoreReview.hasAction()) {
             StoreReview.requestReview();
-          }
+        }
     }, []);
 
     const onSupport = useCallback(() => {
@@ -83,6 +84,12 @@ export const SettingsFragment = fragment(() => {
     }, []);
 
     useTrackScreen('More', engine.isTestnet);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>

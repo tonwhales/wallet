@@ -9,7 +9,7 @@ import { t } from '../../i18n/t';
 import { useEngine } from '../../engine/Engine';
 import { warn } from '../../utils/log';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { HoldersAppParams } from './HoldersAppFragment';
@@ -23,6 +23,7 @@ import * as FileSystem from 'expo-file-system';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -183,6 +184,12 @@ export const HoldersLandingFragment = fragment(() => {
             headerShown: false
         })
     }, [navigation]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    });
 
     return (
         <View style={{

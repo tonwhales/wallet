@@ -13,6 +13,7 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
 
 import StakingIcon from '../../../../assets/ic_staking.svg';
+import { Countdown } from "../../../components/Countdown";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
@@ -109,18 +110,49 @@ export const StakingPool = memo((props: {
             }}
             style={({ pressed }) => {
                 return {
+                    flex: 1,
                     opacity: pressed ? 0.5 : 1,
                     borderRadius: 20,
                     backgroundColor: Theme.white,
+                    padding: 16
                 }
             }}
         >
+            <View style={{
+                flexShrink: 1,
+                alignItems: 'center',
+                alignSelf: 'flex-end',
+                borderRadius: 16,
+                overflow: 'hidden',
+                backgroundColor: Theme.lightGrey,
+                maxWidth: 74, justifyContent: 'center',
+                position: 'relative', top: -6, right: -6
+            }}>
+                <Text style={{
+                    paddingHorizontal: 8, paddingVertical: 1,
+                    color: Theme.textColor,
+                    fontWeight: '400',
+                    fontSize: 13, lineHeight: 18,
+                    flexShrink: 1,
+                }}>
+                    <Countdown
+                        hidePrefix
+                        left={left}
+                        textStyle={{
+                            color: Theme.textColor,
+                            fontWeight: '400',
+                            fontSize: 13, lineHeight: 18,
+                            flex: 1,
+                            flexShrink: 1,
+                        }}
+                    />
+                </Text>
+            </View>
             <View style={{
                 alignSelf: 'stretch',
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
-                padding: 16
             }}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 10 }}>
                     {!requireSource && (

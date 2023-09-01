@@ -42,22 +42,21 @@ export function shortLocale(code: 'ru' | 'en') {
     return { formatDistance };
 }
 
-function format(duration: number) {
+function format(duration: number, hidePrefix?: boolean) {
     if (duration <= 0) return t('common.soon');
-    return t('common.in')
-        + ' '
+    return (hidePrefix ? '' : t('common.in') + ' ')
         + formatDuration(
             getDuration(duration),
             { locale: shortLocale(t('lang') as 'ru' | 'en'), delimiter: ':', zero: true }
         );
 }
 
-export const Countdown = React.memo(({ left, textStyle }: { left: number, textStyle?: StyleProp<TextStyle> }) => {
+export const Countdown = React.memo(({ left, textStyle, hidePrefix }: { left: number, textStyle?: StyleProp<TextStyle>, hidePrefix?: boolean }) => {
     const [text, setText] = useState(format(left));
     const { Theme } = useAppConfig();
 
     useEffect(() => {
-        setText(format(left));
+        setText(format(left, hidePrefix));
     }, [left]);
 
     return (

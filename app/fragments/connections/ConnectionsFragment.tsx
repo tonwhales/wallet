@@ -19,7 +19,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useLinkNavigator } from '../../useLinkNavigator';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 
 import Scanner from '../../../assets/ic-scanner-accent.svg';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
@@ -73,7 +73,7 @@ export const ConnectionsFragment = fragment(() => {
         if (!domain) {
             return; // Shouldn't happen
         }
-        let k = engine.persistence.domainKeys.getValue(domain);
+        let k = engine.products.keys.getDomainKey(domain);
         if (!k) {
             navigation.navigate('Install', { url });
         } else {
@@ -152,7 +152,12 @@ export const ConnectionsFragment = fragment(() => {
 
     useTrackScreen('Browser', engine.isTestnet);
 
-    useFocusEffect(useCallback(() => setApps(groupItems(getConnectionReferences())), []));
+    useFocusEffect(useCallback(() => {
+        setApps(groupItems(getConnectionReferences()));
+        setTimeout(() => {
+            setStatusBarStyle('dark');
+        }, 100);
+    }, []));
 
     return (
         <View style={{ flex: 1 }}>

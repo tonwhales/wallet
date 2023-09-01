@@ -31,29 +31,11 @@ export const WalletItem = memo((
     const onSelectAccount = useCallback(() => {
         if (selected) return;
         const index = appStateManager.current.addresses.findIndex((a) => a.address.toFriendly() === address.toFriendly());
-        Alert.alert(
-            t(
-                'wallets.switchToAlertTitle',
-                { wallet: walletSettings?.name || `${t('common.wallet')} ${index + 1}` }
-            ),
-            t('wallets.switchToAlertMessage'),
-            [
-                {
-                    text: t('common.cancel'),
-                    style: 'cancel',
-                },
-                {
-                    text: t('wallets.switchToAlertAction'),
-                    onPress: () => {
-                        navigation.goBack();
-                        appStateManager.updateAppState({
-                            ...appStateManager.current,
-                            selected: index
-                        });
-                    },
-                }
-            ]
-        );
+        navigation.goBack();
+        appStateManager.updateAppState({
+            ...appStateManager.current,
+            selected: index
+        });
     }, [walletSettings, selected, address]);
 
     return (

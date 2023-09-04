@@ -53,14 +53,9 @@ export class HoldersProduct {
 
     //TODO: REMOVE THIS, DEV DEMO ONLY
     devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
-    devUseOfflineMigrated = storage.getBoolean('dev-tools:use-offline-app-migrated');
-    offlineResMigrated = storage.getBoolean('holders-offline-res-migrated');
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
-        if (this.devUseOfflineMigrated) {
-            storage.delete('dev-tools:use-offline-app');
-        }
         this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
         if (this.devUseOffline === undefined) {
             storage.set('dev-tools:use-offline-app', true);
@@ -520,15 +515,6 @@ export class HoldersProduct {
     }
 
     async offlinePreFlight() {
-        if (!this.offlineResMigrated) {
-            this.offlineResMigrated = true;
-            storage.set('holders-offline-res-migrated', true);
-            if (FileSystem.documentDirectory) {
-                await FileSystem.deleteAsync(FileSystem.documentDirectory, { idempotent: true })
-                this.engine.persistence.holdersOfflineApp.item().update(() => null);
-            }
-        }
-
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
         if (!stored) {
             await this.syncOfflineApp();

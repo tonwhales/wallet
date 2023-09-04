@@ -616,7 +616,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     known: {
         deposit: 'Deposit',
         depositOk: 'Deposit accepted',
-        withdraw: 'Request withdraw of {{coins}} TON',
+        withdraw: 'Withdrawal request of {{coins}} TON',
         withdrawAll: 'Request withdraw of all coins',
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',

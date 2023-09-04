@@ -326,7 +326,7 @@ export function TransactionView(props: {
                 </View>
                 {!!operation.comment && (
                     <View style={{
-                        flexShrink: 1, alignSelf: 'flex-end',
+                        flexShrink: 1, alignSelf: 'flex-start',
                         backgroundColor: Theme.lightGrey,
                         marginTop: 8,
                         paddingHorizontal: 10, paddingVertical: 8,

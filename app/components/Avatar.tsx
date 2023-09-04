@@ -94,7 +94,7 @@ export const Avatar = React.memo((props: {
             img = (
                 <FastImage
                     source={imgSource}
-                    style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+                    style={{ width: props.size * .83, height: props.size * .83, borderRadius: props.size / 2, overflow: 'hidden' }}
                 />
             );
         } else {

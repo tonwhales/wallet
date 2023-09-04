@@ -34,7 +34,7 @@ export const PressableChip = memo(({
             ]}>
                 <Text style={[
                     {
-                        fontWeight: '400',
+                        fontWeight: '500',
                         fontSize: 15, lineHeight: 20,
                         textAlign: 'center', textAlignVertical: 'center',
                     },

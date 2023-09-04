@@ -55,7 +55,7 @@ export function extractHoldersQueryParams(url: string): {
         return {
             closeApp,
             openUrl,
-            backPolicy: backPolicy,
+            backPolicy,
             openEnrollment,
             showKeyboardAccessoryView,
         }

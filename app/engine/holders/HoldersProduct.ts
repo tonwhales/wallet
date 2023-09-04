@@ -283,11 +283,11 @@ export class HoldersProduct {
             // If not enrolled locally
             if (!status || status.state === 'need-enrolment') {
                 const existingToken = this.getToken();
-                if (existingToken && existingToken.toString().length > 0) {
-                    let state = await fetchAccountState(existingToken.toString());
+                if (existingToken && existingToken.length > 0) {
+                    let state = await fetchAccountState(existingToken);
                     targetStatus.update((src) => {
                         if (!!state) {
-                            return { ...state, token: existingToken.toString() };
+                            return { ...state, token: existingToken };
                         }
                         return src
                     });
@@ -478,7 +478,6 @@ export class HoldersProduct {
     async cacheOfflineApp() {
         const stored = this.engine.persistence.holdersOfflineApp.item().value;
         if (!stored) {
-            console.warn('trying to cache offline with no version stored');
             return null;
         }
 

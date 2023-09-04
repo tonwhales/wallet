@@ -53,7 +53,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     ready: prevReady ? true : false,
                 });
             }
-        })()
+        })();
     }, [offlineApp, offlineAppEnabled]);
 
     const reboot = useReboot();

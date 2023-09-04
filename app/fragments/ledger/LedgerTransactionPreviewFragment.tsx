@@ -55,7 +55,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
             }
         } else if (transaction.base.kind === 'in') {
             if (transaction.base.bounced) {
-                op = '⚠️ ' + t('tx.bounced');
+                op = t('tx.bounced');
             } else {
                 op = t('tx.received');
             }

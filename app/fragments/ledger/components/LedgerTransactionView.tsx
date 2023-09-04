@@ -64,7 +64,7 @@ export function LedgerTransactionView(props: {
             }
         } else if (parsed.kind === 'in') {
             if (parsed.bounced) {
-                op = '⚠️ ' + t('tx.bounced');
+                op =  t('tx.bounced');
             } else {
                 op = t('tx.received');
             }

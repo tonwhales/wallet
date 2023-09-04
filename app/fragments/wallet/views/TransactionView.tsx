@@ -275,7 +275,6 @@ export function TransactionView(props: {
                                 ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress)
                                 : <AddressComponent address={operation.address} />
                             }
-                            {' • ' + formatTime(parsed.time)}
                         </Text>
                     </View>
                     <View>

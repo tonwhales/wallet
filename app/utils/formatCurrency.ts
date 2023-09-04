@@ -1,13 +1,9 @@
-import { getNumberFormatSettings } from "react-native-localize";
 import { CurrencySymbols } from "../engine/products/PriceProduct";
 
 function toLocaleNumber(value: string) {
-    // const { decimalSeparator } = getNumberFormatSettings();
-
-    // if (decimalSeparator === ',') {
-    //     return `${value}`.replace('.', ',');
-    // }
-    return value;
+    let parts = value.toString().split('.');
+    parts[0] = parts[0].replaceAll(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    return parts.join('.');
 }
 
 export function formatCurrency(amount: string, currency: string, neg?: boolean): string {

@@ -72,9 +72,9 @@ export const ReceiveFragment = fragment(() => {
             + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
     }, [jetton]);
 
-    const [mainColor, setMainColor] = useState('#0088CC');
+    const [mainColor, setMainColor] = useState('#0098EA');
     const isDark = useMemo(() => {
-        if (mainColor === '#0088CC') {
+        if (mainColor === '#0098EA') {
             return true;
         }
         const [r, g, b] = mainColor.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
@@ -90,7 +90,7 @@ export const ReceiveFragment = fragment(() => {
             setMainColor(color);
             return;
         }
-        setMainColor('#0088CC');
+        setMainColor('#0098EA');
     }, [image]);
 
     return (
@@ -165,6 +165,8 @@ export const ReceiveFragment = fragment(() => {
                             }}>
                                 <View style={{
                                     flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                 }}>
                                     <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
                                         {!!jetton && (
@@ -178,7 +180,7 @@ export const ReceiveFragment = fragment(() => {
                                             />
                                         )}
                                         {!jetton && (
-                                            <TonIcon width={46} height={46} />
+                                            <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
                                         )}
                                         {isVerified && (
                                             <Verified

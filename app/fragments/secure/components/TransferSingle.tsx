@@ -326,7 +326,7 @@ export const TransferSingle = memo((props: Props) => {
             setCapColor(newColor);
             return;
         }
-        setCapColor('#0088CC');
+        setCapColor('#0098EA');
     }, [image]);
 
     const jettonsGasAlert = useCallback(() => {

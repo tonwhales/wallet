@@ -134,7 +134,7 @@ const initialTheme = {
     accentRed: '#ff415c',
     red: '#FF415C',
     lightRed: '#FCE7E8',
-    ton: '#0088CC',
+    ton: '#0098EA',
     white: 'white',
     black: 'black',
     mediumMain: '#7D73F3',

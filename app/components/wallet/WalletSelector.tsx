@@ -1,8 +1,7 @@
-import React, { useCallback } from "react";
-import { View, Text, Pressable, Image, Platform } from "react-native";
+import React, { memo, useCallback } from "react";
+import { View, Text, Pressable, Image } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useAppStateManager } from "../../engine/AppStateManager";
-import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
 import { WalletItem } from "./WalletItem";
 import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
@@ -10,7 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 import IcCheck from "../../../assets/ic-check.svg";
 
-export const WalletSelector = React.memo(() => {
+export const WalletSelector = memo(() => {
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const appStateManager = useAppStateManager();
@@ -22,17 +21,7 @@ export const WalletSelector = React.memo(() => {
     }, []);
 
     return (
-        <View style={{
-            flexGrow: 1,
-        }}>
-            <Text style={{
-                fontSize: 17, lineHeight: 24,
-                fontWeight: '600',
-                color: Theme.textColor,
-                marginBottom: 16, marginTop: Platform.OS === 'ios' ? 16 : 0,
-            }}>
-                {t('common.wallets')}
-            </Text>
+        <View style={{ flexGrow: 1 }}>
             {appStateManager.current.addresses.map((wallet, index) => {
                 return (
                     <WalletItem

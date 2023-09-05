@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo } from "react";
-import { Platform, Pressable, View, useWindowDimensions } from "react-native";
+import { Platform, Pressable, ScrollView, View, useWindowDimensions, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useAppStateManager } from "../../engine/AppStateManager";
@@ -11,7 +11,6 @@ import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import { getAppState } from "../../storage/appState";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const AccountSelectorFragment = fragment(() => {
@@ -23,9 +22,10 @@ export const AccountSelectorFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
     const ledgerConnected = !!ledgerContext?.tonTransport;
+    const addressesCount = appStateManager.current.addresses.length + (ledgerConnected ? 1 : 0);
+
     const heightMultiplier = useMemo(() => {
-        const addressesCount = appStateManager.current.addresses.length + (ledgerConnected ? 1 : 0);
-        let multiplier = .8;
+        let multiplier = 1;
         if (addressesCount === 1) {
             multiplier = .5;
         } else if (addressesCount === 2) {
@@ -36,27 +36,20 @@ export const AccountSelectorFragment = fragment(() => {
             multiplier = .8;
         }
         return multiplier;
-    }, [appStateManager.current.addresses, ledgerConnected]);
+    }, [addressesCount, ledgerConnected]);
+
+    const isScrollMode = useMemo(() => {
+        return addressesCount + (ledgerConnected ? 1 : 0) > 3;
+    }, [addressesCount, ledgerConnected]);
 
     const onAddNewAccount = useCallback(() => {
-        const appState = getAppState();
-
-        const options = appState.addresses.length >= 3
-            ? [t('common.cancel'), t('hardwareWallet.actions.connect')]
-            : [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({
             options,
             cancelButtonIndex,
         }, (selectedIndex?: number) => {
-
-            if (appState.addresses.length >= 3) {
-                if (selectedIndex === 1) {
-                    navigation.replace('Ledger');
-                }
-                return;
-            }
 
             switch (selectedIndex) {
                 case 1:
@@ -85,7 +78,7 @@ export const AccountSelectorFragment = fragment(() => {
             flexGrow: 1,
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
+            paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom,
             backgroundColor: Platform.OS === 'android' ? Theme.white : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
@@ -96,22 +89,67 @@ export const AccountSelectorFragment = fragment(() => {
                     style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
                 />
             )}
-            <View style={{
-                height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
-                flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: Theme.white,
-                borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
-                borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                padding: 16,
-                paddingBottom: safeArea.bottom + 16
-            }}>
-                <WalletSelector />
-                <RoundButton
-                    style={{ marginVertical: 16 }}
-                    onPress={onAddNewAccount}
-                    title={t('wallets.addNewTitle')}
-                />
-            </View>
+            {isScrollMode ? (
+                <View style={{
+                    flex: 1, backgroundColor: Theme.white,
+                    borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
+                    borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
+                    paddingBottom: safeArea.bottom + 16
+                }}>
+                    <Text style={{
+                        marginHorizontal: 16,
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '600',
+                        color: Theme.textColor,
+                        marginTop: Platform.OS === 'ios' ? 32 : 0,
+                    }}>
+                        {t('common.wallets')}
+                    </Text>
+                    <ScrollView
+                        style={{
+                        }}
+                        contentContainerStyle={{
+                            paddingHorizontal: 16,
+                        }}
+                        contentInset={{
+                            bottom: safeArea.bottom + 16,
+                            top: 16
+                        }}
+                    >
+                        <WalletSelector />
+                    </ScrollView>
+                    <RoundButton
+                        style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
+                        onPress={onAddNewAccount}
+                        title={t('wallets.addNewTitle')}
+                    />
+                </View>
+            ) : (
+                <View style={{
+                    height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
+                    flexGrow: Platform.OS === 'ios' ? 0 : 1,
+                    backgroundColor: Theme.white,
+                    borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
+                    borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
+                    padding: 16,
+                    paddingBottom: safeArea.bottom + 16
+                }}>
+                    <Text style={{
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '600',
+                        color: Theme.textColor,
+                        marginBottom: 16, marginTop: Platform.OS === 'ios' ? 16 : 0,
+                    }}>
+                        {t('common.wallets')}
+                    </Text>
+                    <WalletSelector />
+                    <RoundButton
+                        style={{ marginVertical: 16 }}
+                        onPress={onAddNewAccount}
+                        title={t('wallets.addNewTitle')}
+                    />
+                </View>
+            )}
         </View>
     );
 });

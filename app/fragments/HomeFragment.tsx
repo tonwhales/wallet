@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Image, View } from 'react-native';
 import { fragment } from "../fragment";
-import { WalletFragment, WalletNavigationStack } from './wallet/WalletFragment';
+import { WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';

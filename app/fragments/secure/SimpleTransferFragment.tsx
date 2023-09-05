@@ -568,7 +568,7 @@ export const SimpleTransferFragment = fragment(() => {
                 'address',
                 !!targetAddressValid ? () => focusInput(0) : null,
                 {
-                    onBackPressed: resetInput,
+                    onBackPressed: navigation.goBack,
                     title: t('common.recipient'),
                     titleComponent: undefined
                 }

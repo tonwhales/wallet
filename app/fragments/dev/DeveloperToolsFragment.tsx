@@ -36,7 +36,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     useEffect(() => {
         (async () => {
-            const ready = await engine.products.holders.checkCurrentOfflineVersion();
+            const ready = await checkCurrentOfflineVersion();
             setOfflineAppReady(ready ? { version: ready } : false);
             const prev = await engine.products.holders.getPrevOfflineVersion();
             if (prev) {

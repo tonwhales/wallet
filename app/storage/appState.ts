@@ -10,6 +10,7 @@ import { deriveUtilityKey } from './utilityKeys';
 export type AppState = {
     addresses: {
         address: Address,
+        addressString: string,
         publicKey: Buffer,
         secretKeyEnc: Buffer,
         utilityKey: Buffer
@@ -128,6 +129,7 @@ export async function doUpgrade(isTestnet: boolean) {
                 let utilityKey = await deriveUtilityKey(wallet.mnemonics);
                 return {
                     address,
+                    addressString: a.address,
                     publicKey,
                     secretKeyEnc,
                     utilityKey
@@ -182,6 +184,7 @@ export function getAppState(): AppState {
         selected,
         addresses: parsed.addresses.map((v) => ({
             address: Address.parseFriendly(v.address).address,
+            addressString: v.address,
             publicKey: global.Buffer.from(v.publicKey, 'base64'),
             secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
             utilityKey: global.Buffer.from(v.utilityKey, 'base64')
@@ -229,14 +232,6 @@ export function markAddressSecured(src: Address, isTestnet: boolean) {
 
 export function isAddressSecured(src: Address, isTestnet: boolean) {
     return storage.getBoolean('backup_' + src.toFriendly({ testOnly: isTestnet }));
-}
-
-export function markAsTermsAccepted() {
-    storage.set('terms_accepted', true);
-}
-
-export function isTermsAccepted() {
-    return storage.getBoolean('terms_accepted');
 }
 
 export async function getAppKey() {

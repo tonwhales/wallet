@@ -92,6 +92,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         publicKey: key.publicKey,
                         secretKeyEnc, // With passcode
                         utilityKey,
+                        addressString: contract.address.toFriendly({ testOnly: isTestnet })
                     }
                 ],
                 selected: state.addresses.length

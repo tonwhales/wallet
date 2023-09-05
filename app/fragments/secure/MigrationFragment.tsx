@@ -22,6 +22,7 @@ import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useLegacyWallets } from '../../engine/hooks/useLegacyWallets';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -132,7 +133,7 @@ export const MigrationFragment = systemFragment(() => {
         }
     }, []);
 
-    const state = engine.products.legacy.useStateFull();
+    const state = useLegacyWallets();
     let s = new BN(0);
     for (let w of state) {
         s = s.add(w.balance);

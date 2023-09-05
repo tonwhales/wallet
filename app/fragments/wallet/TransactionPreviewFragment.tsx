@@ -33,6 +33,9 @@ import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
 import { useTransaction } from '../../engine/hooks/useTransaction';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
+import { TxBody } from '../../engine/legacy/Transaction';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -72,7 +75,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const verified = !!transaction.verified
         || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
-    let body: Body | null = null;
+    let body: TxBody | null = null;
     if (transaction.base.body?.type === 'payload') {
         body = parseBody(transaction.base.body.cell);
     }

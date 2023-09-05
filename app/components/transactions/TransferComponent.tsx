@@ -7,13 +7,13 @@ import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
 import { AddressComponent } from "../AddressComponent";
 import BN from "bn.js";
 import { ContractMetadata } from "../../engine/legacy/metadata/Metadata";
-import { Operation } from "../../engine/transactions/types";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { AddressContact } from "../../engine/products/SettingsProduct";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { t } from "../../i18n/t";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
+import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
+import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
+import { Operation } from '../../engine/legacy/transactions/types';
 
 export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {

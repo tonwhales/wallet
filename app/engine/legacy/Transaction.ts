@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
 
-export type Body = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
+export type TxBody = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
 
 export type Transaction = {
     id: string;

@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const StakingCycleProgress = React.memo((
     {

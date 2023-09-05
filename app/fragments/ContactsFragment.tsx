@@ -20,14 +20,15 @@ import { useTheme } from '../engine/hooks/useTheme';
 import { useContacts } from '../engine/hooks/useContacts';
 import { useAccountTransactions } from '../engine/hooks/useAccountTransactions';
 import { useAccount } from '../engine/hooks/useAccount';
+import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
-    const account = useAccount();
-    const transactions = useAccountTransactions(account.address);
+    const address = useCurrentAddress();
+    const transactions = useAccountTransactions(address.addressString);
     const [addingAddress, setAddingAddress] = useState(false);
     const [domain, setDomain] = React.useState<string>();
     const [target, setTarget] = React.useState('');
@@ -96,7 +97,7 @@ export const ContactsFragment = fragment(() => {
                     collapsable={false}
                 >
                     {s.items.map((t, i) => <TransactionView
-                        own={account.address}
+                        own={address.address}
                         tx={t}
                         separator={i < s.items.length - 1}
                         key={'tx-' + t}

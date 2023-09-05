@@ -8,8 +8,8 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 
 export const WalletCreateFragment = systemFragment(() => {
     const theme = useTheme();

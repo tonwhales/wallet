@@ -1,10 +1,10 @@
 import { useRecoilCallback } from 'recoil';
-import { isTestnetAtom } from '../state/network';
+import { networkSelector } from '../state/network';
 import { storagePersistence } from '../../storage/storage';
 
 export function useSetNetwork() {
     return useRecoilCallback(({ set }) => (network: 'testnet' | 'mainnet') => {
-        set(isTestnetAtom, network === 'testnet');
+        set(networkSelector, { isTestnet: network === 'testnet' });
         storagePersistence.clearAll();
     }, []);
 }

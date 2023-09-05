@@ -16,6 +16,11 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useTransaction } from '../../../engine/hooks/useTransaction';
+import { useSpamMinAmount } from '../../../engine/hooks/useSpamMinAmount';
+import { useContactAddress } from '../../../engine/hooks/useContactAddress';
+import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
+import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -33,7 +38,7 @@ export function TransactionView(props: {
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
-    const tx = props.engine.products.main.useTransaction(props.tx);
+    const tx = useTransaction(props.tx);
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -66,7 +71,7 @@ export function TransactionView(props: {
         }
     }
 
-    const contact = props.engine.products.settings.useContactAddress(operation.address);
+    const contact = useContactAddress(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -81,10 +86,10 @@ export function TransactionView(props: {
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
-    const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
-    const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
+    const spamMinAmount = useSpamMinAmount();
+    const isSpam = useDenyAddress(operation.address);
 
-    let spam = props.engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
             parsed.amount.abs().lt(spamMinAmount)

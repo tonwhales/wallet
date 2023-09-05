@@ -1,11 +1,11 @@
 import React, { useCallback, useMemo } from "react";
 import { TouchableHighlight, useWindowDimensions, View, Text } from "react-native";
 import { Address } from "ton";
-import { AddressContact } from "../../engine/products/SettingsProduct";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
 import { useTheme } from '../../engine/hooks/useTheme';
+import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
     const theme = useTheme();

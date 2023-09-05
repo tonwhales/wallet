@@ -440,7 +440,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             hiddenCards: 'Скрытые карты',
             card: {
                 cards: 'Карты Holders',
-                title: 'Card {{cardNumber}}',
+                title: 'Tonhub card {{cardNumber}}',
                 defaultSubtitle: 'Платите в TON, конвертация в EUR с комиссией 0%',
                 defaultTitle: 'Tonhub Bank Card',
                 eurSubtitle: 'Tonhub EUR',
@@ -634,7 +634,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     },
     connections: {
         extensions: 'Расширения',
-        connections: 'Внешние приложения'
+        connections: 'Подключения',
     },
     accounts: {
         active: 'Активные',

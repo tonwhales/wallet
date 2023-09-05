@@ -4,7 +4,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { getAppState, getBackup, isAddressSecured, markAddressSecured } from '../../storage/appState';
+import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
@@ -194,14 +194,16 @@ export const WalletBackupFragment = systemFragment(() => {
                     </Text>
                 )}
             </ScrollView>
-            <View style={{
-                alignSelf: 'stretch',
-                paddingHorizontal: 16,
-                paddingVertical: 16,
-                marginBottom: init ? safeArea.bottom === 0 ? 16 : safeArea.bottom : 0
-            }}>
-                <RoundButton title={back ? t('common.done') : t('common.continue')} onPress={onComplete} />
-            </View>
+            {init && (
+                <View style={{
+                    alignSelf: 'stretch',
+                    paddingHorizontal: 16,
+                    paddingVertical: 16,
+                    marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
+                }}>
+                    <RoundButton title={back ? t('common.done') : t('common.continue')} onPress={onComplete} />
+                </View>
+            )}
         </Animated.View>
     );
 });

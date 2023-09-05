@@ -1,6 +1,6 @@
 import { createContext, memo, useCallback, useContext, useEffect, useState } from "react";
 import { View, Text } from "react-native";
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -25,7 +25,8 @@ export type ToastProps = {
     message: string,
     type: 'warning' | 'default' | 'error' | 'success',
     onDestroy?: () => void,
-    duration?: ToastDuration
+    duration?: ToastDuration,
+    marginBottom?: number
 }
 
 const ToastContext = createContext<{
@@ -109,8 +110,11 @@ export const Toast = memo(({
     );
 });
 
+
 export const ToastProvider = memo((props: { children: React.ReactNode }) => {
     const safeArea = useSafeAreaInsets();
+    const defaultMarginBottom = safeArea.bottom + 32;
+    const marginBottom = useSharedValue(defaultMarginBottom);
     const [showing, setShowing] = useState<{ id: number, component: any }[]>([]);
 
     const filterExpired = useCallback(() => {
@@ -123,6 +127,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
 
     const show = useCallback((props: ToastProps) => {
         const id = Date.now() + (props.duration || ToastDuration.DEFAULT);
+        marginBottom.value = props.marginBottom !== undefined ? props.marginBottom : defaultMarginBottom;
         setShowing([
             {
                 id,
@@ -137,7 +142,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
                     />
                 ),
             }
-        ])
+        ]);
     }, []);
 
     const clear = useCallback(() => {
@@ -145,6 +150,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
     }, []);
 
     const push = useCallback((props: ToastProps) => {
+        marginBottom.value = props.marginBottom !== undefined ? props.marginBottom : defaultMarginBottom;
         const filtered = filterExpired();
         const id = Date.now() + (props.duration || ToastDuration.DEFAULT);
         const newShowing = [
@@ -185,15 +191,24 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
         }
     }, [filterExpired, showing]);
 
+    const animMargin = useAnimatedStyle(() => {
+        return {
+            bottom: marginBottom.value
+        }
+    });
+
     return (
         <ToastContext.Provider value={{ show, clear, push, pop }}>
             {props.children}
-            <View
-                style={{
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: safeArea.bottom + 32,
-                    flexDirection: 'column-reverse',
-                    alignItems: 'center',
-                }}
+            <Animated.View
+                style={[
+                    {
+                        position: 'absolute', top: 0, left: 0, right: 0,
+                        flexDirection: 'column-reverse',
+                        alignItems: 'center',
+                    },
+                    animMargin
+                ]}
                 pointerEvents={'none'}
             >
                 {showing.map((c, i) => {
@@ -207,7 +222,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
                         </Animated.View>
                     )
                 })}
-            </View>
+            </Animated.View>
         </ToastContext.Provider>
     );
 });

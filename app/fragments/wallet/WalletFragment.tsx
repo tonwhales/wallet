@@ -204,7 +204,9 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 fontWeight: '400',
                                 fontFamily: undefined
                             }}
-                            limitActions
+                            disableContextMenu
+                            copyOnPress
+                            copyToastProps={{ marginBottom: 32 }}
                         />
                     </View>
                     <View

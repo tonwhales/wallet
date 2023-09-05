@@ -1,5 +1,5 @@
-import React, { useCallback, useMemo } from "react";
-import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
+import React, { memo, useCallback, useMemo } from "react";
+import { NativeSyntheticEvent, Platform, Pressable, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { t } from "../i18n/t";
 import { useEngine } from "../engine/Engine";
@@ -8,6 +8,7 @@ import { Address } from "ton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
 import { useAppConfig } from "../utils/AppConfigContext";
+import { ToastDuration, ToastProps, useToaster } from "./toast/ToastProvider";
 
 export function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -15,7 +16,7 @@ export function ellipsiseAddress(src: string) {
         + src.slice(src.length - 6)
 }
 
-export const WalletAddress = React.memo((props: {
+export const WalletAddress = memo((props: {
     address: Address,
     value?: string,
     style?: StyleProp<ViewStyle>,
@@ -27,21 +28,24 @@ export const WalletAddress = React.memo((props: {
     limitActions?: boolean,
     disableContextMenu?: boolean,
     previewBackgroundColor?: string,
+    copyOnPress?: boolean,
+    copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>
 }) => {
+    const toaster = useToaster();
     const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const settings = engine.products.settings;
     const friendlyAddress = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
 
-    const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
+    const onMarkAddressSpam = useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
         if (confirmed) {
             settings.addToDenyList(addr);
         }
     }, []);
 
-    const onAddressContact = React.useCallback((addr: Address) => {
+    const onAddressContact = useCallback((addr: Address) => {
         navigation.replace('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
     }, []);
 
@@ -50,7 +54,7 @@ export const WalletAddress = React.memo((props: {
             + (props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet }));
     }, [props.value, props.address]);
 
-    const onShare = React.useCallback(() => {
+    const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {
             Share.share({ title: t('receive.share.title'), url: addressLink });
         } else {
@@ -58,10 +62,19 @@ export const WalletAddress = React.memo((props: {
         }
     }, [addressLink]);
 
-    const onCopy = React.useCallback(() => {
+    const onCopy = useCallback(() => {
         const text = props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet });
         copyText(text);
-    }, [props.value, props.address]);
+
+        toaster.push(
+            {
+                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                type: 'default',
+                duration: ToastDuration.SHORT,
+                ...props.copyToastProps
+            }
+        );
+    }, [props.value, props.address, toaster, props.copyToastProps]);
 
     const handleAction = useCallback(
         (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
@@ -181,7 +194,15 @@ export const WalletAddress = React.memo((props: {
                 </ContextMenu>
             )}
             {props.disableContextMenu && (
-                <View>
+                <Pressable
+                    style={({ pressed }) => {
+                        return [
+                            props.style,
+                            { opacity: (pressed && props.copyOnPress) ? 0.5 : 1, }
+                        ]
+                    }}
+                    onPress={props.copyOnPress ? onCopy : undefined}
+                >
                     {props.elipsise && (
                         <Text
                             style={[
@@ -239,7 +260,7 @@ export const WalletAddress = React.memo((props: {
                             </Text>
                         </>
                     )}
-                </View>
+                </Pressable>
             )}
         </>
     );

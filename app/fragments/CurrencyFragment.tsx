@@ -10,7 +10,6 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
-import { ScreenHeader } from "../components/ScreenHeader";
 import Animated from "react-native-reanimated";
 
 import IcCheck from "../../assets/ic-check.svg";
@@ -88,13 +87,23 @@ export const CurrencyFragment = fragment(() => {
                                         },
                                         animatedStyle
                                     ]}>
-                                    <Text style={{
-                                        fontWeight: '600',
-                                        marginLeft: 17,
-                                        fontSize: 17
-                                    }}>
-                                        {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
-                                    </Text>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={{
+                                            fontWeight: '600',
+                                            marginLeft: 17,
+                                            fontSize: 17
+                                        }}>
+                                            {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
+                                        </Text>
+                                        <Text style={{
+                                            color: Theme.darkGrey,
+                                            fontWeight: '400',
+                                            marginLeft: 12, fontSize: 15,
+                                            textAlign: 'left'
+                                        }}>
+                                            {`${CurrencySymbols[PrimaryCurrency[key]].label}`}
+                                        </Text>
+                                    </View>
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 24, width: 24,

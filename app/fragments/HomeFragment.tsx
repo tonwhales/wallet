@@ -18,7 +18,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
 import DeviceInfo from 'react-native-device-info';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
 
@@ -114,13 +114,26 @@ export const HomeFragment = fragment(() => {
         });
     }, []);
 
+    const onBlur = useCallback(() => {
+        const status = navigation.base.getState();
+        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => r.name === 'AccountSelector' || r.name === 'Logout');
+        if (selectorOrLogout) {
+            const deviceId = DeviceInfo.getDeviceId();
+            const dCurve = getDeviceScreenCurve(deviceId);
+            setCurve(dCurve);
+        } else {
+            setCurve(undefined);
+        }
+    }, []);
+
+
     useLayoutEffect(() => {
         if (Platform.OS === 'ios') {
-            (async () => {
-                const deviceId = DeviceInfo.getDeviceId();
-                const dCurve = getDeviceScreenCurve(deviceId);
-                setCurve(dCurve);
-            })();
+            navigation.base.addListener('blur', onBlur);
+
+            return () => {
+                navigation.base.removeListener('blur', onBlur);
+            }
         }
     }, []);
 
@@ -130,7 +143,8 @@ export const HomeFragment = fragment(() => {
             backgroundColor: Theme.black,
         }}>
             <View style={{
-                flexGrow: 1, borderTopEndRadius: curve,
+                flexGrow: 1,
+                borderTopEndRadius: curve,
                 borderTopStartRadius: curve,
                 overflow: 'hidden'
             }}>

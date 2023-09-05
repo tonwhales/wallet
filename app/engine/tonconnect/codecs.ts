@@ -37,6 +37,7 @@ export const connectItemReplyCodec = t.union([
         address: t.string,
         network: c.createEnumType<CHAIN>(CHAIN, 'CHAIN'),
         walletStateInit: t.string,
+        publicKey: t.string
     }),
     tonProofItemReplyCodec,
 ]);

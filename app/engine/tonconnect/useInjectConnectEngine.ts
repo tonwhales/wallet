@@ -13,6 +13,7 @@ import { Cell, fromNano, toNano } from 'ton';
 
 export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: TypedNavigation) {
   const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
+  const [eventId, setEventId] = useState(0);
   const app = engine.products.tonConnect.getConnectedAppByUrl(webViewUrl);
 
   const isConnected = useMemo(() => {
@@ -40,6 +41,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
             return new ConnectEventError(
               CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
               'Unknown app',
+              eventId,
             );
           }
 
@@ -65,6 +67,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
                     items: result.replyItems,
                     device: tonConnectDeviceInfo,
                   },
+                  id: eventId,
                 });
 
                 // return;
@@ -92,6 +95,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
           return new ConnectEventError(
             CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
             error?.message,
+            eventId,
           );
         }
       },
@@ -99,17 +103,21 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
       restoreConnection: async () => {
         const event = await engine.products.tonConnect.autoConnect(webViewUrl);
         setConnectEvent(event);
+        setEventId(event.id);
         return event;
       },
 
       disconnect: async () => {
         setConnectEvent(null);
+        setEventId(0);
         engine.products.tonConnect.removeInjectedConnection(webViewUrl);
         return;
       },
 
       send: async <T extends RpcMethod>(request: AppRequest<T>) => {
         const connectedApp = engine.products.tonConnect.getConnectedAppByUrl(webViewUrl);
+
+        setEventId(Number(request.id));
 
         if (!connectedApp) {
           return {
@@ -216,7 +224,7 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
         });
       }
     };
-  }, [webViewUrl]);
+  }, [webViewUrl, eventId]);
 
   const [ref, injectedJavaScriptBeforeContentLoaded, onMessage, sendEvent] =
     useWebViewBridge<TonConnectInjectedBridge, WalletEvent>(bridgeObject);
@@ -224,9 +232,9 @@ export function useDAppBridge(webViewUrl: string, engine: Engine, navigation: Ty
   const disconnect = useCallback(async () => {
     try {
       await engine.products.tonConnect.disconnect(webViewUrl);
-      sendEvent({ event: 'disconnect', payload: {} });
+      sendEvent({ event: 'disconnect', payload: {}, id: eventId });
     } catch { }
-  }, [webViewUrl, sendEvent]);
+  }, [webViewUrl, sendEvent, eventId]);
 
   return {
     ref,

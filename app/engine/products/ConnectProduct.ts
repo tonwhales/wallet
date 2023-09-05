@@ -105,6 +105,14 @@ export class ConnectProduct extends TonConnectBridgeClient {
         this.open(connections);
     }
 
+    protected getLastEventIdNumber() {
+        try {
+            return Number(this.getLastEventId())
+        } catch {
+            return 0;
+        }
+    }
+
     // 
     // App Manifests
     // 
@@ -288,7 +296,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
         });
     }
 
-    async handleSendTransaction(tx: {
+    private async handleSendTransaction(tx: {
         request: AppRequest<'sendTransaction'>,
         callback: (response: WalletResponse<'sendTransaction'>) => void,
         from: string
@@ -348,6 +356,19 @@ export class ConnectProduct extends TonConnectBridgeClient {
         });
     }
 
+    private async handleDisconnect(event: {
+        request: AppRequest<'disconnect'>,
+        callback: (response: WalletResponse<'disconnect'>) => void,
+        connectedApp: ConnectedApp,
+        from: string
+    }) {
+        await this.disconnect(event.connectedApp.url);
+        event.callback({
+            id: event.request.id.toString(),
+            result: {},
+        });
+    }
+
     private async handleRequest<T extends RpcMethod>(args: {
         request: AppRequest<T>,
         connectedApp: ConnectedApp | null,
@@ -362,10 +383,29 @@ export class ConnectProduct extends TonConnectBridgeClient {
                 },
                 id: args.request.id.toString(),
             });
+            return;
+        }
+
+        if (args.request.method === 'disconnect') {
+            await this.handleDisconnect(
+                args as {
+                    request: AppRequest<'disconnect'>,
+                    callback: (response: WalletResponse<'disconnect'>) => void,
+                    connectedApp: ConnectedApp,
+                    from: string,
+                }
+            );
+            return;
         }
 
         if (args.request.method === 'sendTransaction') {
-            await this.handleSendTransaction(args);
+            await this.handleSendTransaction(
+                args as {
+                    request: AppRequest<'sendTransaction'>,
+                    callback: (response: WalletResponse<'sendTransaction'>) => void,
+                    from: string
+                }
+            );
             return;
         }
 
@@ -474,7 +514,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
 
     sendDisconnectEvent(connection: ConnectedAppConnectionRemote) {
         const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
-        const event: DisconnectEvent = { event: 'disconnect', payload: {} };
+        const event: DisconnectEvent = { event: 'disconnect', payload: {}, id: this.getLastEventIdNumber() };
         sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
     }
 
@@ -519,6 +559,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
                 throw new ConnectEventError(
                     CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
                     'Unknown app',
+                    this.getLastEventIdNumber(),
                 );
             }
 
@@ -536,6 +577,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
 
             const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
                 acc.address.toFriendly({ testOnly: this.engine.isTestnet, urlSafe: true, bounceable: true }),
+                Uint8Array.from(acc.publicKey),
                 walletStateInit,
                 this.engine.isTestnet
             );
@@ -546,15 +588,17 @@ export class ConnectProduct extends TonConnectBridgeClient {
                     items: replyItems,
                     device: tonConnectDeviceInfo,
                 },
+                id: this.getLastEventIdNumber()
             };
         } catch (error: any) {
             if (error instanceof ConnectEventError) {
-                return error;
+                return { ...error, id: this.getLastEventIdNumber() };
             }
 
             return new ConnectEventError(
                 CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                 error?.message,
+                this.getLastEventIdNumber(),
             );
         }
     }

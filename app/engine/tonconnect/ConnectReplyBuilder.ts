@@ -91,7 +91,7 @@ export class ConnectReplyBuilder {
     };
   }
 
-  createReplyItems(addr: string, privateKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
+  createReplyItems(addr: string, privateKey: Uint8Array, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
     const address = Address.parse(addr).toString();
 
     const replyItems = this.request.items.map((requestItem): ConnectItemReply => {
@@ -102,6 +102,7 @@ export class ConnectReplyBuilder {
             address,
             network: ConnectReplyBuilder.getNetwork(isTestnet),
             walletStateInit,
+            publicKey: Buffer.from(publicKey).toString('hex'),
           };
 
         case 'ton_proof':
@@ -115,7 +116,7 @@ export class ConnectReplyBuilder {
     return replyItems;
   }
 
-  static createAutoConnectReplyItems(addr: string, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
+  static createAutoConnectReplyItems(addr: string, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
     const address = Address.parse(addr).toString();
 
     return [
@@ -124,6 +125,7 @@ export class ConnectReplyBuilder {
         address,
         network: ConnectReplyBuilder.getNetwork(isTestnet),
         walletStateInit,
+        publicKey: Buffer.from(publicKey).toString('hex'),
       },
     ];
   }

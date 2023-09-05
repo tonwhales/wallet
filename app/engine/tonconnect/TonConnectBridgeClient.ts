@@ -21,11 +21,11 @@ export class TonConnectBridgeClient {
   // Events
   // 
 
-  protected async setLastEventId(lastEventId: string) {
+  protected setLastEventId(lastEventId: string) {
     storage.set('connect_last_event_id', lastEventId);
   }
 
-  protected async getLastEventId() {
+  protected getLastEventId() {
     return storage.getString('connect_last_event_id');
   }
 

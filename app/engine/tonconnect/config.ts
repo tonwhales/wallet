@@ -19,5 +19,5 @@ export const tonConnectDeviceInfo: DeviceInfo = {
   appName: Application.applicationName ?? 'Tonhub',
   appVersion: Application.nativeApplicationVersion ?? '1.23.3',
   maxProtocolVersion: CURRENT_PROTOCOL_VERSION,
-  features: ['SendTransaction'],
+  features: ['SendTransaction', { name: 'SendTransaction', maxMessages: 4 }],
 };

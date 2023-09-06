@@ -72,76 +72,38 @@ export const LegalFragment = systemFragment(() => {
         }}>
             <AndroidToolbar />
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
-                {!isCreate && (
-                    <>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                            <Text style={{
-                                fontSize: 32, lineHeight: 38,
-                                fontWeight: '600',
-                                textAlign: 'center',
-                                color: Theme.textColor,
-                                marginBottom: 12, marginTop: 16
-                            }}>
-                                {t('legal.title')}
-                            </Text>
-                            <Text style={{
-                                textAlign: 'center',
-                                fontSize: 17, lineHeight: 24,
-                                fontWeight: '400',
-                                flexShrink: 1,
-                                color: Theme.darkGrey,
-                                marginBottom: 32
-                            }}>
-                                {t('legal.createSubtitle')}
-                            </Text>
-                        </View>
-                        <View style={{
-                            width: dimensions.screen.width, height: 300,
-                            justifyContent: 'center', alignItems: 'center',
-                        }}>
-                            <LottieView
-                                source={require('../../../assets/animations/paper.json')}
-                                autoPlay={true}
-                                loop={true}
-                                style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
-                            />
-                        </View>
-                    </>
-                )}
-                {isCreate && (
-                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                        <Text style={{
-                            fontSize: 32, lineHeight: 38,
-                            fontWeight: '600',
-                            textAlign: 'center',
-                            color: Theme.textColor,
-                            marginBottom: 12, marginTop: 16
-                        }}>
-                            {t('legal.create')}
-                        </Text>
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '400',
-                            flexShrink: 1,
-                            color: Theme.darkGrey,
-                            marginBottom: 24
-                        }}>
-                            {t('legal.createSubtitle')}
-                        </Text>
-                        <View style={{
-                            justifyContent: 'center', alignItems: 'center',
-                            aspectRatio: 0.92,
-                            width: dimensions.screen.width - 32,
-                        }}>
-                            <Image
-                                resizeMode={'contain'}
-                                style={{ width: dimensions.screen.width - 32 }}
-                                source={require('../../../assets/banner_backup.webp')}
-                            />
-                        </View>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+                    <Text style={{
+                        fontSize: 32, lineHeight: 38,
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        color: Theme.textColor,
+                        marginBottom: 12, marginTop: 16
+                    }}>
+                        {isCreate ? t('legal.create') : t('legal.title')}
+                    </Text>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                        flexShrink: 1,
+                        color: Theme.darkGrey,
+                        marginBottom: 24
+                    }}>
+                        {t('legal.createSubtitle')}
+                    </Text>
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        aspectRatio: 0.92,
+                        width: dimensions.screen.width - 32,
+                    }}>
+                        <Image
+                            resizeMode={'contain'}
+                            style={{ width: dimensions.screen.width - 32 }}
+                            source={require('../../../assets/banner_backup.webp')}
+                        />
                     </View>
-                )}
+                </View>
                 <View style={{ flexGrow: 1 }} />
             </ScrollView>
             <Pressable

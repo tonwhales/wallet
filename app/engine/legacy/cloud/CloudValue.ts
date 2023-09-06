@@ -13,7 +13,7 @@ export interface CloudValue<T> {
 }
 
 
-export class CloudValue<T> extends EventEmitter {
+export class CloudValue<T> {
     #cloud: Cloud;
     #key: string;
     #sync: InvalidateSync;
@@ -21,22 +21,21 @@ export class CloudValue<T> extends EventEmitter {
     readonly atom: RecoilState<T>;
 
     constructor(cloud: Cloud, key: string, init: (src: T) => void) {
-        super();
         this.#cloud = cloud;
         this.#key = key;
 
         // Load initial value
         let v: AutomergeValue<T> | null = null;
-        let existing = cloud.engine.persistence.cloud.getValue({ key, address: cloud.engine.address });
-        if (existing) {
-            try {
-                let e = AutomergeValue.fromExisting<T>(Buffer.from(existing, 'base64'));
-                e.apply(e.clone()); // Check validity
-                v = e;
-            } catch (e) {
-                // Ignore errors
-            }
-        }
+        // let existing = cloud.engine.persistence.cloud.getValue({ key, address: cloud.engine.address });
+        // if (existing) {
+        //     try {
+        //         let e = AutomergeValue.fromExisting<T>(Buffer.from(existing, 'base64'));
+        //         e.apply(e.clone()); // Check validity
+        //         v = e;
+        //     } catch (e) {
+        //         // Ignore errors
+        //     }
+        // }
         if (v) {
             this.#value = v;
         } else {
@@ -79,8 +78,7 @@ export class CloudValue<T> extends EventEmitter {
                 this.#value.apply(loaded);
                 logger.log(`Received ${key}, current: ${JSON.stringify(this.#value.getDoc())}`);
 
-                // Notify
-                this.emit('updated', this.value);
+                // [UPDATED]
                 this.#cloud.engine.recoil.updater(this.atom, this.value);
             }
         });
@@ -104,7 +102,8 @@ export class CloudValue<T> extends EventEmitter {
         // Apply diff
         this.#value.update(updater);
         this.#cloud.engine.persistence.cloud.setValue({ address: this.#cloud.engine.address, key: this.#key }, this.#value.save().toString('base64'));
-        this.emit('updated', this.value);
+
+        // [UPDATED]
         this.#cloud.engine.recoil.updater(this.atom, this.value);
 
         // Sync

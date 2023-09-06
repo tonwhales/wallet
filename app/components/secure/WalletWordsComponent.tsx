@@ -5,13 +5,13 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
-import { WordInput, WordInputRef, normalize, wordsTrie } from "../../fragments/onboarding/WalletImportFragment";
 import { mnemonicValidate } from "ton-crypto";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";
 import { StatusBar } from "expo-status-bar";
 import { AutocompleteView } from "../AutocompleteView";
+import { WordInput, WordInputRef, normalize, wordsTrie } from '../MnemonicWordInput';
 
 export const WalletWordsComponent = React.memo((props: {
     onComplete: (v: {

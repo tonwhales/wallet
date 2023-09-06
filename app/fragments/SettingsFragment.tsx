@@ -13,12 +13,14 @@ import { useOldWalletsBalance } from '../engine/hooks/useOldWalletsBalance';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
 import * as Application from 'expo-application';
+import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const account = useSelectedAccount();
     const oldWalletsBalance = useOldWalletsBalance();
 
     const onVersionTap = React.useMemo(() => {
@@ -104,7 +106,7 @@ export const SettingsFragment = fragment(() => {
                 }}
             >
                 {__DEV__ && (
-                    <ProfileComponent address={engine.address} />
+                    <ProfileComponent address={account.address} />
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 17,

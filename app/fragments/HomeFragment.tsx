@@ -18,6 +18,7 @@ import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useTheme } from '../engine/hooks/useTheme';
+import { useNetwork } from '../engine/hooks/useNetwork';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

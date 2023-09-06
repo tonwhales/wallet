@@ -21,6 +21,7 @@ import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useSetNetwork } from '../../engine/effects/useSetNetwork';
+import { useCloudValue } from '../../engine/hooks/basic/useCloudValue';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -30,26 +31,27 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
+    const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0); 
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
 
-    useEffect(() => {
-        (async () => {
-            const ready = await checkCurrentOfflineVersion();
-            setOfflineAppReady(ready ? { version: ready } : false);
-            const prev = await engine.products.holders.getPrevOfflineVersion();
-            if (prev) {
-                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
-                setPrevOfflineVersion(prevReady ? prev : false);
-            }
-        })()
-    }, [offlineApp]);
+    // useEffect(() => {
+    //     (async () => {
+    //         const ready = await checkCurrentOfflineVersion();
+    //         setOfflineAppReady(ready ? { version: ready } : false);
+    //         const prev = await engine.products.holders.getPrevOfflineVersion();
+    //         if (prev) {
+    //             const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+    //             setPrevOfflineVersion(prevReady ? prev : false);
+    //         }
+    //     })()
+    // }, [offlineApp]);
 
     const reboot = useReboot();
     const resetCache = React.useCallback(() => {
         storagePersistence.clearAll();
-        clearHolders(engine);
+        // clearHolders(engine);
         reboot();
     }, []);
 
@@ -139,6 +141,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Counter"}  hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
+                    </View>
 
                     {!(
                         Application.applicationId === 'com.tonhub.app.testnet' ||
@@ -172,7 +177,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
                     </View>
 
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                    {/* <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                             const app = engine.persistence.holdersOfflineApp.item().value;
                             if (app) {
@@ -181,7 +186,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             engine.persistence.holdersOfflineApp.item().update(() => null);
                             await engine.products.holders.forceSyncOfflineApp();
                         }} />
-                    </View>
+                    </View> */}
                 </View>
             </ScrollView>
         </View>

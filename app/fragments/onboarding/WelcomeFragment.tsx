@@ -4,11 +4,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
-import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { isTermsAccepted } from '../../storage/terms';
 
 export const WelcomeFragment = systemFragment(() => {
     const theme = useTheme();

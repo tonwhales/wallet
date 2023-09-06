@@ -1,3 +1,5 @@
+import BN from 'bn.js';
+
 export function useOldWalletsBalance() {
-    return {} as any;
+    return new BN(0);
 }

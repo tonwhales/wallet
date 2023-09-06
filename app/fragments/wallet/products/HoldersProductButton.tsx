@@ -18,12 +18,12 @@ const colorsMap: { [key: string]: string[] } = {
     'default-2': ['#792AF6', "#954CF9"], // Default
 }
 
-export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard }) => {
+export const HoldersProductButton = React.memo(({ account }: { account?: HoldersCard }) => {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const status = engine.products.holders.useStatus();
+    const status = { state: 'need-enrollment' };
 
     const needsEnrolment = React.useMemo(() => {
         try {

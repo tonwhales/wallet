@@ -6,10 +6,10 @@ import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
-import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks/useTheme';
+import { markAsTermsAccepted } from '../../storage/terms';
 
 export const LegalFragment = systemFragment(() => {
     const theme = useTheme();

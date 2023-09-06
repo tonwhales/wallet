@@ -24,6 +24,8 @@ import { useLedger } from '../../../engine/hooks/useLedger';
 import { useTonConnectExtensions } from '../../../engine/hooks/useTonConnectExtenstions';
 import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnectPendingRequests';
 import { useCards } from '../../../engine/hooks/useCards';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
 
 export const ProductsComponent = React.memo(() => {
     const theme = useTheme();

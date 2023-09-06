@@ -9,5 +9,19 @@ const appStateVersion = atom({
 
 export const appStateSelector = selector({
     key: 'wallet/appstate',
-    get: () => getAppState()
+    get: ({ get }) => {
+        get(appStateVersion);
+
+        return getAppState();
+    }
+});
+
+
+export const selectedAccountSelector = selector({
+    key: 'wallet/selectedAccount',
+    get: ({ get }) => {
+        const appState = get(appStateSelector);
+
+        return appState.addresses[appState.selected];
+    }
 });

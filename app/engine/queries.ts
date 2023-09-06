@@ -4,7 +4,9 @@ export const Queries = {
         State: () => ['account', address, 'state'],
         Transactions: () => ['account', address, 'transactions'],
         Hints: () => ['account', address, 'hints'],
-        Cards: () => ['account', address, 'cards']
+    }),
+    Cloud: (address: string) => ({
+        Key: (key: string) => ['cloud', address, key]
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

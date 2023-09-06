@@ -2,7 +2,7 @@ import BN from "bn.js";
 import { RecoilValueReadOnly, atom, selector, selectorFamily, useRecoilValue } from "recoil";
 import { Address, toNano } from "ton";
 import { SpamFilterConfig } from "../../../fragments/SpamFilterFragment";
-import { CloudValue } from "../cloud/CloudValue";r
+import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
 import { BiometricsState, PasscodeState, biometricsStateKey, getBiometricsState, getPasscodeState, passcodeStateKey } from "../../../storage/secureStorage";
 import { storage } from "../../../storage/storage";

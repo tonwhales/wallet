@@ -185,7 +185,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     React.useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [account.pending.length]);
+    }, [account.pending?.length]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -363,7 +363,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                 </View>
 
-                {account.pending.length > 0 && Platform.OS === 'android' && (
+                {account.pending?.length > 0 && Platform.OS === 'android' && (
                     <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                         <PendingTxs
                             txs={account.pending}
@@ -374,7 +374,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </Animated.View>
                 )}
 
-                {account.pending.length > 0 && Platform.OS !== 'android' && (
+                {account.pending?.length > 0 && Platform.OS !== 'android' && (
                     <PendingTxs
                         txs={account.pending}
                         next={account.next}

@@ -1,5 +1,4 @@
 import React from "react";
-import { EngineContext } from "./Engine";
 import { PriceState } from "./products/PriceProduct";
 
 // Price context
@@ -7,14 +6,10 @@ export const PriceContext = React.createContext<[PriceState | null | undefined, 
 
 // Price loader
 export const PriceLoader = React.memo((props: { children?: any }) => {
-    const engine = React.useContext(EngineContext)!
-    const price = engine.products.price.useState();
-    const currency = engine.products.price.usePrimaryCurrency();
+    usePrice();
 
     return (
-        <PriceContext.Provider value={[price, currency]}>
-            {props.children}
-        </PriceContext.Provider>
+        <>{props.children}</>
     );
 })
 

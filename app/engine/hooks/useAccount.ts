@@ -11,5 +11,6 @@ export function useAccount(): {
         publicKey: Buffer.from('string'),
         seqno: 1,
         balance: new BN(0),
+        transactions: [],
     }
 }

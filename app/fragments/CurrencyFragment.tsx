@@ -11,13 +11,12 @@ import CheckMark from '../../assets/ic_check_mark.svg';
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useTheme } from '../engine/hooks/useTheme';
 import { usePrimaryCurrency } from '../engine/hooks/usePrimaryCurrency';
-import { setPrimaryCurrency } from '../engine/effects/setPrimaryCurrency';
 import { CurrencySymbols, PrimaryCurrency } from '../engine/legacy/products/PriceProduct';
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const currency = usePrimaryCurrency();
+    const [currency, setPrimaryCurrency] = usePrimaryCurrency();
     const theme = useTheme();
 
     const onCurrency = useCallback(

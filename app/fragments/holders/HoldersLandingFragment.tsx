@@ -31,7 +31,7 @@ export const HoldersLandingFragment = fragment(() => {
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
-    const currency = usePrimaryCurrency();
+    const [currency,] = usePrimaryCurrency();
     // TODO
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const useOfflineApp = false;

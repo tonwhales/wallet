@@ -8,17 +8,13 @@ export function usePrice(): [PriceState, string] {
     let price = useQuery({
         queryKey: Queries.TonPrice(),
         queryFn: fetchPrice,
+        suspense: true,
     });
 
-    let primaryCurrency = usePrimaryCurrency();
+    let [currency,] = usePrimaryCurrency();
 
     return [
-        price.data ?? {
-            price: {
-                usd: 1,
-                rates: {}
-            }
-        },
-        primaryCurrency
+        price.data!,
+        currency,
     ];
 }

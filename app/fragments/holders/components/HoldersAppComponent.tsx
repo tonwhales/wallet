@@ -34,6 +34,7 @@ import { createDomainSignature } from '../../../engine/effects/createDomainSigna
 import { useAccount } from '../../../engine/hooks/useAccount';
 import { useCurrentAddress } from '../../../engine/hooks/useCurrentAddress';
 import { useTheme } from '../../../engine/hooks/useTheme';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -211,7 +212,7 @@ export const HoldersAppComponent = React.memo((
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
-    const currency = usePrimaryCurrency();
+    const [currency,] = usePrimaryCurrency();
     const { address, publicKey } = useCurrentAddress();
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);

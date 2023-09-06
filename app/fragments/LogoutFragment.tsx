@@ -16,6 +16,7 @@ import { useTheme } from '../engine/hooks/useTheme';
 import { Address } from "ton";
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 import { holdersUrl } from '../engine/legacy/holders/HoldersProduct';
+import { useNetwork } from '../engine/hooks/useNetwork';
 
 export function clearHolders(isTestnet: boolean, address?: Address) {
     // const holdersDomain = extractDomain(holdersUrl);
@@ -48,6 +49,7 @@ export const LogoutFragment = fragment(() => {
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
                         onAccountDeleted(isTestnet);
+                        reboot();
                     }
                 }
             );

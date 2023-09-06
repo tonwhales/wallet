@@ -31,7 +31,7 @@ export const UnstakeBanner = React.memo((
     const { isTestnet } = useNetwork();
     
     const price = useConnectPrice();
-    const currency = usePrimaryCurrency();
+    const [currency,] = usePrimaryCurrency();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {

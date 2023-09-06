@@ -6,11 +6,12 @@ export function useAccount(): {
     seqno: number,
     balance: BN,
  } {
+
     return {
         address: 'string',
         publicKey: Buffer.from('string'),
         seqno: 1,
-        balance: new BN(0),
+        balance: new BN(1e9).muln(10),
         transactions: [],
     }
 }

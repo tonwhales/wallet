@@ -148,21 +148,21 @@ export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (u
         suspense: true,
     });
 
-    const localAmValue = useRef(valueQuery.data ? AutomergeValue.fromExisting<T>(Buffer.from(valueQuery.data, 'base64')) : AutomergeValue.fromEmpty<T>(initial));
+    const localAmValue = useMemo(() => valueQuery.data ? AutomergeValue.fromExisting<T>(Buffer.from(valueQuery.data, 'base64')) : AutomergeValue.fromEmpty<T>(initial), [valueQuery]);
 
     const update = async (updater: (prevValue: T) => void) => {
-        localAmValue.current.update(updater);
-        queryClient.setQueryData(Queries.Cloud(account.addressString).Key(key), localAmValue.current.save().toString('base64'));
+        localAmValue.update(updater);
+        queryClient.setQueryData(Queries.Cloud(account.addressString).Key(key), localAmValue.save().toString('base64'));
 
         await updateCloudValue(key, async (buffer) => {
             let remoteAmValue = AutomergeValue.fromExisting<T>(buffer || AutomergeValue.fromEmpty<T>(initial).save());
 
-            remoteAmValue.apply(localAmValue.current);
+            remoteAmValue.apply(localAmValue);
 
             return remoteAmValue.save();
         }, { utilityKey: account.utilityKey, isTestnet });
     }
 
 
-    return [localAmValue.current.getDoc() as T, update];
+    return [localAmValue.getDoc() as T, update];
 }

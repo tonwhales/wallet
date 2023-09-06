@@ -150,7 +150,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
     if (props.label) paddingTop = 6;
 
     return (
-        <>
+        <View>
             <Animated.View
                 style={[{
                     backgroundColor: props.backgroundColor || '#F2F2F2',
@@ -235,8 +235,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                 numberOfLines={1}
                                 ellipsizeMode={'tail'}
                                 style={{
-                                    marginTop: 3,
-                                    fontSize: 17,
+                                    fontSize: 15, lineHeight: 20,
                                     fontWeight: '400',
                                     alignSelf: 'center',
                                     color: Theme.darkGrey,
@@ -259,6 +258,6 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                     </Text>
                 </Animated.View>
             )}
-        </>
+        </View>
     )
 }));

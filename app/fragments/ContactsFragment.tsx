@@ -11,16 +11,29 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useDimensions } from "@react-native-community/hooks";
+import { Address } from "ton";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
+    const main = engine.products.main;
     const safeArea = useSafeAreaInsets();
     const settings = engine.products.settings;
     const contacts = settings.useContacts();
     const account = engine.products.main.useAccount();
     const transactions = (account?.transactions.slice(0, Math.min(account.transactions.length - 1, 10))) ?? [];
+    // Unique by address transactions
+    const transactionsAddresses = useMemo(() => {
+        const addresses = new Set<string>();
+        transactions.forEach((t) => {
+            const tx = main.getTransaction(t.id);
+            if (tx && !!tx?.address) {
+                addresses.add(tx.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+            }
+        });
+        return Array.from(addresses).map((addr) => Address.parse(addr));
+    }, [transactions]);
     const dimentions = useDimensions();
 
     const [searchFocused, setSearchFocused] = useState(false);
@@ -134,8 +147,8 @@ export const ContactsFragment = fragment(() => {
                     </View>
 
                     <View style={{ marginTop: 16 }}>
-                        {transactions.map((tx) => {
-                            return (<ContactTransactionView key={`recent-${tx.id}`} tx={tx} />);
+                        {transactionsAddresses.map((a, index) => {
+                            return (<ContactTransactionView key={`recent-${index}`} address={a} />);
                         })}
                     </View>
                 </ScrollView>

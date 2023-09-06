@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../address/AddressComponent";
@@ -6,36 +6,39 @@ import { Avatar } from "../Avatar";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
+import { Address } from "ton";
 
-export const ContactTransactionView = React.memo(({ tx }: { tx: { id: string, time: number } }) => {
+export const ContactTransactionView = memo(({ address }: { address: Address }) => {
     const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const transaction = engine.products.main.useTransaction(tx.id);
     const navigation = useTypedNavigation();
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     const addressFriendly = useMemo(() => {
-        return transaction.base.address?.toFriendly({ testOnly: AppConfig.isTestnet });
-    }, [transaction]);
+        return address.toFriendly({ testOnly: AppConfig.isTestnet });
+    }, [address]);
 
     const onPress = useCallback(() => {
         navigation.navigate('Contact', { address: addressFriendly });
     }, [addressFriendly]);
-
-    if (!transaction.base.address || !addressFriendly) {
-        return null;
-    }
 
     return (
         <Pressable
             onPress={onPress}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
+
         >
-            <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
+            <Animated.View style={[
+                {
+                    flex: 1,
+                    paddingVertical: 10,
+                    flexDirection: 'row', alignItems: 'center',
+                    overflow: 'hidden',
+                },
+                animatedStyle
+            ]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
                         address={addressFriendly}
@@ -44,7 +47,7 @@ export const ContactTransactionView = React.memo(({ tx }: { tx: { id: string, ti
                         borderWith={0}
                     />
                 </View>
-                <View style={{ flexGrow: 1, justifyContent: 'center' }}>
+                <View style={{ flexGrow: 1, justifyContent: 'center', flexShrink: 1 }}>
                     <Text
                         style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                         ellipsizeMode={'tail'}
@@ -57,7 +60,7 @@ export const ContactTransactionView = React.memo(({ tx }: { tx: { id: string, ti
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent address={transaction.base.address} />
+                        <AddressComponent address={address} />
                     </Text>
                 </View>
                 <View style={{

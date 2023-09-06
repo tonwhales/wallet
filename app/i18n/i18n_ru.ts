@@ -744,7 +744,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     contacts: {
         title: 'Контакты',
         contact: 'Контакт',
-        unknown: 'Неизвестный контакт',
+        unknown: 'Недавний',
         contacts: 'Мои контакты',
         name: 'Имя',
         lastName: 'Фамилия',

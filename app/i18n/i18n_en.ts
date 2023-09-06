@@ -743,7 +743,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     contacts: {
         title: 'Contacts',
         contact: 'Contact',
-        unknown: 'Unknown contact',
+        unknown: 'Resent',
         contacts: 'My contacts',
         name: 'Name',
         lastName: 'Last name',

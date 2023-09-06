@@ -49,7 +49,7 @@ export const Slide = React.memo((
                         fontWeight: '400',
                         flexShrink: 1,
                         color: Theme.darkGrey,
-                        marginBottom: 32,
+                        marginBottom: 0,
                         minHeight: 72
                     }}
                     numberOfLines={3}
@@ -59,10 +59,15 @@ export const Slide = React.memo((
                 </Text>
             </View>
             <View style={{
-                width: dimensions.screen.width, height: 300,
                 justifyContent: 'center', alignItems: 'center',
+                aspectRatio: 0.92,
+                width: dimensions.screen.width - 32,
             }}>
-                <Image style={{ width: dimensions.screen.width, height: 300, }} source={illustration} />
+                <Image
+                    resizeMode={'contain'}
+                    style={{ width: dimensions.screen.width - 32 }}
+                    source={illustration}
+                />
             </View>
             <View style={{ flexGrow: 1 }} />
         </View>

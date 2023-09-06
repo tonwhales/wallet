@@ -2,7 +2,7 @@ import { Address } from "ton";
 
 const Img_EXMO = require('../../assets/known/exmo.png');
 const Img_Foundation = require('../../assets/known/foundation.png');
-const Img_Whales = require('../../assets/known/whales.png');
+const Img_Whales = require('../../assets/known/ic_nominators.webp');
 const Img_OKX = require('../../assets/known/okx.png');
 const Img_FTX = require('../../assets/known/ftx.png');
 const Img_Disintar = require('../../assets/known/disintar_logo.png');
@@ -45,7 +45,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
     return isTestnet
         ? {
             [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toFriendly({ testOnly: isTestnet })]: {
-                name: 'Nominators #1',
+                name: 'Nominators 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -53,7 +53,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('kQCkXp5Z3tJ_eAjFG_0xbbfx2Oh_ESyY6Nk56zARZDwhales').toFriendly({ testOnly: isTestnet })]: {
-                name: 'Nominators #2',
+                name: 'Nominators 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -134,7 +134,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly()]: {
-                name: 'Whales Nominators #1',
+                name: 'Whales Nominators 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -142,7 +142,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCY4M6TZYnOMnGBQlqi_nyeaIB1LeBFfGgP4uXQ1VWhales').toFriendly()]: {
-                name: 'Whales Nominators #2',
+                name: 'Whales Nominators 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -150,7 +150,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM').toFriendly()]: {
-                name: 'Whales Team #1',
+                name: 'Whales Team 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -158,7 +158,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Team_1
             },
             [Address.parse('EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM').toFriendly()]: {
-                name: 'Whales Team #2',
+                name: 'Whales Team 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -369,7 +369,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_MEXC
             },
             [Address.parse('EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN').toFriendly()]: {
-                name: 'ePN Partners #1',
+                name: 'ePN Partners 1',
                 colors: {
                     primary: '#ec557c',
                     secondary: '#E01447'
@@ -377,7 +377,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_ePN_1
             },
             [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toFriendly()]: {
-                name: 'ePN Partners #2',
+                name: 'ePN Partners 2',
                 colors: {
                     primary: '#ec557c',
                     secondary: '#E01447'
@@ -385,7 +385,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_ePN_2
             },
             [Address.parse('EQDhGXtbR6ejNQucRcoyzwiaF2Ke-5T8reptsiuZ_mLockup').toFriendly()]: {
-                name: 'Lockups #1',
+                name: 'Lockups 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -393,7 +393,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Lockups_1
             },
             [Address.parse('EQDg5ThqQ1t9eriIv2HkH6XUiUs_Wd4YmXZeGpnPzwLockup').toFriendly()]: {
-                name: 'Lockups #2',
+                name: 'Lockups 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'

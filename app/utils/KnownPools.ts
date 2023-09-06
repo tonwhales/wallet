@@ -8,16 +8,20 @@ export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } 
         ? {
             [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toFriendly({ testOnly: isTestnet })]: {
                 name: 'Nominators 1',
+                requireSource: require('../../assets/known/ic_nominators.webp')
             },
             [Address.parse('kQCkXp5Z3tJ_eAjFG_0xbbfx2Oh_ESyY6Nk56zARZDwhales').toFriendly({ testOnly: isTestnet })]: {
-                name: 'Nominators 2'
+                name: 'Nominators 2',
+                requireSource: require('../../assets/known/ic_nominators.webp')
             }
         } : {
             [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toFriendly({ testOnly: isTestnet })]: {
                 name: 'Nominators 1',
+                requireSource: require('../../assets/known/ic_nominators.webp')
             },
             [Address.parse('EQCY4M6TZYnOMnGBQlqi_nyeaIB1LeBFfGgP4uXQ1VWhales').toFriendly({ testOnly: isTestnet })]: {
                 name: 'Nominators 2',
+                requireSource: require('../../assets/known/ic_nominators.webp')
             },
             [Address.parse('EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM').toFriendly({ testOnly: isTestnet })]: {
                 name: 'Team 1',

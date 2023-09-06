@@ -154,28 +154,29 @@ export const StakingPool = memo((props: {
                 justifyContent: 'center',
                 alignItems: 'center',
             }}>
-                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 10 }}>
-                    {!requireSource && (
-                        <View style={{
-                            backgroundColor: Theme.accent,
-                            borderRadius: 23,
-                            width: 46, height: 46,
-                            alignItems: 'center', justifyContent: 'center'
-                        }}>
+                <View style={{
+                    width: 46, height: 46,
+                    borderRadius: 23,
+                    borderWidth: 0,
+                    marginRight: 10,
+                    alignItems: 'center', justifyContent: 'center',
+                    backgroundColor: Theme.lightGrey,
+                }}>
+                    {!requireSource
+                        ? (
                             <StakingIcon
-                                width={46}
-                                height={46}
+                                width={44}
+                                height={44}
                             />
-                        </View>
-                    )}
-                    {(!!requireSource) && (
-                        <WImage
-                            requireSource={requireSource}
-                            width={46}
-                            heigh={46}
-                            borderRadius={23}
-                        />
-                    )}
+                        )
+                        : (
+                            <WImage
+                                requireSource={requireSource}
+                                width={44}
+                                heigh={44}
+                                borderRadius={22}
+                            />
+                        )}
                 </View>
                 <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0 }}>
                     <View style={{

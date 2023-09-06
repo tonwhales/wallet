@@ -100,13 +100,18 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
 
     const filtered = useMemo(() => {
         if (!query || query.length === 0) {
-            return searchItems.slice(0, 5);
+            return {
+                recent: lastTxs,
+                searchRes: searchItems.slice(0, 5).filter((i) => i.type !== 'known')
+            };
         }
-        return searchItems.filter((i) => i.searchable.toLowerCase().includes(query.toLowerCase()));
-    }, [searchItems, query]);
+        return {
+            recent: lastTxs.filter((a) => a.toFriendly({ testOnly: AppConfig.isTestnet }).toLowerCase().includes(query.toLowerCase())),
+            searchRes: searchItems.filter((i) => i.searchable.toLowerCase().includes(query.toLowerCase()))
+        };
+    }, [searchItems, lastTxs, query]);
 
-
-    if ((!filtered || filtered.length === 0) && lastTxs.length === 0) {
+    if ((filtered.searchRes.length === 0) && filtered.recent.length === 0) {
         return null;
     }
 
@@ -117,7 +122,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
             keyboardDismissMode={'none'}
         >
             <>
-                {lastTxs.length > 0 && (
+                {filtered.recent.length > 0 && (
                     <>
                         <Text style={{
                             fontSize: 17, fontWeight: '600',
@@ -127,7 +132,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
                         }}>
                             {t('common.recent')}
                         </Text>
-                        {lastTxs.map((address, index) => {
+                        {filtered.recent.map((address, index) => {
                             return (
                                 <AddressSearchItemView
                                     key={index}
@@ -143,7 +148,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
                         })}
                     </>
                 )}
-                {filtered.length > 0 && (
+                {filtered.searchRes.length > 0 && (
                     <Text style={{
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
@@ -154,7 +159,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
                         {t('contacts.contacts')}
                     </Text>
                 )}
-                {filtered.map((item, index) => {
+                {filtered.searchRes.map((item, index) => {
                     return (
                         <AddressSearchItemView
                             key={index}

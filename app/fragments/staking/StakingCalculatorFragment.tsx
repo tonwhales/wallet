@@ -104,7 +104,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: Theme.textSubtitle,
+                                color: Theme.textSecondary,
                             }}>
                                 {t('common.amount')}
                             </Text>

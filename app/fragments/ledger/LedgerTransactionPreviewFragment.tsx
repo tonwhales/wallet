@@ -257,7 +257,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: Theme.textSecondary, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -288,7 +288,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: Theme.textSecondary, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -323,7 +323,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: Theme.textSubtitle,
+                                color: Theme.textSecondary,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -372,7 +372,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.textSubtitle,
+                                                color: Theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -420,7 +420,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: Theme.textSubtitle
+                                        color: Theme.textSecondary
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -459,7 +459,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: Theme.textSubtitle
+                            color: Theme.textSecondary
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>

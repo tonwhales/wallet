@@ -39,7 +39,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: Theme.textSubtitle,
+                    color: Theme.textSecondary,
                     fontSize: 16,
                     marginTop: 14,
                 }}>

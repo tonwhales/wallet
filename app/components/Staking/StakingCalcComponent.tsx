@@ -157,7 +157,7 @@ export const StakingCalcComponent = React.memo((
                     </View>
                 </View>
                 <Text style={{
-                    color: Theme.textSubtitle,
+                    color: Theme.textSecondary,
                     marginTop: -4,
                     fontSize: 13,
                     fontWeight: '400'
@@ -289,7 +289,7 @@ export const StakingCalcComponent = React.memo((
                 </View>
             </View>
             <Text style={{
-                color: Theme.textSubtitle,
+                color: Theme.textSecondary,
                 marginTop: -4,
                 fontSize: 13,
                 fontWeight: '400'

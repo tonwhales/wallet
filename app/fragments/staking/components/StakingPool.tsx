@@ -233,7 +233,7 @@ export const StakingPool = memo((props: {
                                         marginTop: 2, height: 20
                                     }}
                                     textStyle={{
-                                        color: Theme.textSubtitle,
+                                        color: Theme.textSecondary,
                                         fontWeight: '400',
                                         fontSize: 15, lineHeight: 20
                                     }}

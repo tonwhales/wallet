@@ -280,7 +280,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: Theme.textSecondary, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -311,7 +311,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: Theme.textSecondary, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -346,7 +346,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: Theme.textSubtitle,
+                                color: Theme.textSecondary,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -395,7 +395,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.textSubtitle,
+                                                color: Theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -443,7 +443,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: Theme.textSubtitle
+                                        color: Theme.textSecondary
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -482,7 +482,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: Theme.textSubtitle
+                            color: Theme.textSecondary
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>

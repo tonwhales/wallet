@@ -115,7 +115,7 @@ export const LegalFragment = systemFragment(() => {
             >
                 <View style={{
                     height: 24, width: 24,
-                    backgroundColor: accepted ? Theme.accent : '#E4E6EA',
+                    backgroundColor: accepted ? Theme.accent : Theme.mediumGrey,
                     borderRadius: 6,
                     justifyContent: 'center', alignItems: 'center',
                     marginRight: 16
@@ -131,7 +131,7 @@ export const LegalFragment = systemFragment(() => {
                     }}
                 >
                     <Text style={{
-                        color: Theme.textSubtitle,
+                        color: Theme.textSecondary,
                     }}>
                         {t('legal.subtitle')}
                     </Text>
@@ -140,7 +140,7 @@ export const LegalFragment = systemFragment(() => {
                         onPress={() => navigation.navigate('Privacy')}>
                         {t('legal.privacyPolicy')}
                     </Text>
-                    <Text style={{ color: Theme.textSubtitle, }}>
+                    <Text style={{ color: Theme.textSecondary, }}>
                         {' ' + t('common.and') + ' '}
                     </Text>
                     <Text style={{ color: Theme.accent }}

@@ -62,7 +62,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                 }}
             >
                 <Text style={{
-                    color: Theme.textSubtitle,
+                    color: Theme.textSecondary,
                     fontSize: 14,
                     marginRight: 14,
                     marginTop: 2,

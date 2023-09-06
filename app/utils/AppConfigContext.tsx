@@ -77,7 +77,7 @@ export type ThemeType = {
 
 const initialTheme = {
     textColor: '#000',
-    textSecondary: '#8E8E92',
+    textSecondary: '#838D99',
     textSubtitle: '#8E979D',
     loader: '#367CDE',
     background: '#F2F2F6',

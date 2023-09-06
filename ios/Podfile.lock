@@ -426,12 +426,8 @@ PODS:
     - React-Core
   - react-native-pager-view (6.2.0):
     - React-Core
-  - react-native-safe-area-context (4.5.0):
-    - RCT-Folly
-    - RCTRequired
-    - RCTTypeSafety
+  - react-native-safe-area-context (4.7.2):
     - React-Core
-    - ReactCommon/turbomodule/core
   - react-native-segmented-control (2.4.2):
     - React-Core
   - react-native-skia (0.1.197):
@@ -986,7 +982,7 @@ SPEC CHECKSUMS:
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-pager-view: 0ccb8bf60e2ebd38b1f3669fa3650ecce81db2df
-  react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
+  react-native-safe-area-context: 7aa8e6d9d0f3100a820efb1a98af68aa747f9284
   react-native-segmented-control: 2221962f5073e2e809aa3691e8e410fc10b60578
   react-native-skia: e2cb3443442bf7680e3276dc82cd87c97f96b6f9
   react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57

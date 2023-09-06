@@ -898,7 +898,7 @@ export const SimpleTransferFragment = fragment(() => {
                     marginHorizontal: 16, marginTop: 16,
                     marginBottom: safeArea.bottom + 32,
                 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.bottom + 32 : 16}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 16}
             >
                 {!!selected
                     ? <RoundButton

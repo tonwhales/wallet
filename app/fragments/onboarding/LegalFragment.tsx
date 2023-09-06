@@ -1,6 +1,6 @@
 import { useRoute } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
-import { Platform, Pressable, ScrollView, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
@@ -13,6 +13,8 @@ import { useDimensions } from "@react-native-community/hooks";
 import { mnemonicNew } from "ton-crypto";
 
 import IcCheck from "../../../assets/ic-check.svg";
+import { storage } from "../../storage/storage";
+const legalAcceptedKey = 'legalAccepted';
 
 export const LegalFragment = systemFragment(() => {
     const { Theme } = useAppConfig();
@@ -23,7 +25,7 @@ export const LegalFragment = systemFragment(() => {
     const isCreate = route.name === 'LegalCreate';
 
     const [state, setState] = useState<{ mnemonics: string } | null>(null);
-    const [accepted, setAccepted] = useState(false);
+    const [accepted, setAccepted] = useState(storage.getBoolean(legalAcceptedKey) ? true : false);
     const [ready, setReady] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -107,46 +109,47 @@ export const LegalFragment = systemFragment(() => {
                     </>
                 )}
                 {isCreate && (
-                    <>
-                        <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
-                            <Text style={{
-                                fontSize: 32, lineHeight: 38,
-                                fontWeight: '600',
-                                textAlign: 'center',
-                                color: Theme.textColor,
-                                marginBottom: 12, marginTop: 16
-                            }}>
-                                {t('legal.create')}
-                            </Text>
-                            <Text style={{
-                                textAlign: 'center',
-                                fontSize: 17, lineHeight: 24,
-                                fontWeight: '400',
-                                flexShrink: 1,
-                                color: Theme.darkGrey,
-                                marginBottom: 32
-                            }}>
-                                {t('legal.createSubtitle')}
-                            </Text>
-                        </View>
-                        <View style={{
-                            width: dimensions.screen.width, height: 300,
-                            justifyContent: 'center', alignItems: 'center',
+                    <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+                        <Text style={{
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            color: Theme.textColor,
+                            marginBottom: 12, marginTop: 16
                         }}>
-                            <LottieView
-                                source={require('../../../assets/animations/paper.json')}
-                                autoPlay={true}
-                                loop={true}
-                                style={{ width: dimensions.screen.width, height: 300, marginBottom: 8, maxWidth: 140, maxHeight: 140 }}
+                            {t('legal.create')}
+                        </Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400',
+                            flexShrink: 1,
+                            color: Theme.darkGrey,
+                            marginBottom: 24
+                        }}>
+                            {t('legal.createSubtitle')}
+                        </Text>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            aspectRatio: 0.92,
+                            width: dimensions.screen.width - 32,
+                        }}>
+                            <Image
+                                resizeMode={'contain'}
+                                style={{ width: dimensions.screen.width - 32 }}
+                                source={require('../../../assets/banner_backup.webp')}
                             />
                         </View>
-                    </>
+                    </View>
                 )}
                 <View style={{ flexGrow: 1 }} />
             </ScrollView>
             <Pressable
                 style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24 }}
-                onPress={() => setAccepted(!accepted)}
+                onPress={() => {
+                    setAccepted(!accepted);
+                    storage.set(legalAcceptedKey, !accepted);
+                }}
             >
                 <View style={{
                     height: 24, width: 24,

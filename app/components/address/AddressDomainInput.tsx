@@ -123,9 +123,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 warn(e);
             }
             setResolving(false);
-        },
-        [],
-    );
+        }, []);
 
     useEffect(() => {
         onDomainChange(undefined);
@@ -153,7 +151,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 }}
                 onValueChange={onInputChange}
                 placeholder={t('common.domainOrAddressOrContact')}
-                keyboardType={'ascii-capable'}
+                keyboardType={'default'}
                 autoCapitalize={'none'}
                 preventDefaultHeight
                 preventDefaultLineHeight

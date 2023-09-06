@@ -12,7 +12,6 @@ export const isTestnetKey = 'isTestnet';
 export type ThemeType = {
     textColor: string,
     textSecondary: string,
-    textSubtitle: string,
     loader: string,
     background: string,
     item: string,
@@ -75,10 +74,9 @@ export type ThemeType = {
     walletBackground: string
 };
 
-const initialTheme = {
+const initialTheme: ThemeType = {
     textColor: '#000',
     textSecondary: '#838D99',
-    textSubtitle: '#8E979D',
     loader: '#367CDE',
     background: '#F2F2F6',
     item: 'white',

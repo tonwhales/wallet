@@ -38,6 +38,7 @@ import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { Avatar } from '../../components/Avatar';
 import { usePrice } from '../../engine/PriceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { ValueComponent } from '../../components/ValueComponent';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -706,10 +707,15 @@ export const SimpleTransferFragment = fragment(() => {
                                             fontSize: 15, lineHeight: 20,
                                             color: Theme.darkGrey,
                                         }}>
-                                            {`${t('common.balance')}: ` + (jettonState
-                                                ? fromBNWithDecimals(balance, jettonState.master.decimals) + ` ${jettonState.master.symbol}`
-                                                : fromNano(balance) + ' TON')
-                                            }
+
+                                            {`${t('common.balance')}: `}
+                                            <ValueComponent
+                                                precision={4}
+                                                value={balance}
+                                                centFontStyle={{ opacity: 0.5 }}
+                                                decimals={jettonState ? jettonState.master.decimals : undefined}
+                                            />
+                                            {jettonState ? ` ${jettonState.master.symbol}` : ''}
                                         </Text>
                                         <Pressable
                                             style={({ pressed }) => {

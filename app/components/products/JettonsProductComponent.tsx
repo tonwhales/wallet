@@ -39,7 +39,7 @@ export const JettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: Theme.border,
+                backgroundColor: Theme.surfaceSecondary,
             }}>
                 {jettons.map((j, index) => {
                     return (

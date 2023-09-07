@@ -117,7 +117,7 @@ export const HoldersCardItem = React.memo((props: {
                                         justifyContent: 'center', alignItems: 'center',
                                         borderTopRightRadius: props.first ? 20 : 0,
                                         borderBottomRightRadius: props.last ? 20 : 0,
-                                        backgroundColor: props.single ? Theme.transparent : Theme.border,
+                                        backgroundColor: props.single ? Theme.transparent : Theme.surfaceSecondary,
                                     }}
                                     onPress={() => {
                                         swipableRef.current?.close();
@@ -132,7 +132,7 @@ export const HoldersCardItem = React.memo((props: {
                                             position: 'absolute',
                                             top: 0, bottom: 0, left: -20,
                                             width: 20,
-                                            backgroundColor: Theme.border,
+                                            backgroundColor: Theme.surfaceSecondary,
                                         }}
                                     />}
                                 </Pressable>
@@ -144,7 +144,7 @@ export const HoldersCardItem = React.memo((props: {
                                 flexGrow: 1, flexDirection: 'row',
                                 padding: 20,
                                 alignItems: 'center',
-                                backgroundColor: Theme.border,
+                                backgroundColor: Theme.surfaceSecondary,
                             }
                         ]}>
                             <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
@@ -208,9 +208,7 @@ export const HoldersCardItem = React.memo((props: {
                     </Swipeable>
                 </Animated.View>
                 {!props.last && (
-                    <View style={{ backgroundColor: Theme.border, marginHorizontal: 16, paddingHorizontal: 20 }}>
-                        <View style={{ backgroundColor: Theme.divider, height: 1 }} />
-                    </View>
+                    <View style={{ backgroundColor: Theme.divider, height: 1, marginHorizontal: 16, paddingHorizontal: 20 }} />
                 )}
             </Pressable>
         ) : (

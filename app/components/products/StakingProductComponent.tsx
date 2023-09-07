@@ -59,7 +59,7 @@ export const StakingProductComponent = React.memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('StakingPools')}
                 style={({ pressed }) => {
-                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: Theme.border }]
+                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: Theme.surfaceSecondary }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>

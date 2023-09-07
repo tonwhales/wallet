@@ -41,7 +41,7 @@ export const WalletItem = memo((
     return (
         <Pressable
             style={{
-                backgroundColor: '#F7F8F9',
+                backgroundColor: Theme.surfaceSecondary,
                 padding: 20,
                 marginBottom: 16,
                 borderRadius: 20,

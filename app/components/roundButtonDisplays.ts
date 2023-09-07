@@ -22,12 +22,12 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         default: {
             backgroundColor: theme.accent,
             borderColor: theme.accent,
-            textColor: theme.surfacePimary,
+            textColor: theme.textThird,
         },
         disabled: {
             backgroundColor: theme.accent,
             borderColor: theme.accent,
-            textColor: theme.surfacePimary,
+            textColor: theme.textThird,
         },
         secondary: {
             backgroundColor: theme.border,

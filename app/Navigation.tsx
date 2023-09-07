@@ -338,7 +338,7 @@ export const Navigation = memo(() => {
                             title: '',
                             headerShadowVisible: false,
                             headerTransparent: false,
-                            headerStyle: { backgroundColor: Theme.white }
+                            headerStyle: { backgroundColor: Theme.background }
                         }}
                     >
                         {navigation(safeArea)}

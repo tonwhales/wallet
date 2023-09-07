@@ -9,7 +9,7 @@ import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useReboot } from '../../utils/RebootContext';
@@ -19,7 +19,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
 
@@ -91,6 +91,12 @@ export const WalletBackupFragment = systemFragment(() => {
         };
     }, []);
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
+
     if (!mnemonics) {
         return null;
     }
@@ -100,7 +106,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.surfacePimary,
+                backgroundColor: Theme.background,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}

@@ -93,7 +93,7 @@ export const ConnectionButton = React.memo((
                         }}
                             onPress={onRevoke}
                         >
-                            <Delete height={24} width={24} style={{ height: 24, width: 24 }} />
+                            <Delete color={'white'} height={24} width={24} style={{ height: 24, width: 24 }} />
                         </Pressable>
                     )
                 } : undefined}

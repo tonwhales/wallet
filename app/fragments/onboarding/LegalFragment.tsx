@@ -66,7 +66,7 @@ export const LegalFragment = systemFragment(() => {
             flex: 1,
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: Theme.white,
+            backgroundColor: Theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) + 42 : 0,
         }}>

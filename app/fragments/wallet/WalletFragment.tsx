@@ -61,7 +61,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
-        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.backgroundUnchangeable : Theme.white };
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.backgroundUnchangeable : Theme.surfacePimary };
     });
 
     const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
@@ -114,7 +114,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                         overflow: 'hidden'
                     }}>
                         <Text style={{
-                            color: Theme.white, opacity: 0.7,
+                            color: Theme.textThird, opacity: 0.7,
                             fontSize: 15, lineHeight: 20,
                             fontWeight: '400',
                             marginBottom: 14
@@ -124,7 +124,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 27,
-                                color: Theme.white,
+                                color: Theme.textThird,
                                 marginRight: 8,
                                 fontWeight: '500',
                                 lineHeight: 32,
@@ -137,7 +137,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 <Text style={{
                                     fontSize: 17,
                                     lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                                    color: Theme.white,
+                                    color: Theme.textThird,
                                     marginRight: 8,
                                     fontWeight: '500',
                                     opacity: 0.5
@@ -178,6 +178,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                         <PriceComponent
                                             amount={account?.balance ?? new BN(0)}
                                             style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                            textStyle={{ color: Theme.textThird }}
                                         />
                                     </OnboadingView>
                                 </CopilotStep>
@@ -185,6 +186,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     showSign
                                     amount={toNano(1)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                                    textStyle={{ color: Theme.textThird }}
                                 />
                             </Pressable>
                         </View>
@@ -249,7 +251,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                             </View>
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,
-                                                color: Theme.surfacePimary,
+                                                color: Theme.textThird,
                                                 marginTop: 6
                                             }}>
                                                 {t('wallet.actions.buy')}
@@ -287,7 +289,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.surfacePimary,
+                                            color: Theme.textThird,
                                             marginTop: 6
                                         }}>
                                         {t('wallet.actions.receive')}
@@ -320,7 +322,16 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     }}>
                                         <Image source={require('../../../assets/ic_send.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 15, color: Theme.surfacePimary, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                    <Text
+                                        style={{
+                                            fontSize: 15,
+                                            color: Theme.textThird,
+                                            marginTop: 6,
+                                            fontWeight: '400'
+                                        }}
+                                    >
+                                        {t('wallet.actions.send')}
+                                    </Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -343,7 +354,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                     </View>
                 </View>
                 <ProductsComponent />
-                <View style={{ height: 100, width: '100%', backgroundColor: Theme.white }} />
+                <View style={{ height: 100, width: '100%', backgroundColor: Theme.surfacePimary }} />
             </Animated.ScrollView>
         </View>
     );
@@ -357,7 +368,7 @@ export const WalletFragment = fragment(() => {
     useFocusEffect(() => {
         setTimeout(() => {
             setStatusBarStyle('light');
-        }, 100);
+        }, 10);
     });
 
     return (
@@ -400,7 +411,7 @@ export const WalletNavigationStack = memo(() => {
                 title: '',
                 headerShadowVisible: false,
                 headerTransparent: false,
-                headerStyle: { backgroundColor: Theme.white }
+                headerStyle: { backgroundColor: Theme.background }
             }}
         >
             {navigation(safeArea)}

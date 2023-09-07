@@ -236,9 +236,9 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     color: item.amount.gte(new BN(0))
                                         ? spam
-                                            ? Theme.textPrimary
+                                            ? Theme.textSecondary
                                             : Theme.accentGreen
-                                        : '#000000',
+                                        : Theme.textPrimary,
                                     fontWeight: '800',
                                     fontSize: 36,
                                     marginRight: 2,

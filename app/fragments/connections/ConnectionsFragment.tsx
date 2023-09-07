@@ -155,8 +155,8 @@ export const ConnectionsFragment = fragment(() => {
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     }, []));
 
     return (

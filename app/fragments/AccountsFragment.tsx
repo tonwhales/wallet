@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +15,7 @@ import { useAppConfig } from "../utils/AppConfigContext";
 import { JettonProductItem } from "../components/products/JettonProductItem";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemGroup } from "../components/ItemGroup";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -83,6 +83,12 @@ export const AccountsFragment = fragment(() => {
             }, 300);
         }
     }, [navigation]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
 
     return (
         <View style={{
@@ -187,7 +193,7 @@ export const AccountsFragment = fragment(() => {
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',
-                                    marginVertical: 8
+                                    marginVertical: 8, color: Theme.textPrimary
                                 }}
                                 >
                                     {t('accounts.disabled')}

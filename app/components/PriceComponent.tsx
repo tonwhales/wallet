@@ -37,32 +37,32 @@ export const PriceComponent = React.memo((
         <View style={[{
             backgroundColor: Theme.accent,
             borderRadius: 16,
-            height: 27,
+            height: 28,
             flexDirection: 'row',
             justifyContent: 'flex-start',
             alignItems: 'center',
             alignSelf: 'flex-start',
-            paddingVertical: 4, paddingHorizontal: 10
+            paddingVertical: 4, paddingRight: 12, paddingLeft: showSign ? 4 : 12
         }, style]}>
             {showSign && (
                 <View style={{
-                    height: 16, width: 16,
+                    height: 22, width: 22,
                     justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: '#1678EA', borderRadius: 16,
+                    backgroundColor: '#1678EA', borderRadius: 12,
                     marginRight: 6
                 }}>
                     <TonSign
-                        height={6.5}
-                        width={6.5}
-                        style={{ height: 6.5, width: 6.5 }}
+                        height={12}
+                        width={12}
+                        style={{ marginTop: 2, height: 12, width: 12 }}
                     />
                 </View>
             )}
             <Text style={[{
                 color: Theme.surfacePimary,
-                fontSize: 14, fontWeight: '600',
+                fontSize: 15, fontWeight: '500',
                 textAlign: "center",
-                lineHeight: 16
+                lineHeight: 20
             }, textStyle]}>
                 {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currencyCode || currency]).toFixed(2), currencyCode || currency, amount.isNeg())}${suffix ?? ''}`}
             </Text>

@@ -105,14 +105,14 @@ export const PasscodeInput = React.memo((
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos color={'#000'} style={{ height: 60, width: 100 }} />
-                    : <TouchAndroid color={'#000'} style={{ height: 60, width: 100 }} />
+                    ? <FaceIos color={Theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    : <TouchAndroid color={Theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos color={'#000'} style={{ height: 60, width: 100 }} />
-                    : <TouchAndroid color={'#000'} style={{ height: 60, width: 100 }} />
+                    ? <TouchIos color={Theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    : <TouchAndroid color={Theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'passcode':
             case 'device-passcode':
@@ -122,7 +122,7 @@ export const PasscodeInput = React.memo((
                         name={'keypad'}
                         size={24}
                         style={{ width: 24, height: 24 }}
-                        color={'#000'}
+                        color={Theme.textPrimary}
                     />
                 </View>;
                 break;
@@ -143,7 +143,7 @@ export const PasscodeInput = React.memo((
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 32, marginBottom: 12,
-                        textAlign: 'center',
+                        textAlign: 'center', color: Theme.textPrimary
                     }}>
                         {title}
                     </Text>

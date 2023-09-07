@@ -178,7 +178,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
     }, [account.next ? account.next.lt : null]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View style={{ flex: 1, backgroundColor: Theme.background }}>
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -265,16 +265,19 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 
 export const TransactionsFragment = fragment(() => {
     const engine = useEngine();
+    const { Theme } = useAppConfig();
     const account = engine.products.main.useAccount();
     useTrackScreen('History', engine.isTestnet);
+
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
+
     if (!account) {
         return (
-            <View style={{ flex: 1, backgroundColor: 'white' }}>
+            <View style={{ flex: 1, backgroundColor: Theme.background }}>
                 <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>

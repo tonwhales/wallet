@@ -15,11 +15,12 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { HeaderBackButton } from "@react-navigation/elements";
 import * as ScreenCapture from 'expo-screen-capture';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -110,6 +111,12 @@ export const WalletCreateFragment = systemFragment(() => {
         }
     }, [navigation, onBack, state]);
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
+
     return (
         <View
             style={{
@@ -123,7 +130,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: Theme.surfacePimary,
+                        flexGrow: 1, backgroundColor: Theme.background,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key={'loading'}
@@ -211,7 +218,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: Theme.surfacePimary,
+                        flexGrow: 1, backgroundColor: Theme.background,
                     }}
                     key={"content"}
                     entering={FadeIn}

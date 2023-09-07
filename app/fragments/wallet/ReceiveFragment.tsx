@@ -234,7 +234,7 @@ export const ReceiveFragment = fragment(() => {
                 paddingBottom: 56 + safeArea.bottom === 0 ? 32 : safeArea.bottom,
                 paddingTop: 20 + 16,
                 paddingHorizontal: 16,
-                backgroundColor: Theme.white,
+                backgroundColor: Theme.background,
                 borderTopEndRadius: 20,
                 borderTopStartRadius: 20,
                 opacity: isSharing ? 0 : 1,

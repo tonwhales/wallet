@@ -58,7 +58,7 @@ export const JettonsProductComponent = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: Theme.border,
+            backgroundColor: Theme.surfaceSecondary,
         }}>
             <Pressable
                 onPress={() => {
@@ -120,7 +120,6 @@ export const JettonsProductComponent = React.memo(() => {
                             numberOfLines={1}
                         >
                             {jettons.map((j, index) => j.name).join(', ')}
-                            {/* {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })} */}
                         </Text>
                     </View>
                     <Animated.View style={[

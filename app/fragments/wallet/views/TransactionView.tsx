@@ -17,9 +17,6 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { PriceComponent } from '../../../components/PriceComponent';
 
-import IcIn from '../../../../assets//ic-tx-in.svg';
-import IcOut from '../../../../assets//ic-tx-out.svg';
-
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
 }

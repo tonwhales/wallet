@@ -28,7 +28,7 @@ export const ScreenCaptureFragment = systemFragment(() => {
             />
             <View style={{
                 height: '50%',
-                backgroundColor: Theme.white,
+                backgroundColor: Theme.background,
                 borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,
                 paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 16

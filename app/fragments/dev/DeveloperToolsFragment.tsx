@@ -6,7 +6,7 @@ import { fragment } from '../../fragment';
 import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearHolders } from '../LogoutFragment';
@@ -139,16 +139,19 @@ export const DeveloperToolsFragment = fragment(() => {
     useLayoutEffect(() => {
         navigation.setOptions({
             headerTitle: 'Dev. tools',
-        })
+        });
+        
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     }, []);
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: 'white'
+            backgroundColor: Theme.background
         }}>
-            <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
             <KeyboardAvoidingView
                 style={{

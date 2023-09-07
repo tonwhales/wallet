@@ -126,7 +126,7 @@ export const LogoutFragment = fragment(() => {
             />
             <View style={{
                 height: (dimentions.height / 2),
-                backgroundColor: 'white', borderTopEndRadius: 20, borderTopStartRadius: 20,
+                backgroundColor: Theme.background, borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,
             }}>
                 <Text style={{

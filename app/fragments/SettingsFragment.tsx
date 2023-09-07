@@ -87,19 +87,18 @@ export const SettingsFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={'dark'} />
             <TabHeader title={t('settings.title')} />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    backgroundColor: 'white',
+                    backgroundColor: Theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
                 }}

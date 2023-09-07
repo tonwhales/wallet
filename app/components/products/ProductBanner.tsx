@@ -18,7 +18,7 @@ export const ProductBanner = React.memo((props: {
                 return {
                     opacity: pressed ? 0.5 : 1,
                     height: 106,
-                    backgroundColor: Theme.border,
+                    backgroundColor: Theme.surfaceSecondary,
                     borderRadius: 20,
                 }
             }}

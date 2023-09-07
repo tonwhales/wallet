@@ -353,7 +353,7 @@ export const AuthWalletKeysContextProvider = React.memo((props: { children?: any
                 <Animated.View
                     style={[
                         {
-                            backgroundColor: auth.params?.backgroundColor ?? Theme.white,
+                            backgroundColor: auth.params?.backgroundColor ?? Theme.background,
                             flexGrow: 1,
                             justifyContent: 'center',
                             alignItems: 'center',

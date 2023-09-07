@@ -44,7 +44,7 @@ export const ProductsComponent = memo(() => {
             <View style={{
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
-                backgroundColor: Theme.white,
+                backgroundColor: Theme.surfacePimary,
                 minHeight: 400
             }}>
                 <View style={{

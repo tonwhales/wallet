@@ -133,8 +133,8 @@ export const StakingFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
 
     return (
@@ -198,13 +198,13 @@ export const StakingFragment = fragment(() => {
                     <Text
                         style={{
                             fontSize: 15, lineHeight: 20,
-                            color: Theme.white,
+                            color: Theme.textThird,
                             opacity: 0.7,
                         }}
                     >
                         {t('products.staking.balance')}
                     </Text>
-                    <Text style={{ fontSize: 27, color: Theme.white, fontWeight: '600', marginTop: 14 }}>
+                    <Text style={{ fontSize: 27, color: Theme.textThird, fontWeight: '600', marginTop: 14 }}>
                         <ValueComponent
                             value={member?.balance || new BN(0)}
                             precision={4}
@@ -213,7 +213,7 @@ export const StakingFragment = fragment(() => {
                         <Text style={{
                             fontSize: 17,
                             lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                            color: Theme.white,
+                            color: Theme.textThird,
                             marginRight: 8,
                             fontWeight: '500',
                             opacity: 0.5

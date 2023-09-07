@@ -3,13 +3,15 @@ import { Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { isTermsAccepted } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useDimensions } from '@react-native-community/hooks';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export const WelcomeFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -26,12 +28,18 @@ export const WelcomeFragment = systemFragment(() => {
         navigation.navigate('LegalCreate');
     }, []);
 
+
+    useFocusEffect(useCallback(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    }, []));
+
     return (
         <View style={{
             flex: 1,
-            backgroundColor: Theme.surfacePimary,
+            backgroundColor: Theme.background,
         }}>
-            <StatusBar style='dark' />
             <WelcomeSlider style={{ paddingTop: safeArea.top }} />
             <View style={{
                 width: '100%',

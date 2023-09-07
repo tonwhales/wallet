@@ -10,6 +10,7 @@ import { useColorScheme } from 'react-native';
 export const isTestnetKey = 'isTestnet';
 
 export type ThemeType = {
+    style: 'light' | 'dark',
     background: string,
     backgroundUnchangeable: string,
 
@@ -42,6 +43,7 @@ export type ThemeType = {
 };
 
 const baseTheme: ThemeType = {
+    style: 'light',
     background: '#FFFFFF',
     backgroundUnchangeable: '#000000',
 
@@ -73,8 +75,11 @@ const baseTheme: ThemeType = {
     black: 'black',
 }
 
-const darkTheme = {
+const darkTheme: ThemeType = {
     ...baseTheme,
+
+    style: 'dark',
+
     background: '#000000',
 
     surfacePimary: '#1C1C1E',
@@ -88,7 +93,7 @@ const darkTheme = {
 
     iconPrimary: '#AAB4BF',
 
-    divider: '#2C2C2D',
+    divider: '#1C1C1E',
 
     border: '#1C1C1E',
 }
@@ -145,8 +150,9 @@ export const AppConfigContextProvider = memo((props: { children: React.ReactNode
         colors: {
             ...DefaultTheme.colors,
             primary: Theme.accent,
-            background: Theme.white,
-            card: Theme.white
+            background: Theme.background,
+            card: Theme.background,
+            text: Theme.textPrimary,
         }
     }
 

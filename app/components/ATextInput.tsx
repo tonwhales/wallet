@@ -215,6 +215,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                             ref={tref}
                             style={[
                                 {
+                                    color: Theme.textPrimary,
                                     fontSize: props.fontSize !== undefined ? props.fontSize : 17,
                                     lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,
                                     fontWeight: props.fontWeight ? props.fontWeight : '400',

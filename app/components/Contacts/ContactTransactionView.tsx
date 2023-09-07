@@ -69,7 +69,7 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                     paddingVertical: 10, paddingHorizontal: 30,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <Text style={{ color: Theme.mainViolet, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                    <Text style={{ color: Theme.accent, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
                         {t('common.add')}
                     </Text>
                 </View>

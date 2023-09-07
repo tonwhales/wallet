@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import React, { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -94,6 +94,9 @@ export const SpamFilterFragment = fragment(() => {
                 title: t('settings.spamFilter'),
             });
         }
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     }, [navigation]);
 
     return (

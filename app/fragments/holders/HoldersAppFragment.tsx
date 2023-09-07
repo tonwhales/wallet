@@ -60,8 +60,8 @@ export const HoldersAppFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
 
     return (

@@ -70,12 +70,12 @@ export const ProductsFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
 
     return (
-        <View style={{ backgroundColor: Theme.white, flexGrow: 1 }}>
+        <View style={{ backgroundColor: Theme.background, flexGrow: 1 }}>
             <StatusBar style={'dark'} />
             <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
                 {AppConfig.isTestnet && (

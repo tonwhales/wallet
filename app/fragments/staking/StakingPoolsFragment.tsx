@@ -88,7 +88,7 @@ export const StakingPoolsFragment = fragment(() => {
                     text={t('products.staking.pools.active')}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -119,7 +119,7 @@ export const StakingPoolsFragment = fragment(() => {
                     text={t('products.staking.pools.best')}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -162,7 +162,7 @@ export const StakingPoolsFragment = fragment(() => {
                     }}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -194,7 +194,7 @@ export const StakingPoolsFragment = fragment(() => {
                     description={t('products.staking.pools.nominatorsDescription')}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -229,7 +229,7 @@ export const StakingPoolsFragment = fragment(() => {
                     }}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -261,7 +261,7 @@ export const StakingPoolsFragment = fragment(() => {
                     description={t('products.staking.pools.lockupsDescription')}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -296,7 +296,7 @@ export const StakingPoolsFragment = fragment(() => {
                     }}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -327,7 +327,7 @@ export const StakingPoolsFragment = fragment(() => {
                     description={t('products.staking.pools.tonkeeperDescription')}
                 />
                 <View style={{
-                    backgroundColor: Theme.white,
+                    backgroundColor: Theme.surfaceSecondary,
                     marginHorizontal: 4, marginBottom: 4,
                     borderRadius: 20
                 }}>
@@ -346,8 +346,8 @@ export const StakingPoolsFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle('dark');
-        }, 100);
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
     });
 
     return (

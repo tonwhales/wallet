@@ -154,6 +154,10 @@ export const HomeFragment = fragment(() => {
                         headerShown: false,
                         header: undefined,
                         unmountOnBlur: false,
+                        tabBarStyle: {
+                            backgroundColor: Theme.surfacePimary,
+                            borderTopColor: Theme.style === 'dark' ? Theme.overlay : Theme.border,
+                        },
                         tabBarIcon: ({ focused }) => {
                             let source = require('../../assets/ic-home.png');
 

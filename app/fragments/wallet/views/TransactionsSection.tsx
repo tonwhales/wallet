@@ -1,11 +1,12 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import { View, Text } from "react-native";
 import { Address } from "ton";
 import { Engine } from "../../../engine/Engine";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { TransactionView } from "./TransactionView";
+import { useAppConfig } from "../../../utils/AppConfigContext";
 
-export const TransactionsSection = React.memo(({
+export const TransactionsSection = memo(({
     section,
     navigation,
     address,
@@ -16,13 +17,14 @@ export const TransactionsSection = React.memo(({
     address: Address,
     engine: Engine,
 }) => {
-    const openTransactionFragment = React.useCallback((transaction: string) => {
+    const { Theme } = useAppConfig();
+    const openTransactionFragment = useCallback((transaction: string) => {
         if (transaction) {
             navigation.navigate('Transaction', { transaction: transaction });
         }
     }, [navigation]);
     return (
-        <View style={{backgroundColor: 'white'}}>
+        <View style={{ backgroundColor: Theme.background }}>
             <View
                 style={{ marginTop: 8 }}
                 collapsable={false}
@@ -33,7 +35,7 @@ export const TransactionsSection = React.memo(({
                         fontWeight: '600',
                         marginHorizontal: 16,
                         marginVertical: 8,
-                        lineHeight: 24
+                        lineHeight: 24, color: Theme.textPrimary
                     }}
                 >
                     {section.title}

@@ -1,4 +1,4 @@
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,6 +12,7 @@ import { useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useDimensions } from "@react-native-community/hooks";
 import { Address } from "ton";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -103,6 +104,11 @@ export const ContactsFragment = fragment(() => {
         }
     );
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
 
     return (
         <View style={{

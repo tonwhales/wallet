@@ -31,7 +31,7 @@ function WordComponent(props: {
                     flexBasis: 0,
                     backgroundColor: props.text && props.highlight ? props.theme.divider : undefined
                 }}>
-                    <Text style={{ fontSize: 16 }}>
+                    <Text style={{ fontSize: 16, color: props.theme.textPrimary }}>
                         {props.text}
                     </Text>
                 </View>

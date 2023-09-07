@@ -741,7 +741,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     onValueChange={setAmount}
                                     keyboardType={'numeric'}
                                     style={{
-                                        backgroundColor: Theme.white,
+                                        backgroundColor: Theme.background,
                                         paddingHorizontal: 16, paddingVertical: 14,
                                         borderRadius: 16,
                                     }}

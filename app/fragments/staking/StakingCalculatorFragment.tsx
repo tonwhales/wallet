@@ -66,7 +66,7 @@ export const StakingCalculatorFragment = fragment(() => {
     useFocusEffect(() => {
         setTimeout(() => {
             setStatusBarStyle(Platform.OS === 'ios' ? 'light' : 'dark');
-        }, 100);
+        }, 10);
     });
 
     return (

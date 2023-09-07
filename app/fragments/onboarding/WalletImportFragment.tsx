@@ -16,8 +16,10 @@ import { WalletWordsComponent } from '../../components/secure/WalletWordsCompone
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useLayoutEffect } from 'react';
+import { useCallback, useLayoutEffect } from 'react';
 import { HeaderBackButton } from "@react-navigation/elements";
+import { useFocusEffect } from '@react-navigation/native';
+import { setStatusBarStyle } from 'expo-status-bar';
 
 export const wordsTrie = WordsListTrie();
 
@@ -159,7 +161,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         width: 40,
                         paddingVertical: 14,
                         textAlign: 'right',
-                        color: !isWrong ? Theme.textSecondary : '#FF274E',
+                        color: !isWrong ? Theme.textSecondary : Theme.accentRed,
                     }}
                     onPress={() => {
                         tref.current?.focus();
@@ -180,7 +182,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                                 fontSize: 17,
                                 lineHeight: 24,
                                 fontWeight: '400',
-                                color: !isWrong ? '#000' : '#FF274E'
+                                color: !isWrong ? Theme.textPrimary : Theme.accentRed
                             }}
                             value={props.value}
                             onChangeText={onTextChange}
@@ -208,7 +210,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                             paddingRight: 48,
                             flexGrow: 1,
                             fontSize: 16,
-                            color: !isWrong ? '#000' : '#FF274E'
+                            color: !isWrong ? Theme.textPrimary : Theme.accentRed
                         }}
                         value={props.value}
                         onChangeText={onTextChange}
@@ -240,7 +242,6 @@ export const WalletImportFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
 
     useLayoutEffect(() => {
-
         if (Platform.OS === 'ios') {
             if (Platform.OS === 'ios') {
                 navigation.base.setOptions({
@@ -258,9 +259,13 @@ export const WalletImportFragment = systemFragment(() => {
                 });
             }
         }
-
-
     }, [navigation,]);
+
+    useFocusEffect(useCallback(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    }, []));
 
     return (
         <View

@@ -4,7 +4,6 @@ import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CloseButton } from "../../components/CloseButton";
-import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
@@ -17,7 +16,8 @@ import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useJettons } from '../../engine/hooks/useJettons';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { JettonState } from '../../engine/legacy/products/WalletProduct';
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
@@ -26,7 +26,7 @@ export const LedgerAssetsFragment = fragment(() => {
     const { addr } = useTransport();
     const address = useMemo(() => Address.parse(addr!.address), [addr]);
     const jettons = useJettons(address)?.jettons ?? [];
-    const account = useAccount();
+    const account = useAccountLite(addr!.address);
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
         navigation.replace('LedgerTransfer', {
@@ -99,7 +99,7 @@ export const LedgerAssetsFragment = fragment(() => {
                         extension={true}
                         style={{ marginVertical: 4 }}
                     />
-                    {jettons.map((j) => {
+                    {jettons.map((j: any) => {
                         return (
                             <JettonProduct
                                 key={'jt' + j.wallet.toFriendly()}

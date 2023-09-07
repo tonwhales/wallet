@@ -30,7 +30,7 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useAccount } from '../../../engine/hooks/useAccount';
+import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
@@ -38,6 +38,11 @@ import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessa
 import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/createWalletTransferV4';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { usePrice } from '../../../engine/hooks/usePrice';
+import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { fetchSeqno } from '../../../engine/api/fetchSeqno';
+import { getLastBlock } from '../../../engine/accountWatcher';
 
 type Props = {
     text: string | null,
@@ -72,8 +77,9 @@ export const TransferBatch = React.memo((props: Props) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const account = useAccount();
     const client = useClient4(isTestnet);
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
     const [price, currency] = usePrice();
     const {
         text,
@@ -264,7 +270,7 @@ export const TransferBatch = React.memo((props: Props) => {
         }
 
         // Check amount
-        if (account.balance.lt(totalAmount)) {
+        if (account!.balance.lt(totalAmount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -282,11 +288,14 @@ export const TransferBatch = React.memo((props: Props) => {
             return;
         }
 
+
+        let seqno = await fetchSeqno(client, await getLastBlock(), selected.address);
+
         // Create transfer
         let transfer: Cell;
         try {
             transfer = createWalletTransferV4({
-                seqno: account.seqno,
+                seqno: seqno,
                 walletId: contract.source.walletId,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
@@ -301,7 +310,7 @@ export const TransferBatch = React.memo((props: Props) => {
         let extMessage = new ExternalMessage({
             to: contract.address,
             body: new CommonMessageInfo({
-                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                 body: new CellMessage(transfer)
             })
         });
@@ -586,7 +595,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             return (
                                 <TransferComponent
                                     key={'transfer' + index}
-                                    transfer={i}
+                                    transfer={i as any}
                                     first={index === 0}
                                     last={index >= internals.length - 1}
                                     index={index}

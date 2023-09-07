@@ -31,7 +31,7 @@ import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
 import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
 import { createDomainSignature } from '../../../engine/effects/createDomainSignature';
-import { useAccount } from '../../../engine/hooks/useAccount';
+import { useAccount } from '../../../engine/hooks/useAccountLite';
 import { useCurrentAddress } from '../../../engine/hooks/useCurrentAddress';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';

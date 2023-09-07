@@ -25,7 +25,7 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccount, useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useConfig } from '../../engine/hooks/useConfig';
@@ -33,6 +33,10 @@ import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 import { useContact } from '../../engine/hooks/useContact';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { getLastBlock } from '../../engine/accountWatcher';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -59,7 +63,9 @@ export const SimpleTransferFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString)!;
+    const tonClient4 = useClient4(isTestnet);
     const safeArea = useSafeAreaInsets();
 
     const [target, setTarget] = React.useState(params?.target || '');
@@ -222,11 +228,10 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, comment, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = useConfig();
-    const accountState = useAccount();
     const lock = React.useMemo(() => {
         return new AsyncLock();
     }, []);
@@ -240,6 +245,8 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Load app state
                 const appState = getCurrentAddress();
+
+                let seqno = await fetchSeqno(tonClient4, await getLastBlock(), appState.address);
 
                 // Parse order
                 let intMessage: InternalMessage;
@@ -274,7 +281,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                 // Create transfer
                 let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
+                    seqno: seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
                     sendMode,
@@ -285,12 +292,12 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Resolve fee
-                if (config && accountState) {
+                if (config && account) {
                     let inMsg = new Cell();
                     new ExternalMessage({
                         to: contract.address,
                         body: new CommonMessageInfo({
-                            stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                            stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                             body: new CellMessage(transfer)
                         })
                     }).writeTo(inMsg);
@@ -305,7 +312,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, account.seqno, config, accountState, comment]);
+    }, [order, account, tonClient4, config, comment]);
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const onQRCodeRead = React.useCallback((src: string) => {

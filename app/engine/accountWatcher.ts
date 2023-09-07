@@ -11,8 +11,13 @@ let lastBlockPromise: Promise<number> = new Promise((resolve) => {
     lastBlockResolve = resolve;
 });
 
+export function getLastBlock() {
+    return lastBlockPromise;
+}
+
 export function useBlocksWatcher() {
     const { isTestnet } = useNetwork();
+
     useEffect(() => {
         let watcher = new BlocksWatcher(isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com');
         let client = clients.ton[isTestnet ? 'testnet' : 'mainnet'];
@@ -25,17 +30,17 @@ export function useBlocksWatcher() {
             let lastBlock = storage.getNumber('lastBlock') || data.seqno;
             storage.set('lastBlock', data.seqno);
             if (lastBlock < data.seqno) {
-                onBlockMissed(client, lastBlock, data.seqno);
+                onBlockMissed(client, lastBlock, data.seqno, isTestnet);
             }
 
             let addresses = Object.keys(data.changed);
             for (let address of addresses) {
-                onAccountTouched(address);
+                onAccountTouched(address, isTestnet);
             }
         });
 
         return () => {
             watcher.stop();
         };
-    }, []);
+    }, [isTestnet]);
 }

@@ -17,8 +17,10 @@ import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { usePrice } from '../../engine/hooks/usePrice';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -27,7 +29,8 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
     const balanceChart = useAccountBalanceChart();
     // const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 

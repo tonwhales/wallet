@@ -22,7 +22,6 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { useConfig } from '../../engine/hooks/useConfig';
-import { useAccount } from '../../engine/hooks/useAccount';
 import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { getJettonMaster } from '../../engine/getters/getJettonMaster';
@@ -30,6 +29,9 @@ import { parseBody } from '../../engine/legacy/transactions/parseWalletTransacti
 import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/legacy/utils/createWalletTransferV4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -101,7 +103,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 export const TransferFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const params: TransferFragmentProps = useRoute().params! as any;
-    const account = useAccount();
+    let account = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
@@ -190,6 +192,21 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
+                // Fetch data
+                const [
+                    config,
+                    [metadata, state, seqno]
+                ] = await Promise.all([
+                    backoff('transfer', () => fetchConfig()),
+                    backoff('transfer', async () => {
+                        let block = await backoff('transfer', () => client.getLastBlock());
+                        return Promise.all([
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
+                            backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
+                        ])
+                    }),
+                ])
                 // Create transfer
                 let intMessage = new InternalMessage({
                     to: target.address,
@@ -201,27 +218,14 @@ export const TransferFragment = fragment(() => {
                     })
                 });
                 let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
+                    seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
                     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
                     order: intMessage
                 });
 
-                // Fetch data
-                const [
-                    config,
-                    [metadata, state]
-                ] = await Promise.all([
-                    backoff('transfer', () => fetchConfig()),
-                    backoff('transfer', async () => {
-                        let block = await backoff('transfer', () => client.getLastBlock());
-                        return Promise.all([
-                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
-                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
-                        ])
-                    }),
-                ])
+
                 if (exited) {
                     return;
                 }
@@ -259,7 +263,7 @@ export const TransferFragment = fragment(() => {
                 new ExternalMessage({
                     to: contract.address,
                     body: new CommonMessageInfo({
-                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                        stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                         body: new CellMessage(transfer)
                     })
                 }).writeTo(inMsg);
@@ -401,7 +405,7 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig]);
+    }, [netConfig, account]);
 
     return (
         <>

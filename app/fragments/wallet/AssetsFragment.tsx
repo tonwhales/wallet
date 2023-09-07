@@ -5,7 +5,6 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
-import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
@@ -16,14 +15,17 @@ import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
 import { Address } from "ton";
 import { useJettons } from '../../engine/hooks/useJettons';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { JettonState } from '../../engine/legacy/products/WalletProduct';
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const jettons = useJettons();
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
         navigation.navigateSimpleTransfer({
@@ -98,7 +100,7 @@ export const AssetsFragment = fragment(() => {
                         extension={true}
                         style={{ marginVertical: 4 }}
                     />
-                    {jettons.map((j) => {
+                    {jettons.map((j: any) => {
                         return (
                             <JettonProduct
                                 key={'jt' + j.wallet.toFriendly()}

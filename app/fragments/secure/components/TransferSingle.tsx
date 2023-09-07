@@ -42,12 +42,16 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useContactAddress } from '../../../engine/hooks/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
-import { useAccount } from '../../../engine/hooks/useAccount';
+import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
 import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
 import { useClient4 } from '../../../engine/hooks/useClient4';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { fetchSeqno } from '../../../engine/api/fetchSeqno';
+import { getLastBlock } from '../../../engine/accountWatcher';
 
 type Props = {
     target: {
@@ -74,7 +78,9 @@ export const TransferSingle = React.memo((props: Props) => {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
+
     const {
         restricted,
         target,
@@ -168,7 +174,7 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Check amount
-        if (!order.messages[0].amountAll && account.balance.lt(order.messages[0].amount)) {
+        if (!order.messages[0].amountAll && account!.balance.lt(order.messages[0].amount)) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -207,11 +213,13 @@ export const TransferSingle = React.memo((props: Props) => {
             return;
         }
 
+        let seqno = await backoff('transfer', async () => fetchSeqno(client, await getLastBlock(), selected.address));
+
         // Create transfer
         let transfer: Cell;
         try {
             transfer = await contract.createTransfer({
-                seqno: account.seqno,
+                seqno: seqno,
                 walletId: contract.source.walletId,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: order.messages[0].amountAll
@@ -236,7 +244,7 @@ export const TransferSingle = React.memo((props: Props) => {
         let extMessage = new ExternalMessage({
             to: contract.address,
             body: new CommonMessageInfo({
-                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                 body: new CellMessage(transfer)
             })
         });
@@ -399,11 +407,11 @@ export const TransferSingle = React.memo((props: Props) => {
                                             color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
-                                            {`${fromNano(order.messages[0].amountAll ? account.balance : order.messages[0].amount)} TON`}
+                                            {`${fromNano(order.messages[0].amountAll ? account!.balance : order.messages[0].amount)} TON`}
                                         </Text>
                                         <PriceComponent
                                             prefix={'~'}
-                                            amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
+                                            amount={order.messages[0].amountAll ? account!.balance : order.messages[0].amount}
                                             style={{
                                                 backgroundColor: theme.transparent,
                                                 paddingHorizontal: 0,
@@ -531,7 +539,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <PriceComponent
                                                 prefix={`${t('transfer.gasFee')} ${fromNano(order.messages[0].amount)} TON (`}
                                                 suffix={')'}
-                                                amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
+                                                amount={order.messages[0].amountAll ? account!.balance : order.messages[0].amount}
                                                 style={{
                                                     backgroundColor: theme.transparent,
                                                     paddingHorizontal: 0,

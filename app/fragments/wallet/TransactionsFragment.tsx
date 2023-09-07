@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { WalletState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { getCurrentAddress } from "../../storage/appState";
@@ -14,13 +13,13 @@ import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
 
 const WalletTransactions = React.memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
     address: Address,
-    engine: Engine,
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
     frameArea: Rect,
@@ -112,32 +111,31 @@ const WalletTransactions = React.memo((props: {
     );
 });
 
-function TransactionsComponent(props: { wallet: WalletState }) {
+function TransactionsComponent(props: { transactions: any }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-    const account = props.wallet;
     const animRef = React.useRef<LottieView>(null);
+    const transactions = [];
 
     const onReachedEnd = React.useMemo(() => {
-        let prev = account.next;
-        let called = false;
-        return () => {
-            if (called) {
-                return;
-            }
-            called = true;
-            if (prev) {
-                engine.products.main.loadMore(prev.lt, prev.hash);
-            }
-        }
-    }, [account.next ? account.next.lt : null]);
+        // let prev = account.next;
+        // let called = false;
+        // return () => {
+        //     if (called) {
+        //         return;
+        //     }
+        //     called = true;
+        //     if (prev) {
+        //         engine.products.main.loadMore(prev.lt, prev.hash);
+        //     }
+        // }
+    }, []);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            {account.transactions.length === 0 && (
+            {transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
                         onPress={() => {
@@ -163,9 +161,9 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     />
                 </View>
             )}
-            {account.transactions.length > 0 && (
+            {/* {transactions.length > 0 && (
                 <WalletTransactions
-                    txs={account.transactions}
+                    txs={transactions}
                     next={account.next}
                     address={address}
                     engine={engine}
@@ -174,7 +172,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     onLoadMore={onReachedEnd}
                     frameArea={frameArea}
                 />
-            )}
+            )} */}
             {/* iOS Toolbar */}
             {
                 Platform.OS === 'ios' && (
@@ -256,7 +254,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 }
 
 export const TransactionsFragment = fragment(() => {
-    const account = useAccount();
+    const account = useSelectedAccount();
+    const transactions = useAccountTransactions(account.addressString);
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
@@ -264,6 +263,6 @@ export const TransactionsFragment = fragment(() => {
             </View>
         );
     } else {
-        return <TransactionsComponent wallet={account} />
+        return <TransactionsComponent transactions={transactions} />
     }
 }, true);

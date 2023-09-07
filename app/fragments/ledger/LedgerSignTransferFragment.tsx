@@ -53,17 +53,17 @@ import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 import { useContactAddress } from '../../engine/hooks/useContactAddress';
 import { useClient4 } from '../../engine/hooks/useClient4';
-import { useAccount } from '../../engine/hooks/useAccount';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { fetchMetadata } from '../../engine/legacy/metadata/fetchMetadata';
 import { getJettonMaster } from '../../engine/getters/getJettonMaster';
-import { getLedgerWallet } from '../../engine/getters/getLedgerWallet';
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../engine/legacy/transactions/resolveOperation';
 import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -932,7 +932,7 @@ export const LedgerSignTransferFragment = fragment(() => {
     } = useRoute().params! as any;
 
     const { ledgerConnection, tonTransport, addr } = useTransport();
-    const account = useAccount();
+    const account = useAccountLite(addr!.address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -1028,8 +1028,10 @@ export const LedgerSignTransferFragment = fragment(() => {
                     body: payload ? new CellMessage(payload) : null
                 })
             });
+
+            let seqno = await backoff('transfer', () => fetchSeqno(client, 0, contract.address));
             let transfer = await contract.createTransfer({
-                seqno: account.seqno,
+                seqno: seqno,
                 walletId: contract.source.walletId,
                 secretKey: null,
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
@@ -1074,7 +1076,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             new ExternalMessage({
                 to: contract.address,
                 body: new CommonMessageInfo({
-                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                    stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
                     body: new CellMessage(transfer)
                 })
             }).writeTo(inMsg);

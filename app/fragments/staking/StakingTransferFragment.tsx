@@ -24,9 +24,10 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -69,7 +70,8 @@ export const StakingTransferFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
     const safeArea = useSafeAreaInsets();
     const pool = useStakingPool(params.target);
     const member = pool?.member
@@ -78,7 +80,7 @@ export const StakingTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    let balance = account.balance || new BN(0);
+    let balance = account!.balance || new BN(0);
     if (params?.action === 'withdraw') {
         balance = member
             ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
@@ -155,7 +157,7 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
+        if ((transferAmount.eq(account!.balance) || account!.balance.lt(transferAmount))) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
                     ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })

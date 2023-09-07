@@ -15,14 +15,6 @@ import { KnownJettonMasters } from "../../../secure/KnownWallets";
 import { CloudValue } from "../cloud/CloudValue";
 import { storage } from "../../../storage/storage";
 
-export type WalletState = {
-    balance: BN;
-    seqno: number;
-    transactions: { id: string, time: number }[];
-    pending: { id: string, time: number }[];
-    next: { lt: string, hash: string } | null;
-}
-
 export type JettonState = {
     wallet: Address,
     master: Address,

@@ -1,7 +1,7 @@
 export const Queries = {
     Account: (address: string) => ({
         ...['account', address],
-        State: () => ['account', address, 'state'],
+        Lite: () => ['account', address, 'lite'],
         Transactions: () => ['account', address, 'transactions'],
         Hints: () => ['account', address, 'hints'],
     }),

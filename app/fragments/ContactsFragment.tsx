@@ -19,7 +19,7 @@ import LottieView from 'lottie-react-native';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useContacts } from '../engine/hooks/useContacts';
 import { useAccountTransactions } from '../engine/hooks/useAccountTransactions';
-import { useAccount } from '../engine/hooks/useAccount';
+import { useAccount } from '../engine/hooks/useAccountLite';
 import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
 
 export const ContactsFragment = fragment(() => {

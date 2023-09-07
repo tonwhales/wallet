@@ -68,6 +68,7 @@ import { useNetwork } from './engine/hooks/useNetwork';
 import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
 import { useRecoilValue } from 'recoil';
 import { appStateSelector } from './engine/state/appState';
+import { useBlocksWatcher } from './engine/accountWatcher';
 
 const Stack = createNativeStackNavigator();
 
@@ -291,6 +292,9 @@ export const Navigation = React.memo(() => {
             ended = true;
         };
     }, []);
+
+    // Watch blocks
+    useBlocksWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

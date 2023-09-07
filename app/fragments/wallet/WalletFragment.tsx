@@ -23,7 +23,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { useAccount } from '../../engine/hooks/useAccount';
+import { useAccount, useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
 import { useSyncState } from '../../engine/hooks/useSyncState';
 import { useTheme } from '../../engine/hooks/useTheme';
@@ -569,7 +569,9 @@ function WalletComponent(props: { wallet: WalletState }) {
 }
 
 export const WalletFragment = fragment(() => {
-    const account = useAccount();
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected.addressString);
+    
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>

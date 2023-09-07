@@ -9,6 +9,7 @@ export function usePrice(): [PriceState, string] {
         queryKey: Queries.TonPrice(),
         queryFn: fetchPrice,
         suspense: true,
+        refetchInterval: 1000 * 60,
     });
 
     let [currency,] = usePrimaryCurrency();

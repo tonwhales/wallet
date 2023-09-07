@@ -29,7 +29,7 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>
                     <Text
-                        style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >

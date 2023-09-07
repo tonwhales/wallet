@@ -127,33 +127,13 @@ export const SpamFilterFragment = fragment(() => {
                             onValueChange={setMinValue}
                             placeholder={'0.05'}
                             keyboardType={'numeric'}
-                            preventDefaultHeight
-                            preventDefaultLineHeight
-                            preventDefaultValuePadding
                             blurOnSubmit={false}
                             style={{
                                 backgroundColor: Theme.transparent,
                                 paddingHorizontal: 0,
                                 paddingVertical: 0,
                             }}
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: Theme.textSecondary,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('spamFilter.minAmount')}
-                                    </Text>
-                                </View>
-                            }
+                            label={t('spamFilter.minAmount')}
                         />
                         <Text style={{
                             fontWeight: '500',
@@ -178,7 +158,7 @@ export const SpamFilterFragment = fragment(() => {
                             fontSize: 18,
                             fontWeight: '700',
                             marginVertical: 8,
-                            color: Theme.textColor
+                            color: Theme.textPrimary
                         }}>
                             {t('spamFilter.denyList')}
                         </Text>

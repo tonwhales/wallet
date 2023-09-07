@@ -201,7 +201,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                         key={`selector-item-${tabItemProps.route.key}`}
                                         onPress={tabItemProps.onPress}
                                         style={{ backgroundColor: focused ? Theme.accent : Theme.border, }}
-                                        textStyle={{ color: focused ? Theme.white : Theme.textColor, }}
+                                        textStyle={{ color: focused ? Theme.white : Theme.textPrimary, }}
                                         text={tabItemProps.route.title}
                                     />
                                 );

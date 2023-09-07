@@ -33,7 +33,7 @@ export const ProductBanner = React.memo((props: {
                     justifyContent: 'space-between', padding: 20,
                     flexGrow: 1, flexShrink: 1
                 }}>
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, lineHeight: 24 }}
+                    <Text style={{ color: Theme.textPrimary, fontWeight: '600', fontSize: 17, lineHeight: 24 }}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >

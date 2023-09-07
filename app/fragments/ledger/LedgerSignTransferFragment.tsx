@@ -405,7 +405,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${fromNano(order.amountAll ? (account?.balance ?? new BN(0)) : order.amount)} TON`}
@@ -418,7 +418,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
-                                            textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                            textStyle={{ color: Theme.textPrimary, fontWeight: '400', fontSize: 14 }}
                                         />
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
@@ -494,7 +494,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             marginLeft: 2
                                         }}>
                                             {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
@@ -591,7 +591,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${contact?.name ?? known?.name}`}
@@ -694,7 +694,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     <Text style={{
                                         fontWeight: '700',
                                         fontSize: 20,
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         marginLeft: 2
                                     }}>
                                         <AddressComponent address={target.address} />
@@ -825,7 +825,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 17,
-                                                color: Theme.textColor,
+                                                color: Theme.textPrimary,
                                             }}>
                                                 {operation.op}
                                             </Text>
@@ -837,7 +837,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 flexShrink: 1,
                                                 fontWeight: '500',
                                                 fontSize: 14,
-                                                color: Theme.textColor,
+                                                color: Theme.textPrimary,
                                                 opacity: 0.4
                                             }}>
                                                 {text}

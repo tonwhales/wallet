@@ -20,11 +20,11 @@ const MnemonicWord = React.memo(({ word, index }: { word: string, index: number 
                     paddingRight: 8,
                     textAlign: 'right',
                     minWidth: 24,
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                 }]}>
                 {index + 1}
             </Text>
-            <Text style={[wordStyle, { color: Theme.textColor }]}>
+            <Text style={[wordStyle, { color: Theme.textPrimary }]}>
                 {word}
             </Text>
         </View>

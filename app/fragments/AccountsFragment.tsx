@@ -120,7 +120,7 @@ export const AccountsFragment = fragment(() => {
                         fontWeight: '700',
                         marginBottom: 8,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                     }}>
                         {t('accounts.noAccounts')}
                     </Text>
@@ -160,7 +160,7 @@ export const AccountsFragment = fragment(() => {
                                     fontSize: 18,
                                     fontWeight: '700',
                                     marginVertical: 8,
-                                    color: active.length > 0 ? Theme.textColor : Theme.textSecondary
+                                    color: active.length > 0 ? Theme.textPrimary : Theme.textSecondary
                                 }}
                                 >
                                     {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}

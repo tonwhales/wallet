@@ -372,9 +372,6 @@ export const StakingTransferFragment = fragment(() => {
                                         fontSize={30}
                                         editable={!params?.lockAmount}
                                         enabled={!params?.lockAmount}
-                                        preventDefaultHeight
-                                        preventDefaultLineHeight
-                                        preventDefaultValuePadding
                                         blurOnSubmit={false}
                                     />
                                     {!params?.lockAmount && <Pressable
@@ -461,7 +458,7 @@ export const StakingTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 16,
-                                                color: Theme.textColor
+                                                color: Theme.textPrimary
                                             }}>
                                                 {`${fromNano(withdrawFee)} TON`}
                                             </Text>

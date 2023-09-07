@@ -44,7 +44,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 17, lineHeight: 24,
-                            color: Theme.textColor
+                            color: Theme.textPrimary
                         }}>
                             {t('hardwareWallet.actions.confirmOnLedger')}
                         </Text>
@@ -62,7 +62,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 17, lineHeight: 24,
-                            color: Theme.textColor
+                            color: Theme.textPrimary
                         }}>
                             <ValueComponent
                                 value={acc.balance}

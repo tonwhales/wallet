@@ -68,7 +68,7 @@ export const UnstakeBanner = React.memo((
                 style={{ width: 94, height: 94, marginBottom: 16, maxWidth: 140, maxHeight: 140 }}
             />
             <Text style={{
-                color: Theme.textColor,
+                color: Theme.textPrimary,
                 fontSize: 16,
                 fontWeight: '600',
                 textAlign: 'center',

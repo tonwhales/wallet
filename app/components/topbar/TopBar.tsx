@@ -39,7 +39,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         )}
                         {!!title && (
                             <Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: Theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>
@@ -66,7 +66,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                     {!!title && (
                         <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: Theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>

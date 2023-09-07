@@ -133,7 +133,7 @@ export const LogoutFragment = fragment(() => {
                     marginTop: 24,
                     fontSize: 32, lineHeight: 38,
                     fontWeight: '600',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                 }}
                 >
                     {t('logout.title', { name: name.length > 20 ? name.slice(0, 10) + '...' + name.slice(-10) : name })}

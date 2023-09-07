@@ -107,7 +107,7 @@ export const HardwareWalletFragment = fragment(() => {
                 flexGrow: 1,
             }}>
                 <Text style={{
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     fontWeight: '600',
                     fontSize: 32, lineHeight: 38,
                     marginBottom: 16,

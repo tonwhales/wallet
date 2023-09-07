@@ -68,7 +68,7 @@ export const ContactField = memo(forwardRef((props: {
                         {
                             textAlignVertical: 'top',
                             fontSize: 17,
-                            fontWeight: '400', color: Theme.textColor
+                            fontWeight: '400', color: Theme.textPrimary
                         }
                     ]}
                     maxLength={126}

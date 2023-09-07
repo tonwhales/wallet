@@ -43,7 +43,7 @@ export const WebViewErrorComponent = memo(({
                 <View style={{ width: '100%' }}>
                     <Text style={{
                         fontSize: 32, lineHeight: 40,
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         fontWeight: '600',
                         marginBottom: 4
                     }}>

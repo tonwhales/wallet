@@ -124,7 +124,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
             />
             <Text style={{
-                color: Theme.textColor,
+                color: Theme.textPrimary,
                 fontWeight: '600',
                 fontSize: 32, lineHeight: 38,
                 marginVertical: 16, marginHorizontal: 16

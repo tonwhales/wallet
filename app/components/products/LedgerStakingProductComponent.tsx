@@ -87,7 +87,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                     }}>
                         <View style={{ flexGrow: 1, flexShrink: 1 }}>
                             <Text
-                                style={{ color: Theme.textColor, ...titleStyle }}
+                                style={{ color: Theme.textPrimary, ...titleStyle }}
                                 ellipsizeMode={'tail'}
                                 numberOfLines={1}
                             >
@@ -98,7 +98,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                             </Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ color: Theme.textColor, ...titleStyle }}>
+                            <Text style={{ color: Theme.textPrimary, ...titleStyle }}>
                                 <ValueComponent
                                     value={staking.total}
                                     precision={3}

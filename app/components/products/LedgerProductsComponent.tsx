@@ -27,7 +27,7 @@ export const LedgerProductsComponent = React.memo(() => {
                         <Text style={{
                             fontSize: 17,
                             fontWeight: '600',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             lineHeight: 24,
                         }}>
                             {t('common.products')}

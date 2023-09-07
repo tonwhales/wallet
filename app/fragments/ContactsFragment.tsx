@@ -131,7 +131,7 @@ export const ContactsFragment = fragment(() => {
                             fontWeight: '600',
                             marginBottom: 16,
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                         }}
                         >
                             {t('contacts.empty')}

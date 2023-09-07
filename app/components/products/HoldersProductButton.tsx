@@ -172,7 +172,7 @@ export const HoldersProductButton = memo(() => {
                                 fontWeight: '600',
                                 fontSize: 17,
                                 lineHeight: 24,
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                             }}>
                                 {t('products.zenPay.card.cards')}
                             </Text>

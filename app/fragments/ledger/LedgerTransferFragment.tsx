@@ -401,9 +401,6 @@ export const LedgerTransferFragment = fragment(() => {
                             style={{ backgroundColor: 'transparent' }}
                             fontWeight={'800'}
                             fontSize={30}
-                            preventDefaultHeight
-                            preventDefaultLineHeight
-                            preventDefaultValuePadding
                             blurOnSubmit={false}
                         />
                         <Text style={{
@@ -492,51 +489,8 @@ export const LedgerTransferFragment = fragment(() => {
                             keyboardType="default"
                             autoCapitalize="sentences"
                             style={{ backgroundColor: 'transparent', paddingHorizontal: 0, marginHorizontal: 16 }}
-                            preventDefaultHeight
                             multiline
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: '#7D858A',
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('transfer.commentLabel')}
-                                    </Text>
-                                    {isKnown && (
-                                        <Animated.View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}
-                                            entering={FadeIn.duration(150)}
-                                            exiting={FadeOut.duration(150)}
-                                        >
-                                            <MessageIcon
-                                                width={12}
-                                                height={12}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 12,
-                                                color: '#858B93',
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                                {t('transfer.checkComment')}
-                                            </Text>
-                                        </Animated.View>
-                                    )}
-                                </View>
-                            }
+                            label={`${t('transfer.commentLabel')}${isKnown ? ` • ${t('transfer.checkComment')}` : ''}`}
                         />
                     </View>
                     <Text style={{ color: '#6D6D71', marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
@@ -551,9 +505,7 @@ export const LedgerTransferFragment = fragment(() => {
                 }}
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
-                <View style={{
-                    flexDirection: 'row'
-                }}>
+                <View style={{ flexDirection: 'row' }}>
                     <RoundButton
                         title={t('common.back')}
                         display={'secondary'}

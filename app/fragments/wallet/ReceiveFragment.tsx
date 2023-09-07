@@ -195,7 +195,7 @@ export const ReceiveFragment = fragment(() => {
                                     <View style={{ justifyContent: 'space-between' }}>
                                         <Text style={{
                                             fontSize: 17,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             fontWeight: '600',
                                             lineHeight: 24
                                         }}>

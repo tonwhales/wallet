@@ -101,7 +101,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                         fontSize: 24,
                         marginHorizontal: 16,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         fontWeight: '600',
                         marginTop: 10
                     }}
@@ -129,26 +129,8 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                         keyboardType="default"
                         autoCapitalize="sentences"
                         style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
-                        preventDefaultHeight
                         multiline
-                        label={
-                            <View style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                overflow: 'hidden',
-                            }}>
-                                <Text style={{
-                                    fontWeight: '500',
-                                    fontSize: 12,
-                                    color: Theme.textSecondary,
-                                    alignSelf: 'flex-start',
-                                }}>
-                                    {t('review.review')}
-                                </Text>
-                            </View>
-                        }
+                        label={t('review.review')}
                     />
                 </View>
             </ScrollView>

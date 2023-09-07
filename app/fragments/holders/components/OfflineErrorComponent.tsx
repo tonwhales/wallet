@@ -19,7 +19,7 @@ export const OfflineErrorComponent = React.memo(({
             <View style={{ flexGrow: 1 }} />
             <Text style={{
                 fontSize: 20,
-                color: Theme.textColor,
+                color: Theme.textPrimary,
                 fontWeight: '600',
                 marginHorizontal: 16,
                 textAlign: 'center'

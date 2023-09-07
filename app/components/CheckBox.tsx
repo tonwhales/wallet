@@ -57,7 +57,7 @@ export const CheckBox = React.memo((
                     fontWeight: '400',
                     fontSize: 16,
                     marginLeft: 16,
-                    color: Theme.textColor
+                    color: Theme.textPrimary
                 }}>
                     {text}
                 </Text>

@@ -283,7 +283,7 @@ export const DeleteAccountFragment = fragment(() => {
                 marginTop: 24,
                 fontSize: 32, lineHeight: 38,
                 fontWeight: '600',
-                color: Theme.textColor,
+                color: Theme.textPrimary,
             }}
             >
                 {t('deleteAccount.title')}
@@ -313,7 +313,7 @@ export const DeleteAccountFragment = fragment(() => {
                             paddingHorizontal: 0,
                             textAlignVertical: 'top',
                             fontSize: 17, lineHeight: 24,
-                            fontWeight: '400', color: Theme.textColor
+                            fontWeight: '400', color: Theme.textPrimary
                         }
                     ]}
                     maxLength={48}
@@ -345,7 +345,7 @@ export const DeleteAccountFragment = fragment(() => {
                     <View style={{ backgroundColor: Theme.surfacePimary, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
-                            <Text style={{ color: Theme.textColor }}>
+                            <Text style={{ color: Theme.textPrimary }}>
                                 {t('deleteAccount.complete')}
                             </Text>
                         )}

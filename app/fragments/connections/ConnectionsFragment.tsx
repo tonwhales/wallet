@@ -208,7 +208,7 @@ export const ConnectionsFragment = fragment(() => {
                                     fontWeight: '600',
                                     marginHorizontal: 24,
                                     textAlign: 'center',
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     marginTop: (window.height / 4) + safeArea.top,
                                 }}>
                                     {t('auth.noExtensions')}
@@ -259,7 +259,7 @@ export const ConnectionsFragment = fragment(() => {
                                     fontWeight: '600',
                                     marginHorizontal: 24,
                                     textAlign: 'center',
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     marginTop: (window.height / 4) + safeArea.top,
                                 }}>
                                     {t('auth.noApps')}

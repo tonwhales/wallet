@@ -174,7 +174,7 @@ export const TransactionPreviewFragment = fragment(() => {
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: Theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
@@ -236,7 +236,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     color: item.amount.gte(new BN(0))
                                         ? spam
-                                            ? Theme.textColor
+                                            ? Theme.textPrimary
                                             : Theme.accentGreen
                                         : '#000000',
                                     fontWeight: '800',
@@ -452,7 +452,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -495,7 +495,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
@@ -511,14 +511,14 @@ export const TransactionPreviewFragment = fragment(() => {
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: Theme.textPrimary, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
                             {!AppConfig.isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>

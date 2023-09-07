@@ -49,7 +49,7 @@ export const ItemButton = React.memo((props: {
                                 fontSize: 17, lineHeight: 24,
                                 fontWeight: props.dangerZone ? '500' : '600',
                                 textAlignVertical: 'center',
-                                color: props.dangerZone ? Theme.accentRed : Theme.textColor,
+                                color: props.dangerZone ? Theme.accentRed : Theme.textPrimary,
                                 marginLeft: (props.leftIcon || props.leftIconComponent) ? 13 : 0,
                             }}
                             numberOfLines={1}

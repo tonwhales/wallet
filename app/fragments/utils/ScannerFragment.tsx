@@ -129,7 +129,7 @@ export const ScannerFragment = systemFragment(() => {
                 <Text style={{
                     fontWeight: '600',
                     fontSize: 32, lineHeight: 38,
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     textAlign: 'center'
                 }}
                 >

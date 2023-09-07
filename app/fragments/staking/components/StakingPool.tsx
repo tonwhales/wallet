@@ -130,7 +130,7 @@ export const StakingPool = memo((props: {
             }}>
                 <Text style={{
                     paddingHorizontal: 8, paddingVertical: 1,
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     fontWeight: '400',
                     fontSize: 13, lineHeight: 18,
                     flexShrink: 1,
@@ -139,7 +139,7 @@ export const StakingPool = memo((props: {
                         hidePrefix
                         left={left}
                         textStyle={{
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             fontWeight: '400',
                             fontSize: 13, lineHeight: 18,
                             flex: 1,
@@ -185,7 +185,7 @@ export const StakingPool = memo((props: {
                     }}>
                         <Text
                             style={{
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontSize: 17, lineHeight: 24,
                                 fontWeight: '600',
                                 flexShrink: 1, marginBottom: 2
@@ -213,7 +213,7 @@ export const StakingPool = memo((props: {
                         {props.balance.gt(new BN(0)) && (
                             <>
                                 <Text style={{
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     fontWeight: '600',
                                     lineHeight: 24,
                                     fontSize: 17,

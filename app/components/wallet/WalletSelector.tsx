@@ -66,7 +66,7 @@ export const WalletSelector = memo(() => {
                             style={{
                                 fontSize: 17, lineHeight: 24,
                                 fontWeight: '600',
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 marginBottom: 2,
                                 maxWidth: '90%',
                             }}

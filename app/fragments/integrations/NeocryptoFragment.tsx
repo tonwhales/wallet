@@ -79,7 +79,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '800',
                         fontSize: 24,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginTop: 16,
                         marginHorizontal: 24
                     }}>
@@ -154,7 +154,7 @@ export const NeocryptoFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: Theme.textColor
+                    color: Theme.textPrimary
                 }}>
                     {'Neocrypto service availible only on mainnet'}
                 </Text>
@@ -203,7 +203,7 @@ export const NeocryptoFragment = fragment(() => {
                     <AndroidToolbar />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (
-                            <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
+                            <Text style={{ color: Theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
                                 {'Neorcypto'}
                             </Text>
                         )}

@@ -30,7 +30,7 @@ export const TabHeader = React.memo(({
             <Text
                 numberOfLines={1}
                 style={{
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     textAlign: 'center', alignSelf: 'center',
                     fontWeight: '600', fontSize: 17, lineHeight: 24,
                 }}

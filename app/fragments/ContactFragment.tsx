@@ -294,7 +294,7 @@ export const ContactFragment = fragment(() => {
                                 <Text style={{
                                     fontSize: 32, lineHeight: 38,
                                     fontWeight: '600',
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     marginTop: 16
                                 }}>
                                     {name}
@@ -350,7 +350,7 @@ export const ContactFragment = fragment(() => {
                                         </View>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             marginTop: 6,
                                             fontWeight: '500'
                                         }}>
@@ -376,7 +376,7 @@ export const ContactFragment = fragment(() => {
                                         </View>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                             marginTop: 6,
                                             fontWeight: '500'
                                         }}>
@@ -457,7 +457,7 @@ export const ContactFragment = fragment(() => {
                                                 paddingHorizontal: 0,
                                                 textAlignVertical: 'top',
                                                 fontSize: 17, lineHeight: 24,
-                                                fontWeight: '400', color: Theme.textColor
+                                                fontWeight: '400', color: Theme.textPrimary
                                             }
                                         ]}
                                         autoFocus
@@ -525,7 +525,7 @@ export const ContactFragment = fragment(() => {
                                                 paddingHorizontal: 0,
                                                 textAlignVertical: 'top',
                                                 fontSize: 17, lineHeight: 24,
-                                                fontWeight: '400', color: Theme.textColor
+                                                fontWeight: '400', color: Theme.textPrimary
                                             }
                                         ]}
                                         maxLength={48}

@@ -89,7 +89,7 @@ export function ProductButton(props: ProductButtonProps) {
                     }}>
                         <Text
                             style={{
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontSize: 16,
                                 marginRight: 16,
                                 fontWeight: '600',
@@ -106,7 +106,7 @@ export function ProductButton(props: ProductButtonProps) {
                             </Text>
                         )}
                         {(!!props.value && typeof props.value === 'string') && (
-                            <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            <Text style={{ color: Theme.textPrimary, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 {props.value}
                             </Text>
                         )}

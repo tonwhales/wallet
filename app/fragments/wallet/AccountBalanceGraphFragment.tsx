@@ -178,7 +178,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                     animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                     style={{
                         fontSize: 32, lineHeight: 40,
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         fontWeight: '600',
                     }}
                     editable={false}

@@ -129,7 +129,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -181,7 +181,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 4
                         }}
                     >
@@ -208,7 +208,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -223,7 +223,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: 32,
                         opacity: 0.6
                     }}

@@ -85,7 +85,7 @@ export const ShareButton = React.memo(({
                         <Text
                             style={[
                                 {
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,

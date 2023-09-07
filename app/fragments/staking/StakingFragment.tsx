@@ -164,7 +164,7 @@ export const StakingFragment = fragment(() => {
                     }}>
                         <Text style={{
                             fontSize: 17, lineHeight: 24,
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             fontWeight: '500',
                         }}>
                             {KnownPools(AppConfig.isTestnet)[params.pool].name}
@@ -306,7 +306,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         fontSize: 15,
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         marginTop: 6,
                                         fontWeight: '400'
                                     }}>
@@ -350,7 +350,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         fontSize: 15,
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         marginTop: 6,
                                         fontWeight: '400'
                                     }}
@@ -385,7 +385,7 @@ export const StakingFragment = fragment(() => {
                                 <Text
                                     style={{
                                         fontSize: 15,
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         marginTop: 6,
                                         fontWeight: '400'
                                     }}

@@ -47,7 +47,7 @@ export const SelectableButton = React.memo((
                     <Text style={{
                         flexShrink: 1,
                         fontSize: 17, lineHeight: 24, fontWeight: '600',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: 2
                     }}>
                         {title}

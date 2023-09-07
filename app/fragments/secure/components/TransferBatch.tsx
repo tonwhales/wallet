@@ -454,7 +454,7 @@ export const TransferBatch = React.memo((props: Props) => {
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 17, lineHeight: 24, fontWeight: '600',
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 marginTop: 8
                             }}>
                                 {t('common.send')}
@@ -464,7 +464,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             <Text style={{
                                 fontWeight: '600',
                                 fontSize: 17, lineHeight: 24,
-                                color: Theme.textColor
+                                color: Theme.textPrimary
                             }}>
                                 {fromNano(totalAmount) + ' TON'}
                             </Text>
@@ -476,7 +476,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             style={{
                                                 fontWeight: '600',
                                                 fontSize: 17, lineHeight: 24,
-                                                color: Theme.textColor
+                                                color: Theme.textPrimary
                                             }}
                                         >
                                             {index !== totalJettons.size - 1 ? ' • ' : ''}
@@ -505,7 +505,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 {t('common.from')}
                             </Text>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                     <AddressComponent address={engine.address} end={4} />
                                 </Text>
                                 {walletSettings?.name && (
@@ -532,7 +532,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 {t('transfer.feeTotalTitle')}
                             </Text>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                     {fromNano(fees) + ' TON'}
                                 </Text>
                                 <PriceComponent
@@ -600,7 +600,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             {t('common.amount')}
                                         </Text>
                                         <View style={{ alignItems: 'flex-end' }}>
-                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                                 {i.jettonAmount
                                                     ? fromNano(i.jettonAmount) + (i.jettonMaster?.symbol ?? '')
                                                     : fromNano(i.message.amount) + ' TON'
@@ -632,7 +632,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             {t('common.to')}
                                         </Text>
                                         <View style={{ alignItems: 'flex-end' }}>
-                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                                 <AddressComponent address={i.operation.address} end={4} />
                                             </Text>
                                             {i.known && (
@@ -695,7 +695,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     {t('transfer.gasFee')}
                                                 </Text>
                                                 <View style={{ alignItems: 'flex-end' }}>
-                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                                         {fromNano(i.message.amount) + ' TON'}
                                                     </Text>
                                                     <PriceComponent
@@ -726,7 +726,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     {t('transfer.purpose')}
                                                 </Text>
                                                 <View style={{ alignItems: 'flex-end' }}>
-                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                                         {i.operation.op}
                                                     </Text>
                                                 </View>
@@ -744,7 +744,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     {t('transfer.commentLabel')}
                                                 </Text>
                                                 <View style={{ alignItems: 'flex-end' }}>
-                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                                         {i.operation.comment}
                                                     </Text>
                                                 </View>

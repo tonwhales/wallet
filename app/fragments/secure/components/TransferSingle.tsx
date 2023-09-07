@@ -433,7 +433,7 @@ export const TransferSingle = memo((props: Props) => {
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 17, lineHeight: 24, fontWeight: '600',
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 marginTop: 8
                             }}>
                                 {t('common.send')}
@@ -444,7 +444,7 @@ export const TransferSingle = memo((props: Props) => {
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 32, lineHeight: 38,
-                                    color: Theme.textColor
+                                    color: Theme.textPrimary
                                 }}>
                                     {fromNano(amount) + ' TON'}
                                 </Text>
@@ -454,7 +454,7 @@ export const TransferSingle = memo((props: Props) => {
                                     style={{
                                         fontWeight: '600',
                                         fontSize: 32, lineHeight: 38,
-                                        color: Theme.textColor
+                                        color: Theme.textPrimary
                                     }}
                                 >
                                     {`${jettonAmount} ${jettonMaster?.symbol ?? ''}`}
@@ -492,7 +492,7 @@ export const TransferSingle = memo((props: Props) => {
                                             borderWith={0}
                                         />
                                     </View>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                         <AddressComponent address={engine.address} end={4} />
                                     </Text>
                                 </View>
@@ -530,7 +530,7 @@ export const TransferSingle = memo((props: Props) => {
                                             dontShowVerified
                                         />
                                     </View>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                         <AddressComponent address={target.address} end={4} />
                                     </Text>
                                 </View>
@@ -706,7 +706,7 @@ export const TransferSingle = memo((props: Props) => {
                                         {t('transfer.purpose')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor, textAlign: 'right' }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary, textAlign: 'right' }}>
                                             {operation.op}
                                         </Text>
                                     </View>
@@ -724,7 +724,7 @@ export const TransferSingle = memo((props: Props) => {
                                         {t('transfer.comment')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-start', flexShrink: 1, marginTop: 2 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor, textAlign: 'right' }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary, textAlign: 'right' }}>
                                             {text}
                                         </Text>
                                     </View>
@@ -742,7 +742,7 @@ export const TransferSingle = memo((props: Props) => {
                                         {t('transfer.gasFee')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                             {fromNano(order.messages[0].amount) + ' TON'}
                                         </Text>
                                     </View>
@@ -797,7 +797,7 @@ export const TransferSingle = memo((props: Props) => {
                                 />
                             </Pressable>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textColor }}>
+                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
                                     {fromNano(fees) + ' TON'}
                                 </Text>
                                 <PriceComponent

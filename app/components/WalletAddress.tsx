@@ -140,7 +140,7 @@ export const WalletAddress = memo((props: {
                                         fontSize: 16,
                                         fontWeight: '700',
                                         textAlign: 'center',
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         fontVariant: ['tabular-nums'],
                                     },
                                     props.textStyle
@@ -160,7 +160,7 @@ export const WalletAddress = memo((props: {
                                             fontSize: 16,
                                             fontWeight: '400',
                                             textAlign: 'center',
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                         },
                                         props.textStyle
                                     ]}
@@ -177,7 +177,7 @@ export const WalletAddress = memo((props: {
                                             fontSize: 16,
                                             fontWeight: '400',
                                             textAlign: 'center',
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                         },
                                         props.textStyle
                                     ]}
@@ -210,7 +210,7 @@ export const WalletAddress = memo((props: {
                                     fontSize: 16,
                                     fontWeight: '700',
                                     textAlign: 'center',
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     fontVariant: ['tabular-nums'],
                                 },
                                 props.textStyle
@@ -230,7 +230,7 @@ export const WalletAddress = memo((props: {
                                         fontSize: 16,
                                         fontWeight: '400',
                                         textAlign: 'center',
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                     },
                                     props.textStyle
                                 ]}
@@ -247,7 +247,7 @@ export const WalletAddress = memo((props: {
                                         fontSize: 16,
                                         fontWeight: '400',
                                         textAlign: 'center',
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                     },
                                     props.textStyle
                                 ]}

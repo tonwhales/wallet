@@ -28,7 +28,7 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                 <HoldersNotificationIcon notification={notification} />
                 <View style={{ flex: 1, marginRight: 4 }}>
                     <Text
-                        style={{ color: Theme.textColor, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                        style={{ color: Theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >
@@ -53,7 +53,7 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                                 style={{
                                     color: notification.type === 'deposit'
                                         ? Theme.accentGreen
-                                        : notification.type === 'charge_failed' ? Theme.accentRed : Theme.textColor,
+                                        : notification.type === 'charge_failed' ? Theme.accentRed : Theme.textPrimary,
                                     fontWeight: '600',
                                     lineHeight: 24,
                                     fontSize: 17,

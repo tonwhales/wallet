@@ -250,7 +250,7 @@ export function LedgerTransactionView(props: {
                     </View>
                     <View style={{ flex: 1, marginRight: 4 }}>
                         <Text
-                            style={{ color: Theme.textColor, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                            style={{ color: Theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
@@ -290,9 +290,9 @@ export function LedgerTransactionView(props: {
                                 style={{
                                     color: tx.base.kind === 'in'
                                         ? spam
-                                            ? Theme.textColor
+                                            ? Theme.textPrimary
                                             : Theme.accentGreen
-                                        : Theme.textColor,
+                                        : Theme.textPrimary,
                                     fontWeight: '600',
                                     lineHeight: 24,
                                     fontSize: 17,
@@ -338,7 +338,7 @@ export function LedgerTransactionView(props: {
                         <Text
                             numberOfLines={1}
                             ellipsizeMode={'tail'}
-                            style={{ color: Theme.textColor, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
+                            style={{ color: Theme.textPrimary, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
                         >
                             {operation.comment}
                         </Text>

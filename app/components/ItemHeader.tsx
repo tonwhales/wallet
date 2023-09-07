@@ -10,7 +10,7 @@ export const ItemHeader = React.memo((props: { title: string, loading?: boolean,
                 style={{
                     fontSize: 17, lineHeight: 24,
                     textAlignVertical: 'center',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     fontWeight: '600',
                     flexGrow: 1,
                 }}

@@ -37,11 +37,11 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         secondary_contrast: {
             backgroundColor: theme.surfaceSecondary,
             borderColor: theme.surfaceSecondary,
-            textColor: theme.textColor,
+            textColor: theme.textPrimary,
         },
         pro: {
-            backgroundColor: theme.textColor,
-            borderColor: theme.textColor,
+            backgroundColor: theme.textPrimary,
+            borderColor: theme.textPrimary,
             textColor: theme.surfacePimary,
         },
         telegram: {

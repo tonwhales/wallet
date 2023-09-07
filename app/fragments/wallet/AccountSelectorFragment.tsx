@@ -100,7 +100,7 @@ export const AccountSelectorFragment = fragment(() => {
                         marginHorizontal: 16,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginTop: Platform.OS === 'ios' ? 32 : 0,
                     }}>
                         {t('common.wallets')}
@@ -137,7 +137,7 @@ export const AccountSelectorFragment = fragment(() => {
                     <Text style={{
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: 16, marginTop: Platform.OS === 'ios' ? 16 : 0,
                     }}>
                         {t('common.wallets')}

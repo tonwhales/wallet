@@ -49,7 +49,7 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center', flexShrink: 1 }}>
                     <Text
-                        style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                        style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >

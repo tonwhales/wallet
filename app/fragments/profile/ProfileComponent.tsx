@@ -48,7 +48,7 @@ export const ProfileComponent = memo(() => {
                     <View style={{ paddingLeft: 12, alignSelf: 'stretch', justifyContent: 'center' }}>
                         <Text
                             style={{
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontSize: 17, lineHeight: 24,
                                 fontWeight: '600',
                             }}

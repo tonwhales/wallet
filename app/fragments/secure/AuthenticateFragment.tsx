@@ -261,7 +261,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'expired') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textPrimary, marginBottom: 32 }}>{t('auth.expired')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -271,7 +271,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'failed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textPrimary, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -281,7 +281,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'completed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textPrimary, marginBottom: 32 }}>{t('auth.completed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -303,7 +303,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         fontSize: 24,
                         marginHorizontal: 32,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                     }}
                 >
                     {t('auth.authorized')}
@@ -381,7 +381,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -438,7 +438,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 4
                         }}
                     >
@@ -465,7 +465,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -480,7 +480,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: state.app?.extension ? 16 : 32,
                         opacity: 0.6
                     }}

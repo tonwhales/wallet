@@ -134,7 +134,7 @@ export const WalletSettingsFragment = fragment(() => {
                                         includeFontPadding: false,
                                         textAlignVertical: 'center',
                                         fontSize: 17, lineHeight: 24,
-                                        fontWeight: '400', color: Theme.textColor,
+                                        fontWeight: '400', color: Theme.textPrimary,
                                         paddingTop: 0,
                                         paddingBottom: 0
                                     }
@@ -183,7 +183,7 @@ export const WalletSettingsFragment = fragment(() => {
                                     }
                                 );
                             }}
-                            style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
+                            style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
                         >
                             {address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         </Text>

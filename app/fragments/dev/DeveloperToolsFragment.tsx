@@ -268,27 +268,9 @@ export const DeveloperToolsFragment = fragment(() => {
                                     onValueChange={onUrlSet}
                                     placeholder={'Holders App URL'}
                                     keyboardType={'default'}
-                                    preventDefaultHeight
                                     editable={true}
                                     enabled={true}
-                                    label={
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            width: '100%',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            overflow: 'hidden',
-                                        }}>
-                                            <Text style={{
-                                                fontWeight: '500',
-                                                fontSize: 12,
-                                                color: Theme.textSecondary,
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                                {'Holders App URL'}
-                                            </Text>
-                                        </View>
-                                    }
+                                    label={'Holders App URL'}
                                     multiline
                                     autoCorrect={false}
                                     autoComplete={'off'}

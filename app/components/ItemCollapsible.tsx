@@ -55,7 +55,7 @@ export const ItemCollapsible = React.memo((
                     <Text style={[{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         alignSelf: 'center'
                     }, titleStyle]}>
                         {title}

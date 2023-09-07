@@ -36,7 +36,7 @@ export const ScreenCaptureFragment = systemFragment(() => {
                 <Text style={{
                     fontSize: 32, lineHeight: 38,
                     fontWeight: '600',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     marginTop: 16,
                 }}>
                     {t('screenCapture.title')}

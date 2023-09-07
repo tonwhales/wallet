@@ -152,7 +152,7 @@ export const WalletCreateFragment = systemFragment(() => {
                             fontSize: 32, lineHeight: 38,
                             fontWeight: '600',
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 12, marginTop: 16
                         }}>
                             {t('create.backupTitle')}

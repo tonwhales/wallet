@@ -23,7 +23,7 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
                 fontSize: 18,
                 color: props.onPress
                     ? (props.textColor || Theme.accent)
-                    : (props.textColor || Theme.textColor),
+                    : (props.textColor || Theme.textPrimary),
                 flexGrow: 1, flexBasis: 0
             }}>{props.title}</Text>
             {!!props.hint && (

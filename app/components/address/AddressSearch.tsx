@@ -127,7 +127,7 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
                         <Text style={{
                             fontSize: 17, fontWeight: '600',
                             lineHeight: 24,
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                             marginBottom: 8
                         }}>
                             {t('common.recent')}
@@ -152,9 +152,9 @@ export const AddressSearch = memo(({ query, onSelect }: { query?: string, onSele
                     <Text style={{
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: 8,
-                        marginTop: lastTxs.length > 0 ? 24 : 0
+                        marginTop: filtered.recent.length > 0 ? 24 : 0
                     }}>
                         {t('contacts.contacts')}
                     </Text>

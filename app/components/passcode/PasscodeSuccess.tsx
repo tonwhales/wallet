@@ -32,7 +32,7 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
             <Text style={{
                 fontWeight: '600',
                 fontSize: 17, marginBottom: 160, marginTop: 16,
-                color: Theme.textColor
+                color: Theme.textPrimary
             }}>
                 {title}
             </Text>

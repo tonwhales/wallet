@@ -126,7 +126,7 @@ export const ConnectionButton = React.memo((
                         {!!name && (
                             <Text style={{
                                 fontSize: 17, lineHeight: 24,
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontWeight: '600'
                             }}
                                 numberOfLines={1}
@@ -156,7 +156,7 @@ export const ConnectionButton = React.memo((
                                 <Text style={{
                                     fontSize: 15, lineHeight: 20,
                                     fontWeight: '400',
-                                    color: Theme.textColor,
+                                    color: Theme.textPrimary,
                                     marginLeft: 4
                                 }}>
                                     {stats.rating}

@@ -46,7 +46,7 @@ export const StakingCalcComponent = React.memo((
             <View style={{ backgroundColor: Theme.border }}>
                 <Text style={{
                     fontSize: 16,
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     fontWeight: '600',
                     marginTop: 20
                 }}>
@@ -75,7 +75,7 @@ export const StakingCalcComponent = React.memo((
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: Theme.textColor
+                                color: Theme.textPrimary
                             }}>
                                 {'~'}
                                 <ValueComponent precision={2} value={yearly} />

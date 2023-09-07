@@ -51,7 +51,7 @@ export const FragmentMediaContent = React.memo((props: {
                     fontWeight: '600',
                     textAlign: 'center',
                     marginTop: 26,
-                    color: Theme.textColor
+                    color: Theme.textPrimary
                 }}>
                     {props.title}
                 </Text>

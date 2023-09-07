@@ -4,6 +4,8 @@ import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import { getCurrentAddress, markAddressSecured } from '../storage/appState';
 import { useReboot } from './RebootContext';
+import { createContext, memo, useContext, useMemo, useState } from 'react';
+import { useColorScheme } from 'react-native';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -13,17 +15,17 @@ export type ThemeType = {
 
     surfacePimary: string,
     surfaceSecondary: string,
-    
+
     accent: string,
     accentPrimaryDisabledViolet: string,
     accentRed: string,
     accentGreen: string,
     accentBlue: string,
-    
-    textColor: string,
+
+    textPrimary: string,
     textSecondary: string,
     textThird: string,
-    
+
     iconPrimary: string,
     iconSecondary: string,
 
@@ -33,29 +35,29 @@ export type ThemeType = {
 
     ton: string,
     telegram: string,
-    
+
     transparent: string,
     white: string,
     black: string,
 };
 
-const initialTheme: ThemeType = {
+const baseTheme: ThemeType = {
     background: '#FFFFFF',
     backgroundUnchangeable: '#000000',
 
     surfacePimary: 'white',
     surfaceSecondary: '#F7F8F9',
-    
+
     accent: '#564CE2',
     accentPrimaryDisabledViolet: '#AAA5F0',
     accentRed: '#FF415C',
     accentGreen: '#00BE80',
     accentBlue: '#61BDFF',
 
-    textColor: '#000',
+    textPrimary: '#000',
     textSecondary: '#838D99',
     textThird: '#FFFFFF',
-    
+
     iconPrimary: '#AAB4BF',
     iconSecondary: '#FFFFFF',
 
@@ -65,19 +67,39 @@ const initialTheme: ThemeType = {
 
     ton: '#0098EA',
     telegram: '#59ADE7',
-    
+
     transparent: 'transparent',
     white: 'white',
     black: 'black',
+}
+
+const darkTheme = {
+    ...baseTheme,
+    background: '#000000',
+
+    surfacePimary: '#1C1C1E',
+    surfaceSecondary: '#2C2C2D',
+
+    accent: '#564CE2',
+    accentPrimaryDisabledViolet: '#7F7BBB',
+
+    textPrimary: '#FFFFFF',
+    textSecondary: '#A6A6A8',
+
+    iconPrimary: '#AAB4BF',
+
+    divider: '#2C2C2D',
+
+    border: '#1C1C1E',
 }
 
 export const initialNavigationTheme: NavigationThemeType = {
     dark: false,
     colors: {
         ...DefaultTheme.colors,
-        primary: initialTheme.accent,
-        background: initialTheme.background,
-        card: initialTheme.background
+        primary: baseTheme.accent,
+        background: baseTheme.background,
+        card: baseTheme.background
     }
 };
 
@@ -94,7 +116,7 @@ export const initialAppConfig = {
     ),
 };
 
-export const AppConfigContext = React.createContext<{
+export const AppConfigContext = createContext<{
     AppConfig: {
         version: string | null;
         isTestnet: boolean;
@@ -105,18 +127,18 @@ export const AppConfigContext = React.createContext<{
 }>({
     AppConfig: initialAppConfig,
     setNetwork: () => { },
-    Theme: initialTheme,
+    Theme: baseTheme,
     NavigationTheme: initialNavigationTheme
 });
 
-export const AppConfigContextProvider = React.memo((props: { children: React.ReactNode }) => {
+export const AppConfigContextProvider = memo((props: { children: React.ReactNode }) => {
     const reboot = useReboot();
-    const [AppConfig, setAppConfig] = React.useState(initialAppConfig);
+    const colorScheme = useColorScheme();
+    const [AppConfig, setAppConfig] = useState(initialAppConfig);
 
-    const Theme = {
-        ...initialTheme,
-        accent: AppConfig.isTestnet ? '#564CE2' : '#564CE2',
-    };
+    const Theme = useMemo(() => {
+        return colorScheme === 'dark' ? darkTheme : baseTheme;
+    }, [colorScheme]);
 
     const NavigationTheme = {
         dark: false,
@@ -148,5 +170,5 @@ export const AppConfigContextProvider = React.memo((props: { children: React.Rea
 });
 
 export function useAppConfig() {
-    return React.useContext(AppConfigContext);
+    return useContext(AppConfigContext);
 }

@@ -34,7 +34,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 <Text style={{
                     fontSize: 16,
                     textAlignVertical: 'center',
-                    color: Theme.textColor,
+                    color: Theme.textPrimary,
                     marginTop: 20,
                     fontWeight: '600',
                     flexGrow: 1,
@@ -71,7 +71,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                     <Text style={{
                         fontSize: 14,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         fontWeight: '600',
                     }}>
                         {type === 'club' && t('products.staking.pools.clubBannerLearnMore')}

@@ -107,7 +107,7 @@ export const JettonsProductComponent = React.memo(() => {
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,
-                            color: Theme.textColor,
+                            color: Theme.textPrimary,
                         }}>
                             {t('jetton.productButtonTitle', { count: jettons.length })}
                         </Text>

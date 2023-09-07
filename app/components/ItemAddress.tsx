@@ -47,7 +47,7 @@ export const ItemAddress = React.memo((props: {
                                         {
                                             fontSize: 16,
                                             fontWeight: '400',
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                         },
                                     ]}
                                     selectable={false}
@@ -61,7 +61,7 @@ export const ItemAddress = React.memo((props: {
                                         {
                                             fontSize: 16,
                                             fontWeight: '400',
-                                            color: Theme.textColor,
+                                            color: Theme.textPrimary,
                                         },
                                     ]}
                                     selectable={false}

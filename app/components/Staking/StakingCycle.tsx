@@ -45,7 +45,7 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontWeight: '600',
                                 fontSize: 17, lineHeight: 24
                             }}>
@@ -53,7 +53,7 @@ export const StakingCycle = React.memo((
                                 <Countdown
                                     left={left}
                                     textStyle={{
-                                        color: Theme.textColor,
+                                        color: Theme.textPrimary,
                                         fontWeight: '600',
                                         fontSize: 17, lineHeight: 24
                                     }}
@@ -79,7 +79,7 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
                             <Text style={{
-                                color: Theme.textColor,
+                                color: Theme.textPrimary,
                                 fontWeight: '600',
                                 fontSize: 16
                             }}>

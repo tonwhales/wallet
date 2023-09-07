@@ -89,7 +89,7 @@ export const JettonProductItem = React.memo((props: {
                     </View>
                     <View style={{ marginLeft: 12, flex: 1 }}>
                         <Text
-                            style={{ color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
@@ -106,7 +106,7 @@ export const JettonProductItem = React.memo((props: {
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <Text style={{
-                            color: Theme.textColor, fontSize: 17, lineHeight: 24, fontWeight: '600',
+                            color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600',
                         }}>
                             <ValueComponent
                                 value={balance}

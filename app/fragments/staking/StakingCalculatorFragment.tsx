@@ -128,9 +128,6 @@ export const StakingCalculatorFragment = fragment(() => {
                                     fontSize={30}
                                     editable={true}
                                     enabled={true}
-                                    preventDefaultHeight
-                                    preventDefaultLineHeight
-                                    preventDefaultValuePadding
                                     blurOnSubmit={false}
                                 />
                             </View>

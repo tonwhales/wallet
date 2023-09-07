@@ -77,7 +77,7 @@ export const LegalFragment = systemFragment(() => {
                         fontSize: 32, lineHeight: 38,
                         fontWeight: '600',
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         marginBottom: 12, marginTop: 16
                     }}>
                         {isCreate ? t('legal.create') : t('legal.title')}

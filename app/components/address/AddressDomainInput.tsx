@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { ForwardedRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { Address } from "ton"
@@ -60,7 +60,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onQRCodeRead?: (value: string) => void,
     invalid?: boolean
     autoFocus?: boolean
-}, ref: React.ForwardedRef<ATextInputRef>) => {
+}, ref: ForwardedRef<ATextInputRef>) => {
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const { Theme, AppConfig } = useAppConfig();
@@ -80,8 +80,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         })();
     }, [onQRCodeRead]);
 
-    const tref = React.useRef<TextInput>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         },
@@ -136,185 +136,85 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
         }
     }, [input, onResolveDomain, onTargetChange]);
 
+    const label = useMemo(() => {
+        let text = t('common.domainOrAddressOrContact');
+
+        if (!isKnown && contact && !resolvedAddress && !resolving && !focused) {
+            text += ` • ${contact.name}`;
+        }
+
+        if (isKnown && target && !resolvedAddress && !resolving && !focused) {
+            text += ` • ${KnownWallets(AppConfig.isTestnet)[target].name}`;
+        }
+
+        // TODO: add address resolving progress
+        if (resolvedAddress && !resolving && !AppConfig.isTestnet) {
+            text += ' • ';
+            text += <AddressComponent start={4} address={resolvedAddress} />;
+        }
+
+        return text;
+    }, [resolvedAddress, resolving, isKnown, contact, focused, target]);
+
     return (
-        <>
-            <ATextInput
-                autoFocus={autoFocus}
-                value={input}
-                index={index}
-                ref={tref}
-                onFocus={(index) => {
-                    setFocused(true);
-                    if (onFocus) {
-                        onFocus(index);
-                    }
-                }}
-                onValueChange={onInputChange}
-                placeholder={t('common.domainOrAddressOrContact')}
-                keyboardType={'default'}
-                autoCapitalize={'none'}
-                preventDefaultHeight
-                preventDefaultLineHeight
-                label={
-                    <View style={[{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: showToMainAddress ? 'flex-start' : 'center',
-                        justifyContent: 'space-between',
-                        overflow: 'hidden',
-                        minHeight: showToMainAddress ? 24 : undefined,
-                    }, labelStyle]}>
-                        {input.length > 0 && (
-                            <Animated.View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}
-                                entering={FadeIn.duration(150)}
-                                exiting={FadeOut.duration(150)}
-                            >
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 12,
-                                    color: Theme.textSecondary,
-                                    alignSelf: 'flex-start',
-                                }}>
-                                    {AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
-                                    {(!isKnown && contact && !resolvedAddress && !resolving)
-                                        && !focused
-                                        && (
-                                            <Text>
-                                                {` • ${contact.name}`}
-                                            </Text>
-                                        )}
-                                    {(isKnown && target && !resolvedAddress && !resolving)
-                                        && !focused
-                                        && (
-                                            <Text>
-                                                {` • ${KnownWallets(AppConfig.isTestnet)[target].name}`}
-                                            </Text>
-                                        )}
-                                    {(resolvedAddress && !resolving && !AppConfig.isTestnet) && (
-                                        <Text>
-                                            {' • '}
-                                            <AddressComponent start={4} address={resolvedAddress} />
-                                        </Text>
-                                    )}
-                                </Text>
-                            </Animated.View>
-                        )}
-                        {(resolving && !AppConfig.isTestnet) && (
-                            <Animated.View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}
-                                entering={FadeIn.duration(150)}
-                                exiting={FadeOut.duration(150)}
-                            >
-                                <CircularProgress
-                                    style={{
-                                        transform: [{ rotate: '-90deg' }],
-                                        marginRight: 4
-                                    }}
-                                    progress={100}
-                                    animateFromValue={0}
-                                    duration={6000}
-                                    size={12}
-                                    width={2}
-                                    color={'#FFFFFF'}
-                                    backgroundColor={'#596080'}
-                                    fullColor={null}
-                                    loop={true}
-                                    containerColor={Theme.transparent}
-                                />
-                            </Animated.View>
-                        )}
-                        {input.length === 0 && showToMainAddress && (
-                            <Animated.View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}
-                                entering={FadeIn}
-                                exiting={FadeOut}
-                            >
-                                <Pressable
-                                    style={({ pressed }) => {
-                                        return {
-                                            opacity: pressed ? 0.5 : 1,
-                                            backgroundColor: Theme.accent,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            paddingVertical: 4,
-                                            paddingHorizontal: 8,
-                                            borderRadius: 16
-                                        }
-                                    }}
-                                    hitSlop={8}
-                                    onPress={() => {
-                                        onInputChange(engine.address.toFriendly({ testOnly: AppConfig.isTestnet }))
-                                    }}
-                                >
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        color: Theme.surfacePimary,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('hardwareWallet.actions.mainAddress')}
-                                    </Text>
-                                </Pressable>
-                            </Animated.View>
-                        )}
-                    </View>
+        <ATextInput
+            autoFocus={autoFocus}
+            value={input}
+            index={index}
+            ref={tref}
+            onFocus={(index) => {
+                setFocused(true);
+                if (onFocus) {
+                    onFocus(index);
                 }
-                multiline
-                autoCorrect={false}
-                autoComplete={'off'}
-                textContentType={'none'}
-                style={style}
-                onBlur={(index) => {
-                    setFocused(false);
-                    if (onBlur) {
-                        onBlur(index);
-                    }
-                }}
-                onSubmit={onSubmit}
-                returnKeyType={'next'}
-                blurOnSubmit={false}
-                editable={!resolving}
-                enabled={!resolving}
-                inputStyle={inputStyle}
-                textAlignVertical={'center'}
-                actionButtonRight={
-                    input.length === 0
-                        ? !!onQRCodeRead && (
-                            <Pressable
-                                onPress={openScanner}
-                                style={{ height: 24, width: 24, marginLeft: 8 }}
-                            >
-                                <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
-                            </Pressable>
-                        )
-                        : (focused && (
-                            <Pressable
-                                onPress={() => onInputChange('')}
-                                style={{ height: 24, width: 24, marginLeft: 8 }}
-                            >
-                                <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
-                            </Pressable>
-                        ))
+            }}
+            onValueChange={onInputChange}
+            placeholder={t('common.domainOrAddressOrContact')}
+            keyboardType={'default'}
+            autoCapitalize={'none'}
+            label={label}
+            multiline
+            autoCorrect={false}
+            autoComplete={'off'}
+            textContentType={'none'}
+            style={style}
+            onBlur={(index) => {
+                setFocused(false);
+                if (onBlur) {
+                    onBlur(index);
                 }
-                error={
-                    invalid && (input.length >= 48 || (!focused && input.length > 0))
-                        ? t('transfer.error.invalidAddress')
-                        : undefined
-                }
-            />
-        </>
+            }}
+            onSubmit={onSubmit}
+            returnKeyType={'next'}
+            blurOnSubmit={false}
+            editable={!resolving}
+            enabled={!resolving}
+            inputStyle={inputStyle}
+            textAlignVertical={'center'}
+            actionButtonRight={
+                input.length === 0
+                    ? !!onQRCodeRead && (
+                        <Pressable
+                            onPress={openScanner}
+                            style={{ height: 24, width: 24, marginLeft: 8 }}
+                        >
+                            <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                    )
+                    : (focused && (
+                        <Pressable
+                            onPress={() => onInputChange('')}
+                            style={{ height: 24, width: 24, marginLeft: 8 }}
+                        >
+                            <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                    ))
+            }
+            error={
+                invalid && (input.length >= 48 || (!focused && input.length > 0))
+                    ? t('transfer.error.invalidAddress')
+                    : undefined
+            }
+        />
     )
 }));

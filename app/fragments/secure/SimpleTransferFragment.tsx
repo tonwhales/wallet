@@ -31,14 +31,14 @@ import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 
 import { WImage } from '../../components/WImage';
 import { AddressSearch } from '../../components/address/AddressSearch';
 import { AddressDomainInput } from '../../components/address/AddressDomainInput';
-
-import Verified from '../../../assets/ic-verified.svg';
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { Avatar } from '../../components/Avatar';
 import { usePrice } from '../../engine/PriceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
+
+import Verified from '../../../assets/ic-verified.svg';
+import TonIcon from '../../../assets/ic_ton_account.svg';
+import Chevron from '../../../assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -370,7 +370,7 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState<number | null>(1);
+    const [selectedInput, setSelectedInput] = useState<number | null>(null);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -498,16 +498,12 @@ export const SimpleTransferFragment = fragment(() => {
         })
     }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
 
-    const [selected, inputContinue, header] = useMemo(() => {
-        const resetInput = () => {
-            Keyboard.dismiss();
-            setSelectedInput(null);
-        };
+    const resetInput = () => {
+        Keyboard.dismiss();
+        setSelectedInput(null);
+    };
 
-        const focusInput = (index: number) => {
-            Keyboard.dismiss();
-            setSelectedInput(index);
-        }
+    const [selected, inputContinue, header] = useMemo(() => {
 
         if (selectedInput === null) {
             return [
@@ -541,7 +537,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     <Text style={{
                         fontSize: 17, lineHeight: 24,
-                        color: Theme.textColor,
+                        color: Theme.textPrimary,
                         fontWeight: '500',
                         marginLeft: 6,
                         minHeight: 24
@@ -557,34 +553,37 @@ export const SimpleTransferFragment = fragment(() => {
         if (selectedInput === 0) {
             return [
                 'amount',
-                (validAmount && !amountError) ? () => focusInput(2) : undefined,
+                (validAmount && !amountError) ? resetInput : undefined,
                 {
-                    onBackPressed: () => focusInput(1),
+                    onBackPressed: resetInput,
                     ...headertitle
                 }
             ];
         }
+
         if (selectedInput === 1) {
             return [
                 'address',
-                !!targetAddressValid ? () => focusInput(0) : null,
+                !!targetAddressValid ? resetInput : null,
                 {
-                    onBackPressed: navigation.goBack,
+                    onBackPressed: resetInput,
                     title: t('common.recipient'),
                     titleComponent: undefined
                 }
             ];
         }
+
         if (selectedInput === 2) {
             return [
                 'comment',
-                doSend,
+                resetInput,
                 {
-                    onBackPressed: () => focusInput(0),
+                    onBackPressed: resetInput,
                     ...headertitle
                 }
             ];
         }
+
         return [null, null, { onBackPressed: navigation.goBack, ...headertitle }];
     }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
 
@@ -612,161 +611,170 @@ export const SimpleTransferFragment = fragment(() => {
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
                     {(!selected || selected === 'amount') && (
-                        <>
-                            <Animated.View layout={Layout.duration(300)}>
-                                <View
-                                    style={{
-                                        backgroundColor: Theme.border,
-                                        borderRadius: 20, padding: 20, marginTop: 16
+                        <Animated.View layout={Layout.duration(300)}>
+                            <View
+                                style={{
+                                    backgroundColor: Theme.border,
+                                    borderRadius: 20, padding: 20, marginTop: 16
+                                }}
+                            >
+                                <Pressable
+                                    style={({ pressed }) => {
+                                        return { opacity: pressed ? 0.5 : 1 }
                                     }}
-                                >
-                                    <Pressable
-                                        style={({ pressed }) => {
-                                            return { opacity: pressed ? 0.5 : 1 }
-                                        }}
-                                        onPress={() => {
-                                            navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonState?.master });
-                                        }}
-                                    >
-                                        <View style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between'
-                                        }}>
-                                            <View style={{
-                                                flexDirection: 'row',
-                                            }}>
-                                                <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                                    {!!jettonState && (
-                                                        <WImage
-                                                            src={jettonState.master.image?.preview256}
-                                                            blurhash={jettonState.master.image?.blurhash}
-                                                            width={46}
-                                                            heigh={46}
-                                                            borderRadius={23}
-                                                            lockLoading
-                                                        />
-                                                    )}
-                                                    {!jettonState && (
-                                                        <TonIcon width={46} height={46} />
-                                                    )}
-                                                    {isVerified && (
-                                                        <Verified
-                                                            height={16} width={16}
-                                                            style={{
-                                                                height: 16, width: 16,
-                                                                position: 'absolute', right: -2, bottom: -2,
-                                                            }}
-                                                        />
-                                                    )}
-                                                </View>
-                                                <View style={{ justifyContent: 'space-between' }}>
-                                                    <Text style={{
-                                                        fontSize: 17,
-                                                        color: Theme.textColor,
-                                                        fontWeight: '600',
-                                                        lineHeight: 24
-                                                    }}>
-                                                        {`${jettonState?.master.symbol ?? 'TON'}`}
-                                                    </Text>
-                                                    <Text
-                                                        style={{
-                                                            fontSize: 15,
-                                                            fontWeight: '400',
-                                                            lineHeight: 20,
-                                                            color: Theme.textSecondary,
-                                                        }}
-                                                        selectable={false}
-                                                        ellipsizeMode={'middle'}
-                                                    >
-                                                        {`${jettonState?.master.description ?? 'The Open Network'}`}
-                                                    </Text>
-                                                </View>
-                                            </View>
-                                            <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
-                                        </View>
-                                    </Pressable>
-                                </View>
-                                <View
-                                    style={{
-                                        marginTop: selectedInput === 0 ? 16 : 20,
-                                        marginBottom: 16,
-                                        backgroundColor: Theme.border,
-                                        borderRadius: 20,
-                                        justifyContent: 'center',
-                                        padding: 20
+                                    onPress={() => {
+                                        navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonState?.master });
                                     }}
                                 >
                                     <View style={{
                                         flexDirection: 'row',
-                                        marginBottom: 12,
+                                        alignItems: 'center',
                                         justifyContent: 'space-between'
                                     }}>
-                                        <Text style={{
-                                            fontWeight: '400',
-                                            fontSize: 15, lineHeight: 20,
-                                            color: Theme.textSecondary,
+                                        <View style={{
+                                            flexDirection: 'row',
                                         }}>
-
-                                            {`${t('common.balance')}: `}
-                                            <ValueComponent
-                                                precision={4}
-                                                value={balance}
-                                                centFontStyle={{ opacity: 0.5 }}
-                                                decimals={jettonState ? jettonState.master.decimals : undefined}
-                                            />
-                                            {jettonState ? ` ${jettonState.master.symbol}` : ''}
-                                        </Text>
-                                        <Pressable
-                                            style={({ pressed }) => {
-                                                return {
-                                                    opacity: pressed ? 0.5 : 1
-                                                }
-                                            }}
-                                            onPress={onAddAll}
-                                        >
-                                            <Text style={{
-                                                fontWeight: '500',
-                                                fontSize: 15, lineHeight: 20,
-                                                color: Theme.accent,
-                                            }}>
-                                                {t('transfer.sendAll')}
-                                            </Text>
-                                        </Pressable>
+                                            <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
+                                                {!!jettonState && (
+                                                    <WImage
+                                                        src={jettonState.master.image?.preview256}
+                                                        blurhash={jettonState.master.image?.blurhash}
+                                                        width={46}
+                                                        heigh={46}
+                                                        borderRadius={23}
+                                                        lockLoading
+                                                    />
+                                                )}
+                                                {!jettonState && (
+                                                    <TonIcon width={46} height={46} />
+                                                )}
+                                                {isVerified && (
+                                                    <Verified
+                                                        height={16} width={16}
+                                                        style={{
+                                                            height: 16, width: 16,
+                                                            position: 'absolute', right: -2, bottom: -2,
+                                                        }}
+                                                    />
+                                                )}
+                                            </View>
+                                            <View style={{ justifyContent: 'space-between' }}>
+                                                <Text style={{
+                                                    fontSize: 17,
+                                                    color: Theme.textPrimary,
+                                                    fontWeight: '600',
+                                                    lineHeight: 24
+                                                }}>
+                                                    {`${jettonState?.master.symbol ?? 'TON'}`}
+                                                </Text>
+                                                <Text
+                                                    style={{
+                                                        fontSize: 15,
+                                                        fontWeight: '400',
+                                                        lineHeight: 20,
+                                                        color: Theme.textSecondary,
+                                                    }}
+                                                    selectable={false}
+                                                    ellipsizeMode={'middle'}
+                                                >
+                                                    {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                                </Text>
+                                            </View>
+                                        </View>
+                                        <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
                                     </View>
-                                    <ATextInput
-                                        index={0}
-                                        autoFocus={selected === 'amount'}
-                                        ref={refs[0]}
-                                        onFocus={onFocus}
-                                        value={amount}
-                                        onValueChange={setAmount}
-                                        placeholder={jettonState ? jettonState.master.symbol ?? 'TON' : 'TON'}
-                                        keyboardType={'numeric'}
-                                        style={{
-                                            backgroundColor: Theme.white,
-                                            justifyContent: 'center', alignItems: 'center',
-                                            paddingHorizontal: 16, paddingVertical: 14,
-                                            borderRadius: 16,
+                                </Pressable>
+                            </View>
+                            <View
+                                style={{
+                                    marginTop: 16,
+                                    marginBottom: amountError ? 0 : 16,
+                                    backgroundColor: Theme.border,
+                                    borderRadius: 20,
+                                    justifyContent: 'center',
+                                    padding: 20
+                                }}
+                            >
+                                <View style={{
+                                    flexDirection: 'row',
+                                    marginBottom: 12,
+                                    justifyContent: 'space-between'
+                                }}>
+                                    <Text style={{
+                                        fontWeight: '400',
+                                        fontSize: 15, lineHeight: 20,
+                                        color: Theme.textSecondary,
+                                    }}>
+
+                                        {`${t('common.balance')}: `}
+                                        <ValueComponent
+                                            precision={4}
+                                            value={balance}
+                                            centFontStyle={{ opacity: 0.5 }}
+                                            decimals={jettonState ? jettonState.master.decimals : undefined}
+                                        />
+                                        {jettonState ? ` ${jettonState.master.symbol}` : ''}
+                                    </Text>
+                                    <Pressable
+                                        style={({ pressed }) => {
+                                            return {
+                                                opacity: pressed ? 0.5 : 1
+                                            }
                                         }}
-                                        inputStyle={{
-                                            height: undefined,
-                                            fontSize: 17,
-                                            fontWeight: '400',
-                                            paddingTop: 0, paddingBottom: 0,
-                                            color: Theme.textColor,
-                                            flexShrink: 1
-                                        }}
-                                        preventDefaultHeight
-                                        preventDefaultLineHeight
-                                        preventDefaultValuePadding
-                                        onBlur={onBlur}
-                                        suffux={priceText}
-                                        error={amountError}
-                                    />
+                                        onPress={onAddAll}
+                                    >
+                                        <Text style={{
+                                            fontWeight: '500',
+                                            fontSize: 15, lineHeight: 20,
+                                            color: Theme.accent,
+                                        }}>
+                                            {t('transfer.sendAll')}
+                                        </Text>
+                                    </Pressable>
                                 </View>
-                            </Animated.View>
-                        </>
+                                <ATextInput
+                                    index={0}
+                                    autoFocus={selected === 'amount'}
+                                    ref={refs[0]}
+                                    onFocus={onFocus}
+                                    value={amount}
+                                    onValueChange={setAmount}
+                                    keyboardType={'numeric'}
+                                    style={{
+                                        backgroundColor: Theme.white,
+                                        paddingHorizontal: 16, paddingVertical: 14,
+                                        borderRadius: 16,
+                                    }}
+                                    inputStyle={{
+                                        fontSize: 17,
+                                        fontWeight: '400',
+                                        paddingTop: 0, paddingBottom: 0,
+                                        paddingStart: 0, paddingEnd: 0,
+                                        textAlignVertical: 'top',
+                                        color: amountError ? Theme.accentRed : Theme.textPrimary,
+                                        flexShrink: 1
+                                    }}
+                                    onBlur={onBlur}
+                                    suffux={priceText}
+                                    prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
+                                />
+                            </View>
+                            {amountError && (
+                                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                    <Text style={{
+                                        color: Theme.accentRed,
+                                        fontSize: 13,
+                                        lineHeight: 18,
+                                        marginTop: 8,
+                                        marginBottom: 16,
+                                        marginLeft: 20,
+                                        fontWeight: '400'
+                                    }}>
+                                        {amountError}
+                                    </Text>
+                                </Animated.View>
+                            )}
+                        </Animated.View>
                     )}
                     {(!selected || selected === 'address') && (
                         <Animated.View
@@ -789,7 +797,6 @@ export const SimpleTransferFragment = fragment(() => {
                                     margin: 0, padding: 20,
                                     paddingHorizontal: 20,
                                     backgroundColor: Theme.border,
-                                    alignItems: 'center',
                                 }}
                                 inputStyle={{
                                     flexShrink: 1,
@@ -797,7 +804,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
                                     paddingLeft: 0, paddingRight: 0,
                                     fontSize: 17,
-                                    fontWeight: '400', color: Theme.textColor,
+                                    fontWeight: '400', color: Theme.textPrimary,
                                     textAlignVertical: 'center',
                                 }}
                                 isKnown={isKnown}
@@ -816,8 +823,7 @@ export const SimpleTransferFragment = fragment(() => {
                                         onSelect={(address) => {
                                             setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
                                             setTarget(address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                            Keyboard.dismiss();
-                                            setSelectedInput(0);
+                                            resetInput();
                                         }}
                                         query={addressDomainInput}
                                     />
@@ -837,28 +843,20 @@ export const SimpleTransferFragment = fragment(() => {
                                 placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
-                                label={(
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        color: Theme.textSecondary,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                                    </Text>
-                                )}
+                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
                                 style={{
                                     backgroundColor: Theme.border,
-                                    padding: 20
+                                    padding: 20, paddingHorizontal: 20,
                                 }}
                                 inputStyle={{
-                                    marginHorizontal: 0,
-                                    marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0,
+                                    flexShrink: 1,
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    paddingLeft: 0, paddingRight: 0,
                                     fontSize: 17,
-                                    fontWeight: '400', color: Theme.textColor,
+                                    fontWeight: '400', color: Theme.textPrimary,
+                                    textAlignVertical: 'center',
                                 }}
-                                preventDefaultHeight
                                 multiline
                                 onBlur={onBlur}
                             />

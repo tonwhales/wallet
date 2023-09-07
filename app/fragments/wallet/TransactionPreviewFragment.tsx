@@ -184,7 +184,7 @@ export const TransactionPreviewFragment = fragment(() => {
             </Text>
             {spam && (
                 <View style={{
-                    borderColor: Theme.textSecondaryBorder,
+                    borderColor: Theme.textSecondary,
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -203,7 +203,7 @@ export const TransactionPreviewFragment = fragment(() => {
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -212,7 +212,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     <View style={{
                         width: 60, height: 60,
                         borderRadius: 60, borderWidth: 4,
-                        borderColor: Theme.lightGrey,
+                        borderColor: Theme.border,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -227,7 +227,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         />
                     </View>
                     {transaction.base.status === 'failed' ? (
-                        <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                        <Text style={{ color: Theme.accentRed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
@@ -237,7 +237,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     color: item.amount.gte(new BN(0))
                                         ? spam
                                             ? Theme.textColor
-                                            : Theme.pricePositive
+                                            : Theme.accentGreen
                                         : '#000000',
                                     fontWeight: '800',
                                     fontSize: 36,
@@ -260,7 +260,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 16 }}
                                     amount={item.amount}
                                 />
                             )}
@@ -270,7 +270,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -301,7 +301,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -331,7 +331,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -423,11 +423,11 @@ export const TransactionPreviewFragment = fragment(() => {
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={Theme.item}
+                                previewBackgroundColor={Theme.surfacePimary}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
-                                style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
+                                style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 }; }}
                                 onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
                             >
                                 <CopyIcon />
@@ -461,13 +461,13 @@ export const TransactionPreviewFragment = fragment(() => {
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                     <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
+                                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 }; }}
                                         onPress={() => openWithInApp(explorerLink)}
                                     >
                                         <ExplorerIcon />
                                     </Pressable>
                                     <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1, marginLeft: 24 }; }}
+                                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1, marginLeft: 24 }; }}
                                         onPress={() => onCopy(explorerLink)}
                                     >
                                         <CopyIcon />

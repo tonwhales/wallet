@@ -147,7 +147,7 @@ export const StakingFragment = fragment(() => {
                         onPress={openMoreInfo}
                         style={({ pressed }) => {
                             return {
-                                opacity: pressed ? 0.3 : 1,
+                                opacity: pressed ? 0.5 : 1,
                                 position: 'absolute',
                                 bottom: 12, right: 16
                             }
@@ -158,7 +158,7 @@ export const StakingFragment = fragment(() => {
                 }
                 titleComponent={
                     <Pressable style={{
-                        alignItems: 'center', backgroundColor: Theme.lightGrey,
+                        alignItems: 'center', backgroundColor: Theme.border,
                         paddingHorizontal: 16, paddingVertical: 8, borderRadius: 32,
                         maxWidth: '70%'
                     }}>
@@ -187,7 +187,7 @@ export const StakingFragment = fragment(() => {
                     style={[
                         {
                             marginVertical: 16,
-                            backgroundColor: Theme.walletBackground,
+                            backgroundColor: Theme.backgroundUnchangeable,
                             borderRadius: 20,
                             paddingHorizontal: 20, paddingVertical: 16,
                             overflow: 'hidden'
@@ -266,7 +266,7 @@ export const StakingFragment = fragment(() => {
                             fontSize: 15,
                             lineHeight: 20,
                             textAlign: 'left',
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             fontWeight: '400',
                             fontFamily: undefined
                         }}
@@ -276,7 +276,7 @@ export const StakingFragment = fragment(() => {
                 <View
                     style={{
                         flexDirection: 'row',
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 20,
                         marginBottom: 16, marginTop: 32
                     }}

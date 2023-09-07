@@ -169,7 +169,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                 <AnimatedText
                     animatedProps={animatedPointerProps as Partial<Animated.AnimateProps<TextInputProps>>}
                     style={{
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                     }}
@@ -187,7 +187,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                     animatedProps={animatedPriceProps as Partial<Animated.AnimateProps<TextInputProps>>}
                     style={{
                         marginTop: 2,
-                        color: Theme.green,
+                        color: Theme.accentGreen,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '400',
                     }}
@@ -195,7 +195,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                 />
             </View>
             {points.length > 0 && (
-                <View style={{ margin: 16, borderRadius: 20, backgroundColor: Theme.lightGrey }}>
+                <View style={{ margin: 16, borderRadius: 20, backgroundColor: Theme.border }}>
                     <LineGraph
                         style={[{
                             alignSelf: 'center',
@@ -204,7 +204,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         selectionDotShadowColor={Theme.accent}
                         lineThickness={5}
                         animated={true}
-                        color={loading ? Theme.darkGrey : Theme.accent}
+                        color={loading ? Theme.textSecondary : Theme.accent}
                         points={points}
                         horizontalPadding={32}
                         verticalPadding={32}
@@ -224,14 +224,14 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         paddingBottom: 16,
                     }}>
                         <Text style={{
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             fontWeight: '500',
                             fontSize: 17, lineHeight: 24,
                         }}>
                             {loading ? '...' : formatDate(Math.floor(points[0].date.getTime() / 1000), 'dd MMM')}
                         </Text>
                         <Text style={{
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             fontWeight: '500',
                             fontSize: 17, lineHeight: 24,
                         }}>
@@ -250,7 +250,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         ref={selectorRef}
                         style={[
                             {
-                                backgroundColor: Theme.lightGrey,
+                                backgroundColor: Theme.border,
                                 borderRadius: 12,
                                 width: 40
                             },
@@ -267,7 +267,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 }}
                             >
                                 <Text style={{
-                                    color: Theme.darkGrey,
+                                    color: Theme.textSecondary,
                                 }}>
                                     {point.label}
                                 </Text>

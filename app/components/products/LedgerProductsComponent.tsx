@@ -9,7 +9,7 @@ export const LedgerProductsComponent = React.memo(() => {
     const { Theme } = useAppConfig();
 
     return (
-        <View style={{ backgroundColor: Theme.walletBackground }}>
+        <View style={{ backgroundColor: Theme.backgroundUnchangeable }}>
             <View style={{
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,

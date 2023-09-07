@@ -51,7 +51,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: Theme.headerDivider,
+                        backgroundColor: Theme.black,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -81,7 +81,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                                 onPress={() => {
                                     navigation.goBack();
                                 }}
-                                background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)}
+                                background={TouchableNativeFeedback.Ripple(Theme.divider, true, 24)}
                                 hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                             >
                                 <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>

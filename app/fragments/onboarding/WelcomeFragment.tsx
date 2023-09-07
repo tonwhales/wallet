@@ -29,7 +29,7 @@ export const WelcomeFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
         }}>
             <StatusBar style='dark' />
             <WelcomeSlider style={{ paddingTop: safeArea.top }} />

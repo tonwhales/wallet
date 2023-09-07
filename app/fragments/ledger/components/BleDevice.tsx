@@ -30,14 +30,14 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
             onPress={onPress}
             style={({ pressed }) => {
                 return {
-                    opacity: pressed ? 0.3 : 1,
+                    opacity: pressed ? 0.5 : 1,
                     padding: 20,
                     marginVertical: 8,
                     marginHorizontal: 16,
                     borderRadius: 16,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: Theme.lightGrey
+                    backgroundColor: Theme.border
                 }
             }}
         >

@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableHighlight, View, Text, ImageSourcePropType, Image } from "react-native";
+import { View, Text, ImageSourcePropType, Image, Pressable } from "react-native";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const ProductBanner = React.memo((props: {
@@ -12,13 +12,15 @@ export const ProductBanner = React.memo((props: {
     const { Theme } = useAppConfig();
 
     return (
-        <TouchableHighlight
+        <Pressable
             onPress={props.onPress}
-            underlayColor={Theme.selector}
-            style={{
-                height: 106,
-                backgroundColor: Theme.lightGrey,
-                borderRadius: 20,
+            style={({ pressed }) => {
+                return {
+                    opacity: pressed ? 0.5 : 1,
+                    height: 106,
+                    backgroundColor: Theme.border,
+                    borderRadius: 20,
+                }
             }}
         >
             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingLeft: props.reverse ? 20 : 0, paddingRight: props.reverse ? 0 : 20 }}>
@@ -40,7 +42,7 @@ export const ProductBanner = React.memo((props: {
                     {!!props.subtitle && (
                         <Text
                             style={{
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                                 fontSize: 15,
                                 lineHeight: 20,
                                 flex: 1, flexShrink: 1
@@ -57,6 +59,6 @@ export const ProductBanner = React.memo((props: {
                     </View>
                 )}
             </View>
-        </TouchableHighlight>
+        </Pressable>
     );
 });

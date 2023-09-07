@@ -241,7 +241,7 @@ export const ContactFragment = fragment(() => {
                         color: editing
                             ? canSave
                                 ? Theme.accent
-                                : Theme.darkGrey
+                                : Theme.textSecondary
                             : Theme.accent,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
@@ -286,7 +286,7 @@ export const ContactFragment = fragment(() => {
                                 size={100}
                                 image={undefined}
                                 borderWith={2}
-                                borderColor={Theme.lightGrey}
+                                borderColor={Theme.border}
                             />
                         </View>
                         {!editing && (
@@ -307,11 +307,11 @@ export const ContactFragment = fragment(() => {
                                         fontSize: 17, lineHeight: 24,
                                         fontWeight: '400',
                                         marginTop: 4,
-                                        color: Theme.darkGrey
+                                        color: Theme.textSecondary
                                     }}>
                                         {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
                                     </Text>
-                                    <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={Theme.greyForIcon} />
+                                    <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={Theme.iconPrimary} />
                                 </Pressable>
                             </>
                         )}
@@ -320,7 +320,7 @@ export const ContactFragment = fragment(() => {
                                 style={{
                                     flexDirection: 'row',
                                     marginTop: 24,
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     width: '100%',
                                     justifyContent: 'center', alignItems: 'center',
                                     borderRadius: 20,
@@ -389,7 +389,7 @@ export const ContactFragment = fragment(() => {
 
                         {(!editing && fields.filter((f) => (f.value?.length ?? 0) > 0).length > 0) && (
                             <View style={{
-                                backgroundColor: Theme.lightGrey,
+                                backgroundColor: Theme.border,
                                 paddingHorizontal: 20, marginTop: 20,
                                 paddingVertical: 10,
                                 width: '100%', borderRadius: 20
@@ -426,7 +426,7 @@ export const ContactFragment = fragment(() => {
                     {editing && (
                         <>
                             <View style={{
-                                backgroundColor: Theme.lightGrey,
+                                backgroundColor: Theme.border,
                                 paddingHorizontal: 20, marginTop: 20,
                                 paddingVertical: 10,
                                 width: '100%', borderRadius: 20
@@ -445,7 +445,7 @@ export const ContactFragment = fragment(() => {
                                         position: 'relative',
                                         marginBottom: 2
                                     }}>
-                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                                             {t('contacts.name')}
                                         </Text>
                                     </View>
@@ -463,7 +463,7 @@ export const ContactFragment = fragment(() => {
                                         autoFocus
                                         maxLength={126}
                                         placeholder={t('contacts.name')}
-                                        placeholderTextColor={Theme.placeholder}
+                                        placeholderTextColor={Theme.textSecondary}
                                         multiline={false}
                                         blurOnSubmit={true}
                                         editable={editing}
@@ -476,7 +476,7 @@ export const ContactFragment = fragment(() => {
                             </View>
                             {!params.isNew && (
                                 <View style={{
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     paddingHorizontal: 20, marginTop: 20,
                                     paddingVertical: 10,
                                     width: '100%', borderRadius: 20
@@ -487,7 +487,7 @@ export const ContactFragment = fragment(() => {
                                         position: 'relative',
                                         marginBottom: 2
                                     }}>
-                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                                             {t('common.walletAddress')}
                                         </Text>
                                     </View>
@@ -495,7 +495,7 @@ export const ContactFragment = fragment(() => {
                                         fontSize: 17, lineHeight: 24,
                                         fontWeight: '400',
                                         marginTop: 4,
-                                        color: Theme.darkGrey
+                                        color: Theme.textSecondary
                                     }}>
                                         {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
                                     </Text>
@@ -503,7 +503,7 @@ export const ContactFragment = fragment(() => {
                             )}
                             {params.isNew && (
                                 <View style={{
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     paddingHorizontal: 20, marginTop: 20,
                                     paddingVertical: 10,
                                     width: '100%', borderRadius: 20
@@ -514,7 +514,7 @@ export const ContactFragment = fragment(() => {
                                         position: 'relative',
                                         marginBottom: 2
                                     }}>
-                                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                                             {t('common.walletAddress')}
                                         </Text>
                                     </View>
@@ -530,7 +530,7 @@ export const ContactFragment = fragment(() => {
                                         ]}
                                         maxLength={48}
                                         placeholder={t('common.walletAddress')}
-                                        placeholderTextColor={Theme.placeholder}
+                                        placeholderTextColor={Theme.textSecondary}
                                         multiline={true}
                                         blurOnSubmit={true}
                                         editable={true}
@@ -543,7 +543,7 @@ export const ContactFragment = fragment(() => {
                             )}
 
                             <View style={{
-                                backgroundColor: Theme.lightGrey,
+                                backgroundColor: Theme.border,
                                 paddingHorizontal: 20, marginTop: 20,
                                 paddingVertical: 10,
                                 width: '100%', borderRadius: 20

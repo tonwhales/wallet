@@ -52,7 +52,7 @@ export const AnimatedChildrenCollapsible = memo(({
                                 : <View
                                     style={[
                                         {
-                                            backgroundColor: Theme.mediumGrey,
+                                            backgroundColor: Theme.divider,
                                             height: 1,
                                             marginHorizontal: 20
                                         },

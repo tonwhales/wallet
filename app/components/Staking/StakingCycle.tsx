@@ -32,7 +32,7 @@ export const StakingCycle = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.lightGrey,
+            backgroundColor: Theme.border,
             minHeight: 70,
             borderRadius: 20,
             padding: 20,
@@ -61,7 +61,7 @@ export const StakingCycle = React.memo((
                             </Text>
                         </View>
                         <Text style={{
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             fontWeight: '400',
                             fontSize: 15, lineHeight: 20,
                             marginTop: 2
@@ -86,7 +86,7 @@ export const StakingCycle = React.memo((
                                 {t('products.staking.info.cooldownTitle')}
                             </Text>
                             <Text style={{
-                                color: Theme.success,
+                                color: Theme.accentGreen,
                                 fontSize: 16,
                                 fontVariant: ['tabular-nums']
                             }}

@@ -26,7 +26,7 @@ export const HorizontalScrollableSelector = React.memo(({ items, current, onSele
                     <PressableChip
                         key={`selector-item-${index}`}
                         onPress={() => onSeleted(index)}
-                        style={{ backgroundColor: current === index ? Theme.accent : Theme.lightGrey, }}
+                        style={{ backgroundColor: current === index ? Theme.accent : Theme.border, }}
                         textStyle={{ color: current === index ? Theme.white : Theme.textColor, }}
                         text={item.title}
                     />

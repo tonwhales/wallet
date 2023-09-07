@@ -139,7 +139,7 @@ export const ContactsFragment = fragment(() => {
                         <Text style={{
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '400',
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             textAlign: 'center'
                         }}>
                             {t('contacts.description')}

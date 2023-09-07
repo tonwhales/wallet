@@ -56,7 +56,7 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                         {t('contacts.unknown')}
                     </Text>
                     <Text
-                        style={{ color: Theme.darkGrey, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
+                        style={{ color: Theme.textSecondary, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
@@ -64,7 +64,7 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                     </Text>
                 </View>
                 <View style={{
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 16,
                     paddingVertical: 10, paddingHorizontal: 30,
                     justifyContent: 'center', alignItems: 'center'

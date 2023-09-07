@@ -375,7 +375,7 @@ export const TransferSingle = memo((props: Props) => {
                                     fontSize: 14,
                                     fontWeight: '400',
                                     marginLeft: 4,
-                                    color: Theme.labelSecondary
+                                    color: Theme.textSecondary
                                 }}>
                                     {order.app.domain}
                                 </Text>
@@ -469,7 +469,7 @@ export const TransferSingle = memo((props: Props) => {
                                     paddingHorizontal: 0, marginTop: 2,
                                     alignSelf: 'center'
                                 }}
-                                textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                                textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
                             />
                         )}
                     </ItemGroup>
@@ -478,7 +478,7 @@ export const TransferSingle = memo((props: Props) => {
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                             }}>
                                 {t('common.from')}
                             </Text>
@@ -500,7 +500,7 @@ export const TransferSingle = memo((props: Props) => {
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                             flexShrink: 1
                                         }}
                                         numberOfLines={1}
@@ -511,11 +511,11 @@ export const TransferSingle = memo((props: Props) => {
                                 )}
                             </View>
                         </View>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                             }}>
                                 {t('common.to')}
                             </Text>
@@ -540,7 +540,7 @@ export const TransferSingle = memo((props: Props) => {
                                             <Text
                                                 style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
+                                                    color: Theme.textSecondary,
                                                     flexShrink: 1
                                                 }}
                                                 numberOfLines={1}
@@ -555,7 +555,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text
                                             style={{
                                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: Theme.darkGrey,
+                                                color: Theme.textSecondary,
                                                 flexShrink: 1
                                             }}
                                             numberOfLines={1}
@@ -573,7 +573,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text
                                             style={{
                                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: Theme.darkGrey,
+                                                color: Theme.textSecondary,
                                                 flexShrink: 1
                                             }}
                                             numberOfLines={1}
@@ -589,7 +589,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text
                                             style={{
                                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: Theme.darkGrey,
+                                                color: Theme.textSecondary,
                                                 flexShrink: 1
                                             }}
                                             numberOfLines={1}
@@ -603,18 +603,18 @@ export const TransferSingle = memo((props: Props) => {
                         </View>
                         {!!operation.op && !jettonAmount && (
                             <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}>
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
                                         {order?.app?.domain !== extractDomain(holdersUrl) && (
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: Theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -650,18 +650,18 @@ export const TransferSingle = memo((props: Props) => {
                         )}
                         {!operation.comment && !operation.op && !!text && (
                             <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}>
                                         {t('transfer.smartContract')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
                                         {order?.app?.domain !== extractDomain(holdersUrl) && (
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: Theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -697,11 +697,11 @@ export const TransferSingle = memo((props: Props) => {
                         )}
                         {!!operation.op && (
                             <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}>
                                         {t('transfer.purpose')}
                                     </Text>
@@ -715,11 +715,11 @@ export const TransferSingle = memo((props: Props) => {
                         )}
                         {!!text && (
                             <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'column', paddingHorizontal: 10 }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}>
                                         {t('transfer.comment')}
                                     </Text>
@@ -733,11 +733,11 @@ export const TransferSingle = memo((props: Props) => {
                         )}
                         {!!jettonAmount && (
                             <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                                 <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}>
                                         {t('transfer.gasFee')}
                                     </Text>
@@ -760,14 +760,14 @@ export const TransferSingle = memo((props: Props) => {
                                                     paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
                                                     justifyContent: 'space-between', alignItems: 'center',
                                                     backgroundColor: 'white',
-                                                    opacity: pressed ? 0.3 : 1
+                                                    opacity: pressed ? 0.5 : 1
                                                 }
                                             }}
                                         >
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,
                                                 fontWeight: '400',
-                                                color: Theme.red
+                                                color: Theme.accentRed
                                             }}>
                                                 {t('transfer.unusualJettonsGas')}
                                             </Text>
@@ -786,14 +786,14 @@ export const TransferSingle = memo((props: Props) => {
                             >
                                 <Text style={{
                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: Theme.darkGrey,
+                                    color: Theme.textSecondary,
                                 }}>
                                     {t('transfer.feeTitle')}
                                 </Text>
                                 <IcInfo
                                     height={16} width={16}
                                     style={{ height: 16, width: 16, marginLeft: 10 }}
-                                    color={Theme.greyForIcon}
+                                    color={Theme.iconPrimary}
                                 />
                             </Pressable>
                             <View style={{ alignItems: 'flex-end' }}>
@@ -809,7 +809,7 @@ export const TransferSingle = memo((props: Props) => {
                                     }}
                                     textStyle={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                         flexShrink: 1
                                     }}
                                 />

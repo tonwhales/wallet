@@ -68,7 +68,7 @@ export const PendingTransactionAvatar = React.memo(({
 
     return (
         <View style={[{ flex: 1, height: 46, width: 46, justifyContent: 'center', alignItems: 'center' }, style]}>
-            <View style={{ width: 43, height: 43, borderRadius: 43, backgroundColor: Theme.lightGrey }} />
+            <View style={{ width: 43, height: 43, borderRadius: 43, backgroundColor: Theme.border }} />
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,
@@ -92,7 +92,7 @@ export const PendingTransactionAvatar = React.memo(({
                 size={46}
                 width={3}
                 color={progressParams.tintColor}
-                backgroundColor={Theme.lightGrey}
+                backgroundColor={Theme.border}
                 fullColor={null}
                 loop={true}
                 containerColor={Theme.transparent}

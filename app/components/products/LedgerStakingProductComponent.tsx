@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { TouchableHighlight, View, Text, StyleProp, ViewStyle, TextStyle } from "react-native";
+import { TouchableHighlight, View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
@@ -67,14 +67,15 @@ export const LedgerStakingProductComponent = React.memo(() => {
 
     if (!showJoin) {
         return (
-            <TouchableHighlight
+            <Pressable
                 onPress={() => navigation.navigate('LedgerStakingPools')}
-                underlayColor={Theme.selector}
-                style={[style, { backgroundColor: Theme.lightGrey }]}
+                style={({ pressed }) => {
+                    return [style, { backgroundColor: Theme.border, opacity: pressed ? 0.5 : 1 }]
+                }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={icStyle}>
-                        <View style={{ backgroundColor: Theme.success, ...icStyleInner }}>
+                        <View style={{ backgroundColor: Theme.accentGreen, ...icStyleInner }}>
                             <StakingIcon width={32} height={32} color={'white'} />
                         </View>
                     </View>
@@ -92,7 +93,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                             >
                                 {t('products.staking.title')}
                             </Text>
-                            <Text style={{ color: Theme.darkGrey, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                            <Text style={{ color: Theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                         </View>
@@ -112,12 +113,12 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     alignSelf: 'flex-end',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.darkGrey, ...subtitleStyle }}
+                                textStyle={{ color: Theme.textSecondary, ...subtitleStyle }}
                             />
                         </View>
                     </View>
                 </View>
-            </TouchableHighlight>
+            </Pressable>
         );
     }
 

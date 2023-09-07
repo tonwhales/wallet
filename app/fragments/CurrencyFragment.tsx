@@ -61,7 +61,7 @@ export const CurrencyFragment = fragment(() => {
                 contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
             >
                 <View style={{
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                 }}>
@@ -82,7 +82,7 @@ export const CurrencyFragment = fragment(() => {
                                             alignItems: 'center',
                                             padding: 20,
                                             borderRadius: 20,
-                                            backgroundColor: Theme.lightGrey,
+                                            backgroundColor: Theme.border,
                                             marginBottom: 16, marginHorizontal: 16
                                         },
                                         animatedStyle
@@ -96,7 +96,7 @@ export const CurrencyFragment = fragment(() => {
                                             {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
                                         </Text>
                                         <Text style={{
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                             fontWeight: '400',
                                             marginLeft: 12, fontSize: 15,
                                             textAlign: 'left'
@@ -107,7 +107,7 @@ export const CurrencyFragment = fragment(() => {
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 24, width: 24,
-                                        backgroundColor: PrimaryCurrency[key] === currency ? Theme.accent : Theme.mediumGrey,
+                                        backgroundColor: PrimaryCurrency[key] === currency ? Theme.accent : Theme.divider,
                                         borderRadius: 12
                                     }}>
                                         {PrimaryCurrency[key] === currency && (

@@ -124,7 +124,7 @@ export const StakingPool = memo((props: {
                 alignSelf: 'flex-end',
                 borderRadius: 16,
                 overflow: 'hidden',
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 maxWidth: 74, justifyContent: 'center',
                 position: 'relative', top: -6, right: -6
             }}>
@@ -160,7 +160,7 @@ export const StakingPool = memo((props: {
                     borderWidth: 0,
                     marginRight: 10,
                     alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                 }}>
                     {!requireSource
                         ? (
@@ -197,7 +197,7 @@ export const StakingPool = memo((props: {
                         </Text>
                         <Text
                             style={{
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                                 fontSize: 15, lineHeight: 20,
                                 flexShrink: 1
                             }}

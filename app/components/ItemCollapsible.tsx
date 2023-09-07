@@ -36,13 +36,13 @@ export const ItemCollapsible = React.memo((
 
     return (
         <View style={[
-            { padding: 20, backgroundColor: Theme.lightGrey, borderRadius: 20 },
+            { padding: 20, backgroundColor: Theme.border, borderRadius: 20 },
             style
         ]}>
             <Pressable
                 style={({ pressed }) => {
                     return {
-                        opacity: pressed ? 0.3 : 1,
+                        opacity: pressed ? 0.5 : 1,
                         flexDirection: 'row',
                         justifyContent: 'center'
                     }
@@ -68,7 +68,7 @@ export const ItemCollapsible = React.memo((
                         borderRadius: 16,
                         justifyContent: 'center', alignItems: 'center',
                         alignSelf: 'center',
-                        backgroundColor: Theme.mediumGrey
+                        backgroundColor: Theme.divider
                     },
                     animatedChevron
                 ]}>

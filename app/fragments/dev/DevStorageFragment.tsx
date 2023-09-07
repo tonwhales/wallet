@@ -44,7 +44,7 @@ export const DevStorageFragment = fragment(() => {
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, paddingHorizontal: 16 }}>
                 <ItemGroup style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 16,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -63,7 +63,7 @@ export const DevStorageFragment = fragment(() => {
 
                 <ItemGroup style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

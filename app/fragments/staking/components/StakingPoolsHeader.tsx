@@ -25,7 +25,7 @@ export const StakingPoolsHeader = memo((props: {
                 {!!props.action && (
                     <Pressable style={({ pressed }) => {
                         return {
-                            opacity: pressed ? 0.3 : 1,
+                            opacity: pressed ? 0.5 : 1,
                             alignSelf: 'flex-end',
                         }
                     }}

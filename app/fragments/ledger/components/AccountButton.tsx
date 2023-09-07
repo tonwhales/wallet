@@ -35,7 +35,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: 20,
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 marginVertical: 8,
                 borderRadius: 20,
             }}>
@@ -51,7 +51,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 15, lineHeight: 20,
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                         }}>
                             {t('hardwareWallet.connection')}
                         </Text>
@@ -73,7 +73,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 15, lineHeight: 20,
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                         }}>
                             {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
                         </Text>

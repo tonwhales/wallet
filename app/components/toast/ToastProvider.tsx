@@ -48,10 +48,10 @@ export const Toast = memo(({
     const ToastStyle = {
         'warning': {
             view: {
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
             },
             text: {
-                color: Theme.darkGrey
+                color: Theme.textSecondary
             }
         },
         'default': {
@@ -64,7 +64,7 @@ export const Toast = memo(({
         },
         'error': {
             view: {
-                backgroundColor: Theme.red,
+                backgroundColor: Theme.accentRed,
             },
             text: {
                 color: Theme.white
@@ -72,7 +72,7 @@ export const Toast = memo(({
         },
         'success': {
             view: {
-                backgroundColor: Theme.green,
+                backgroundColor: Theme.accentGreen,
             },
             text: {
                 color: Theme.white

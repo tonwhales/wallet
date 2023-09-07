@@ -28,15 +28,6 @@ export const ShareButton = React.memo(({
     onScreenCapture?: () => Promise<{ uri: string }>
 }) => {
     const { Theme } = useAppConfig();
-    const display = {
-        backgroundColor: Theme.secondaryButton,
-        borderColor: Theme.secondaryButton,
-        textColor: Theme.textColor,
-
-        backgroundPressedColor: Theme.selector,
-        borderPressedColor: Theme.selector,
-        textPressed: Theme.secondaryButtonText
-    }
     const onShare = useCallback(async () => {
         let screenShot: { uri: string } | undefined;
         if (onScreenCapture) {
@@ -59,8 +50,7 @@ export const ShareButton = React.memo(({
                     flex: 1,
                     borderWidth: 1,
                     borderRadius: 16,
-                    backgroundColor: display.backgroundColor,
-                    borderColor: display.borderColor,
+                    backgroundColor: Theme.surfaceSecondary,
                     overflow: 'hidden'
                 },
                 p.pressed && {
@@ -95,7 +85,7 @@ export const ShareButton = React.memo(({
                         <Text
                             style={[
                                 {
-                                    color: display.textColor,
+                                    color: Theme.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,

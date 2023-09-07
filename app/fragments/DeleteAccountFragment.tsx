@@ -288,11 +288,11 @@ export const DeleteAccountFragment = fragment(() => {
             >
                 {t('deleteAccount.title')}
             </Text>
-            <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
+            <Text style={{ color: Theme.textSecondary, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
                 {t('deleteAccount.description', { amount: '0.1' })}
             </Text>
             <View style={{
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 paddingHorizontal: 20, marginTop: 20,
                 paddingVertical: 10,
                 width: '100%', borderRadius: 20
@@ -303,7 +303,7 @@ export const DeleteAccountFragment = fragment(() => {
                     position: 'relative',
                     marginBottom: 2
                 }}>
-                    <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                    <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                         {t('common.recipientAddress')}
                     </Text>
                 </View>
@@ -318,7 +318,7 @@ export const DeleteAccountFragment = fragment(() => {
                     ]}
                     maxLength={48}
                     placeholder={t('common.walletAddress')}
-                    placeholderTextColor={Theme.placeholder}
+                    placeholderTextColor={Theme.textSecondary}
                     multiline={true}
                     blurOnSubmit={true}
                     editable={true}
@@ -342,7 +342,7 @@ export const DeleteAccountFragment = fragment(() => {
             </View>
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <View style={{ backgroundColor: Theme.item, padding: 16, borderRadius: 16 }}>
+                    <View style={{ backgroundColor: Theme.surfacePimary, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
                             <Text style={{ color: Theme.textColor }}>

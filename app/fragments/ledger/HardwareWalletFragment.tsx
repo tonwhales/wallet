@@ -119,7 +119,7 @@ export const HardwareWalletFragment = fragment(() => {
                 </Text>
                 <View style={{ alignItems: 'center' }}>
                     <Text style={{
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         fontWeight: '400',
                         fontSize: 17, lineHeight: 24,
                         textAlign: 'center'
@@ -129,7 +129,7 @@ export const HardwareWalletFragment = fragment(() => {
                     <Pressable
                         style={({ pressed }) => {
                             return {
-                                opacity: pressed ? 0.3 : 1,
+                                opacity: pressed ? 0.5 : 1,
                             }
                         }}
                         onPress={() => openWithInApp('https://tonwhales.com/ledger')}

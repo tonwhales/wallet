@@ -81,7 +81,7 @@ export const WalletSecureComponent = React.memo((props: {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
             justifyContent: 'center',
             alignContent: 'center'
         }}>

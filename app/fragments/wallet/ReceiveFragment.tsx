@@ -114,7 +114,7 @@ export const ReceiveFragment = fragment(() => {
                 <View style={{ paddingHorizontal: 40, width: '100%' }}>
                     <View style={{
                         justifyContent: 'center',
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.surfacePimary,
                         borderRadius: 20,
                         padding: 32,
                         paddingTop: 52,
@@ -143,11 +143,11 @@ export const ReceiveFragment = fragment(() => {
                             />
                         </View>
                     </View>
-                    <View style={{ backgroundColor: Theme.item, borderRadius: 20, padding: 20 }}>
+                    <View style={{ backgroundColor: Theme.surfacePimary, borderRadius: 20, padding: 20 }}>
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    opacity: pressed ? 0.3 : 1,
+                                    opacity: pressed ? 0.5 : 1,
                                 }
                             }}
                             onPress={() => {
@@ -206,7 +206,7 @@ export const ReceiveFragment = fragment(() => {
                                                 fontSize: 15,
                                                 fontWeight: '400',
                                                 lineHeight: 20,
-                                                color: Theme.price,
+                                                color: Theme.textSecondary,
                                             }}
                                             selectable={false}
                                             ellipsizeMode={'middle'}

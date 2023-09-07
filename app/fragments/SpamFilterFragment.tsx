@@ -116,7 +116,7 @@ export const SpamFilterFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 20,
                         justifyContent: 'center',
                         padding: 20
@@ -147,7 +147,7 @@ export const SpamFilterFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: Theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('spamFilter.minAmount')}
@@ -158,7 +158,7 @@ export const SpamFilterFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: Theme.label,
+                            color: Theme.textSecondary,
                             alignSelf: 'flex-start',
                             marginTop: 8,
                         }}>
@@ -194,7 +194,7 @@ export const SpamFilterFragment = fragment(() => {
                                 </Text>
                                 <Text style={{
                                     fontSize: 16,
-                                    color: Theme.priceSecondary,
+                                    color: Theme.textSecondary,
                                     marginVertical: 8,
                                 }}>
                                     {t('spamFilter.description')}

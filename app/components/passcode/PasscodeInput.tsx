@@ -232,7 +232,7 @@ export const PasscodeInput = React.memo((
                         >
                             <Text style={{
                                 fontSize: 15, lineHeight: 20,
-                                color: Theme.darkGrey, marginBottom: 8
+                                color: Theme.textSecondary, marginBottom: 8
                             }}>
                                 {t('security.passcodeSettings.forgotPasscode')}
                             </Text>

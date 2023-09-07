@@ -39,7 +39,7 @@ export const AndroidToolbar = React.memo((props: {
                             navigation.goBack();
                         }
                     }}
-                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)}
+                    background={TouchableNativeFeedback.Ripple(Theme.divider, true, 24)}
                     hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                 >
                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>

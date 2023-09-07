@@ -237,7 +237,7 @@ export const WalletWordsComponent = React.memo((props: {
                         marginBottom: 16,
                         marginHorizontal: 37,
                         fontWeight: '400', fontSize: 16,
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                     }}>
                         {t('import.subtitle')}
                     </Text>

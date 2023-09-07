@@ -55,7 +55,7 @@ export const WalletHeader = memo(() => {
     return (
         <View
             style={{
-                backgroundColor: Theme.walletBackground,
+                backgroundColor: Theme.backgroundUnchangeable,
                 paddingTop: safeArea.top,
                 paddingHorizontal: 16
             }}
@@ -140,7 +140,7 @@ export const WalletHeader = memo(() => {
                             )}
                             {syncState === 'online' && (
                                 <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                    <View style={{ backgroundColor: Theme.green, width: 8, height: 8, borderRadius: 4 }} />
+                                    <View style={{ backgroundColor: Theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
                                 </View>
                             )}
                         </OnboadingView>
@@ -159,7 +159,7 @@ export const WalletHeader = memo(() => {
                                 }}
                                 height={24}
                                 width={24}
-                                color={Theme.greyForIcon}
+                                color={Theme.iconPrimary}
                             />
                         </Pressable>
                     )}
@@ -175,7 +175,7 @@ export const WalletHeader = memo(() => {
                             }}
                             height={24}
                             width={24}
-                            color={Theme.greyForIcon}
+                            color={Theme.iconPrimary}
                         />
                     </Pressable>
                 </View>

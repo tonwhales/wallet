@@ -38,7 +38,7 @@ export const CheckBox = React.memo((
             onPress={toggle}
             style={({ pressed }) => {
                 return [{
-                    opacity: pressed ? 0.3 : 1
+                    opacity: pressed ? 0.5 : 1
                 }, style]
             }}
         >

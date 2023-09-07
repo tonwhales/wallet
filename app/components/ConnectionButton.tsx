@@ -86,7 +86,7 @@ export const ConnectionButton = React.memo((
                                 paddingHorizontal: 24,
                                 borderRadius: 20,
                                 marginRight: 16,
-                                backgroundColor: Theme.lightRed,
+                                backgroundColor: Theme.accentRed,
                                 justifyContent: 'center', alignItems: 'center',
                                 opacity: pressed ? 0.5 : 1
                             }
@@ -103,7 +103,7 @@ export const ConnectionButton = React.memo((
                         flex: 1,
                         padding: 20,
                         borderRadius: 20,
-                        backgroundColor: Theme.lightGrey, flexDirection: 'row',
+                        backgroundColor: Theme.border, flexDirection: 'row',
                         alignItems: 'center', justifyContent: 'center',
                     },
                     animatedStyle
@@ -138,7 +138,7 @@ export const ConnectionButton = React.memo((
                         <Text style={{
                             fontSize: 15, lineHeight: 20,
                             fontWeight: '400',
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             flexShrink: 1
                         }}
                             numberOfLines={1}
@@ -164,7 +164,7 @@ export const ConnectionButton = React.memo((
                                 <Text style={{
                                     fontSize: 15, lineHeight: 20,
                                     fontWeight: '400',
-                                    color: Theme.darkGrey,
+                                    color: Theme.textSecondary,
                                     marginLeft: 4
                                 }}>
                                     {`(${stats.reviewsCount})`}

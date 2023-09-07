@@ -86,7 +86,7 @@ export const WalletItem = memo((
             <View style={{
                 justifyContent: 'center', alignItems: 'center',
                 height: 24, width: 24,
-                backgroundColor: selected ? Theme.accent : Theme.mediumGrey,
+                backgroundColor: selected ? Theme.accent : Theme.divider,
                 borderRadius: 12
             }}>
                 {selected && (

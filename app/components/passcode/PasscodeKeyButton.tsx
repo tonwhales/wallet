@@ -63,7 +63,7 @@ export const PasscodeKeyButton = React.memo((
                     height: 60, width: 60,
                     justifyContent: 'center', alignItems: 'center',
                     marginHorizontal: 30, borderRadius: 30,
-                    backgroundColor: pressed ? Theme.lightGrey : undefined,
+                    backgroundColor: pressed ? Theme.border : undefined,
                 }
             }}
         >

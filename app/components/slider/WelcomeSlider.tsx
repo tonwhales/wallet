@@ -70,7 +70,7 @@ export const WelcomeSlider = React.memo(({ style }: { style?: StyleProp<ViewStyl
                             style={{
                                 width: 14, height: 4,
                                 borderRadius: 4,
-                                backgroundColor: activeSlide === index ? 'black' : Theme.mediumGrey,
+                                backgroundColor: activeSlide === index ? 'black' : Theme.divider,
                                 marginHorizontal: 4,
                             }}
                         />

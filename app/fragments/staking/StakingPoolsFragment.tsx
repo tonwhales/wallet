@@ -82,7 +82,7 @@ export const StakingPoolsFragment = fragment(() => {
         }
 
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'active-header'}
                     text={t('products.staking.pools.active')}
@@ -113,7 +113,7 @@ export const StakingPoolsFragment = fragment(() => {
             />
         );
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'best-header'}
                     text={t('products.staking.pools.best')}
@@ -151,7 +151,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'epn-header'}
                     text={t('products.staking.pools.epnPartners')}
@@ -187,7 +187,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'nomanators-header'}
                     text={t('products.staking.pools.nominators')}
@@ -218,7 +218,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'club-header'}
                     text={t('products.staking.pools.club')}
@@ -254,7 +254,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'lockups-header'}
                     text={t('products.staking.pools.lockups')}
@@ -285,7 +285,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'team-header'}
                     text={t('products.staking.pools.team')}
@@ -320,7 +320,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.lightGrey, marginBottom: 20 }}>
+            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
                 <StakingPoolsHeader
                     key={'tonkeeper-header'}
                     text={t('products.staking.pools.tonkeeper')}

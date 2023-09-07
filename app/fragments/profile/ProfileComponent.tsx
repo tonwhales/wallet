@@ -31,7 +31,7 @@ export const ProfileComponent = memo(() => {
             <Animated.View style={[
                 {
                     marginTop: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     flexDirection: 'row',
                     alignItems: 'center',
@@ -64,7 +64,7 @@ export const ProfileComponent = memo(() => {
                                 fontSize: 15, lineHeight: 20,
                                 fontWeight: '400',
                                 textAlign: 'left',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                                 fontFamily: undefined
                             }}
                             limitActions

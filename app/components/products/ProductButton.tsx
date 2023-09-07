@@ -1,6 +1,6 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
+import { ImageRequireSource, Pressable, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { SvgProps } from 'react-native-svg';
 import Verified from '../../../assets/ic_verified.svg';
@@ -35,18 +35,20 @@ export function ProductButton(props: ProductButtonProps) {
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     return (
-        <TouchableHighlight
+        <Pressable
             onPress={props.onPress}
             onLongPress={props.onLongPress}
-            underlayColor={Theme.selector}
-            style={[
-                {
-                    alignSelf: 'stretch', borderRadius: 14,
-                    backgroundColor: Theme.lightGrey,
-                    marginHorizontal: 16, marginVertical: 8
-                },
-                props.style
-            ]}
+            style={({pressed}) => {
+                return [
+                    {
+                        opacity: pressed ? 0.5 : 1,
+                        alignSelf: 'stretch', borderRadius: 14,
+                        backgroundColor: Theme.border,
+                        marginHorizontal: 16, marginVertical: 8
+                    },
+                    props.style
+                ]
+            }}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
@@ -99,7 +101,7 @@ export function ProductButton(props: ProductButtonProps) {
                             {props.name}
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? Theme.pricePositive : Theme.priceNegative, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            <Text style={{ color: props.value.gte(new BN(0)) ? Theme.accentGreen : Theme.accentRed, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
                             </Text>
                         )}
@@ -137,6 +139,6 @@ export function ProductButton(props: ProductButtonProps) {
                     <View style={{ flexGrow: 1 }} />
                 </View>
             </View>
-        </TouchableHighlight>
+        </Pressable>
     )
 }

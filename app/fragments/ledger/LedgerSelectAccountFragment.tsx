@@ -101,7 +101,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
             <Text style={{
                 fontWeight: '400',
                 fontSize: 17, lineHeight: 24,
-                color: Theme.darkGrey,
+                color: Theme.textSecondary,
                 marginBottom: 16,
                 marginHorizontal: 16
             }}>
@@ -117,7 +117,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                         <View style={{
                             height: 86,
                             borderRadius: 20,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             justifyContent: 'center', padding: 20,
                             marginBottom: 16
                         }}>
@@ -134,7 +134,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                         <View style={{
                             height: 86,
                             borderRadius: 20,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             justifyContent: 'center', padding: 20,
                             marginBottom: 16
                         }}>
@@ -151,7 +151,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                         <View style={{
                             height: 86,
                             borderRadius: 20,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             justifyContent: 'center', padding: 20,
                             marginBottom: 16
                         }}>

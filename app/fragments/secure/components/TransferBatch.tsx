@@ -389,7 +389,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                     fontSize: 14,
                                     fontWeight: '400',
                                     marginLeft: 4,
-                                    color: Theme.labelSecondary
+                                    color: Theme.textSecondary
                                 }}>
                                     {order.app.domain}
                                 </Text>
@@ -493,14 +493,14 @@ export const TransferBatch = React.memo((props: Props) => {
                                 paddingHorizontal: 0, marginTop: 2,
                                 alignSelf: 'center'
                             }}
-                            textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                            textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
                         />
                     </ItemGroup>
                     <ItemGroup>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                             }}>
                                 {t('common.from')}
                             </Text>
@@ -512,7 +512,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                             flexShrink: 1
                                         }}
                                         numberOfLines={1}
@@ -523,11 +523,11 @@ export const TransferBatch = React.memo((props: Props) => {
                                 )}
                             </View>
                         </View>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.mediumGrey, marginVertical: 16, marginHorizontal: 10 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                         <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                             }}>
                                 {t('transfer.feeTotalTitle')}
                             </Text>
@@ -544,7 +544,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                     }}
                                     textStyle={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                         flexShrink: 1
                                     }}
                                 />
@@ -564,14 +564,14 @@ export const TransferBatch = React.memo((props: Props) => {
                                             paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
                                             justifyContent: 'space-between', alignItems: 'center',
                                             backgroundColor: 'white',
-                                            opacity: pressed ? 0.3 : 1
+                                            opacity: pressed ? 0.5 : 1
                                         }
                                     }}
                                 >
                                     <Text style={{
                                         fontSize: 15, lineHeight: 20,
                                         fontWeight: '400',
-                                        color: Theme.red
+                                        color: Theme.accentRed
                                     }}>
                                         {t('transfer.unusualJettonsGas')}
                                     </Text>
@@ -588,14 +588,14 @@ export const TransferBatch = React.memo((props: Props) => {
                                     style={{ marginTop: 16 }}
                                     titleStyle={{
                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                     }}
                                     title={t('common.transaction') + ` #${index + 1}`}
                                 >
                                     <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                         }}>
                                             {t('common.amount')}
                                         </Text>
@@ -616,7 +616,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     }}
                                                     textStyle={{
                                                         fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                        color: Theme.darkGrey,
+                                                        color: Theme.textSecondary,
                                                         flexShrink: 1
                                                     }}
                                                 />
@@ -627,7 +627,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                     <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                         }}>
                                             {t('common.to')}
                                         </Text>
@@ -640,7 +640,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     <Text
                                                         style={{
                                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                            color: Theme.darkGrey,
+                                                            color: Theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
                                                         numberOfLines={1}
@@ -656,7 +656,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     <Text
                                                         style={{
                                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                            color: Theme.darkGrey,
+                                                            color: Theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
                                                         numberOfLines={1}
@@ -672,7 +672,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     <Text
                                                         style={{
                                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                            color: Theme.darkGrey,
+                                                            color: Theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
                                                         numberOfLines={1}
@@ -690,7 +690,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
+                                                    color: Theme.textSecondary,
                                                 }}>
                                                     {t('transfer.gasFee')}
                                                 </Text>
@@ -707,7 +707,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                         }}
                                                         textStyle={{
                                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                            color: Theme.darkGrey,
+                                                            color: Theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
                                                     />
@@ -721,7 +721,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
+                                                    color: Theme.textSecondary,
                                                 }}>
                                                     {t('transfer.purpose')}
                                                 </Text>
@@ -739,7 +739,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: Theme.darkGrey,
+                                                    color: Theme.textSecondary,
                                                 }}>
                                                     {t('transfer.commentLabel')}
                                                 </Text>

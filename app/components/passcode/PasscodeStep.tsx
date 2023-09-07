@@ -34,7 +34,7 @@ export const PasscodeStep = React.memo((
     }, [emoji]);
 
     const scale = useSharedValue(1);
-    const animColor = useSharedValue(Theme.darkGrey);
+    const animColor = useSharedValue(Theme.textSecondary);
     const scaleStyle = useAnimatedStyle(() => {
         return {
             transform: [{ scale: scale.value }],
@@ -44,7 +44,7 @@ export const PasscodeStep = React.memo((
 
     useEffect(() => {
         if (error) {
-            animColor.value = withTiming(Theme.red);
+            animColor.value = withTiming(Theme.accentRed);
         }
     }, [error]);
 
@@ -53,7 +53,7 @@ export const PasscodeStep = React.memo((
             scale.value = withSpring(1.4, { damping: 10, stiffness: 100 }, () => { scale.value = 1 });
             animColor.value = withTiming(Theme.accent);
         } else if (index > passLen - 1) {
-            animColor.value = withTiming(Theme.darkGrey);
+            animColor.value = withTiming(Theme.textSecondary);
         }
     }, [passLen]);
 

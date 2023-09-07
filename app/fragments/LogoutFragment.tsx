@@ -138,7 +138,7 @@ export const LogoutFragment = fragment(() => {
                 >
                     {t('logout.title', { name: name.length > 20 ? name.slice(0, 10) + '...' + name.slice(-10) : name })}
                 </Text>
-                <Text style={{ color: Theme.darkGrey, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
+                <Text style={{ color: Theme.textSecondary, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
                     {t('logout.logoutDescription')}
                 </Text>
                 <View style={{ flexGrow: 1 }} />

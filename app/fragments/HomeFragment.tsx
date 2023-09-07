@@ -185,7 +185,7 @@ export const HomeFragment = fragment(() => {
                                 <Image
                                     source={source}
                                     style={{
-                                        tintColor: focused ? Theme.accent : Theme.greyForIcon,
+                                        tintColor: focused ? Theme.accent : Theme.iconPrimary,
                                         height: 24, width: 24
                                     }}
                                 />

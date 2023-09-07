@@ -106,7 +106,7 @@ export const SettingsFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -142,7 +142,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center'
@@ -156,7 +156,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center'
@@ -180,7 +180,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center'
@@ -200,7 +200,7 @@ export const SettingsFragment = fragment(() => {
                 {__DEV__ && (
                     <View style={{
                         marginBottom: 16,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 20,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -213,7 +213,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 4,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -251,7 +251,7 @@ export const SettingsFragment = fragment(() => {
                     />
                     <Text
                         style={{
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             fontSize: 13,
                             lineHeight: 18,
                             fontWeight: '400',

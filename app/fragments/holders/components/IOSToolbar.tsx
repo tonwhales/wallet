@@ -48,7 +48,7 @@ export const IOSToolbar = React.memo(({ pageTitle, canGoBack, onBack }: { pageTi
                     <Pressable
                         style={({ pressed }) => {
                             return ({
-                                opacity: pressed ? 0.3 : 1,
+                                opacity: pressed ? 0.5 : 1,
                             });
                         }}
                         onPress={onBack}

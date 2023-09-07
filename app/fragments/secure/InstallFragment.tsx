@@ -160,7 +160,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: Theme.item
+                        backgroundColor: Theme.surfacePimary
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}

@@ -290,7 +290,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 >
                     <StatusBar style={'dark'} />
                     <PasscodeSetup
-                        style={props.import ? { backgroundColor: Theme.item } : undefined}
+                        style={props.import ? { backgroundColor: Theme.surfacePimary } : undefined}
                         onReady={onConfirmed}
                         onBack={() => {
                             if (props.onBack) {

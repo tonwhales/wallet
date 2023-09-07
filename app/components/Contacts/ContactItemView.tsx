@@ -51,7 +51,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
                         {contact.name + (lastName ? ` ${lastName}` : '')}
                     </Text>
                     <Text
-                        style={{ color: Theme.darkGrey, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
+                        style={{ color: Theme.textSecondary, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >

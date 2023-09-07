@@ -97,7 +97,7 @@ export const JettonProductItem = React.memo((props: {
                         </Text>
                         <Text
                             numberOfLines={1} ellipsizeMode={'tail'}
-                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.darkGrey }}
+                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.textSecondary }}
                         >
                             <Text style={{ flexShrink: 1 }}>
                                 {props.jetton.description}
@@ -116,7 +116,7 @@ export const JettonProductItem = React.memo((props: {
                         <View style={{ flexGrow: 1 }} />
                     </View>
                 </View>
-                {!props.last && (<View style={{ backgroundColor: Theme.mediumGrey, height: 1, marginHorizontal: 20 }} />)}
+                {!props.last && (<View style={{ backgroundColor: Theme.divider, height: 1, marginHorizontal: 20 }} />)}
             </Animated.View>
         </Pressable>
     );

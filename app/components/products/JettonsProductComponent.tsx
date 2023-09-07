@@ -39,7 +39,7 @@ export const JettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
             }}>
                 {jettons.map((j, index) => {
                     return (
@@ -58,7 +58,7 @@ export const JettonsProductComponent = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: Theme.lightGrey,
+            backgroundColor: Theme.border,
         }}>
             <Pressable
                 onPress={() => {
@@ -115,7 +115,7 @@ export const JettonsProductComponent = React.memo(() => {
                             fontWeight: '400',
                             fontSize: 15,
                             lineHeight: 20,
-                            color: Theme.darkGrey
+                            color: Theme.textSecondary
                         }}
                             numberOfLines={1}
                         >
@@ -129,7 +129,7 @@ export const JettonsProductComponent = React.memo(() => {
                             borderRadius: 16,
                             justifyContent: 'center', alignItems: 'center',
                             alignSelf: 'center',
-                            backgroundColor: Theme.mediumGrey
+                            backgroundColor: Theme.divider
                         },
                         animatedChevron
                     ]}>

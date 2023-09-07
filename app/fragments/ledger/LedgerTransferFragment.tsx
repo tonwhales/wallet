@@ -421,9 +421,8 @@ export const LedgerTransferFragment = fragment(() => {
                                 onPress={onAddAll}
                                 style={({ pressed }) => [
                                     {
-                                        backgroundColor: pressed
-                                            ? Theme.selector
-                                            : 'white',
+                                        opacity: pressed ? 0.5 : 1,
+                                        backgroundColor: Theme.white
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -432,7 +431,7 @@ export const LedgerTransferFragment = fragment(() => {
                                     <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_all_coins.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                    <Text style={{ fontSize: 13, color: Theme.accent, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -441,9 +440,8 @@ export const LedgerTransferFragment = fragment(() => {
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
-                                        backgroundColor: pressed
-                                            ? Theme.selector
-                                            : 'white',
+                                        opacity: pressed ? 0.5 : 1,
+                                        backgroundColor: Theme.white
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -452,7 +450,7 @@ export const LedgerTransferFragment = fragment(() => {
                                     <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_scan_qr.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                    <Text style={{ fontSize: 13, color: Theme.accent, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                 </View>
                             </Pressable>
                         </View>

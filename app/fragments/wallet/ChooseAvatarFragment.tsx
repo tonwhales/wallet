@@ -42,7 +42,7 @@ export const ChooseAvatarFragment = fragment(() => {
                         }
                     >
                         <Text style={{
-                            color: hashState !== hash ? Theme.accent : Theme.darkGrey,
+                            color: hashState !== hash ? Theme.accent : Theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                             marginRight: 16,
@@ -91,7 +91,7 @@ export const ChooseAvatarFragment = fragment(() => {
                                     size={70}
                                     id={""}
                                     hash={index}
-                                    borderColor={Theme.lightGrey}
+                                    borderColor={Theme.border}
                                 />
                             </Pressable>
                         )

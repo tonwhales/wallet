@@ -145,7 +145,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                 ref={props.innerRef}
                 style={{
                     flexDirection: 'row',
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 16,
                     marginVertical: 8
                 }}

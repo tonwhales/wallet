@@ -87,7 +87,7 @@ export const LegalFragment = systemFragment(() => {
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '400',
                         flexShrink: 1,
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         marginBottom: 24
                     }}>
                         {t('legal.createSubtitle')}
@@ -115,7 +115,7 @@ export const LegalFragment = systemFragment(() => {
             >
                 <View style={{
                     height: 24, width: 24,
-                    backgroundColor: accepted ? Theme.accent : Theme.mediumGrey,
+                    backgroundColor: accepted ? Theme.accent : Theme.divider,
                     borderRadius: 6,
                     justifyContent: 'center', alignItems: 'center',
                     marginRight: 16

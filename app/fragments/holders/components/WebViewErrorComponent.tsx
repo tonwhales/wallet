@@ -50,7 +50,7 @@ export const WebViewErrorComponent = memo(({
                         {t('common.somethingWentWrong')}
                     </Text>
                     <Text style={{
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                         marginBottom: 8
@@ -61,7 +61,7 @@ export const WebViewErrorComponent = memo(({
                         }
                     </Text>
                     <Text style={{
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '500',
                         marginBottom: 16

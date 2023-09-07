@@ -102,7 +102,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
+            walletKeys = await authContext.authenticate({ backgroundColor: Theme.surfacePimary });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {
@@ -168,7 +168,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 >
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -184,7 +184,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -211,7 +211,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 14,
                         overflow: 'hidden',
                         justifyContent: 'center',
@@ -244,7 +244,7 @@ export const DeveloperToolsFragment = fragment(() => {
                     {AppConfig.isTestnet && (
                         <View style={{
                             marginBottom: 16, marginTop: 17,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             borderRadius: 14,
                             overflow: 'hidden',
                             justifyContent: 'center',
@@ -282,7 +282,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '500',
                                                 fontSize: 12,
-                                                color: Theme.label,
+                                                color: Theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {'Holders App URL'}

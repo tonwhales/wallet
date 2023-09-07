@@ -228,7 +228,7 @@ export function TransactionView(props: {
                         borderRadius: 23,
                         borderWidth: 0, marginRight: 10,
                         justifyContent: 'center', alignItems: 'center',
-                        backgroundColor: Theme.lightGrey
+                        backgroundColor: Theme.border
                     }}>
                         {parsed.status !== 'pending' && (
                             <Avatar
@@ -256,7 +256,7 @@ export function TransactionView(props: {
                         </Text>
                         {spam && (
                             <View style={{
-                                borderColor: Theme.textSecondaryBorder,
+                                borderColor: Theme.textSecondary,
                                 borderWidth: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -267,7 +267,7 @@ export function TransactionView(props: {
                             </View>
                         )}
                         <Text
-                            style={{ color: Theme.darkGrey, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            style={{ color: Theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
@@ -279,7 +279,7 @@ export function TransactionView(props: {
                     </View>
                     <View>
                         {parsed.status === 'failed' ? (
-                            <Text style={{ color: Theme.failed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
+                            <Text style={{ color: Theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}
                             </Text>
                         ) : (
@@ -288,7 +288,7 @@ export function TransactionView(props: {
                                     color: tx.base.kind === 'in'
                                         ? spam
                                             ? Theme.textColor
-                                            : Theme.green
+                                            : Theme.accentGreen
                                         : Theme.textColor,
                                     fontWeight: '600',
                                     lineHeight: 24,
@@ -316,7 +316,7 @@ export function TransactionView(props: {
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
                                 }}
-                                textStyle={{ color: Theme.darkGrey, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                             />
                         )}
                         {item.kind === 'token' && (
@@ -327,7 +327,7 @@ export function TransactionView(props: {
                 {!!operation.comment && (
                     <View style={{
                         flexShrink: 1, alignSelf: 'flex-start',
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         marginTop: 8,
                         paddingHorizontal: 10, paddingVertical: 8,
                         borderRadius: 10, marginLeft: 46 + 10, height: 36

@@ -14,7 +14,7 @@ export const CalculatorButton = React.memo(({ style, target }: { style: StylePro
     return (
         <Pressable style={({ pressed }) => {
             return [
-                { opacity: pressed ? 0.3 : 1 },
+                { opacity: pressed ? 0.5 : 1 },
                 style
             ]
         }}
@@ -22,7 +22,7 @@ export const CalculatorButton = React.memo(({ style, target }: { style: StylePro
         >
             <View style={{
                 borderRadius: 14,
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.surfacePimary,
                 paddingLeft: 16, paddingVertical: 10,
                 flexDirection: 'row',
                 alignItems: 'center'

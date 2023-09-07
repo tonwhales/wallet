@@ -106,14 +106,14 @@ export const ConfirmLegal = React.memo((
                                     {t('neocrypto.termsAndPrivacy')}
 
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: Theme.accent }}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: Theme.accent }}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}

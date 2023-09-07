@@ -70,7 +70,7 @@ export const HoldersNotificationIcon = memo(({ notification }: { notification: C
             borderRadius: 23,
             borderWidth: 0, marginRight: 10,
             justifyContent: 'center', alignItems: 'center',
-            backgroundColor: Theme.lightGrey
+            backgroundColor: Theme.border
         }}>
             {!!imageUrl && <Image source={{ uri: imageUrl }} style={{ height: 46, width: 46 }} />}
             {!!Icon && <Icon style={{ width: 32, height: 32 }} />}

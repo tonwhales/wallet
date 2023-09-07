@@ -129,7 +129,7 @@ export const HoldersProductButton = memo(() => {
                             justifyContent: 'center',
                             overflow: 'hidden',
                             padding: 20,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             borderTopEndRadius: 20,
                             borderTopStartRadius: 20
                         },
@@ -180,7 +180,7 @@ export const HoldersProductButton = memo(() => {
                                 fontWeight: '400',
                                 fontSize: 15,
                                 lineHeight: 20,
-                                color: Theme.darkGrey
+                                color: Theme.textSecondary
                             }}>
                                 {t('products.zenPay.card.eurSubtitle')}
                             </Text>
@@ -191,7 +191,7 @@ export const HoldersProductButton = memo(() => {
                                 borderRadius: 16,
                                 justifyContent: 'center', alignItems: 'center',
                                 alignSelf: 'center',
-                                backgroundColor: Theme.mediumGrey
+                                backgroundColor: Theme.divider
                             },
                             animatedChevron
                         ]}>
@@ -202,11 +202,11 @@ export const HoldersProductButton = memo(() => {
                 <AnimatedChildrenCollapsible
                     collapsed={collapsed}
                     items={visibleList}
-                    divider={<View style={{ backgroundColor: Theme.lightGrey, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                    divider={<View style={{ backgroundColor: Theme.border, marginHorizontal: 16, paddingHorizontal: 20 }}>
                         <View
                             style={[
                                 {
-                                    backgroundColor: Theme.mediumGrey,
+                                    backgroundColor: Theme.divider,
                                     height: 1,
                                 },
                             ]}

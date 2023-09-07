@@ -90,7 +90,7 @@ export const StakingCalculatorFragment = fragment(() => {
                 >
                     <View style={{
                         marginBottom: 0,
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -140,7 +140,7 @@ export const StakingCalculatorFragment = fragment(() => {
                                     backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0
                                 }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                             />
                         </View>
                     </View>

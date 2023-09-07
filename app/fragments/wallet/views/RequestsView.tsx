@@ -87,7 +87,7 @@ export const RequestsView = memo(() => {
             <Pressable
                 style={{
                     flex: 1,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     padding: 20,
                     flexDirection: 'row',
@@ -109,13 +109,13 @@ export const RequestsView = memo(() => {
                     <Text style={{
                         fontSize: 15, lineHeight: 20,
                         fontWeight: '400',
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                     }}>
                         {t('products.transactionRequest.subtitle')}
                     </Text>
                 </View>
                 <View style={{
-                    backgroundColor: Theme.red,
+                    backgroundColor: Theme.accentRed,
                     borderRadius: 20,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 8, paddingVertical: 3,

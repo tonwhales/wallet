@@ -324,7 +324,7 @@ export const StakingTransferFragment = fragment(() => {
                     <>
                         <View style={{
                             marginBottom: 0,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -345,7 +345,7 @@ export const StakingTransferFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: Theme.priceSecondary,
+                                    color: Theme.textSecondary,
                                 }}>
                                     <ValueComponent value={balance} precision={3} />
                                     {' TON'}
@@ -389,7 +389,7 @@ export const StakingTransferFragment = fragment(() => {
                                                     paddingHorizontal: 10,
                                                     paddingVertical: 3,
                                                 },
-                                                { opacity: pressed ? 0.3 : 1 }
+                                                { opacity: pressed ? 0.5 : 1 }
                                             ]
                                         }}
                                         onPress={onAddAll}
@@ -397,7 +397,7 @@ export const StakingTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             fontSize: 16,
-                                            color: Theme.lightGrey
+                                            color: Theme.border
                                         }}>
                                             {t('common.max')}
                                         </Text>
@@ -409,13 +409,13 @@ export const StakingTransferFragment = fragment(() => {
                                         backgroundColor: Theme.transparent,
                                         paddingHorizontal: 0
                                     }}
-                                    textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                    textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                                 />
                             </View>
                         </View>
                         {!!minAmountWarn && (
                             <Text style={{
-                                color: Theme.dangerZone,
+                                color: Theme.accentRed,
                                 fontWeight: '400',
                                 fontSize: 14,
                                 marginTop: 10
@@ -439,7 +439,7 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -453,7 +453,7 @@ export const StakingTransferFragment = fragment(() => {
                                     }}>
                                         <Text style={{
                                             fontSize: 16,
-                                            color: Theme.label
+                                            color: Theme.textSecondary
                                         }}>
                                             {t('products.staking.info.withdrawFee')}
                                         </Text>
@@ -472,7 +472,7 @@ export const StakingTransferFragment = fragment(() => {
                                                     paddingHorizontal: 0, paddingVertical: 2,
                                                     alignSelf: 'flex-end'
                                                 }}
-                                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                                textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                                             />
                                         </View>
                                     </View>

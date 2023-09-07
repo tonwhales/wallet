@@ -200,7 +200,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                     <PressableChip
                                         key={`selector-item-${tabItemProps.route.key}`}
                                         onPress={tabItemProps.onPress}
-                                        style={{ backgroundColor: focused ? Theme.accent : Theme.lightGrey, }}
+                                        style={{ backgroundColor: focused ? Theme.accent : Theme.border, }}
                                         textStyle={{ color: focused ? Theme.white : Theme.textColor, }}
                                         text={tabItemProps.route.title}
                                     />
@@ -242,7 +242,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                                 style={{ width: 192, height: 192 }}
                                             />
                                         </Pressable>
-                                        <Text style={{ fontSize: 16, color: Theme.label }}>
+                                        <Text style={{ fontSize: 16, color: Theme.textSecondary }}>
                                             {t('wallet.empty.message')}
                                         </Text>
                                         <RoundButton

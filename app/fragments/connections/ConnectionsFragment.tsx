@@ -177,7 +177,7 @@ export const ConnectionsFragment = fragment(() => {
                             }}
                             height={24}
                             width={24}
-                            color={Theme.greyForIcon}
+                            color={Theme.iconPrimary}
                         />
                     </Pressable>
                 }

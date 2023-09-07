@@ -28,7 +28,7 @@ export const Slide = React.memo((
                     fontSize: 17, lineHeight: 24,
                     fontWeight: '600',
                     textAlign: 'center',
-                    color: Theme.darkGrey,
+                    color: Theme.textSecondary,
                     marginBottom: 4
                 }}>
                     {upperNote}
@@ -48,7 +48,7 @@ export const Slide = React.memo((
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '400',
                         flexShrink: 1,
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         marginBottom: 0,
                         minHeight: 72
                     }}

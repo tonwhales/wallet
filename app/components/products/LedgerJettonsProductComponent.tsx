@@ -26,7 +26,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
             }}>
                 {jettons.map((j, index) => {
                     return (
@@ -45,7 +45,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: Theme.lightGrey,
+            backgroundColor: Theme.border,
         }}>
             <Pressable
                 onPress={() => {
@@ -107,7 +107,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
                             fontWeight: '400',
                             fontSize: 15,
                             lineHeight: 20,
-                            color: Theme.darkGrey
+                            color: Theme.textSecondary
                         }}>
                             {t('jetton.productButtonSubtitle', { count: jettons.length - 1, jettonName: jettons[0].name })}
                         </Text>

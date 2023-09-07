@@ -27,13 +27,13 @@ export const ExchangeRate = React.memo(({ style }: { style?: StyleProp<ViewStyle
             <View style={{
                 position: 'absolute',
                 top: 0, bottom: 0, left: 0, right: 0,
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.surfacePimary,
                 opacity: 0.1,
                 borderRadius: 8
             }} />
             <TonIcon height={12} width={12} />
             <Text style={[{
-                color: Theme.item,
+                color: Theme.surfacePimary,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16,

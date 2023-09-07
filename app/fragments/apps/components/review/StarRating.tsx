@@ -13,14 +13,14 @@ const StarView = React.memo(({
     rating: number,
     setRating: (value: number) => void
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { Theme } = useAppConfig();
     return (
         <Pressable
             style={({ pressed }) => {
                 return {
                     height: 54, width: 54,
                     margin: 4,
-                    opacity: pressed ? 0.3 : 1
+                    opacity: pressed ? 0.5 : 1
                 }
             }}
             onPress={() => {
@@ -30,7 +30,7 @@ const StarView = React.memo(({
                 setRating(rate);
             }}
         >
-            {rating > rate - 1 ? <FilledStar color={Theme.accent} width={54} height={54} /> : <Star color={Theme.secondaryButtonText} width={54} height={54} />}
+            {rating > rate - 1 ? <FilledStar color={Theme.accent} width={54} height={54} /> : <Star color={Theme.textSecondary} width={54} height={54} />}
         </Pressable>
     )
 })

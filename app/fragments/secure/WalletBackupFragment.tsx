@@ -56,7 +56,7 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item, cancelable: false });
+                let keys = await authContext.authenticate({ backgroundColor: Theme.surfacePimary, cancelable: false });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -100,7 +100,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.item,
+                backgroundColor: Theme.surfacePimary,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}
@@ -128,7 +128,7 @@ export const WalletBackupFragment = systemFragment(() => {
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '400',
                             flexShrink: 1,
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             marginBottom: 16
                         }}>
                             {t('create.backupSubtitle')}
@@ -146,14 +146,14 @@ export const WalletBackupFragment = systemFragment(() => {
                         <View style={{
                             borderRadius: 34,
                             height: 68, width: 68,
-                            backgroundColor: Theme.lightGrey,
+                            backgroundColor: Theme.border,
                             justifyContent: 'center', alignItems: 'center',
                             position: 'absolute', top: -34, alignSelf: 'center'
                         }}>
                             <Avatar
                                 id={address.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 size={77}
-                                borderColor={Theme.lightGrey}
+                                borderColor={Theme.border}
                                 borderWith={3}
                             />
                         </View>
@@ -187,7 +187,7 @@ export const WalletBackupFragment = systemFragment(() => {
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '400',
                         flexShrink: 1,
-                        color: Theme.darkGrey,
+                        color: Theme.textSecondary,
                         marginTop: 24
                     }}>
                         {t('create.backupSubtitle')}

@@ -22,7 +22,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             flexGrow: 1,
             flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
             paddingHorizontal: 16,
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -56,7 +56,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                             <Ionicons
                                 name={loose ? 'checkmark-circle' : 'ellipse-outline'}
                                 size={20}
-                                color={loose ? Theme.accent : Theme.unchecked}
+                                color={loose ? Theme.accent : Theme.divider}
                                 style={{
                                     marginRight: 11,
                                     marginLeft: 1
@@ -79,7 +79,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                             <Ionicons
                                 name={share ? 'checkmark-circle' : 'ellipse-outline'}
                                 size={20}
-                                color={share ? Theme.accent : Theme.unchecked}
+                                color={share ? Theme.accent : Theme.divider}
                                 style={{
                                     marginRight: 11,
                                     marginLeft: 1
@@ -101,7 +101,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                             <Ionicons
                                 name={responsibility ? 'checkmark-circle' : 'ellipse-outline'}
                                 size={20}
-                                color={responsibility ? Theme.accent : Theme.unchecked}
+                                color={responsibility ? Theme.accent : Theme.divider}
                                 style={{
                                     marginRight: 11,
                                     marginLeft: 1

@@ -6,8 +6,26 @@ import { useAppConfig } from '../utils/AppConfigContext';
 export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const { Theme } = useAppConfig();
     return (
-        <Pressable style={({ pressed }) => ({ height: 44, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, backgroundColor: pressed ? Theme.background : props.backgroundColor || Theme.item, justifyContent: 'center' })} disabled={!props.onPress} onPress={props.onPress}>
-            <Text style={{ fontSize: 18, color: props.onPress ? props.textColor || Theme.accentDark : props.textColor || Theme.textColor, flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
+        <Pressable
+            style={({ pressed }) => ({
+                height: 44,
+                flexDirection: 'row', alignItems: 'center',
+                paddingHorizontal: 16,
+                backgroundColor: pressed
+                    ? Theme.background
+                    : (props.backgroundColor || Theme.surfacePimary)
+                , justifyContent: 'center'
+            })}
+            disabled={!props.onPress}
+            onPress={props.onPress}
+        >
+            <Text style={{
+                fontSize: 18,
+                color: props.onPress
+                    ? (props.textColor || Theme.accent)
+                    : (props.textColor || Theme.textColor),
+                flexGrow: 1, flexBasis: 0
+            }}>{props.title}</Text>
             {!!props.hint && (
                 <View style={{ flexGrow: 0, flexShrink: 0, paddingLeft: 8 }}>
                     <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: Theme.textSecondary }}>{props.hint}</Text>
@@ -58,10 +76,10 @@ export const ItemSwitch = React.memo((props: {
             </View>
             <Switch
                 trackColor={{
-                    false: Theme.mediumGrey,
+                    false: Theme.divider,
                     true: Theme.accent,
                 }}
-                thumbColor={(Platform.OS === 'android' && props.value) ? Theme.darkGrey : undefined}
+                thumbColor={(Platform.OS === 'android' && props.value) ? Theme.textSecondary : undefined}
                 value={props.value}
                 onValueChange={props.onChange}
             />

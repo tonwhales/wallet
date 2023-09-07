@@ -40,7 +40,7 @@ export const ProductsComponent = memo(() => {
     }
 
     return (
-        <View style={{ backgroundColor: Theme.walletBackground }}>
+        <View style={{ backgroundColor: Theme.backgroundUnchangeable }}>
             <View style={{
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,

@@ -71,7 +71,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     marginHorizontal: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -95,7 +95,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: Theme.label,
+                                    color: Theme.textSecondary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('report.message')}
@@ -107,7 +107,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 2,
                     marginHorizontal: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -124,7 +124,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: Theme.label,
+                            color: Theme.textSecondary,
                             alignSelf: 'flex-start',
                         }}>
                             {t('report.reason')}

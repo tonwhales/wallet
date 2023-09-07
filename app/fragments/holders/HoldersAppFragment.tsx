@@ -68,7 +68,7 @@ export const HoldersAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: safeArea.top,
-            backgroundColor: Theme.item
+            backgroundColor: Theme.surfacePimary
         }}>
             <StatusBar style={'dark'} />
 

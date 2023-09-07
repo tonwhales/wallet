@@ -81,7 +81,7 @@ export const WalletSelector = memo(() => {
                     <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 24, width: 24,
-                        backgroundColor: ledgerContext.focused ? Theme.accent : Theme.mediumGrey,
+                        backgroundColor: ledgerContext.focused ? Theme.accent : Theme.divider,
                         borderRadius: 12
                     }}>
                         {ledgerContext.focused && (

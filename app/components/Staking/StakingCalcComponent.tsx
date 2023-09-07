@@ -43,7 +43,7 @@ export const StakingCalcComponent = React.memo((
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
         const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
         return (
-            <View style={{ backgroundColor: Theme.lightGrey }}>
+            <View style={{ backgroundColor: Theme.border }}>
                 <Text style={{
                     fontSize: 16,
                     color: Theme.textColor,
@@ -53,7 +53,7 @@ export const StakingCalcComponent = React.memo((
                     {t('products.staking.calc.topUpTitle')}
                 </Text>
                 <View style={{
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -67,7 +67,7 @@ export const StakingCalcComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.label,
+                            color: Theme.textSecondary,
                         }}>
                             {t('products.staking.calc.yearlyCurrent')}
                         </Text>
@@ -88,7 +88,7 @@ export const StakingCalcComponent = React.memo((
                                     paddingHorizontal: 0, paddingVertical: 2,
                                     alignSelf: 'flex-end'
                                 }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                             />
                         </View>
                     </View>
@@ -104,7 +104,7 @@ export const StakingCalcComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.label
+                            color: Theme.textSecondary
                         }}>
                             {t('products.staking.calc.yearlyTopUp')}
                         </Text>
@@ -114,12 +114,12 @@ export const StakingCalcComponent = React.memo((
                                     <Text style={{
                                         fontWeight: '600',
                                         fontSize: 16,
-                                        color: Theme.pricePositive
+                                        color: Theme.accentGreen
                                     }}>
                                         {'...'}
                                     </Text>
                                     <Text style={{
-                                        color: Theme.priceSecondary,
+                                        color: Theme.textSecondary,
                                         fontWeight: '400',
                                         fontSize: 14,
                                         paddingHorizontal: 0,
@@ -135,7 +135,7 @@ export const StakingCalcComponent = React.memo((
                                     <Text style={{
                                         fontWeight: '600',
                                         fontSize: 16,
-                                        color: Theme.pricePositive
+                                        color: Theme.accentGreen
                                     }}>
                                         {'~'}
                                         <ValueComponent precision={2} value={yearlyPlus} />
@@ -148,7 +148,7 @@ export const StakingCalcComponent = React.memo((
                                             paddingHorizontal: 0, paddingVertical: 2,
                                             alignSelf: 'flex-end'
                                         }}
-                                        textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                        textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                                     />
                                 </>
                             )
@@ -176,7 +176,7 @@ export const StakingCalcComponent = React.memo((
     return (
         <View style={{}}>
             <View style={{
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 padding: 16,
                 borderRadius: 14,
                 justifyContent: 'center',
@@ -190,7 +190,7 @@ export const StakingCalcComponent = React.memo((
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.label
+                        color: Theme.textSecondary
                     }}>
                         {t('products.staking.calc.yearly')}
                     </Text>
@@ -198,7 +198,7 @@ export const StakingCalcComponent = React.memo((
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: Theme.pricePositive
+                            color: Theme.accentGreen
                         }}>
                             {'~'}
                             <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
@@ -211,7 +211,7 @@ export const StakingCalcComponent = React.memo((
                                 paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                            textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                         />
                     </View>
                 </View>
@@ -226,7 +226,7 @@ export const StakingCalcComponent = React.memo((
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.label
+                        color: Theme.textSecondary
                     }}>
                         {t('products.staking.calc.monthly')}
                     </Text>
@@ -234,7 +234,7 @@ export const StakingCalcComponent = React.memo((
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: Theme.pricePositive
+                            color: Theme.accentGreen
                         }}>
                             {'~'}
                             <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
@@ -247,7 +247,7 @@ export const StakingCalcComponent = React.memo((
                                 paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                            textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                         />
                     </View>
                 </View>
@@ -262,7 +262,7 @@ export const StakingCalcComponent = React.memo((
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.label
+                        color: Theme.textSecondary
                     }}>
                         {t('products.staking.calc.daily')}
                     </Text>
@@ -270,7 +270,7 @@ export const StakingCalcComponent = React.memo((
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: Theme.pricePositive
+                            color: Theme.accentGreen
                         }}>
                             {'~'}
                             <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
@@ -283,7 +283,7 @@ export const StakingCalcComponent = React.memo((
                                 paddingHorizontal: 0, paddingVertical: 2,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                            textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
                         />
                     </View>
                 </View>

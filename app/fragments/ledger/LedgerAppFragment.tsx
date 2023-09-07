@@ -49,7 +49,7 @@ export const LedgerAppFragment = fragment(() => {
                         return (
                             <Image
                                 source={source}
-                                style={{ tintColor: focused ? Theme.accent : Theme.greyForIcon, height: 24, width: 24 }}
+                                style={{ tintColor: focused ? Theme.accent : Theme.iconPrimary, height: 24, width: 24 }}
                             />
                         )
                     }

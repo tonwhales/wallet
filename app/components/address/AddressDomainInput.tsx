@@ -177,7 +177,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 12,
-                                    color: Theme.labelSecondary,
+                                    color: Theme.textSecondary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {AppConfig.isTestnet ? t('common.walletAddress') : t('common.domainOrAddress')}
@@ -262,7 +262,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 12,
-                                        color: Theme.item,
+                                        color: Theme.surfacePimary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('hardwareWallet.actions.mainAddress')}

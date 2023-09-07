@@ -123,7 +123,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: Theme.surfacePimary,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key={'loading'}
@@ -162,7 +162,7 @@ export const WalletCreateFragment = systemFragment(() => {
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '400',
                             flexShrink: 1,
-                            color: Theme.darkGrey,
+                            color: Theme.textSecondary,
                             marginBottom: 16
                         }}>
                             {t('create.backupSubtitle')}
@@ -211,7 +211,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: Theme.surfacePimary,
                     }}
                     key={"content"}
                     entering={FadeIn}

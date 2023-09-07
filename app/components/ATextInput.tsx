@@ -184,7 +184,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                     fontSize: 17,
                                     fontWeight: '400',
                                     alignSelf: 'center',
-                                    color: Theme.lightGrey,
+                                    color: Theme.border,
                                 }}
                             >
                                 {props.prefix}
@@ -213,7 +213,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                             textAlign={props.textAlign}
                             autoFocus={props.autoFocus}
                             placeholder={props.placeholder}
-                            placeholderTextColor={Theme.placeholder}
+                            placeholderTextColor={Theme.textSecondary}
                             autoCapitalize={props.autoCapitalize}
                             autoCorrect={props.autoCorrect}
                             keyboardType={props.keyboardType}
@@ -238,7 +238,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                     fontSize: 15, lineHeight: 20,
                                     fontWeight: '400',
                                     alignSelf: 'center',
-                                    color: Theme.darkGrey,
+                                    color: Theme.textSecondary,
                                     flexShrink: 1
                                 }}
                             >
@@ -253,7 +253,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
             </Animated.View>
             {props.error && (
                 <Animated.View style={{ marginTop: 2 }} layout={Layout.duration(300)}>
-                    <Text style={{ color: Theme.red, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                    <Text style={{ color: Theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                         {props.error}
                     </Text>
                 </Animated.View>

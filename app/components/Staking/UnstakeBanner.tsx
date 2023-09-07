@@ -54,7 +54,7 @@ export const UnstakeBanner = React.memo((
 
     return (
         <View style={{
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -85,7 +85,7 @@ export const UnstakeBanner = React.memo((
                     )}
             </Text>
             <Text style={{
-                color: Theme.label,
+                color: Theme.textSecondary,
                 fontSize: 16,
                 fontWeight: '400'
             }}>

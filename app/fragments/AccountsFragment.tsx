@@ -126,7 +126,7 @@ export const AccountsFragment = fragment(() => {
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.priceSecondary,
+                        color: Theme.textSecondary,
                         textAlign: 'center',
                     }}>
                         {t('accounts.description')}
@@ -149,7 +149,7 @@ export const AccountsFragment = fragment(() => {
                             {disabled.length === 0 && (
                                 <Text style={{
                                     fontSize: 16,
-                                    color: Theme.priceSecondary
+                                    color: Theme.textSecondary
                                 }}
                                 >
                                     {t('accounts.description')}

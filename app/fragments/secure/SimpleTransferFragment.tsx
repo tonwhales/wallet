@@ -524,7 +524,7 @@ export const SimpleTransferFragment = fragment(() => {
         const headertitle = addressFriendly
             ? {
                 titleComponent: <View style={{
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 100,
                     maxWidth: '70%',
                     flexDirection: 'row',
@@ -616,7 +616,7 @@ export const SimpleTransferFragment = fragment(() => {
                             <Animated.View layout={Layout.duration(300)}>
                                 <View
                                     style={{
-                                        backgroundColor: Theme.lightGrey,
+                                        backgroundColor: Theme.border,
                                         borderRadius: 20, padding: 20, marginTop: 16
                                     }}
                                 >
@@ -674,7 +674,7 @@ export const SimpleTransferFragment = fragment(() => {
                                                             fontSize: 15,
                                                             fontWeight: '400',
                                                             lineHeight: 20,
-                                                            color: Theme.price,
+                                                            color: Theme.textSecondary,
                                                         }}
                                                         selectable={false}
                                                         ellipsizeMode={'middle'}
@@ -691,7 +691,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     style={{
                                         marginTop: selectedInput === 0 ? 16 : 20,
                                         marginBottom: 16,
-                                        backgroundColor: Theme.lightGrey,
+                                        backgroundColor: Theme.border,
                                         borderRadius: 20,
                                         justifyContent: 'center',
                                         padding: 20
@@ -705,7 +705,7 @@ export const SimpleTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '400',
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.darkGrey,
+                                            color: Theme.textSecondary,
                                         }}>
 
                                             {`${t('common.balance')}: `}
@@ -728,7 +728,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '500',
                                                 fontSize: 15, lineHeight: 20,
-                                                color: Theme.mainViolet,
+                                                color: Theme.accent,
                                             }}>
                                                 {t('transfer.sendAll')}
                                             </Text>
@@ -788,7 +788,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 style={{
                                     margin: 0, padding: 20,
                                     paddingHorizontal: 20,
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     alignItems: 'center',
                                 }}
                                 inputStyle={{
@@ -841,14 +841,14 @@ export const SimpleTransferFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 12,
-                                        color: Theme.labelSecondary,
+                                        color: Theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
                                     </Text>
                                 )}
                                 style={{
-                                    backgroundColor: Theme.lightGrey,
+                                    backgroundColor: Theme.border,
                                     padding: 20
                                 }}
                                 inputStyle={{
@@ -865,7 +865,7 @@ export const SimpleTransferFragment = fragment(() => {
                             {selected === 'comment' && (
                                 <Animated.View layout={Layout.duration(300)}>
                                     <Text style={{
-                                        color: Theme.darkGrey,
+                                        color: Theme.textSecondary,
                                         fontSize: 13, lineHeight: 18,
                                         fontWeight: '400',
                                         paddingHorizontal: 16,
@@ -881,7 +881,7 @@ export const SimpleTransferFragment = fragment(() => {
                         <Animated.View layout={Layout.duration(300)}>
                             <Text
                                 style={{
-                                    color: Theme.darkGrey,
+                                    color: Theme.textSecondary,
                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
                                     marginTop: 16,
                                 }}>

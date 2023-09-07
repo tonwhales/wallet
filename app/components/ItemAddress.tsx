@@ -81,7 +81,7 @@ export const ItemAddress = React.memo((props: {
                         <Pressable
                             style={({ pressed }) => {
                                 return {
-                                    opacity: pressed ? 0.3 : 1,
+                                    opacity: pressed ? 0.5 : 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     height: 30,

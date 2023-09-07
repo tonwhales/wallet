@@ -63,10 +63,10 @@ export function GhostButton(props: { onClick: () => void, icon?: any, text: stri
                 )}
                 <View style={{ marginRight: 16 }}>
                 
-                    {loading && (<ActivityIndicator color={Theme.loader} />)}
+                    {loading && (<ActivityIndicator color={Theme.accent} />)}
                 </View> */}
                 <View style={{ marginRight: 16 }}>
-                    {props.loading && (<ActivityIndicator color={Theme.loader} />)}
+                    {props.loading && (<ActivityIndicator color={Theme.accent} />)}
                 </View>
             </View>
         </TouchableOpacity>

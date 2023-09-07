@@ -181,7 +181,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -189,7 +189,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: Theme.lightGrey,
+                        borderRadius: 60, borderWidth: 4, borderColor: Theme.border,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -237,7 +237,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 16 }}
                                     amount={item.amount}
                                 />
                             )}
@@ -247,7 +247,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -278,7 +278,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: Theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -308,7 +308,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -400,11 +400,11 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={Theme.item}
+                                previewBackgroundColor={Theme.surfacePimary}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
-                                style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
+                                style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 }; }}
                                 onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
                             >
                                 <CopyIcon />
@@ -438,13 +438,13 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                 </View>
                                 <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                                     <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
+                                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 }; }}
                                         onPress={() => openWithInApp(explorerLink)}
                                     >
                                         <ExplorerIcon />
                                     </Pressable>
                                     <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1, marginLeft: 24 }; }}
+                                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1, marginLeft: 24 }; }}
                                         onPress={() => onCopy(explorerLink)}
                                     >
                                         <CopyIcon />

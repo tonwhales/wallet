@@ -42,7 +42,7 @@ export const ContactField = memo(forwardRef((props: {
     return (
         <Pressable
             style={{
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 width: '100%', borderRadius: 20,
                 flexDirection: 'row', alignItems: 'center',
             }}
@@ -58,7 +58,7 @@ export const ContactField = memo(forwardRef((props: {
                     position: 'relative',
                     marginBottom: 2
                 }}>
-                    <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                    <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                         {label}
                     </Text>
                 </View>
@@ -73,7 +73,7 @@ export const ContactField = memo(forwardRef((props: {
                     ]}
                     maxLength={126}
                     placeholder={label}
-                    placeholderTextColor={Theme.placeholder}
+                    placeholderTextColor={Theme.textSecondary}
                     multiline={false}
                     blurOnSubmit={true}
                     editable={props.input.editable}
@@ -110,7 +110,7 @@ export const ContactField = memo(forwardRef((props: {
                 >
                     <IcClear
                         height={24} width={24}
-                        color={Theme.darkGrey}
+                        color={Theme.textSecondary}
                         style={{ height: 24, width: 24, }}
                     />
                 </Pressable>

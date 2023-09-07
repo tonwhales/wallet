@@ -149,7 +149,7 @@ export const LedgerTransactionsFragment = fragment(() => {
                                 style={{ width: 192, height: 192 }}
                             />
                         </Pressable>
-                        <Text style={{ fontSize: 16, color: Theme.label }}>
+                        <Text style={{ fontSize: 16, color: Theme.textSecondary }}>
                             {t('wallet.empty.message')}
                         </Text>
                         <RoundButton

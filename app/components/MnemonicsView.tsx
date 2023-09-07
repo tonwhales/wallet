@@ -42,7 +42,7 @@ export const MnemonicsView = React.memo(({ mnemonics, style }: { mnemonics: stri
             {
                 padding: 20,
                 borderRadius: 20,
-                backgroundColor: Theme.lightGrey,
+                backgroundColor: Theme.border,
                 flexDirection: 'row',
                 justifyContent: 'space-evenly',
             },

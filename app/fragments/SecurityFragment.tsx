@@ -44,8 +44,8 @@ export const SecurityFragment = fragment(() => {
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos width={20} height={20} color={Theme.greyForIcon} />
-                    : <TouchAndroid width={20} height={20} color={Theme.greyForIcon} />
+                    ? <FaceIos width={20} height={20} color={Theme.iconPrimary} />
+                    : <TouchAndroid width={20} height={20} color={Theme.iconPrimary} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectFaceID')
                     : t('secure.protectBiometrics');
@@ -53,8 +53,8 @@ export const SecurityFragment = fragment(() => {
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos width={20} height={20} color={Theme.greyForIcon} />
-                    : <TouchAndroid width={20} height={20} color={Theme.greyForIcon} />
+                    ? <TouchIos width={20} height={20} color={Theme.iconPrimary} />
+                    : <TouchAndroid width={20} height={20} color={Theme.iconPrimary} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectTouchID')
                     : t('secure.protectBiometrics');
@@ -64,7 +64,7 @@ export const SecurityFragment = fragment(() => {
                 icon = <Ionicons
                     name={'keypad'}
                     size={20}
-                    color={Theme.greyForIcon}
+                    color={Theme.iconPrimary}
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;
@@ -120,7 +120,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -133,7 +133,7 @@ export const SecurityFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                 }}>
@@ -184,7 +184,7 @@ export const SecurityFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.lightGrey,
+                    backgroundColor: Theme.border,
                     borderRadius: 20,
                     justifyContent: 'center',
                 }}>

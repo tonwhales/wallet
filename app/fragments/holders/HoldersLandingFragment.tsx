@@ -51,7 +51,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -67,7 +67,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: Theme.surfacePimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -195,10 +195,10 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: safeArea.top,
-            backgroundColor: Theme.item
+            backgroundColor: Theme.surfacePimary
         }}>
             <StatusBar style={'dark'} />
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
+            <View style={{ backgroundColor: Theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {useOfflineApp && (
                     <OfflineWebView
                         ref={webRef}
@@ -207,7 +207,7 @@ export const HoldersLandingFragment = fragment(() => {
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                         initialRoute={`/about?lang=${lang}&currency=${currency}`}
                         style={{
-                            backgroundColor: Theme.item,
+                            backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -253,7 +253,7 @@ export const HoldersLandingFragment = fragment(() => {
                             source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                             startInLoadingState={true}
                             style={{
-                                backgroundColor: Theme.item,
+                                backgroundColor: Theme.surfacePimary,
                                 flexGrow: 1, flexBasis: 0, height: '100%',
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,

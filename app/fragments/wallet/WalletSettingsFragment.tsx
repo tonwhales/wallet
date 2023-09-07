@@ -70,7 +70,7 @@ export const WalletSettingsFragment = fragment(() => {
                         }
                     >
                         <Text style={{
-                            color: hasChanges ? Theme.accent : Theme.darkGrey,
+                            color: hasChanges ? Theme.accent : Theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                             marginRight: 16,
@@ -97,7 +97,7 @@ export const WalletSettingsFragment = fragment(() => {
                     >
                         <Avatar
                             size={100}
-                            borderColor={Theme.lightGrey}
+                            borderColor={Theme.border}
                             id={''}
                             hash={avatar}
                         />
@@ -111,7 +111,7 @@ export const WalletSettingsFragment = fragment(() => {
                         </Text>
                     </Pressable>
                     <View style={{
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         paddingHorizontal: 20, marginTop: 20,
                         paddingVertical: 10,
                         width: '100%', borderRadius: 20,
@@ -122,7 +122,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 width: '100%',
                                 overflow: 'hidden',
                             }}>
-                                <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                                <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                                     {t('common.walletName')}
                                 </Text>
                             </View>
@@ -141,7 +141,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 ]}
                                 maxLength={64}
                                 placeholder={t('common.walletName')}
-                                placeholderTextColor={Theme.placeholder}
+                                placeholderTextColor={Theme.textSecondary}
                                 multiline={true}
                                 blurOnSubmit={true}
                                 editable={true}
@@ -163,13 +163,13 @@ export const WalletSettingsFragment = fragment(() => {
                         )}
                     </View>
                     <View style={{
-                        backgroundColor: Theme.lightGrey,
+                        backgroundColor: Theme.border,
                         paddingVertical: 10,
                         paddingHorizontal: 20,
                         marginTop: 20,
                         width: '100%', borderRadius: 20
                     }}>
-                        <Text style={{ color: Theme.darkGrey, fontSize: 13, lineHeight: 18, fontWeight: '500' }}>
+                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '500' }}>
                             {t('common.walletAddress')}
                         </Text>
                         <Text

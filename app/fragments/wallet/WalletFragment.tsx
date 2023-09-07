@@ -60,7 +60,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     }, []);
 
     const scrollStyle = useAnimatedStyle(() => {
-        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.walletBackground : Theme.white };
+        return { backgroundColor: scrollBackgroundColor.value === 0 ? Theme.backgroundUnchangeable : Theme.white };
     });
 
     const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
@@ -85,7 +85,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     }, [start, visible]);
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: Theme.walletBackground }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.backgroundUnchangeable }}>
             <WalletHeader />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
@@ -99,7 +99,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                 <View
                     style={[
                         {
-                            backgroundColor: Theme.walletBackground,
+                            backgroundColor: Theme.backgroundUnchangeable,
                             paddingHorizontal: 16,
                             paddingVertical: 20,
                         },
@@ -200,7 +200,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 fontSize: 15,
                                 lineHeight: 20,
                                 textAlign: 'left',
-                                color: Theme.darkGrey,
+                                color: Theme.textSecondary,
                                 fontWeight: '400',
                                 fontFamily: undefined
                             }}
@@ -248,7 +248,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                             </View>
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,
-                                                color: Theme.item,
+                                                color: Theme.surfacePimary,
                                                 marginTop: 6
                                             }}>
                                                 {t('wallet.actions.buy')}
@@ -286,7 +286,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.item,
+                                            color: Theme.surfacePimary,
                                             marginTop: 6
                                         }}>
                                         {t('wallet.actions.receive')}
@@ -319,7 +319,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                     }}>
                                         <Image source={require('../../../assets/ic_send.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 15, color: Theme.item, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                    <Text style={{ fontSize: 15, color: Theme.surfacePimary, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                 </View>
                             </Pressable>
                         </View>

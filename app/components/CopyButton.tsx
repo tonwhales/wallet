@@ -6,7 +6,7 @@ import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { Toast, ToastDuration, useToaster } from "./toast/ToastProvider";
+import { ToastDuration, useToaster } from "./toast/ToastProvider";
 
 const size = {
     height: 56,
@@ -30,15 +30,6 @@ export const CopyButton = React.memo(({
 }) => {
     const toaster = useToaster();
     const { Theme } = useAppConfig();
-    const display = {
-        backgroundColor: Theme.secondaryButton,
-        borderColor: Theme.secondaryButton,
-        textColor: Theme.textColor,
-
-        backgroundPressedColor: Theme.selector,
-        borderPressedColor: Theme.selector,
-        textPressed: Theme.secondaryButtonText
-    }
 
     const doneShared = useSharedValue(0);
 
@@ -81,8 +72,7 @@ export const CopyButton = React.memo(({
                     flex: 1,
                     borderWidth: 1,
                     borderRadius: 16,
-                    backgroundColor: display.backgroundColor,
-                    borderColor: display.borderColor,
+                    backgroundColor: Theme.surfaceSecondary,
                     overflow: 'hidden'
                 },
                 p.pressed && {
@@ -123,7 +113,7 @@ export const CopyButton = React.memo(({
                         <Text
                             style={[
                                 {
-                                    color: display.textColor,
+                                    color: Theme.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,
@@ -164,7 +154,7 @@ export const CopyButton = React.memo(({
                                 {
                                     marginTop: size.pad,
                                     opacity: 1,
-                                    color: display.textColor,
+                                    color: Theme.textColor,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,

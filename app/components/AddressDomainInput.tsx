@@ -12,7 +12,7 @@ import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
 import { useClient4 } from '../engine/hooks/useClient4'
-import { useSelectedAddress } from '../engine/hooks/useSelectedAddress'
+import { useSelectedAccount } from '../engine/hooks/useSelectedAccount'
 import { AddressContact } from '../engine/legacy/products/SettingsProduct'
 import { useNetwork } from '../engine/hooks/useNetwork'
 import { useTheme } from '../engine/hooks/useTheme'
@@ -53,7 +53,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
-    const selected = useSelectedAddress();
+    const selected = useSelectedAccount();
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
 

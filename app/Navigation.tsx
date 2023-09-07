@@ -66,6 +66,8 @@ import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
 import { useNetwork } from './engine/hooks/useNetwork';
 import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
+import { useRecoilValue } from 'recoil';
+import { appStateSelector } from './engine/state/appState';
 
 const Stack = createNativeStackNavigator();
 
@@ -195,6 +197,7 @@ const navigation = (safeArea: EdgeInsets) => [
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigationTheme = useNavigationTheme();
+    const appState = useRecoilValue(appStateSelector);
     const { isTestnet } = useNetwork();
 
     const initial = React.useMemo(() => {
@@ -230,11 +233,10 @@ export const Navigation = React.memo(() => {
 
     // Register token
     React.useEffect(() => {
-        const state = getAppState();
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            if (existingStatus === PermissionStatus.GRANTED || state.addresses.length > 0) {
+            if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', () => registerForPushNotificationsAsync());
                 if (token) {
                     if (ended) {
@@ -244,7 +246,7 @@ export const Navigation = React.memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, state.addresses.map((v) => v.address), isTestnet);
+                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
                     });
                 }
             }
@@ -252,7 +254,7 @@ export const Navigation = React.memo(() => {
         return () => {
             ended = true;
         };
-    }, []);
+    }, [appState]);
 
     // Grant accesses
     React.useEffect(() => {

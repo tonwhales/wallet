@@ -1,27 +1,19 @@
 import { atom, selector } from 'recoil';
 import { getAppState } from '../../storage/appState';
 
-const appStateVersion = atom({
+export const appStateBuster = atom({
     key: 'wallet/appstate/version',
     default: 0,
-    
-})
+});
 
 export const appStateSelector = selector({
     key: 'wallet/appstate',
+    cachePolicy_UNSTABLE: { eviction: 'most-recent' },
     get: ({ get }) => {
-        get(appStateVersion);
+        get(appStateBuster);
 
-        return getAppState();
-    }
-});
+        let state = getAppState();
 
-
-export const selectedAccountSelector = selector({
-    key: 'wallet/selectedAccount',
-    get: ({ get }) => {
-        const appState = get(appStateSelector);
-
-        return appState.addresses[appState.selected];
+        return { ...state };
     }
 });

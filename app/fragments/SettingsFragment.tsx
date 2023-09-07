@@ -23,6 +23,8 @@ export const SettingsFragment = fragment(() => {
     const account = useSelectedAccount();
     const oldWalletsBalance = useOldWalletsBalance();
 
+    console.log(account.addressString);
+
     const onVersionTap = React.useMemo(() => {
         let count = 0;
         let timer: any | null = null;

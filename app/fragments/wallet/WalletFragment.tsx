@@ -28,6 +28,8 @@ import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChar
 import { useSyncState } from '../../engine/hooks/useSyncState';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { WalletState } from '../../engine/legacy/products/WalletProduct';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],
@@ -68,7 +70,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useSelectedAccount().address;
     const syncState = useSyncState();
     const balanceChart = useAccountBalanceChart();
     const account = props.wallet;

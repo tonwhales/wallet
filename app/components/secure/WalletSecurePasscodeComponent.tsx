@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
@@ -20,6 +20,7 @@ import { storage } from '../../storage/storage';
 import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useSetAppState } from '../../engine/effects/useSetAppState';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -30,6 +31,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
+    const setAppState = useSetAppState();
 
     const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = React.useState(false);
@@ -41,7 +43,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address, isTestnet);
-        reboot();
     }, []);
 
     const onConfirmed = React.useCallback(async (passcode: string) => {

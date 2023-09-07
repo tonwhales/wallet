@@ -1,6 +1,10 @@
 import { useRecoilValue } from 'recoil';
-import { selectedAccountSelector } from '../state/appState';
+import { appStateSelector } from '../state/appState';
 
 export function useSelectedAccount() {
-    return useRecoilValue(selectedAccountSelector);
+    let state = useRecoilValue(appStateSelector);
+
+    console.log('selected-account', state.addresses.map(a => a.addressString));
+
+    return state.addresses[state.selected];
 }

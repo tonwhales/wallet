@@ -1,6 +1,6 @@
 {
   "name": "wallet",
-  "version": "1.40.87",
+  "version": "1.40.88",
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",

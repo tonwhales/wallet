@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, View, useColorScheme } from 'react-native';
+import { Image, Platform, Pressable, Text, View } from 'react-native';
 import { getCurrentAddress } from '../../storage/appState';
 import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,14 +23,13 @@ import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishe
 import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
 import { sharedStoragePersistence } from '../../storage/storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { fullScreen, genericScreen } from '../../Navigation';
+import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
 import { ProductsFragment } from '../ProductsFragment';
 import { useFocusEffect } from '@react-navigation/native';
 
 function WalletComponent(props: { wallet: WalletState | null }) {
-    const colorScheme = useColorScheme();
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();

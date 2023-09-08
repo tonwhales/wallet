@@ -231,10 +231,10 @@ export const HoldersAppComponent = React.memo((
         }
 
         return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}`,
+            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}`,
+            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}`,
         };
-    }, [props, lang, currency, status]);
+    }, [props, lang, currency, status, Theme]);
 
     // 
     // Track events

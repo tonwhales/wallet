@@ -205,7 +205,7 @@ export const HoldersLandingFragment = fragment(() => {
                         key={`offline-rendered-${offlineRender}`}
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                        initialRoute={`/about?lang=${lang}&currency=${currency}`}
+                        initialRoute={`/about?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}`}
                         style={{
                             backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
@@ -250,7 +250,7 @@ export const HoldersLandingFragment = fragment(() => {
                     <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                         <WebView
                             ref={webRef}
-                            source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
+                            source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}` }}
                             startInLoadingState={true}
                             style={{
                                 backgroundColor: Theme.surfacePimary,

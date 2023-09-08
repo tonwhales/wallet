@@ -149,7 +149,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         return {
             transform: [
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
-                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -36]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -40]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
             ]
         }

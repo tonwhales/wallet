@@ -15,28 +15,6 @@ import { useJettons } from '../engine/hooks/useJettons';
 import { markJettonDisabled } from '../engine/effects/markJettonDisabled';
 import { markJettonActive } from '../engine/effects/markJettonActive';
 
-export async function confirmJettonAction(disable: boolean, symbol: string) {
-    return await new Promise<boolean>(resolve => {
-        Alert.alert(
-            disable
-                ? t('accounts.alertDisabled', { symbol })
-                : t('accounts.alertActive', { symbol }),
-            t('transfer.confirm'),
-            [{
-                text: t('common.yes'),
-                style: 'destructive',
-                onPress: () => {
-                    resolve(true)
-                }
-            }, {
-                text: t('common.no'),
-                onPress: () => {
-                    resolve(false);
-                }
-            }])
-    });
-}
-
 export const AccountsFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();

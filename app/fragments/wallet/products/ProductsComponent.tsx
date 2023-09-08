@@ -26,14 +26,16 @@ import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnec
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
+import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 
 export const ProductsComponent = React.memo(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalance();
     const currentJob = useCurrentJob();
-    const jettons = useJettons().filter((j: any) => !j.disabled);
+    const jettons = useJettons(selected.addressString);
     const extensions = useExtensions();
     const ledger = useLedger();
     const cards = useCards();
@@ -180,7 +182,7 @@ export const ProductsComponent = React.memo(() => {
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
     for (let r of tonconnectRequests) {
-        const prepared = prepareTonConnectRequest(r, engine);
+        const prepared = prepareTonConnectRequest(r);
         if (r.method === 'sendTransaction' && prepared) {
             tonconnect.push(
                 <AnimatedProductButton

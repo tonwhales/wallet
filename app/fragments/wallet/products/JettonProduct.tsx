@@ -4,10 +4,33 @@ import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
 import { Address } from 'ton';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
-import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
 import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { Alert } from 'react-native';
+import { t } from '../../../i18n/t';
+
+export async function confirmJettonAction(disable: boolean, symbol: string) {
+    return await new Promise<boolean>(resolve => {
+        Alert.alert(
+            disable
+                ? t('accounts.alertDisabled', { symbol })
+                : t('accounts.alertActive', { symbol }),
+            t('transfer.confirm'),
+            [{
+                text: t('common.yes'),
+                style: 'destructive',
+                onPress: () => {
+                    resolve(true)
+                }
+            }, {
+                text: t('common.no'),
+                onPress: () => {
+                    resolve(false);
+                }
+            }])
+    });
+}
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
@@ -22,7 +45,8 @@ export const JettonProduct = React.memo((props: {
         decimals: number | null;
     },
     onPress?: () => void
-    onLongPress?: () => void
+    onLongPress?: () => void,
+    onPromptDisable: () => void
 }) => {
     let balance = props.jetton.balance;
     const { isTestnet } = useNetwork();

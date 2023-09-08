@@ -18,6 +18,7 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();

@@ -6,8 +6,6 @@ export function HintsPrefetcher() {
     let selected = useSelectedAccount();
     
     usePrefetchHints(selected.addressString);
-
-    console.warn(useJettons(selected.addressString));
     
     return <></>;
 }

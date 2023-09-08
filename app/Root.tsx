@@ -8,7 +8,7 @@ import './utils/CachedLinking';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 
-const PERSISTANCE_VERSION = '1';
+const PERSISTANCE_VERSION = '3';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);

@@ -25,7 +25,7 @@ import { useLinkNavigator } from "../../useLinkNavigator";
 import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
-import { useAccount, useAccountLite } from '../../engine/hooks/useAccountLite';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useConfig } from '../../engine/hooks/useConfig';
@@ -77,7 +77,7 @@ export const SimpleTransferFragment = fragment(() => {
     const [estimation, setEstimation] = React.useState<BN | null>(null);
     const acc = React.useMemo(() => getCurrentAddress(), []);
     const jettonWallet = useJettonWallet(params.jetton!);
-    const jettonMaster = useJettonMaster(jettonWallet.master!);
+    const jettonMaster = useJettonMaster(jettonWallet?.master!);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = React.useMemo(() => {
         let value;

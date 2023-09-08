@@ -5,19 +5,41 @@ import { Queries } from '../queries';
 import { useNetwork } from './useNetwork';
 import { fetchMetadata } from '../metadata/fetchMetadata';
 import { useClient4 } from './useClient4';
-import { getLastBlock } from '../accountWatcher';
+import { hintsMetadataQueryFn } from './usePrefetchHints';
+import BN from 'bn.js';
+import { useFilteredHints } from './basic/useFilteredHints';
+import { useJettonContents } from './basic/useJettonContents';
 
-export function useJettons(owner: string): any {
-    let hints = useHints(owner);
-    let { isTestnet } = useNetwork();
-    let client = useClient4(isTestnet);
+type PreparedJetton = {
+    master: Address;
+    wallet: Address;
+    name: string;
+    description: string;
+    symbol: string;
+    balance: BN;
+    icon: string | null;
+    decimals: number | null;
+};
 
-    let metadatas = useQueries({
-        queries: hints.map(a => ({
-            queryKey: Queries.Account(a).Metadata(),
-            queryFn: async () => fetchMetadata(client, await getLastBlock(), Address.parse(a)),
-        }))
-    });
+export function useJettons(owner: string): PreparedJetton[] {
+    let hints = useFilteredHints(owner, (a) => !!a.jettonWallet && a.jettonWallet?.owner === owner && !!a.jettonWallet.master);
+    // let masterContents = useJettonContents(hints.map(a => a.jettonWallet!.master));
 
-    return metadatas.filter(a => !!a.data?.jettonWallet).map(a => a.data?.jettonWallet?.owner.hash);
+    // let jettons: PreparedJetton[] = hints
+    //     .filter(a => !!masterContents.find(b => a.jettonWallet?.master === b.data?.address))
+    //     .map<PreparedJetton>(a => {
+    //         let content = masterContents.find(b => a.jettonWallet?.master === b.data?.address)!.data!;
+    //         return {
+    //             balance: new BN(a.jettonWallet!.balance),
+    //             wallet: Address.parse(a.address),
+    //             master: Address.parse(a.jettonWallet!.master),
+    //             name: content.name ?? '',
+    //             symbol: content.symbol ?? '',
+    //             description: content.description ?? '',
+    //             decimals: content.decimals ?? null,
+    //             icon: content.originalImage ?? null,
+    //         };
+    //     });
+
+    return [];
 }

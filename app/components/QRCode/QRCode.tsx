@@ -5,28 +5,40 @@ import { createQRMatrix } from './QRMatrix';
 import TonIcon from '../../../assets/ic-ton-qr.svg';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
+import { useAppConfig } from '../../utils/AppConfigContext';
 
 function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
-    // Top left
-    const topLeftOuter0 = rrect(rect(0, 0, dotSize * 7, dotSize * 7), 10, 10);
-    const topLeftInner0 = rrect(rect(dotSize, dotSize, dotSize * 5, dotSize * 5), 5, 5);
-    items.push(<DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={color ?? "black"} />)
-    items.push(<RoundedRect key={'rr-top-left'} x={dotSize * 2} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={5} color={color ?? "black"} />)
+    const outerRadius = dotSize * 2;
+    const innerRadius = dotSize * 1.2;
+    const outerSize = dotSize * 7;
+    const innerDotSize = dotSize * 5;
+    const innerDotRadius = dotSize * 1.2;
 
-    // Top right
-    const outer2 = rrect(rect((matrixSize - 7) * dotSize, 0, dotSize * 7, dotSize * 7), 10, 10);
-    const inner2 = rrect(rect((matrixSize - 6) * dotSize, dotSize, dotSize * 5, dotSize * 5), 5, 5);
-    items.push(<DiffRect key={'dr-top-right'} inner={inner2} outer={outer2} color={color ?? "black"} />);
-    items.push(<RoundedRect key={'rr-top-right'} x={(matrixSize - 5) * dotSize} y={dotSize * 2} width={dotSize * 3} height={dotSize * 3} r={5} color={color ?? "black"} />)
+    const corners = [
+        { x: 0, y: 0 },
+        { x: matrixSize - 7, y: 0 },
+        { x: 0, y: matrixSize - 7 },
+    ];
 
-    // Bottom left
-    const outer3 = rrect(rect(0, (matrixSize - 7) * dotSize, dotSize * 7, dotSize * 7), 10, 10);
-    const inner3 = rrect(rect(dotSize, (matrixSize - 6) * dotSize, dotSize * 5, dotSize * 5), 5, 5);
-    items.push(<DiffRect key={'dr-bottom-left'} inner={inner3} outer={outer3} color={color ?? "black"} />);
-    items.push(<RoundedRect key={'rr-bottom-left'} x={dotSize * 2} y={(matrixSize - 5) * dotSize} width={dotSize * 3} height={dotSize * 3} r={5} color={color ?? "black"} />)
+    for (const { x, y } of corners) {
+        const outerRect = rrect(rect(x * dotSize, y * dotSize, outerSize, outerSize), outerRadius, outerRadius);
+        const innerRect = rrect(rect((x + 1) * dotSize, (y + 1) * dotSize, innerDotSize, innerDotSize), innerRadius, innerRadius);
+        items.push(<DiffRect key={`dr-${x}-${y}`} inner={innerRect} outer={outerRect} color={color ?? "black"} />);
+        items.push(
+            <RoundedRect
+                key={`rr-${x}-${y}`}
+                x={(x + 2) * dotSize}
+                y={(y + 2) * dotSize}
+                width={innerDotSize - (2 * dotSize)}
+                height={innerDotSize - (2 * dotSize)}
+                r={innerDotRadius}
+                color={color ?? "black"}
+            />
+        );
+    }
 }
 
-function isCornerSquare(point: { x: number, y: number }, matrixSize: number): boolean {
+function isCornerSquare(point: { x: number, y: number }, matrixSize: number, dotSize: number): boolean {
     const { x, y } = point;
 
     const finderPatternTopLeft = { x: 0, y: 0 };
@@ -67,9 +79,10 @@ export const QRCode = React.memo((props: {
     color?: string,
     icon?: ImagePreview | null
 }) => {
+    const { Theme } = useAppConfig();
     const matrix = createQRMatrix(props.data, 'quartile');
-    const dotSize = Math.floor((props.size) / matrix.size);
-    const padding = Math.floor((props.size - dotSize * matrix.size) / 2);
+    const dotSize = props.size / matrix.size;
+    const padding = (props.size - dotSize * matrix.size) / 2;
 
     const items: JSX.Element[] = [];
     for (let x = 0; x < matrix.size; x++) {
@@ -97,13 +110,13 @@ export const QRCode = React.memo((props: {
                 }
 
                 const matrixCenter = Math.floor(matrix.size / 2);
-                const circleRadius = Math.floor(30 / (dotSize));
+                const circleRadius = Math.floor(34 / (dotSize));
 
                 if (isPointInCircle(x, y, matrixCenter, matrixCenter, circleRadius)) {
                     continue;
                 }
 
-                if (isCornerSquare({ x, y }, matrix.size)) {
+                if (isCornerSquare({ x, y }, matrix.size, dotSize)) {
                     continue;
                 }
 
@@ -116,7 +129,7 @@ export const QRCode = React.memo((props: {
                     width, height,
                     borderTopLeftRadius, borderTopRightRadius,
                     borderBottomRightRadius, borderBottomLeftRadius
-                )
+                );
 
                 items.push(
                     <Path
@@ -140,7 +153,7 @@ export const QRCode = React.memo((props: {
             flexWrap: 'wrap',
             borderRadius: 20,
         }}>
-            <Canvas style={{ width: props.size, height: props.size }}>
+            <Canvas style={{ width: props.size, height: props.size, backgroundColor: Theme.surfaceSecondary }}>
                 {items}
             </Canvas>
             <View style={{

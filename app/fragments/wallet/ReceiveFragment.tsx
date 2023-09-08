@@ -15,7 +15,7 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useImage } from "@shopify/react-native-skia";
+import { Canvas, LinearGradient, Rect, useImage, vec } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../utils/image/getMostPrevalentColorFromBytes";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
@@ -26,16 +26,18 @@ import TonIcon from '../../../assets/ic_ton_account.svg';
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 
 export const ReceiveFragment = fragment(() => {
-    const dimentions = useWindowDimensions();
-    const qrSize = Math.floor((dimentions.width - 80 - 64 + 16));
     const { Theme, AppConfig } = useAppConfig();
+    const dimentions = useWindowDimensions();
+    const qrSize = Math.floor((dimentions.width - 80 - 56 + 16));
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
     const engine = useEngine();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
+
     const [isSharing, setIsSharing] = useState(false);
-    const address = React.useMemo(() => {
+
+    const address = useMemo(() => {
         if (params.addr) {
             return Address.parse(params.addr);
         }
@@ -52,10 +54,11 @@ export const ReceiveFragment = fragment(() => {
     }, [jetton]);
 
     const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
+        console.log({ master: selected?.master.toFriendly({ testOnly: AppConfig.isTestnet }), wallet: selected?.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) });
         if (selected) {
             const data = engine.persistence.jettonMasters.item(selected.master).value;
             if (data) {
-                setJetton({ master: address, data });
+                setJetton({ master: selected.master, data });
                 return;
             }
         }
@@ -79,10 +82,12 @@ export const ReceiveFragment = fragment(() => {
         }
         const [r, g, b] = mainColor.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
         const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        return luminance < 0.7;
+        console.log({ luminance });
+        return luminance < 0.5;
     }, [mainColor]);
 
     const image = useImage(jetton?.data?.image?.preview256);
+
     useEffect(() => {
         if (image) {
             const bytes = image.encodeToBytes();
@@ -110,11 +115,22 @@ export const ReceiveFragment = fragment(() => {
                 textColor={isDark ? '#fff' : '#000'}
                 tintColor={isDark ? '#fff' : '#000'}
             />
+            <View style={{ position: 'absolute', top: 60, bottom: 0, left: 0, right: 0 }}>
+                <Canvas style={{ flex: 1 }}>
+                    <Rect x={0} y={0} width={dimentions.width} height={dimentions.height - (safeArea.top + 60)}>
+                        <LinearGradient
+                            start={vec(0, (dimentions.height + 100 - (safeArea.top + 60)) / 2)}
+                            end={vec(0, dimentions.height - (safeArea.top + 60))}
+                            colors={[mainColor, "rgba(256, 256, 256, 0.1)"]}
+                        />
+                    </Rect>
+                </Canvas>
+            </View>
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
-                <View style={{ paddingHorizontal: 40, width: '100%' }}>
+                <View style={{ paddingHorizontal: 28, width: '100%' }}>
                     <View style={{
                         justifyContent: 'center',
-                        backgroundColor: Theme.surfacePimary,
+                        backgroundColor: Theme.surfaceSecondary,
                         borderRadius: 20,
                         padding: 32,
                         paddingTop: 52,
@@ -139,11 +155,11 @@ export const ReceiveFragment = fragment(() => {
                                 data={link}
                                 size={qrSize}
                                 icon={jetton?.data.image}
-                                color={mainColor}
+                                color={isDark && Theme.style === 'dark' ? Theme.textPrimary : mainColor}
                             />
                         </View>
                     </View>
-                    <View style={{ backgroundColor: Theme.surfacePimary, borderRadius: 20, padding: 20 }}>
+                    <View style={{ backgroundColor: Theme.surfaceSecondary, borderRadius: 20, padding: 20 }}>
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -224,70 +240,64 @@ export const ReceiveFragment = fragment(() => {
                         </Pressable>
                     </View>
                 </View>
+                <View style={{
+                    width: '100%',
+                    flexDirection: 'row',
+                    justifyContent: 'space-evenly',
+                    opacity: isSharing ? 0 : 1,
+                    marginTop: 16, paddingHorizontal: 28,
+                }}>
+                    <CopyButton
+                        style={{
+                            marginRight: 16,
+                            backgroundColor: Theme.surfaceSecondary,
+                            borderWidth: 0,
+                            height: 56,
+                        }}
+                        body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        textStyle={{
+                            color: (isDark && Theme.style === 'dark') ? Theme.textPrimary : mainColor,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                        }}
+                    />
+                    <ShareButton
+                        style={{
+                            marginRight: 8,
+                            backgroundColor: Theme.surfaceSecondary,
+                            borderWidth: 0,
+                            height: 56,
+                        }}
+                        body={link}
+                        textStyle={{
+                            color: (isDark && Theme.style === 'dark') ? Theme.textPrimary : mainColor,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                        }}
+                        onScreenCapture={() => {
+                            return new Promise((resolve, reject) => {
+                                setIsSharing(true);
+                                (async () => {
+                                    setTimeout(async () => {
+                                        try {
+                                            const localUri = await captureRef(imageRef, {
+                                                height: 440,
+                                                quality: 1,
+                                            });
+                                            setIsSharing(false);
+                                            resolve({ uri: localUri });
+                                        } catch {
+                                            setIsSharing(false);
+                                            reject();
+                                        }
+                                    }, 150);
+                                })();
+                            })
+                        }}
+                    />
+                </View>
             </ScrollView>
             <View style={{ flexGrow: 1 }} />
-            <View style={{
-                width: '100%',
-                minHeight: 56 + 36 + 56,
-                flexDirection: 'row',
-                justifyContent: 'space-evenly',
-                paddingBottom: 56 + safeArea.bottom === 0 ? 32 : safeArea.bottom,
-                paddingTop: 20 + 16,
-                paddingHorizontal: 16,
-                backgroundColor: Theme.background,
-                borderTopEndRadius: 20,
-                borderTopStartRadius: 20,
-                opacity: isSharing ? 0 : 1,
-            }}>
-                <CopyButton
-                    style={{
-                        marginRight: 16,
-                        backgroundColor: mainColor,
-                        borderWidth: 0,
-                        height: 56,
-                    }}
-                    body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                    textStyle={{
-                        color: isDark ? 'white' : '#808080',
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                    }}
-                />
-                <ShareButton
-                    style={{
-                        marginRight: 8,
-                        backgroundColor: mainColor,
-                        borderWidth: 0,
-                        height: 56,
-                    }}
-                    body={link}
-                    textStyle={{
-                        color: isDark ? 'white' : '#808080',
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                    }}
-                    onScreenCapture={() => {
-                        return new Promise((resolve, reject) => {
-                            setIsSharing(true);
-                            (async () => {
-                                setTimeout(async () => {
-                                    try {
-                                        const localUri = await captureRef(imageRef, {
-                                            height: 440,
-                                            quality: 1,
-                                        });
-                                        setIsSharing(false);
-                                        resolve({ uri: localUri });
-                                    } catch {
-                                        setIsSharing(false);
-                                        reject();
-                                    }
-                                }, 150);
-                            })();
-                        })
-                    }}
-                />
-            </View>
         </View>
     );
 });

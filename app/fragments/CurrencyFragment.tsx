@@ -10,10 +10,10 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
+import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import Animated from "react-native-reanimated";
 
 import IcCheck from "../../assets/ic-check.svg";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -61,7 +61,7 @@ export const CurrencyFragment = fragment(() => {
                 contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
             >
                 <View style={{
-                    backgroundColor: Theme.surfacePimary,
+                    backgroundColor: Theme.background,
                     borderRadius: 14,
                     justifyContent: 'center',
                 }}>
@@ -91,7 +91,8 @@ export const CurrencyFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             marginLeft: 17,
-                                            fontSize: 17
+                                            fontSize: 17,
+                                            color: Theme.textPrimary
                                         }}>
                                             {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
                                         </Text>

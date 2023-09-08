@@ -13,7 +13,6 @@ import { queryClient } from '../clients';
 export function hintsMetadataQueryFn(client: TonClient4, isTestnet: boolean, address: Address) {
     return async () => {
         let metadata = await fetchMetadata(client, await getLastBlock(), address);
-
         return {
             interfraces: metadata.interfaces,
             jettonMaster: metadata.jettonMaster ? {

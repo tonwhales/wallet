@@ -1,4 +1,4 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQueries, useQuery } from '@tanstack/react-query';
 import { useClient4 } from '../useClient4';
 import { useNetwork } from '../useNetwork';
 import { useHints } from './useHints';
@@ -14,14 +14,14 @@ export function useFilteredHints(owner: string, filter: (metadata: InferPromise<
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
 
-    // let metadatas = useQueries({
-    //     queries: hints.map(a => ({
-    //         queryKey: Queries.Account(a).Metadata(),
-    //         queryFn: hintsMetadataQueryFn(client, isTestnet, Address.parse(a)),
-    //     }))
-    // });
 
-    // return metadatas.filter(a => a.data && filter(a.data)).map(a => a.data!);
-    console.log(hints);
-    return [];
+    let metadatas = useQueries({
+        queries: hints.map(a => ({
+            queryKey: Queries.Account(a).Metadata(),
+            queryFn: hintsMetadataQueryFn(client, isTestnet, Address.parse(a)),
+            staleTime: Infinity,
+        }))
+    });
+
+    return metadatas.filter(a => a.data && filter(a.data)).map(a => a.data!);
 }

@@ -1,7 +1,7 @@
 export const Queries = {
     // Everything in account is invalidated futher in onAccountTouched.ts
     Account: (address: string) => ({
-        ...['account', address],
+        All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
         Metadata: () => ['account', address, 'metadata'],
         Transactions: () => ['account', address, 'transactions'],

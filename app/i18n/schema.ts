@@ -737,7 +737,8 @@ export type LocalizationSchema = {
         confirm: {
             title: string,
             message: string
-        }
+        },
+        checkRecipient: string,
     },
     logout: {
         title: string,

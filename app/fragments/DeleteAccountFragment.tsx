@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert, TextInput } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,6 +32,13 @@ import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { fetchSeqno } from "../engine/api/fetchSeqno";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ItemButton } from "../components/ItemButton";
+import { openWithInApp } from "../utils/openWithInApp";
+
+import IcDelete from '../../assets/ic-delete-red.svg';
+import IcCheckAddress from '../../assets/ic-check-recipient.svg';
+import IcSupport from '../../assets/ic-support.svg';
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -247,7 +254,7 @@ export const DeleteAccountFragment = fragment(() => {
         });
     }, [recipientString, account]);
 
-    const onContinue = React.useCallback(() => {
+    const onContinue = useCallback(() => {
         const options = [t('common.cancel'), t('deleteAccount.action')];
         const destructiveButtonIndex = 1;
         const cancelButtonIndex = 0;
@@ -272,72 +279,141 @@ export const DeleteAccountFragment = fragment(() => {
         });
     }, [onDeleteAccount, recipientString]);
 
+    const onSupport = useCallback(() => {
+        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            title: t('settings.support.title'),
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp('https://t.me/WhalesSupportBot');
+                    break;
+                case 2:
+                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                    break;
+                default:
+                    break;
+            }
+        });
+    }, []);
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            padding: 16
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <Text style={{
-                marginTop: 24,
-                fontSize: 32, lineHeight: 38,
-                fontWeight: '600',
-                color: Theme.textPrimary,
-            }}
-            >
-                {t('deleteAccount.title')}
-            </Text>
-            <Text style={{ color: Theme.textSecondary, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
-                {t('deleteAccount.description', { amount: '0.1' })}
-            </Text>
-            <View style={{
-                backgroundColor: Theme.border,
-                paddingHorizontal: 20, marginTop: 20,
-                paddingVertical: 10,
-                width: '100%', borderRadius: 20
-            }}>
+            <ScreenHeader
+                title={t('settings.deleteAccount')}
+                onBackPressed={navigation.goBack}
+            />
+            <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
                 <View style={{
-                    width: '100%',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    marginBottom: 2
+                    backgroundColor: 'rgba(255, 65, 92, 0.10)',
+                    borderRadius: 20, padding: 20,
+                    marginBottom: 16
                 }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                        {t('common.recipientAddress')}
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <IcDelete width={24} height={24} color={Theme.accentRed} />
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            marginLeft: 12,
+                            fontWeight: '600',
+                            color: Theme.accentRed,
+                        }}>
+                            {t('common.attention')}
+                        </Text>
+                    </View>
+                    <Text style={{
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '400',
+                        color: Theme.accentRed,
+                    }}>
+                        {t('logout.logoutDescription')}
                     </Text>
                 </View>
-                <TextInput
-                    style={[
-                        {
-                            paddingHorizontal: 0,
-                            textAlignVertical: 'top',
+
+                <View
+                    style={{
+                        marginBottom: 16,
+                        backgroundColor: Theme.border,
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        padding: 20,
+                    }}
+                >
+                    <View style={{
+                        flexDirection: 'row',
+                        marginBottom: 12,
+                    }}>
+                        <IcCheckAddress width={24} height={24} color={Theme.accentRed} />
+                        <Text style={{
+                            fontWeight: '600',
                             fontSize: 17, lineHeight: 24,
-                            fontWeight: '400', color: Theme.textPrimary
-                        }
-                    ]}
-                    maxLength={48}
-                    placeholder={t('common.walletAddress')}
-                    placeholderTextColor={Theme.textSecondary}
-                    multiline={true}
-                    blurOnSubmit={true}
-                    editable={true}
-                    value={recipientString}
-                    onChangeText={setRecipientString}
-                />
+                            color: Theme.textPrimary,
+                            marginLeft: 12,
+                        }}>
+                            {`${t('deleteAccount.checkRecipient')}`}
+                        </Text>
+                    </View>
+                    <View style={{
+                        backgroundColor: Theme.background,
+                        borderRadius: 16,
+                        minHeight: 68 + 10,
+                        position: 'relative',
+                        paddingVertical: 10
+                    }}>
+                        <ATextInput
+                            value={recipientString}
+                            onValueChange={setRecipientString}
+                            keyboardType={'ascii-capable'}
+                            multiline
+                            autoCorrect={false}
+                            autoComplete={'off'}
+                            textContentType={'none'}
+                            style={{
+                                minHeight: 68,
+                                margin: 0, paddingTop: 10,
+                                width: '100%', flex:1 
+                            }}
+                            inputStyle={{
+                                minHeight: 48,
+                                marginHorizontal: 0, marginVertical: 0,
+                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                paddingLeft: 0, paddingRight: 0,
+                                fontSize: 17,
+                                fontWeight: '400', color: Theme.textPrimary,
+                                textAlignVertical: 'center',
+                            }}
+                            textAlignVertical={'center'}
+                            label={t('common.recipientAddress')}
+                        />
+                    </View>
+                </View>
+                <View style={{
+                    backgroundColor: Theme.border,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<IcSupport width={24} height={24} />}
+                        title={t('settings.support.title')}
+                        onPress={onSupport}
+                    />
+                </View>
             </View>
             <View style={{ flexGrow: 1 }} />
-            <View style={{ marginBottom: safeArea.bottom }}>
+            <View style={{ marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                 <RoundButton
                     title={t('settings.deleteAccount')}
                     onPress={onContinue}
                     display={'default'}
                     style={{ marginBottom: 16 }}
-                />
-                <RoundButton
-                    title={t('common.cancel')}
-                    onPress={navigation.goBack}
-                    display={'secondary'}
                 />
             </View>
             {!!status && (status === 'deleted' || status === 'loading') && (

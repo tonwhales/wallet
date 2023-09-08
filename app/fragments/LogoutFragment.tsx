@@ -20,10 +20,10 @@ import { Address } from "ton";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
+import { openWithInApp } from "../utils/openWithInApp";
 
 import IcLogout from '../../assets/ic-alert-red.svg';
 import Support from '../../assets/ic-support.svg';
-import { openWithInApp } from "../utils/openWithInApp";
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);

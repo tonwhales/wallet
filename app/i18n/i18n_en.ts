@@ -735,7 +735,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
             message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified: {{address}}.\nPlease, check the recipient address carefully before proceeding.',
-        }
+        },
+        checkRecipient: 'Check recipient',
     },
     logout: {
         title: 'Are you sure you want to Log Out of {{name}}?',

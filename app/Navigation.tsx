@@ -67,8 +67,9 @@ import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationF
 import { useNetwork } from './engine/hooks/useNetwork';
 import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
 import { useRecoilValue } from 'recoil';
-import { appStateSelector } from './engine/state/appState';
+import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
+import { HintsPrefetcher } from './components/HintsPrefetcher';
 
 const Stack = createNativeStackNavigator();
 
@@ -198,7 +199,7 @@ const navigation = (safeArea: EdgeInsets) => [
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigationTheme = useNavigationTheme();
-    const appState = useRecoilValue(appStateSelector);
+    const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
 
     const initial = React.useMemo(() => {
@@ -315,6 +316,7 @@ export const Navigation = React.memo(() => {
                     {navigation(safeArea)}
                 </Stack.Navigator>
             </NavigationContainer>
+            <HintsPrefetcher />
             <Splash hide={hideSplash} />
         </View>
     );

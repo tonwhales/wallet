@@ -10,7 +10,7 @@ import * as FileSystem from 'expo-file-system';
 import { t } from "../../../i18n/t";
 import { Transaction } from "../Transaction";
 import { createHistorySync } from "../sync/createHistorySync";
-import { ContractMetadata } from "../metadata/Metadata";
+import { ContractMetadata } from "../../metadata/Metadata";
 import { JettonMasterState } from "../sync/startJettonMasterSync";
 import { resolveOperation } from "../transactions/resolveOperation";
 import { KnownJettonMasters } from "../../../secure/KnownWallets";

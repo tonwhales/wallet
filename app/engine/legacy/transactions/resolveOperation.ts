@@ -5,7 +5,7 @@ import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "../../../engine/legacy/transactions/parseMessageBody";
 import { Operation, OperationItem } from "./types";
 import { t } from "../../../i18n/t";
-import { ContractMetadata } from '../metadata/Metadata';
+import { ContractMetadata } from '../../metadata/Metadata';
 import { JettonMasterState } from '../sync/startJettonMasterSync';
 import { parseBody } from './parseWalletTransaction';
 

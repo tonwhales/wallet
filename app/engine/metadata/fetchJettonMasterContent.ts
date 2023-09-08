@@ -1,9 +1,9 @@
 import axios from "axios";
 import { Address } from "ton";
 import * as t from 'io-ts';
-import { imagePreview } from "../../api/fetchAppData";
+import { imagePreview } from "../api/fetchAppData";
 import { isLeft } from "fp-ts/lib/Either";
-import { JettonMasterState } from "../sync/startJettonMasterSync";
+import { JettonMasterState } from "../legacy/sync/startJettonMasterSync";
 
 const contentCodec = t.type({
     name: t.union([t.string, t.null]),

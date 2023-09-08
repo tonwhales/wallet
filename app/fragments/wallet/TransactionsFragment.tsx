@@ -7,18 +7,20 @@ import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigat
 import { getCurrentAddress } from "../../storage/appState";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { Address } from "ton";
+import { Address, RawTransaction } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
+import { useAccountTransactions } from '../../engine/hooks/useRawAccountTransactions';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 const WalletTransactions = React.memo((props: {
-    txs: { id: string, time: number }[],
-    next: { lt: string, hash: string } | null,
+    txs: RawTransaction[],
+    hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
@@ -53,14 +55,13 @@ const WalletTransactions = React.memo((props: {
                 key={s.title}
                 section={s}
                 address={props.address}
-                engine={props.engine}
                 navigation={props.navigation}
             />
         );
     }
 
     // Last
-    if (props.next) {
+    if (props.hasNext) {
         components.push(
             <View
                 key="prev-loader"
@@ -106,31 +107,21 @@ const WalletTransactions = React.memo((props: {
         >
             {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
             {components}
-            {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
+            {(Platform.OS !== 'ios' && props.hasNext) && (<View style={{ height: 64 }} />)}
         </ScrollView>
     );
 });
 
-function TransactionsComponent(props: { transactions: any }) {
+function TransactionsComponent(props: { address: Address, transactions: RawTransaction[], loadMore: () => void, }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
-    const transactions = [];
+    const { transactions, address } = props;
 
-    const onReachedEnd = React.useMemo(() => {
-        // let prev = account.next;
-        // let called = false;
-        // return () => {
-        //     if (called) {
-        //         return;
-        //     }
-        //     called = true;
-        //     if (prev) {
-        //         engine.products.main.loadMore(prev.lt, prev.hash);
-        //     }
-        // }
+    const onReachedEnd = React.useCallback(() => {
+
     }, []);
 
     return (
@@ -161,18 +152,17 @@ function TransactionsComponent(props: { transactions: any }) {
                     />
                 </View>
             )}
-            {/* {transactions.length > 0 && (
+            {transactions.length > 0 && (
                 <WalletTransactions
                     txs={transactions}
-                    next={account.next}
                     address={address}
-                    engine={engine}
                     navigation={navigation}
                     safeArea={safeArea}
                     onLoadMore={onReachedEnd}
+                    hasNext={true} // TODO: fix
                     frameArea={frameArea}
                 />
-            )} */}
+            )}
             {/* iOS Toolbar */}
             {
                 Platform.OS === 'ios' && (
@@ -255,14 +245,16 @@ function TransactionsComponent(props: { transactions: any }) {
 
 export const TransactionsFragment = fragment(() => {
     const account = useSelectedAccount();
-    const transactions = useAccountTransactions(account.addressString);
-    if (!account) {
+    const client = useClient4(useNetwork().isTestnet);
+    const transactions = useAccountTransactions(client, account.addressString);
+
+    if (!transactions) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
             </View>
         );
     } else {
-        return <TransactionsComponent transactions={transactions} />
+        return <TransactionsComponent transactions={transactions.data} fetchNext={transactions.fetchNextPage} />
     }
 }, true);

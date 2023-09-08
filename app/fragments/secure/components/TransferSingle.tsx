@@ -3,7 +3,7 @@ import React from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Order } from "../../../fragments/secure/ops/Order";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";

@@ -2,8 +2,8 @@ import { Address } from "ton";
 import { createLogger } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
-import { fetchMetadata } from "../metadata/fetchMetadata";
-import { tryGetJettonWallet } from "../metadata/introspections/tryGetJettonWallet";
+import { fetchMetadata } from "../../metadata/fetchMetadata";
+import { tryGetJettonWallet } from "../../metadata/introspections/tryGetJettonWallet";
 import { registerKnownJettonMaster, registerKnownJettonWallet } from "./ops";
 
 const logger = createLogger('hints');

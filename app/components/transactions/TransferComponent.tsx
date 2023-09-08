@@ -6,7 +6,7 @@ import Question from '../../../assets/ic_question.svg';
 import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
 import { AddressComponent } from "../AddressComponent";
 import BN from "bn.js";
-import { ContractMetadata } from "../../engine/legacy/metadata/Metadata";
+import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { fromBNWithDecimals } from "../../utils/withDecimals";

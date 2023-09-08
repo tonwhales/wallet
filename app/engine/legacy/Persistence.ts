@@ -4,7 +4,7 @@ import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
 import BN from "bn.js";
-import { ContractMetadata } from "./metadata/Metadata";
+import { ContractMetadata } from "../metadata/Metadata";
 import { PluginState } from "./sync/startPluginSync";
 import { LiteAccount } from "./sync/startAccountLiteSync";
 import { FullAccount } from "./sync/startAccountFullSync";

@@ -4,7 +4,7 @@ import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { ContractMetadata } from "../../../engine/legacy/metadata/Metadata";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";

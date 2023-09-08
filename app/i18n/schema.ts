@@ -65,7 +65,8 @@ export type LocalizationSchema = {
         reload: string,
         errorOccurred: string,
         recent: string, 
-        ok: string
+        ok: string,
+        attention: string
     },
     syncStatus: {
         connecting: string,

@@ -116,7 +116,7 @@ export const HomeFragment = fragment(() => {
 
     const onBlur = useCallback(() => {
         const status = navigation.base.getState();
-        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => r.name === 'AccountSelector' || r.name === 'Logout');
+        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => r.name === 'AccountSelector');
         if (selectorOrLogout) {
             const deviceId = DeviceInfo.getDeviceId();
             const dCurve = getDeviceScreenCurve(deviceId);

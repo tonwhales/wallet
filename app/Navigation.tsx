@@ -227,7 +227,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('AppStartAuth', AppStartAuthFragment),
 
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
-    transparentModalScreen('Logout', LogoutFragment, safeArea),
+    modalScreen('Logout', LogoutFragment, safeArea),
+    modalScreen('WalletBackupLogout', WalletBackupFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 
     // Holders

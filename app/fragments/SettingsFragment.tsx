@@ -14,6 +14,8 @@ import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
 
 import Security from '../../assets/ic-security.svg';
 import Spam from '../../assets/ic-spam.svg';
@@ -25,8 +27,6 @@ import Privacy from '../../assets/ic-privacy.svg';
 import Support from '../../assets/ic-support.svg';
 import Telegram from '../../assets/ic-tg.svg';
 import RateApp from '../../assets/ic-rate-app.svg';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
-import { useFocusEffect } from '@react-navigation/native';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

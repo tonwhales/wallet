@@ -18,6 +18,12 @@ import { getAppState, getCurrentAddress } from "../storage/appState";
 import { useAppStateManager } from "../engine/AppStateManager";
 import { Address } from "ton";
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ItemButton } from "../components/ItemButton";
+
+import IcLogout from '../../assets/ic-alert-red.svg';
+import Support from '../../assets/ic-support.svg';
+import { openWithInApp } from "../utils/openWithInApp";
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);
@@ -45,8 +51,29 @@ export const LogoutFragment = fragment(() => {
     const appState = getAppState();
     const name = wallets.useWalletSettings(acc.address)?.name ?? `${t('common.wallet')} ${appState.selected + 1}`;
 
-    const [isShown, setIsShown] = useState(false);
+    const onSupport = useCallback(() => {
+        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
 
+        showActionSheetWithOptions({
+            options,
+            title: t('settings.support.title'),
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp('https://t.me/WhalesSupportBot');
+                    break;
+                case 2:
+                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                    break;
+                default:
+                    break;
+            }
+        });
+    }, []);
+
+    const [isShown, setIsShown] = useState(false);
 
     const onLogout = useCallback(async () => {
         const currentAddress = acc.address;
@@ -115,44 +142,63 @@ export const LogoutFragment = fragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            justifyContent: 'flex-end',
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom
+            paddingBottom: safeArea.bottom,
+            backgroundColor: Theme.background
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <Pressable
-                onPress={navigation.goBack}
-                style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
+            <ScreenHeader
+                title={t('common.logout')}
+                onBackPressed={navigation.goBack}
             />
-            <View style={{
-                height: (dimentions.height / 2),
-                backgroundColor: Theme.background, borderTopEndRadius: 20, borderTopStartRadius: 20,
-                padding: 16,
-            }}>
-                <Text style={{
-                    marginTop: 24,
-                    fontSize: 32, lineHeight: 38,
-                    fontWeight: '600',
-                    color: Theme.textPrimary,
-                }}
-                >
-                    {t('logout.title', { name: name.length > 20 ? name.slice(0, 10) + '...' + name.slice(-10) : name })}
-                </Text>
-                <Text style={{ color: Theme.textSecondary, fontSize: 17, lineHeight: 24, fontWeight: '400', marginTop: 12 }}>
-                    {t('logout.logoutDescription')}
-                </Text>
+            <View style={{ paddingHorizontal: 16, flexGrow: 1, marginTop: 16 }}>
+                <View style={{
+                    backgroundColor: 'rgba(255, 65, 92, 0.10)',
+                    borderRadius: 20, padding: 20,
+                    marginBottom: 16
+                }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                        <IcLogout width={24} height={24} color={Theme.accentRed} />
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            marginLeft: 12,
+                            fontWeight: '600',
+                            color: Theme.accentRed,
+                        }}>
+                            {t('common.attention')}
+                        </Text>
+                    </View>
+                    <Text style={{
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '400',
+                        color: Theme.accentRed,
+                    }}>
+                        {t('logout.logoutDescription')}
+                    </Text>
+                </View>
+                <View style={{
+                    backgroundColor: Theme.border,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<Support width={24} height={24} />}
+                        title={t('settings.support.title')}
+                        onPress={onSupport}
+                    />
+                    <ItemButton
+                        leftIcon={require('../../assets/ic-backup.png')}
+                        title={t('settings.backupKeys')}
+                        onPress={() => navigation.navigate('WalletBackupLogout', { back: true })}
+                    />
+                </View>
                 <View style={{ flexGrow: 1 }} />
-                <View style={{ marginBottom: 16 + safeArea.bottom }}>
+                <View style={{ marginBottom: 16 }}>
                     <RoundButton
                         title={t('common.logout')}
                         onPress={showLogoutActSheet}
                         display={'default'}
                         style={{ marginBottom: 16 }}
-                    />
-                    <RoundButton
-                        title={t('common.cancel')}
-                        onPress={navigation.goBack}
-                        display={'secondary'}
                     />
                 </View>
             </View>

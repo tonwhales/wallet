@@ -65,6 +65,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         errorOccurred: 'Произошла ошибка: {{error}}',
         recent: 'Недавние',
         ok: 'Ок',
+        attention: 'Внимание',
     },
     syncStatus: {
         connecting: 'Идет подключение',

@@ -17,7 +17,7 @@ import { warn } from '../../utils/log';
 import { MnemonicsView } from '../../components/MnemonicsView';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
-import { useScreenHeader } from '../../components/ScreenHeader';
+import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -29,6 +29,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
     const route = useRoute();
     const init = route.name === 'WalletBackupInit';
+    const logout = route.name === 'WalletBackupLogout';
     const reboot = useReboot();
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = useState<string[] | null>(null);
@@ -54,6 +55,11 @@ export const WalletBackupFragment = systemFragment(() => {
     }, [engine, address]);
 
     useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigate('ScreenCapture');
+        });
+
         (async () => {
             try {
                 let keys = await authContext.authenticate({ backgroundColor: Theme.surfacePimary, cancelable: false });
@@ -67,7 +73,8 @@ export const WalletBackupFragment = systemFragment(() => {
         // Keeping screen in awakened state
         activateKeepAwakeAsync('WalletBackupFragment');
         return function deactivate() {
-            deactivateKeepAwake('WalletBackupFragment')
+            subscription?.remove();
+            deactivateKeepAwake('WalletBackupFragment');
         };
     }, []);
 
@@ -76,19 +83,13 @@ export const WalletBackupFragment = systemFragment(() => {
         Theme,
         {
             title: !init ? t('create.backupTitle') : '',
-            headerShown: true,
+            headerShown: !logout,
             tintColor: Theme.accent,
         }
     );
 
     useEffect(() => {
-        let subscription: ScreenCapture.Subscription;
-        subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigate('ScreenCapture');
-        });
-        return () => {
-            subscription?.remove();
-        };
+
     }, []);
 
     useFocusEffect(() => {
@@ -113,6 +114,12 @@ export const WalletBackupFragment = systemFragment(() => {
             key={"content"}
         >
             <StatusBar style={'dark'} />
+            {logout && (
+                <ScreenHeader
+                    title={t('common.logout')}
+                    onBackPressed={navigation.goBack}
+                />
+            )}
             <ScrollView
                 alwaysBounceVertical={false}
                 showsVerticalScrollIndicator={false}

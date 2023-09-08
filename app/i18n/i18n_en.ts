@@ -64,6 +64,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         errorOccurred: 'Error occurred: {{error}}', 
         recent: 'Recent',
         ok: 'OK',
+        attention: 'Attention',
     },
     syncStatus: {
         connecting: 'Connecting',

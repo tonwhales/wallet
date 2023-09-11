@@ -591,7 +591,7 @@ export const SimpleTransferFragment = fragment(() => {
                     ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: resetInput,
+                    onBackPressed: refs[0]?.current?.focus,
                     title: t('common.recipient'),
                     titleComponent: undefined,
                     rightButton: saveButton
@@ -604,7 +604,7 @@ export const SimpleTransferFragment = fragment(() => {
                 selected: 'comment',
                 onNext: resetInput,
                 header: {
-                    onBackPressed: resetInput,
+                    onBackPressed: refs[1]?.current?.focus,
                     ...headertitle,
                     rightButton: saveButton
                 }

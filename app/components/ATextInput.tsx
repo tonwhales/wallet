@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, useWindowDimensions } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
-import Animated, { Layout, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
+import Animated, { Layout, cancelAnimation, interpolate, measure, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -105,7 +105,7 @@ export interface ATextInputProps {
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     index?: number,
-    label?: any,
+    label?: string,
     backgroundColor?: string,
     textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
     suffux?: string,
@@ -113,9 +113,12 @@ export interface ATextInputProps {
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
+    const dimentions = useWindowDimensions();
     const { Theme } = useAppConfig();
+    const [focused, setFocused] = useState(false);
 
     const onFocus = useCallback(() => {
+        setFocused(true);
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
@@ -126,6 +129,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         }
     }, [props.index]);
     const onBlur = useCallback(() => {
+        setFocused(false);
         if (props.onBlur && typeof props.index === 'number') {
             props.onBlur(props.index);
         }
@@ -145,6 +149,14 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     const withLabel = !!props.label;
     const valueNotEmpty = (props.value?.length || 0) > 0;
 
+    const availableWidth = dimentions.width;
+    const maxChars = Math.floor(availableWidth / 10);
+    const labelHeight = useSharedValue(maxChars < (props.label?.length || 0) ? 36 : 18);
+
+    useLayoutEffect(() => {
+        labelHeight.value = maxChars < (props.label?.length || 0) ? 36 : 18;
+    }, [props.label, focused]);
+
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
             transform: [
@@ -157,20 +169,22 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
 
     const labelShiftStyle = useAnimatedStyle(() => {
         return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, 8]),
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value === 18 ? 8 : 28]),
         }
     });
 
     const inputHeightCompensatorStyle = useAnimatedStyle(() => {
         return {
-            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, -8])
+            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value === 18 ? -8 : -6])
         }
     });
 
     useEffect(() => {
         cancelAnimation(valueNotEmptyShared);
         valueNotEmptyShared.value = withTiming(withLabel && valueNotEmpty ? 1 : 0, { duration: 100 });
-    }, [withLabel, valueNotEmpty]);
+    }, [withLabel, valueNotEmpty, focused]);
+
+    console.log(labelHeight.value);
 
     return (
         <Pressable
@@ -185,22 +199,22 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     paddingHorizontal: 16,
                     flexDirection: 'row',
                     alignItems: 'center',
-                    position: 'relative'
+                    position: 'relative',
                 },
                 props.style
             ]}>
                 <View style={{ width: '100%', flex: 1 }}>
                     {withLabel && (
-                        <View style={{
-                            position: 'absolute', top: 0, right: 0, left: 0,
-                        }}>
+                        <View style={{ position: 'absolute', top: 0, right: 0, left: 0 }}>
                             <Animated.View
                                 style={[labelAnimStyle]}
                             >
-                                <Text style={{
-                                    color: Theme.textSecondary,
-                                    fontSize: 17, fontWeight: '400'
-                                }}>
+                                <Text
+                                    style={{
+                                        color: Theme.textSecondary,
+                                        fontSize: 17,
+                                        fontWeight: '400'
+                                    }}>
                                     {props.label}
                                 </Text>
                             </Animated.View>
@@ -208,7 +222,11 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     )}
                     <Animated.View style={labelShiftStyle} />
                     <View
-                        style={[{ flex: 1, flexGrow: 1, flexDirection: 'row', alignItems: 'center', }]}
+                        style={[{
+                            flex: 1, flexGrow: 1,
+                            flexDirection: 'row',
+                            alignItems: 'center'
+                        }]}
                         ref={props.innerRef}
                     >
                         <TextInput
@@ -227,6 +245,8 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 },
                                 props.inputStyle
                             ]}
+                            selectionColor={Theme.textPrimary}
+                            cursorColor={Theme.textPrimary}
                             textAlign={props.textAlign}
                             autoFocus={props.autoFocus}
                             placeholderTextColor={Theme.textSecondary}

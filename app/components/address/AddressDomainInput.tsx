@@ -139,18 +139,20 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const label = useMemo(() => {
         let text = t('common.domainOrAddressOrContact');
 
-        if (!isKnown && contact && !resolvedAddress && !resolving && !focused) {
+        if (!isKnown && contact && !resolvedAddress && !resolving) {
             text += ` • ${contact.name}`;
         }
 
-        if (isKnown && target && !resolvedAddress && !resolving && !focused) {
+        if (isKnown && target && !resolvedAddress && !resolving) {
             text += ` • ${KnownWallets(AppConfig.isTestnet)[target].name}`;
         }
 
         // TODO: add address resolving progress
         if (resolvedAddress && !resolving && !AppConfig.isTestnet) {
             text += ' • ';
-            text += <AddressComponent start={4} address={resolvedAddress} />;
+            const t = resolvedAddress.toFriendly({ testOnly: AppConfig.isTestnet });
+            t.slice(0, 4) + '...' + t.slice(t.length - 4)
+            text += t;
         }
 
         return text;
@@ -189,7 +191,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
             blurOnSubmit={false}
             editable={!resolving}
             enabled={!resolving}
-            inputStyle={inputStyle}
+            inputStyle={[inputStyle, { marginLeft: (focused && input.length === 0) ? 0 : -2 }]}
             textAlignVertical={'center'}
             actionButtonRight={
                 input.length === 0

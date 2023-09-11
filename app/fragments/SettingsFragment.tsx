@@ -14,7 +14,7 @@ import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 
 import Security from '../../assets/ic-security.svg';

@@ -1,10 +1,10 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
@@ -411,19 +411,6 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = useCallback((index: number) => {
-        runOnUI(scrollToInput)(index);
-        setSelectedInput(index);
-    }, []);
-
-    const onSubmit = useCallback((index: number) => {
-        setSelectedInput(null);
-    }, []);
-
-    const onBlur = useCallback((index: number) => {
-        setSelectedInput(null);
-    }, []);
-
     const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
         if (selected) {
             setJetton(selected.wallet);
@@ -498,94 +485,169 @@ export const SimpleTransferFragment = fragment(() => {
         })
     }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
 
-    const resetInput = () => {
+    const onFocus = useCallback((index: number) => {
+        setSelectedInput(index);
+    }, []);
+
+    const onSubmit = useCallback((index: number) => {
+        setSelectedInput(null);
+    }, []);
+
+    const resetInput = useCallback(() => {
         Keyboard.dismiss();
         setSelectedInput(null);
-    };
+    }, []);
 
-    const [selected, inputContinue, header] = useMemo(() => {
+    const { selected, onNext, header } = useMemo<{
+        selected: 'amount' | 'address' | 'comment' | null,
+        onNext: (() => void) | null,
+        header: {
+            onBackPressed?: () => void,
+            title?: string,
+            rightButton?: React.ReactNode,
+            titleComponent?: React.ReactNode,
+        }
+    }>(() => {
 
         if (selectedInput === null) {
-            return [
-                null, null,
-                {
+            return {
+                selected: null,
+                onNext: null,
+                header: {
                     title: t('transfer.title'),
                     onBackPressed: navigation.goBack
                 }
-            ];
+            }
         }
 
         const addressFriendly = targetAddressValid?.address.toFriendly({ testOnly: AppConfig.isTestnet });
 
+        const saveButton = (
+            <Pressable
+                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginRight: 16 })}
+                onPress={resetInput}
+            >
+                <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17, lineHeight: 24 }}>
+                    {t('common.save')}
+                </Text>
+            </Pressable>
+        );
+
         const headertitle = addressFriendly
             ? {
-                titleComponent: <View style={{
-                    backgroundColor: Theme.border,
-                    borderRadius: 100,
-                    maxWidth: '70%',
-                    flexDirection: 'row',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    paddingLeft: 6, paddingRight: 12,
-                    paddingVertical: 6
-                }}>
-                    <Avatar
-                        size={24}
-                        id={addressFriendly}
-                        address={addressFriendly}
-                        borderWith={0}
-                    />
-                    <Text style={{
-                        fontSize: 17, lineHeight: 24,
-                        color: Theme.textPrimary,
-                        fontWeight: '500',
-                        marginLeft: 6,
-                        minHeight: 24
-                    }}>
-                        {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
-                    </Text>
-                </View>
+                titleComponent: (
+                    <Animated.View
+                        entering={FadeInDown} exiting={FadeOutDown}
+                        style={{
+                            backgroundColor: Theme.border,
+                            borderRadius: 100,
+                            maxWidth: '70%',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingLeft: 6, paddingRight: 12,
+                            paddingVertical: 6
+                        }}
+                    >
+                        <Avatar
+                            size={24}
+                            id={addressFriendly}
+                            address={addressFriendly}
+                            borderWith={0}
+                        />
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            color: Theme.textPrimary,
+                            fontWeight: '500',
+                            marginLeft: 6,
+                            minHeight: 24
+                        }}>
+                            {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
+                        </Text>
+                    </Animated.View>
+                )
             }
             : {
                 title: t('transfer.title'),
             }
 
         if (selectedInput === 0) {
-            return [
-                'amount',
-                (validAmount && !amountError) ? resetInput : undefined,
-                {
+            return {
+                selected: 'amount',
+                onNext: (validAmount && !amountError)
+                    ? () => refs[1]?.current?.focus()
+                    : null,
+                header: {
                     onBackPressed: resetInput,
                     ...headertitle
                 }
-            ];
+            }
         }
 
         if (selectedInput === 1) {
-            return [
-                'address',
-                !!targetAddressValid ? resetInput : null,
-                {
+            return {
+                selected: 'address',
+                onNext: !!targetAddressValid
+                    ? () => refs[2]?.current?.focus()
+                    : null,
+                header: {
                     onBackPressed: resetInput,
                     title: t('common.recipient'),
-                    titleComponent: undefined
+                    titleComponent: undefined,
+                    rightButton: saveButton
                 }
-            ];
+            }
         }
 
         if (selectedInput === 2) {
-            return [
-                'comment',
-                resetInput,
-                {
+            return {
+                selected: 'comment',
+                onNext: resetInput,
+                header: {
                     onBackPressed: resetInput,
-                    ...headertitle
+                    ...headertitle,
+                    rightButton: saveButton
                 }
-            ];
+            }
         }
 
-        return [null, null, { onBackPressed: navigation.goBack, ...headertitle }];
+        // Default
+        return { selected: null, onNext: null, header: { onBackPressed: navigation.goBack, ...headertitle } };
     }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
+
+    const seletectInputStyles = useMemo<{
+        amount: StyleProp<ViewStyle>,
+        address: StyleProp<ViewStyle>,
+        comment: StyleProp<ViewStyle>,
+    }>(() => {
+        switch (selected) {
+            case 'amount':
+                return {
+                    amount: { position: 'absolute', top: 0, left: 0, right: 0 },
+                    address: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                }
+            case 'address':
+                return {
+                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    address: { position: 'absolute', top: 16, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                }
+
+            case 'comment':
+                return {
+                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    address: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: 0, left: 0, right: 0 },
+                }
+            default:
+                return {
+                    amount: {},
+                    address: {},
+                    comment: {}
+                }
+        }
+    }, [selected]);
 
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
@@ -594,287 +656,280 @@ export const SimpleTransferFragment = fragment(() => {
                 title={header.title}
                 onBackPressed={header?.onBackPressed}
                 titleComponent={header.titleComponent}
+                rightButton={header.rightButton}
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom - 16) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
                 keyboardDismissMode={'none'}
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
-                scrollEventThrottle={16}
             >
                 <View
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
-                    {(!selected || selected === 'amount') && (
-                        <Animated.View layout={Layout.duration(300)}>
-                            <View
-                                style={{
-                                    backgroundColor: Theme.border,
-                                    borderRadius: 20, padding: 20, marginTop: 16
-                                }}
-                            >
-                                <Pressable
-                                    style={({ pressed }) => {
-                                        return { opacity: pressed ? 0.5 : 1 }
-                                    }}
-                                    onPress={() => {
-                                        navigation.navigate('Assets', { callback: onAssetSelected, selectedJetton: jettonState?.master });
-                                    }}
-                                >
-                                    <View style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'space-between'
-                                    }}>
-                                        <View style={{
-                                            flexDirection: 'row',
-                                        }}>
-                                            <View style={{ height: 46, width: 46, justifyContent: 'center', alignItems: 'center', marginRight: 12 }}>
-                                                {!!jettonState && (
-                                                    <WImage
-                                                        src={jettonState.master.image?.preview256}
-                                                        blurhash={jettonState.master.image?.blurhash}
-                                                        width={46}
-                                                        heigh={46}
-                                                        borderRadius={23}
-                                                        lockLoading
-                                                    />
-                                                )}
-                                                {!jettonState && (
-                                                    <TonIcon width={46} height={46} />
-                                                )}
-                                                {isVerified && (
-                                                    <Verified
-                                                        height={16} width={16}
-                                                        style={{
-                                                            height: 16, width: 16,
-                                                            position: 'absolute', right: -2, bottom: -2,
-                                                        }}
-                                                    />
-                                                )}
-                                            </View>
-                                            <View style={{ justifyContent: 'space-between' }}>
-                                                <Text style={{
-                                                    fontSize: 17,
-                                                    color: Theme.textPrimary,
-                                                    fontWeight: '600',
-                                                    lineHeight: 24
-                                                }}>
-                                                    {`${jettonState?.master.symbol ?? 'TON'}`}
-                                                </Text>
-                                                <Text
-                                                    style={{
-                                                        fontSize: 15,
-                                                        fontWeight: '400',
-                                                        lineHeight: 20,
-                                                        color: Theme.textSecondary,
-                                                    }}
-                                                    selectable={false}
-                                                    ellipsizeMode={'middle'}
-                                                >
-                                                    {`${jettonState?.master.description ?? 'The Open Network'}`}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
-                                    </View>
-                                </Pressable>
-                            </View>
-                            <View
-                                style={{
-                                    marginTop: 16,
-                                    marginBottom: amountError ? 0 : 16,
-                                    backgroundColor: Theme.border,
-                                    borderRadius: 20,
-                                    justifyContent: 'center',
-                                    padding: 20
-                                }}
+                    <Animated.View
+                        layout={Layout.duration(300)}
+                        style={seletectInputStyles.amount}
+                    >
+                        <View
+                            style={{
+                                backgroundColor: Theme.border,
+                                borderRadius: 20, padding: 20, marginTop: 16
+                            }}
+                        >
+                            <Pressable
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                onPress={() => navigation.navigate(
+                                    'Assets',
+                                    { callback: onAssetSelected, selectedJetton: jettonState?.master }
+                                )}
                             >
                                 <View style={{
                                     flexDirection: 'row',
-                                    marginBottom: 12,
+                                    alignItems: 'center',
                                     justifyContent: 'space-between'
                                 }}>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 15, lineHeight: 20,
-                                        color: Theme.textSecondary,
+                                    <View style={{
+                                        flexDirection: 'row',
                                     }}>
-
-                                        {`${t('common.balance')}: `}
-                                        <ValueComponent
-                                            precision={4}
-                                            value={balance}
-                                            centFontStyle={{ opacity: 0.5 }}
-                                            decimals={jettonState ? jettonState.master.decimals : undefined}
-                                        />
-                                        {jettonState ? ` ${jettonState.master.symbol}` : ''}
-                                    </Text>
-                                    <Pressable
-                                        style={({ pressed }) => {
-                                            return {
-                                                opacity: pressed ? 0.5 : 1
-                                            }
-                                        }}
-                                        onPress={onAddAll}
-                                    >
-                                        <Text style={{
-                                            fontWeight: '500',
-                                            fontSize: 15, lineHeight: 20,
-                                            color: Theme.accent,
+                                        <View style={{
+                                            height: 46, width: 46,
+                                            justifyContent: 'center', alignItems: 'center',
+                                            marginRight: 12
                                         }}>
-                                            {t('transfer.sendAll')}
-                                        </Text>
-                                    </Pressable>
+                                            {!!jettonState && (
+                                                <WImage
+                                                    src={jettonState.master.image?.preview256}
+                                                    blurhash={jettonState.master.image?.blurhash}
+                                                    width={46}
+                                                    heigh={46}
+                                                    borderRadius={23}
+                                                    lockLoading
+                                                />
+                                            )}
+                                            {!jettonState && (<TonIcon width={46} height={46} />)}
+                                            {isVerified && (
+                                                <Verified
+                                                    height={16} width={16}
+                                                    style={{
+                                                        height: 16, width: 16,
+                                                        position: 'absolute', right: -2, bottom: -2,
+                                                    }}
+                                                />
+                                            )}
+                                        </View>
+                                        <View style={{ justifyContent: 'space-between' }}>
+                                            <Text style={{
+                                                fontSize: 17,
+                                                color: Theme.textPrimary,
+                                                fontWeight: '600',
+                                                lineHeight: 24
+                                            }}>
+                                                {`${jettonState?.master.symbol ?? 'TON'}`}
+                                            </Text>
+                                            <Text
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '400',
+                                                    lineHeight: 20,
+                                                    color: Theme.textSecondary,
+                                                }}
+                                                selectable={false}
+                                                ellipsizeMode={'middle'}
+                                            >
+                                                {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
                                 </View>
-                                <ATextInput
-                                    index={0}
-                                    autoFocus={selected === 'amount'}
-                                    ref={refs[0]}
-                                    onFocus={onFocus}
-                                    value={amount}
-                                    onValueChange={setAmount}
-                                    keyboardType={'numeric'}
-                                    style={{
-                                        backgroundColor: Theme.background,
-                                        paddingHorizontal: 16, paddingVertical: 14,
-                                        borderRadius: 16,
-                                    }}
-                                    inputStyle={{
-                                        fontSize: 17,
-                                        fontWeight: '400',
-                                        paddingTop: 0, paddingBottom: 0,
-                                        paddingStart: 0, paddingEnd: 0,
-                                        textAlignVertical: 'top',
-                                        color: amountError ? Theme.accentRed : Theme.textPrimary,
-                                        flexShrink: 1
-                                    }}
-                                    onBlur={onBlur}
-                                    suffux={priceText}
-                                    prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
-                                />
-                            </View>
-                            {amountError && (
-                                <Animated.View entering={FadeIn} exiting={FadeOut}>
-                                    <Text style={{
-                                        color: Theme.accentRed,
-                                        fontSize: 13,
-                                        lineHeight: 18,
-                                        marginTop: 8,
-                                        marginBottom: 16,
-                                        marginLeft: 20,
-                                        fontWeight: '400'
-                                    }}>
-                                        {amountError}
-                                    </Text>
-                                </Animated.View>
-                            )}
-                        </Animated.View>
-                    )}
-                    {(!selected || selected === 'address') && (
-                        <Animated.View
-                            layout={Layout.duration(300)}
+                            </Pressable>
+                        </View>
+                        <View
                             style={{
-                                marginTop: selectedInput === 1 ? 16 : 0
+                                marginTop: 16,
+                                marginBottom: amountError ? 0 : 16,
+                                backgroundColor: Theme.border,
+                                borderRadius: 20,
+                                justifyContent: 'center',
+                                padding: 20
                             }}
                         >
-                            <AddressDomainInput
-                                autoFocus={selected === 'address'}
-                                input={addressDomainInput}
-                                onInputChange={setAddressDomainInput}
-                                target={target}
-                                index={1}
-                                ref={refs[1]}
-                                onFocus={onFocus}
-                                onTargetChange={setTarget}
-                                onDomainChange={setDomain}
-                                style={{
-                                    margin: 0, padding: 20,
-                                    paddingHorizontal: 20,
-                                    backgroundColor: Theme.border,
-                                }}
-                                inputStyle={{
-                                    flexShrink: 1,
-                                    marginHorizontal: 0, marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    paddingLeft: 0, paddingRight: 0,
-                                    fontSize: 17,
-                                    fontWeight: '400', color: Theme.textPrimary,
-                                    textAlignVertical: 'center',
-                                }}
-                                isKnown={isKnown}
-                                onSubmit={onSubmit}
-                                contact={contact}
-                                onQRCodeRead={onQRCodeRead}
-                                onBlur={onBlur}
-                                invalid={!targetAddressValid}
-                            />
-                            {selected === 'address' && (
-                                <Animated.View
-                                    style={{ marginTop: 32 }}
-                                    entering={FadeIn} exiting={FadeOut}
-                                >
-                                    <AddressSearch
-                                        onSelect={(address) => {
-                                            setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                            setTarget(address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                            resetInput();
-                                        }}
-                                        query={addressDomainInput}
+                            <View style={{
+                                flexDirection: 'row',
+                                marginBottom: 12,
+                                justifyContent: 'space-between'
+                            }}>
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 15, lineHeight: 20,
+                                    color: Theme.textSecondary,
+                                }}>
+                                    {`${t('common.balance')}: `}
+                                    <ValueComponent
+                                        precision={4}
+                                        value={balance}
+                                        centFontStyle={{ opacity: 0.5 }}
+                                        decimals={jettonState ? jettonState.master.decimals : undefined}
                                     />
-                                </Animated.View>
-                            )}
-                        </Animated.View>
-                    )}
-                    {(!selected || selected === 'comment') && (
-                        <Animated.View style={{ marginTop: 16 }} layout={Layout.duration(300)}>
+                                    {jettonState ? ` ${jettonState.master.symbol}` : ''}
+                                </Text>
+                                <Pressable
+                                    style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                    onPress={onAddAll}
+                                >
+                                    <Text style={{
+                                        fontWeight: '500',
+                                        fontSize: 15, lineHeight: 20,
+                                        color: Theme.accent,
+                                    }}>
+                                        {t('transfer.sendAll')}
+                                    </Text>
+                                </Pressable>
+                            </View>
                             <ATextInput
-                                value={comment}
-                                autoFocus={selected === 'comment'}
-                                index={2}
-                                ref={refs[2]}
+                                index={0}
+                                ref={refs[0]}
                                 onFocus={onFocus}
-                                onValueChange={setComment}
-                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                                keyboardType={'default'}
-                                autoCapitalize={'sentences'}
-                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                value={amount}
+                                onValueChange={setAmount}
+                                keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: Theme.border,
-                                    padding: 20, paddingHorizontal: 20,
+                                    backgroundColor: Theme.background,
+                                    paddingHorizontal: 16, paddingVertical: 14,
+                                    borderRadius: 16,
                                 }}
                                 inputStyle={{
-                                    flexShrink: 1,
-                                    marginHorizontal: 0, marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    paddingLeft: 0, paddingRight: 0,
                                     fontSize: 17,
-                                    fontWeight: '400', color: Theme.textPrimary,
-                                    textAlignVertical: 'center',
+                                    fontWeight: '400',
+                                    paddingTop: 0, paddingBottom: 0,
+                                    paddingStart: 0, paddingEnd: 0,
+                                    textAlignVertical: 'top',
+                                    color: amountError ? Theme.accentRed : Theme.textPrimary,
+                                    flexShrink: 1
                                 }}
-                                multiline
-                                onBlur={onBlur}
+                                suffux={priceText}
+                                prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                             />
-                            {selected === 'comment' && (
-                                <Animated.View layout={Layout.duration(300)}>
-                                    <Text style={{
-                                        color: Theme.textSecondary,
-                                        fontSize: 13, lineHeight: 18,
-                                        fontWeight: '400',
-                                        paddingHorizontal: 16,
-                                        marginTop: 2
-                                    }}>
-                                        {t('transfer.commentDescription')}
-                                    </Text>
-                                </Animated.View>
-                            )}
-                        </Animated.View>
-                    )}
+                        </View>
+                        {amountError && (
+                            <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                <Text style={{
+                                    color: Theme.accentRed,
+                                    fontSize: 13,
+                                    lineHeight: 18,
+                                    marginTop: 8,
+                                    marginBottom: 16,
+                                    marginLeft: 20,
+                                    fontWeight: '400'
+                                }}>
+                                    {amountError}
+                                </Text>
+                            </Animated.View>
+                        )}
+                    </Animated.View>
+                    <Animated.View
+                        layout={Layout.duration(300)}
+                        style={seletectInputStyles.address}
+                    >
+                        <AddressDomainInput
+                            input={addressDomainInput}
+                            onInputChange={setAddressDomainInput}
+                            target={target}
+                            index={1}
+                            ref={refs[1]}
+                            onFocus={onFocus}
+                            onTargetChange={setTarget}
+                            onDomainChange={setDomain}
+                            style={{
+                                margin: 0, padding: 20,
+                                paddingHorizontal: 20,
+                                backgroundColor: Theme.border,
+                            }}
+                            inputStyle={{
+                                flexShrink: 1,
+                                marginHorizontal: 0, marginVertical: 0,
+                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                paddingLeft: 0, paddingRight: 0,
+                                fontSize: 17,
+                                fontWeight: '400', color: Theme.textPrimary,
+                                textAlignVertical: 'center',
+                            }}
+                            isKnown={isKnown}
+                            onSubmit={onSubmit}
+                            contact={contact}
+                            onQRCodeRead={onQRCodeRead}
+                            invalid={!targetAddressValid}
+                        />
+                        {selected === 'address' && (
+                            <Animated.View
+                                style={{ marginTop: 32 }}
+                                entering={FadeIn} exiting={FadeOut}
+                            >
+                                <AddressSearch
+                                    onSelect={(address) => {
+                                        setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                        setTarget(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                        refs[2]?.current?.focus();
+                                    }}
+                                    query={addressDomainInput}
+                                />
+                            </Animated.View>
+                        )}
+                    </Animated.View>
+                    <Animated.View
+                        layout={Layout.duration(300)}
+                        style={[
+                            {
+                                marginTop: 16,
+                                backgroundColor: Theme.background,
+                            },
+                            seletectInputStyles.comment
+                        ]}
+                    >
+                        <ATextInput
+                            value={comment}
+                            index={2}
+                            ref={refs[2]}
+                            onFocus={onFocus}
+                            onValueChange={setComment}
+                            placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                            keyboardType={'default'}
+                            autoCapitalize={'sentences'}
+                            label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                            style={{
+                                backgroundColor: Theme.border,
+                                padding: 20, paddingHorizontal: 20,
+                            }}
+                            inputStyle={{
+                                flexShrink: 1,
+                                marginHorizontal: 0, marginVertical: 0,
+                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                paddingLeft: 0, paddingRight: 0,
+                                fontSize: 17,
+                                fontWeight: '400', color: Theme.textPrimary,
+                                textAlignVertical: 'center',
+                            }}
+                            multiline
+                        />
+                        {selected === 'comment' && (
+                            <Animated.View layout={Layout.duration(300)}>
+                                <Text style={{
+                                    color: Theme.textSecondary,
+                                    fontSize: 13, lineHeight: 18,
+                                    fontWeight: '400',
+                                    paddingHorizontal: 16,
+                                    marginTop: 2
+                                }}>
+                                    {t('transfer.commentDescription')}
+                                </Text>
+                            </Animated.View>
+                        )}
+                    </Animated.View>
                     {selectedInput === null && (
                         <Animated.View layout={Layout.duration(300)}>
                             <Text
@@ -900,9 +955,9 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 {!!selected
                     ? <RoundButton
-                        title={t('common.continue')}
-                        disabled={!inputContinue}
-                        onPress={inputContinue ? inputContinue : undefined}
+                        title={selected === 'comment' ? t('common.done') : t('common.continue')}
+                        disabled={!onNext}
+                        onPress={onNext ? onNext : undefined}
                     />
                     : <RoundButton
                         disabled={!order}

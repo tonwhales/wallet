@@ -66,6 +66,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         recent: 'Недавние',
         ok: 'Ок',
         attention: 'Внимание',
+        save: 'Сохранить',
     },
     syncStatus: {
         connecting: 'Идет подключение',

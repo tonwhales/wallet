@@ -136,12 +136,12 @@ export function parseWalletTransaction(tx: StoredTransaction, own: string, isTes
     }
 
     const mentioned = new Set<string>();
-    if (tx.inMessage && tx.inMessage.info.type === 'internal' && tx.inMessage.info.src === own) {
+    if (tx.inMessage && tx.inMessage.info.type === 'internal' && tx.inMessage.info.src !== own) {
         mentioned.add(tx.inMessage.info.src);
     }
     for (let out of tx.outMessages) {
-        if (out.info.dest && Address.isAddress(out.info.dest) && out.info.dest !== own) {
-            mentioned.add(out.info.dest.toFriendly({ testOnly: isTestnet }));
+        if (out.info.dest && typeof out.info.dest === 'string' && out.info.dest !== own) {
+            mentioned.add(out.info.dest);
         }
     }
 

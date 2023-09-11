@@ -9,9 +9,13 @@ import { fetchJettonMasterContent } from '../metadata/fetchJettonMasterContent';
 import { Address, TonClient4 } from 'ton';
 import { queryClient } from '../clients';
 import { StoredContractMetadata } from '../metadata/StoredMetadata';
+import { log } from '../../utils/log';
 
-export function hintsMetadataQueryFn(client: TonClient4, isTestnet: boolean, address: Address) {
+export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
+        log('[contract-metadata] fetching ' + addressString);
+
+        let address = Address.parse(addressString);
         let metadata = await fetchMetadata(client, await getLastBlock(), address);
         return {
             jettonMaster: metadata.jettonMaster ? {
@@ -33,6 +37,7 @@ export function hintsMetadataQueryFn(client: TonClient4, isTestnet: boolean, add
 
 export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
     return async () => {
+        log('[jetton-master-content-query] fetching ' + master);
         let address = Address.parse(master);
         return {
             ...await fetchJettonMasterContent(address, isTestnet),
@@ -55,7 +60,7 @@ export function usePrefetchHints(address: string) {
                 if (!result) {
                     result = await queryClient.fetchQuery({
                         queryKey: Queries.Account(hint).Metadata(),
-                        queryFn: hintsMetadataQueryFn(client, isTestnet, hintAddress),
+                        queryFn: contractMetadataQueryFn(client, isTestnet, hint),
                     });
                 }
 

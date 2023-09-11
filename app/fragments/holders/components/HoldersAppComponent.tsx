@@ -231,8 +231,8 @@ export const HoldersAppComponent = React.memo((
         }
 
         return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders${Theme.style === 'dark' ? '-dark' : ''}`,
+            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
         };
     }, [props, lang, currency, status, Theme]);
 

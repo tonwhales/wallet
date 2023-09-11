@@ -274,7 +274,7 @@ export function TransactionView(props: {
                             }
                         </Text>
                     </View>
-                    <View>
+                    <View style={{ alignItems: 'flex-end' }}>
                         {parsed.status === 'failed' ? (
                             <Text style={{ color: Theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}
@@ -309,15 +309,17 @@ export function TransactionView(props: {
                                 prefix={tx.base.kind === 'in' ? '+' : '-'}
                                 style={{
                                     height: undefined,
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0, paddingVertical: 0,
+                                    paddingRight: 0, paddingLeft: 0,
                                     alignSelf: 'flex-end',
                                 }}
-                                textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                textStyle={{
+                                    color: Theme.textSecondary,
+                                    fontWeight: '400',
+                                    fontSize: 15, lineHeight: 20
+                                }}
                             />
-                        )}
-                        {item.kind === 'token' && (
-                            <View style={{ flexGrow: 1 }} />
                         )}
                     </View>
                 </View>

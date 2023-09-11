@@ -3,6 +3,9 @@ import { useRawAccountTransactions } from './useRawAccountTransactions';
 import BN from 'bn.js';
 import { ContractMetadata } from '../metadata/Metadata';
 import { JettonMasterState } from '../legacy/sync/startJettonMasterSync';
+import { resolveOperation } from '../transactions/resolveOperation';
+import { parseWalletTransaction } from '../transactions/parseWalletTransaction';
+import { useNetwork } from './useNetwork';
 
 
 export type TxBody = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
@@ -60,6 +63,7 @@ export type TransactionDescription = {
 
 export function useAccountTransactions(client: TonClient4, account: string): { data: TransactionDescription[], next: () => void, } | null {
     let raw = useRawAccountTransactions(client, account);
+    const { isTestnet } = useNetwork();
 
     if (!raw) {
         return null;
@@ -67,39 +71,24 @@ export function useAccountTransactions(client: TonClient4, account: string): { d
 
     let rawTxs = raw.data.pages.flat();
 
-    let txs = rawTxs.map<TransactionDescription>(raw => ({
-        id: `${raw.lt}_${raw.hash}`,
-        base: {
-            lt: raw.lt,
-            hash: Buffer.from(raw.hash, 'base64'),
-            address: Address.parse(raw.address),
-            kind: raw.inMessage ? 'in' : 'out',
-            time: raw.time,
-            fees: new BN(raw.fees),
-            amount: new BN(raw.inMessage?.value ?? '0').sub(raw.outMessages.reduce((acc, a) => acc.add(new BN(a.value)), new BN(0))),
-            body: null,
-            bounced: false,
-            mentioned: [],
-            prev: {
-                hash: raw.prevTransaction.hash,
-                lt: raw.prevTransaction.lt,
-            },
-            seqno: 0,
-            status: 'success',
-        },
-        icon: null,
-        masterMetadata: null,
-        metadata: null,
-        operation: {
-            address: Address.parse(raw.address),
-            items: [{
-                amount: new BN(0),
-                decimals: 9,
-                kind: 'ton'
-            }],
-        },
-        verified: null,
-    }));
+    let txs = rawTxs.map<TransactionDescription>(raw => {
+        const base = parseWalletTransaction(raw, account, isTestnet);
+        return ({
+            id: `${raw.lt}_${raw.hash}`,
+            base: base,
+            icon: null,
+            masterMetadata: null,
+            metadata: null,
+            operation: resolveOperation({
+                account: base.address || Address.parse(account),
+                amount: base.amount,
+                body: base.body,
+                jettonMaster: null,
+                metadata: null,
+            }),
+            verified: null,
+        });
+    });
 
     return {
         data: txs,

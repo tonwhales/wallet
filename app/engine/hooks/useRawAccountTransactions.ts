@@ -4,6 +4,7 @@ import { Address, AddressExternal, RawAccountStatus, RawCommonMessageInfo, RawCu
 import BN from 'bn.js';
 import { getLastBlock } from '../accountWatcher';
 import { useNetwork } from './useNetwork';
+import { log } from '../../utils/log';
 
 type StoredAddressExternal = {
     bits: number;
@@ -13,6 +14,15 @@ type StoredAddressExternal = {
 type StoredMessageInfo = {
     type: 'internal';
     value: string;
+    dest: string;
+    src: string;
+    bounced: boolean;
+    bounce: boolean;
+    ihrDisabled: boolean;
+    createdAt: number;
+    createdLt: string;
+    fwdFee: string;
+    ihrFee: string;
 } | {
     type: 'external-in';
     dest: string;
@@ -36,7 +46,7 @@ type StoredMessage = {
     init: StoredStateInit | null,
 };
 
-type StoredTransaction = {
+export type StoredTransaction = {
     address: string;
     lt: string;
     hash: string
@@ -72,7 +82,20 @@ function externalAddressToStored(address: AddressExternal | null) {
 function messageInfoToStored(msgInfo: RawCommonMessageInfo, isTestnet: boolean): StoredMessageInfo {
     switch (msgInfo.type) {
         case 'internal':
-            return { value: msgInfo.value.coins.toString(10), type: msgInfo.type };
+            return { 
+                value: msgInfo.value.coins.toString(10),
+                type: msgInfo.type, 
+                dest: msgInfo.dest.toFriendly({ testOnly: isTestnet }),
+                src: msgInfo.src.toFriendly({ testOnly: isTestnet }),
+                bounced: msgInfo.bounced,
+                bounce: msgInfo.bounce,
+                ihrDisabled: msgInfo.ihrDisabled,
+                createdAt: msgInfo.createdAt,
+                createdLt: msgInfo.createdLt.toString(10),
+                fwdFee: msgInfo.fwdFee.toString(10),
+                ihrFee: msgInfo.ihrFee.toString(10),
+
+            };
         case 'external-in':
             return { dest: msgInfo.dest.toFriendly({ testOnly: isTestnet }), importFee: msgInfo.importFee.toString(10), type: msgInfo.type, src: externalAddressToStored(msgInfo.src) };
         case 'external-out':
@@ -153,7 +176,7 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
                 hash = accountLite.account.last.hash;
             }
 
-            console.warn('[txns-query] fetching', lt, hash);
+            log(`[txns-query] fetching ${lt}_${hash}`);
 
             let txs = await client.getAccountTransactions(accountAddr, new BN(lt), Buffer.from(hash, 'base64'));
             let raw = txs.map(a => ({

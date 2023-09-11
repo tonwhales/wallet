@@ -1,18 +1,18 @@
 import BN from "bn.js";
 import { Address, Cell } from "ton";
-import { Body, Transaction } from "../Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
 import { Operation, OperationItem } from "./types";
-import { t } from "../../../i18n/t";
-import { ContractMetadata } from '../../metadata/Metadata';
-import { JettonMasterState } from '../sync/startJettonMasterSync';
+import { ContractMetadata } from '../metadata/Metadata';
 import { parseBody } from './parseWalletTransaction';
+import { TxBody } from '../legacy/Transaction';
+import { JettonMasterState } from '../legacy/sync/startJettonMasterSync';
+import { t } from '../../i18n/t';
 
 export function resolveOperation(args: {
     account: Address,
     amount: BN,
-    body: Body | null,
+    body: TxBody | null,
     metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null
 }): Operation {

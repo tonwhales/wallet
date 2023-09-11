@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, ScrollView } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
@@ -867,17 +867,28 @@ export const SimpleTransferFragment = fragment(() => {
                         />
                         {selected === 'address' && (
                             <Animated.View
-                                style={{ marginTop: 32 }}
+                                style={{ marginTop: 32, marginHorizontal: -16 }}
                                 entering={FadeIn} exiting={FadeOut}
                             >
-                                <AddressSearch
-                                    onSelect={(address) => {
-                                        setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                        setTarget(address.toFriendly({ testOnly: AppConfig.isTestnet }));
-                                        refs[2]?.current?.focus();
+                                <ScrollView
+                                    contentInset={{
+                                        bottom: keyboard.keyboardHeight - safeArea.bottom - 16 - 56 - safeArea.top,
+                                        top: 0.1 /* Some weird bug on iOS */
                                     }}
-                                    query={addressDomainInput}
-                                />
+                                    contentContainerStyle={{ paddingHorizontal: 16 }}
+                                    contentInsetAdjustmentBehavior={'never'}
+                                    keyboardShouldPersistTaps={'always'}
+                                    keyboardDismissMode={'none'}
+                                >
+                                    <AddressSearch
+                                        onSelect={(address) => {
+                                            setAddressDomainInput(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                            setTarget(address.toFriendly({ testOnly: AppConfig.isTestnet }));
+                                            refs[2]?.current?.focus();
+                                        }}
+                                        query={addressDomainInput}
+                                    />
+                                </ScrollView>
                             </Animated.View>
                         )}
                     </Animated.View>

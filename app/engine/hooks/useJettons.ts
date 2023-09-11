@@ -1,11 +1,4 @@
 import { Address } from 'ton';
-import { useHints } from './basic/useHints';
-import { useQueries } from '@tanstack/react-query';
-import { Queries } from '../queries';
-import { useNetwork } from './useNetwork';
-import { fetchMetadata } from '../metadata/fetchMetadata';
-import { useClient4 } from './useClient4';
-import { hintsMetadataQueryFn } from './usePrefetchHints';
 import BN from 'bn.js';
 import { useFilteredHints } from './basic/useFilteredHints';
 import { useJettonContents } from './basic/useJettonContents';
@@ -37,7 +30,7 @@ export function useJettons(owner: string): PreparedJetton[] {
                 symbol: content.symbol ?? '',
                 description: content.description ?? '',
                 decimals: content.decimals ?? null,
-                icon: content.originalImage ?? null,
+                icon: content.image?.preview256 ?? null,
             };
         });
 

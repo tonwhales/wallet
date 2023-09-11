@@ -1,16 +1,17 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Address } from "ton";
+import { Address, RawTransaction } from "ton";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { TransactionView } from "./TransactionView";
 import { useTheme } from '../../../engine/hooks/useTheme';
+import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
 
 export const TransactionsSection = React.memo(({
     section,
     navigation,
     address,
 }: {
-    section: { title: string, items: string[] },
+    section: { title: string, items: TransactionDescription[] },
     navigation: TypedNavigation,
     address: Address,
 }) => {
@@ -54,7 +55,7 @@ export const TransactionsSection = React.memo(({
                         own={address}
                         tx={t}
                         separator={i < section.items.length - 1}
-                        key={'tx-' + t}
+                        key={'tx-' + t.id}
                         onPress={openTransactionFragment}
                     />
                 ))}

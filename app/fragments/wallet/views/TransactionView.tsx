@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
-import { Address } from 'ton';
+import { Address, RawTransaction } from 'ton';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
@@ -21,6 +21,7 @@ import { useSpamMinAmount } from '../../../engine/hooks/useSpamMinAmount';
 import { useContactAddress } from '../../../engine/hooks/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
+import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -28,7 +29,7 @@ function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: s
 
 export function TransactionView(props: {
     own: Address,
-    tx: string,
+    tx: TransactionDescription,
     separator: boolean,
     onPress: (src: string) => void
 }) {
@@ -38,7 +39,7 @@ export function TransactionView(props: {
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
-    const tx = useTransaction(props.tx);
+    const tx = props.tx;
     let parsed = tx.base;
     let operation = tx.operation;
 
@@ -101,7 +102,7 @@ export function TransactionView(props: {
     // 
     // Address actions
     // 
-    const settings = props.engine.products.settings;
+    // const settings = props.engine.products.settings;
 
     const addressLink = (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
         + operation.address.toFriendly({ testOnly: isTestnet });
@@ -146,7 +147,7 @@ export function TransactionView(props: {
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
         if (confirmed) {
-            settings.addToDenyList(addr);
+            // settings.addToDenyList(addr);
         }
     }, []);
 
@@ -215,7 +216,7 @@ export function TransactionView(props: {
             actions={transactionActions}
             onPress={handleAction}>
             <TouchableHighlight
-                onPress={() => props.onPress(props.tx)}
+                onPress={() => props.onPress(props.tx.lt.toString(10))}
                 underlayColor={theme.selector}
                 style={{ backgroundColor: theme.item }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */

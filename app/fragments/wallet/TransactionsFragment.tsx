@@ -14,12 +14,12 @@ import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { useAccountTransactions } from '../../engine/hooks/useRawAccountTransactions';
+import { TransactionDescription, useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 
 const WalletTransactions = React.memo((props: {
-    txs: RawTransaction[],
+    txs: TransactionDescription[],
     hasNext: boolean,
     address: Address,
     navigation: TypedNavigation,
@@ -28,21 +28,21 @@ const WalletTransactions = React.memo((props: {
     onLoadMore: () => void,
 }) => {
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
+        let sections: { title: string, items: TransactionDescription[] }[] = [];
         if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(props.txs[0].time);
+            let lastTime: string = getDateKey(props.txs[0].base.time);
+            let lastSection: TransactionDescription[] = [];
+            let title = formatDate(props.txs[0].base.time);
             sections.push({ title, items: lastSection });
             for (let t of props.txs) {
-                let time = getDateKey(t.time);
+                let time = getDateKey(t.base.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(t.time);
+                    title = formatDate(t.base.time);
                     sections.push({ title, items: lastSection });
                 }
-                lastSection.push(t.id);
+                lastSection.push(t);
             }
         }
         return sections;
@@ -112,7 +112,7 @@ const WalletTransactions = React.memo((props: {
     );
 });
 
-function TransactionsComponent(props: { address: Address, transactions: RawTransaction[], loadMore: () => void, }) {
+function TransactionsComponent(props: { address: Address, transactions: TransactionDescription[], loadMore: () => void, }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
@@ -121,7 +121,7 @@ function TransactionsComponent(props: { address: Address, transactions: RawTrans
     const { transactions, address } = props;
 
     const onReachedEnd = React.useCallback(() => {
-
+        props.loadMore();
     }, []);
 
     return (
@@ -255,6 +255,6 @@ export const TransactionsFragment = fragment(() => {
             </View>
         );
     } else {
-        return <TransactionsComponent transactions={transactions.data} fetchNext={transactions.fetchNextPage} />
+        return <TransactionsComponent address={account.address} transactions={transactions.data} loadMore={transactions.next} />
     }
 }, true);

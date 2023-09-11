@@ -311,7 +311,6 @@ export function TransactionView(props: {
                                     height: undefined,
                                     backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0, paddingVertical: 0,
-                                    paddingRight: 0, paddingLeft: 0,
                                     alignSelf: 'flex-end',
                                 }}
                                 textStyle={{

@@ -5,6 +5,7 @@ import { fromNano } from "ton"
 import { usePrice } from "../engine/PriceContext"
 import { formatCurrency } from "../utils/formatCurrency"
 import { useAppConfig } from "../utils/AppConfigContext"
+
 import TonSign from '../../assets/ic_ton_sign.svg';
 
 export const PriceComponent = React.memo((
@@ -42,7 +43,9 @@ export const PriceComponent = React.memo((
             justifyContent: 'flex-start',
             alignItems: 'center',
             alignSelf: 'flex-start',
-            paddingVertical: 4, paddingRight: 12, paddingLeft: showSign ? 4 : 12
+            paddingVertical: 4,
+            paddingHorizontal: 12,
+            paddingLeft: showSign ? 4 : 12
         }, style]}>
             {showSign && (
                 <View style={{

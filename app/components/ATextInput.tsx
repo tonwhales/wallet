@@ -184,8 +184,6 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         valueNotEmptyShared.value = withTiming(withLabel && valueNotEmpty ? 1 : 0, { duration: 100 });
     }, [withLabel, valueNotEmpty, focused]);
 
-    console.log(labelHeight.value);
-
     return (
         <Pressable
             style={{ position: 'relative' }}

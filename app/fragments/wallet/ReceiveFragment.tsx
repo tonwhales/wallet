@@ -54,7 +54,6 @@ export const ReceiveFragment = fragment(() => {
     }, [jetton]);
 
     const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
-        console.log({ master: selected?.master.toFriendly({ testOnly: AppConfig.isTestnet }), wallet: selected?.wallet.toFriendly({ testOnly: AppConfig.isTestnet }) });
         if (selected) {
             const data = engine.persistence.jettonMasters.item(selected.master).value;
             if (data) {
@@ -82,7 +81,6 @@ export const ReceiveFragment = fragment(() => {
         }
         const [r, g, b] = mainColor.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
         const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        console.log({ luminance });
         return luminance < 0.5;
     }, [mainColor]);
 

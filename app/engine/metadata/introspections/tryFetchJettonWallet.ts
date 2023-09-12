@@ -35,7 +35,7 @@ export async function tryFetchJettonWallet(client: TonClient4, seqno: number, ad
             return null;
         }
         owner = _owner;
-        let _master = walletData.result[2].cell.beginParse().readAddress()
+        let _master = walletData.result[2].cell.beginParse().readAddress();
         if (!_master) {
             return null;
         }

@@ -3,9 +3,11 @@ export const Queries = {
     Account: (address: string) => ({
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
-        Metadata: () => ['account', address, 'metadata'],
+        JettonWallet: () => ['account', address, 'jettonWallet'],
         Transactions: () => ['account', address, 'transactions'],
     }),
+
+    ContractMetadata: (address: string) => (['contractMetadata', address]),
 
     Hints: (address: string) => (['hints', address]),
     Cloud: (address: string) => ({

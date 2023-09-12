@@ -8,8 +8,9 @@ import { useClient4 } from './useClient4';
 import { fetchJettonMasterContent } from '../metadata/fetchJettonMasterContent';
 import { Address, TonClient4 } from 'ton';
 import { queryClient } from '../clients';
-import { StoredContractMetadata } from '../metadata/StoredMetadata';
+import { StoredContractMetadata, StoredJettonWallet } from '../metadata/StoredMetadata';
 import { log } from '../../utils/log';
+import { tryFetchJettonWallet } from '../metadata/introspections/tryFetchJettonWallet';
 
 export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
@@ -28,6 +29,7 @@ export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, 
                 balance: metadata.jettonWallet.balance.toString(10),
                 master: metadata.jettonWallet.master.toFriendly({ testOnly: isTestnet }),
                 owner: metadata.jettonWallet.owner.toFriendly({ testOnly: isTestnet }),
+                address: addressString,
             } : null,
             seqno: metadata.seqno,
             address: address.toFriendly({ testOnly: isTestnet }),
@@ -46,6 +48,24 @@ export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
     }
 }
 
+export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestnet: boolean) { 
+    return async (): Promise<StoredJettonWallet | null> => {
+        log('[jetton-wallet-content-query] fetching ' + wallet);
+        let address = Address.parse(wallet);
+        let data = await tryFetchJettonWallet(client, await getLastBlock(), address);
+        if (!data) {
+            return null;
+        }
+
+        return {
+            balance: data.balance.toString(10),
+            master: data.master.toFriendly({ testOnly: isTestnet }),
+            owner: data.owner.toFriendly({ testOnly: isTestnet }),
+            address: wallet,
+        }
+    }
+}
+
 export function usePrefetchHints(address: string) {
     const hints = useHints(address);
     const { isTestnet } = useNetwork();
@@ -54,14 +74,22 @@ export function usePrefetchHints(address: string) {
     useEffect(() => {
         (async () => {
             await Promise.all(hints.map(async hint => {
-                let hintAddress = Address.parse(hint);
-
-                let result = queryClient.getQueryData<StoredContractMetadata>(Queries.Account(hint).Metadata());
+                let result = queryClient.getQueryData<StoredContractMetadata>(Queries.ContractMetadata(hint));
                 if (!result) {
                     result = await queryClient.fetchQuery({
-                        queryKey: Queries.Account(hint).Metadata(),
+                        queryKey: Queries.ContractMetadata(hint),
                         queryFn: contractMetadataQueryFn(client, isTestnet, hint),
                     });
+
+                    if (result?.jettonWallet) {
+                        queryClient.setQueryData(Queries.Account(hint).JettonWallet(), () => {
+                            return {
+                                balance: result!.jettonWallet!.balance,
+                                master: result!.jettonWallet!.master,
+                                owner: result!.jettonWallet!.owner,
+                            } as StoredJettonWallet
+                        });
+                    }
                 }
 
                 if (result?.jettonWallet?.master) {

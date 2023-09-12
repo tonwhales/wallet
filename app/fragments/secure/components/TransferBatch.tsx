@@ -100,7 +100,7 @@ export const TransferBatch = React.memo((props: Props) => {
         };
         for (const message of order.messages) {
             let body = message.payload ? parseBody(message.payload) : null;
-            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
+            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
 
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;

@@ -1,8 +1,8 @@
 import { Cell, parseSupportedMessage, resolveKnownInterface, SupportedMessage } from "ton";
 
-export function parseMessageBody(payload: Cell, interfaces: string[]) {
+export function parseMessageBody(payload: Cell) {
     let res: SupportedMessage | null = null;
-    for (let s of interfaces) {
+    for (let s of []) {
         let known = resolveKnownInterface(s);
         if (known) {
             let r = parseSupportedMessage(known, payload);

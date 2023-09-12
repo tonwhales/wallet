@@ -41,7 +41,7 @@ export function resolveOperation(args: {
 
     // Simple payload overwrite
     if (args.body && args.body.type === 'payload' && args.metadata && !args.jettonMaster) {
-        let parsedBody = parseMessageBody(args.body.cell, args.metadata.interfaces);
+        let parsedBody = parseMessageBody(args.body.cell);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
@@ -52,7 +52,7 @@ export function resolveOperation(args: {
 
     // Jetton payloads
     if (args.body && args.body.type === 'payload' && args.jettonMaster && args.jettonMaster.symbol && args.metadata && args.metadata.jettonWallet) {
-        let parsedBody = parseMessageBody(args.body.cell, ['311736387032003861293477945447179662681']);
+        let parsedBody = parseMessageBody(args.body.cell);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {

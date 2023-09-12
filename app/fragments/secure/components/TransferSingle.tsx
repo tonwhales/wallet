@@ -96,7 +96,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
+    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
     const jettonAmount = React.useMemo(() => {
         try {

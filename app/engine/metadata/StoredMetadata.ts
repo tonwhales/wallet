@@ -4,7 +4,8 @@ import { Address } from "ton"
 export type StoredJettonWallet = {
     balance: string,
     owner: string,
-    master: string
+    master: string,
+    address: string,
 };
 
 export type StoredJettonMaster = {

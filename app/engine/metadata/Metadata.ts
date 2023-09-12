@@ -28,7 +28,6 @@ export type ContractContent = {
 
 export type ContractMetadata = {
     seqno: number,
-    interfaces: string[],
     jettonMaster: JettonMaster | undefined;
     jettonWallet: JettonWallet | undefined;
 }

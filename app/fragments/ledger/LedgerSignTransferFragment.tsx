@@ -115,7 +115,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
-    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
+    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
 
     // Resolve Jettion amount

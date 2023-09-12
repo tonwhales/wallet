@@ -97,7 +97,6 @@ export function useAccountTransactions(client: TonClient4, account: string): { d
             const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;
 
             const convertedMetadata: ContractMetadata | null = metadata ? {
-                interfaces: [],
                 jettonMaster: metadata.jettonMaster ? {
                     content: metadata.jettonMaster.content,
                     mintalbe: metadata.jettonMaster.mintable,

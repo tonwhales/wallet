@@ -418,6 +418,7 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQC-tdRjjoYMz3MXKW4pj95bNZgvRyWwZ23Jix3ph7guvHxJ': {}, // KINGY
             'EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE': {}, // SCALE
             'EQBjEw-SOe8yV2kIbGVZGrsPpLTaaoAOE87CGXI2ca4XdzXA': {}, // MARGA
+            'EQAQXlWJvGbbFfE8F3oS8s87lIgdovS455IsWFaRdmJetTon': {}, // JetTon
         }
         : {};
 }

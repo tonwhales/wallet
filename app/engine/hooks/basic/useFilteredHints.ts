@@ -1,9 +1,4 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import { useClient4 } from '../useClient4';
-import { useNetwork } from '../useNetwork';
 import { useHints } from './useHints';
-import { Queries } from '../../queries';
-import { contractMetadataQueryFn } from '../usePrefetchHints';
 import { StoredContractMetadata } from '../../metadata/StoredMetadata';
 import { useContractMetadatas } from './useContractMetadatas';
 

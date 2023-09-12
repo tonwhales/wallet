@@ -18,14 +18,16 @@ import { useJettons } from '../../engine/hooks/useJettons';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { JettonState } from '../../engine/legacy/products/WalletProduct';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const AssetsFragment = fragment(() => {
-    const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
+    const { target, callback } = useParams<{ target: string, callback?: (address?: string) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const jettons = useJettons();
     const selected = useSelectedAccount();
+    const jettons = useJettons(selected.addressString);
     const account = useAccountLite(selected.addressString);
+    const { isTestnet } = useNetwork();
 
     const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
         navigation.navigateSimpleTransfer({
@@ -39,7 +41,7 @@ export const AssetsFragment = fragment(() => {
         });
     }, []);
 
-    const onCallback = useCallback((address?: Address) => {
+    const onCallback = useCallback((address?: string) => {
         if (callback) {
             setTimeout(() => {
                 navigation.goBack();
@@ -100,7 +102,7 @@ export const AssetsFragment = fragment(() => {
                         extension={true}
                         style={{ marginVertical: 4 }}
                     />
-                    {jettons.map((j: any) => {
+                    {jettons.map((j) => {
                         return (
                             <JettonProduct
                                 key={'jt' + j.wallet.toFriendly()}
@@ -108,7 +110,7 @@ export const AssetsFragment = fragment(() => {
                                 navigation={navigation}
                                 onPress={() => {
                                     if (callback) {
-                                        onCallback(j.master);
+                                        onCallback(j.master.toFriendly({ testOnly: isTestnet }));
                                         return;
                                     }
                                     navigateToJettonTransfer(j)

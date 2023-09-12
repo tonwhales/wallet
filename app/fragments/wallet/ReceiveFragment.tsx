@@ -19,6 +19,9 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
@@ -26,34 +29,32 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
-    const address = React.useMemo(() => {
-        if (params.addr) {
-            return Address.parse(params.addr);
-        }
-        return getCurrentAddress().address;
-    }, [params]);
-    const friendly = address.toFriendly({ testOnly: isTestnet });
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
+    const address = useSelectedAccount();
+    const [jetton, setJetton] = useState<{ master: string, data: JettonMasterState } | null>(null);
 
-    const onAssetSelected = useCallback((address?: Address) => {
-        // if (address) {
-        //     const data = engine.persistence.jettonMasters.item(address).value;
-        //     if (data) {
-        //         setJetton({ master: address, data });
-        //         return;
-        //     }
-        // }
-        setJetton(null);
-    }, []);
+    const onAssetSelected = useCallback((address?: string) => {
+        if (address) {
+            let content = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(address));
+            if (!content) {
+                console.warn('no content: ' + address);
+                return;
+            }
+
+            setJetton({
+                master: address,
+                data: content,
+            });
+        }
+    }, [isTestnet]);
 
     const link = useMemo(() => {
         if (jetton) {
             return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
-                + `/${address.toFriendly({ testOnly: isTestnet })}`
-                + `?jetton=${jetton.master.toFriendly({ testOnly: isTestnet })}`
+                + `/${address.addressString}`
+                + `?jetton=${jetton.master}`
         }
         return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
-            + `/${address.toFriendly({ testOnly: isTestnet })}`
+            + `/${address.addressString}`
     }, [jetton]);
 
     return (
@@ -134,9 +135,9 @@ export const ReceiveFragment = fragment(() => {
                                         ellipsizeMode={'middle'}
                                     >
                                         {
-                                            friendly.slice(0, 6)
+                                            address.addressString.slice(0, 6)
                                             + '...'
-                                            + friendly.slice(friendly.length - 6)
+                                            + address.addressString.slice(address.addressString.length - 6)
                                         }
                                     </Text>
                                 </View>
@@ -156,7 +157,7 @@ export const ReceiveFragment = fragment(() => {
                         justifyContent: 'center'
                     }}>
                         <CopyButton
-                            body={address.toFriendly({ testOnly: isTestnet })}
+                            body={address.addressString}
                             style={{ marginBottom: 8 }}
                         />
                         <ShareButton body={link} />

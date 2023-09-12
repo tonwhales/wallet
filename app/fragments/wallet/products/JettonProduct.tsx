@@ -46,7 +46,6 @@ export const JettonProduct = React.memo((props: {
     },
     onPress?: () => void
     onLongPress?: () => void,
-    onPromptDisable: () => void
 }) => {
     let balance = props.jetton.balance;
     const { isTestnet } = useNetwork();

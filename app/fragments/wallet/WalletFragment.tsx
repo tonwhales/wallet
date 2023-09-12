@@ -23,13 +23,12 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { useAccount, useAccountLite } from '../../engine/hooks/useAccountLite';
+import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
 import { useSyncState } from '../../engine/hooks/useSyncState';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { WalletState } from '../../engine/legacy/products/WalletProduct';
 
 const PendingTxs = React.memo((props: {
     txs: { id: string, time: number }[],

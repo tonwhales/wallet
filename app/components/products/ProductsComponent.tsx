@@ -4,7 +4,7 @@ import { Pressable, Text, View } from "react-native"
 import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { HoldersProductButton } from "./HoldersProductButton"
+import { HoldersProductComponent } from "./HoldersProductComponent"
 import { useEngine } from "../../engine/Engine";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -12,6 +12,7 @@ import { StakingProductComponent } from "./StakingProductComponent";
 import { t } from "../../i18n/t";
 import { JettonsProductComponent } from "./JettonsProductComponent";
 import { HoldersHiddenCards } from "./HoldersHiddenCards";
+import { JettonsHiddenComponent } from "./JettonsHiddenComponent";
 
 export const ProductsComponent = memo(() => {
     const { Theme } = useAppConfig();
@@ -84,17 +85,18 @@ export const ProductsComponent = memo(() => {
                     )}
                 </View>
 
-                <HoldersProductButton key={'holders'} />
+                <HoldersProductComponent key={'holders'} />
 
                 <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
                     <StakingProductComponent key={'pool'} />
                 </View>
 
-                <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
+                <View style={{ marginTop: 8 }}>
                     <JettonsProductComponent key={'jettons'} />
                 </View>
 
-                <HoldersHiddenCards key={'holders-hidden'}/>
+                <HoldersHiddenCards key={'holders-hidden'} />
+                <JettonsHiddenComponent key={'jettons-hidden'} />
             </View>
         </View>
     )

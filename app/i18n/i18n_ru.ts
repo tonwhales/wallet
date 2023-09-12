@@ -633,6 +633,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         token: 'токен',
         productButtonTitle: 'Токены',
         productButtonSubtitle: '{{jettonName}} и {{count}} других',
+        hidden: 'Скрытые токены',
     },
     connections: {
         extensions: 'Расширения',

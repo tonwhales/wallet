@@ -1,8 +1,8 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { memo, useCallback, useMemo, useRef, useState } from "react";
 import { HoldersCard, holdersUrl } from "../../engine/holders/HoldersProduct";
 import { View, Text, Image, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { holdersCardImageMap } from "./HoldersProductButton";
+import { holdersCardImageMap } from "./HoldersProductComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
@@ -15,7 +15,7 @@ import { Swipeable } from "react-native-gesture-handler";
 
 import MCard from '../../../assets/ic-m-card.svg';
 
-export const HoldersCardItem = React.memo((props: {
+export const HoldersCardItem = memo((props: {
     account?: HoldersCard,
     last?: boolean,
     first?: boolean,
@@ -139,18 +139,16 @@ export const HoldersCardItem = React.memo((props: {
                             )
                         }}
                     >
-                        <View style={[
-                            {
-                                flexGrow: 1, flexDirection: 'row',
-                                padding: 20,
-                                alignItems: 'center',
-                                backgroundColor: Theme.surfaceSecondary,
-                            }
-                        ]}>
+                        <View style={{
+                            flexGrow: 1, flexDirection: 'row',
+                            padding: 20,
+                            alignItems: 'center',
+                            backgroundColor: Theme.surfaceSecondary,
+                        }}>
                             <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
                                 <Image source={image} style={{ width: 46, height: 30, borderRadius: 6 }} />
                                 {!!props.account?.card.lastFourDigits && (
-                                    <Text style={{ color: 'white', fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
+                                    <Text style={{ color: Theme.white, fontSize: 7.5, position: 'absolute', bottom: 4.5, left: 5 }} numberOfLines={1}>
                                         {props.account.card.lastFourDigits}
                                     </Text>
                                 )}
@@ -208,7 +206,7 @@ export const HoldersCardItem = React.memo((props: {
                     </Swipeable>
                 </Animated.View>
                 {!props.last && (
-                    <View style={{ backgroundColor: Theme.divider, height: 1, marginHorizontal: 16, paddingHorizontal: 20 }} />
+                    <View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
                 )}
             </Pressable>
         ) : (
@@ -277,7 +275,7 @@ export const HoldersCardItem = React.memo((props: {
                         </View>
                     )}
                 </Animated.View>
-                {!props.last && (<View style={{ backgroundColor: Theme.divider, height: 1, marginHorizontal: 20 }} />)}
+                {!props.last && (<View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />)}
             </Pressable>
         )
     );

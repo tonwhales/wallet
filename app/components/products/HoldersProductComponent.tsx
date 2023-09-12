@@ -22,7 +22,7 @@ export const holdersCardImageMap: { [key: string]: any } = {
     'whales': require('../../../assets/whales.png'),
 }
 
-export const HoldersProductButton = memo(() => {
+export const HoldersProductComponent = memo(() => {
     const { AppConfig, Theme } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
@@ -116,7 +116,7 @@ export const HoldersProductButton = memo(() => {
 
     if (visibleList.length > 5) {
         return (
-            <>
+            <View>
                 <Pressable
                     onPress={() => {
                         setCollapsed(!collapsed)
@@ -225,7 +225,7 @@ export const HoldersProductButton = memo(() => {
                         )
                     }}
                 />
-            </>
+            </View>
         )
     }
 

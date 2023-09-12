@@ -632,6 +632,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         token: 'token',
         productButtonTitle: 'Jettons',
         productButtonSubtitle: '{{jettonName}} and {{count}} others',
+        hidden: 'Hidden jettons',
     },
     connections: {
         extensions: 'Extensions',

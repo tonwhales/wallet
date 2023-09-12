@@ -36,7 +36,7 @@ export const AnimatedChildrenCollapsible = memo(({
     return (
         <Animated.View style={[
             { overflow: 'hidden' },
-            animStyle
+            animStyle,
         ]}>
             {itemsToRender.map((item, index) => {
                 return (

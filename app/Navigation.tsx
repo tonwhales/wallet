@@ -38,7 +38,6 @@ import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/InstallFragment';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
-import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
@@ -180,7 +179,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
-    modalScreen('Accounts', AccountsFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
@@ -205,7 +203,6 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Settings
     genericScreen('Security', SecurityFragment, safeArea),
-    genericScreen('AccountsSettings', AccountsFragment, safeArea),
     genericScreen('Contacts', ContactsFragment, safeArea),
     genericScreen('Contact', ContactFragment, safeArea),
     genericScreen('SpamFilter', SpamFilterFragment, safeArea),

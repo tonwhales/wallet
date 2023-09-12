@@ -147,20 +147,6 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center'
                 }}>
                     <ItemButton
-                        leftIconComponent={<Accounts width={24} height={24} />}
-                        title={t('products.accounts')}
-                        onPress={() => navigation.navigate('AccountsSettings')}
-                    />
-                </View>
-
-                <View style={{
-                    marginBottom: 16,
-                    backgroundColor: Theme.border,
-                    borderRadius: 20,
-                    justifyContent: 'center',
-                    alignItems: 'center'
-                }}>
-                    <ItemButton
                         leftIconComponent={<Support width={24} height={24} />}
                         title={t('settings.support.title')}
                         onPress={onSupport}

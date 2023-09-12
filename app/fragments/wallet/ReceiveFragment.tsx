@@ -17,8 +17,8 @@ import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();

@@ -22,7 +22,6 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
 import { useConfig } from '../../engine/hooks/useConfig';
-import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { getJettonMaster } from '../../engine/getters/getJettonMaster';
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
@@ -32,6 +31,7 @@ import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
 export type ATextInputRef = {
     focus: () => void;

@@ -1,10 +1,12 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../queries';
-import { Address, AddressExternal, RawAccountStatus, RawCommonMessageInfo, RawCurrencyCollection, RawHashUpdate, RawMessage, RawStateInit, RawTickTock, RawTransaction, RawTransactionDescription, TonClient4, parseTransaction } from 'ton';
+import { Address, AddressExternal, Cell, RawAccountStatus, RawCommonMessageInfo, RawCurrencyCollection, RawHashUpdate, RawMessage, RawStateInit, RawTickTock, RawTransaction, RawTransactionDescription, TonClient4, parseMessageRelaxed, parseTransaction } from 'ton';
 import BN from 'bn.js';
 import { getLastBlock } from '../accountWatcher';
 import { useNetwork } from './useNetwork';
 import { log } from '../../utils/log';
+import { TxBody } from '../legacy/Transaction';
+import { parseBody } from '../transactions/parseWalletTransaction';
 
 type StoredAddressExternal = {
     bits: number;
@@ -65,6 +67,12 @@ export type StoredTransaction = {
     };
     inMessage: StoredMessage | null;
     outMessages: StoredMessage[];
+    parsed: {
+        seqno: number | null;
+        body: TxBody | null;
+        status: 'success' | 'failed';
+        dest: string | null;
+    }
 }
 
 
@@ -124,6 +132,37 @@ function rawMessageToStoredMessage(msg: RawMessage, isTestnet: boolean): StoredM
 }
 
 function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, isTestnet: boolean): StoredTransaction {
+    const inMessageBody = tx.inMessage?.body || null;
+
+    //
+    // Resolve seqno
+    //
+
+    let seqno: number | null = null;
+    let body: TxBody | null = null;
+    let status: 'success' | 'failed' = 'success';
+    let dest: string | null = null;
+    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
+        const parse = inMessageBody!.beginParse();
+        parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
+        seqno = parse.readUintNumber(32);
+        const command = parse.readUintNumber(8);
+        if (command === 0) {
+            let message = parseMessageRelaxed(parse.readRef());
+            if (message.info.dest && Address.isAddress(message.info.dest)) {
+                dest = message.info.dest.toFriendly({ testOnly: isTestnet });
+            }
+            body = parseBody(message.body);
+        }
+        if (tx.outMessagesCount === 0) {
+            status = 'failed';
+        }
+    }
+
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        body = parseBody(inMessageBody!);
+    }
+    
     return {
         address: tx.address.toFriendly({ testOnly: isTestnet }),
         fees: tx.fees.coins.toString(10),
@@ -142,6 +181,12 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, isT
         update: {
             newHash: tx.update.newHash.toString('base64'),
             oldHash: tx.update.oldHash.toString('base64'),
+        },
+        parsed: {
+            seqno,
+            body,
+            status,
+            dest,
         }
     }
 }

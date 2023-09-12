@@ -31,7 +31,7 @@ export function TransactionView(props: {
     own: Address,
     tx: TransactionDescription,
     separator: boolean,
-    onPress: (src: string) => void
+    onPress: (src: TransactionDescription) => void
 }) {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -216,7 +216,7 @@ export function TransactionView(props: {
             actions={transactionActions}
             onPress={handleAction}>
             <TouchableHighlight
-                onPress={() => props.onPress(props.tx.id)}
+                onPress={() => props.onPress(props.tx)}
                 underlayColor={theme.selector}
                 style={{ backgroundColor: theme.item }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */

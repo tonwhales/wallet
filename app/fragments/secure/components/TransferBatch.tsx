@@ -35,7 +35,6 @@ import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
-import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
 import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/createWalletTransferV4';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
@@ -43,6 +42,7 @@ import { usePrice } from '../../../engine/hooks/usePrice';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
+import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 
 type Props = {
     text: string | null,

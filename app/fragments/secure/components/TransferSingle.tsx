@@ -46,12 +46,12 @@ import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
-import { JettonMasterState } from '../../../engine/legacy/sync/startJettonMasterSync';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
+import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 
 type Props = {
     target: {

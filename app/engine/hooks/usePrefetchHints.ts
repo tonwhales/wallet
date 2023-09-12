@@ -5,7 +5,7 @@ import { Queries } from '../queries';
 import { fetchMetadata } from '../metadata/fetchMetadata';
 import { getLastBlock } from '../accountWatcher';
 import { useClient4 } from './useClient4';
-import { fetchJettonMasterContent } from '../metadata/fetchJettonMasterContent';
+import { JettonMasterState, fetchJettonMasterContent } from '../metadata/fetchJettonMasterContent';
 import { Address, TonClient4 } from 'ton';
 import { queryClient } from '../clients';
 import { StoredContractMetadata, StoredJettonWallet } from '../metadata/StoredMetadata';
@@ -38,11 +38,16 @@ export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, 
 }
 
 export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
-    return async () => {
+    return async (): Promise<(JettonMasterState & { address: string }) | null> => {
         log('[jetton-master-content-query] fetching ' + master);
         let address = Address.parse(master);
+        let masterContent = await fetchJettonMasterContent(address, isTestnet);
+        if (!masterContent) {
+            return null;
+        }
+
         return {
-            ...await fetchJettonMasterContent(address, isTestnet),
+            ...masterContent,
             address: address.toFriendly({ testOnly: isTestnet }),
         };
     }

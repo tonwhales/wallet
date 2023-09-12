@@ -5,6 +5,7 @@ import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { TransactionView } from "./TransactionView";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
+import { StoredTransaction } from '../../../engine/hooks/useRawAccountTransactions';
 
 export const TransactionsSection = React.memo(({
     section,
@@ -17,7 +18,7 @@ export const TransactionsSection = React.memo(({
 }) => {
     const theme = useTheme();
 
-    const openTransactionFragment = React.useCallback((transaction: string) => {
+    const openTransactionFragment = React.useCallback((transaction: TransactionDescription) => {
         if (transaction) {
             navigation.navigate('Transaction', { transaction: transaction });
         }

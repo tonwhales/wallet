@@ -12,8 +12,8 @@ import { t } from "../../i18n/t";
 import { fromBNWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
-import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { Operation } from '../../engine/legacy/transactions/types';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
 export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     transfer: {

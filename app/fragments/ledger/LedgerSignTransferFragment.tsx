@@ -59,11 +59,11 @@ import { getJettonMaster } from '../../engine/getters/getJettonMaster';
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../engine/legacy/transactions/resolveOperation';
-import { JettonMasterState } from '../../engine/legacy/sync/startJettonMasterSync';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,

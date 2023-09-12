@@ -71,32 +71,16 @@ export function parseWalletTransaction(tx: StoredTransaction, own: string, isTes
     // Resolve address
     //
 
-    let address: Address | null = null;
-    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        for (let o of tx.outMessages) {
-            if (o.info.dest && typeof o.info.dest === 'string') {
-                address = Address.parse(o.info.dest);
-            }
-        }
+    let addressString: string | null = null;
+    if (tx.parsed.dest) {
+        addressString = tx.parsed.dest;
+    } else if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        addressString = tx.inMessage.info.src;
+    } else {
+        addressString = tx.address;
     }
-    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        address = Address.parse(tx.inMessage.info.src);
-    }
-
-    const inMessageBody = tx.inMessage ? Cell.fromBoc(Buffer.from(tx.inMessage.body, 'base64'))[0] : null;
-
-    //
-    // Resolve seqno
-    //
-
-    let seqno: number | null = null;
-
-    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        const parse = inMessageBody!.beginParse();
-        parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
-        seqno = parse.readUintNumber(32);
-    }
-
+    
+    let address = Address.parse(addressString!);
     //
     // Resolve kind
     //
@@ -108,31 +92,6 @@ export function parseWalletTransaction(tx: StoredTransaction, own: string, isTes
         if (tx.inMessage.info.bounced) {
             bounced = true;
         }
-    }
-
-    //
-    // Resolve body and status
-    //
-
-    let body: TxBody | null = null;
-    let status: 'success' | 'failed' = 'success';
-    if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        const parse = inMessageBody!.beginParse();
-        parse.skip(512 + 32 + 32 + 32); // Signature + wallet_id + timeout + seqno
-        const command = parse.readUintNumber(8);
-        if (command === 0) {
-            let message = parseMessageRelaxed(parse.readRef());
-            if (message.info.dest && Address.isAddress(message.info.dest)) {
-                address = message.info.dest;
-            }
-            body = parseBody(message.body);
-        }
-        if (tx.outMessagesCount === 0) {
-            status = 'failed';
-        }
-    }
-    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        body = parseBody(inMessageBody!);
     }
 
     const mentioned = new Set<string>();
@@ -150,10 +109,10 @@ export function parseWalletTransaction(tx: StoredTransaction, own: string, isTes
         fees: new BN(fees),
         amount,
         address,
-        seqno,
+        seqno: tx.parsed.seqno,
+        body: tx.parsed.body,
+        status: tx.parsed.status,
         kind,
-        body,
-        status,
         time: tx.time,
         bounced,
         prev,

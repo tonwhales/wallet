@@ -14,5 +14,5 @@ export function useContractMetadatas(contracts: string[]) {
             queryFn: contractMetadataQueryFn(client, isTestnet, m),
             staleTime: Infinity,
         })),
-    })
+    });
 }

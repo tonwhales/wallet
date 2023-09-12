@@ -6,8 +6,8 @@ import { Operation, OperationItem } from "./types";
 import { ContractMetadata } from '../metadata/Metadata';
 import { parseBody } from './parseWalletTransaction';
 import { TxBody } from '../legacy/Transaction';
-import { JettonMasterState } from '../legacy/sync/startJettonMasterSync';
 import { t } from '../../i18n/t';
+import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
 
 export function resolveOperation(args: {
     account: Address,

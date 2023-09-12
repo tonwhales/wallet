@@ -2,7 +2,6 @@ import React, { useEffect, useMemo } from "react";
 import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getCurrentAddress } from "../../storage/appState";
 import { CloseButton } from "../../components/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
@@ -31,21 +30,23 @@ import { useContactAddress } from '../../engine/hooks/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
-import { useTransaction } from '../../engine/hooks/useTransaction';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { TxBody } from '../../engine/legacy/Transaction';
+import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
+import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const params = useParams<{ transaction: string }>();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-    let transaction = useTransaction(params.transaction);
+    const address = useCurrentAddress();
+
+    const params = useParams<{ transaction: TransactionDescription }>();
+    let transaction = params.transaction;
     let operation = transaction.operation;
+
     let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
@@ -75,10 +76,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const verified = !!transaction.verified
         || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
 
-    let body: TxBody | null = null;
-    if (transaction.base.body?.type === 'payload') {
-        body = parseBody(transaction.base.body.cell);
-    }
+    let body: TxBody | null = transaction.base.body;
 
     const txId = useMemo(() => {
         if (!transaction.base.lt) {
@@ -98,7 +96,7 @@ export const TransactionPreviewFragment = fragment(() => {
         }
         return isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
             + '/explorer/address/' +
-            address.toFriendly({ testOnly: isTestnet }) +
+            address.addressString +
             '/' + txId
     }, [txId]);
 
@@ -107,7 +105,7 @@ export const TransactionPreviewFragment = fragment(() => {
             return null;
         }
         return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${address.toFriendly({ testOnly: isTestnet })}/`
+            + `${address.addressString}/`
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
     }, [txId]);
 

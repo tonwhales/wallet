@@ -1,15 +1,13 @@
 import React, { useCallback } from "react";
-import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
+import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, SectionList, Dimensions, useWindowDimensions } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
-import { getCurrentAddress } from "../../storage/appState";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
 import { Address, RawTransaction } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
-import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
@@ -17,6 +15,8 @@ import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { TransactionDescription, useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { TransactionView } from './views/TransactionView';
+import { FlashList } from "@shopify/flash-list";
 
 const WalletTransactions = React.memo((props: {
     txs: TransactionDescription[],
@@ -27,88 +27,97 @@ const WalletTransactions = React.memo((props: {
     frameArea: Rect,
     onLoadMore: () => void,
 }) => {
+    const theme = useTheme();
+    const dimentions = useWindowDimensions();
+    const fontScaleNormal = dimentions.fontScale <= 1;
+    
     const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: TransactionDescription[] }[] = [];
+        let sectioned: ({ type: 'section', title: string } | { type: 'tx', data: TransactionDescription })[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].base.time);
-            let lastSection: TransactionDescription[] = [];
             let title = formatDate(props.txs[0].base.time);
-            sections.push({ title, items: lastSection });
+            sectioned.push({ type: 'section', title });
             for (let t of props.txs) {
                 let time = getDateKey(t.base.time);
                 if (lastTime !== time) {
-                    lastSection = [];
                     lastTime = time;
                     title = formatDate(t.base.time);
-                    sections.push({ title, items: lastSection });
+                    sectioned.push({ type: 'section', title });
                 }
-                lastSection.push(t);
+                sectioned.push({ type: 'tx', data: t });
             }
         }
-        return sections;
+        return sectioned;
     }, [props.txs]);
 
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <TransactionsSection
-                key={s.title}
-                section={s}
-                address={props.address}
-                navigation={props.navigation}
-            />
-        );
-    }
-
-    // Last
-    if (props.hasNext) {
-        components.push(
-            <View
-                key="prev-loader"
-                style={{
-                    height: 64,
-                    alignSelf: 'stretch',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <LoadingIndicator simple={true} />
-            </View>
-        );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 64 }} />
-        );
-    }
 
     const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        if (!event) return;
-        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        if (!layoutMeasurement || !contentOffset || !contentSize) return;
+        // if (!event) return;
+        // const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
+        // if (!layoutMeasurement || !contentOffset || !contentSize) return;
 
-        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
-            props.onLoadMore();
-        }
+        // if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
+        //     props.onLoadMore();
+        // }
     }, [props.onLoadMore]);
 
     return (
-        <ScrollView
+        <FlashList
             contentContainerStyle={{
-                flexGrow: 1,
                 paddingTop: Platform.OS === 'android'
                     ? props.safeArea.top + 44
                     : undefined,
             }}
+            data={transactionsSectioned}
             contentInset={{ top: 44, bottom: 52 }}
             contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
-        >
-            {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
-            {components}
-            {(Platform.OS !== 'ios' && props.hasNext) && (<View style={{ height: 64 }} />)}
-        </ScrollView>
+            ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
+            ListFooterComponent={(Platform.OS !== 'ios' && props.hasNext) ? (<View style={{ height: 64 }} />) : undefined}
+            drawDistance={1200}
+            estimatedItemSize={62}
+            estimatedListSize={{
+                height: Dimensions.get('window').height,
+                width: Dimensions.get('window').width,
+            }}
+            getItemType={(item) => item.type}
+            renderItem={({ item, index }) => {
+                if (item.type === 'section') {
+                    return (
+                        <View
+                            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+                        >
+                            <Text
+                                style={{
+                                    fontSize: 18,
+                                    fontWeight: '700',
+                                    marginHorizontal: 16,
+                                    marginVertical: 8
+                                }}
+                            >
+                                {item.title}
+                            </Text>
+                        </View>
+                    );
+                }
+
+                return (
+                    <TransactionView
+                        own={props.address}
+                        tx={item.data}
+                        separator={transactionsSectioned[index + 1]?.type !== 'section'}
+                        key={'tx-' + item.data.id}
+                        onPress={() => { }}
+                        theme={theme}
+                        fontScaleNormal={fontScaleNormal}
+                    />
+                )
+            }}
+            onEndReached={() => props.onLoadMore()}
+            keyExtractor={(item, index) => item.type === 'section' ? 'section-' + item.title : 'tx-' + item.data.id}
+        />
     );
 });
 

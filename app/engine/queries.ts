@@ -4,7 +4,7 @@ export const Queries = {
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
         JettonWallet: () => ['account', address, 'jettonWallet'],
-        Transactions: () => ['account', address, 'transactions'],
+        Transactions: () => ['transactions', address],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

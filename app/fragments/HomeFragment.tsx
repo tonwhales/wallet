@@ -121,13 +121,13 @@ export const HomeFragment = fragment(() => {
             <View style={{ flexGrow: 1 }} />
             <StatusBar style={'dark'} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
-                {tab === 0 ? <WalletFragment /> : null}
+                <WalletFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
-                {tab === 1 ? <TransactionsFragment /> : null}
+                <TransactionsFragment />
             </View>
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
-                {tab === 2 ? <SettingsFragment /> : null}
+                <SettingsFragment />
             </View>
             <View style={{ height: 52 + safeArea.bottom, }}>
                 {Platform.OS === 'ios' && (

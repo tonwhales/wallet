@@ -1,27 +1,26 @@
 import { MMKV } from "react-native-mmkv";
 import { Address } from "ton";
-import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
-import { Engine } from "./Engine";
 import { WalletSettings } from "./products/WalletsProduct";
+import { SharedPersistedCollection } from "./persistence/SharedPersistedCollection";
 
 export class SharedPersistence {
     readonly version: number = 1;
-    readonly walletSettings: PersistedCollection<Address, WalletSettings>;
-    readonly lockAppWithAuth: PersistedCollection<void, boolean>;
+    readonly walletSettings: SharedPersistedCollection<Address, WalletSettings>;
+    readonly lockAppWithAuth: SharedPersistedCollection<void, boolean>;
 
-    constructor(sharedStorage: MMKV, engine: Engine) {
+    constructor(sharedStorage: MMKV, recoil: { updater: (node: any, value: any) => void }, isTestnet: boolean) {
         if (sharedStorage.getNumber('storage-version') !== this.version) {
             sharedStorage.clearAll();
             sharedStorage.set('storage-version', this.version);
         }
 
         // Key formats
-        const addressKey = (src: Address) => src.toFriendly({ testOnly: engine.isTestnet });
+        const addressKey = (src: Address) => src.toFriendly({ testOnly: isTestnet });
         const voidKey = (src: void) => 'void';
 
-        this.walletSettings = new PersistedCollection({ storage: sharedStorage, namespace: 'walletSettings', key: addressKey, codec: t.type({ name: nullableString, avatar: nullableNumber }), engine });
-        this.lockAppWithAuth = new PersistedCollection({ storage: sharedStorage, namespace: 'lockAppWithAuth', key: voidKey, codec: t.boolean, engine });
+        this.walletSettings = new SharedPersistedCollection({ storage: sharedStorage, namespace: 'walletSettings', key: addressKey, codec: t.type({ name: nullableString, avatar: nullableNumber }), recoil });
+        this.lockAppWithAuth = new SharedPersistedCollection({ storage: sharedStorage, namespace: 'lockAppWithAuth', key: voidKey, codec: t.boolean, recoil });
     }
 }
 

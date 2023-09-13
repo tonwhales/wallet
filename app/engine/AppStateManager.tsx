@@ -1,4 +1,4 @@
-import React, { createContext, memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createContext, memo, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AppState, getAppState, setAppState as storeAppState } from "../storage/appState";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { mixpanelFlush, mixpanelIdentify } from "../analytics/mixpanel";
@@ -6,6 +6,7 @@ import { createEngine } from "./createEngine";
 import { EngineContext } from "./Engine";
 import { useRecoilCallback } from "recoil";
 import { useReboot } from "../utils/RebootContext";
+import { useSharedPersistence } from "./persistence/SharedResistenceLoader";
 
 export type AppStateManager = {
     updateAppState: (state: AppState) => void,
@@ -18,6 +19,7 @@ export const AppStateManagerLoader = memo(({ children, sessionId }: { children?:
     const { AppConfig } = useAppConfig();
     const reboot = useReboot();
     const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
+    const sharedPersistence = useSharedPersistence();
 
     const appState = useMemo(() => {
         const storedAppState = getAppState();
@@ -40,13 +42,14 @@ export const AppStateManagerLoader = memo(({ children, sessionId }: { children?:
                     utilityKey: ex.utilityKey,
                     recoilUpdater,
                     isTestnet: AppConfig.isTestnet,
-                    sessionId
+                    sessionId,
+                    sharedPersistence
                 })
             }
         } else {
             return { state: storedAppState, engine: null };
         }
-    }, []);
+    }, [sessionId, AppConfig]);
 
     const onAppStateUpdate = useCallback((newState: AppState) => {
         if (newState.selected !== undefined && newState.selected < newState.addresses.length) {
@@ -54,8 +57,7 @@ export const AppStateManagerLoader = memo(({ children, sessionId }: { children?:
             appState?.engine?.destroy();
         }
         reboot();
-
-    }, [AppConfig.isTestnet]);
+    }, [AppConfig.isTestnet, appState]);
 
 
     useEffect(() => {
@@ -76,7 +78,7 @@ export const AppStateManagerLoader = memo(({ children, sessionId }: { children?:
 });
 
 export function useAppStateManager() {
-    const ctx = React.useContext(AppStateManagerContext);
+    const ctx = useContext(AppStateManagerContext);
     if (!ctx) {
         throw new Error('AppStateManagerContext not initialized');
     }

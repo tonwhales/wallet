@@ -23,6 +23,7 @@ import { ConnectProduct } from './products/ConnectProduct';
 import { LedgerProduct } from './products/LedgerProduct';
 import { WalletsProduct } from './products/WalletsProduct';
 import { SharedPersistence } from './SharedPersistence';
+import { createContext, useContext } from 'react';
 
 export type RecoilInterface = {
     updater: (node: any, value: any) => void;
@@ -72,7 +73,7 @@ export class Engine {
         publicKey: Buffer,
         utilityKey: Buffer,
         persistence: MMKV,
-        sharedPersistence: MMKV,
+        sharedPersistence: SharedPersistence,
         client4Endpoint: string,
         recoil: RecoilInterface,
         isTestnet: boolean,
@@ -81,7 +82,7 @@ export class Engine {
         this.sessionId = sessionId;
         this.recoil = recoil;
         this.persistence = new Persistence(persistence, this);
-        this.sharedPersistence = new SharedPersistence(sharedPersistence, this);
+        this.sharedPersistence = sharedPersistence;
         this.client4 = new TonClient4({ endpoint: 'https://' + client4Endpoint, timeout: 5000 });
         this.address = address;
         this.publicKey = publicKey;
@@ -137,8 +138,8 @@ export class Engine {
 }
 
 // Context
-export const EngineContext = React.createContext<Engine | null>(null);
+export const EngineContext = createContext<Engine | null>(null);
 
 export function useEngine(): Engine {
-    return React.useContext(EngineContext)!;
+    return useContext(EngineContext)!;
 }

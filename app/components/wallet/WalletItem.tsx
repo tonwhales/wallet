@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, Alert } from "react-native";
+import { Pressable, View, Text } from "react-native";
 import { Address } from "ton";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useEngine } from "../../engine/Engine";
@@ -7,9 +7,9 @@ import { Avatar } from "../Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
 import { useAppStateManager } from "../../engine/AppStateManager";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 import IcCheck from "../../../assets/ic-check.svg";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const WalletItem = memo((
     {

@@ -45,7 +45,7 @@ export const WalletSettingsFragment = fragment(() => {
 
     const onChangeAvatar = useCallback(() => {
         const callback = (hash: number) => setAvatar(hash);
-        navigation.navigate('ChooseAvatar', { callback, hash: avatar });
+        navigation.navigate('AvatarPicker', { callback, hash: avatar });
     }, []);
 
     return (

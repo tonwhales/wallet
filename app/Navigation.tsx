@@ -58,12 +58,11 @@ import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChan
 import { useAppConfig } from './utils/AppConfigContext';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
-import { ProductsFragment } from './fragments/ProductsFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BottomSheetProvider } from './components/modal/BottomSheetModal';
-import { ChooseAvatarFragment } from './fragments/wallet/ChooseAvatarFragment';
+import { AvatarPickerFragment } from './fragments/wallet/AvatarPickerFragment';
 import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
@@ -199,7 +198,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
-    modalScreen('ChooseAvatar', ChooseAvatarFragment, safeArea),
+    modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
 
     // Settings
     genericScreen('Security', SecurityFragment, safeArea),

@@ -8,7 +8,7 @@ import { t } from "../../i18n/t";
 import { useCallback, useState } from "react";
 import { Avatar, avatarImages } from "../../components/Avatar";
 
-export const ChooseAvatarFragment = fragment(() => {
+export const AvatarPickerFragment = fragment(() => {
     const { callback, hash } = useParams<{ callback: (newHash: number) => void, hash: number }>();
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
@@ -47,7 +47,7 @@ export const ChooseAvatarFragment = fragment(() => {
                             fontWeight: '500',
                             marginRight: 16,
                         }}>
-                            {t('contacts.save')}
+                            {t('common.select')}
                         </Text>
                     </Pressable>
                 }
@@ -60,7 +60,7 @@ export const ChooseAvatarFragment = fragment(() => {
                     size={300}
                     id={""}
                     hash={hashState}
-                    borderColor={'transparent'}
+                    borderColor={Theme.transparent}
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
@@ -83,7 +83,7 @@ export const ChooseAvatarFragment = fragment(() => {
                                     width: 72, height: 72,
                                     marginRight: 8,
                                     borderWidth: index === hashState ? 1 : 0,
-                                    borderColor: Theme.accent, 
+                                    borderColor: Theme.accent,
                                     borderRadius: 37
                                 }}
                             >

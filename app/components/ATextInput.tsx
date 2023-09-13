@@ -1,9 +1,11 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, useWindowDimensions } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, useWindowDimensions, TouchableWithoutFeedback } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
-import Animated, { Layout, cancelAnimation, interpolate, measure, useAnimatedRef, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState } from 'react';
+import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+
+import Clear from '../../assets/ic-clear.svg';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -109,13 +111,18 @@ export interface ATextInputProps {
     backgroundColor?: string,
     textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
     suffux?: string,
-    error?: string
+    error?: string,
+    hideClearButton?: boolean,
+    maxLength?: number,
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const dimentions = useWindowDimensions();
     const { Theme } = useAppConfig();
+
     const [focused, setFocused] = useState(false);
+
+    const hasValue = useMemo(() => (props.value && props.value.length > 0), [props.value]);
 
     const onFocus = useCallback(() => {
         setFocused(true);
@@ -146,22 +153,16 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
     }));
 
     const valueNotEmptyShared = useSharedValue(0);
+    const labelHeightCoeff = useSharedValue(1);
+    
     const withLabel = !!props.label;
     const valueNotEmpty = (props.value?.length || 0) > 0;
-
-    const availableWidth = dimentions.width;
-    const maxChars = Math.floor(availableWidth / 10);
-    const labelHeight = useSharedValue(maxChars < (props.label?.length || 0) ? 36 : 18);
-
-    useLayoutEffect(() => {
-        labelHeight.value = maxChars < (props.label?.length || 0) ? 36 : 18;
-    }, [props.label, focused]);
 
     const labelAnimStyle = useAnimatedStyle(() => {
         return {
             transform: [
                 { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
-                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -40]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -44]) },
                 { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
             ]
         }
@@ -169,26 +170,29 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
 
     const labelShiftStyle = useAnimatedStyle(() => {
         return {
-            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value === 18 ? 8 : 28]),
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
         }
     });
 
     const inputHeightCompensatorStyle = useAnimatedStyle(() => {
         return {
-            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeight.value === 18 ? -8 : -6])
+            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * -4])
         }
     });
 
     useEffect(() => {
         cancelAnimation(valueNotEmptyShared);
         valueNotEmptyShared.value = withTiming(withLabel && valueNotEmpty ? 1 : 0, { duration: 100 });
-    }, [withLabel, valueNotEmpty, focused]);
+    }, [withLabel, valueNotEmpty]);
 
     return (
-        <Pressable
+        <TouchableWithoutFeedback
             style={{ position: 'relative' }}
             onPress={() => {
-                tref.current?.focus();
+                if (!focused) {
+                    tref.current?.focus();
+                    return;
+                }
             }}
         >
             <Animated.View style={[
@@ -197,27 +201,33 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     paddingHorizontal: 16,
                     flexDirection: 'row',
                     alignItems: 'center',
+                    minHeight: 24,
                     position: 'relative',
                 },
                 props.style
             ]}>
-                <View style={{ width: '100%', flex: 1 }}>
-                    {withLabel && (
-                        <View style={{ position: 'absolute', top: 0, right: 0, left: 0 }}>
-                            <Animated.View
-                                style={[labelAnimStyle]}
-                            >
-                                <Text
-                                    style={{
-                                        color: Theme.textSecondary,
-                                        fontSize: 17,
-                                        fontWeight: '400'
-                                    }}>
-                                    {props.label}
-                                </Text>
-                            </Animated.View>
-                        </View>
-                    )}
+                {withLabel && (
+                    <View style={{ position: 'absolute', top: 0, right: 0, left: 16 }}>
+                        <Animated.View style={[labelAnimStyle]}>
+                            <Text
+                                onTextLayout={(e) => {
+                                    if (e.nativeEvent.lines.length <= 1) {
+                                        labelHeightCoeff.value = 1;
+                                        return;
+                                    }
+                                    labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                                }}
+                                style={{
+                                    color: Theme.textSecondary,
+                                    fontSize: 17,
+                                    fontWeight: '400'
+                                }}>
+                                {props.label}
+                            </Text>
+                        </Animated.View>
+                    </View>
+                )}
+                <View style={{ width: '100%', flex: 1, position: 'relative' }}>
                     <Animated.View style={labelShiftStyle} />
                     <View
                         style={[{
@@ -229,6 +239,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     >
                         <TextInput
                             ref={tref}
+                            hitSlop={16}
                             style={[
                                 {
                                     color: Theme.textPrimary,
@@ -240,6 +251,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                         : props.multiline
                                             ? 'top'
                                             : 'center',
+                                    width: '100%',
                                 },
                                 props.inputStyle
                             ]}
@@ -264,6 +276,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                             onFocus={onFocus}
                             onBlur={onBlur}
                             onSubmitEditing={onSubmit}
+                            maxLength={props.maxLength}
                         />
                         {props.prefix && (
                             <Text
@@ -299,17 +312,32 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     </View>
                     <Animated.View style={inputHeightCompensatorStyle} />
                 </View>
-                {props.actionButtonRight && (
-                    props.actionButtonRight
-                )}
+                {props.actionButtonRight
+                    ? (props.actionButtonRight)
+                    : !props.hideClearButton && focused && hasValue && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Pressable
+                                onPress={() => {
+                                    if (props.onValueChange) {
+                                        props.onValueChange('');
+                                    }
+                                }}
+                                style={{ height: 24, width: 24 }}
+                                hitSlop={16}
+                            >
+                                <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
+                            </Pressable>
+                        </Animated.View>
+                    )
+                }
             </Animated.View>
-            {props.error && (
+            {/* {props.error && (
                 <Animated.View style={{ marginTop: 2, marginLeft: 16 }} layout={Layout.duration(300)}>
                     <Text style={{ color: Theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
                         {props.error}
                     </Text>
                 </Animated.View>
-            )}
-        </Pressable>
+            )} */}
+        </TouchableWithoutFeedback>
     )
 }));

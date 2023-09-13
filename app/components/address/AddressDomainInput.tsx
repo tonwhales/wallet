@@ -1,14 +1,12 @@
 import React, { ForwardedRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle } from "react-native"
+import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Text } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { Address } from "ton"
-import { AddressComponent } from "./AddressComponent"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns"
 import { t } from "../../i18n/t"
 import { warn } from "../../utils/log"
 import { ATextInput, ATextInputRef } from "../ATextInput"
-import CircularProgress from "../CircularProgress/CircularProgress"
 import { KnownWallets } from "../../secure/KnownWallets"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { useAppConfig } from "../../utils/AppConfigContext"
@@ -16,7 +14,7 @@ import { useEngine } from "../../engine/Engine"
 import { AddressContact } from "../../engine/products/SettingsProduct"
 
 import Scanner from '../../../assets/ic-scanner-accent.svg';
-import Clear from '../../../assets/ic-clear.svg';
+import { View } from "react-native";
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -159,64 +157,68 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     }, [resolvedAddress, resolving, isKnown, contact, focused, target]);
 
     return (
-        <ATextInput
-            autoFocus={autoFocus}
-            value={input}
-            index={index}
-            ref={tref}
-            onFocus={(index) => {
-                setFocused(true);
-                if (onFocus) {
-                    onFocus(index);
-                }
-            }}
-            onValueChange={onInputChange}
-            placeholder={t('common.domainOrAddressOrContact')}
-            keyboardType={'default'}
-            autoCapitalize={'none'}
-            label={label}
-            multiline
-            autoCorrect={false}
-            autoComplete={'off'}
-            textContentType={'none'}
-            style={style}
-            onBlur={(index) => {
-                setFocused(false);
-                if (onBlur) {
-                    onBlur(index);
-                }
-            }}
-            onSubmit={onSubmit}
-            returnKeyType={'next'}
-            blurOnSubmit={false}
-            editable={!resolving}
-            enabled={!resolving}
-            inputStyle={[inputStyle, { marginLeft: (focused && input.length === 0) ? 0 : -2 }]}
-            textAlignVertical={'center'}
-            actionButtonRight={
-                input.length === 0
-                    ? !!onQRCodeRead && (
-                        <Pressable
-                            onPress={openScanner}
-                            style={{ height: 24, width: 24, marginLeft: 8 }}
-                        >
-                            <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
-                        </Pressable>
+        <View>
+            <ATextInput
+                autoFocus={autoFocus}
+                value={input}
+                index={index}
+                ref={tref}
+                onFocus={(index) => {
+                    setFocused(true);
+                    if (onFocus) {
+                        onFocus(index);
+                    }
+                }}
+                onValueChange={onInputChange}
+                placeholder={t('common.domainOrAddressOrContact')}
+                keyboardType={'default'}
+                autoCapitalize={'none'}
+                label={label}
+                multiline
+                autoCorrect={false}
+                autoComplete={'off'}
+                textContentType={'none'}
+                style={style}
+                onBlur={(index) => {
+                    setFocused(false);
+                    if (onBlur) {
+                        onBlur(index);
+                    }
+                }}
+                onSubmit={onSubmit}
+                returnKeyType={'next'}
+                blurOnSubmit={false}
+                editable={!resolving}
+                enabled={!resolving}
+                inputStyle={[inputStyle, { marginLeft: (focused && input.length === 0) ? 0 : -2 }]}
+                textAlignVertical={'center'}
+                actionButtonRight={
+                    input.length === 0 && !!onQRCodeRead && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Pressable
+                                onPress={openScanner}
+                                style={{ height: 24, width: 24 }}
+                            >
+                                <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                            </Pressable>
+                        </Animated.View>
                     )
-                    : (focused && (
-                        <Pressable
-                            onPress={() => onInputChange('')}
-                            style={{ height: 24, width: 24, marginLeft: 8 }}
-                        >
-                            <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
-                        </Pressable>
-                    ))
-            }
-            error={
-                invalid && (input.length >= 48 || (!focused && input.length > 0))
-                    ? t('transfer.error.invalidAddress')
-                    : undefined
-            }
-        />
+                }
+            />
+            {invalid && (input.length >= 48 || (!focused && input.length > 0)) && (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <Text style={{
+                        color: Theme.accentRed,
+                        fontSize: 13,
+                        lineHeight: 18,
+                        marginTop: 16,
+                        marginLeft: 16,
+                        fontWeight: '400'
+                    }}>
+                        {t('transfer.error.invalidAddress')}
+                    </Text>
+                </Animated.View>
+            )}
+        </View>
     )
 }));

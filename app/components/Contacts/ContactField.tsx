@@ -5,6 +5,7 @@ import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 import IcClear from '../../../assets/ic-clear.svg';
+import { ATextInput } from "../ATextInput";
 
 export const ContactField = memo(forwardRef((props: {
     input: {
@@ -40,81 +41,36 @@ export const ContactField = memo(forwardRef((props: {
     }, [props.input.value]);
 
     return (
-        <Pressable
-            style={{
-                backgroundColor: Theme.border,
-                width: '100%', borderRadius: 20,
-                flexDirection: 'row', alignItems: 'center',
+        <ATextInput
+            ref={ref}
+            inputStyle={{
+                fontSize: 17,
+                fontWeight: '400', color: Theme.textPrimary
             }}
-            onPress={() => {
-                (ref as RefObject<TextInput>)?.current?.focus();
+            maxLength={126}
+            label={label}
+            multiline={false}
+            blurOnSubmit={true}
+            editable={props.input.editable}
+            value={value}
+            onFocus={() => {
+                setFocused(true);
+                if (props.input.onFocus) {
+                    props.input.onFocus(props.index);
+                }
             }}
-            hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-        >
-            <View style={{ flexGrow: 1 }}>
-                <View style={{
-                    width: '100%',
-                    overflow: 'hidden',
-                    position: 'relative',
-                    marginBottom: 2
-                }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                        {label}
-                    </Text>
-                </View>
-                <TextInput
-                    ref={ref}
-                    style={[
-                        {
-                            textAlignVertical: 'top',
-                            fontSize: 17,
-                            fontWeight: '400', color: Theme.textPrimary
-                        }
-                    ]}
-                    maxLength={126}
-                    placeholder={label}
-                    placeholderTextColor={Theme.textSecondary}
-                    multiline={false}
-                    blurOnSubmit={true}
-                    editable={props.input.editable}
-                    value={value}
-                    onFocus={() => {
-                        setFocused(true);
-                        if (props.input.onFocus) {
-                            props.input.onFocus(props.index);
-                        }
-                    }}
-                    onBlur={() => {
-                        setFocused(false);
-                        if (props.input.onBlur) {
-                            props.input.onBlur(props.index);
-                        }
-                    }}
-                    onChangeText={setValue}
-                    onSubmitEditing={() => {
-                        if (props.input.onSubmit) {
-                            props.input.onSubmit(props.index);
-                        }
-                    }}
-                />
-            </View>
-            {value.length > 0 && focused && (
-                <Pressable
-                    style={({ pressed }) => {
-                        return { opacity: pressed ? 0.5 : 1, height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }
-                    }}
-                    onPress={() => {
-                        setValue('');
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                >
-                    <IcClear
-                        height={24} width={24}
-                        color={Theme.textSecondary}
-                        style={{ height: 24, width: 24, }}
-                    />
-                </Pressable>
-            )}
-        </Pressable>
+            onBlur={() => {
+                setFocused(false);
+                if (props.input.onBlur) {
+                    props.input.onBlur(props.index);
+                }
+            }}
+            onValueChange={setValue}
+            onSubmit={() => {
+                if (props.input.onSubmit) {
+                    props.input.onSubmit(props.index);
+                }
+            }}
+        />
     );
 }));

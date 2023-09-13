@@ -810,9 +810,11 @@ export const SimpleTransferFragment = fragment(() => {
                                     paddingStart: 0, paddingEnd: 0,
                                     textAlignVertical: 'top',
                                     color: amountError ? Theme.accentRed : Theme.textPrimary,
+                                    width: 'auto',
                                     flexShrink: 1
                                 }}
                                 suffux={priceText}
+                                hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                             />
                         </View>
@@ -836,35 +838,37 @@ export const SimpleTransferFragment = fragment(() => {
                         layout={Layout.duration(300)}
                         style={seletectInputStyles.address}
                     >
-                        <AddressDomainInput
-                            input={addressDomainInput}
-                            onInputChange={setAddressDomainInput}
-                            target={target}
-                            index={1}
-                            ref={refs[1]}
-                            onFocus={onFocus}
-                            onTargetChange={setTarget}
-                            onDomainChange={setDomain}
-                            style={{
-                                margin: 0, padding: 20,
-                                paddingHorizontal: 20,
-                                backgroundColor: Theme.border,
-                            }}
-                            inputStyle={{
-                                flexShrink: 1,
-                                marginHorizontal: 0, marginVertical: 0,
-                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                paddingLeft: 0, paddingRight: 0,
-                                fontSize: 17,
-                                fontWeight: '400', color: Theme.textPrimary,
-                                textAlignVertical: 'center',
-                            }}
-                            isKnown={isKnown}
-                            onSubmit={onSubmit}
-                            contact={contact}
-                            onQRCodeRead={onQRCodeRead}
-                            invalid={!targetAddressValid}
-                        />
+                        <View style={{
+                            flex: 1,
+                            backgroundColor: Theme.border,
+                            paddingVertical: 20,
+                            width: '100%', borderRadius: 20,
+                        }}>
+                            <AddressDomainInput
+                                input={addressDomainInput}
+                                onInputChange={setAddressDomainInput}
+                                target={target}
+                                index={1}
+                                ref={refs[1]}
+                                onFocus={onFocus}
+                                onTargetChange={setTarget}
+                                onDomainChange={setDomain}
+                                inputStyle={{
+                                    flexShrink: 1,
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    paddingLeft: 0, paddingRight: 0,
+                                    fontSize: 17,
+                                    fontWeight: '400', color: Theme.textPrimary,
+                                    textAlignVertical: 'center',
+                                }}
+                                isKnown={isKnown}
+                                onSubmit={onSubmit}
+                                contact={contact}
+                                onQRCodeRead={onQRCodeRead}
+                                invalid={!targetAddressValid}
+                            />
+                        </View>
                         {selected === 'address' && (
                             <Animated.View
                                 style={{ marginTop: 32, marginHorizontal: -16 }}
@@ -895,38 +899,38 @@ export const SimpleTransferFragment = fragment(() => {
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={[
-                            {
-                                marginTop: 16,
-                                backgroundColor: Theme.background,
-                            },
+                            { marginTop: 16, backgroundColor: Theme.background },
                             seletectInputStyles.comment
                         ]}
                     >
-                        <ATextInput
-                            value={comment}
-                            index={2}
-                            ref={refs[2]}
-                            onFocus={onFocus}
-                            onValueChange={setComment}
-                            placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                            keyboardType={'default'}
-                            autoCapitalize={'sentences'}
-                            label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                            style={{
-                                backgroundColor: Theme.border,
-                                padding: 20, paddingHorizontal: 20,
-                            }}
-                            inputStyle={{
-                                flexShrink: 1,
-                                marginHorizontal: 0, marginVertical: 0,
-                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                paddingLeft: 0, paddingRight: 0,
-                                fontSize: 17,
-                                fontWeight: '400', color: Theme.textPrimary,
-                                textAlignVertical: 'center',
-                            }}
-                            multiline
-                        />
+                        <View style={{
+                            flex: 1,
+                            backgroundColor: Theme.border,
+                            paddingVertical: 20,
+                            width: '100%', borderRadius: 20,
+                        }}>
+                            <ATextInput
+                                value={comment}
+                                index={2}
+                                ref={refs[2]}
+                                onFocus={onFocus}
+                                onValueChange={setComment}
+                                placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                keyboardType={'default'}
+                                autoCapitalize={'sentences'}
+                                label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                inputStyle={{
+                                    flexShrink: 1,
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    paddingLeft: 0, paddingRight: 0,
+                                    fontSize: 17,
+                                    fontWeight: '400', color: Theme.textPrimary,
+                                    textAlignVertical: 'center',
+                                }}
+                                multiline
+                            />
+                        </View>
                         {selected === 'comment' && (
                             <Animated.View layout={Layout.duration(300)}>
                                 <Text style={{

@@ -15,6 +15,7 @@ import { ToastDuration, useToaster } from "../../components/toast/ToastProvider"
 import Animated from "react-native-reanimated";
 
 import Clear from '../../../assets/ic-clear.svg';
+import { ATextInput } from "../../components/ATextInput";
 
 export const WalletSettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -80,7 +81,11 @@ export const WalletSettingsFragment = fragment(() => {
                     </Pressable>
                 }
             />
-            <ScrollView>
+            <ScrollView
+                contentInsetAdjustmentBehavior={'never'}
+                keyboardShouldPersistTaps={'always'}
+                keyboardDismissMode={'none'}
+            >
                 <View style={{
                     marginTop: 16,
                     alignItems: 'center',
@@ -111,56 +116,21 @@ export const WalletSettingsFragment = fragment(() => {
                         </Text>
                     </Pressable>
                     <View style={{
+                        flex: 1,
                         backgroundColor: Theme.border,
-                        paddingHorizontal: 20, marginTop: 20,
-                        paddingVertical: 10,
+                        marginTop: 20,
+                        paddingVertical: 20,
                         width: '100%', borderRadius: 20,
-                        flexDirection: 'row', alignItems: 'center',
                     }}>
-                        <View style={{ flexGrow: 1 }}>
-                            <View style={{
-                                width: '100%',
-                                overflow: 'hidden',
-                            }}>
-                                <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                                    {t('common.walletName')}
-                                </Text>
-                            </View>
-                            <TextInput
-                                style={[
-                                    {
-                                        paddingHorizontal: 0,
-                                        paddingVertical: 0,
-                                        includeFontPadding: false,
-                                        textAlignVertical: 'center',
-                                        fontSize: 17, lineHeight: 24,
-                                        fontWeight: '400', color: Theme.textPrimary,
-                                        paddingTop: 0,
-                                        paddingBottom: 0
-                                    }
-                                ]}
-                                maxLength={64}
-                                placeholder={t('common.walletName')}
-                                placeholderTextColor={Theme.textSecondary}
-                                multiline={true}
-                                blurOnSubmit={true}
-                                editable={true}
-                                value={name}
-                                onChangeText={setName}
-                                onFocus={() => setNameFocused(true)}
-                                onBlur={() => setNameFocused(false)}
-                            />
-                        </View>
-                        {name.length > 0 && nameFocused && (
-                            <Animated.View>
-                                <Pressable
-                                    onPress={() => setName('')}
-                                    style={{ height: 24, width: 24, marginLeft: 8 }}
-                                >
-                                    <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
-                                </Pressable>
-                            </Animated.View>
-                        )}
+                        <ATextInput
+                            label={t('common.walletName')}
+                            blurOnSubmit={true}
+                            editable={true}
+                            value={name}
+                            onValueChange={setName}
+                            onFocus={() => setNameFocused(true)}
+                            onBlur={() => setNameFocused(false)}
+                        />
                     </View>
                     <View style={{
                         backgroundColor: Theme.border,

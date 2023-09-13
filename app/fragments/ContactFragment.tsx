@@ -23,6 +23,7 @@ import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 
 import CopyIcon from '../../assets/ic-copy.svg';
 import ShareIcon from '../../assets/ic-share-contact.svg';
+import { ATextInput } from "../components/ATextInput";
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -279,6 +280,9 @@ export const ContactFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
+                contentInsetAdjustmentBehavior={'never'}
+                keyboardShouldPersistTaps={'always'}
+                keyboardDismissMode={'none'}
             >
                 <Animated.View
                     ref={containerRef}
@@ -407,10 +411,9 @@ export const ContactFragment = fragment(() => {
                                 {
                                     fields.filter((f) => (f.value?.length ?? 0) > 0).map((field, index) => {
                                         return (
-                                            <>
+                                            <View key={`input-${index}`}>
                                                 <ContactField
                                                     fieldKey={field.key}
-                                                    key={`input-${index}`}
                                                     index={index + (params.isNew ? 2 : 1)}
                                                     ref={refs[index + (params.isNew ? 2 : 1)]}
                                                     input={{
@@ -425,7 +428,7 @@ export const ContactFragment = fragment(() => {
                                                 {index !== fields.filter((f) => (f.value?.length ?? 0) > 0).length - 1 && (
                                                     <ItemDivider marginHorizontal={0} />
                                                 )}
-                                            </>
+                                            </View>
                                         )
                                     })
                                 }
@@ -437,52 +440,19 @@ export const ContactFragment = fragment(() => {
                         <>
                             <View style={{
                                 backgroundColor: Theme.border,
-                                paddingHorizontal: 20, marginTop: 20,
-                                paddingVertical: 10,
+                                marginTop: 20,
+                                paddingVertical: 20,
                                 width: '100%', borderRadius: 20
                             }}>
-                                <Pressable
-                                    onPress={() => {
-                                        if (refs[params.isNew ? 1 : 0]) {
-                                            refs[params.isNew ? 1 : 0].current?.focus();
-                                        }
-                                    }}
-                                    hitSlop={{ top: 16, bottom: 16, left: 16, right: 16 }}
-                                >
-                                    <View style={{
-                                        width: '100%',
-                                        overflow: 'hidden',
-                                        position: 'relative',
-                                        marginBottom: 2
-                                    }}>
-                                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                                            {t('contacts.name')}
-                                        </Text>
-                                    </View>
-                                    <TextInput
-                                        ref={refs[params.isNew ? 1 : 0]}
-                                        style={[
-                                            {
-                                                paddingVertical: 0,
-                                                paddingHorizontal: 0,
-                                                textAlignVertical: 'top',
-                                                fontSize: 17, lineHeight: 24,
-                                                fontWeight: '400', color: Theme.textPrimary
-                                            }
-                                        ]}
-                                        autoFocus
-                                        maxLength={126}
-                                        placeholder={t('contacts.name')}
-                                        placeholderTextColor={Theme.textSecondary}
-                                        multiline={false}
-                                        blurOnSubmit={true}
-                                        editable={editing}
-                                        value={name}
-                                        onChangeText={setName}
-                                        onSubmitEditing={() => onSubmit(params.isNew ? 1 : 0)}
-                                        onFocus={() => onFocus(params.isNew ? 1 : 0)}
-                                    />
-                                </Pressable>
+                                <ATextInput
+                                    ref={refs[params.isNew ? 1 : 0]}
+                                    value={name}
+                                    onValueChange={setName}
+                                    label={t('contacts.name')}
+                                    blurOnSubmit={true}
+                                    editable={editing}
+                                    onFocus={() => onFocus(params.isNew ? 1 : 0)}
+                                />
                             </View>
                             {!params.isNew && (
                                 <View style={{
@@ -514,39 +484,19 @@ export const ContactFragment = fragment(() => {
                             {params.isNew && (
                                 <View style={{
                                     backgroundColor: Theme.border,
-                                    paddingHorizontal: 20, marginTop: 20,
-                                    paddingVertical: 10,
+                                    marginTop: 20,
+                                    paddingVertical: 20,
                                     width: '100%', borderRadius: 20
                                 }}>
-                                    <View style={{
-                                        width: '100%',
-                                        overflow: 'hidden',
-                                        position: 'relative',
-                                        marginBottom: 2
-                                    }}>
-                                        <Text style={{ color: Theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
-                                            {t('common.walletAddress')}
-                                        </Text>
-                                    </View>
-                                    <TextInput
+                                    <ATextInput
                                         ref={refs[0]}
-                                        style={[
-                                            {
-                                                paddingHorizontal: 0,
-                                                textAlignVertical: 'top',
-                                                fontSize: 17, lineHeight: 24,
-                                                fontWeight: '400', color: Theme.textPrimary
-                                            }
-                                        ]}
-                                        maxLength={48}
-                                        placeholder={t('common.walletAddress')}
-                                        placeholderTextColor={Theme.textSecondary}
-                                        multiline={true}
-                                        blurOnSubmit={true}
-                                        editable={true}
                                         value={address}
-                                        onChangeText={setAddress}
-                                        onSubmitEditing={() => onSubmit(0)}
+                                        maxLength={64}
+                                        onValueChange={setAddress}
+                                        label={t('common.walletAddress')}
+                                        blurOnSubmit={true}
+                                        editable={editing}
+                                        multiline
                                         onFocus={() => onFocus(0)}
                                     />
                                 </View>
@@ -554,16 +504,15 @@ export const ContactFragment = fragment(() => {
 
                             <View style={{
                                 backgroundColor: Theme.border,
-                                paddingHorizontal: 20, marginTop: 20,
-                                paddingVertical: 10,
+                                marginTop: 20,
+                                paddingVertical: 20,
                                 width: '100%', borderRadius: 20
                             }}>
                                 {fields.map((field, index) => {
                                     return (
-                                        <>
+                                        <View key={`input-${index}`}>
                                             <ContactField
                                                 fieldKey={field.key}
-                                                key={`input-${index}`}
                                                 index={index + (params.isNew ? 2 : 1)}
                                                 ref={refs[index + (params.isNew ? 2 : 1)]}
                                                 input={{
@@ -576,9 +525,11 @@ export const ContactFragment = fragment(() => {
                                                 onFieldChange={onFieldChange}
                                             />
                                             {index !== fields.length - 1 && (
-                                                <ItemDivider marginHorizontal={0} />
+                                                <View style={{ marginHorizontal: 16 }}>
+                                                    <ItemDivider marginHorizontal={0} />
+                                                </View>
                                             )}
-                                        </>
+                                        </View>
                                     )
                                 })}
                             </View>
@@ -588,7 +539,6 @@ export const ContactFragment = fragment(() => {
                                     onPress={onDelete}
                                     title={t('contacts.delete')}
                                     style={{ marginTop: 16 }}
-
                                 />
                             )}
                         </>

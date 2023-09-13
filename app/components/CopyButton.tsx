@@ -36,7 +36,7 @@ export const CopyButton = React.memo(({
     const onCopy = useCallback(() => {
         copyText(body);
 
-        toaster.push(
+        toaster.show(
             {
                 message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',

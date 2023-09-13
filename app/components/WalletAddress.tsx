@@ -66,7 +66,7 @@ export const WalletAddress = memo((props: {
         const text = props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet });
         copyText(text);
 
-        toaster.push(
+        toaster.show(
             {
                 message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
                 type: 'default',

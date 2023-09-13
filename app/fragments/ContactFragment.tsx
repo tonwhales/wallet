@@ -19,6 +19,7 @@ import { useScreenHeader } from "../components/ScreenHeader";
 import { copyText } from "../utils/copyText";
 import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
+import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 
 import CopyIcon from '../../assets/ic-copy.svg';
 import ShareIcon from '../../assets/ic-share-contact.svg';
@@ -35,6 +36,7 @@ export const ContactFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const settings = engine.products.settings;
+    const toaster = useToaster();
 
     const [address, setAddress] = useState(params.address ?? '');
     const parsed = useMemo(() => {
@@ -169,6 +171,14 @@ export const ContactFragment = fragment(() => {
             return;
         }
         copyText(parsed.toFriendly({ testOnly: AppConfig.isTestnet }));
+
+        toaster.show(
+            {
+                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                type: 'default',
+                duration: ToastDuration.SHORT,
+            }
+        );
     }, [parsed]);
 
     const onShare = useCallback(() => {

@@ -90,7 +90,6 @@ export const CurrencyFragment = fragment(() => {
                                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                         <Text style={{
                                             fontWeight: '600',
-                                            marginLeft: 17,
                                             fontSize: 17,
                                             color: Theme.textPrimary
                                         }}>

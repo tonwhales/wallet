@@ -136,7 +136,7 @@ export const TransactionView = React.memo((props: {
                 </View>
             </View>
         </TouchableHighlight>
-    );
+    ); 
 }, (prevProps, newProps) => newProps.tx.id !== prevProps.tx.id);
 
 TransactionView.displayName = 'TransactionView';

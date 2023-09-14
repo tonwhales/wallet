@@ -741,6 +741,7 @@ export type LocalizationSchema = {
             message: string
         },
         checkRecipient: string,
+        checkRecipientDescription: string,
     },
     logout: {
         title: string,

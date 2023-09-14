@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, TextInput, ScrollView } from "react-native";
+import { Pressable, View, Text, Platform, ScrollView } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState, getCurrentAddress } from "../../storage/appState";
@@ -12,9 +12,6 @@ import { useEngine } from "../../engine/Engine";
 import { copyText } from "../../utils/copyText";
 import { StatusBar } from "expo-status-bar";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
-import Animated from "react-native-reanimated";
-
-import Clear from '../../../assets/ic-clear.svg';
 import { ATextInput } from "../../components/ATextInput";
 
 export const WalletSettingsFragment = fragment(() => {
@@ -127,6 +124,7 @@ export const WalletSettingsFragment = fragment(() => {
                             blurOnSubmit={true}
                             editable={true}
                             value={name}
+                            style={{ paddingHorizontal: 16 }}
                             onValueChange={setName}
                             onFocus={() => setNameFocused(true)}
                             onBlur={() => setNameFocused(false)}
@@ -135,7 +133,7 @@ export const WalletSettingsFragment = fragment(() => {
                     <View style={{
                         backgroundColor: Theme.border,
                         paddingVertical: 10,
-                        paddingHorizontal: 20,
+                        paddingHorizontal: 16,
                         marginTop: 20,
                         width: '100%', borderRadius: 20
                     }}>

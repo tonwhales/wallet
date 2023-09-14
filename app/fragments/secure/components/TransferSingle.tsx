@@ -41,6 +41,7 @@ import IcAlert from '../../../../assets/ic-alert.svg';
 import IcInfo from '../../../../assets/ic-info.svg';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import Verified from '../../../../assets/ic-verified.svg';
+import { ValueComponent } from "../../../components/ValueComponent";
 
 type Props = {
     target: {
@@ -384,7 +385,7 @@ export const TransferSingle = memo((props: Props) => {
                     )}
                     <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
                         <View style={{
-                            backgroundColor: capColor,
+                            backgroundColor: Theme.divider,
                             height: 54,
                             position: 'absolute', left: 0, right: 0
                         }} />
@@ -798,7 +799,11 @@ export const TransferSingle = memo((props: Props) => {
                             </Pressable>
                             <View style={{ alignItems: 'flex-end' }}>
                                 <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: Theme.textPrimary }}>
-                                    {fromNano(fees) + ' TON'}
+                                    <ValueComponent
+                                        value={fees}
+                                        precision={6}
+                                    />
+                                    {' TON'}
                                 </Text>
                                 <PriceComponent
                                     amount={fees}

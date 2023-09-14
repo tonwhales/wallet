@@ -47,6 +47,7 @@ export const ContactField = memo(forwardRef((props: {
                 fontSize: 17,
                 fontWeight: '400', color: Theme.textPrimary
             }}
+            style={{ paddingHorizontal: 16 }}
             maxLength={126}
             label={label}
             multiline={false}

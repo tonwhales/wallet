@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, useWindowDimensions, TouchableWithoutFeedback } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
@@ -108,6 +108,8 @@ export interface ATextInputProps {
     onSubmit?: (index: number) => void,
     index?: number,
     label?: string,
+    labelStyle?: StyleProp<ViewStyle>,
+    labelTextStyle?: StyleProp<TextStyle>,
     backgroundColor?: string,
     textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
     suffux?: string,
@@ -117,7 +119,6 @@ export interface ATextInputProps {
 }
 
 export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
-    const dimentions = useWindowDimensions();
     const { Theme } = useAppConfig();
 
     const [focused, setFocused] = useState(false);
@@ -154,7 +155,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);
-    
+
     const withLabel = !!props.label;
     const valueNotEmpty = (props.value?.length || 0) > 0;
 
@@ -198,7 +199,6 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
             <Animated.View style={[
                 {
                     borderRadius: 12,
-                    paddingHorizontal: 16,
                     flexDirection: 'row',
                     alignItems: 'center',
                     minHeight: 24,
@@ -208,7 +208,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
             ]}>
                 {withLabel && (
                     <View style={{ position: 'absolute', top: 0, right: 0, left: 16 }}>
-                        <Animated.View style={[labelAnimStyle]}>
+                        <Animated.View style={[labelAnimStyle, props.labelStyle]}>
                             <Text
                                 onTextLayout={(e) => {
                                     if (e.nativeEvent.lines.length <= 1) {
@@ -217,11 +217,15 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                     }
                                     labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
                                 }}
-                                style={{
-                                    color: Theme.textSecondary,
-                                    fontSize: 17,
-                                    fontWeight: '400'
-                                }}>
+                                style={[
+                                    {
+                                        color: Theme.textSecondary,
+                                        fontSize: 17,
+                                        fontWeight: '400'
+                                    },
+                                    props.labelTextStyle
+                                ]}
+                            >
                                 {props.label}
                             </Text>
                         </Animated.View>
@@ -230,11 +234,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                 <View style={{ width: '100%', flex: 1, position: 'relative' }}>
                     <Animated.View style={labelShiftStyle} />
                     <View
-                        style={[{
-                            flex: 1, flexGrow: 1,
-                            flexDirection: 'row',
-                            alignItems: 'center'
-                        }]}
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
                         ref={props.innerRef}
                     >
                         <TextInput
@@ -252,6 +252,9 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                             ? 'top'
                                             : 'center',
                                     width: '100%',
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    paddingLeft: 0, paddingRight: 0,
                                 },
                                 props.inputStyle
                             ]}

@@ -693,9 +693,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     alignItems: 'center',
                                     justifyContent: 'space-between'
                                 }}>
-                                    <View style={{
-                                        flexDirection: 'row',
-                                    }}>
+                                    <View style={{ flexDirection: 'row' }}>
                                         <View style={{
                                             height: 46, width: 46,
                                             justifyContent: 'center', alignItems: 'center',
@@ -804,10 +802,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     borderRadius: 16,
                                 }}
                                 inputStyle={{
-                                    fontSize: 17,
-                                    fontWeight: '400',
-                                    paddingTop: 0, paddingBottom: 0,
-                                    paddingStart: 0, paddingEnd: 0,
+                                    fontSize: 17, fontWeight: '400',
                                     textAlignVertical: 'top',
                                     color: amountError ? Theme.accentRed : Theme.textPrimary,
                                     width: 'auto',
@@ -853,11 +848,9 @@ export const SimpleTransferFragment = fragment(() => {
                                 onFocus={onFocus}
                                 onTargetChange={setTarget}
                                 onDomainChange={setDomain}
+                                style={{ paddingHorizontal: 16 }}
                                 inputStyle={{
                                     flexShrink: 1,
-                                    marginHorizontal: 0, marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    paddingLeft: 0, paddingRight: 0,
                                     fontSize: 17,
                                     fontWeight: '400', color: Theme.textPrimary,
                                     textAlignVertical: 'center',
@@ -919,11 +912,9 @@ export const SimpleTransferFragment = fragment(() => {
                                 keyboardType={'default'}
                                 autoCapitalize={'sentences'}
                                 label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                                style={{ paddingHorizontal: 16 }}
                                 inputStyle={{
                                     flexShrink: 1,
-                                    marginHorizontal: 0, marginVertical: 0,
-                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                    paddingLeft: 0, paddingRight: 0,
                                     fontSize: 17,
                                     fontWeight: '400', color: Theme.textPrimary,
                                     textAlignVertical: 'center',

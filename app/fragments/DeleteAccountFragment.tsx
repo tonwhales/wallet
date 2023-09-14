@@ -1,14 +1,11 @@
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
-import { Platform, View, Text, ScrollView, Alert, TextInput } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { Platform, View, Text, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
-import { CloseButton } from "../components/CloseButton";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { RoundButton } from "../components/RoundButton";
 import { contractFromPublicKey } from "../engine/contractFromPublicKey";
@@ -17,14 +14,12 @@ import { useItem } from "../engine/persistence/PersistedItem";
 import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
-import { KnownWallets } from "../secure/KnownWallets";
 import { getAppState, getCurrentAddress } from "../storage/appState";
 import { sharedStoragePersistence, storage, storagePersistence } from "../storage/storage";
 import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
 import { clearHolders } from "./LogoutFragment";
 import { useAppConfig } from "../utils/AppConfigContext";
@@ -56,10 +51,25 @@ export const DeleteAccountFragment = fragment(() => {
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const addr = useMemo(() => getCurrentAddress(), []);
+
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [recipientString, setRecipientString] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
 
-    const onDeleteAccount = React.useCallback(() => {
+    const invalidAddress = useMemo(() => {
+        if (!recipientString) {
+            return true;
+        }
+        if (recipientString.length >= 48) {
+            try {
+                Address.parse(recipientString);
+            } catch {
+                return true;
+            }
+        }
+        return false;
+    }, [recipientString]);
+
+    const onDeleteAccount = useCallback(() => {
         let ended = false;
 
         async function confirm(title: LocalizedResources) {
@@ -261,7 +271,7 @@ export const DeleteAccountFragment = fragment(() => {
 
         showActionSheetWithOptions({
             title: t('deleteAccount.confirm.title'),
-            message: t('deleteAccount.confirm.message', { address: recipientString }),
+            message: t('deleteAccount.confirm.message'),
             options,
             destructiveButtonIndex,
             cancelButtonIndex,
@@ -277,7 +287,7 @@ export const DeleteAccountFragment = fragment(() => {
                     break;
             }
         });
-    }, [onDeleteAccount, recipientString]);
+    }, [onDeleteAccount]);
 
     const onSupport = useCallback(() => {
         const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
@@ -311,7 +321,7 @@ export const DeleteAccountFragment = fragment(() => {
                 title={t('settings.deleteAccount')}
                 onBackPressed={navigation.goBack}
             />
-            <View style={{ flex: 1, paddingHorizontal: 16, marginTop: 16 }}>
+            <View style={{ flexGrow: 1, paddingHorizontal: 16, marginTop: 16 }}>
                 <View style={{
                     backgroundColor: 'rgba(255, 65, 92, 0.10)',
                     borderRadius: 20, padding: 20,
@@ -337,19 +347,13 @@ export const DeleteAccountFragment = fragment(() => {
                     </Text>
                 </View>
 
-                <View
-                    style={{
-                        marginBottom: 16,
-                        backgroundColor: Theme.border,
-                        borderRadius: 20,
-                        justifyContent: 'center',
-                        padding: 20,
-                    }}
-                >
-                    <View style={{
-                        flexDirection: 'row',
-                        marginBottom: 12,
-                    }}>
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.border,
+                    borderRadius: 20,
+                    padding: 20,
+                }}>
+                    <View style={{ flexDirection: 'row', marginBottom: 12 }}>
                         <IcCheckAddress width={24} height={24} color={Theme.accentRed} />
                         <Text style={{
                             fontWeight: '600',
@@ -362,37 +366,38 @@ export const DeleteAccountFragment = fragment(() => {
                     </View>
                     <View style={{
                         backgroundColor: Theme.background,
-                        borderRadius: 16,
-                        minHeight: 68 + 10,
-                        position: 'relative',
-                        paddingVertical: 10
+                        paddingVertical: 20,
+                        width: '100%', borderRadius: 20,
+                        flexGrow: 1,
                     }}>
-                        <ATextInput
-                            value={recipientString}
-                            onValueChange={setRecipientString}
-                            keyboardType={'ascii-capable'}
-                            multiline
-                            autoCorrect={false}
-                            autoComplete={'off'}
-                            textContentType={'none'}
-                            style={{
-                                minHeight: 68,
-                                margin: 0, paddingTop: 10,
-                                width: '100%', flex:1 
-                            }}
-                            inputStyle={{
-                                minHeight: 48,
-                                marginHorizontal: 0, marginVertical: 0,
-                                paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
-                                paddingLeft: 0, paddingRight: 0,
-                                fontSize: 17,
-                                fontWeight: '400', color: Theme.textPrimary,
-                                textAlignVertical: 'center',
-                            }}
-                            textAlignVertical={'center'}
-                            label={t('common.recipientAddress')}
-                        />
+                        <View style={{ paddingHorizontal: 6 }}>
+                            <ATextInput
+                                value={recipientString}
+                                onValueChange={setRecipientString}
+                                keyboardType={'ascii-capable'}
+                                multiline
+                                autoCorrect={false}
+                                autoComplete={'off'}
+                                textContentType={'none'}
+                                maxLength={48}
+                                style={{
+                                    paddingHorizontal: 10,
+                                }}
+                                inputStyle={{
+                                    fontSize: 17,
+                                    fontWeight: '400', color: Theme.textPrimary,
+                                }}
+                                label={t('common.recipientAddress')}
+                            />
+                        </View>
                     </View>
+                    <Text style={{
+                        fontSize: 13, lineHeight: 18,
+                        fontWeight: '400',
+                        color: Theme.textSecondary, marginTop: 4, marginLeft: 16
+                    }}>
+                        {t('deleteAccount.checkRecipientDescription')}
+                    </Text>
                 </View>
                 <View style={{
                     backgroundColor: Theme.border,

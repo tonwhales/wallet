@@ -61,7 +61,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         somethingWentWrong: 'Something went wrong',
         checkInternetConnection: 'Check your internet connection',
         reload: 'Reload',
-        errorOccurred: 'Error occurred: {{error}}', 
+        errorOccurred: 'Error occurred: {{error}}',
         recent: 'Recent',
         ok: 'OK',
         attention: 'Attention',
@@ -736,9 +736,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
-            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified: {{address}}.\nPlease, check the recipient address carefully before proceeding.',
+            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding.',
         },
         checkRecipient: 'Check recipient',
+        checkRecipientDescription: 'To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding',
     },
     logout: {
         title: 'Are you sure you want to Log Out of {{name}}?',

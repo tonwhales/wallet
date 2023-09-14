@@ -93,7 +93,7 @@ const darkTheme: ThemeType = {
 
     iconPrimary: '#AAB4BF',
 
-    divider: '#1C1C1E',
+    divider: '#2C2C2D',
 
     border: '#1C1C1E',
 }

@@ -35,6 +35,7 @@ import IcAlert from '../../../../assets/ic-alert.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import Verified from '../../../../assets/ic-verified.svg';
+import { ValueComponent } from "../../../components/ValueComponent";
 
 type Props = {
     text: string | null,

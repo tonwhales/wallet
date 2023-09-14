@@ -20,10 +20,10 @@ import { copyText } from "../utils/copyText";
 import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
+import { ATextInput } from "../components/ATextInput";
 
 import CopyIcon from '../../assets/ic-copy.svg';
 import ShareIcon from '../../assets/ic-share-contact.svg';
-import { ATextInput } from "../components/ATextInput";
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -449,6 +449,7 @@ export const ContactFragment = fragment(() => {
                                     value={name}
                                     onValueChange={setName}
                                     label={t('contacts.name')}
+                                    style={{ paddingHorizontal: 16 }}
                                     blurOnSubmit={true}
                                     editable={editing}
                                     onFocus={() => onFocus(params.isNew ? 1 : 0)}
@@ -491,7 +492,9 @@ export const ContactFragment = fragment(() => {
                                     <ATextInput
                                         ref={refs[0]}
                                         value={address}
-                                        maxLength={64}
+                                        maxLength={48}
+                                        style={{ paddingHorizontal: 16 }}
+                                        keyboardType={'ascii-capable'}
                                         onValueChange={setAddress}
                                         label={t('common.walletAddress')}
                                         blurOnSubmit={true}

@@ -72,7 +72,7 @@ export const HoldersNotificationIcon = memo(({ notification }: { notification: C
             justifyContent: 'center', alignItems: 'center',
             backgroundColor: Theme.border
         }}>
-            {!!imageUrl && <Image source={{ uri: imageUrl }} style={{ height: 46, width: 46 }} />}
+            {!!imageUrl && <Image source={{ uri: imageUrl }} style={{ height: 46, width: 46, borderRadius: 23 }} />}
             {!!Icon && <Icon style={{ width: 32, height: 32 }} />}
             {notification.type === 'charge_failed' && (
                 <IcFailed

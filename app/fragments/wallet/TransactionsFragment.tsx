@@ -138,21 +138,10 @@ function TransactionsComponent(props: { wallet: WalletState }) {
         return account.transactions.length !== 0;
     }, [account.transactions.length]);
 
-    const hasCardsNotifications = useMemo(() => {
-        return holdersCards.some((account) => {
-            const cards = engine.products.holders.getCardTransactions(account.id);
-            return cards && cards.length > 0;
-        })
-    }, [holdersCards]);
-
     const routes = useMemo(() => {
         return [
             { key: 'main', title: t('common.mainWallet') },
             ...holdersCards.map((account) => {
-                const cards = engine.products.holders.getCardTransactions(account.id) ?? [];
-
-                if (cards.length === 0) return null;
-
                 return {
                     key: account.id,
                     title: t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits ?? '' })
@@ -183,7 +172,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
             <TabView
                 tabBarPosition={'top'}
                 renderTabBar={(props) => {
-                    if (!hasTxs || !hasCardsNotifications) {
+                    if (!hasTxs) {
                         return null;
                     }
 
@@ -213,7 +202,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     setTab({ prev: tab.current, current: index });
                 }}
                 navigationState={{ index: tab.current, routes }}
-                offscreenPageLimit={1}
+                offscreenPageLimit={0}
                 renderScene={(sceneProps: SceneRendererProps & { route: { key: string; title: string; } }) => {
                     if (sceneProps.route.key === 'main') {
                         return hasTxs

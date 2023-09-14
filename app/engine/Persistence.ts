@@ -38,7 +38,7 @@ import { ExtensionStats, extensionStatsCodec } from "./api/reviews";
 
 export class Persistence {
 
-    readonly version: number = 20;
+    readonly version: number = 21;
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
@@ -88,7 +88,7 @@ export class Persistence {
     readonly holdersState: PersistedCollection<Address, HoldersState>;
     readonly holdersCards: PersistedCollection<Address, HoldersCardsList>;
     readonly holdersOfflineApp: PersistedCollection<void, HoldersOfflineResMap>;
-    readonly holdersCardTransactions: PersistedCollection<string, CardNotification[]>;
+    readonly holdersCardTransactions: PersistedCollection<string, string[]>;
     readonly holdersHiddenCards: PersistedCollection<Address, string[]>;
 
     constructor(storage: MMKV, engine: Engine) {
@@ -358,7 +358,7 @@ const holdersStateCodec = t.type({
     })),
 });
 
-const holdersCardTransactionsCodec = t.array(t.any);
+const holdersCardTransactionsCodec = t.array(t.string);
 
 const apyCodec = t.type({
     apy: t.number

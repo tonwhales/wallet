@@ -195,14 +195,33 @@ export type CardNotification =
     | NotificationCommitedT;
 
 
-export async function fetchCardsTransactions(token: string, id: string) {
-    const res = await axios.post(`https://${holdersEndpoint}/card/events`, {
-        cardId: id,
-        token
-    });
+export async function fetchCardsTransactions(
+    token: string,
+    id: string,
+    cursor?: string | undefined,
+    limit?: number | undefined,
+    order?: 'asc' | 'desc'
+) {
+    const res = await axios.post(
+        `https://${holdersEndpoint}/card/events`,
+        {
+            cardId: id,
+            token,
+            cursor,
+            limit,
+            order
+        }
+    );
+
+    const data = res.data.data;
 
     if (!res.data.ok) {
         throw Error('Error fetching events');
     }
-    return res.data.data.events as CardNotification[];
+
+    return {
+        hasMore: data.more === true,
+        lastCursor: data.cursor,
+        events: data.events as CardNotification[]
+    };
 }

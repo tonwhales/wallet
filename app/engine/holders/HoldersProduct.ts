@@ -12,7 +12,6 @@ import { AuthParams, AuthWalletKeysType } from "../../components/secure/AuthWall
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
-import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
@@ -203,31 +202,6 @@ export class HoldersProduct {
         return this.engine.persistence.holdersCardTransactions.item(id).value;
     }
 
-    useCardTransactions(id: string) {
-        return useRecoilValue(this.engine.persistence.holdersCardTransactions.item(id).atom);
-    }
-
-    async syncCardsTransactions() {
-        const status = this.engine.persistence.holdersStatus.item(this.engine.address).value;
-        if (!status || status.state !== 'ok') {
-            return;
-        }
-        const cards = this.engine.persistence.holdersCards.item(this.engine.address).value?.accounts;
-        if (!cards) {
-            return;
-        }
-
-        const token = status.token;
-        await Promise.all(cards.map(async (card) => {
-            const cardRes = await fetchCardsTransactions(token, card.id);
-            if (cardRes) {
-                this.engine.persistence.holdersCardTransactions.item(card.id).update((src) => {
-                    return cardRes;
-                });
-            }
-        }));
-    }
-
     stopWatching() {
         if (this.watcher) {
             this.watcher();
@@ -246,7 +220,6 @@ export class HoldersProduct {
             }
             if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
                 this.syncAccounts();
-                this.syncCardsTransactions();
             }
         });
     }
@@ -351,7 +324,6 @@ export class HoldersProduct {
 
             // Initial sync
             await this.syncAccounts();
-            await this.syncCardsTransactions();
 
             // Start watcher if ready
             if (targetStatus.value?.state === 'ok' && !this.watcher) {

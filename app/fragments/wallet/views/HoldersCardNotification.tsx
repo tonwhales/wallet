@@ -48,7 +48,7 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                         notification.type === 'charge_failed' ||
                         notification.type === 'card_paid' ||
                         notification.type === 'card_withdraw') ? (
-                        <>
+                        <View style={{ alignItems: 'flex-end' }}>
                             <Text
                                 style={{
                                     color: notification.type === 'deposit'
@@ -73,13 +73,13 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                                 prefix={notification.type === 'deposit' ? '+' : '-'}
                                 style={{
                                     height: undefined,
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0, paddingVertical: 0,
+                                    backgroundColor: Theme.transparent,
                                     alignSelf: 'flex-end',
+                                    paddingHorizontal: 0, paddingVertical: 0,
                                 }}
                                 textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                             />
-                        </>
+                        </View>
                     ) : (
                         <View style={{ flexGrow: 1 }} />
                     )}

@@ -1,10 +1,7 @@
 import { Address, Cell, TonClient4 } from 'ton';
-import { useRawAccountTransactions } from './useRawAccountTransactions';
+import { StoredTransaction, useRawAccountTransactions } from './useRawAccountTransactions';
 import BN from 'bn.js';
 import { ContractMetadata } from '../metadata/Metadata';
-import { resolveOperation } from '../transactions/resolveOperation';
-import { parseWalletTransaction } from '../transactions/parseWalletTransaction';
-import { useNetwork } from './useNetwork';
 import { useContractMetadatas } from './basic/useContractMetadatas';
 import { useJettonContents } from './basic/useJettonContents';
 import { StoredContractMetadata, StoredJettonMaster } from '../metadata/StoredMetadata';
@@ -56,11 +53,12 @@ export type OperationItem = {
 
 export type TransactionDescription = {
     id: string;
-    base: Transaction;
+    base: StoredTransaction;
     metadata: ContractMetadata | null;
     masterMetadata: JettonMasterState | null;
-    operation: Operation;
     icon: string | null;
+    op: string | null;
+    title: string | null;
     verified: boolean | null;
 };
 
@@ -73,8 +71,8 @@ export function getJettonMasterAddressFromMetadata(metadata: StoredContractMetad
     return null;
 }
 
-export function parseStoredMetadata(metadata: StoredContractMetadata | null): ContractMetadata | null {
-    return metadata ? {
+export function parseStoredMetadata(metadata: StoredContractMetadata): ContractMetadata {
+    return {
         jettonMaster: metadata.jettonMaster ? {
             content: metadata.jettonMaster.content,
             mintalbe: metadata.jettonMaster.mintable,
@@ -87,44 +85,67 @@ export function parseStoredMetadata(metadata: StoredContractMetadata | null): Co
             owner: Address.parse(metadata.jettonWallet.owner),
         } : undefined,
         seqno: metadata.seqno,
-    } : null;
+    };
 }
 
 
 export function useAccountTransactions(client: TonClient4, account: string): { data: TransactionDescription[], next: () => void, } | null {
     let raw = useRawAccountTransactions(client, account);
-    const { isTestnet } = useNetwork();
 
-    let baseTxs = raw?.data.pages.flat().map(raw => parseWalletTransaction(raw, account, isTestnet));
-    let mentioned = baseTxs ? Array.from(new Set([...baseTxs?.flatMap(tx => tx.mentioned)])) : [];
+    // We should memoize to prevent recalculation if metadatas and jettons are updated
+    let { baseTxs, mentioned } = useMemo(() => {
+        let baseTxs = raw?.data.pages.flat();
+        let mentioned = baseTxs ? Array.from(new Set([...baseTxs?.flatMap(tx => tx.parsed.mentioned)])) : [];
+
+        return {
+            baseTxs,
+            mentioned,
+        };
+    }, [raw?.data]);
 
     const metadatas = useContractMetadatas(mentioned);
-    const jettonMasters: string[] = metadatas.map(m => m.data ? getJettonMasterAddressFromMetadata(m.data) : null).filter(a => !!a) as string[];
+    const { metadatasMap, jettonMasters } = useMemo(() => {
+        const metadatasMap = new Map<string, { metadata: ContractMetadata, jettonMasterAddress: string | null }>();
+        const jettonMasters: string[] = [];
+        for (let m of metadatas) {
+            if (m.data) {
+                let jettonAddress = getJettonMasterAddressFromMetadata(m.data);
+                metadatasMap.set(m.data.address, {
+                    jettonMasterAddress: jettonAddress,
+                    metadata: parseStoredMetadata(m.data)
+                });
+                if (jettonAddress) {
+                    jettonMasters.push(jettonAddress);
+                }
+            }
+        }
+        return {
+            jettonMasters,
+            metadatasMap,
+        }
+    }, [metadatas]);
+
     const jettonMasterMetadatas = useJettonContents(jettonMasters);
 
-    let txs = baseTxs?.map<TransactionDescription>((base) => {
-        const metadata = metadatas.find(a => a.data?.address && a.data.address === (base.address ? base.address.toFriendly({ testOnly: isTestnet }) : undefined))?.data ?? null;
-        const jettonMasterAddress = metadata ? getJettonMasterAddressFromMetadata(metadata) : null;
-        const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;
+    let txs = useMemo(() => {
+        return baseTxs?.map<TransactionDescription>((base) => {
+            const metadata = metadatasMap.get(base.parsed.resolvedAddress);
+            const jettonMasterAddress = metadata?.jettonMasterAddress;
 
-        const convertedMetadata: ContractMetadata | null = parseStoredMetadata(metadata);
+            const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;
 
-        return ({
-            id: `${base.lt}_${base.hash.toString('base64')}`,
-            base: base,
-            icon: jettonMasterMetadata?.image?.preview256 ?? null,
-            masterMetadata: jettonMasterMetadata,
-            metadata: convertedMetadata,
-            operation: resolveOperation({
-                account: base.address || Address.parse(account),
-                amount: base.amount,
-                body: base.body,
-                jettonMaster: jettonMasterMetadata,
-                metadata: convertedMetadata,
-            }),
-            verified: null,
-        });
-    });
+            return ({
+                id: `${base.lt}_${base.hash}`,
+                base: base,
+                icon: jettonMasterMetadata?.image?.preview256 ?? null,
+                masterMetadata: jettonMasterMetadata,
+                metadata: metadata ? metadata.metadata : null,
+                verified: null,
+                op: null,
+                title: null,
+            });
+        })
+    }, [baseTxs, metadatasMap, jettonMasterMetadatas]);
 
     if (!txs || !raw) {
         return null;

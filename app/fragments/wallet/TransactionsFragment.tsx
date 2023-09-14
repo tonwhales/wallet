@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, SectionList, Dimensions, useWindowDimensions } from "react-native";
+import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, SectionList, Dimensions, useWindowDimensions, SectionListRenderItem, SectionListRenderItemInfo, SectionListData } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
@@ -71,16 +71,22 @@ const WalletTransactions = React.memo((props: {
         return { transactionsSectioned: sectioned };
     }, [props.txs]);
 
+    const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
+        return (
+            <TransactionView
+                own={props.address}
+                tx={item}
+                separator={section.data[index + 1] !== undefined}
+                onPress={() => { }}
+                theme={theme}
+                fontScaleNormal={fontScaleNormal}
+            />
+        );
+    }, [props.address.hash, theme, fontScaleNormal]);
 
-    const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        // if (!event) return;
-        // const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        // if (!layoutMeasurement || !contentOffset || !contentSize) return;
-
-        // if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
-        //     props.onLoadMore();
-        // }
-    }, [props.onLoadMore]);
+    const renderSectionHeader = useCallback((section: { section: SectionListData<TransactionDescription, { title: string }> }) => (
+        <SectionHeader theme={theme} title={section.section.title} />
+    ), [theme]);
 
     return (
         <SectionList
@@ -92,31 +98,20 @@ const WalletTransactions = React.memo((props: {
             sections={transactionsSectioned}
             contentInset={{ top: 44, bottom: 52 }}
             contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
-            onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
             initialNumToRender={300}
-            ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
-            ListFooterComponent={(Platform.OS !== 'ios' && props.hasNext) ? (<View style={{ height: 64 }} />) : undefined}
+            maxToRenderPerBatch={20}
+            updateCellsBatchingPeriod={100}
             getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
-            renderSectionHeader={(section) => (
-                <SectionHeader theme={theme} title={section.section.title} />
-            )}
-            renderItem={({ item, section, index }) => {
-                return (
-                    <TransactionView
-                        own={props.address}
-                        tx={item}
-                        separator={section.data[index + 1] !== undefined}
-                        onPress={() => { }}
-                        theme={theme}
-                        fontScaleNormal={fontScaleNormal}
-                    />
-                )
-            }}
+            renderSectionHeader={renderSectionHeader}
+            ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
+            ListFooterComponent={(Platform.OS !== 'ios' && props.hasNext) ? (<View style={{ height: 64 }} />) : undefined}
+            renderItem={renderItem}
             onEndReached={() => props.onLoadMore()}
+            onEndReachedThreshold={0.5}
             keyExtractor={(item) => 'tx-' + item.id}
         />
     );
@@ -265,6 +260,12 @@ export const TransactionsFragment = fragment(() => {
             </View>
         );
     } else {
-        return <TransactionsComponent address={account.address} transactions={transactions.data} loadMore={transactions.next} />
+        return (
+            <TransactionsComponent
+                address={account.address}
+                transactions={transactions.data}
+                loadMore={transactions.next}
+            />
+        )
     }
 }, true);

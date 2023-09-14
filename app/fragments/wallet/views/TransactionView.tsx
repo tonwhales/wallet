@@ -47,10 +47,10 @@ export const TransactionView = React.memo((props: {
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {props.tx.base.status !== 'pending' && (
+                    {props.tx.base.parsed.status !== 'pending' && (
                         <Avatar
-                            address={'EQA-daKmzkx5nLMKT465D_-uyhwgBTEucMeyvfGLfzHoWspv'}
-                            id={'EQA-daKmzkx5nLMKT465D_-uyhwgBTEucMeyvfGLfzHoWspv'}
+                            address={props.tx.base.parsed.resolvedAddress}
+                            id={props.tx.base.parsed.resolvedAddress}
                             size={42}
                             image={undefined}
                             spam={false}
@@ -115,7 +115,7 @@ export const TransactionView = React.memo((props: {
                                 marginRight: 2,
                             }}>
                             <ValueComponent
-                                value={props.tx.base.amount}
+                                value={props.tx.base.parsed.amount}
                                 decimals={undefined}
                             />
                         </Text>
@@ -126,7 +126,7 @@ export const TransactionView = React.memo((props: {
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
-                            <AddressComponent address={props.tx.operation.address} />
+                            <AddressComponent address={props.tx.base.operation.address} />
                         </Text>
                         {/* {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null} */}
                         <Text style={{ color: theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(props.tx.base.time)}</Text>

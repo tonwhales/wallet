@@ -2,26 +2,18 @@ import BN from "bn.js";
 import { Address, Cell } from "ton";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
-import { Operation, OperationItem } from "./types";
-import { ContractMetadata } from '../metadata/Metadata';
 import { parseBody } from './parseWalletTransaction';
 import { TxBody } from '../legacy/Transaction';
-import { t } from '../../i18n/t';
-import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
+import { StoredOperation, StoredOperationItem } from '../hooks/useRawAccountTransactions';
 
 export function resolveOperation(args: {
     account: Address,
     amount: BN,
     body: TxBody | null,
-    metadata: ContractMetadata | null,
-    jettonMaster: JettonMasterState | null
-}): Operation {
+}, isTestnet: boolean): StoredOperation {
 
     // Resolve default address
     let address: Address = args.account;
-
-    // Avatar image
-    let image: string | undefined = undefined;
 
     // Comment
     let comment: string | undefined = undefined;
@@ -30,87 +22,53 @@ export function resolveOperation(args: {
     }
 
     // Resolve default name
-    let op: string | undefined = undefined;
+    // let op: string | undefined = undefined;
 
     // Resolve default name
-    let title: string | undefined = undefined;
+    // let title: string | undefined = undefined;
 
     // Resolve default items
-    let items: OperationItem[] = [];
-    items.push({ kind: 'ton', amount: args.amount });
+    let items: StoredOperationItem[] = [];
+    items.push({ kind: 'ton', amount: args.amount.toString(10) });
 
     // Simple payload overwrite
-    if (args.body && args.body.type === 'payload' && args.metadata && !args.jettonMaster) {
+    if (args.body && args.body.type === 'payload') {
         let parsedBody = parseMessageBody(args.body.cell);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                op = f.text;
+                // op = f.text;
             }
-        }
-    }
 
-    // Jetton payloads
-    if (args.body && args.body.type === 'payload' && args.jettonMaster && args.jettonMaster.symbol && args.metadata && args.metadata.jettonWallet) {
-        let parsedBody = parseMessageBody(args.body.cell);
-        if (parsedBody) {
-            let f = formatSupportedBody(parsedBody);
-            if (f) {
-                op = f.text;
-            }
             if (parsedBody.type === 'jetton::transfer') {
                 address = parsedBody.data['destination'] as Address;
                 let amount = parsedBody.data['amount'] as BN;
-                let symbol = args.jettonMaster.symbol;
-                let decimals = args.jettonMaster.decimals;
-                items.unshift({ kind: 'token', amount, symbol, decimals });
+                items.unshift({ kind: 'token', amount: amount.toString(10) });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
-                op = t('tx.tokenTransfer');
+                // op = t('tx.tokenTransfer');
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {
                     address = parsedBody.data['sender'] as Address;
                 } else {
-                    op = 'airdrop';
-                    address = args.metadata.jettonWallet.master;
+                    // op = 'airdrop';
                 }
                 let amount = parsedBody.data['amount'] as BN;
-                let symbol = args.jettonMaster.symbol;
-                let decimals = args.jettonMaster.decimals;
-                items.unshift({ kind: 'token', amount, symbol, decimals });
+                items.unshift({ kind: 'token', amount: amount.toString(10) });
                 let body = parseBody(parsedBody.data['payload'] as Cell);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
-            } else {
-                if (args.jettonMaster && args.jettonMaster.image) {
-                    image = args.jettonMaster.image.preview256;
-                }
             }
-        } else {
-            if (args.jettonMaster && args.jettonMaster.image) {
-                image = args.jettonMaster.image.preview256;
-            }
-        }
-    }
-
-    // Resolve jetton name
-    if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
-        title = args.jettonMaster.name;
-        if (args.jettonMaster.image) {
-            image = args.jettonMaster.image.preview256;
         }
     }
 
 
     return {
-        address,
-        title,
-        op,
+        address: address.toFriendly({ testOnly: isTestnet }),
         items,
-        image,
         comment
     }
 }

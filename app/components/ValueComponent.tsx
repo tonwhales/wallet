@@ -1,9 +1,8 @@
 import BN from "bn.js";
 import { StyleProp, Text, TextStyle } from "react-native";
-import { fromNano } from "ton";
 import { fromBNWithDecimals } from "../utils/withDecimals";
 
-export function ValueComponent(props: { value: BN, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
+export function ValueComponent(props: { value: BN | number | string, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
     let t: string;
     t = fromBNWithDecimals(props.value, props.decimals);
 

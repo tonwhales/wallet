@@ -7,6 +7,7 @@ import { useNetwork } from './useNetwork';
 import { log } from '../../utils/log';
 import { TxBody } from '../legacy/Transaction';
 import { parseBody } from '../transactions/parseWalletTransaction';
+import { resolveOperation } from '../transactions/resolveOperation';
 
 type StoredAddressExternal = {
     bits: number;
@@ -48,6 +49,26 @@ type StoredMessage = {
     init: StoredStateInit | null,
 };
 
+export type StoredOperation = {
+    address: string;
+    comment?: string;
+    items: StoredOperationItem[];
+    
+    // Address
+    // op?: string;
+    // title?: string;
+    // image?: string;
+    
+};
+
+export type StoredOperationItem = {
+    kind: 'ton'
+    amount: string;
+} | {
+    kind: 'token',
+    amount: string;
+};
+
 export type StoredTransaction = {
     address: string;
     lt: string;
@@ -70,9 +91,15 @@ export type StoredTransaction = {
     parsed: {
         seqno: number | null;
         body: TxBody | null;
-        status: 'success' | 'failed';
+        status: 'success' | 'failed' | 'pending';
         dest: string | null;
-    }
+        kind: 'out' | 'in';
+        amount: string;
+        resolvedAddress: string;
+        bounced: boolean;
+        mentioned: string[];
+    },
+    operation: StoredOperation;
 }
 
 
@@ -131,7 +158,7 @@ function rawMessageToStoredMessage(msg: RawMessage, isTestnet: boolean): StoredM
     }
 }
 
-function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, isTestnet: boolean): StoredTransaction {
+function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own: Address, isTestnet: boolean): StoredTransaction {
     const inMessageBody = tx.inMessage?.body || null;
 
     //
@@ -162,6 +189,55 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, isT
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
         body = parseBody(inMessageBody!);
     }
+
+    //
+    // Resolve amount
+    //
+
+    let amount = new BN(0);
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        amount = amount.add(tx.inMessage.info.value.coins);
+    }
+    for (let out of tx.outMessages) {
+        if (out.info.type === 'internal') {
+            amount = amount.sub(out.info.value.coins);
+        }
+    }
+
+    //
+    // Resolve address
+    //
+
+    let addressResolved: string;
+    if (dest) {
+        addressResolved = dest;
+    } else if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        addressResolved = tx.inMessage.info.src.toFriendly({ testOnly: isTestnet });
+    } else {
+        addressResolved = tx.address.toFriendly({ testOnly: isTestnet });
+    }
+    //
+    // Resolve kind
+    //
+
+    let kind: 'out' | 'in' = 'out';
+    let bounced = false;
+    if (tx.inMessage && tx.inMessage.info.type === 'internal') {
+        kind = 'in';
+        if (tx.inMessage.info.bounced) {
+            bounced = true;
+        }
+    }
+
+    const mentioned = new Set<string>();
+    if (tx.inMessage && tx.inMessage.info.type === 'internal' && !tx.inMessage.info.src.equals(own)) {
+        mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: isTestnet }));
+    }
+    for (let out of tx.outMessages) {
+        if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(own)) {
+            mentioned.add(out.info.dest.toFriendly({ testOnly: isTestnet }));
+        }
+    }
     
     return {
         address: tx.address.toFriendly({ testOnly: isTestnet }),
@@ -187,7 +263,17 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, isT
             body,
             status,
             dest,
-        }
+            amount: amount.toString(10),
+            bounced,
+            kind: kind,
+            mentioned: [...mentioned],
+            resolvedAddress: addressResolved,
+        },
+        operation: resolveOperation({
+            account: tx.address || own,
+            amount: amount,
+            body: body
+        }, isTestnet),
     }
 }
 
@@ -231,7 +317,10 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
             if (sliceFirst) {
                 raw = raw.slice(1);
             }
-            return raw.map(r => rawTransactionToStoredTransaction(r, r.hash, isTestnet));
+
+            let converted = raw.map(r => rawTransactionToStoredTransaction(r, r.hash, accountAddr, isTestnet));
+            log(`[txns-query] fetched ${lt}_${hash}`);
+            return converted;
         },
         staleTime: Infinity,
     });

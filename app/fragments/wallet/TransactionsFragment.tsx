@@ -6,7 +6,7 @@ import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { Address, RawTransaction } from "ton";
+import { Address } from "ton";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
@@ -16,7 +16,26 @@ import { TransactionDescription, useAccountTransactions } from '../../engine/hoo
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionView } from './views/TransactionView';
-import { FlashList } from "@shopify/flash-list";
+import { ThemeType } from '../../engine/state/theme';
+
+const SectionHeader = React.memo(({ theme, title }: { theme: ThemeType, title: string }) => {
+    return (
+        <View
+            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+        >
+            <Text
+                style={{
+                    fontSize: 18,
+                    fontWeight: '700',
+                    marginHorizontal: 16,
+                    marginVertical: 8
+                }}
+            >
+                {title}
+            </Text>
+        </View>
+    )
+});
 
 const WalletTransactions = React.memo((props: {
     txs: TransactionDescription[],
@@ -30,24 +49,26 @@ const WalletTransactions = React.memo((props: {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    
-    const transactionsSectioned = React.useMemo(() => {
-        let sectioned: ({ type: 'section', title: string } | { type: 'tx', data: TransactionDescription })[] = [];
+
+    const { transactionsSectioned } = React.useMemo(() => {
+        let sectioned: { title: string, data: TransactionDescription[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].base.time);
+            let lastItems: TransactionDescription[] = [];
             let title = formatDate(props.txs[0].base.time);
-            sectioned.push({ type: 'section', title });
+            sectioned.push({ data: lastItems, title });
             for (let t of props.txs) {
                 let time = getDateKey(t.base.time);
                 if (lastTime !== time) {
                     lastTime = time;
+                    lastItems = [];
                     title = formatDate(t.base.time);
-                    sectioned.push({ type: 'section', title });
+                    sectioned.push({ data: lastItems, title });
                 }
-                sectioned.push({ type: 'tx', data: t });
+                lastItems.push(t);
             }
         }
-        return sectioned;
+        return { transactionsSectioned: sectioned };
     }, [props.txs]);
 
 
@@ -62,53 +83,33 @@ const WalletTransactions = React.memo((props: {
     }, [props.onLoadMore]);
 
     return (
-        <FlashList
+        <SectionList
             contentContainerStyle={{
                 paddingTop: Platform.OS === 'android'
                     ? props.safeArea.top + 44
                     : undefined,
             }}
-            data={transactionsSectioned}
+            sections={transactionsSectioned}
             contentInset={{ top: 44, bottom: 52 }}
             contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
             onScroll={onScroll}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
+            stickySectionHeadersEnabled={false}
+            initialNumToRender={300}
             ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
             ListFooterComponent={(Platform.OS !== 'ios' && props.hasNext) ? (<View style={{ height: 64 }} />) : undefined}
-            drawDistance={1200}
-            estimatedItemSize={62}
-            estimatedListSize={{
-                height: Dimensions.get('window').height,
-                width: Dimensions.get('window').width,
-            }}
-            getItemType={(item) => item.type}
-            renderItem={({ item, index }) => {
-                if (item.type === 'section') {
-                    return (
-                        <View
-                            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
-                        >
-                            <Text
-                                style={{
-                                    fontSize: 18,
-                                    fontWeight: '700',
-                                    marginHorizontal: 16,
-                                    marginVertical: 8
-                                }}
-                            >
-                                {item.title}
-                            </Text>
-                        </View>
-                    );
-                }
-
+            getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
+            getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
+            renderSectionHeader={(section) => (
+                <SectionHeader theme={theme} title={section.section.title} />
+            )}
+            renderItem={({ item, section, index }) => {
                 return (
                     <TransactionView
                         own={props.address}
-                        tx={item.data}
-                        separator={transactionsSectioned[index + 1]?.type !== 'section'}
-                        key={'tx-' + item.data.id}
+                        tx={item}
+                        separator={section.data[index + 1] !== undefined}
                         onPress={() => { }}
                         theme={theme}
                         fontScaleNormal={fontScaleNormal}
@@ -116,7 +117,7 @@ const WalletTransactions = React.memo((props: {
                 )
             }}
             onEndReached={() => props.onLoadMore()}
-            keyExtractor={(item, index) => item.type === 'section' ? 'section-' + item.title : 'tx-' + item.data.id}
+            keyExtractor={(item) => 'tx-' + item.id}
         />
     );
 });

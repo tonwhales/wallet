@@ -28,174 +28,16 @@ function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: s
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
 }
 
-export function TransactionView(props: {
+export const TransactionView = React.memo((props: {
     own: Address,
     tx: TransactionDescription,
     separator: boolean,
     theme: ThemeType,
     fontScaleNormal: boolean,
     onPress: (src: TransactionDescription) => void
-}) {
+}) => {
     const theme = props.theme;
     const fontScaleNormal = props.fontScaleNormal;
-    // const { isTestnet } = useNetwork();
-    // const navigation = useTypedNavigation();
-    // const dimentions = useWindowDimensions();
-    // const fontScaleNormal = dimentions.fontScale <= 1;
-
-    // const tx = props.tx;
-    // let parsed = tx.base;
-    // let operation = tx.operation;
-
-    // // Operation
-    // let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
-    // let avatarId = operation.address.toFriendly({ testOnly: isTestnet });
-    // let item = operation.items[0];
-    // let op: string;
-    // if (operation.op) {
-    //     op = operation.op;
-    //     if (op === 'airdrop') {
-    //         op = t('tx.airdrop');
-    //     }
-    // } else {
-    //     if (parsed.kind === 'out') {
-    //         if (parsed.status === 'pending') {
-    //             op = t('tx.sending');
-    //         } else {
-    //             op = t('tx.sent');
-    //         }
-    //     } else if (parsed.kind === 'in') {
-    //         if (parsed.bounced) {
-    //             op = '⚠️ ' + t('tx.bounced');
-    //         } else {
-    //             op = t('tx.received');
-    //         }
-    //     } else {
-    //         throw Error('Unknown kind');
-    //     }
-    // }
-
-    // const contact = useContactAddress(operation.address);
-
-    // // Resolve built-in known wallets
-    // let known: KnownWallet | undefined = undefined;
-    // if (KnownWallets(isTestnet)[friendlyAddress]) {
-    //     known = KnownWallets(isTestnet)[friendlyAddress];
-    // } else if (operation.title) {
-    //     known = { name: operation.title };
-    // } else if (!!contact) { // Resolve contact known wallet
-    //     known = { name: contact.name }
-    // }
-
-    // const verified = !!tx.verified
-    //     || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
-
-    // const spamMinAmount = useSpamMinAmount();
-    // const isSpam = useDenyAddress(operation.address);
-
-    // let spam = useIsSpamWallet(friendlyAddress)
-    //     || isSpam
-    //     || (
-    //         parsed.amount.abs().lt(spamMinAmount)
-    //         && tx.base.body?.type === 'comment'
-    //         && !KnownWallets(isTestnet)[friendlyAddress]
-    //         && !isTestnet
-    //     ) && tx.base.kind !== 'out';
-
-    // 
-    // Address actions
-    // 
-    // const settings = props.engine.products.settings;
-
-    // const addressLink = (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
-    //     + operation.address.toFriendly({ testOnly: isTestnet });
-
-    // const explorerTxLink = (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
-    // + '/explorer/address/' +
-    // operation.address.toFriendly() +
-    // '/' + tx.id;
-
-    // const onShare = React.useCallback((link: string) => {
-    //     let title = t('receive.share.title');
-    //     if (link === explorerTxLink) {
-    //         title = t('txActions.share.transaction');
-    //     }
-    //     if (link === addressLink) {
-    //         title = t('txActions.share.address');
-    //     }
-    //     if (Platform.OS === 'ios') {
-    //         Share.share({ title: title, url: link });
-    //     } else {
-    //         Share.share({ title: title, message: link });
-    //     }
-    // }, [explorerTxLink, addressLink]);
-
-    // const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
-    //     const confirmed = await confirmAlert('spamFilter.blockConfirm');
-    //     if (confirmed) {
-    //         // settings.addToDenyList(addr);
-    //     }
-    // }, []);
-
-    // const onAddressContact = React.useCallback((addr: Address) => {
-    //     navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: isTestnet }) });
-    // }, []);
-
-    // const onRepeatTx = React.useCallback(() => {
-    //     navigation.navigateSimpleTransfer({
-    //         target: tx.base.address!.toFriendly({ testOnly: isTestnet }),
-    //         comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
-    //         amount: tx.base.amount.neg(),
-    //         job: null,
-    //         stateInit: null,
-    //         jetton: null,
-    //         callback: null
-    //     })
-    // }, [tx, operation]);
-
-    // const transactionActions: ContextMenuAction[] = tx.base.status !== 'pending' ? [
-    //     { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-    //     { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
-    //     ...(!spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
-    //     ...(tx.base.kind === 'out' ? [{ title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined }] : []),
-    //     { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
-    // ] : [];
-
-    // const handleAction = React.useCallback(
-    //     (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-    //         switch (e.nativeEvent.name) {
-    //             case t('txActions.addressShare'): {
-    //                 onShare(addressLink);
-    //                 break;
-    //             }
-    //             case t('txActions.addressContact'): {
-    //                 onAddressContact(operation.address);
-    //                 break;
-    //             }
-    //             case t('txActions.addressContactEdit'): {
-    //                 onAddressContact(operation.address);
-    //                 break;
-    //             }
-    //             case t('txActions.addressMarkSpam'): {
-    //                 onMarkAddressSpam(operation.address);
-    //                 break;
-    //             }
-    //             case t('txActions.txRepeat'): {
-    //                 onRepeatTx();
-    //                 break;
-    //             }
-    //             case t('txActions.txShare'): {
-    //                 if (explorerTxLink) {
-    //                     onShare(explorerTxLink);
-    //                 }
-    //                 break;
-    //             }
-    //             default:
-    //                 break;
-    //         }
-    //     },
-    //     [addressLink, explorerTxLink, onShare],
-    // );
 
     return (
         <TouchableHighlight
@@ -295,13 +137,6 @@ export function TransactionView(props: {
             </View>
         </TouchableHighlight>
     );
+}, (prevProps, newProps) => newProps.tx.id !== prevProps.tx.id);
 
-    // return (
-    //     <ContextMenu
-    //         actions={transactionActions}
-    //         onPress={handleAction}>
-
-    //     </ContextMenu>
-    // );
-}
 TransactionView.displayName = 'TransactionView';

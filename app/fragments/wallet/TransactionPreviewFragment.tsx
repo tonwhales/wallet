@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -31,18 +31,22 @@ import VerifiedIcon from '@assets/ic_verified.svg';
 import ContactIcon from '@assets/ic_contacts.svg';
 import CopyIcon from '@assets/ic_copy.svg';
 import ExplorerIcon from '@assets/ic_explorer.svg';
+import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 
 export const TransactionPreviewFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const params = useParams<{ transaction: string }>();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useMemo(() => getCurrentAddress().address, []);
     const engine = useEngine();
+    const toaster = useToaster();
+
     let transaction = engine.products.main.useTransaction(params.transaction);
     let operation = transaction.operation;
     let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
     let item = transaction.operation.items[0];
+
     let op: string;
     if (operation.op) {
         op = operation.op;
@@ -131,19 +135,33 @@ export const TransactionPreviewFragment = fragment(() => {
             && !AppConfig.isTestnet
         ) && transaction.base.kind !== 'out';
 
-    const onCopy = React.useCallback((text: string) => {
+    const onCopy = useCallback((text: string) => {
         copyText(text);
     }, []);
 
-    const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+    const handleCommentAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
         if (e.nativeEvent.name === t('common.copy')) {
             if (!operation.comment && body?.type === 'comment' && body.comment) {
                 onCopy(body.comment);
+                toaster.show(
+                    {
+                        message: t('common.copiedAlert'),
+                        type: 'default',
+                        duration: ToastDuration.SHORT,
+                    }
+                );
                 return;
             }
 
             if (!(body?.type === 'comment' && body.comment) && operation.comment) {
                 onCopy(operation.comment);
+                toaster.show(
+                    {
+                        message: t('common.copiedAlert'),
+                        type: 'default',
+                        duration: ToastDuration.SHORT,
+                    }
+                );
                 return;
             }
         }
@@ -428,7 +446,16 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
+                                onPress={() => {
+                                    onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))
+                                    toaster.show(
+                                        {
+                                            message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                                            type: 'default',
+                                            duration: ToastDuration.SHORT,
+                                        }
+                                    );
+                                }}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -468,7 +495,16 @@ export const TransactionPreviewFragment = fragment(() => {
                                     </Pressable>
                                     <Pressable
                                         style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1, marginLeft: 24 }; }}
-                                        onPress={() => onCopy(explorerLink)}
+                                        onPress={() => {
+                                            onCopy(explorerLink);
+                                            toaster.show(
+                                                {
+                                                    message: t('common.copiedAlert'),
+                                                    type: 'default',
+                                                    duration: ToastDuration.SHORT,
+                                                }
+                                            );
+                                        }}
                                     >
                                         <CopyIcon />
                                     </Pressable>

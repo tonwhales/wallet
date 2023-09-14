@@ -34,6 +34,7 @@ import { openWithInApp } from "../utils/openWithInApp";
 import IcDelete from '../../assets/ic-delete-red.svg';
 import IcCheckAddress from '../../assets/ic-check-recipient.svg';
 import IcSupport from '../../assets/ic-support.svg';
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -391,6 +392,20 @@ export const DeleteAccountFragment = fragment(() => {
                             />
                         </View>
                     </View>
+                    {!!invalidAddress && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Text style={{
+                                color: Theme.accentRed,
+                                fontSize: 13,
+                                lineHeight: 18,
+                                marginTop: 4,
+                                marginLeft: 16,
+                                fontWeight: '400'
+                            }}>
+                                {t('transfer.error.invalidAddress')}
+                            </Text>
+                        </Animated.View>
+                    )}
                     <Text style={{
                         fontSize: 13, lineHeight: 18,
                         fontWeight: '400',

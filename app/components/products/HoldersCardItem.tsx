@@ -206,7 +206,7 @@ export const HoldersCardItem = memo((props: {
                     </Swipeable>
                 </Animated.View>
                 {!props.last && (
-                    <View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+                    <View style={{ backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
                 )}
             </Pressable>
         ) : (

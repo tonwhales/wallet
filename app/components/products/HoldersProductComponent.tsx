@@ -206,7 +206,7 @@ export const HoldersProductComponent = memo(() => {
                         <View
                             style={[
                                 {
-                                    backgroundColor: Theme.divider,
+                                    backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.divider,
                                     height: 1,
                                 },
                             ]}

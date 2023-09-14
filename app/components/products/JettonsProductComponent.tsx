@@ -129,7 +129,7 @@ export const JettonsProductComponent = React.memo(() => {
                     itemHeight={86}
                     divider={
                         <View style={{ backgroundColor: Theme.surfaceSecondary, marginHorizontal: 16, paddingHorizontal: 20 }}>
-                            <View style={{ backgroundColor: Theme.divider, height: 1 }} />
+                            <View style={{ backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.divider, height: 1 }} />
                         </View>
                     }
                     renderItem={(j, index) => {

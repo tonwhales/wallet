@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ImageRequireSource, Pressable, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
 import { SvgProps } from 'react-native-svg';
-import Verified from '../../../assets/ic_verified.svg';
+import Verified from '@assets/ic_verified.svg';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { PriceComponent } from '../PriceComponent';
 import { ValueComponent } from '../ValueComponent';

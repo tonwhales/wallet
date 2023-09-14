@@ -16,8 +16,8 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 
-import Verified from '../../../assets/ic-verified.svg';
-import TonIcon from '../../../assets/ic_ton_account.svg';
+import Verified from '@assets/ic-verified.svg';
+import TonIcon from '@assets/ic_ton_account.svg';
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

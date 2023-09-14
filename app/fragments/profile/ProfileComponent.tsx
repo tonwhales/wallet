@@ -11,7 +11,7 @@ import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { useEngine } from '../../engine/Engine';
 
-import Chevron from '../../../assets/ic-chevron-down.svg';
+import Chevron from '@assets/ic-chevron-down.svg';
 
 export const ProfileComponent = memo(() => {
     const { Theme, AppConfig } = useAppConfig();

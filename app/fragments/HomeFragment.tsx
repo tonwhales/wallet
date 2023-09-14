@@ -159,15 +159,15 @@ export const HomeFragment = fragment(() => {
                             borderTopColor: Theme.style === 'dark' ? Theme.overlay : Theme.border,
                         },
                         tabBarIcon: ({ focused }) => {
-                            let source = require('../../assets/ic-home.png');
+                            let source = require('@assets/ic-home.png');
 
                             if (route.name === 'Transactions') {
-                                source = require('../../assets/ic-history.png');
+                                source = require('@assets/ic-history.png');
 
                                 if (!!tonXRequest || tonconnectRequests.length > 0) {
                                     source = focused
-                                        ? require('../../assets/ic-history-active-badge.png')
-                                        : require('../../assets/ic-history-badge.png');
+                                        ? require('@assets/ic-history-active-badge.png')
+                                        : require('@assets/ic-history-badge.png');
                                     return (
                                         <Image
                                             source={source}
@@ -178,11 +178,11 @@ export const HomeFragment = fragment(() => {
                             }
 
                             if (route.name === 'Browser') {
-                                source = require('../../assets/ic-services.png');
+                                source = require('@assets/ic-services.png');
                             }
 
                             if (route.name === 'More') {
-                                source = require('../../assets/ic-settings.png');
+                                source = require('@assets/ic-settings.png');
                             }
 
                             return (

@@ -62,7 +62,7 @@ export const UnstakeBanner = React.memo((
         }}>
             <LottieView
                 ref={anim}
-                source={require('../../../assets/animations/money.json')}
+                source={require('@assets/animations/money.json')}
                 autoPlay={true}
                 loop={true}
                 style={{ width: 94, height: 94, marginBottom: 16, maxWidth: 140, maxHeight: 140 }}

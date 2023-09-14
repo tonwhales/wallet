@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react"
 import { Pressable, StyleProp, View, ViewStyle } from "react-native";
-import FilledStar from '../../../../../assets/ic_star_filled.svg';
-import Star from '../../../../../assets/ic_star_outline.svg';
+import FilledStar from '@assets/ic_star_filled.svg';
+import Star from '@assets/ic_star_outline.svg';
 import { useAppConfig } from "../../../../utils/AppConfigContext";
 
 const StarView = React.memo(({

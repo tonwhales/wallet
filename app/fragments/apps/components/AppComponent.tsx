@@ -16,7 +16,7 @@ import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
-import MoreIcon from '../../../../assets/ic_more.svg';
+import MoreIcon from '@assets/ic_more.svg';
 import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';

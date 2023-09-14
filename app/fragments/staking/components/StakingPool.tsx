@@ -12,7 +12,7 @@ import { openWithInApp } from "../../../utils/openWithInApp";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
 
-import StakingIcon from '../../../../assets/ic_staking.svg';
+import StakingIcon from '@assets/ic_staking.svg';
 import { Countdown } from "../../../components/Countdown";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {

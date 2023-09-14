@@ -241,7 +241,7 @@ export const LedgerHomeFragment = fragment(() => {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.webp')}
+                                source={require('@assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>
@@ -319,7 +319,7 @@ export const LedgerHomeFragment = fragment(() => {
                                         borderRadius: 16,
                                         alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        <Image source={require('../../../assets/ic_receive.png')} />
+                                        <Image source={require('@assets/ic_receive.png')} />
                                     </View>
                                     <Text
                                         style={{
@@ -355,7 +355,7 @@ export const LedgerHomeFragment = fragment(() => {
                                         borderRadius: 16,
                                         alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        <Image source={require('../../../assets/ic_send.png')} />
+                                        <Image source={require('@assets/ic_send.png')} />
                                     </View>
                                     <Text style={{ fontSize: 15, color: Theme.surfacePimary, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                 </View>
@@ -373,7 +373,7 @@ export const LedgerHomeFragment = fragment(() => {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.webp')}
+                                source={require('@assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>

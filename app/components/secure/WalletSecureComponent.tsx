@@ -88,7 +88,7 @@ export const WalletSecureComponent = React.memo((props: {
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                 <View style={{ flexGrow: 1 }} />
                 <FragmentMediaContent
-                    animation={require('../../../assets/animations/lock.json')}
+                    animation={require('@assets/animations/lock.json')}
                     title={title}
                     text={text}
                 />

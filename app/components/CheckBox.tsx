@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
-import CheckMark from '../../assets/ic_check_mark.svg';
+import CheckMark from '@assets/ic_check_mark.svg';
 import { useAppConfig } from "../utils/AppConfigContext";
 
 export const CheckBox = React.memo((

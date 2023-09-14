@@ -35,12 +35,12 @@ import { useImage } from "@shopify/react-native-skia";
 import { getMostPrevalentColorFromBytes } from "../../../utils/image/getMostPrevalentColorFromBytes";
 import { openWithInApp } from "../../../utils/openWithInApp";
 
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import WithStateInit from '../../../../assets/ic_sign_contract.svg';
-import IcAlert from '../../../../assets/ic-alert.svg';
-import IcInfo from '../../../../assets/ic-info.svg';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
-import Verified from '../../../../assets/ic-verified.svg';
+import TonSign from '@assets/ic_ton_sign.svg';
+import WithStateInit from '@assets/ic_sign_contract.svg';
+import IcAlert from '@assets/ic-alert.svg';
+import IcInfo from '@assets/ic-info.svg';
+import SignLock from '@assets/ic_sign_lock.svg';
+import Verified from '@assets/ic-verified.svg';
 import { ValueComponent } from "../../../components/ValueComponent";
 
 type Props = {
@@ -641,7 +641,7 @@ export const TransferSingle = memo((props: Props) => {
                                                     style={{
                                                         height: 46, width: 34,
                                                     }}
-                                                    source={require('../../../../assets/ic_sign_card.png')}
+                                                    source={require('@assets/ic_sign_card.png')}
                                                 />
                                             </View>
                                         )}
@@ -688,7 +688,7 @@ export const TransferSingle = memo((props: Props) => {
                                                     style={{
                                                         height: 46, width: 34,
                                                     }}
-                                                    source={require('../../../../assets/ic_sign_card.png')}
+                                                    source={require('@assets/ic_sign_card.png')}
                                                 />
                                             </View>
                                         )}

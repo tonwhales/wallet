@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Pressable, Text, Image, View } from "react-native";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { useAppConfig } from "../../../utils/AppConfigContext";
-import Chevron from '../../../../assets/ic-chevron-down.svg';
+import Chevron from '@assets/ic-chevron-down.svg';
 import CircularProgress from "../../../components/CircularProgress/CircularProgress";
 
 export type LedgerDevice = {
@@ -47,7 +47,7 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                     height: 44,
                     marginRight: 12,
                 }}
-                source={require('../../../../assets/ledger_device.png')}
+                source={require('@assets/ledger_device.png')}
             />
             <Text style={{
                 fontSize: 18,

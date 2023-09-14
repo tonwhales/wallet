@@ -190,7 +190,7 @@ export const MigrationFragment = systemFragment(() => {
                     <View style={{ alignSelf: 'center' }}>
                         <LottieView
                             ref={animRef}
-                            source={require('../../../assets/animations/zombie.json')}
+                            source={require('@assets/animations/zombie.json')}
                             autoPlay={true}
                             loop={true}
                             style={{ width: 140, height: 140 }}

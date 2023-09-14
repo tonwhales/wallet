@@ -17,7 +17,7 @@ import { KnownWallets } from "../../secure/KnownWallets";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { backoff } from "../../utils/time";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import MessageIcon from '../../../assets/ic_message.svg';
+import MessageIcon from '@assets/ic_message.svg';
 import { estimateFees } from "../../engine/estimate/estimateFees";
 import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
@@ -426,7 +426,7 @@ export const LedgerTransferFragment = fragment(() => {
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                     <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Image source={require('../../../assets/ic_all_coins.png')} />
+                                        <Image source={require('@assets/ic_all_coins.png')} />
                                     </View>
                                     <Text style={{ fontSize: 13, color: Theme.accent, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                 </View>
@@ -445,7 +445,7 @@ export const LedgerTransferFragment = fragment(() => {
                             >
                                 <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                     <View style={{ backgroundColor: Theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Image source={require('../../../assets/ic_scan_qr.png')} />
+                                        <Image source={require('@assets/ic_scan_qr.png')} />
                                     </View>
                                     <Text style={{ fontSize: 13, color: Theme.accent, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                 </View>

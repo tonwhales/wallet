@@ -1,7 +1,7 @@
 import BN from "bn.js"
 import React, { ReactElement, memo } from "react"
 import { Pressable, Text, View } from "react-native"
-import OldWalletIcon from '../../../assets/ic_old_wallet.svg';
+import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { HoldersProductComponent } from "./HoldersProductComponent"

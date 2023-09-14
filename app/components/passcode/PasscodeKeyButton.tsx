@@ -1,16 +1,16 @@
 import React from "react";
 import { Pressable } from "react-native";
-import ImgKey0 from '../../../assets/letter_0.svg';
-import ImgKey1 from '../../../assets/letter_1.svg';
-import ImgKey2 from '../../../assets/letter_2.svg';
-import ImgKey3 from '../../../assets/letter_3.svg';
-import ImgKey4 from '../../../assets/letter_4.svg';
-import ImgKey5 from '../../../assets/letter_5.svg';
-import ImgKey6 from '../../../assets/letter_6.svg';
-import ImgKey7 from '../../../assets/letter_7.svg';
-import ImgKey8 from '../../../assets/letter_8.svg';
-import ImgKey9 from '../../../assets/letter_9.svg';
-import ImgKeyBackspace from '../../../assets/letter_backspace.svg';
+import ImgKey0 from '@assets/letter_0.svg';
+import ImgKey1 from '@assets/letter_1.svg';
+import ImgKey2 from '@assets/letter_2.svg';
+import ImgKey3 from '@assets/letter_3.svg';
+import ImgKey4 from '@assets/letter_4.svg';
+import ImgKey5 from '@assets/letter_5.svg';
+import ImgKey6 from '@assets/letter_6.svg';
+import ImgKey7 from '@assets/letter_7.svg';
+import ImgKey8 from '@assets/letter_8.svg';
+import ImgKey9 from '@assets/letter_9.svg';
+import ImgKeyBackspace from '@assets/letter_backspace.svg';
 import { useAppConfig } from "../../utils/AppConfigContext";
 
 export enum PasscodeKey {

@@ -4,7 +4,7 @@ import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
-import IcClear from '../../../assets/ic-clear.svg';
+import IcClear from '@assets/ic-clear.svg';
 import { ATextInput } from "../ATextInput";
 
 export const ContactField = memo(forwardRef((props: {

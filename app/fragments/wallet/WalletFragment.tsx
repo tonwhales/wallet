@@ -156,7 +156,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.webp')}
+                                source={require('@assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>
@@ -246,7 +246,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                                 borderRadius: 16,
                                                 alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                                <Image source={require('../../../assets/ic_buy.png')} />
+                                                <Image source={require('@assets/ic_buy.png')} />
                                             </View>
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,
@@ -283,7 +283,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                         borderRadius: 16,
                                         alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        <Image source={require('../../../assets/ic_receive.png')} />
+                                        <Image source={require('@assets/ic_receive.png')} />
                                     </View>
                                     <Text
                                         style={{
@@ -319,7 +319,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                         borderRadius: 16,
                                         alignItems: 'center', justifyContent: 'center'
                                     }}>
-                                        <Image source={require('../../../assets/ic_send.png')} />
+                                        <Image source={require('@assets/ic_send.png')} />
                                     </View>
                                     <Text
                                         style={{
@@ -346,7 +346,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             pointerEvents={'none'}
                         >
                             <Image
-                                source={require('../../../assets/shine-blur.webp')}
+                                source={require('@assets/shine-blur.webp')}
                                 style={{ height: 400, width: 400 }}
                             />
                         </Animated.View>

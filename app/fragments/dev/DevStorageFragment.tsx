@@ -78,7 +78,7 @@ export const DevStorageFragment = fragment(() => {
 
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton
-                            leftIcon={require('../../../assets/ic_backup.png')}
+                            leftIcon={require('@assets/ic_backup.png')}
                             title={"Check keys storage status again"}
                             onPress={() => {
                                 const stored = loadStorageState();

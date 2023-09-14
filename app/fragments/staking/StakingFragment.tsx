@@ -25,8 +25,8 @@ import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 
-import GraphIcon from '../../../assets/ic_graph.svg';
-import InfoIcon from '../../../assets/ic-info-accent.svg';
+import GraphIcon from '@assets/ic_graph.svg';
+import InfoIcon from '@assets/ic-info-accent.svg';
 import BN from "bn.js";
 
 export const StakingFragment = fragment(() => {
@@ -231,7 +231,7 @@ export const StakingFragment = fragment(() => {
                         pointerEvents={'none'}
                     >
                         <Image
-                            source={require('../../../assets/shine-blur.webp')}
+                            source={require('@assets/shine-blur.webp')}
                             style={{ height: 400, width: 400 }}
                         />
                     </Animated.View>
@@ -301,7 +301,7 @@ export const StakingFragment = fragment(() => {
                                     borderRadius: 16,
                                     alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    <Image source={require('../../../assets/ic-plus.png')} />
+                                    <Image source={require('@assets/ic-plus.png')} />
                                 </View>
                                 <Text
                                     style={{
@@ -345,7 +345,7 @@ export const StakingFragment = fragment(() => {
                                     borderRadius: 16,
                                     alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    <Image source={require('../../../assets/ic_receive.png')} />
+                                    <Image source={require('@assets/ic_receive.png')} />
                                 </View>
                                 <Text
                                     style={{
@@ -380,7 +380,7 @@ export const StakingFragment = fragment(() => {
                                     borderRadius: 16,
                                     alignItems: 'center', justifyContent: 'center'
                                 }}>
-                                    <Image source={require('../../../assets/ic-staking-calc.png')} />
+                                    <Image source={require('@assets/ic-staking-calc.png')} />
                                 </View>
                                 <Text
                                     style={{

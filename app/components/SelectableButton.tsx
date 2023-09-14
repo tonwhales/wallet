@@ -3,7 +3,7 @@ import { Pressable, View, Text } from "react-native";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
-import IcCheck from "../../assets/ic-check.svg";
+import IcCheck from "@assets/ic-check.svg";
 
 export const SelectableButton = React.memo((
     {

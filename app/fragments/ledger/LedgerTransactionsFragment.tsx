@@ -142,7 +142,7 @@ export const LedgerTransactionsFragment = fragment(() => {
                             }}>
                             <LottieView
                                 ref={animRef}
-                                source={require('../../../assets/animations/duck.json')}
+                                source={require('@assets/animations/duck.json')}
                                 autoPlay={true}
                                 loop={false}
                                 progress={0.2}

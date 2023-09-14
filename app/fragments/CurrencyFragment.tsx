@@ -13,7 +13,7 @@ import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import Animated from "react-native-reanimated";
 
-import IcCheck from "../../assets/ic-check.svg";
+import IcCheck from "@assets/ic-check.svg";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

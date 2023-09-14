@@ -9,9 +9,9 @@ import { t } from "../../i18n/t";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
 import { Ionicons } from '@expo/vector-icons';
-import TouchIos from '../../../assets/ic_touch_ios.svg';
-import TouchAndroid from '../../../assets/ic_touch_and.svg';
-import FaceIos from '../../../assets/ic_face_id.svg';
+import TouchIos from '@assets/ic_touch_ios.svg';
+import TouchAndroid from '@assets/ic_touch_and.svg';
+import FaceIos from '@assets/ic_face_id.svg';
 
 export const PasscodeInput = React.memo((
     {

@@ -17,16 +17,16 @@ import * as StoreReview from 'expo-store-review';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 
-import Security from '../../assets/ic-security.svg';
-import Spam from '../../assets/ic-spam.svg';
-import Contacts from '../../assets/ic-contacts.svg';
-import Currency from '../../assets/ic-currency.svg';
-import Accounts from '../../assets/ic-accounts.svg';
-import Terms from '../../assets/ic-terms.svg';
-import Privacy from '../../assets/ic-privacy.svg';
-import Support from '../../assets/ic-support.svg';
-import Telegram from '../../assets/ic-tg.svg';
-import RateApp from '../../assets/ic-rate-app.svg';
+import Security from '@assets/ic-security.svg';
+import Spam from '@assets/ic-spam.svg';
+import Contacts from '@assets/ic-contacts.svg';
+import Currency from '@assets/ic-currency.svg';
+import Accounts from '@assets/ic-accounts.svg';
+import Terms from '@assets/ic-terms.svg';
+import Privacy from '@assets/ic-privacy.svg';
+import Support from '@assets/ic-support.svg';
+import Telegram from '@assets/ic-tg.svg';
+import RateApp from '@assets/ic-rate-app.svg';
 
 export const SettingsFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -117,7 +117,7 @@ export const SettingsFragment = fragment(() => {
                     />
                     {oldWalletsBalance.gt(new BN(0)) && (
                         <ItemButton
-                            leftIcon={require('../../assets/ic_wallet_2.png')}
+                            leftIcon={require('@assets/ic_wallet_2.png')}
                             title={t('settings.migrateOldWallets')}
                             onPress={() => navigation.navigate('Migration')}
                         />
@@ -232,7 +232,7 @@ export const SettingsFragment = fragment(() => {
                             height: 48
                         }}
                         resizeMode={'contain'}
-                        source={require('../../assets/ic-splash.png')}
+                        source={require('@assets/ic-splash.png')}
                     />
                     <Text
                         style={{

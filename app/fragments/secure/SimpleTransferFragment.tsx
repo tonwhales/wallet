@@ -36,9 +36,9 @@ import { usePrice } from '../../engine/PriceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 
-import Verified from '../../../assets/ic-verified.svg';
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import Chevron from '../../../assets/ic_chevron_forward.svg';
+import Verified from '@assets/ic-verified.svg';
+import TonIcon from '@assets/ic_ton_account.svg';
+import Chevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
     target?: string | null,

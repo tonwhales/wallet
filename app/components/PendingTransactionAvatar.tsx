@@ -7,9 +7,9 @@ import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
 import { useAppConfig } from "../utils/AppConfigContext";
 
-import IcPending from '../../assets/ic-tx-pending.svg';
-import IcIn from '../../assets//ic-tx-in.svg';
-import IcOut from '../../assets//ic-tx-out.svg';
+import IcPending from '@assets/ic-tx-pending.svg';
+import IcIn from '@assets//ic-tx-in.svg';
+import IcOut from '@assets//ic-tx-out.svg';
 
 const Color = require('color');
 

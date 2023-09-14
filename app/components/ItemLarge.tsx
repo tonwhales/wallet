@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
-import VerifiedIcon from '../../assets/ic_verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
+import VerifiedIcon from '@assets/ic_verified.svg';
+import ContactIcon from '@assets/ic_contacts.svg';
 import { useAppConfig } from '../utils/AppConfigContext';
 
 export const ItemLarge = React.memo((props: {

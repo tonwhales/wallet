@@ -11,7 +11,15 @@ module.exports = function (api) {
       {
         globals: ['__scanCodes'],
       },
-    ]
+    ],
+    [
+      'module-resolver',
+      {
+        alias: {
+          '@assets': './assets',
+        },
+      },
+    ],
   ];
 
   if (babelEnv !== 'development') {

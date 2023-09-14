@@ -13,7 +13,7 @@ import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef, useState } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 
-import Verified from '../../../assets/ic-verified.svg';
+import Verified from '@assets/ic-verified.svg';
 
 export const JettonProductItem = memo((props: {
     jetton: {

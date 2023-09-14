@@ -34,7 +34,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             <AndroidToolbar pageTitle={t('secure.upgradeTitle')} />
             <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
-                animation={require('../../../assets/animations/lock.json')}
+                animation={require('@assets/animations/lock.json')}
                 title={t('secure.upgradeTitle')}
             >
                 <Text style={{

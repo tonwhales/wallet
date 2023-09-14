@@ -6,7 +6,7 @@ import { usePrice } from "../engine/PriceContext"
 import { formatCurrency } from "../utils/formatCurrency"
 import { useAppConfig } from "../utils/AppConfigContext"
 
-import TonSign from '../../assets/ic_ton_sign.svg';
+import TonSign from '@assets/ic_ton_sign.svg';
 
 export const PriceComponent = React.memo((
     {

@@ -224,7 +224,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                         <Pressable onPress={() => animRef.current?.play()}>
                                             <LottieView
                                                 ref={animRef}
-                                                source={require('../../../assets/animations/duck.json')}
+                                                source={require('@assets/animations/duck.json')}
                                                 autoPlay={true}
                                                 loop={false}
                                                 progress={0.2}

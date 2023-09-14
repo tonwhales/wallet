@@ -6,43 +6,43 @@ import { KnownAvatar } from './KnownAvatar';
 import { useAppConfig } from '../utils/AppConfigContext';
 import FastImage from 'react-native-fast-image';
 
-import SpamIcon from '../../assets/known/spam_icon.svg';
-import Verified from '../../assets/ic-verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
+import SpamIcon from '@assets/known/spam_icon.svg';
+import Verified from '@assets/ic-verified.svg';
+import ContactIcon from '@assets/ic_contacts.svg';
 
 export const avatarImages = [
-    require('../../assets/avatars/0.webp'),
-    require('../../assets/avatars/1.webp'),
-    require('../../assets/avatars/2.webp'),
-    require('../../assets/avatars/3.webp'),
-    require('../../assets/avatars/4.webp'),
-    require('../../assets/avatars/5.webp'),
-    require('../../assets/avatars/6.webp'),
-    require('../../assets/avatars/7.webp'),
-    require('../../assets/avatars/8.webp'),
-    require('../../assets/avatars/9.webp'),
-    require('../../assets/avatars/10.webp'),
-    require('../../assets/avatars/11.webp'),
-    require('../../assets/avatars/12.webp'),
-    require('../../assets/avatars/13.webp'),
-    require('../../assets/avatars/14.webp'),
-    require('../../assets/avatars/15.webp'),
-    require('../../assets/avatars/16.webp'),
-    require('../../assets/avatars/17.webp'),
-    require('../../assets/avatars/18.webp'),
-    require('../../assets/avatars/19.webp'),
-    require('../../assets/avatars/20.webp'),
-    require('../../assets/avatars/21.webp'),
-    require('../../assets/avatars/22.webp'),
-    require('../../assets/avatars/23.webp'),
-    require('../../assets/avatars/24.webp'),
-    require('../../assets/avatars/25.webp'),
-    require('../../assets/avatars/26.webp'),
-    require('../../assets/avatars/27.webp'),
-    require('../../assets/avatars/28.webp'),
-    require('../../assets/avatars/29.webp'),
-    require('../../assets/avatars/30.webp'),
-    require('../../assets/avatars/31.webp'),
+    require('@assets/avatars/0.webp'),
+    require('@assets/avatars/1.webp'),
+    require('@assets/avatars/2.webp'),
+    require('@assets/avatars/3.webp'),
+    require('@assets/avatars/4.webp'),
+    require('@assets/avatars/5.webp'),
+    require('@assets/avatars/6.webp'),
+    require('@assets/avatars/7.webp'),
+    require('@assets/avatars/8.webp'),
+    require('@assets/avatars/9.webp'),
+    require('@assets/avatars/10.webp'),
+    require('@assets/avatars/11.webp'),
+    require('@assets/avatars/12.webp'),
+    require('@assets/avatars/13.webp'),
+    require('@assets/avatars/14.webp'),
+    require('@assets/avatars/15.webp'),
+    require('@assets/avatars/16.webp'),
+    require('@assets/avatars/17.webp'),
+    require('@assets/avatars/18.webp'),
+    require('@assets/avatars/19.webp'),
+    require('@assets/avatars/20.webp'),
+    require('@assets/avatars/21.webp'),
+    require('@assets/avatars/22.webp'),
+    require('@assets/avatars/23.webp'),
+    require('@assets/avatars/24.webp'),
+    require('@assets/avatars/25.webp'),
+    require('@assets/avatars/26.webp'),
+    require('@assets/avatars/27.webp'),
+    require('@assets/avatars/28.webp'),
+    require('@assets/avatars/29.webp'),
+    require('@assets/avatars/30.webp'),
+    require('@assets/avatars/31.webp'),
 ];
 
 export const avatarColors = [

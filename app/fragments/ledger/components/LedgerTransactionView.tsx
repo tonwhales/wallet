@@ -17,8 +17,8 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 
-import IcIn from '../../../../assets//ic-tx-in.svg';
-import IcOut from '../../../../assets//ic-tx-out.svg';
+import IcIn from '@assets//ic-tx-in.svg';
+import IcOut from '@assets//ic-tx-out.svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {

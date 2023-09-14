@@ -48,16 +48,16 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 
-import TonSign from '../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../assets/ic_transfer_to.svg';
-import Contact from '../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../assets/ic_sign_staking.svg';
-import Question from '../../../assets/ic_question.svg';
+import TonSign from '@assets/ic_ton_sign.svg';
+import TransferToArrow from '@assets/ic_transfer_to.svg';
+import Contact from '@assets/ic_transfer_contact.svg';
+import VerifiedIcon from '@assets/ic_verified.svg';
+import TonSignGas from '@assets/ic_transfer_gas.svg';
+import SignLock from '@assets/ic_sign_lock.svg';
+import WithStateInit from '@assets/ic_sign_contract.svg';
+import SmartContract from '@assets/ic_sign_smart_contract.svg';
+import Staking from '@assets/ic_sign_staking.svg';
+import Question from '@assets/ic_question.svg';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -329,7 +329,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <LottieAnimView
                                     autoPlayIos
-                                    source={require('../../../assets/animations/sign.json')}
+                                    source={require('@assets/animations/sign.json')}
                                     style={{ width: 120, height: 120 }}
                                     autoPlay={true}
                                     loop={true}
@@ -348,7 +348,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <LottieAnimView
                                     autoPlayIos
-                                    source={require('../../../assets/animations/clock.json')}
+                                    source={require('@assets/animations/clock.json')}
                                     style={{ width: 120, height: 120 }}
                                     autoPlay={true}
                                     loop={true}
@@ -367,7 +367,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
                                 <LottieAnimView
                                     autoPlayIos
-                                    source={require('../../../assets/animations/done.json')}
+                                    source={require('@assets/animations/done.json')}
                                     style={{ width: 120, height: 120 }}
                                     autoPlay={true}
                                     loop={true}

@@ -13,7 +13,7 @@ import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Swipeable } from "react-native-gesture-handler";
 
-import MCard from '../../../assets/ic-m-card.svg';
+import MCard from '@assets/ic-m-card.svg';
 
 export const HoldersCardItem = memo((props: {
     account?: HoldersCard,
@@ -153,7 +153,7 @@ export const HoldersCardItem = memo((props: {
                                     </Text>
                                 )}
                                 {!props.account && (
-                                    <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                                    <Image source={require('@assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                                 )}
                                 {(props.account && props.account.type === 'virtual') && (
                                     <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />
@@ -225,7 +225,7 @@ export const HoldersCardItem = memo((props: {
                             </Text>
                         )}
                         {!props.account && (
-                            <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                            <Image source={require('@assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                         )}
                         {(props.account && props.account.type === 'virtual') && (
                             <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />

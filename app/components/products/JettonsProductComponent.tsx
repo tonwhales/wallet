@@ -8,9 +8,9 @@ import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { markJettonDisabled } from "../../engine/sync/ops";
 
-import Tokens from '../../../assets/ic-jettons.svg';
-import Chevron from '../../../assets/ic_chevron_down.svg'
-import Hide from '../../../assets/ic-hide.svg';
+import Tokens from '@assets/ic-jettons.svg';
+import Chevron from '@assets/ic_chevron_down.svg'
+import Hide from '@assets/ic-hide.svg';
 
 export const JettonsProductComponent = React.memo(() => {
     const engine = useEngine();

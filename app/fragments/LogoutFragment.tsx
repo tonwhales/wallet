@@ -22,8 +22,8 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
 
-import IcLogout from '../../assets/ic-alert-red.svg';
-import Support from '../../assets/ic-support.svg';
+import IcLogout from '@assets/ic-alert-red.svg';
+import Support from '@assets/ic-support.svg';
 
 export function clearHolders(engine: Engine, address?: Address) {
     const holdersDomain = extractDomain(holdersUrl);
@@ -187,7 +187,7 @@ export const LogoutFragment = fragment(() => {
                         onPress={onSupport}
                     />
                     <ItemButton
-                        leftIcon={require('../../assets/ic-backup.png')}
+                        leftIcon={require('@assets/ic-backup.png')}
                         title={t('settings.backupKeys')}
                         onPress={() => navigation.navigate('WalletBackupLogout', { back: true })}
                     />

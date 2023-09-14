@@ -13,9 +13,9 @@ import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { useEffect, useLayoutEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
-import TouchIos from '../../assets/ic_touch_ios.svg';
-import TouchAndroid from '../../assets/ic_touch_and.svg';
-import FaceIos from '../../assets/ic_face_id.svg';
+import TouchIos from '@assets/ic_touch_ios.svg';
+import TouchAndroid from '@assets/ic_touch_and.svg';
+import FaceIos from '@assets/ic_face_id.svg';
 import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
@@ -126,7 +126,7 @@ export const SecurityFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <ItemButton
-                        leftIcon={require('../../assets/ic-backup.png')}
+                        leftIcon={require('@assets/ic-backup.png')}
                         title={t('settings.backupKeys')}
                         onPress={() => navigation.navigate('WalletBackup', { back: true })}
                     />
@@ -139,14 +139,14 @@ export const SecurityFragment = fragment(() => {
                 }}>
                     {passcodeState === PasscodeState.Set && (
                         <ItemButton
-                            leftIcon={require('../../assets/ic-change-passcode.png')}
+                            leftIcon={require('@assets/ic-change-passcode.png')}
                             title={t('security.passcodeSettings.changeTitle')}
                             onPress={() => navigation.navigate('PasscodeChange')}
                         />
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
                         <ItemButton
-                            leftIcon={require('../../assets/ic_passcode.png')}
+                            leftIcon={require('@assets/ic_passcode.png')}
                             title={t('security.passcodeSettings.setupTitle')}
                             onPress={() => navigation.navigate('PasscodeSetup')}
                         />

@@ -9,7 +9,7 @@ import { ellipsiseAddress } from "../WalletAddress";
 import { useAppStateManager } from "../../engine/AppStateManager";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-import IcCheck from "../../../assets/ic-check.svg";
+import IcCheck from "@assets/ic-check.svg";
 
 export const WalletItem = memo((
     {

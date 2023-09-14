@@ -22,7 +22,7 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
         >
             <LottieView
                 ref={animRef}
-                source={require('../../../assets/animations/success.json')}
+                source={require('@assets/animations/success.json')}
                 autoPlay={true}
                 loop={false}
                 progress={0.2}

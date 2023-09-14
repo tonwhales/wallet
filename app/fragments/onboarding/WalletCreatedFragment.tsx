@@ -28,7 +28,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             <View style={{ flexGrow: 1 }} />
             <FragmentMediaContent
                 style={{ paddingHorizontal: 0 }}
-                animation={require('../../../assets/animations/folders.json')}
+                animation={require('@assets/animations/folders.json')}
                 title={t('backupIntro.title')}
                 text={t('backupIntro.subtitle')}
             >

@@ -129,7 +129,7 @@ export const ContactsFragment = fragment(() => {
                             height: undefined,
                             aspectRatio: 1,
                         }}
-                        source={require('../../assets/banner_contacts.webp')}
+                        source={require('@assets/banner_contacts.webp')}
                     />
                     <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
                         <Text style={{

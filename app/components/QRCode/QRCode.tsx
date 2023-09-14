@@ -2,7 +2,7 @@ import { Canvas, RoundedRect, DiffRect, rrect, rect, Path } from '@shopify/react
 import * as React from 'react';
 import { View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
-import TonIcon from '../../../assets/ic-ton-qr.svg';
+import TonIcon from '@assets/ic-ton-qr.svg';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
 import { useAppConfig } from '../../utils/AppConfigContext';

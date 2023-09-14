@@ -26,7 +26,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 marginHorizontal: 16, padding: 16, marginTop: 24
             }}>
                 <WImage
-                    requireSource={require('../../../assets/ic_pool_banner.webp')}
+                    requireSource={require('@assets/ic_pool_banner.webp')}
                     width={64}
                     heigh={64}
                     borderRadius={32}

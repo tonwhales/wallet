@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from "react-native";
-import ShareIcon from '../../assets/ic_share_address.svg';
+import ShareIcon from '@assets/ic_share_address.svg';
 import { t } from "../i18n/t";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Share from 'react-native-share';

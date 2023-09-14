@@ -14,7 +14,7 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import SpamIcon from '../../assets/known/spam_icon.svg';
+import SpamIcon from '@assets/known/spam_icon.svg';
 import { useAppConfig } from "../utils/AppConfigContext";
 import { ProductButton } from "../components/products/ProductButton";
 import { ScreenHeader } from "../components/ScreenHeader";

@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { Platform, Pressable, Text, ToastAndroid, View } from 'react-native';
-import VerifiedIcon from '../../assets/ic_verified.svg';
-import ContactIcon from '../../assets/ic_contacts.svg';
-import CopyIcon from '../../assets/ic_copy.svg';
+import VerifiedIcon from '@assets/ic_verified.svg';
+import ContactIcon from '@assets/ic_contacts.svg';
+import CopyIcon from '@assets/ic_copy.svg';
 import { t } from '../i18n/t';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';

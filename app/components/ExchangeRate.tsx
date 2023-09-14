@@ -1,7 +1,7 @@
 import React from "react"
 import { StyleProp, View, Text, ViewStyle } from "react-native"
 import { usePrice } from "../engine/PriceContext";
-import TonIcon from '../../assets/ton_icon.svg';
+import TonIcon from '@assets/ton_icon.svg';
 import { formatCurrency } from "../utils/formatCurrency";
 import { useAppConfig } from "../utils/AppConfigContext";
 

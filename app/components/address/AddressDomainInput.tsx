@@ -13,7 +13,7 @@ import { useAppConfig } from "../../utils/AppConfigContext"
 import { useEngine } from "../../engine/Engine"
 import { AddressContact } from "../../engine/products/SettingsProduct"
 
-import Scanner from '../../../assets/ic-scanner-accent.svg';
+import Scanner from '@assets/ic-scanner-accent.svg';
 import { View } from "react-native";
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');

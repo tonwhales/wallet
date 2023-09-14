@@ -87,7 +87,7 @@ export const WImage = React.memo((props: {
                             top: 0, bottom: 0, left: 0, right: 0
                         }}>
                         <Image
-                            source={require('../../assets/ic_app_placeholder.png')}
+                            source={require('@assets/ic_app_placeholder.png')}
                             style={{ width: props.width, height: props.heigh }}
                             resizeMode={'cover'}
                         />
@@ -122,7 +122,7 @@ export const WImage = React.memo((props: {
             borderRadius: props.borderRadius
         }, props.style]}>
             <Image
-                source={require('../../assets/ic_app_placeholder.png')}
+                source={require('@assets/ic_app_placeholder.png')}
                 style={{ width: props.width, height: props.heigh }}
                 resizeMode={'cover'}
             />

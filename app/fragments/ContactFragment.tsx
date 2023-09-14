@@ -22,8 +22,8 @@ import Share from 'react-native-share';
 import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
 
-import CopyIcon from '../../assets/ic-copy.svg';
-import ShareIcon from '../../assets/ic-share-contact.svg';
+import CopyIcon from '@assets/ic-copy.svg';
+import ShareIcon from '@assets/ic-share-contact.svg';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -360,7 +360,7 @@ export const ContactFragment = fragment(() => {
                                                 borderRadius: 16,
                                                 alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                            <Image source={require('../../assets/ic_send.png')} />
+                                            <Image source={require('@assets/ic_send.png')} />
                                         </View>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20,

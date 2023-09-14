@@ -28,7 +28,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'r
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { normalizePath } from '../../../engine/holders/HoldersProduct';
-import IcHolders from '../../../../assets/ic_holders.svg';
+import IcHolders from '@assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { useKeyboard } from '@react-native-community/hooks';
 import { usePulsatingStyle } from '../../../components/skeletons/usePulsatingStyle';

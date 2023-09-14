@@ -7,7 +7,7 @@ import { WalletItem } from "./WalletItem";
 import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-import IcCheck from "../../../assets/ic-check.svg";
+import IcCheck from "@assets/ic-check.svg";
 
 export const WalletSelector = memo(() => {
     const { Theme } = useAppConfig();
@@ -58,7 +58,7 @@ export const WalletSelector = memo(() => {
                                 width: 46,
                                 height: 46,
                             }}
-                            source={require('../../../assets/ledger_device.png')}
+                            source={require('@assets/ledger_device.png')}
                         />
                     </View>
                     <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>

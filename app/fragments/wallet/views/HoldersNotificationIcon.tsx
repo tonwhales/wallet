@@ -3,18 +3,18 @@ import { CardNotification } from "../../../engine/api/holders/fetchCardsTransact
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { View, Image } from "react-native";
 
-import IcActivate from '../../../../assets/ic-activated.svg';
-import IcCardPaid from '../../../../assets/ic-card-paid.svg';
-import IcDeposit from '../../../../assets/ic-deposit.svg';
-import IcExit from '../../../../assets/ic-exit.svg';
-import IcFreeze from '../../../../assets/ic-freeze.svg';
-import IcBlock from '../../../../assets/ic-lock.svg';
-import IcPay from '../../../../assets/ic-pay.svg';
-import IcSetup from '../../../../assets/ic-setup.svg';
-import IcUnfreeze from '../../../../assets/ic-unfreeze.svg';
-import IcWithdrawal from '../../../../assets/ic-withdrawal.svg';
-import IcTime from '../../../../assets/ic-time.svg';
-import IcFailed from '../../../../assets/ic-failed.svg';
+import IcActivate from '@assets/ic-activated.svg';
+import IcCardPaid from '@assets/ic-card-paid.svg';
+import IcDeposit from '@assets/ic-deposit.svg';
+import IcExit from '@assets/ic-exit.svg';
+import IcFreeze from '@assets/ic-freeze.svg';
+import IcBlock from '@assets/ic-lock.svg';
+import IcPay from '@assets/ic-pay.svg';
+import IcSetup from '@assets/ic-setup.svg';
+import IcUnfreeze from '@assets/ic-unfreeze.svg';
+import IcWithdrawal from '@assets/ic-withdrawal.svg';
+import IcTime from '@assets/ic-time.svg';
+import IcFailed from '@assets/ic-failed.svg';
 
 export const HoldersNotificationIcon = memo(({ notification }: { notification: CardNotification }) => {
     const { Theme } = useAppConfig();

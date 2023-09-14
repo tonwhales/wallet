@@ -4,7 +4,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import Animated from 'react-native-reanimated';
 import { useAnimatedPressedInOut } from '../utils/useAnimatedPressedInOut';
 
-import Chevron from '../../assets/ic-chevron-down.svg';
+import Chevron from '@assets/ic-chevron-down.svg';
 
 export const ItemButton = React.memo((props: {
     title?: string,

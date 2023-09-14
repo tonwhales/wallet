@@ -4,7 +4,7 @@ import { useEngine } from "../../engine/Engine";
 import { JettonProductItem } from "./JettonProductItem";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
-import Tokens from '../../../assets/ic-one.svg';
+import Tokens from '@assets/ic-one.svg';
 import Collapsible from "react-native-collapsible";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";

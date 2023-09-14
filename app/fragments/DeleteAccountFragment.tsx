@@ -31,9 +31,9 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
 
-import IcDelete from '../../assets/ic-delete-red.svg';
-import IcCheckAddress from '../../assets/ic-check-recipient.svg';
-import IcSupport from '../../assets/ic-support.svg';
+import IcDelete from '@assets/ic-delete-red.svg';
+import IcCheckAddress from '@assets/ic-check-recipient.svg';
+import IcSupport from '@assets/ic-support.svg';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 export const DeleteAccountFragment = fragment(() => {

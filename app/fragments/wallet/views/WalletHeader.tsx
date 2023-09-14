@@ -14,9 +14,9 @@ import { ReAnimatedCircularProgress } from "../../../components/CircularProgress
 import { CopilotStep } from "react-native-copilot";
 import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 
-import Chart from '../../../../assets/ic-chart.svg';
-import Scanner from '../../../../assets/ic-scan-white.svg';
-import NoConnection from '../../../../assets/ic-no-connection.svg';
+import Chart from '@assets/ic-chart.svg';
+import Scanner from '@assets/ic-scan-white.svg';
+import NoConnection from '@assets/ic-no-connection.svg';
 
 export const WalletHeader = memo(() => {
     const { Theme, AppConfig } = useAppConfig();

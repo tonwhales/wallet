@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from "react-native";
-import CopyIcon from '../../assets/ic_copy_address.svg';
-import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
+import CopyIcon from '@assets/ic_copy_address.svg';
+import CopyIconSuccess from '@assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";

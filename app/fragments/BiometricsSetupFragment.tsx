@@ -11,9 +11,9 @@ import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { Ionicons } from '@expo/vector-icons';
-import TouchIos from '../../assets/ic_touch_ios.svg';
-import TouchAndroid from '../../assets/ic_touch_and.svg';
-import FaceIos from '../../assets/ic_face_id.svg';
+import TouchIos from '@assets/ic_touch_ios.svg';
+import TouchAndroid from '@assets/ic_touch_and.svg';
+import FaceIos from '@assets/ic_face_id.svg';
 import { useKeysAuth } from '../components/secure/AuthWalletKeys';
 import { FragmentMediaContent } from '../components/FragmentMediaContent';
 import { RoundButton } from '../components/RoundButton';
@@ -130,7 +130,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                 <View style={{ flexGrow: 1 }} />
                 <FragmentMediaContent
-                    animation={require('../../assets/animations/lock.json')}
+                    animation={require('@assets/animations/lock.json')}
                     title={title}
                     text={text}
                 />

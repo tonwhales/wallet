@@ -10,8 +10,8 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getCurrentAddress } from '../../storage/appState';
 import { fragment } from '../../fragment';
-import ChainIcon from '../../../assets/ic_chain.svg';
-import ProtectedIcon from '../../../assets/ic_protected.svg';
+import ChainIcon from '@assets/ic_chain.svg';
+import ProtectedIcon from '@assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { extractDomain } from '../../engine/utils/extractDomain';
@@ -163,7 +163,7 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                         backgroundColor: Theme.surfacePimary
                     }}>
                         <Image
-                            source={require('../../../assets/ic_app_tonhub.png')}
+                            source={require('@assets/ic_app_tonhub.png')}
                             style={{ width: 64, height: 64 }}
                             resizeMode={'cover'}
                         />

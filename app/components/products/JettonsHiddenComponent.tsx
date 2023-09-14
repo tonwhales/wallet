@@ -7,12 +7,12 @@ import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollaps
 import { markJettonActive } from "../../engine/sync/ops";
 import { JettonProductItem } from "./JettonProductItem";
 
-import Show from '../../../assets/ic-show.svg';
+import Show from '@assets/ic-show.svg';
 
 export const holdersCardImageMap: { [key: string]: any } = {
-    'classic': require('../../../assets/classic.png'),
-    'black-pro': require('../../../assets/black-pro.png'),
-    'whales': require('../../../assets/whales.png'),
+    'classic': require('@assets/classic.png'),
+    'black-pro': require('@assets/black-pro.png'),
+    'whales': require('@assets/whales.png'),
 }
 
 export const JettonsHiddenComponent = memo(() => {

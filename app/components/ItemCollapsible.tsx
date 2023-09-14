@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Pressable, View, Text, ViewStyle, StyleProp, TextStyle } from 'react-native';
 import Collapsible from 'react-native-collapsible';
-import Chevron from '../../assets/ic_chevron_down.svg'
+import Chevron from '@assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useAppConfig } from '../utils/AppConfigContext';
 

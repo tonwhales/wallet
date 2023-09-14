@@ -5,7 +5,7 @@ import { useAppConfig } from '../utils/AppConfigContext';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 
-import Clear from '../../assets/ic-clear.svg';
+import Clear from '@assets/ic-clear.svg';
 
 export type ATextInputRef = {
     focus: () => void;

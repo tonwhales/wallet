@@ -6,8 +6,8 @@ import { formatDate, formatTime } from "../../../utils/dates";
 import { notificationCategoryFormatter, notificationTypeFormatter } from "../../../utils/holders/notifications";
 import { HoldersNotificationIcon } from "./HoldersNotificationIcon";
 import { ValueComponent } from "../../../components/ValueComponent";
-import BN from "bn.js";
 import { PriceComponent } from "../../../components/PriceComponent";
+import BN from "bn.js";
 
 export const HoldersCardNotification = memo(({ notification }: { notification: CardNotification }) => {
     const { Theme } = useAppConfig();

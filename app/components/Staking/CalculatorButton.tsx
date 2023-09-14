@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleProp, Text, View, ViewStyle } from "react-native";
-import CalcIcon from '../../../assets/ic_staking_calc.svg';
-import Arrow from '../../../assets/ic_ios_forward_grey.svg';
+import CalcIcon from '@assets/ic_staking_calc.svg';
+import Arrow from '@assets/ic_ios_forward_grey.svg';
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "ton";

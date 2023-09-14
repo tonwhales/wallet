@@ -4,13 +4,13 @@ import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue } f
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import DoneIcon from '../../../assets/ic-done.svg';
+import DoneIcon from '@assets/ic-done.svg';
 
 const Icons = {
-    // 'warning': require('../../../assets/ic-warning.svg'),
+    // 'warning': require('@assets/ic-warning.svg'),
     'warning': null,
     'default': DoneIcon,
-    // 'error': require('../../../assets/ic-error.svg'),
+    // 'error': require('@assets/ic-error.svg'),
     'error': null,
     'success': DoneIcon
 }

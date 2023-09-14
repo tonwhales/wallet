@@ -11,8 +11,8 @@ import { isUrl } from "../utils/resolveUrl";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import { Swipeable } from "react-native-gesture-handler";
 
-import Delete from '../../assets/ic-delete.svg';
-import Star from '../../assets/ic-rating-star.svg';
+import Delete from '@assets/ic-delete.svg';
+import Star from '@assets/ic-rating-star.svg';
 
 type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 

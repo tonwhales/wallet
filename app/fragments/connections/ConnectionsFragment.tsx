@@ -21,7 +21,7 @@ import SegmentedControl from '@react-native-segmented-control/segmented-control'
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 
-import Scanner from '../../../assets/ic-scanner-accent.svg';
+import Scanner from '@assets/ic-scanner-accent.svg';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { useFocusEffect } from '@react-navigation/native';
 

@@ -40,10 +40,10 @@ export const LedgerAppFragment = fragment(() => {
                     header: undefined,
                     unmountOnBlur: true,
                     tabBarIcon: ({ focused }) => {
-                        let source = require('../../../assets/ic-home.png');
+                        let source = require('@assets/ic-home.png');
 
                         if (route.name === 'LedgerTransactions') {
-                            source = require('../../../assets/ic-history.png');
+                            source = require('@assets/ic-history.png');
                         }
 
                         return (

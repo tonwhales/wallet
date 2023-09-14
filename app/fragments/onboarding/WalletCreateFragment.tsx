@@ -140,7 +140,7 @@ export const WalletCreateFragment = systemFragment(() => {
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                         <View style={{ flexGrow: 1 }} />
                         <FragmentMediaContent
-                            animation={require('../../../assets/animations/clock.json')}
+                            animation={require('@assets/animations/clock.json')}
                             title={t('create.inProgress')}
                         />
                         <View style={{ flexGrow: 1 }} />

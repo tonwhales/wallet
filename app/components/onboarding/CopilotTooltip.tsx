@@ -4,7 +4,7 @@ import { useCopilot, walkthroughable } from "react-native-copilot";
 import { RoundButton } from "../RoundButton";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { t } from "../../i18n/t";
-import IcClose from '../../../assets/ic-close.svg';
+import IcClose from '@assets/ic-close.svg';
 import { sharedStoragePersistence } from "../../storage/storage";
 
 export const OnboadingView = walkthroughable(View) as any;

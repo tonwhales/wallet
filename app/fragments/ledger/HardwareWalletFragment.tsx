@@ -75,7 +75,7 @@ export const HardwareWalletFragment = fragment(() => {
                             aspectRatio: 1,
                             borderRadius: 20,
                         }}
-                        source={require('../../../assets/ledger_ios.webp')}
+                        source={require('@assets/ledger_ios.webp')}
                         resizeMode={'contain'}
                     />
                 </View>
@@ -93,7 +93,7 @@ export const HardwareWalletFragment = fragment(() => {
                             aspectRatio: 1,
                             borderRadius: 20,
                         }}
-                        source={require('../../../assets/and_ledger.webp')}
+                        source={require('@assets/and_ledger.webp')}
                         resizeMode={'contain'}
                     />
                 </View>

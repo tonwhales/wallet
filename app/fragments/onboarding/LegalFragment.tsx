@@ -5,15 +5,15 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import LottieView from 'lottie-react-native';
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { mnemonicNew } from "ton-crypto";
-
-import IcCheck from "../../../assets/ic-check.svg";
 import { storage } from "../../storage/storage";
+
+import IcCheck from "@assets/ic-check.svg";
+
 const legalAcceptedKey = 'legalAccepted';
 
 export const LegalFragment = systemFragment(() => {
@@ -100,7 +100,7 @@ export const LegalFragment = systemFragment(() => {
                         <Image
                             resizeMode={'contain'}
                             style={{ width: dimensions.screen.width - 32 }}
-                            source={require('../../../assets/banner_backup.webp')}
+                            source={require('@assets/banner_backup.webp')}
                         />
                     </View>
                 </View>

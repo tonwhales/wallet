@@ -13,8 +13,8 @@ import { useLedgerTransport } from "./LedgerTransportProvider";
 import { Address, CellMessage } from "ton";
 import BN from "bn.js";
 
-import Scanner from '../../../../assets/ic-scan-white.svg';
-import NoConnection from '../../../../assets/ic-no-connection.svg';
+import Scanner from '@assets/ic-scan-white.svg';
+import NoConnection from '@assets/ic-no-connection.svg';
 
 export const LedgerWalletHeader = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -123,7 +123,7 @@ export const LedgerWalletHeader = memo(() => {
                     }}>
                         <Image
                             style={{ width: 24, height: 24 }}
-                            source={require('../../../../assets/ledger_device.png')}
+                            source={require('@assets/ledger_device.png')}
                         />
                     </View>
                 </Pressable>

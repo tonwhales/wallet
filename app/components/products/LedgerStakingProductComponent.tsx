@@ -11,7 +11,7 @@ import { ProductBanner } from "./ProductBanner";
 import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
 import { Address } from "ton";
 
-import StakingIcon from '../../../assets/ic-staking.svg';
+import StakingIcon from '@assets/ic-staking.svg';
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -127,7 +127,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             onPress={() => navigation.navigate('LedgerStakingPools')}
             title={t('products.staking.title')}
             subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-            illustration={require('../../../assets/banner-staking.png')}
+            illustration={require('@assets/banner-staking.png')}
         />
     );
 })

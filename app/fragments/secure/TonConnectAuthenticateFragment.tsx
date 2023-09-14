@@ -13,9 +13,9 @@ import { beginCell, Cell, safeSign, StateInit } from 'ton';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
-import SuccessIcon from '../../../assets/ic_success.svg';
-import ChainIcon from '../../../assets/ic_chain.svg';
-import ProtectedIcon from '../../../assets/ic_protected.svg';
+import SuccessIcon from '@assets/ic_success.svg';
+import ChainIcon from '@assets/ic_chain.svg';
+import ProtectedIcon from '@assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
@@ -489,7 +489,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                         backgroundColor: Theme.surfacePimary
                     }}>
                         <Image
-                            source={require('../../../assets/ic_app_tonhub.png')}
+                            source={require('@assets/ic_app_tonhub.png')}
                             style={{ width: 64, height: 64 }}
                             resizeMode={'cover'}
                         />

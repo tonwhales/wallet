@@ -12,14 +12,14 @@ import { Pressable, View, Text, Image } from "react-native";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 
-import Chevron from '../../../assets/ic_chevron_down.svg'
-import Hide from '../../../assets/ic-hide.svg';
-import MCard from '../../../assets/ic-m-card.svg';
+import Chevron from '@assets/ic_chevron_down.svg'
+import Hide from '@assets/ic-hide.svg';
+import MCard from '@assets/ic-m-card.svg';
 
 export const holdersCardImageMap: { [key: string]: any } = {
-    'classic': require('../../../assets/classic.png'),
-    'black-pro': require('../../../assets/black-pro.png'),
-    'whales': require('../../../assets/whales.png'),
+    'classic': require('@assets/classic.png'),
+    'black-pro': require('@assets/black-pro.png'),
+    'whales': require('@assets/whales.png'),
 }
 
 export const HoldersProductComponent = memo(() => {
@@ -108,7 +108,7 @@ export const HoldersProductComponent = memo(() => {
                     title={t('products.zenPay.card.defaultTitle')}
                     subtitle={t('products.zenPay.card.defaultSubtitle')}
                     onPress={onPress}
-                    illustration={require('../../../assets/banner-holders.png')}
+                    illustration={require('@assets/banner-holders.png')}
                 />
             </View>
         );
@@ -147,7 +147,7 @@ export const HoldersProductComponent = memo(() => {
                                     </Text>
                                 )}
                                 {!visibleList[0] && (
-                                    <Image source={require('../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
+                                    <Image source={require('@assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                                 )}
                                 {(visibleList[0] && visibleList[0].type === 'virtual') && (
                                     <MCard height={8} width={13} style={{ height: 8, width: 13, position: 'absolute', bottom: 5.25, right: 5.5 }} />

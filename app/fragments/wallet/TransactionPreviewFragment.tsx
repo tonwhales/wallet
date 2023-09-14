@@ -27,10 +27,10 @@ import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useAppConfig } from "../../utils/AppConfigContext";
 
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import ContactIcon from '../../../assets/ic_contacts.svg';
-import CopyIcon from '../../../assets/ic_copy.svg';
-import ExplorerIcon from '../../../assets/ic_explorer.svg';
+import VerifiedIcon from '@assets/ic_verified.svg';
+import ContactIcon from '@assets/ic_contacts.svg';
+import CopyIcon from '@assets/ic_copy.svg';
+import ExplorerIcon from '@assets/ic_explorer.svg';
 
 export const TransactionPreviewFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

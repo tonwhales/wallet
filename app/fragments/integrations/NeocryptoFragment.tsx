@@ -16,7 +16,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
-const Logo = require('../../../assets/known/neocrypto_logo.png');
+const Logo = require('@assets/known/neocrypto_logo.png');
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
 
 export const ConfirmLegal = React.memo((
@@ -244,7 +244,7 @@ export const NeocryptoFragment = fragment(() => {
                     }]);
                 }}
             >
-                <Image source={require('../../../assets/ic_close.png')} style={{
+                <Image source={require('@assets/ic_close.png')} style={{
                     height: 32, width: 32
                 }} />
             </Pressable>

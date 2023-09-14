@@ -8,7 +8,7 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
-import StakingIcon from '../../../assets/ic-staking.svg';
+import StakingIcon from '@assets/ic-staking.svg';
 import { ProductBanner } from "./ProductBanner";
 
 const style: StyleProp<ViewStyle> = {
@@ -120,7 +120,7 @@ export const StakingProductComponent = React.memo(() => {
             onPress={() => navigation.navigate('StakingPools')}
             title={t('products.staking.title')}
             subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-            illustration={require('../../../assets/banner-staking.png')}
+            illustration={require('@assets/banner-staking.png')}
         />
     );
 })

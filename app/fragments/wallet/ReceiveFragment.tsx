@@ -21,9 +21,9 @@ import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
 import { Avatar } from "../../components/Avatar";
 
-import Verified from '../../../assets/ic-verified.svg';
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import Chevron from '../../../assets/ic_chevron_forward.svg';
+import Verified from '@assets/ic-verified.svg';
+import TonIcon from '@assets/ic_ton_account.svg';
+import Chevron from '@assets/ic_chevron_forward.svg';
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

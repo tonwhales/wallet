@@ -17,9 +17,9 @@ import * as RNImagePicker from 'expo-image-picker';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import { Camera, FlashMode } from 'expo-camera';
 
-import FlashOn from '../../../assets/ic-flash-on.svg';
-import FlashOff from '../../../assets/ic-flash-off.svg';
-import Photo from '../../../assets/ic-photo.svg';
+import FlashOn from '@assets/ic-flash-on.svg';
+import FlashOff from '@assets/ic-flash-off.svg';
+import Photo from '@assets/ic-photo.svg';
 
 export const ScannerFragment = systemFragment(() => {
     const { Theme } = useAppConfig();

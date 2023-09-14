@@ -201,7 +201,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                     borderRadius: 12,
                     flexDirection: 'row',
                     alignItems: 'center',
-                    minHeight: 24,
+                    minHeight: 26,
                     position: 'relative',
                 },
                 props.style

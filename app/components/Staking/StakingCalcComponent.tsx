@@ -43,17 +43,15 @@ export const StakingCalcComponent = React.memo((
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
         const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
         return (
-            <View style={{ backgroundColor: Theme.border }}>
+            <View style={{ backgroundColor: Theme.surfaceSecondary, padding: 20, borderRadius: 20 }}>
                 <Text style={{
                     fontSize: 16,
                     color: Theme.textPrimary,
                     fontWeight: '600',
-                    marginTop: 20
                 }}>
                     {t('products.staking.calc.topUpTitle')}
                 </Text>
                 <View style={{
-                    backgroundColor: Theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -62,8 +60,6 @@ export const StakingCalcComponent = React.memo((
                     <View style={{
                         flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
-                        height: 56
                     }}>
                         <Text style={{
                             fontSize: 16,
@@ -95,12 +91,11 @@ export const StakingCalcComponent = React.memo((
                     <View style={{
                         height: 1, width: '100%',
                         backgroundColor: Theme.divider,
+                        marginVertical: 16
                     }} />
                     <View style={{
                         flexDirection: 'row', width: '100%',
                         justifyContent: 'space-between', alignItems: 'center',
-                        paddingRight: 16,
-                        height: 56
                     }}>
                         <Text style={{
                             fontSize: 16,
@@ -176,7 +171,7 @@ export const StakingCalcComponent = React.memo((
     return (
         <View style={{}}>
             <View style={{
-                backgroundColor: Theme.border,
+                backgroundColor: Theme.surfaceSecondary,
                 padding: 16,
                 borderRadius: 14,
                 justifyContent: 'center',

@@ -4,7 +4,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, FadeIn, FadeOut } from 'react-native-reanimated';
 import { Address, Cell, CellMessage, fromNano, toNano } from 'ton';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
@@ -28,6 +28,8 @@ import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { usePrice } from '../../engine/PriceContext';
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -60,6 +62,7 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const engine = useEngine();
+    const [price, currency] = usePrice();
 
     const route = useRoute();
     const isLedger = route.name === 'LedgerStakingTransfer';
@@ -85,6 +88,14 @@ export const StakingTransferFragment = fragment(() => {
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
 
+    const validAmount = useMemo(() => {
+        try {
+            return toNano(amount);
+        } catch {
+            return undefined;
+        }
+    }, [amount]);
+
     let balance = account?.balance || new BN(0);
     if (params?.action === 'withdraw') {
         balance = member
@@ -96,11 +107,10 @@ export const StakingTransferFragment = fragment(() => {
         balance = member?.withdraw || toNano(0);
     }
 
-    const onSetAmount = useCallback(
-        (newAmount: string) => {
-            setMinAmountWarn(undefined);
-            setAmount(newAmount);
-        }, []);
+    const onSetAmount = useCallback((newAmount: string) => {
+        setMinAmountWarn(undefined);
+        setAmount(newAmount);
+    }, []);
 
     const doContinue = useCallback(async () => {
         let value: BN;
@@ -295,6 +305,17 @@ export const StakingTransferFragment = fragment(() => {
 
     const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
 
+    const priceText = useMemo(() => {
+        if (!validAmount) {
+            return;
+        }
+        return formatCurrency(
+            (parseFloat(fromNano(validAmount.abs())) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),
+            currency,
+            validAmount.isNeg()
+        );
+    }, [validAmount, price, currency]);
+
     useFocusEffect(() => {
         setTimeout(() => {
             setStatusBarStyle(Platform.OS === 'ios' ? 'light' : 'dark');
@@ -302,7 +323,7 @@ export const StakingTransferFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: 'white' }}>
+        <View style={{ flexGrow: 1, backgroundColor: Theme.background }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={title}
@@ -319,178 +340,156 @@ export const StakingTransferFragment = fragment(() => {
             >
                 <View
                     ref={containerRef}
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', marginTop: 16 }}
                 >
-                    <>
-                        <View style={{
-                            marginBottom: 0,
-                            backgroundColor: Theme.border,
-                            borderRadius: 14,
+                    <View
+                        style={{
+                            marginTop: 16,
+                            marginBottom: minAmountWarn ? 0 : 16,
+                            backgroundColor: Theme.surfaceSecondary,
+                            borderRadius: 20,
                             justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: 20,
+                            padding: 20
+                        }}
+                    >
+                        <View style={{
+                            flexDirection: 'row',
+                            marginBottom: 12,
+                            justifyContent: 'space-between'
                         }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                justifyContent: 'space-between'
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 15, lineHeight: 20,
+                                color: Theme.textSecondary,
                             }}>
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    color: Theme.textSecondary,
-                                }}>
-                                    {t('common.amount')}
-                                </Text>
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    color: Theme.textSecondary,
-                                }}>
-                                    <ValueComponent value={balance} precision={3} />
-                                    {' TON'}
-                                </Text>
-                            </View>
-                            <View style={{ width: '100%' }}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}>
-                                    <ATextInput
-                                        index={0}
-                                        ref={refs[0]}
-                                        onFocus={onFocus}
-                                        value={amount}
-                                        onValueChange={onSetAmount}
-                                        placeholder={'0'}
-                                        keyboardType={'numeric'}
-                                        textAlign={'left'}
-                                        style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
-                                        fontWeight={'800'}
-                                        fontSize={30}
-                                        editable={!params?.lockAmount}
-                                        enabled={!params?.lockAmount}
-                                        blurOnSubmit={false}
-                                    />
-                                    {!params?.lockAmount && <Pressable
-                                        style={({ pressed }) => {
-                                            return [
-                                                {
-                                                    backgroundColor: Theme.accent,
-                                                    height: 24,
-                                                    borderRadius: 40,
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    paddingHorizontal: 10,
-                                                    paddingVertical: 3,
-                                                },
-                                                { opacity: pressed ? 0.5 : 1 }
-                                            ]
-                                        }}
-                                        onPress={onAddAll}
-                                    >
-                                        <Text style={{
-                                            fontWeight: '600',
-                                            fontSize: 16,
-                                            color: Theme.border
-                                        }}>
-                                            {t('common.max')}
-                                        </Text>
-                                    </Pressable>}
-                                </View>
-                                <PriceComponent
-                                    amount={parseAmountToValidBN(amount)}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0
-                                    }}
-                                    textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
+                                {`${t('common.balance')}: `}
+                                <ValueComponent
+                                    precision={4}
+                                    value={balance}
+                                    centFontStyle={{ opacity: 0.5 }}
                                 />
-                            </View>
+                            </Text>
+                            <Pressable
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                onPress={onAddAll}
+                            >
+                                <Text style={{
+                                    fontWeight: '500',
+                                    fontSize: 15, lineHeight: 20,
+                                    color: Theme.accent,
+                                }}>
+                                    {t('transfer.sendAll')}
+                                </Text>
+                            </Pressable>
                         </View>
-                        {!!minAmountWarn && (
+                        <ATextInput
+                            index={0}
+                            ref={refs[0]}
+                            onFocus={onFocus}
+                            value={amount}
+                            onValueChange={setAmount}
+                            keyboardType={'numeric'}
+                            style={{
+                                backgroundColor: Theme.background,
+                                paddingHorizontal: 16, paddingVertical: 14,
+                                borderRadius: 16,
+                            }}
+                            inputStyle={{
+                                fontSize: 17, fontWeight: '400',
+                                textAlignVertical: 'top',
+                                color: minAmountWarn ? Theme.accentRed : Theme.textPrimary,
+                                width: 'auto',
+                                flexShrink: 1
+                            }}
+                            suffux={priceText}
+                            hideClearButton
+                            prefix={'TON'}
+                        />
+                    </View>
+                    {!!minAmountWarn && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
                             <Text style={{
                                 color: Theme.accentRed,
-                                fontWeight: '400',
-                                fontSize: 14,
-                                marginTop: 10
+                                fontSize: 13,
+                                lineHeight: 18,
+                                marginTop: 8,
+                                marginBottom: 16,
+                                marginLeft: 20,
+                                fontWeight: '400'
                             }}>
                                 {minAmountWarn}
                             </Text>
-                        )}
-                        {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
-                            <>
-                                {!AppConfig.isTestnet && (
-                                    <StakingCalcComponent
-                                        amount={amount}
-                                        topUp={params?.action === 'top_up'}
-                                        member={member}
-                                        pool={pool}
-                                    />
-                                )}
-                                <PoolTransactionInfo pool={pool} />
-                            </>
-                        )}
-                        {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
-                            <>
+                        </Animated.View>
+                    )}
+
+                    {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
+                        <>
+                            <StakingCalcComponent
+                                amount={amount}
+                                topUp={params?.action === 'top_up'}
+                                member={member}
+                                pool={pool}
+                            />
+                            <PoolTransactionInfo pool={pool} />
+                        </>
+                    )}
+                    {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
+                        <>
+                            <View style={{
+                                backgroundColor: Theme.border,
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginTop: 14,
+                                marginBottom: 15,
+                                padding: 20
+                            }}>
                                 <View style={{
-                                    backgroundColor: Theme.border,
-                                    borderRadius: 14,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginTop: 14,
-                                    marginBottom: 15,
-                                    padding: 20
+                                    flexDirection: 'row', width: '100%',
+                                    justifyContent: 'space-between', alignItems: 'center',
                                 }}>
-                                    <View style={{
-                                        flexDirection: 'row', width: '100%',
-                                        justifyContent: 'space-between', alignItems: 'center',
+                                    <Text style={{
+                                        fontSize: 16,
+                                        color: Theme.textSecondary
                                     }}>
+                                        {t('products.staking.info.withdrawFee')}
+                                    </Text>
+                                    <View style={{ justifyContent: 'center' }}>
                                         <Text style={{
+                                            fontWeight: '400',
                                             fontSize: 16,
-                                            color: Theme.textSecondary
+                                            color: Theme.textPrimary
                                         }}>
-                                            {t('products.staking.info.withdrawFee')}
+                                            {`${fromNano(withdrawFee)} TON`}
                                         </Text>
-                                        <View style={{ justifyContent: 'center' }}>
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 16,
-                                                color: Theme.textPrimary
-                                            }}>
-                                                {`${fromNano(withdrawFee)} TON`}
-                                            </Text>
-                                            <PriceComponent
-                                                amount={withdrawFee}
-                                                style={{
-                                                    backgroundColor: Theme.transparent,
-                                                    paddingHorizontal: 0, paddingVertical: 2,
-                                                    alignSelf: 'flex-end'
-                                                }}
-                                                textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
-                                            />
-                                        </View>
+                                        <PriceComponent
+                                            amount={withdrawFee}
+                                            style={{
+                                                backgroundColor: Theme.transparent,
+                                                paddingHorizontal: 0, paddingVertical: 2,
+                                                alignSelf: 'flex-end'
+                                            }}
+                                            textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
+                                        />
                                     </View>
                                 </View>
-                                {!!pool && params.action !== 'withdraw_ready' && (
-                                    <StakingCycle
-                                        stakeUntil={pool.params.stakeUntil}
-                                        locked={pool.params.locked}
-                                        style={{
-                                            marginBottom: 15,
-                                            marginHorizontal: 0
-                                        }}
-                                        withdraw={true}
-                                    />
-                                )}
-                                {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
-                                    <UnstakeBanner amount={amount} member={member} />
-                                )}
-                            </>
-                        )}
-                    </>
+                            </View>
+                            {!!pool && params.action !== 'withdraw_ready' && (
+                                <StakingCycle
+                                    stakeUntil={pool.params.stakeUntil}
+                                    locked={pool.params.locked}
+                                    style={{
+                                        marginBottom: 15,
+                                        marginHorizontal: 0
+                                    }}
+                                    withdraw={true}
+                                />
+                            )}
+                            {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
+                                <UnstakeBanner amount={amount} member={member} />
+                            )}
+                        </>
+                    )}
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView

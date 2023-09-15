@@ -26,7 +26,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
 
     return (
         <View style={{
-            backgroundColor: Theme.border,
+            backgroundColor: Theme.surfaceSecondary,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -136,7 +136,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                 }}>
                     {t('products.staking.info.depositFee')}
                 </Text>
-                <View style={{ justifyContent: 'center' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
@@ -167,7 +167,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                 }}>
                     {t('products.staking.info.withdrawRequestFee')}
                 </Text>
-                <View style={{ justifyContent: 'center' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
@@ -200,7 +200,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                         {t('products.staking.info.withdrawCompleteFee')}
                     </Text>
                 </View>
-                <View style={{ justifyContent: 'center' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
@@ -233,7 +233,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                         }}>
                             {t('products.staking.info.blockchainFee')}
                         </Text>
-                        <View style={{ justifyContent: 'center' }}>
+                        <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,

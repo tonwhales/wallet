@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 import { View, Text, Image, useWindowDimensions, TouchableHighlight, NativeSyntheticEvent, NativeScrollEvent, ScrollView, Platform } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, toNano } from "ton";
-import { TonTransport } from "ton-ledger";
+import { Address, toNano } from "@ton/core";
+// import { TonTransport } from "ton-ledger";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
@@ -173,7 +173,7 @@ export const LedgerApp = React.memo((props: {
                     <PriceComponent amount={account?.balance ?? toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={address.toFriendly({ testOnly: isTestnet })}
+                        value={address.toString({ testOnly: isTestnet })}
                         address={address}
                         elipsise
                         style={{

@@ -9,7 +9,7 @@ import {
 import naclUtils from 'tweetnacl-util';
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { getTimeSec } from '../../../utils/getTimeSec';
 import { extractDomain } from '../../utils/extractDomain';
 import { AppManifest } from '../../api/fetchManifest';

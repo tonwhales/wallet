@@ -52,7 +52,7 @@ export const HomeFragment = fragment(() => {
                                     navigation.navigateTransfer({
                                         order: {
                                             messages: [{
-                                                target: existing.job.job.target.toFriendly({ testOnly: isTestnet }),
+                                                target: existing.job.job.target.toString({ testOnly: isTestnet }),
                                                 amount: existing.job.job.amount,
                                                 amountAll: false,
                                                 payload: existing.job.job.payload,
@@ -65,7 +65,7 @@ export const HomeFragment = fragment(() => {
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
-                                        target: existing.job.job.target.toFriendly({ testOnly: isTestnet }),
+                                        target: existing.job.job.target.toString({ testOnly: isTestnet }),
                                         comment: existing.job.job.text,
                                         amount: existing.job.job.amount,
                                         stateInit: existing.job.job.stateInit,

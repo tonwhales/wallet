@@ -1,10 +1,10 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 
 export type LegacySubscription = {
     wallet: Address,
     beneficiary: Address,
-    amount: BN,
+    amount: bigint,
     period: number,
     startAt: number,
     timeout: number,

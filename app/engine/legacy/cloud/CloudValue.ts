@@ -44,7 +44,7 @@ export class CloudValue<T> {
 
         // Atom
         this.atom = atom({
-            key: 'cloud/' + cloud.engine.address.toFriendly({ testOnly: this.#cloud.engine.isTestnet }) + '/' + key,
+            key: 'cloud/' + cloud.engine.address.toString({ testOnly: this.#cloud.engine.isTestnet }) + '/' + key,
             dangerouslyAllowMutability: true,
             default: this.#value.getDoc() as T
         });

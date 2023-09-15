@@ -1,5 +1,5 @@
 // Crypto
-global.Buffer = global.Buffer || require('buffer').Buffer;
+global.Buffer = global.Buffer || require('@craftzdog/react-native-buffer').Buffer;
 import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
 polyfillWebCrypto();
 
@@ -16,9 +16,6 @@ nacl.setPRNG((x, n) => {
 
 // Navigation
 import 'react-native-gesture-handler';
-
-// Storage
-import './app/storage/appState';
 
 // App
 import * as React from 'react';

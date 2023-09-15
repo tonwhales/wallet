@@ -4,7 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
@@ -47,7 +47,7 @@ export const DeleteAccountFragment = fragment(() => {
     const addr = useCurrentAddress();
     const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
-    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: isTestnet }));
+    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));
     const isKnown: boolean = !!KnownWallets(isTestnet)[targetAddressInput];
 
     const onDeleteAccount = React.useCallback(() => {
@@ -79,7 +79,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has nfts
             try {
-                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: isTestnet }), isTestnet);
+                const nftsConnection = await fetchNfts(addr.address.toString({ testOnly: isTestnet }), isTestnet);
                 if (nftsConnection.items && nftsConnection.items.length > 0) {
                     Alert.alert(t('deleteAccount.error.hasNfts'));
                     ended = true;
@@ -104,7 +104,7 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
 
-            const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: isTestnet }));
+            const targetParsed = Address.parseFriendly(targetAddress.toString({ testOnly: isTestnet }));
 
             // Check target
             const targetState = await backoff('transfer', async () => {
@@ -115,7 +115,7 @@ export const DeleteAccountFragment = fragment(() => {
             const target = {
                 isTestOnly: targetParsed.isTestOnly,
                 address: targetParsed.address,
-                balance: new BN(targetState.account.balance.coins, 10),
+                balance: BigInt(targetState.account.balance.coins, 10),
                 active: targetState.account.state.type === 'active'
             };
 
@@ -130,7 +130,7 @@ export const DeleteAccountFragment = fragment(() => {
             }
 
             // Check if target is not active
-            if (target.balance.lte(new BN(0))) {
+            if (target.balance.lte(BigInt(0))) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
                     ended = true;
@@ -173,7 +173,7 @@ export const DeleteAccountFragment = fragment(() => {
                     sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
                     order: new InternalMessage({
                         to: target.address,
-                        value: new BN(0),
+                        value: BigInt(0),
                         bounce: false,
                         body: new CommonMessageInfo({
                             stateInit: null,

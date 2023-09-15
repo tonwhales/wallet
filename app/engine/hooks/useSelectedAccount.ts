@@ -1,6 +1,6 @@
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from '../state/appState';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 
 export function useSelectedAccount() {
     let state = useRecoilValue(appStateAtom);

@@ -1,5 +1,5 @@
 // polyfills
-global.Buffer = global.Buffer || require('buffer').Buffer;
+global.Buffer = global.Buffer || require('@craftzdog/react-native-buffer').Buffer;
 import 'react-native-url-polyfill/auto';
 import 'text-encoding-polyfill';
 

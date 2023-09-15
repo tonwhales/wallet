@@ -9,7 +9,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { beginCell, Cell, safeSign, StateInit } from 'ton';
+import { beginCell, Cell, safeSign, StateInit } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -149,7 +149,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             const contract = contractFromPublicKey(acc.publicKey);
             let walletConfig = contract.source.backup();
             let walletType = contract.source.type;
-            let address = contract.address.toFriendly({ testOnly: isTestnet });
+            let address = contract.address.toString({ testOnly: isTestnet });
             let appInstanceKeyPair = await getAppInstanceKeyPair();
 
             // Sign
@@ -170,7 +170,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             let replyItems: ConnectItemReply[];
             try {
                 replyItems = replyBuilder.createReplyItems(
-                    acc.address.toFriendly({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
+                    acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
                     Uint8Array.from(walletKeys.keyPair.secretKey),
                     stateInitStr,
                     isTestnet
@@ -524,9 +524,9 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     }}>
                         <Text>
                             {
-                                acc.address.toFriendly({ testOnly: isTestnet }).slice(0, 4)
+                                acc.address.toString({ testOnly: isTestnet }).slice(0, 4)
                                 + '...'
-                                + acc.address.toFriendly({ testOnly: isTestnet }).slice(t.length - 6)
+                                + acc.address.toString({ testOnly: isTestnet }).slice(t.length - 6)
                             }
                         </Text>
                     </Text>

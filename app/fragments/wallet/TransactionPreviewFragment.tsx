@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "ton";
+import { fromNano } from "@ton/core";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -47,7 +47,7 @@ export const TransactionPreviewFragment = fragment(() => {
     let transaction = params.transaction;
     let operation = transaction.operation;
 
-    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
+    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -74,7 +74,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toString({ testOnly: isTestnet })];
 
     let body: TxBody | null = transaction.base.body;
 
@@ -235,7 +235,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         <>
                             <Text
                                 style={{
-                                    color: item.amount.gte(new BN(0))
+                                    color: item.amount.gte(BigInt(0))
                                         ? spam
                                             ? theme.textColor
                                             : theme.pricePositive
@@ -364,7 +364,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toFriendly({ testOnly: isTestnet }) }
+                                                { address: operation.address.toString({ testOnly: isTestnet }) }
                                             );
                                         }
                                     }}
@@ -429,7 +429,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: isTestnet }))}
+                                onPress={() => onCopy((operation.address || address).toString({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -537,7 +537,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
                             onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.address!.toFriendly({ testOnly: isTestnet }),
+                                target: transaction.base.address!.toString({ testOnly: isTestnet }),
                                 comment: transaction.base.body && transaction.base.body.type === 'comment' ? transaction.base.body.comment : null,
                                 amount: transaction.base.amount.neg(),
                                 job: null,

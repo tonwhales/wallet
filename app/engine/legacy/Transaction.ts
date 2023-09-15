@@ -1,13 +1,13 @@
 import BN from "bn.js";
-import { Address, Cell } from "ton";
+import { Address, Cell } from "@ton/core";
 
 export type TxBody = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
 
 export type Transaction = {
     id: string;
     lt: string | null;
-    fees: BN;
-    amount: BN;
+    fees: bigint;
+    amount: bigint;
     address: Address | null;
     seqno: number | null;
     kind: 'out' | 'in';

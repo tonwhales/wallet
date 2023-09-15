@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Cell } from "ton";
+import { Cell } from "@ton/core";
 import { Engine } from "../Engine";
 import { Job } from "../apps/Job";
 import { parseJob } from "../apps/parseJob";

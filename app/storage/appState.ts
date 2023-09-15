@@ -1,4 +1,4 @@
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { storage } from './storage';
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
@@ -58,7 +58,7 @@ function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof
         version: 2,
         selected: state.selected,
         addresses: state.addresses.map((v) => ({
-            address: v.address.toFriendly({ testOnly: isTestnet }),
+            address: v.address.toString({ testOnly: isTestnet }),
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
             utilityKey: v.utilityKey.toString('base64')
@@ -227,11 +227,11 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
 }
 
 export function markAddressSecured(src: Address, isTestnet: boolean) {
-    storage.set('backup_' + src.toFriendly({ testOnly: isTestnet }), true);
+    storage.set('backup_' + src.toString({ testOnly: isTestnet }), true);
 }
 
 export function isAddressSecured(src: Address, isTestnet: boolean) {
-    return storage.getBoolean('backup_' + src.toFriendly({ testOnly: isTestnet }));
+    return storage.getBoolean('backup_' + src.toString({ testOnly: isTestnet }));
 }
 
 export async function getAppKey() {

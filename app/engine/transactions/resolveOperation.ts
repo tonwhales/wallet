@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, Cell } from "ton";
+import { Address, Cell } from "@ton/core";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
@@ -8,7 +8,7 @@ import { StoredOperation, StoredOperationItem } from '../hooks/useRawAccountTran
 
 export function resolveOperation(args: {
     account: Address,
-    amount: BN,
+    amount: bigint,
     body: TxBody | null,
 }, isTestnet: boolean): StoredOperation {
 
@@ -67,7 +67,7 @@ export function resolveOperation(args: {
 
 
     return {
-        address: address.toFriendly({ testOnly: isTestnet }),
+        address: address.toString({ testOnly: isTestnet }),
         items,
         comment
     }

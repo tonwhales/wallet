@@ -1,9 +1,9 @@
 import { BN } from "bn.js";
-import { toNano } from "ton";
+import { toNano } from "@ton/core";
 
 export function parseAmountToBn(amount: string) {
     if (amount === '') {
-        return new BN(0);
+        return BigInt(0);
     }
 
     let value = amount.replace(',', '.');
@@ -22,7 +22,7 @@ export function parseAmountToValidBN(amount: string) {
     try {
         return parseAmountToBn(amount);
     } catch (error) {
-        return new BN(0);
+        return BigInt(0);
     }
 }
 
@@ -31,8 +31,8 @@ export function toFixedBN(amount: number) {
         try {
             return toNano(parseFloat(amount.toFixed(8)))
         } catch (e) {
-            return new BN(0);
+            return BigInt(0);
         }
     }
-    return new BN(0);
+    return BigInt(0);
 }

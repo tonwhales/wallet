@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } fro
 import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
@@ -243,7 +243,7 @@ export const ContactFragment = fragment(() => {
                                         onPress={() => {
                                             navigation.navigate(
                                                 'Assets',
-                                                { target: address.toFriendly({ testOnly: isTestnet }) }
+                                                { target: address.toString({ testOnly: isTestnet }) }
                                             );
                                         }}
                                         underlayColor={theme.selector}

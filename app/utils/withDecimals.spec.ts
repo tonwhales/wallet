@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { fromNano, toNano } from "ton";
+import { fromNano, toNano } from "@ton/core";
 import { fromBNWithDecimals, toBNWithDecimals } from "./withDecimals";
 
 describe('toBNWithDecimals', () => {
@@ -16,47 +16,47 @@ describe('toBNWithDecimals', () => {
         let res0 = toBNWithDecimals('7', 0)!;
         expect(res0).not.toBeNull();
         expect(res0).not.toBeUndefined();
-        expect(res0.eq(bn0)).toBe(true);
+        expect(res0 === 0n).toBe(true);
 
         let res1 = toBNWithDecimals('9.9', 1)!;
         expect(res1).not.toBeNull();
         expect(res1).not.toBeUndefined();
-        expect(res1.eq(bn1)).toBe(true);
+        expect(res1 === bn1).toBe(true);
 
         let res2 = toBNWithDecimals('9.99', 2)!;
         expect(res2).not.toBeNull();
         expect(res2).not.toBeUndefined();
-        expect(res2.eq(bn2)).toBe(true);
+        expect(res2 === bn2).toBe(true);
 
         let res3 = toBNWithDecimals('9.999', 3)!;
         expect(res3).not.toBeNull();
         expect(res3).not.toBeUndefined();
-        expect(res3.eq(bn3)).toBe(true);
+        expect(res3 === bn3).toBe(true);
 
         let res8 = toBNWithDecimals('9.99999999', 8)!;
         expect(res8).not.toBeNull();
         expect(res8).not.toBeUndefined();
-        expect(res8.eq(bn8)).toBe(true);
+        expect(res8 === bn8).toBe(true);
 
         let res9 = toBNWithDecimals('0.999999999', 9)!;
         expect(res9).not.toBeNull();
         expect(res9).not.toBeUndefined();
-        expect(res9.eq(bn9)).toBe(true);
+        expect(res9 === bn9).toBe(true);
 
         let res10 = toBNWithDecimals('9.9999999999', 10)!;
         expect(res10).not.toBeNull();
         expect(res10).not.toBeUndefined();
-        expect(res10.eq(bn10)).toBe(true);
+        expect(res10 === bn10).toBe(true);
 
         let res18 = toBNWithDecimals('9.999999999999999998', 18)!;
         expect(res18).not.toBeNull();
         expect(res18).not.toBeUndefined();
-        expect(res18.eq(bn18)).toBe(true);
+        expect(res18 === bn18).toBe(true);
 
         let res = toBNWithDecimals('0.1', 1)!;
         expect(res).not.toBeNull();
         expect(res).not.toBeUndefined();
-        expect(res.toNumber() === 1).toBe(true);
+        expect(Number(res) === 1).toBe(true);
 
         try {
             toBNWithDecimals('0.01', 1)

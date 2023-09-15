@@ -16,7 +16,7 @@ export const StakingProductComponent = React.memo(() => {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const staking = useStaking();
-    const showJoin = staking.total.eq(new BN(0));
+    const showJoin = staking.total === 0n;
 
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -63,7 +63,7 @@ export const StakingProductComponent = React.memo(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: staking.total && staking.total.gt(new BN(0))
+                                color: staking.total && staking.total.gt(BigInt(0))
                                     ? theme.pricePositive
                                     : theme.textColor
                             }}>

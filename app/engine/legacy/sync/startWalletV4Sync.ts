@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { fetchPlugins } from "../../api/fetchPlugins";
 import { fetchSeqno } from "../../api/fetchSeqno";
 import { Engine } from "../Engine";
@@ -8,13 +8,13 @@ import { startDependentSync } from "./utils/startDependentSync";
 export type WalletV4State = {
     block: number;
     seqno: number;
-    balance: BN,
+    balance: bigint,
     plugins: Address[],
     transactions: string[]
 }
 
 export function startWalletV4Sync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/wallet`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/wallet`;
     let full = engine.persistence.fullAccounts.item(address);
     let wallet = engine.persistence.wallets.item(address);
 

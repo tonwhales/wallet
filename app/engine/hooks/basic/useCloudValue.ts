@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { beginCell, safeSign } from 'ton';
+import { beginCell, safeSign } from '@ton/core';
 import { deriveSymmetricPath, getSecureRandomBytes, keyPairFromSeed, openBox, sealBox, sha256_sync } from 'ton-crypto';
 import * as t from 'io-ts';
 import { useQuery } from '@tanstack/react-query';

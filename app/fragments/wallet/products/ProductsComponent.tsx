@@ -58,7 +58,7 @@ export const ProductsComponent = React.memo(() => {
 
     // Resolve accounts
     let accounts: React.ReactElement[] = [];
-    if (oldWalletsBalance.gt(new BN(0))) {
+    if (oldWalletsBalance > 0n) {
         accounts.push(
             <AnimatedProductButton
                 entering={FadeInUp}
@@ -75,10 +75,10 @@ export const ProductsComponent = React.memo(() => {
     }
 
     for (let j of jettons) {
-        if (j.balance.gt(new BN(0))) {
+        if (j.balance > 0n) {
             accounts.push(
                 <JettonProduct
-                    key={'jt' + j.wallet.toFriendly()}
+                    key={'jt' + j.wallet.toString()}
                     jetton={j}
                     navigation={navigation}
                 />
@@ -232,7 +232,7 @@ export const ProductsComponent = React.memo(() => {
                             navigation.navigateTransfer({
                                 order: {
                                     messages: [{
-                                        target: currentJob.job.target.toFriendly({ testOnly: isTestnet }),
+                                        target: currentJob.job.target.toString({ testOnly: isTestnet }),
                                         amount: currentJob.job.amount,
                                         payload: currentJob.job.payload,
                                         stateInit: currentJob.job.stateInit,

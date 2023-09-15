@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
 
@@ -12,14 +12,14 @@ export class Transactions {
     }
 
     get(address: Address, lt: string) {
-        let key = address.toFriendly() + '::' + lt;
+        let key = address.toString() + '::' + lt;
         let ex = this.#wallet.get(key);
         if (ex) {
             return ex;
         }
 
         // Basic parsing
-        let tx = this.engine.persistence.parsedTransactions.getValue({ address, lt: new BN(lt, 10) })!;
+        let tx = this.engine.persistence.parsedTransactions.getValue({ address, lt: BigInt(lt, 10) })!;
 
         if (!tx) {
             return null;
@@ -30,6 +30,6 @@ export class Transactions {
     }
 
     set(address: Address, lt: string, tx: Transaction) {
-        this.engine.persistence.parsedTransactions.setValue({ address, lt: new BN(lt, 10) }, tx);
+        this.engine.persistence.parsedTransactions.setValue({ address, lt: BigInt(lt, 10) }, tx);
     }
 }

@@ -1,25 +1,25 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "ton";
+import { Address, beginCell, Cell, fromNano, Slice, TonClient4, TupleSlice4 } from "@ton/core";
 import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type StakingPoolState = {
-    lt: BN,
+    lt: bigint,
     params: {
-        minStake: BN,
-        depositFee: BN,
-        withdrawFee: BN,
+        minStake: bigint,
+        depositFee: bigint,
+        withdrawFee: bigint,
         stakeUntil: number,
-        receiptPrice: BN,
-        poolFee: BN,
+        receiptPrice: bigint,
+        poolFee: bigint,
         locked: boolean
     },
     member: {
-        balance: BN,
-        pendingDeposit: BN,
-        pendingWithdraw: BN,
-        withdraw: BN
+        balance: bigint,
+        pendingDeposit: bigint,
+        pendingWithdraw: bigint,
+        withdraw: bigint
     }
 };
 
@@ -53,17 +53,17 @@ async function getStakingMemberMonthlyChart(client4: TonClient4, address: Addres
         }
         return null;
     }));
-    let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: BN }[];
+    let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: bigint }[];
     points = points.sort((a, b) => a.ts - b.ts);
 
     const chart: { balance: string, ts: number, diff: string }[] = []
-    let prevBalance = new BN(1);
+    let prevBalance = BigInt(1);
 
     for (let point of points) {
         chart.push({
             balance: point.balance.toString(10),
             ts: point.ts * 1000,
-            diff: point.balance.sub(new BN(prevBalance)).toString(10)
+            diff: point.balance.sub(BigInt(prevBalance)).toString(10)
         });
 
         prevBalance = point.balance;
@@ -85,7 +85,7 @@ export async function downloadStateDirectly(engine: Engine, address: Address) {
 }
 
 export function startStakingPoolSync(member: Address, pool: Address, engine: Engine) {
-    let key = `${member.toFriendly({ testOnly: engine.isTestnet })}/staking/${pool.toFriendly({ testOnly: engine.isTestnet })}`;
+    let key = `${member.toString({ testOnly: engine.isTestnet })}/staking/${pool.toString({ testOnly: engine.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
     let chartItem = engine.persistence.stakingChart.item({ address: pool, target: member });
@@ -101,7 +101,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         }
 
         // Check updated
-        if (src && new BN(src.lt).gte(parent.last.lt)) {
+        if (src && BigInt(src.lt).gte(parent.last.lt)) {
             return;
         }
 
@@ -117,7 +117,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         let status: {
             proxyStakeAt: number,
             proxyStakeUntil: number,
-            proxyStakeSent: BN,
+            proxyStakeSent: bigint,
             querySent: boolean,
             canUnlock: boolean,
             locked: boolean,
@@ -137,11 +137,11 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         let params: {
             enabled: boolean,
             udpatesEnabled: boolean,
-            minStake: BN,
-            depositFee: BN,
-            withdrawFee: BN,
-            poolFee: BN,
-            receiptPrice: BN
+            minStake: bigint,
+            depositFee: bigint,
+            withdrawFee: bigint,
+            poolFee: bigint,
+            receiptPrice: bigint
         } = {
             enabled: paramsParser.readBoolean(),
             udpatesEnabled: paramsParser.readBoolean(),
@@ -155,10 +155,10 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
         // Member
         let memberParser = new TupleSlice4(memberResponse.result);
         let memberState: {
-            balance: BN;
-            pendingWithdraw: BN;
-            pendingDeposit: BN;
-            withdraw: BN;
+            balance: bigint;
+            pendingWithdraw: bigint;
+            pendingDeposit: bigint;
+            withdraw: bigint;
         } = {
             balance: memberParser.readBigNumber(),
             pendingDeposit: memberParser.readBigNumber(),

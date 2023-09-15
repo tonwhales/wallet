@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "ton";
+import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "@ton/core";
 import { ConfigState } from "../sync/startConfigSync";
 
 const gasUsageByOutMsgs: { [key: number]: number } = {
@@ -20,7 +20,7 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], 
 } | null)[]) {
 
     // Storage fees
-    let storageFees = new BN(0);
+    let storageFees = BigInt(0);
     for (let storageStat of storageStats) {
         if (storageStat) {
             const computed = computeStorageFees({
@@ -44,11 +44,11 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], 
 
     // Any transaction use this amount of gas
     const gasUsed = gasUsageByOutMsgs[outMsgs.length];
-    let gasFees = computeGasPrices(new BN(gasUsed), { flatLimit: config.workchain.gas.flatLimit, flatPrice: config.workchain.gas.flatGasPrice, price: config.workchain.gas.price });
+    let gasFees = computeGasPrices(BigInt(gasUsed), { flatLimit: config.workchain.gas.flatLimit, flatPrice: config.workchain.gas.flatGasPrice, price: config.workchain.gas.price });
 
 
     // Total
-    let total = new BN(0);
+    let total = BigInt(0);
     total = total.add(storageFees);
     total = total.add(importFees);
     total = total.add(gasFees);

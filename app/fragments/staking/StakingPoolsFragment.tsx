@@ -10,7 +10,7 @@ import { BlurView } from "expo-blur";
 import { t } from "../../i18n/t";
 import { Ionicons } from '@expo/vector-icons';
 import { HeaderBackButton } from "@react-navigation/elements";
-import { Address, fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "@ton/core";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -21,8 +21,8 @@ import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
-export function filterPools(pools: { address: Address, balance: BN }[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
-    return pools.filter((v) => KnownPools(isTestnet)[v.address.toFriendly({ testOnly: isTestnet })].name.toLowerCase().includes(type) && !processed.has(v.address.toFriendly({ testOnly: isTestnet })));
+export function filterPools(pools: { address: Address, balance: bigint }[], type: StakingPoolType, processed: Set<string>, isTestnet: boolean) {
+    return pools.filter((v) => KnownPools(isTestnet)[v.address.toString({ testOnly: isTestnet })].name.toLowerCase().includes(type) && !processed.has(v.address.toString({ testOnly: isTestnet })));
 }
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
@@ -63,12 +63,12 @@ function restrictedAlert(navigation: TypedNavigation, pool: string) {
 
 function PoolComponent(props: {
     address: Address,
-    balance: BN,
+    balance: bigint,
     restricted?: boolean,
 }) {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const addr = props.address.toFriendly({ testOnly: isTestnet });
+    const addr = props.address.toString({ testOnly: isTestnet });
     const pool = props.engine.products.whalesStakingPools.usePool(props.address);
     const poolFee = pool?.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
     const knownPools = KnownPools(isTestnet);
@@ -93,12 +93,12 @@ function PoolComponent(props: {
     return (
         <>
             <ProductButton
-                key={props.address.toFriendly({ testOnly: isTestnet })}
+                key={props.address.toString({ testOnly: isTestnet })}
                 name={name}
                 subtitle={apyWithFee ?? sub}
                 icon={requireSource ? undefined : StakingIcon}
                 requireSource={requireSource}
-                value={props.balance.gt(new BN(0)) ? props.balance : ''}
+                value={props.balance > 0n ? props.balance : ''}
                 onPress={() => {
                     if (club && props.restricted) {
                         clubAlert(navigation, addr);
@@ -200,19 +200,19 @@ export const StakingPoolsFragment = fragment(() => {
         for (let p of poolsWithStake) {
             items.push(
                 <PoolComponent
-                    key={`active-${p.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`active-${p.address.toString({ testOnly: isTestnet })}`}
                     address={p.address}
                     balance={p.balance}
                 />
             );
-            processed.add(p.address.toFriendly({ testOnly: isTestnet }));
+            processed.add(p.address.toString({ testOnly: isTestnet }));
         }
     }
 
     // Recommended
     let recommended = pools.find((v) => v.address.equals(Address.parse(staking.config!.recommended)));
 
-    if (recommended && !processed.has(recommended.address.toFriendly({ testOnly: isTestnet }))) {
+    if (recommended && !processed.has(recommended.address.toString({ testOnly: isTestnet }))) {
         items.push(
             <Header
                 key={'best-header'}
@@ -221,7 +221,7 @@ export const StakingPoolsFragment = fragment(() => {
         );
         items.push(
             <PoolComponent
-                key={`best-${recommended.address.toFriendly({ testOnly: isTestnet })}`}
+                key={`best-${recommended.address.toString({ testOnly: isTestnet })}`}
                 address={recommended.address}
                 balance={recommended.balance}
             />
@@ -250,7 +250,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of epn) {
             items.push(
                 <PoolComponent
-                    key={`epn-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`epn-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />
@@ -269,7 +269,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of nominators) {
             items.push(
                 <PoolComponent
-                    key={`nominators-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`nominators-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />
@@ -292,7 +292,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of club) {
             items.push(
                 <PoolComponent
-                    key={`club-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`club-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />
@@ -311,7 +311,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of lockups) {
             items.push(
                 <PoolComponent
-                    key={`lockup-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`lockup-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />
@@ -334,7 +334,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of team) {
             items.push(
                 <PoolComponent
-                    key={`team-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`team-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />
@@ -353,7 +353,7 @@ export const StakingPoolsFragment = fragment(() => {
         for (let pool of tonkeeper) {
             items.push(
                 <PoolComponent
-                    key={`tonkeeper-${pool.address.toFriendly({ testOnly: isTestnet })}`}
+                    key={`tonkeeper-${pool.address.toString({ testOnly: isTestnet })}`}
                     address={pool.address}
                     balance={pool.balance}
                 />

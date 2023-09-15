@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { SyncValue } from "teslabot";
-import { Address, Cell, parseTransaction } from "ton";
+import { Address, Cell, parseTransaction } from "@ton/core";
 import { createLogger } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { Engine } from "../Engine";
@@ -38,7 +38,7 @@ export function createHistorySync(address: Address, engine: Engine) {
         //
         logger.log('Loading older transactions from ' + cursor.lt);
         let fetched = await backoff('account-history', async () => {
-            return await engine.client4.getAccountTransactions(address, new BN(cursor.lt, 10), Buffer.from(cursor.hash, 'base64'));
+            return await engine.client4.getAccountTransactions(address, BigInt(cursor.lt, 10), Buffer.from(cursor.hash, 'base64'));
         });
 
         let loadedTransactions: string[] = [];
@@ -56,16 +56,16 @@ export function createHistorySync(address: Address, engine: Engine) {
         }
 
         // Read previous transaction
-        let nextCuror: { lt: BN, hash: string } | null = null;
+        let nextCuror: { lt: bigint, hash: string } | null = null;
         if (loadedTransactions.length > 0) {
             const lastTx = parseTransaction(address.workChain, fetched[loadedTransactions.length - 1].tx.beginParse());
-            if (!lastTx.prevTransaction.lt.eq(new BN(0))) {
+            if (!lastTx.prevTransaction.lt.eq(BigInt(0))) {
                 nextCuror = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
             }
         }
 
         // Apply history
-        logger.log(`${address.toFriendly({ testOnly: engine.isTestnet })}: Apply history state`);
+        logger.log(`${address.toString({ testOnly: engine.isTestnet })}: Apply history state`);
         item.update((src) => {
             if (!src) {
                 throw Error('Internal error');

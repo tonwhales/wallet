@@ -1,5 +1,5 @@
 import { BN } from "bn.js";
-import { Address, Cell, parseMessageRelaxed, RawTransaction } from "ton";
+import { Address, Cell, parseMessageRelaxed, RawTransaction } from "@ton/core";
 import { Body, Transaction } from "../Transaction";
 
 export function parseBody(cell: Cell): Body | null {
@@ -34,7 +34,7 @@ export function parseWalletTransaction(tx: RawTransaction, hash: Buffer, own: Ad
     //
 
     let prev: { lt: string, hash: string } | null = null;
-    if (!tx.prevTransaction.lt.eq(new BN(0))) {
+    if (!tx.prevTransaction.lt.eq(BigInt(0))) {
         prev = { lt: tx.prevTransaction.lt.toString(10), hash: tx.prevTransaction.hash.toString('base64') };
     }
 
@@ -56,7 +56,7 @@ export function parseWalletTransaction(tx: RawTransaction, hash: Buffer, own: Ad
     // Resolve amount
     //
 
-    let amount = new BN(0);
+    let amount = BigInt(0);
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
         amount = amount.add(tx.inMessage.info.value.coins);
     }
@@ -133,11 +133,11 @@ export function parseWalletTransaction(tx: RawTransaction, hash: Buffer, own: Ad
 
     const mentioned = new Set<string>();
     if (tx.inMessage && tx.inMessage.info.src && Address.isAddress(tx.inMessage.info.src) && !tx.inMessage.info.src.equals(own)) {
-        mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: isTestnet }));
+        mentioned.add(tx.inMessage.info.src.toString({ testOnly: isTestnet }));
     }
     for (let out of tx.outMessages) {
         if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(own)) {
-            mentioned.add(out.info.dest.toFriendly({ testOnly: isTestnet }));
+            mentioned.add(out.info.dest.toString({ testOnly: isTestnet }));
         }
     }
 

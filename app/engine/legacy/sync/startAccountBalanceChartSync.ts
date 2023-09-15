@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { AppState } from "react-native";
-import { Address, TonClient4 } from "ton";
+import { Address, TonClient4 } from "@ton/core";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 
@@ -30,21 +30,21 @@ async function getMonthlyAccountBalanceChart(client4: TonClient4, address: Addre
     let chaoticPoints = await Promise.all(keyBlocks.map(async block => {
         let result = await client4.getAccountLite(block.block.shards[0].seqno, address);
         if (result.account.balance.coins) {
-            return { ts: block.ts, balance: new BN(result.account.balance.coins, 10) };
+            return { ts: block.ts, balance: BigInt(result.account.balance.coins, 10) };
         }
         return null;
     }));
-    let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: BN }[];
+    let points = chaoticPoints.filter(a => a !== null) as { ts: number, balance: bigint }[];
     points = points.sort((a, b) => a.ts - b.ts);
 
     const chart: { balance: string, ts: number, diff: string }[] = []
-    let prevBalance = new BN(1);
+    let prevBalance = BigInt(1);
 
     for (let point of points) {
         chart.push({
             balance: point.balance.toString(10),
             ts: point.ts * 1000,
-            diff: point.balance.sub(new BN(prevBalance)).toString(10)
+            diff: point.balance.sub(BigInt(prevBalance)).toString(10)
         });
 
         prevBalance = point.balance;

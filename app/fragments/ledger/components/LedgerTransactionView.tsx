@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { Image, NativeSyntheticEvent, Platform, Share, Text, useWindowDimensions, View } from 'react-native';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
@@ -42,8 +42,8 @@ export function LedgerTransactionView(props: {
     let operation = tx.operation;
 
     // Operation
-    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
-    let avatarId = operation.address.toFriendly({ testOnly: isTestnet });
+    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
+    let avatarId = operation.address.toString({ testOnly: isTestnet });
     let item = operation.items[0];
     let amount = item.amount;
     let op: string;
@@ -83,7 +83,7 @@ export function LedgerTransactionView(props: {
     }
 
     const verified = !!tx.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toString({ testOnly: isTestnet })];
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
     const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
@@ -103,7 +103,7 @@ export function LedgerTransactionView(props: {
     const settings = props.engine.products.settings;
 
     const addressLink = (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
-        + operation.address.toFriendly({ testOnly: isTestnet });
+        + operation.address.toString({ testOnly: isTestnet });
 
     const txId = React.useMemo(() => {
         if (!tx.base.lt) {
@@ -123,7 +123,7 @@ export function LedgerTransactionView(props: {
         }
         return (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
-            operation.address.toFriendly() +
+            operation.address.toString() +
             '/' + txId
     }, [txId]);
 
@@ -150,12 +150,12 @@ export function LedgerTransactionView(props: {
     }, []);
 
     const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: isTestnet }) });
+        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
     const onRepeatTx = React.useCallback(() => {
         navigation.navigateLedgerTransfer({
-            target: tx.base.address!.toFriendly({ testOnly: isTestnet }),
+            target: tx.base.address!.toString({ testOnly: isTestnet }),
             comment: tx.base.body && tx.base.body.type === 'comment' ? tx.base.body.comment : null,
             amount: tx.base.amount.neg(),
             job: null,
@@ -269,7 +269,7 @@ export function LedgerTransactionView(props: {
                             ) : (
                                 <Text
                                     style={{
-                                        color: item.amount.gte(new BN(0)) ? spam ? theme.textColor : '#4FAE42' : '#FF0000',
+                                        color: item.amount.gte(BigInt(0)) ? spam ? theme.textColor : '#4FAE42' : '#FF0000',
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,

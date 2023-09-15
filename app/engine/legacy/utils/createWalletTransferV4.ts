@@ -1,11 +1,11 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, toNano } from "ton";
+import { Address, beginCell, Cell, CellMessage, CommentMessage, CommonMessageInfo, fromNano, InternalMessage, toNano } from "@ton/core";
 import { sign } from "ton-crypto";
 import { Maybe } from "ton/dist/types";
 
 export function internalFromSignRawMessage(message: {
     target: string;
-    amount: BN;
+    amount: bigint;
     amountAll: boolean;
     payload: Cell | null;
     stateInit: Cell | null;

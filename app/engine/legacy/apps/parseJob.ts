@@ -1,4 +1,4 @@
-import { Cell, safeSignVerify, Slice } from "ton";
+import { Cell, safeSignVerify, Slice } from "@ton/core";
 import { Job } from "./Job";
 
 function parseString(slice: Slice) {

@@ -1,42 +1,42 @@
 import BN from "bn.js";
 import { AppState } from "react-native";
-import { Address, Cell, Slice, configParse18, configParseGasLimitsPrices, configParseMsgPrices, parseDictRefs } from "ton";
+import { Address, Cell, Slice, configParse18, configParseGasLimitsPrices, configParseMsgPrices, parseDictRefs } from "@ton/core";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
 
 export type ConfigState = {
     storage: {
-        utime_since: BN;
-        bit_price_ps: BN;
-        cell_price_ps: BN;
-        mc_bit_price_ps: BN;
-        mc_cell_price_ps: BN;
+        utime_since: bigint;
+        bit_price_ps: bigint;
+        cell_price_ps: bigint;
+        mc_bit_price_ps: bigint;
+        mc_cell_price_ps: bigint;
     }[],
     masterchain: {
         gas: {
-            flatLimit: BN,
-            flatGasPrice: BN,
-            price: BN
+            flatLimit: bigint,
+            flatGasPrice: bigint,
+            price: bigint
         },
         message: {
-            lumpPrice: BN;
-            bitPrice: BN;
-            cellPrice: BN;
-            firstFrac: BN;
+            lumpPrice: bigint;
+            bitPrice: bigint;
+            cellPrice: bigint;
+            firstFrac: bigint;
         }
     },
     rootDnsAddress: Address,
     workchain: {
         gas: {
-            flatLimit: BN,
-            flatGasPrice: BN,
-            price: BN
+            flatLimit: bigint,
+            flatGasPrice: bigint,
+            price: bigint
         },
         message: {
-            lumpPrice: BN;
-            bitPrice: BN;
-            cellPrice: BN;
-            firstFrac: BN;
+            lumpPrice: bigint;
+            bitPrice: bigint;
+            cellPrice: bigint;
+            firstFrac: bigint;
         }
     }
 };

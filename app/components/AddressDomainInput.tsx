@@ -6,7 +6,7 @@ import { ATextInput, ATextInputRef } from "./ATextInput"
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from "../secure/KnownWallets"
-import { Address } from "ton"
+import { Address } from "@ton/core"
 import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
@@ -93,7 +93,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
 
                 setResolvedAddress(resolvedWalletAddress);
-                onTargetChange(resolvedWalletAddress.toFriendly({ testOnly: isTestnet }));
+                onTargetChange(resolvedWalletAddress.toString({ testOnly: isTestnet }));
                 onDomainChange(toResolve);
             } catch (e) {
                 Alert.alert(t('transfer.error.invalidDomain'));
@@ -265,7 +265,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 }}
                                 hitSlop={8}
                                 onPress={() => {
-                                    onInputChange(selected.address.toFriendly({ testOnly: isTestnet }))
+                                    onInputChange(selected.address.toString({ testOnly: isTestnet }))
                                 }}
                             >
                                 <Text style={{

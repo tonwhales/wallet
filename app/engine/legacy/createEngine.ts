@@ -1,4 +1,4 @@
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { storagePersistence } from "../storage/storage";
 import { log } from "../utils/log";
 import { createSimpleConnector } from "../api/Connector";

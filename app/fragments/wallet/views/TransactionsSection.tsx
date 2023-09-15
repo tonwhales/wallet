@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Address, RawTransaction } from "ton";
+import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { TransactionView } from "./TransactionView";
 import { useTheme } from '../../../engine/hooks/useTheme';
@@ -58,6 +58,8 @@ export const TransactionsSection = React.memo(({
                         separator={i < section.items.length - 1}
                         key={'tx-' + t.id}
                         onPress={openTransactionFragment}
+                        fontScaleNormal={true}
+                        theme={theme}
                     />
                 ))}
             </View>

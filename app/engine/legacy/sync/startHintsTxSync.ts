@@ -1,20 +1,20 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { createLogger } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { requestAllHintsIfNeeded } from "./ops";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type TxHints = {
-    min: BN;
-    max: BN;
+    min: bigint;
+    max: bigint;
 };
 
-const ZERO = new BN('0');
+const ZERO = BigInt('0');
 const logger = createLogger('hints');
 
 export function startHintsTxSync(address: Address, engine: Engine, owner?: Address) {
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hints/tx`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/hints/tx`;
     let account = engine.persistence.fullAccounts.item(address);
     let cursor = engine.persistence.scannerState.item(address);
 
@@ -24,8 +24,8 @@ export function startHintsTxSync(address: Address, engine: Engine, owner?: Addre
         // Processed interval
         //
 
-        let min: BN = ZERO;
-        let max: BN = ZERO;
+        let min: bigint = ZERO;
+        let max: bigint = ZERO;
         if (cursor.value) {
             min = cursor.value.min;
             max = cursor.value.max;
@@ -38,7 +38,7 @@ export function startHintsTxSync(address: Address, engine: Engine, owner?: Addre
 
         let mentioned = new Set<string>();
         for (let t of account.transactions) {
-            let lt = new BN(t);
+            let lt = BigInt(t);
             if (lt.lt(min) || lt.gt(max)) {
                 let tx = engine.transactions.get(address, t);
                 if (!tx) {
@@ -64,8 +64,8 @@ export function startHintsTxSync(address: Address, engine: Engine, owner?: Addre
         // Persist processed
         //
         if (account.transactions.length > 0) {
-            let first = new BN(account.transactions[0]);
-            let last = new BN(account.transactions[account.transactions.length - 1]);
+            let first = BigInt(account.transactions[0]);
+            let last = BigInt(account.transactions[account.transactions.length - 1]);
             cursor.update(() => ({ min: last, max: first }));
         }
     });

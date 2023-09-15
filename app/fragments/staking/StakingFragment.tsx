@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, toNano } from "ton";
+import { Address, toNano } from "@ton/core";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
@@ -31,6 +31,7 @@ import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 import { useStaking } from '../../engine/hooks/useStaking';
 import { useStakingChart } from '../../engine/hooks/useStakingChart';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -64,7 +65,7 @@ export const StakingFragment = fragment(() => {
     }, [staking, target]);
 
     let canWithdraw = useMemo(() => {
-        return member?.balance.add(member.withdraw).gt(new BN(0));
+        return member?.balance.add(member.withdraw).gt(BigInt(0));
     }, [member]);
 
     const window = useWindowDimensions();
@@ -168,7 +169,7 @@ export const StakingFragment = fragment(() => {
 
     const openGraph = useCallback(() => {
         if (!!stakingChart) {
-            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: isTestnet }) });
+            navigation.navigate('StakingGraph', { pool: target.toString({ testOnly: isTestnet }) });
         }
     }, [member]);
 
@@ -240,7 +241,7 @@ export const StakingFragment = fragment(() => {
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={target.toFriendly({ testOnly: isTestnet })}
+                        value={target.toString({ testOnly: isTestnet })}
                         address={target}
                         elipsise
                         style={{

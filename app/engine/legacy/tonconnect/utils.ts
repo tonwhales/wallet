@@ -1,6 +1,6 @@
 import { ConnectRequest, SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from '@tonconnect/protocol';
 import { Alert } from 'react-native';
-import { Cell, fromNano, toNano } from 'ton';
+import { Cell, fromNano, toNano } from '@ton/core';
 import { t } from '../../../i18n/t';
 import { getTimeSec } from '../../../utils/getTimeSec';
 import { warn } from '../../../utils/log';

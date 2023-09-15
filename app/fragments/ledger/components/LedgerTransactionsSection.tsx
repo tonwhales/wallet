@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../../../engine/Engine";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { LedgerTransactionView } from "./LedgerTransactionView";

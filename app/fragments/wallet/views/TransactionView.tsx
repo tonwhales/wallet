@@ -1,26 +1,17 @@
 import BN from 'bn.js';
 import * as React from 'react';
-import { Image, NativeSyntheticEvent, Platform, Share, Text, ToastAndroid, useWindowDimensions, View } from 'react-native';
-import { Address, RawTransaction } from 'ton';
+import { Text, View } from 'react-native';
+import { Address } from '@ton/core';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/AddressComponent';
 import { TouchableHighlight } from 'react-native';
 import { Avatar } from '../../../components/Avatar';
-import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
-import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useTheme } from '../../../engine/hooks/useTheme';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { useTransaction } from '../../../engine/hooks/useTransaction';
-import { useSpamMinAmount } from '../../../engine/hooks/useSpamMinAmount';
-import { useContactAddress } from '../../../engine/hooks/useContactAddress';
-import { useDenyAddress } from '../../../engine/hooks/useDenyAddress';
-import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
 import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
 import { ThemeType } from '../../../engine/state/theme';
 
@@ -95,7 +86,7 @@ export const TransactionView = React.memo((props: {
                         ) : (
                             <Text
                                 style={{
-                                    color: item.amount.gte(new BN(0)) ? spam ? theme.textColor : theme.pricePositive : theme.priceNegative,
+                                    color: item.amount.gte(BigInt(0)) ? spam ? theme.textColor : theme.pricePositive : theme.priceNegative,
                                     fontWeight: '400',
                                     fontSize: 16,
                                     marginRight: 2,

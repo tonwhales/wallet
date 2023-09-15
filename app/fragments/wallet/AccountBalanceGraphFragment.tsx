@@ -5,7 +5,7 @@ import { Platform, TextInput, View, Text, TextInputProps, ScrollView } from "rea
 import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fromNano, toNano } from "ton";
+import { fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";

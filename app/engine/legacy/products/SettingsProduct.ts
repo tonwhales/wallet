@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { RecoilValueReadOnly, atom, selector, selectorFamily, useRecoilValue } from "recoil";
-import { Address, toNano } from "ton";
+import { Address, toNano } from "@ton/core";
 import { SpamFilterConfig } from "../../../fragments/SpamFilterFragment";
 import { CloudValue } from "../cloud/CloudValue";
 import { Engine } from "../Engine";
@@ -116,7 +116,7 @@ export class SettingsProduct {
         });
     }
 
-    useSpamMinAmount(): BN {
+    useSpamMinAmount(): bigint {
         return useRecoilValue(this.#minAmountSelector);
     }
 
@@ -129,10 +129,10 @@ export class SettingsProduct {
     }
 
     useDenyAddress(address: Address) {
-        return useRecoilValue(this.#denyAddressSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
+        return useRecoilValue(this.#denyAddressSelector(address.toString({ testOnly: this.engine.isTestnet })));
     }
 
-    useSpamfilter(): { minAmount: BN, dontShowComments: boolean } {
+    useSpamfilter(): { minAmount: bigint, dontShowComments: boolean } {
         const config = useRecoilValue(this.engine.persistence.spamFilterConfig.item().atom);
         if (!config) {
             return {
@@ -171,7 +171,7 @@ export class SettingsProduct {
     }
 
     useContactAddress(address: Address) {
-        return useRecoilValue(this.#contactSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
+        return useRecoilValue(this.#contactSelector(address.toString({ testOnly: this.engine.isTestnet })));
     }
 
     useContact(address: string) {
@@ -180,45 +180,45 @@ export class SettingsProduct {
 
     setContact(address: Address, contact: AddressContact) {
         this.addressBook.update((doc) => {
-            if (!doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })]) {
-                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })] = {
+            if (!doc.contacts[address.toString({ testOnly: this.engine.isTestnet })]) {
+                doc.contacts[address.toString({ testOnly: this.engine.isTestnet })] = {
                     name: contact.name,
                     fields: contact.fields
                 }
                 return;
             }
 
-            doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].name = contact.name;
+            doc.contacts[address.toString({ testOnly: this.engine.isTestnet })].name = contact.name;
 
-            if (!doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields) {
-                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields = [];
+            if (!doc.contacts[address.toString({ testOnly: this.engine.isTestnet })].fields) {
+                doc.contacts[address.toString({ testOnly: this.engine.isTestnet })].fields = [];
             }
 
             if (!!contact.fields) {
                 for (let i = 0; i < contact.fields.length; i++) {
-                    doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields![i] = contact.fields![i];
+                    doc.contacts[address.toString({ testOnly: this.engine.isTestnet })].fields![i] = contact.fields![i];
                 }
             } else {
-                doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })].fields = [];
+                doc.contacts[address.toString({ testOnly: this.engine.isTestnet })].fields = [];
             }
         });
     }
 
     removeContact(address: Address) {
         this.addressBook.update((doc) => {
-            delete doc.contacts[address.toFriendly({ testOnly: this.engine.isTestnet })];
+            delete doc.contacts[address.toString({ testOnly: this.engine.isTestnet })];
         });
     }
 
     addToDenyList(address: Address) {
         this.addressBook.update((doc) => {
-            doc.denyList[address.toFriendly({ testOnly: this.engine.isTestnet })] = { reason: 'spam' };
+            doc.denyList[address.toString({ testOnly: this.engine.isTestnet })] = { reason: 'spam' };
         });
     }
 
     removeFromDenyList(address: Address) {
         this.addressBook.update((doc) => {
-            delete doc.denyList[address.toFriendly({ testOnly: this.engine.isTestnet })]
+            delete doc.denyList[address.toString({ testOnly: this.engine.isTestnet })]
         });
     }
 

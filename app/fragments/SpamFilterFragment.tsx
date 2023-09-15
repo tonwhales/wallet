@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
@@ -21,7 +21,7 @@ import { useSpamMinAmount } from '../engine/hooks/useSpamMinAmount';
 import { useDenyList } from '../engine/hooks/useDenyList';
 
 export type SpamFilterConfig = {
-    minAmount: BN | null,
+    minAmount: bigint | null,
     dontShowComments: boolean | null
 }
 
@@ -58,7 +58,7 @@ export const SpamFilterFragment = fragment(() => {
         async () => {
             const confirmed = await confirmAlert('spamFilter.applyConfig');
             if (confirmed) {
-                let value: BN
+                let value: bigint
                 try {
                     const validAmount = minValue.replace(',', '.');
                     value = toNano(validAmount);

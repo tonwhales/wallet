@@ -14,8 +14,8 @@ export function useLinkNavigator(isTestnet: boolean) {
                 navigation.navigateTransfer({
                     order: {
                         messages: [{
-                            target: resolved.address.toFriendly({ testOnly: isTestnet }),
-                            amount: resolved.amount || new BN(0),
+                            target: resolved.address.toString({ testOnly: isTestnet }),
+                            amount: resolved.amount || BigInt(0),
                             amountAll: false,
                             stateInit: resolved.stateInit,
                             payload: resolved.payload,
@@ -27,7 +27,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: resolved.address.toFriendly({ testOnly: isTestnet }),
+                    target: resolved.address.toString({ testOnly: isTestnet }),
                     comment: resolved.comment,
                     amount: resolved.amount,
                     stateInit: resolved.stateInit,
@@ -50,7 +50,7 @@ export function useLinkNavigator(isTestnet: boolean) {
             }
 
             navigation.navigateSimpleTransfer({
-                target: resolved.address.toFriendly({ testOnly: isTestnet }),
+                target: resolved.address.toString({ testOnly: isTestnet }),
                 comment: resolved.comment,
                 amount: resolved.amount,
                 stateInit: null,

@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React, { useMemo } from "react"
 import { View, Text } from "react-native";
-import { fromNano, toNano } from "ton";
+import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
@@ -21,16 +21,16 @@ export const StakingCalcComponent = React.memo((
         amount: string,
         topUp?: boolean,
         member?: {
-            balance: BN,
-            pendingDeposit: BN,
-            pendingWithdraw: BN,
-            withdraw: BN
+            balance: bigint,
+            pendingDeposit: bigint,
+            pendingWithdraw: bigint,
+            withdraw: bigint
         } | null,
         pool: StakingPoolState
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
-    const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
+    const poolFee = pool.params.poolFee ? Number(pool.params.poolFee / 100n) : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return (apy - apy * (poolFee / 100)) / 100;
@@ -40,7 +40,7 @@ export const StakingCalcComponent = React.memo((
     if (topUp && member) {
 
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
-        const yearlyPlus = yearly.add(toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
+        const yearlyPlus = yearly + toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1));
         return (
             <>
                 <Text style={{
@@ -109,7 +109,7 @@ export const StakingCalcComponent = React.memo((
                             {t('products.staking.calc.yearlyTopUp')}
                         </Text>
                         <View>
-                            {(yearlyPlus.eq(new BN(0)) || yearlyPlus.gt(toNano('100000000000000'))) && (
+                            {(yearlyPlus === 0n || yearlyPlus > toNano('100000000000000')) && (
                                 <>
                                     <Text style={{
                                         fontWeight: '600',
@@ -130,7 +130,7 @@ export const StakingCalcComponent = React.memo((
                                     </Text>
                                 </>
                             )}
-                            {!yearlyPlus.eq(new BN(0)) && yearlyPlus.lt(toNano('100000000000000')) && (
+                            {yearlyPlus !== 0n && yearlyPlus < toNano('100000000000000') && (
                                 <>
                                     <Text style={{
                                         fontWeight: '600',

@@ -3,7 +3,7 @@ import * as t from 'io-ts';
 import { InjectEngine } from './InjectEngine';
 import * as c from '../../../../engine/legacy/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
-import { Cell, Slice } from 'ton';
+import { Cell, Slice } from '@ton/core';
 
 const transCodec = (isTestnet: boolean) => t.type({
     network: t.union([t.literal('testnet'), t.literal('mainnet')]),
@@ -67,7 +67,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 navigation.navigateTransfer({
                     order: {
                         messages: [{
-                            target: src.to.toFriendly({ testOnly: isTestnet }),
+                            target: src.to.toString({ testOnly: isTestnet }),
                             amount: src.value,
                             amountAll: false,
                             payload: src.payload,
@@ -85,7 +85,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: src.to.toFriendly({ testOnly: isTestnet }),
+                    target: src.to.toString({ testOnly: isTestnet }),
                     amount: src.value,
                     stateInit: src.stateInit ? src.stateInit : null,
                     comment: src.text ? src.text : null,

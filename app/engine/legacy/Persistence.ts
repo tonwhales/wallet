@@ -1,5 +1,5 @@
 import { MMKV } from "react-native-mmkv";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { PersistedCollection } from "./persistence/PersistedCollection";
 import * as t from 'io-ts';
 import * as c from './utils/codecs';
@@ -41,7 +41,7 @@ export class Persistence {
     readonly liteAccounts: PersistedCollection<Address, LiteAccount>;
     readonly fullAccounts: PersistedCollection<Address, FullAccount>;
     readonly accountBalanceChart: PersistedCollection<Address, AccountBalanceChart>;
-    readonly parsedTransactions: PersistedCollection<{ address: Address, lt: BN }, Transaction>;
+    readonly parsedTransactions: PersistedCollection<{ address: Address, lt: bigint }, Transaction>;
     readonly wallets: PersistedCollection<Address, WalletV4State>;
     readonly smartCursors: PersistedCollection<{ key: string, address: Address }, number>;
     readonly prices: PersistedCollection<void, PriceState>;
@@ -95,10 +95,10 @@ export class Persistence {
         }
 
         // Key formats
-        const addressKey = (src: Address) => src.toFriendly({ testOnly: engine.isTestnet });
-        const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.target.toFriendly({ testOnly: engine.isTestnet });
-        const transactionKey = (src: { address: Address, lt: BN }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.lt.toString(10);
-        const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toFriendly({ testOnly: engine.isTestnet }) + '::' + src.key;
+        const addressKey = (src: Address) => src.toString({ testOnly: engine.isTestnet });
+        const addressWithTargetKey = (src: { address: Address, target: Address }) => src.address.toString({ testOnly: engine.isTestnet }) + '::' + src.target.toString({ testOnly: engine.isTestnet });
+        const transactionKey = (src: { address: Address, lt: bigint }) => src.address.toString({ testOnly: engine.isTestnet }) + '::' + src.lt.toString(10);
+        const keyedAddressKey = (src: { address: Address, key: string }) => src.address.toString({ testOnly: engine.isTestnet }) + '::' + src.key;
         const voidKey = (src: void) => 'void';
         const stringKey = (src: string) => Buffer.from(src).toString('base64');
 

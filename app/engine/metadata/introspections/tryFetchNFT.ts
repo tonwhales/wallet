@@ -1,4 +1,4 @@
-import { Address, TonClient4 } from "ton";
+import { Address, TonClient4 } from "@ton/core";
 
 export async function tryFetchNFT(client: TonClient4, seqno: number, address: Address) {
     let nftData = await client.runMethod(seqno, address, 'get_nft_data');

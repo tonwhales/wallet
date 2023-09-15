@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, Cell } from "ton";
+import { Address, Cell } from "@ton/core";
 import { Body, Transaction } from "../Transaction";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
@@ -11,7 +11,7 @@ import { parseBody } from './parseWalletTransaction';
 
 export function resolveOperation(args: {
     account: Address,
-    amount: BN,
+    amount: bigint,
     body: Body | null,
     metadata: ContractMetadata | null,
     jettonMaster: JettonMasterState | null

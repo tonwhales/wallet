@@ -1,4 +1,4 @@
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { resolveUrl, isUrl } from "./resolveUrl";
 
 describe('resolveUrl', () => {

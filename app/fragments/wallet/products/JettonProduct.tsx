@@ -1,7 +1,7 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { AnimatedProductButton } from './AnimatedProductButton';
@@ -40,7 +40,7 @@ export const JettonProduct = React.memo((props: {
         name: string;
         description: string;
         symbol: string;
-        balance: BN;
+        balance: bigint;
         icon: string | null;
         decimals: number | null;
     },
@@ -50,7 +50,7 @@ export const JettonProduct = React.memo((props: {
     let balance = props.jetton.balance;
     const { isTestnet } = useNetwork();
 
-    const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toFriendly({ testOnly: isTestnet })];
+    const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {
@@ -64,7 +64,7 @@ export const JettonProduct = React.memo((props: {
         <AnimatedProductButton
             entering={FadeInUp}
             exiting={FadeOutDown}
-            key={props.jetton.master.toFriendly()}
+            key={props.jetton.master.toString()}
             name={props.jetton.name}
             subtitle={props.jetton.description}
             image={props.jetton.icon ? props.jetton.icon : undefined}

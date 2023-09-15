@@ -1,4 +1,4 @@
-import { Address, TonClient4 } from "ton";
+import { Address, TonClient4 } from "@ton/core";
 import { tryGetJettonWallet } from "./tryGetJettonWallet";
 
 const client = new TonClient4({ endpoint: 'https://mainnet-v4.tonhubapi.com' });

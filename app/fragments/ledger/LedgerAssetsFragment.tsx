@@ -10,7 +10,7 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
@@ -80,7 +80,7 @@ export const LedgerAssetsFragment = fragment(() => {
                         name={'TON'}
                         subtitle={t('common.balance')}
                         icon={TonIcon}
-                        value={account?.balance ?? new BN(0)}
+                        value={account?.balance ?? BigInt(0)}
                         onPress={() => {
                             if (callback) {
                                 onCallback();
@@ -102,7 +102,7 @@ export const LedgerAssetsFragment = fragment(() => {
                     {jettons.map((j: any) => {
                         return (
                             <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
+                                key={'jt' + j.wallet.toString()}
                                 jetton={j}
                                 navigation={navigation}
                                 onPress={() => {

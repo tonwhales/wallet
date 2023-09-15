@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React, { useMemo } from "react"
 import { View, Text } from "react-native"
-import { fromNano, toNano } from "ton";
+import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { useStakingApy } from '../../engine/hooks/useStakingApy';
@@ -9,13 +9,13 @@ import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync'
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 
-export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: BN | null }) => {
+export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
     if (!pool) return null;
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const depositFee = pool.params.depositFee.add(pool.params.receiptPrice);
-    const withdrawFee = pool.params.withdrawFee.add(pool.params.receiptPrice);
-    const poolFee = pool.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
+    const depositFee = pool.params.depositFee + pool.params.receiptPrice;
+    const withdrawFee = pool.params.withdrawFee + pool.params.receiptPrice;
+    const poolFee = pool.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee)) / 100n) : undefined;
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
@@ -97,9 +97,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                     color: theme.textColor
                 }}>
                     {fromNano(
-                        pool.params.minStake
-                            .add(pool.params.depositFee)
-                            .add(pool.params.receiptPrice)
+                        pool.params.minStake + pool.params.depositFee + pool.params.receiptPrice
                     ) + ' TON'}
                 </Text>
             </View>
@@ -249,7 +247,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                             }}>
                                 {fee ? fromNano(fee) + ' ' + 'TON' : '...'}
                             </Text>
-                            {fee && (
+                            {fee ? (
                                 <PriceComponent
                                     amount={fee}
                                     style={{
@@ -259,7 +257,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                                     }}
                                     textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                                 />
-                            )}
+                            ) : null}
                         </View>
                     </View>
                 </>

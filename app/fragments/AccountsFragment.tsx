@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useRef } from "react";
 import { Platform, View, Text, ScrollView, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { fragment } from "../fragment";
@@ -138,7 +138,7 @@ export const AccountsFragment = fragment(() => {
                         {active.map((j: any) => {
                             return (
                                 <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
+                                    key={'jt' + j.wallet.toString()}
                                     jetton={j}
                                     navigation={navigation}
                                     onPress={() => promptDisable(j.master, j.symbol)}
@@ -161,7 +161,7 @@ export const AccountsFragment = fragment(() => {
                         {disabled.map((j: any) => {
                             return (
                                 <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
+                                    key={'jt' + j.wallet.toString()}
                                     jetton={j}
                                     navigation={navigation}
                                     onPress={() => promptActive(j.master, j.symbol)}

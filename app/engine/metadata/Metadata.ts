@@ -1,14 +1,14 @@
 import BN from "bn.js";
-import { Address } from "ton"
+import { Address } from "@ton/core"
 
 export type JettonWallet = {
-    balance: BN,
+    balance: bigint,
     owner: Address,
     master: Address
 };
 
 export type JettonMaster = {
-    totalSupply: BN;
+    totalSupply: bigint;
     mintalbe: boolean;
     owner: Address | null;
     content: ContentSource | undefined;

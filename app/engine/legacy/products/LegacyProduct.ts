@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
-import { Address, contractAddress, WalletV1R1Source, WalletV1R2Source, WalletV1R3Source, WalletV2R1Source, WalletV2R2Source, WalletV3R1Source, WalletV3R2Source } from "ton";
+import { Address, contractAddress, WalletV1R1Source, WalletV1R2Source, WalletV1R3Source, WalletV2R1Source, WalletV2R2Source, WalletV3R1Source, WalletV3R2Source } from "@ton/core";
 import { Engine } from "../Engine";
 
 export class LegacyProduct {
@@ -8,7 +8,7 @@ export class LegacyProduct {
     readonly engine: Engine;
     readonly wallets: Address[] = [];
     readonly atom: RecoilValueReadOnly<BN>;
-    readonly atomFull: RecoilValueReadOnly<{ address: Address, balance: BN }[]>;
+    readonly atomFull: RecoilValueReadOnly<{ address: Address, balance: bigint }[]>;
 
     constructor(engine: Engine) {
         this.engine = engine;
@@ -23,7 +23,7 @@ export class LegacyProduct {
         this.atom = selector({
             key: 'selector/legacy',
             get: ({ get }) => {
-                let b = new BN(0);
+                let b = BigInt(0);
                 for (let w of this.wallets) {
                     let account = get(this.engine.model.accountLite(w).atom);
                     if (account) {
@@ -37,13 +37,13 @@ export class LegacyProduct {
         this.atomFull = selector({
             key: 'selector/legacy/full',
             get: ({ get }) => {
-                let wallets: { address: Address, balance: BN }[] = [];
+                let wallets: { address: Address, balance: bigint }[] = [];
                 for (let w of this.wallets) {
                     let account = get(this.engine.model.accountLite(w).atom);
                     if (account) {
                         wallets.push({ address: w, balance: account.balance });
                     } else {
-                        wallets.push({ address: w, balance: new BN(0) });
+                        wallets.push({ address: w, balance: BigInt(0) });
                     }
                 }
                 return wallets;

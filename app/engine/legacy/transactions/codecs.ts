@@ -1,6 +1,6 @@
 import * as t from 'io-ts';
 import { failure, success } from "io-ts"
-import { RawTransaction } from 'ton';
+import { RawTransaction } from '@ton/core';
 import * as c from '../utils/codecs';
 
 export const rawAccountStatusCodec = t.union([

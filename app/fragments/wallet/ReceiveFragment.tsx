@@ -12,7 +12,7 @@ import { useParams } from "../../utils/useParams";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";

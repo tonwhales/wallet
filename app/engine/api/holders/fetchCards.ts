@@ -1,7 +1,7 @@
 import axios from "axios";
 import * as t from "io-ts";
 import { holdersEndpoint } from "../../legacy/holders/HoldersProduct";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 
 export const cardListPublicCodec = t.union([
   t.type({
@@ -36,7 +36,7 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
-      address: address.toFriendly({ testOnly: isTestnet })
+      address: address.toString({ testOnly: isTestnet })
     },
     {
       headers: {

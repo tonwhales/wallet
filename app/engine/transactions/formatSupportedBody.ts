@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Cell, fromNano, SupportedMessage, toNano } from "ton";
+import { Cell, fromNano, SupportedMessage, toNano } from "@ton/core";
 import { t } from '../../i18n/t';
 
 export function formatSupportedBody(supportedMessage: SupportedMessage): { text: string } | null {

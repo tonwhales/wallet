@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import * as t from 'io-ts';
 
 const codec = t.type({

@@ -1,4 +1,4 @@
-import { beginCell } from "ton";
+import { beginCell } from "@ton/core";
 import { toUrlSafe } from "./toUrlSafe";
 
 export function generateAppLink(src: string, customTitle: string | null, isTestnet: boolean) {

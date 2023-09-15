@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { fetchHints } from '../../api/fetchHints';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { useMemo } from 'react';
 
 export function useHints(addressString: string): string[] {

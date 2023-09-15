@@ -1,5 +1,5 @@
-import { Cell, CommentMessage } from "ton";
-import { TonPayloadFormat } from "ton-ledger";
+import { Cell, CommentMessage } from "@ton/core";
+// import { TonPayloadFormat } from "ton-ledger";
 
 export function resolveLedgerPayload(ledgerPayload: TonPayloadFormat) {
     let payload: Cell | null = null;

@@ -6,7 +6,7 @@ import { fragment } from "../../fragment";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";

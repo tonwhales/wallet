@@ -144,7 +144,7 @@ export const AppComponent = React.memo((props: {
             platform: Platform.OS,
             platformVersion: Platform.Version,
             network: isTestnet ? 'testnet' : 'mainnet',
-            address: engine.address.toFriendly({ testOnly: isTestnet }),
+            address: engine.address.toString({ testOnly: isTestnet }),
             publicKey: engine.publicKey.toString('base64'),
             walletConfig,
             walletType,

@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton"
+import { Address } from "@ton/core"
 
 export type StoredJettonWallet = {
     balance: string,

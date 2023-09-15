@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, CommonMessageInfo, fromNano, SendMode, StateInit, toNano } from "@ton/core";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Order } from "../../../fragments/secure/ops/Order";
@@ -57,14 +57,14 @@ type Props = {
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
     },
     text: string | null,
     order: Order,
     job: string | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
@@ -104,9 +104,9 @@ export const TransferSingle = React.memo((props: Props) => {
                 const temp = order.messages[0].payload;
                 if (temp) {
                     const parsing = temp.beginParse();
-                    parsing.readUint(32);
-                    parsing.readUint(64);
-                    const unformatted = parsing.readCoins();
+                    parsing.skip(32);
+                    parsing.skip(64);
+                    const unformatted = parsing.loadCoins();
                     return fromBNWithDecimals(unformatted, jettonMaster.decimals);
                 }
             }
@@ -125,7 +125,7 @@ export const TransferSingle = React.memo((props: Props) => {
         }
     }, []);
 
-    const friendlyTarget = target.address.toFriendly({ testOnly: isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
     const contact = useContactAddress(operation.address);
 
@@ -174,11 +174,11 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Check amount
-        if (!order.messages[0].amountAll && account!.balance.lt(order.messages[0].amount)) {
+        if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (!order.messages[0].amountAll && order.messages[0].amount.eq(new BN(0))) {
+        if (!order.messages[0].amountAll && order.messages[0].amount === BigInt(0)) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -223,8 +223,8 @@ export const TransferSingle = React.memo((props: Props) => {
                 walletId: contract.source.walletId,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: order.messages[0].amountAll
-                    ? SendMode.CARRRY_ALL_REMAINING_BALANCE
-                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 order: new InternalMessage({
                     to: target.address,
                     value: order.messages[0].amount,
@@ -279,7 +279,7 @@ export const TransferSingle = React.memo((props: Props) => {
         //     id: 'pending-' + account.seqno,
         //     lt: null,
         //     fees: fees,
-        //     amount: order.messages[0].amount.mul(new BN(-1)),
+        //     amount: order.messages[0].amount.mul(BigInt(-1)),
         //     address: target.address,
         //     seqno: account.seqno,
         //     kind: 'out',
@@ -886,7 +886,7 @@ export const TransferSingle = React.memo((props: Props) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: isTestnet })}
+                                text={operation.address.toString({ testOnly: isTestnet })}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}

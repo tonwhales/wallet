@@ -3,7 +3,7 @@ import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
 import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AddressDomainInput } from "../components/AddressDomainInput";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInputRef } from "../components/ATextInput";

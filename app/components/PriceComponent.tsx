@@ -1,7 +1,7 @@
 import BN from "bn.js"
 import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
-import { fromNano } from "ton"
+import { fromNano } from "@ton/core";
 import { formatCurrency } from "../utils/formatCurrency"
 import { useTheme } from '../engine/hooks/useTheme';
 import { usePrice } from '../engine/hooks/usePrice'
@@ -14,7 +14,7 @@ export const PriceComponent = React.memo((
         prefix,
         suffix
     }: {
-        amount: BN,
+        amount: bigint,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
         prefix?: string,
@@ -44,7 +44,7 @@ export const PriceComponent = React.memo((
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}${suffix ?? ''}`}
+                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano((amount < 0n) ? -amount : amount)) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount < 0n)}${suffix ?? ''}`}
             </Text>
         </View>
     )

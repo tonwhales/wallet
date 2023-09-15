@@ -4,12 +4,12 @@ import { Queries } from '../queries';
 import { getLastBlock } from '../accountWatcher';
 import { useClient4 } from './useClient4';
 import { useNetwork } from './useNetwork';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { useMemo } from 'react';
 
-type AccountLite = {
+export type AccountLite = {
     address: string,
-    balance: BN,
+    balance: bigint,
 }
 
 export function useAccountLite(address: string | Address): AccountLite | null {
@@ -18,7 +18,7 @@ export function useAccountLite(address: string | Address): AccountLite | null {
 
     let addressString = useMemo(() => {
         if (address instanceof Address) {
-            return address.toFriendly({ testOnly: isTestnet });
+            return address.toString({ testOnly: isTestnet });
         }
         return address;
     }, [address, isTestnet]);
@@ -38,6 +38,6 @@ export function useAccountLite(address: string | Address): AccountLite | null {
 
     return {
         address: addressString,
-        balance: query.data.account.balance.coins ? new BN(query.data?.account.balance.coins) : new BN(0),
+        balance: query.data.account.balance.coins ? BigInt(query.data?.account.balance.coins) : BigInt(0),
     }
 }

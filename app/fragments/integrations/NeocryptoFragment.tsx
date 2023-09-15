@@ -177,7 +177,7 @@ export const NeocryptoFragment = fragment(() => {
 
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
-        address: address.address.toFriendly({ testOnly: isTestnet }),
+        address: address.address.toString({ testOnly: isTestnet }),
         cur_from: 'USD',
         cur_to: 'TON',
         fix_cur_to: 'true',

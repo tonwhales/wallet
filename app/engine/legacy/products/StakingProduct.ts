@@ -1,5 +1,5 @@
 import { Engine } from "../Engine";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../../utils/KnownPools";
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
@@ -9,9 +9,9 @@ import { WalletConfig } from "../../api/fetchWalletConfig";
 export type StakingState = {
     pools: {
         address: Address;
-        balance: BN;
+        balance: bigint;
     }[];
-    total: BN;
+    total: bigint;
     config: WalletConfig | null;
 }
 
@@ -25,10 +25,10 @@ export class StakingPoolsProduct {
         this.engine = engine;
         this.pools = Object.keys(KnownPools(this.engine.isTestnet)).map((key) => Address.parse(key));
         this.full = selector({
-            key: 'staking/' + this.engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
+            key: 'staking/' + this.engine.address.toString({ testOnly: this.engine.isTestnet }),
             get: ({ get }) => {
-                let pools: { address: Address, balance: BN }[] = [];
-                let total = new BN(0);
+                let pools: { address: Address, balance: bigint }[] = [];
+                let total = BigInt(0);
                 for (let p of this.pools) {
                     const state = get(this.engine.persistence.staking.item({ address: p, target: this.engine.address }).atom);
                     if (state) {
@@ -43,7 +43,7 @@ export class StakingPoolsProduct {
                     } else {
                         pools.push({
                             address: p,
-                            balance: new BN(0)
+                            balance: BigInt(0)
                         });
                     }
                 }

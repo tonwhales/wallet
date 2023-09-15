@@ -1,6 +1,6 @@
 import { Engine } from "../Engine";
 import Transport from "@ledgerhq/hw-transport";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { atom, atomFamily, RecoilState, selectorFamily, useRecoilValue } from "recoil";
 import { startAddressHintsSync } from "../sync/startAddressHintsSync";
 import { startHintSync } from "../sync/startHintSync";
@@ -42,7 +42,7 @@ export class LedgerProduct {
                 let knownJettons = get(this.engine.persistence.knownAccountJettons.item(owner).atom) || [];
 
                 // Load wallets
-                let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
+                let jettonWallets: { wallet: Address, master: Address, balance: bigint }[] = [];
                 for (let w of knownJettons) {
                     let jw = get(this.engine.persistence.jettonWallets.item(w).atom);
                     if (jw && jw.master) {
@@ -54,7 +54,7 @@ export class LedgerProduct {
                 let jettonWalletsWithMasters: {
                     wallet: Address,
                     master: Address,
-                    balance: BN,
+                    balance: bigint,
                     name: string,
                     symbol: string,
                     description: string,
@@ -127,7 +127,7 @@ export class LedgerProduct {
         if (!address) {
             return null;
         }
-        return useRecoilValue(this.#jettonsSelector(address.toFriendly({ testOnly: this.engine.isTestnet })));
+        return useRecoilValue(this.#jettonsSelector(address.toString({ testOnly: this.engine.isTestnet })));
     }
 
     useTransaction(id: string) {
@@ -139,15 +139,15 @@ export class LedgerProduct {
 
     startSync(address: Address) {
         this.#atom = atom<WalletState | null>({
-            key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }),
+            key: 'wallet/' + address.toString({ testOnly: this.engine.isTestnet }),
             default: null,
             dangerouslyAllowMutability: true
         });
 
         this.#txsAtom = atomFamily<TransactionDescription, string>({
-            key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
+            key: 'wallet/' + address.toString({ testOnly: this.engine.isTestnet }) + '/txs',
             default: selectorFamily({
-                key: 'wallet/' + address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
+                key: 'wallet/' + address.toString({ testOnly: this.engine.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
                     let base = this.#txs.get(id);
                     if (!base) {
@@ -189,7 +189,7 @@ export class LedgerProduct {
                     let verified: boolean | null = null;
                     if (
                         !!metadata?.jettonWallet
-                        && !!KnownJettonMasters(this.engine.isTestnet)[metadata.jettonWallet.master.toFriendly({ testOnly: this.engine.isTestnet })]
+                        && !!KnownJettonMasters(this.engine.isTestnet)[metadata.jettonWallet.master.toString({ testOnly: this.engine.isTestnet })]
                     ) {
                         verified = true;
                     }
@@ -304,7 +304,7 @@ export class LedgerProduct {
     }
 
     startJettonWallet(address: Address) {
-        let k = address.toFriendly({ testOnly: this.engine.isTestnet });
+        let k = address.toString({ testOnly: this.engine.isTestnet });
         if (this.#jettonWalletsStarted.has(k)) {
             return;
         }
@@ -388,7 +388,7 @@ export class LedgerProduct {
     }
 
     startHints(address: Address, engine: Engine, owner: Address) {
-        let k = address.toFriendly({ testOnly: this.engine.isTestnet });
+        let k = address.toString({ testOnly: this.engine.isTestnet });
         if (this.#hintsStarted.has(k)) {
             return;
         }

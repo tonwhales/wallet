@@ -1,7 +1,7 @@
-import { TonClient4 } from 'ton';
 import { backoff } from '../../utils/time';
 import { onAccountTouched } from './onAccountTouched';
 import { queryClient } from '../clients';
+import { TonClient4 } from '@ton/ton';
 
 export function getMissedBlocksRange(lastBlock: number, newBlock: number) {
     return [...new Array(newBlock - lastBlock - 1).fill(0).map((a, i) => lastBlock + i + 1)];

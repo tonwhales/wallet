@@ -1,4 +1,4 @@
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import BN from 'bn.js';
 import { useFilteredHints } from './basic/useFilteredHints';
 import { useJettonContents } from './basic/useJettonContents';
@@ -10,7 +10,7 @@ type PreparedJetton = {
     name: string;
     description: string;
     symbol: string;
-    balance: BN;
+    balance: bigint;
     icon: string | null;
     decimals: number | null;
 };
@@ -27,7 +27,7 @@ export function useJettons(owner: string): PreparedJetton[] {
             let balance = actualBalances.find(b => a.address === b.data?.address)?.data?.balance ?? a.jettonWallet!.balance;
             
             return {
-                balance: new BN(balance),
+                balance: BigInt(balance),
                 wallet: Address.parse(a.address),
                 master: Address.parse(a.jettonWallet!.master),
                 name: content.name ?? '',

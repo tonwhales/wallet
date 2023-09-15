@@ -1,4 +1,4 @@
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../Engine";
 import { tryFetchLegacyPlugin } from "../../metadata/introspections/tryFetchLegacyPlugin";
 import { LegacySubscription } from "../plugins/LegacySubscription";
@@ -10,7 +10,7 @@ export type PluginState =
 
 export function startPluginSync(address: Address, engine: Engine) {
 
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/plugin`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/plugin`;
     let lite = engine.persistence.liteAccounts.item(address);
     let item = engine.persistence.plugins.item(address);
 

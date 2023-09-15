@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { Address, fromNano } from "ton";
+import { Address, fromNano } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
 import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
@@ -18,17 +18,17 @@ export const StakingPendingComponent = React.memo((
         style
     }: {
         member?: {
-            balance: BN,
-            pendingDeposit: BN,
-            pendingWithdraw: BN,
-            withdraw: BN
+            balance: bigint,
+            pendingDeposit: bigint,
+            pendingWithdraw: bigint,
+            withdraw: bigint
         } | null,
         target: Address,
         params?: {
-            minStake: BN,
-            depositFee: BN,
-            withdrawFee: BN,
-            receiptPrice: BN,
+            minStake: bigint,
+            depositFee: bigint,
+            withdrawFee: bigint,
+            receiptPrice: bigint,
             stakeUntil: number,
         } | null,
         style?: StyleProp<ViewStyle>
@@ -39,9 +39,9 @@ export const StakingPendingComponent = React.memo((
 
     if (!member) return null;
     if (
-        member.pendingDeposit.eqn(0)
-        && member.pendingWithdraw.eqn(0)
-        && member.withdraw.eqn(0)
+        member.pendingDeposit === 0n
+        && member.pendingWithdraw === 0n
+        && member.withdraw === 0n
     ) return null;
 
 
@@ -54,7 +54,7 @@ export const StakingPendingComponent = React.memo((
             paddingLeft: 16,
             marginBottom: 14
         }, style]}>
-            {member.pendingDeposit.gtn(0) && (
+            {member.pendingDeposit > 0n && (
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
@@ -85,9 +85,9 @@ export const StakingPendingComponent = React.memo((
                             textStyle={{ color: theme.priceSecondary, fontWeight: '400' }} />
                     </View>
                 </View>)}
-            {member.pendingWithdraw.gtn(0) && (
+            {member.pendingWithdraw > 0n && (
                 <>
-                    {member.pendingDeposit.gtn(0) && (
+                    {member.pendingDeposit >= 0n && (
                         <View style={{
                             height: 1, width: '100%',
                             backgroundColor: theme.divider,
@@ -126,9 +126,9 @@ export const StakingPendingComponent = React.memo((
                 </>
             )}
 
-            {member.withdraw.gtn(0) && (
+            {member.withdraw > 0n && (
                 <>
-                    {(member.pendingWithdraw.gtn(0) || member.pendingDeposit.gtn(0)) && (
+                    {(member.pendingWithdraw > 0n || member.pendingDeposit > 0n) && (
                         <View style={{
                             height: 1, width: '100%',
                             backgroundColor: theme.divider,

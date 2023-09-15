@@ -3,7 +3,7 @@ import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano } from "ton";
+import { Address, fromNano } from "@ton/core";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { ATextInput } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";

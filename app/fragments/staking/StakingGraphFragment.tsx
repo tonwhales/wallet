@@ -5,7 +5,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
@@ -21,6 +21,7 @@ import { useTheme } from '../../engine/hooks/useTheme';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 import { useStakingChart } from '../../engine/hooks/useStakingChart';
 import { usePrice } from '../../engine/hooks/usePrice';
+import { useNetwork } from '../../engine/hooks/useNetwork';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -43,7 +44,7 @@ export const StakingGraphFragment = fragment(() => {
         }
     });
 
-    const [price, currency] = usePrrice();
+    const [price, currency] = usePrice();
 
     const rate = useMemo(() => {
         return price ? price.price.usd * price.price.rates[currency] : 0;
@@ -126,9 +127,9 @@ export const StakingGraphFragment = fragment(() => {
                         fontSize: 14, marginTop: 4
                     }]}>
                         {
-                            target.toFriendly({ testOnly: isTestnet }).slice(0, 6)
+                            target.toString({ testOnly: isTestnet }).slice(0, 6)
                             + '...'
-                            + target.toFriendly({ testOnly: isTestnet }).slice(t.length - 8)
+                            + target.toString({ testOnly: isTestnet }).slice(t.length - 8)
                         }
                     </Text>
                     <Text style={[{

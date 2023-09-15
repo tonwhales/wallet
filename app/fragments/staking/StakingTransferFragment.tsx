@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keybo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, fromNano, toNano } from 'ton';
+import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -43,7 +43,7 @@ export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready
 
 export type StakingTransferParams = {
     target?: Address,
-    amount?: BN | null,
+    amount?: bigint | null,
     lockAmount?: boolean,
     lockComment?: boolean,
     lockAddress?: boolean,
@@ -80,7 +80,7 @@ export const StakingTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    let balance = account!.balance || new BN(0);
+    let balance = account!.balance || BigInt(0);
     if (params?.action === 'withdraw') {
         balance = member
             ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
@@ -98,7 +98,7 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doContinue = React.useCallback(async () => {
-        let value: BN;
+        let value: bigint;
         let minAmount = pool?.params.minStake
             ? pool.params.minStake
                 .add(pool.params.receiptPrice)
@@ -120,7 +120,7 @@ export const StakingTransferFragment = fragment(() => {
         // Check min stake amount
         if (
             (params?.action === 'deposit' || params?.action === 'top_up')
-            && value.lt(minAmount)
+            && value < minAmount
         ) {
             setMinAmountWarn(
                 t('products.staking.minAmountWarning',
@@ -132,9 +132,9 @@ export const StakingTransferFragment = fragment(() => {
         // Check availible 
         if (params?.action === 'withdraw') {
             const availible = member
-                ? member.balance.add(member.withdraw).add(member.pendingDeposit)
+                ? member.balance + member.withdraw + member.pendingDeposit
                 : undefined;
-            if (!availible || availible.lt(value)) {
+            if (!availible || availible < value) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
                 return;
             }
@@ -147,7 +147,7 @@ export const StakingTransferFragment = fragment(() => {
             payload = createWithdrawStakeCell(transferAmount);
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
         } else if (params?.action === 'withdraw') {
-            if (transferAmount.eq(balance)) transferAmount = new BN(0);
+            if (transferAmount === balance) transferAmount = BigInt(0);
             payload = createWithdrawStakeCell(transferAmount);
             transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
         } else if (params.action === 'deposit' || params.action === 'top_up') {
@@ -157,7 +157,7 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if ((transferAmount.eq(account!.balance) || account!.balance.lt(transferAmount))) {
+        if ((transferAmount === account!.balance || account!.balance < transferAmount)) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
                     ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
@@ -166,7 +166,7 @@ export const StakingTransferFragment = fragment(() => {
             return;
         }
 
-        if (transferAmount.eq(new BN(0))) {
+        if (transferAmount === BigInt(0)) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -180,7 +180,7 @@ export const StakingTransferFragment = fragment(() => {
         navigation.navigateTransfer({
             order: {
                 messages: [{
-                    target: params.target.toFriendly({ testOnly: isTestnet }),
+                    target: params.target.toString({ testOnly: isTestnet }),
                     payload,
                     amount: transferAmount,
                     amountAll: false,
@@ -248,10 +248,10 @@ export const StakingTransferFragment = fragment(() => {
         if (params?.action === 'deposit' || params?.action === 'top_up') {
             // Account for withdraw fee need to unstake 
             addAmount = addAmount
-                .sub(pool?.params.withdrawFee || toNano('0.1'))
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
-                .sub(pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
+                - (pool?.params.withdrawFee || toNano('0.1'))
+                - (pool?.params.receiptPrice || toNano('0.1'))
+                - (pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
+                - (pool?.params.receiptPrice || toNano('0.1'))
         }
         onSetAmount(fromNano(addAmount));
     }, [balance, params, pool]);

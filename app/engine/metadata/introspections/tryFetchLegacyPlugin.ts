@@ -1,4 +1,4 @@
-import { Address, TonClient4 } from "ton";
+import { Address, TonClient4 } from "@ton/core";
 
 export async function tryFetchLegacyPlugin(client: TonClient4, seqno: number, address: Address) {
     let response = await client.runMethod(seqno, address, 'get_subscription_data');

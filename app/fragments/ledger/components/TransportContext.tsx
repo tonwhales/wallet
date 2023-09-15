@@ -1,7 +1,7 @@
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import React, { useCallback, useEffect } from "react";
-import { TonTransport } from "ton-ledger";
+// import { TonTransport } from "ton-ledger";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";

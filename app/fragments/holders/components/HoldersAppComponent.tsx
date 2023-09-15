@@ -332,7 +332,7 @@ export const HoldersAppComponent = React.memo((
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
                 network: isTestnet ? 'testnet' : 'mainnet',
-                address: address.toFriendly({ testOnly: isTestnet }),
+                address: address.toString({ testOnly: isTestnet }),
                 publicKey: publicKey.toString('base64'),
                 walletConfig,
                 walletType,

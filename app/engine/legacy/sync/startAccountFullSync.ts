@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, Cell, parseTransaction } from "ton";
+import { Address, Cell, parseTransaction } from "@ton/core";
 import { Engine } from "../Engine";
 import { backoff } from '../../../utils/time';
 import { createLogger } from '../../../utils/log';
@@ -7,16 +7,16 @@ import { startDependentSync } from "./utils/startDependentSync";
 import { parseWalletTransaction } from "../transactions/parseWalletTransaction";
 
 export type FullAccount = {
-    balance: BN;
-    last: { lt: BN, hash: string } | null;
+    balance: bigint;
+    last: { lt: bigint, hash: string } | null;
     block: number;
 
-    transactionsCursor: { lt: BN, hash: string } | null;
+    transactionsCursor: { lt: bigint, hash: string } | null;
     transactions: string[];
 }
 const logger = createLogger('account');
 export function startAccountFullSync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/account/full`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/account/full`;
     let lite = engine.persistence.liteAccounts.item(address);
     let full = engine.persistence.fullAccounts.item(address);
 
@@ -33,22 +33,22 @@ export function startAccountFullSync(address: Address, engine: Engine) {
 
             // If both are not null
             if (existing.last && liteAccount.last) {
-                if (existing.last.lt.gte(new BN(liteAccount.last.lt))) {
-                    // logger.log(`${address.toFriendly()}: Ignore since last is same`);
+                if (existing.last.lt.gte(BigInt(liteAccount.last.lt))) {
+                    // logger.log(`${address.toString()}: Ignore since last is same`);
                     return;
                 }
             }
 
             // If both null
             if ((!existing.last) && (!liteAccount.last)) {
-                // logger.log(`${address.toFriendly()}: Ignore since last both empty`);
+                // logger.log(`${address.toString()}: Ignore since last both empty`);
                 return;
             }
         }
 
         // Load related transactions
         let transactions: string[] = [];
-        let transactionsCursor: { lt: BN, hash: string } | null = null;
+        let transactionsCursor: { lt: bigint, hash: string } | null = null;
 
         // Load transactions if needed
         if (!!liteAccount.last) {
@@ -77,7 +77,7 @@ export function startAccountFullSync(address: Address, engine: Engine) {
             if (loadedTransactions.length > 0) {
                 let txData = Buffer.from(loadedTransactions[loadedTransactions.length - 1].data, 'base64');
                 const lastTx = parseTransaction(0, Cell.fromBoc(txData)[0].beginParse());
-                if (!lastTx.prevTransaction.lt.eq(new BN(0))) {
+                if (!lastTx.prevTransaction.lt.eq(BigInt(0))) {
                     transactionsCursor = { lt: lastTx.prevTransaction.lt, hash: lastTx.prevTransaction.hash.toString('base64') };
                 }
             }

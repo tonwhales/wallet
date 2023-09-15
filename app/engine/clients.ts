@@ -1,4 +1,4 @@
-import { TonClient4 } from 'ton';
+import { TonClient4 } from '@ton/ton';
 import { QueryClient } from '@tanstack/react-query';
 
 export const clients = {

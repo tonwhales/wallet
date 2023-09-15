@@ -1,17 +1,17 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../Engine";
 import { tryFetchJettonWallet } from "../../metadata/introspections/tryFetchJettonWallet";
 import { startDependentSync } from "./utils/startDependentSync";
 
 export type JettonWalletState = {
     block: number;
-    balance: BN;
+    balance: bigint;
     master: Address | null;
 };
 
 export function startJettonWalletSync(address: Address, engine: Engine) {
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/jetton/wallet`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/jetton/wallet`;
     let lite = engine.persistence.liteAccounts.item(address);
     let jettonWallet = engine.persistence.jettonWallets.item(address);
 
@@ -31,7 +31,7 @@ export function startJettonWalletSync(address: Address, engine: Engine) {
         // Update state
         let newState: JettonWalletState
         if (!wallet) {
-            newState = { block: acc.block, balance: new BN(0), master: null };
+            newState = { block: acc.block, balance: BigInt(0), master: null };
         } else {
             newState = { block: acc.block, balance: wallet.balance, master: wallet.master };
         }

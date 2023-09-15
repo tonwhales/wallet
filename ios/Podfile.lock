@@ -40,6 +40,8 @@ PODS:
     - ReactCommon/turbomodule/core
   - ExpoNetwork (5.4.0):
     - ExpoModulesCore
+  - ExpoRandom (13.4.0):
+    - ExpoModulesCore
   - ExpoWebBrowser (12.1.1):
     - ExpoModulesCore
   - EXScreenCapture (5.1.1):
@@ -574,8 +576,6 @@ PODS:
     - React-Core
     - SDWebImage (~> 5.11.1)
     - SDWebImageWebPCoder (~> 0.8.4)
-  - RNFlashList (1.5.0):
-    - React-Core
   - RNGestureHandler (2.9.0):
     - React-Core
   - RNInAppBrowser (3.7.0):
@@ -660,6 +660,7 @@ DEPENDENCIES:
   - ExpoLocalAuthentication (from `../node_modules/expo-local-authentication/ios`)
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
   - ExpoNetwork (from `../node_modules/expo-network/ios`)
+  - ExpoRandom (from `../node_modules/expo-random/ios`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
   - EXScreenCapture (from `../node_modules/expo-screen-capture/ios`)
   - EXSecureStore (from `../node_modules/expo-secure-store/ios`)
@@ -735,7 +736,6 @@ DEPENDENCIES:
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
   - RNFastImage (from `../node_modules/react-native-fast-image`)
-  - "RNFlashList (from `../node_modules/@shopify/flash-list`)"
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
   - RNKeychain (from `../node_modules/react-native-keychain`)
@@ -824,6 +824,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-modules-core"
   ExpoNetwork:
     :path: "../node_modules/expo-network/ios"
+  ExpoRandom:
+    :path: "../node_modules/expo-random/ios"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
   EXScreenCapture:
@@ -924,8 +926,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-picker/picker"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
-  RNFlashList:
-    :path: "../node_modules/@shopify/flash-list"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   RNInAppBrowser:
@@ -969,6 +969,7 @@ SPEC CHECKSUMS:
   ExpoLocalAuthentication: b870b7a8df5e15b8b0be042185a2bb7764093096
   ExpoModulesCore: 6e0259511f4c4341b6b8357db393624df2280828
   ExpoNetwork: 6ee4b3b6cfdba3bfb90b07f483d1111308a9c76a
+  ExpoRandom: ae54b3769440ee9dfefac777ce6263a9be10173b
   ExpoWebBrowser: 033d34c478d9986da2f1679729041423837626e0
   EXScreenCapture: d9284f4a6508c86d0d463805b93672397d18de0f
   EXSecureStore: e8923258361cc406d0401af380f12bd05b2b720f
@@ -1049,7 +1050,6 @@ SPEC CHECKSUMS:
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
   RNCPicker: 0bf8ef8f7800524f32d2bb2a8bcadd53eda0ecd1
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
-  RNFlashList: 25b0e092b4470c84db0386d4f5316dc34123bb6d
   RNGestureHandler: 071d7a9ad81e8b83fe7663b303d132406a7d8f39
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333

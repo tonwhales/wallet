@@ -17,7 +17,7 @@ export type ProductButtonProps = {
     image?: string,
     requireSource?: ImageRequireSource,
     blurhash?: string,
-    value: BN | string | null,
+    value: bigint | string | null,
     decimals?: number | null,
     symbol?: string,
     extension?: boolean,
@@ -101,7 +101,7 @@ export function ProductButton(props: ProductButtonProps) {
                             {props.name}
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
-                            <Text style={{ color: props.value.gte(new BN(0)) ? theme.pricePositive : theme.priceNegative, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            <Text style={{ color: props.value >= BigInt(0) ? theme.pricePositive : theme.priceNegative, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                 <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
                             </Text>
                         )}

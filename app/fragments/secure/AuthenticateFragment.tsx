@@ -12,7 +12,7 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { beginCell, Cell, safeSign } from 'ton';
+import { beginCell, Cell, safeSign } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -103,7 +103,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
         const contract = contractFromPublicKey(acc.publicKey);
         let walletConfig = contract.source.backup();
         let walletType = contract.source.type;
-        let address = contract.address.toFriendly({ testOnly: isTestnet });
+        let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
         let endpoint = 'https://connect.tonhubapi.com/connect/command';
         let name = state.name;
@@ -452,9 +452,9 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     }}>
                         <Text>
                             {
-                                acc.address.toFriendly({ testOnly: isTestnet }).slice(0, 4)
+                                acc.address.toString({ testOnly: isTestnet }).slice(0, 4)
                                 + '...'
-                                + acc.address.toFriendly({ testOnly: isTestnet }).slice(t.length - 6)
+                                + acc.address.toString({ testOnly: isTestnet }).slice(t.length - 6)
                             }
                         </Text>
                     </Text>

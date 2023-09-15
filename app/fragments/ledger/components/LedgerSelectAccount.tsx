@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { t } from "../../../i18n/t";
 import { warn } from "../../../utils/log";
@@ -14,7 +14,7 @@ import { useTransport } from "./TransportContext";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 
-export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
+export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 
 export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
     const theme = useTheme();
@@ -41,9 +41,9 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                     try {
                         const address = Address.parse(addr.address);
                         const liteAcc = await client.getAccountLite(seqno, address);
-                        return { i, addr, balance: new BN(liteAcc.account.balance.coins, 10) };
+                        return { i, addr, balance: BigInt(liteAcc.account.balance.coins, 10) };
                     } catch (error) {
-                        return { i, addr, balance: new BN(0) };
+                        return { i, addr, balance: BigInt(0) };
                     }
                 })());
             }

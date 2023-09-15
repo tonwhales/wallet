@@ -1,5 +1,6 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
 import { fetchPlugins } from "./fetchPlugins";
+import { TonClient4 } from '@ton/ton';
 
 const client = new TonClient4({ endpoint: 'https://mainnet-v4.tonhubapi.com' });
 

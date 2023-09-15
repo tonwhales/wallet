@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -38,8 +38,8 @@ import { ItemCollapsible } from '../../components/ItemCollapsible';
 import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
 import { LedgerOrder } from '../secure/ops/Order';
-import { WalletV4Source } from 'ton-contracts';
-import { TonTransport } from 'ton-ledger';
+import { WalletContractV4 } from '@ton/ton';
+// import { TonTransport } from 'ton-ledger';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
@@ -79,14 +79,14 @@ type ConfirmLoadedProps = {
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
     },
     text: string | null,
     order: LedgerOrder,
     jettonMaster: JettonMasterState | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     transport: TonTransport,
     addr: { acc: number, address: string, publicKey: Buffer },
@@ -148,7 +148,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
     }, []);
 
-    const friendlyTarget = target.address.toFriendly({ testOnly: isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
     const contact = useContactAddress(target.address);
 
@@ -165,7 +165,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     // Confirmation
     const doSend = React.useCallback(async () => {
-        let value: BN = order.amount;
+        let value: bigint = order.amount;
 
         // Parse address
         let address: Address = target.address;
@@ -191,7 +191,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let bounce = true;
             if (targetState.account.state.type !== 'active' && !order.stateInit) {
                 bounce = false;
-                if (target.balance.lte(new BN(0))) {
+                if (target.balance.lte(BigInt(0))) {
                     let cont = await confirm('transfer.error.addressIsNotActive');
                     if (!cont) {
                         navigation.goBack();
@@ -256,7 +256,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     const lastBlock = await client.getLastBlock();
                     const lite = await client.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    if (new BN(account.account.last.lt, 10).lt(new BN(lite.account.last?.lt || '0', 10))) {
+                    if (BigInt(account.account.last.lt, 10).lt(BigInt(lite.account.last?.lt || '0', 10))) {
                         setTransferState('sent');
                         navigation.goBack();
                         return;
@@ -418,11 +418,11 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
-                                            {`${fromNano(order.amountAll ? (account?.balance ?? new BN(0)) : order.amount)} TON`}
+                                            {`${fromNano(order.amountAll ? (account?.balance ?? BigInt(0)) : order.amount)} TON`}
                                         </Text>
                                         <PriceComponent
                                             prefix={'~'}
-                                            amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
+                                            amount={order.amountAll ? (account?.balance ?? BigInt(0)) : order.amount}
                                             style={{
                                                 backgroundColor: 'transparent',
                                                 paddingHorizontal: 0,
@@ -550,7 +550,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <PriceComponent
                                                 prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
                                                 suffix={')'}
-                                                amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
+                                                amount={order.amountAll ? (account?.balance ?? BigInt(0)) : order.amount}
                                                 style={{
                                                     backgroundColor: 'transparent',
                                                     paddingHorizontal: 0,
@@ -879,7 +879,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: isTestnet })}
+                                text={operation.address.toString({ testOnly: isTestnet })}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}
@@ -1090,7 +1090,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                 target: {
                     isTestOnly: target.isTestOnly,
                     address: target.address,
-                    balance: new BN(state.account.balance.coins, 10),
+                    balance: BigInt(state.account.balance.coins, 10),
                     active: state.account.state.type === 'active',
                     domain: order.domain
                 },

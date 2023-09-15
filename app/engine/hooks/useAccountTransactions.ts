@@ -1,4 +1,4 @@
-import { Address, Cell, TonClient4 } from 'ton';
+import { Address, Cell } from '@ton/core';
 import { StoredTransaction, useRawAccountTransactions } from './useRawAccountTransactions';
 import BN from 'bn.js';
 import { ContractMetadata } from '../metadata/Metadata';
@@ -7,14 +7,15 @@ import { useJettonContents } from './basic/useJettonContents';
 import { StoredContractMetadata, StoredJettonMaster } from '../metadata/StoredMetadata';
 import { useMemo } from 'react';
 import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
+import { TonClient4 } from '@ton/ton';
 
 
 export type TxBody = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
 
 export type Transaction = {
     lt: string | null;
-    fees: BN;
-    amount: BN;
+    fees: bigint;
+    amount: bigint;
     address: Address | null;
     seqno: number | null;
     kind: 'out' | 'in';
@@ -42,10 +43,10 @@ export type Operation = {
 
 export type OperationItem = {
     kind: 'ton'
-    amount: BN;
+    amount: bigint;
 } | {
     kind: 'token',
-    amount: BN;
+    amount: bigint;
     symbol: string,
     decimals: number | null
 };
@@ -77,10 +78,10 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
             content: metadata.jettonMaster.content,
             mintalbe: metadata.jettonMaster.mintable,
             owner: metadata.jettonMaster.owner ? Address.parse(metadata.jettonMaster.owner) : null,
-            totalSupply: new BN(metadata.jettonMaster.totalSupply),
+            totalSupply: BigInt(metadata.jettonMaster.totalSupply),
         } : undefined,
         jettonWallet: metadata.jettonWallet ? {
-            balance: new BN(metadata.jettonWallet.balance),
+            balance: BigInt(metadata.jettonWallet.balance),
             master: Address.parse(metadata.jettonWallet.master),
             owner: Address.parse(metadata.jettonWallet.owner),
         } : undefined,

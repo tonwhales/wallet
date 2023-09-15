@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
+import { Address, fromNano } from "@ton/core";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -44,7 +44,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     let operation = transaction.operation;
-    let friendlyAddress = operation.address.toFriendly({ testOnly: isTestnet });
+    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
     let item = transaction.operation.items[0];
     let op: string;
     if (operation.op) {
@@ -71,7 +71,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address.toFriendly({ testOnly: isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address.toString({ testOnly: isTestnet })];
 
     let body: Body | null = null;
     if (transaction.base.body?.type === 'payload') {
@@ -99,7 +99,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
         }
         return (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
-            address.toFriendly() +
+            address.toString() +
             '/' + txId
     }, [txId]);
 
@@ -216,7 +216,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                         <>
                             <Text
                                 style={{
-                                    color: item.amount.gte(new BN(0))
+                                    color: item.amount.gte(BigInt(0))
                                         ? spam
                                             ? theme.textColor
                                             : '#4FAE42'
@@ -345,7 +345,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toFriendly({ testOnly: isTestnet }) }
+                                                { address: operation.address.toString({ testOnly: isTestnet }) }
                                             );
                                         }
                                     }}
@@ -410,7 +410,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: isTestnet }))}
+                                onPress={() => onCopy((operation.address || address).toString({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>

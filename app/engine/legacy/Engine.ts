@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { MMKV } from "react-native-mmkv";
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
 import { Connector } from "../api/Connector";
 import { LegacyProduct } from './products/LegacyProduct';
 import { PriceProduct } from './products/PriceProduct';

@@ -30,7 +30,7 @@ export type HoldersCard = {
     id: string,
     address: string,
     state: string,
-    balance: BN,
+    balance: bigint,
     type: 'virtual' | 'physical',
     card: {
         lastFourDigits: string | null | undefined,
@@ -91,7 +91,7 @@ export class HoldersProduct {
                     let contract = contractFromPublicKey(this.engine.publicKey);
                     let signed = this.engine.products.keys.createDomainSignature(domain);
                     let token = await fetchAccountToken({
-                        address: contract.address.toFriendly({ testOnly: this.engine.isTestnet }),
+                        address: contract.address.toString({ testOnly: this.engine.isTestnet }),
                         walletConfig: contract.source.backup(),
                         walletType: contract.source.type,
                         time: signed.time,
@@ -154,7 +154,7 @@ export class HoldersProduct {
                         id: account.id,
                         address: account.address,
                         state: account.state,
-                        balance: new BN(account.balance),
+                        balance: BigInt(account.balance),
                         card: account.card,
                         type: account.card.kind === 'physical' ? 'physical' : 'virtual'
                     }))
@@ -227,15 +227,15 @@ export class HoldersProduct {
     }
 
     deleteToken() {
-        storage.delete(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+        storage.delete(`holders-jwt-${this.engine.address.toString({ testOnly: this.engine.isTestnet })}`);
     }
 
     setToken(token: string) {
-        storage.set(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`, token);
+        storage.set(`holders-jwt-${this.engine.address.toString({ testOnly: this.engine.isTestnet })}`, token);
     }
 
     getToken() {
-        return storage.getString(`holders-jwt-${this.engine.address.toFriendly({ testOnly: this.engine.isTestnet })}`);
+        return storage.getString(`holders-jwt-${this.engine.address.toString({ testOnly: this.engine.isTestnet })}`);
     }
 
     async cleanup() {

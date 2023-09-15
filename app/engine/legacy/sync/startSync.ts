@@ -1,4 +1,4 @@
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../Engine";
 import { startJettonMasterSync } from "./startJettonMasterSync";
 import { startAccountFullSync } from "./startAccountFullSync";
@@ -76,7 +76,7 @@ export function startSync(engine: Engine) {
 
     let startedPlugins = new Set<string>();
     function startPluginSyncIfNeeded(address: Address) {
-        let k = address.toFriendly({ testOnly: engine.isTestnet });
+        let k = address.toString({ testOnly: engine.isTestnet });
         if (startedPlugins.has(k)) {
             return;
         }
@@ -102,7 +102,7 @@ export function startSync(engine: Engine) {
 
     let jettonStarted = new Set<string>();
     function startJettonMaster(address: Address) {
-        let k = address.toFriendly({ testOnly: engine.isTestnet });
+        let k = address.toString({ testOnly: engine.isTestnet });
         if (jettonStarted.has(k)) {
             return;
         }
@@ -122,7 +122,7 @@ export function startSync(engine: Engine) {
 
     let jettonWalletsStarted = new Set<string>();
     function startJettonWallet(address: Address) {
-        let k = address.toFriendly({ testOnly: engine.isTestnet });
+        let k = address.toString({ testOnly: engine.isTestnet });
         if (jettonWalletsStarted.has(k)) {
             return;
         }
@@ -148,7 +148,7 @@ export function startSync(engine: Engine) {
 
     let hintsStarted = new Set<string>();
     function startHints(address: Address) {
-        let k = address.toFriendly({ testOnly: engine.isTestnet });
+        let k = address.toString({ testOnly: engine.isTestnet });
         if (hintsStarted.has(k)) {
             return;
         }

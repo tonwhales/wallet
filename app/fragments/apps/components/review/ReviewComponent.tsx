@@ -45,7 +45,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
             try {
                 await postExtensionReview(url, {
                     rating,
-                    address: address.toFriendly({ testOnly: isTestnet }),
+                    address: address.toString({ testOnly: isTestnet }),
                     comment: review.length > 0 ? {
                         text: review,
                         images: []

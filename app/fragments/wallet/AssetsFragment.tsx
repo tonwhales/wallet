@@ -13,7 +13,7 @@ import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { useJettons } from '../../engine/hooks/useJettons';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
@@ -83,7 +83,7 @@ export const AssetsFragment = fragment(() => {
                         name={'TON'}
                         subtitle={t('common.balance')}
                         icon={TonIcon}
-                        value={account?.balance ?? new BN(0)}
+                        value={account?.balance ?? BigInt(0)}
                         onPress={() => {
                             if (callback) {
                                 onCallback();
@@ -105,12 +105,12 @@ export const AssetsFragment = fragment(() => {
                     {jettons.map((j) => {
                         return (
                             <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
+                                key={'jt' + j.wallet.toString()}
                                 jetton={j}
                                 navigation={navigation}
                                 onPress={() => {
                                     if (callback) {
-                                        onCallback(j.master.toFriendly({ testOnly: isTestnet }));
+                                        onCallback(j.master.toString({ testOnly: isTestnet }));
                                         return;
                                     }
                                     navigateToJettonTransfer(j)

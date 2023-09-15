@@ -1,7 +1,7 @@
 import BN from "bn.js";
 import React from "react";
 import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
@@ -51,12 +51,12 @@ type Props = {
         messages: {
             addr: {
                 address: Address;
-                balance: BN,
+                balance: bigint,
                 active: boolean
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
@@ -66,10 +66,10 @@ type Props = {
             title: string
         }
     },
-    fees: BN,
+    fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
-    totalAmount: BN
+    totalAmount: bigint
 }
 
 export const TransferBatch = React.memo((props: Props) => {
@@ -93,9 +93,9 @@ export const TransferBatch = React.memo((props: Props) => {
 
     const { internals, totalJettons, gas } = React.useMemo(() => {
         const temp = [];
-        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: BN, gas: BN }>();
+        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: bigint, gas: bigint }>();
         let gas = {
-            total: new BN(0),
+            total: BigInt(0),
             unusual: false
         };
         for (const message of order.messages) {
@@ -108,7 +108,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master);
             }
 
-            let jettonAmount: BN | null = null;
+            let jettonAmount: bigint | null = null;
             try {
                 if (jettonMaster && message.payload) {
                     const temp = message.payload;
@@ -124,7 +124,7 @@ export const TransferBatch = React.memo((props: Props) => {
             }
 
             if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
-                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: isTestnet });
+                const addr = message.metadata.jettonWallet?.master.toString({ testOnly: isTestnet });
                 const value = totalJettons.get(addr);
                 if (!!value) {
                     value.jettonAmount = value.jettonAmount.add(jettonAmount);
@@ -153,8 +153,8 @@ export const TransferBatch = React.memo((props: Props) => {
                 jettonMaster
             });
 
-            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: isTestnet })];
-            const friendlyTarget = message.addr.address.toFriendly({ testOnly: isTestnet });
+            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toString({ testOnly: isTestnet })];
+            const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
             let known: KnownWallet | undefined = undefined;
             if (KnownWallets(isTestnet)[friendlyTarget]) {
                 known = KnownWallets(isTestnet)[friendlyTarget];
@@ -164,7 +164,7 @@ export const TransferBatch = React.memo((props: Props) => {
             // } else if (!!contact) { // Resolve contact known wallet
             //     known = { name: contact.name }
             // }
-            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: isTestnet })];
+            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toString({ testOnly: isTestnet })];
             // const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
             const spam = false;
 
@@ -256,7 +256,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Create message
             const msg = internalFromSignRawMessage({
-                target: i.message.addr.address.toFriendly({ testOnly: isTestnet }),
+                target: i.message.addr.address.toString({ testOnly: isTestnet }),
                 amount: i.message.amount,
                 payload: i.message.payload,
                 amountAll: i.message.amountAll,
@@ -274,7 +274,7 @@ export const TransferBatch = React.memo((props: Props) => {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (totalAmount.eq(new BN(0))) {
+        if (totalAmount.eq(BigInt(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -346,7 +346,7 @@ export const TransferBatch = React.memo((props: Props) => {
         //     id: 'pending-' + account.seqno,
         //     lt: null,
         //     fees: fees,
-        //     amount: totalAmount.mul(new BN(-1)),
+        //     amount: totalAmount.mul(BigInt(-1)),
         //     address: null,
         //     seqno: account.seqno,
         //     kind: 'out',
@@ -613,7 +613,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                         <ItemAddress
                                             key={'address' + index}
                                             title={`#${index + 1} ` + t('common.walletAddress')}
-                                            text={i.operation.address.toFriendly({ testOnly: isTestnet })}
+                                            text={i.operation.address.toString({ testOnly: isTestnet })}
                                         />
                                         {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
                                     </>

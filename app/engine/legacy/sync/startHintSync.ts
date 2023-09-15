@@ -1,4 +1,4 @@
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { createLogger } from "../../../utils/log";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
@@ -16,7 +16,7 @@ export type HintProcessingState = {
 };
 
 export function startHintSync(address: Address, engine: Engine, own?: Address) {
-    let key = `${address.toFriendly({ testOnly: engine.isTestnet })}/hint`;
+    let key = `${address.toString({ testOnly: engine.isTestnet })}/hint`;
     let hint = engine.persistence.hintState.item(address);
     let request = engine.persistence.hintRequest.item(address);
     let metadataItem = engine.persistence.metadata.item(address);
@@ -42,7 +42,7 @@ export function startHintSync(address: Address, engine: Engine, own?: Address) {
         // Start investigation
         //
 
-        logger.log(`${address.toFriendly({ testOnly: engine.isTestnet })}: Start hint investigation`);
+        logger.log(`${address.toString({ testOnly: engine.isTestnet })}: Start hint investigation`);
 
         //
         // Read seqno
@@ -54,7 +54,7 @@ export function startHintSync(address: Address, engine: Engine, own?: Address) {
         } else {
             seqno = (await engine.client4.getLastBlock()).last.seqno;
         }
-        logger.log(`${address.toFriendly({ testOnly: engine.isTestnet })}: Investigate at #${seqno}`);
+        logger.log(`${address.toString({ testOnly: engine.isTestnet })}: Investigate at #${seqno}`);
 
         //
         // Collect metadata
@@ -101,7 +101,7 @@ export function startHintSync(address: Address, engine: Engine, own?: Address) {
         // Persist
         //
 
-        logger.log(`${address.toFriendly({ testOnly: engine.isTestnet })}: Finished for #${seqno}`);
+        logger.log(`${address.toString({ testOnly: engine.isTestnet })}: Finished for #${seqno}`);
         hint.update(() => ({
             version: CURRENT_VERSION,
             seqno

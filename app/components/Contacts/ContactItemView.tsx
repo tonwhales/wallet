@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from "react";
 import { TouchableHighlight, useWindowDimensions, View, Text } from "react-native";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";

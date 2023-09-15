@@ -2,6 +2,6 @@ import BN from 'bn.js';
 
 export function useStaking() {
     return {
-        total: new BN(0),
+        total: BigInt(0),
     } as any;
 }

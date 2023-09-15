@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, StateInit } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, StateInit } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -50,14 +50,14 @@ export type ConfirmLoadedProps = {
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
     },
     text: string | null,
     order: Order,
     job: string | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
@@ -71,12 +71,12 @@ export type ConfirmLoadedProps = {
         messages: {
             addr: {
                 address: Address;
-                balance: BN,
+                balance: bigint,
                 active: boolean
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
@@ -86,10 +86,10 @@ export type ConfirmLoadedProps = {
             title: string
         }
     },
-    fees: BN,
+    fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
-    totalAmount: BN
+    totalAmount: bigint
 };
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
@@ -146,7 +146,7 @@ export const TransferFragment = fragment(() => {
 
             if (order.messages.length === 1) {
                 let target = Address.parseFriendly(
-                    Address.parse(params.order.messages[0].target).toFriendly({ testOnly: isTestnet })
+                    Address.parse(params.order.messages[0].target).toString({ testOnly: isTestnet })
                 );
 
                 if (order.domain) {
@@ -221,7 +221,7 @@ export const TransferFragment = fragment(() => {
                     seqno,
                     walletId: contract.source.walletId,
                     secretKey: null,
-                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     order: intMessage
                 });
 
@@ -247,8 +247,8 @@ export const TransferFragment = fragment(() => {
                         const temp = order.messages[0].payload;
                         let sc = temp?.beginParse();
                         if (sc) {
-                            if (sc.remaining > 32) {
-                                let op = sc.readUintNumber(32);
+                            if (sc.remainingBits > 32) {
+                                let op = sc.loadUint(32);
                                 // Jetton transfer op
                                 if (op === 0xf8a7ea5) {
                                     jettonMaster = getJettonMaster(metadata.jettonWallet!.master);
@@ -278,7 +278,7 @@ export const TransferFragment = fragment(() => {
                     target: {
                         isTestOnly: target.isTestOnly,
                         address: target.address,
-                        balance: new BN(state.account.balance.coins, 10),
+                        balance: BigInt(state.account.balance.coins, 10),
                         active: state.account.state.type === 'active',
                         domain: order.domain
                     },
@@ -305,7 +305,7 @@ export const TransferFragment = fragment(() => {
             const storageStats = [];
             const inMsgs: InternalMessage[] = [];
             const messages = [];
-            let totalAmount = new BN(0);
+            let totalAmount = BigInt(0);
             for (let i = 0; i < order.messages.length; i++) {
                 const msg = internalFromSignRawMessage(order.messages[i]);
                 if (msg) {
@@ -329,7 +329,7 @@ export const TransferFragment = fragment(() => {
                     let outMsg = new Cell();
                     msg.writeTo(outMsg);
                     outMsgs.push(outMsg);
-                    totalAmount = totalAmount.add(msg.value);
+                    totalAmount = totalAmount + msg.value;
 
                     messages.push({
                         ...order.messages[i],
@@ -337,7 +337,7 @@ export const TransferFragment = fragment(() => {
                         restricted,
                         addr: {
                             address: msg.to,
-                            balance: new BN(state.account.balance.coins, 10),
+                            balance: BigInt(state.account.balance.coins, 10),
                             active: state.account.state.type === 'active',
                         },
                     });
@@ -372,7 +372,7 @@ export const TransferFragment = fragment(() => {
                 seqno: account.seqno,
                 walletId: contract.source.walletId,
                 secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages: inMsgs
             });
 

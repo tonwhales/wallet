@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -46,7 +46,7 @@ const labelStyle: StyleProp<TextStyle> = {
 export type SimpleTransferParams = {
     target?: string | null,
     comment?: string | null,
-    amount?: BN | null,
+    amount?: bigint | null,
     stateInit?: Cell | null,
     job?: string | null,
     jetton?: Address | null,
@@ -106,7 +106,7 @@ export const SimpleTransferFragment = fragment(() => {
     const order = React.useMemo(() => {
 
         // Parse value
-        let value: BN;
+        let value: bigint;
         try {
             const validAmount = amount.replace(',', '.').trim();
             // Manage jettons with decimals
@@ -161,7 +161,7 @@ export const SimpleTransferFragment = fragment(() => {
 
         let address: Address;
         let isTestOnly: boolean;
-        let value: BN;
+        let value: bigint;
 
         try {
             let parsed = Address.parseFriendly(target);
@@ -210,7 +210,7 @@ export const SimpleTransferFragment = fragment(() => {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (value.eq(new BN(0))) {
+        if (value.eq(BigInt(0))) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -254,7 +254,7 @@ export const SimpleTransferFragment = fragment(() => {
                 if (!order) {
                     intMessage = new InternalMessage({
                         to: appState.address,
-                        value: new BN(0),
+                        value: BigInt(0),
                         bounce: false,
                         body: new CommonMessageInfo({
                             stateInit: stateInit ? new CellMessage(stateInit) : null,
@@ -322,7 +322,7 @@ export const SimpleTransferFragment = fragment(() => {
                 navigation.goBack();
                 linkNavigator(res);
             } else {
-                setAddressDomainInput(res.address.toFriendly({ testOnly: isTestnet }));
+                setAddressDomainInput(res.address.toString({ testOnly: isTestnet }));
                 if (res.amount) {
                     setAmount(fromNano(res.amount));
                 }

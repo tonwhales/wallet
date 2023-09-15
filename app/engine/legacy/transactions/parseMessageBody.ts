@@ -1,4 +1,4 @@
-import { Cell, parseSupportedMessage, resolveKnownInterface, SupportedMessage } from "ton";
+import { Cell, parseSupportedMessage, resolveKnownInterface, SupportedMessage } from "@ton/core";
 
 export function parseMessageBody(payload: Cell) {
     let res: SupportedMessage | null = null;

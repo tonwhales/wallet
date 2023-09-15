@@ -6,8 +6,7 @@ import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard 
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
-import { WalletV4Source } from "ton-contracts";
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
 import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
@@ -71,7 +70,7 @@ export const LedgerTransferFragment = fragment(() => {
         if (jettonWallet) {
             value = jettonWallet.balance;
         } else {
-            value = accountV4State?.balance ?? new BN(0);
+            value = accountV4State?.balance ?? BigInt(0);
         }
         return value;
     }, [jettonWallet, jettonMaster, accountV4State?.balance]);
@@ -81,7 +80,7 @@ export const LedgerTransferFragment = fragment(() => {
     // Resolve order
     const order = React.useMemo(() => {
         // Parse value
-        let value: BN;
+        let value: bigint;
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
@@ -127,7 +126,7 @@ export const LedgerTransferFragment = fragment(() => {
 
     const doSend = React.useCallback(async () => {
         // Parse value
-        let value: BN;
+        let value: bigint;
         try {
             const validAmount = amount.replace(',', '.');
             value = toNano(validAmount);
@@ -180,7 +179,7 @@ export const LedgerTransferFragment = fragment(() => {
                 }
 
                 // Parse value
-                let value: BN;
+                let value: bigint;
                 try {
                     const validAmount = amount.replace(',', '.');
                     value = toNano(validAmount);
@@ -263,10 +262,10 @@ export const LedgerTransferFragment = fragment(() => {
                 navigation.goBack();
 
                 const payloadOrder = createSimpleLedgerOrder({
-                    target: res.address.toFriendly({ testOnly: isTestnet }),
+                    target: res.address.toString({ testOnly: isTestnet }),
                     text: res.comment,
                     payload: res.payload,
-                    amount: res.amount ? res.amount : new BN(0),
+                    amount: res.amount ? res.amount : BigInt(0),
                     amountAll: false,
                     stateInit: res.stateInit
                 });
@@ -276,7 +275,7 @@ export const LedgerTransferFragment = fragment(() => {
                     order: payloadOrder,
                 });
             } else {
-                setAddressDomainInput(res.address.toFriendly({ testOnly: isTestnet }));
+                setAddressDomainInput(res.address.toString({ testOnly: isTestnet }));
                 if (res.amount) {
                     setAmount(fromNano(res.amount));
                 }

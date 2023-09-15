@@ -10,7 +10,7 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, FadeInUp, FadeOutDown, runOnJS, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
@@ -23,18 +23,19 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { AccountLite, useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
 import { useSyncState } from '../../engine/hooks/useSyncState';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
 
 const PendingTxs = React.memo((props: {
-    txs: { id: string, time: number }[],
+    txs: TransactionDescription[],
     next: { lt: string, hash: string } | null,
     address: Address,
-    onPress: (tx: string) => void
+    onPress: (tx: TransactionDescription) => void
 }) => {
     const theme = useTheme();
     return (
@@ -52,9 +53,11 @@ const PendingTxs = React.memo((props: {
                         <TransactionView
                             key={'tx-' + t}
                             own={props.address}
-                            tx={t.id}
+                            tx={t}
                             separator={i < props.txs.length - 1}
                             onPress={props.onPress}
+                            fontScaleNormal={true}
+                            theme={theme}
                         />
                     </View>
                 )
@@ -63,7 +66,7 @@ const PendingTxs = React.memo((props: {
     );
 });
 
-function WalletComponent(props: { wallet: WalletState }) {
+function WalletComponent(props: { wallet: AccountLite }) {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
@@ -78,7 +81,7 @@ function WalletComponent(props: { wallet: WalletState }) {
     // Transactions
     //
 
-    const openTransactionFragment = React.useCallback((transaction: string) => {
+    const openTransactionFragment = React.useCallback((transaction: TransactionDescription) => {
         if (transaction) {
             navigation.navigate('Transaction', {
                 transaction: transaction
@@ -178,7 +181,7 @@ function WalletComponent(props: { wallet: WalletState }) {
         if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
-    }, [account]);
+    }, [navigation]);
 
     const navigateToCurrencySettings = React.useCallback(() => {
         navigation.navigate('Currency');
@@ -186,7 +189,7 @@ function WalletComponent(props: { wallet: WalletState }) {
 
     React.useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [account.pending?.length]);
+    }, [navigation]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -282,7 +285,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                             <Text style={{ fontSize: 30, color: 'white', marginRight: 8, fontWeight: '800', height: 40, marginTop: 2 }}>
                                 <ValueComponent value={account.balance} centFontStyle={{ fontSize: 22, fontWeight: '500', opacity: 0.55 }} />
                             </Text>
-                            {account?.balance.gt(new BN(0)) && <GraphIcon />}
+                            {account?.balance > 0n && <GraphIcon />}
                         </Pressable>
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 22, marginTop: 6 }}>
@@ -309,7 +312,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={address.toFriendly({ testOnly: isTestnet })}
+                        value={address.toString({ testOnly: isTestnet })}
                         address={address}
                         elipsise
                         style={{
@@ -364,6 +367,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                     </View>
                 </View>
 
+                {/* TODO: fix pending
                 {account.pending?.length > 0 && Platform.OS === 'android' && (
                     <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
                         <PendingTxs
@@ -382,7 +386,7 @@ function WalletComponent(props: { wallet: WalletState }) {
                         address={address}
                         onPress={openTransactionFragment}
                     />
-                )}
+                )} */}
 
                 {/* Jettons, Extensions & other products */}
                 <ProductsComponent />

@@ -6,11 +6,12 @@ import { fetchMetadata } from '../metadata/fetchMetadata';
 import { getLastBlock } from '../accountWatcher';
 import { useClient4 } from './useClient4';
 import { JettonMasterState, fetchJettonMasterContent } from '../metadata/fetchJettonMasterContent';
-import { Address, TonClient4 } from 'ton';
+import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { StoredContractMetadata, StoredJettonWallet } from '../metadata/StoredMetadata';
 import { log } from '../../utils/log';
 import { tryFetchJettonWallet } from '../metadata/introspections/tryFetchJettonWallet';
+import { TonClient4 } from '@ton/ton';
 
 export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
@@ -22,17 +23,17 @@ export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, 
             jettonMaster: metadata.jettonMaster ? {
                 content: metadata.jettonMaster.content,
                 mintable: metadata.jettonMaster.mintalbe,
-                owner: metadata.jettonMaster.owner?.toFriendly({ testOnly: isTestnet }) ?? null,
+                owner: metadata.jettonMaster.owner?.toString({ testOnly: isTestnet }) ?? null,
                 totalSupply: metadata.jettonMaster.totalSupply.toString(10),
             } : null,
             jettonWallet: metadata.jettonWallet ? {
                 balance: metadata.jettonWallet.balance.toString(10),
-                master: metadata.jettonWallet.master.toFriendly({ testOnly: isTestnet }),
-                owner: metadata.jettonWallet.owner.toFriendly({ testOnly: isTestnet }),
+                master: metadata.jettonWallet.master.toString({ testOnly: isTestnet }),
+                owner: metadata.jettonWallet.owner.toString({ testOnly: isTestnet }),
                 address: addressString,
             } : null,
             seqno: metadata.seqno,
-            address: address.toFriendly({ testOnly: isTestnet }),
+            address: address.toString({ testOnly: isTestnet }),
         }
     }
 }
@@ -48,7 +49,7 @@ export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
 
         return {
             ...masterContent,
-            address: address.toFriendly({ testOnly: isTestnet }),
+            address: address.toString({ testOnly: isTestnet }),
         };
     }
 }
@@ -64,8 +65,8 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
 
         return {
             balance: data.balance.toString(10),
-            master: data.master.toFriendly({ testOnly: isTestnet }),
-            owner: data.owner.toFriendly({ testOnly: isTestnet }),
+            master: data.master.toString({ testOnly: isTestnet }),
+            owner: data.owner.toString({ testOnly: isTestnet }),
             address: wallet,
         }
     }

@@ -1,13 +1,13 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../queries';
-import { Address, AddressExternal, Cell, RawAccountStatus, RawCommonMessageInfo, RawCurrencyCollection, RawHashUpdate, RawMessage, RawStateInit, RawTickTock, RawTransaction, RawTransactionDescription, TonClient4, parseMessageRelaxed, parseTransaction } from 'ton';
-import BN from 'bn.js';
+import { AccountStatus, Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, loadMessageRelaxed } from '@ton/core';
 import { getLastBlock } from '../accountWatcher';
 import { useNetwork } from './useNetwork';
 import { log } from '../../utils/log';
 import { TxBody } from '../legacy/Transaction';
 import { parseBody } from '../transactions/parseWalletTransaction';
 import { resolveOperation } from '../transactions/resolveOperation';
+import { TonClient4 } from '@ton/ton';
 
 type StoredAddressExternal = {
     bits: number;
@@ -37,15 +37,15 @@ type StoredMessageInfo = {
 };
 
 type StoredStateInit = {
-    splitDepth: number | null;
+    splitDepth?: number | null;
     code: string | null;
     data: string | null;
-    special: { tick: boolean, tock: boolean } | null;
+    special?: { tick: boolean, tock: boolean } | null;
 };
 
 type StoredMessage = {
     body: string,
-    info: StoredMessageInfo, 
+    info: StoredMessageInfo,
     init: StoredStateInit | null,
 };
 
@@ -53,12 +53,12 @@ export type StoredOperation = {
     address: string;
     comment?: string;
     items: StoredOperationItem[];
-    
+
     // Address
     // op?: string;
     // title?: string;
     // image?: string;
-    
+
 };
 
 export type StoredOperationItem = {
@@ -79,8 +79,8 @@ export type StoredTransaction = {
     };
     time: number;
     outMessagesCount: number;
-    oldStatus: RawAccountStatus;
-    newStatus: RawAccountStatus;
+    oldStatus: AccountStatus;
+    newStatus: AccountStatus;
     fees: string;
     update: {
         oldHash: string;
@@ -103,42 +103,42 @@ export type StoredTransaction = {
 }
 
 
-function externalAddressToStored(address: AddressExternal | null) {
+function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
         return null;
     }
 
     return {
-        bits: address.bits.length,
-        data: address.bits.getTopUppedArray().toString('base64'),
+        bits: address.bits,
+        data: address.value.toString(16),
     }
 }
 
-function messageInfoToStored(msgInfo: RawCommonMessageInfo, isTestnet: boolean): StoredMessageInfo {
+function messageInfoToStored(msgInfo: CommonMessageInfo, isTestnet: boolean): StoredMessageInfo {
     switch (msgInfo.type) {
         case 'internal':
-            return { 
+            return {
                 value: msgInfo.value.coins.toString(10),
-                type: msgInfo.type, 
-                dest: msgInfo.dest.toFriendly({ testOnly: isTestnet }),
-                src: msgInfo.src.toFriendly({ testOnly: isTestnet }),
+                type: msgInfo.type,
+                dest: msgInfo.dest.toString({ testOnly: isTestnet }),
+                src: msgInfo.src.toString({ testOnly: isTestnet }),
                 bounced: msgInfo.bounced,
                 bounce: msgInfo.bounce,
                 ihrDisabled: msgInfo.ihrDisabled,
                 createdAt: msgInfo.createdAt,
                 createdLt: msgInfo.createdLt.toString(10),
-                fwdFee: msgInfo.fwdFee.toString(10),
+                fwdFee: msgInfo.forwardFee.toString(10),
                 ihrFee: msgInfo.ihrFee.toString(10),
 
             };
         case 'external-in':
-            return { dest: msgInfo.dest.toFriendly({ testOnly: isTestnet }), importFee: msgInfo.importFee.toString(10), type: msgInfo.type, src: externalAddressToStored(msgInfo.src) };
+            return { dest: msgInfo.dest.toString({ testOnly: isTestnet }), importFee: msgInfo.importFee.toString(10), type: msgInfo.type, src: externalAddressToStored(msgInfo.src) };
         case 'external-out':
             return { dest: externalAddressToStored(msgInfo.dest), type: msgInfo.type };
     }
 }
 
-function initToStored(msgInfo: RawStateInit | null): StoredStateInit | null {
+function initToStored(msgInfo?: StateInit | null): StoredStateInit | null {
     if (!msgInfo) {
         return null;
     }
@@ -150,7 +150,7 @@ function initToStored(msgInfo: RawStateInit | null): StoredStateInit | null {
     }
 }
 
-function rawMessageToStoredMessage(msg: RawMessage, isTestnet: boolean): StoredMessage {
+function rawMessageToStoredMessage(msg: Message, isTestnet: boolean): StoredMessage {
     return {
         body: msg.body.toBoc({ idx: false }).toString('base64'),
         info: messageInfoToStored(msg.info, isTestnet),
@@ -158,7 +158,7 @@ function rawMessageToStoredMessage(msg: RawMessage, isTestnet: boolean): StoredM
     }
 }
 
-function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own: Address, isTestnet: boolean): StoredTransaction {
+function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: Address, isTestnet: boolean): StoredTransaction {
     const inMessageBody = tx.inMessage?.body || null;
 
     //
@@ -172,12 +172,12 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own
     if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
         const parse = inMessageBody!.beginParse();
         parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
-        seqno = parse.readUintNumber(32);
-        const command = parse.readUintNumber(8);
+        seqno = parse.loadUint(32);
+        const command = parse.loadUint(8);
         if (command === 0) {
-            let message = parseMessageRelaxed(parse.readRef());
+            let message = loadMessageRelaxed(parse.loadRef().beginParse());
             if (message.info.dest && Address.isAddress(message.info.dest)) {
-                dest = message.info.dest.toFriendly({ testOnly: isTestnet });
+                dest = message.info.dest.toString({ testOnly: isTestnet });
             }
             body = parseBody(message.body);
         }
@@ -194,13 +194,13 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own
     // Resolve amount
     //
 
-    let amount = new BN(0);
+    let amount = BigInt(0);
     if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        amount = amount.add(tx.inMessage.info.value.coins);
+        amount = amount + tx.inMessage.info.value.coins;
     }
-    for (let out of tx.outMessages) {
+    for (let out of tx.outMessages.values()) {
         if (out.info.type === 'internal') {
-            amount = amount.sub(out.info.value.coins);
+            amount = amount - out.info.value.coins;
         }
     }
 
@@ -212,9 +212,9 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own
     if (dest) {
         addressResolved = dest;
     } else if (tx.inMessage && tx.inMessage.info.type === 'internal') {
-        addressResolved = tx.inMessage.info.src.toFriendly({ testOnly: isTestnet });
+        addressResolved = tx.inMessage.info.src.toString({ testOnly: isTestnet });
     } else {
-        addressResolved = tx.address.toFriendly({ testOnly: isTestnet });
+        addressResolved = own.toString({ testOnly: isTestnet });
     }
     //
     // Resolve kind
@@ -231,32 +231,32 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own
 
     const mentioned = new Set<string>();
     if (tx.inMessage && tx.inMessage.info.type === 'internal' && !tx.inMessage.info.src.equals(own)) {
-        mentioned.add(tx.inMessage.info.src.toFriendly({ testOnly: isTestnet }));
+        mentioned.add(tx.inMessage.info.src.toString({ testOnly: isTestnet }));
     }
-    for (let out of tx.outMessages) {
+    for (let out of tx.outMessages.values()) {
         if (out.info.dest && Address.isAddress(out.info.dest) && !out.info.dest.equals(own)) {
-            mentioned.add(out.info.dest.toFriendly({ testOnly: isTestnet }));
+            mentioned.add(out.info.dest.toString({ testOnly: isTestnet }));
         }
     }
-    
+
     return {
-        address: tx.address.toFriendly({ testOnly: isTestnet }),
-        fees: tx.fees.coins.toString(10),
+        address: own.toString({ testOnly: isTestnet }),
+        fees: tx.totalFees.coins.toString(10),
         inMessage: tx.inMessage ? rawMessageToStoredMessage(tx.inMessage, isTestnet) : null,
-        outMessages: tx.outMessages.map(a => rawMessageToStoredMessage(a, isTestnet)),
+        outMessages: tx.outMessages.values().map(a => rawMessageToStoredMessage(a, isTestnet)),
         lt: tx.lt.toString(10),
         hash,
-        newStatus: tx.newStatus,
+        newStatus: tx.endStatus,
         oldStatus: tx.oldStatus,
         outMessagesCount: tx.outMessagesCount,
         prevTransaction: {
-            hash: tx.prevTransaction.hash.toString('base64'),
-            lt: tx.prevTransaction.lt.toString(10)
+            hash: tx.prevTransactionHash.toString(16),
+            lt: tx.prevTransactionLt.toString(10)
         },
-        time: tx.time,
+        time: tx.now,
         update: {
-            newHash: tx.update.newHash.toString('base64'),
-            oldHash: tx.update.oldHash.toString('base64'),
+            newHash: tx.stateUpdate.newHash.toString('base64'),
+            oldHash: tx.stateUpdate.oldHash.toString('base64'),
         },
         parsed: {
             seqno,
@@ -270,7 +270,7 @@ function rawTransactionToStoredTransaction(tx: RawTransaction, hash: string, own
             resolvedAddress: addressResolved,
         },
         operation: resolveOperation({
-            account: tx.address || own,
+            account: own,
             amount: amount,
             body: body
         }, isTestnet),
@@ -283,6 +283,10 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Account(account).Transactions(),
         getNextPageParam: (last) => {
+            if (!last) {
+                return null;
+            }
+            
             return {
                 lt: last[last.length - 1].lt,
                 hash: last[last.length - 1].hash,
@@ -308,17 +312,12 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
             }
 
             log(`[txns-query] fetching ${lt}_${hash}`);
-
-            let txs = await client.getAccountTransactions(accountAddr, new BN(lt), Buffer.from(hash, 'base64'));
-            let raw = txs.map(a => ({
-                ...parseTransaction(a.block.workchain, a.tx.beginParse()),
-                hash: a.tx.hash().toString('base64'),
-            }));
+            let txs = await client.getAccountTransactions(accountAddr, BigInt(lt), Buffer.from(hash, 'base64'));
             if (sliceFirst) {
-                raw = raw.slice(1);
+                txs = txs.slice(1);
             }
 
-            let converted = raw.map(r => rawTransactionToStoredTransaction(r, r.hash, accountAddr, isTestnet));
+            let converted = txs.map(r => rawTransactionToStoredTransaction(r.tx, r.tx.hash().toString('base64'), accountAddr, isTestnet));
             log(`[txns-query] fetched ${lt}_${hash}`);
             return converted;
         },

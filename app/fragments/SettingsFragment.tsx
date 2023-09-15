@@ -119,7 +119,7 @@ export const SettingsFragment = fragment(() => {
                         <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
                     </View>
                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    {oldWalletsBalance.gt(new BN(0)) && (
+                    {oldWalletsBalance > 0n && (
                         <>
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />

@@ -12,7 +12,7 @@ import { tonConnectDeviceInfo } from "../tonconnect/config";
 import { ConnectReplyBuilder } from "../tonconnect/ConnectReplyBuilder";
 import { getCurrentAddress } from "../../../storage/appState";
 import { contractFromPublicKey } from "../contractFromPublicKey";
-import { Cell, StateInit } from "ton";
+import { Cell, StateInit } from "@ton/core";
 import { CloudValue } from "../cloud/CloudValue";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { TonConnectBridgeClient } from "../tonconnect/TonConnectBridgeClient";
@@ -43,7 +43,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
             dangerouslyAllowMutability: true
         });
         this.#extensionsSelector = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/tonconnect/extensions',
+            key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }) + '/tonconnect/extensions',
             get: ({ get }) => {
                 let apps = get(this.extensions.atom);
                 let res: {
@@ -535,7 +535,7 @@ export class ConnectProduct extends TonConnectBridgeClient {
             }
 
             const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
-                acc.address.toFriendly({ testOnly: this.engine.isTestnet, urlSafe: true, bounceable: true }),
+                acc.address.toString({ testOnly: this.engine.isTestnet, urlSafe: true, bounceable: true }),
                 walletStateInit,
                 this.engine.isTestnet
             );

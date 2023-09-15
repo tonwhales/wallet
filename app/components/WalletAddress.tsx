@@ -3,7 +3,7 @@ import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, Text
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
 import { useTheme } from '../engine/hooks/useTheme';
@@ -32,7 +32,7 @@ export const WalletAddress = React.memo((props: {
     const navigation = useTypedNavigation();
     // TODO: fix
     // const settings = engine.products.settings;
-    const friendlyAddress = props.address.toFriendly({ testOnly: isTestnet });
+    const friendlyAddress = props.address.toString({ testOnly: isTestnet });
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
@@ -42,12 +42,12 @@ export const WalletAddress = React.memo((props: {
     }, []);
 
     const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: isTestnet }) });
+        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
     const addressLink = useMemo(() => {
         return (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
-            + (props.value ? props.value : props.address.toFriendly({ testOnly: isTestnet }));
+            + (props.value ? props.value : props.address.toString({ testOnly: isTestnet }));
     }, [props.value, props.address]);
 
     const onShare = React.useCallback(() => {
@@ -59,7 +59,7 @@ export const WalletAddress = React.memo((props: {
     }, [addressLink]);
 
     const onCopy = React.useCallback(() => {
-        const text = props.value ? props.value : props.address.toFriendly({ testOnly: isTestnet });
+        const text = props.value ? props.value : props.address.toString({ testOnly: isTestnet });
         copyText(text);
     }, [props.value, props.address]);
 

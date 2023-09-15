@@ -196,9 +196,9 @@ const SignStateLoader = React.memo((props: { url: string, title: string | null, 
                     }}>
                         <Text>
                             {
-                                acc.address.toFriendly({ testOnly: isTestnet }).slice(0, 4)
+                                acc.address.toString({ testOnly: isTestnet }).slice(0, 4)
                                 + '...'
-                                + acc.address.toFriendly({ testOnly: isTestnet }).slice(t.length - 6)
+                                + acc.address.toString({ testOnly: isTestnet }).slice(t.length - 6)
                             }
                         </Text>
                     </Text>

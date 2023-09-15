@@ -1,4 +1,4 @@
-import { beginCell, safeSign } from "ton";
+import { beginCell, safeSign } from "@ton/core";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";

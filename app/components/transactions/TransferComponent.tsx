@@ -3,7 +3,7 @@ import { View, Text, Pressable, Alert } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
-import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
+import { Address, Cell, fromNano } from "@ton/core";
 import { AddressComponent } from "../AddressComponent";
 import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
@@ -20,21 +20,21 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
         message: {
             addr: {
                 address: Address,
-                balance: BN,
+                balance: bigint,
                 active: boolean,
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
         },
         operation: Operation,
-        parsedBody: SupportedMessage | null,
+        parsedBody: any | null,
         known?: KnownWallet,
         spam: boolean,
-        jettonAmount: BN | null,
+        jettonAmount: bigint | null,
         contact?: AddressContact,
         jettonMaster: JettonMasterState | null
     },

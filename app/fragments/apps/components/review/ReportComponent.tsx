@@ -28,7 +28,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
             try {
                 await postExtensionReport(url, {
                     type,
-                    address: address.toFriendly({ testOnly: isTestnet }),
+                    address: address.toString({ testOnly: isTestnet }),
                     comment: {
                         text: report,
                         images: []

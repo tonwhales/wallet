@@ -1,4 +1,4 @@
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { LazyMap } from '../../utils/LazyMap';
 import { FullAccount } from './sync/startAccountFullSync';
 import { LiteAccount } from './sync/startAccountLiteSync';
@@ -68,35 +68,35 @@ export class Model {
     }
 
     wallet(pool: Address) {
-        return this.#wallet.get(pool.toFriendly());
+        return this.#wallet.get(pool.toString());
     }
 
     jettonWallet(address: Address) {
-        return this.#jettonWallet.get(address.toFriendly());
+        return this.#jettonWallet.get(address.toString());
     }
 
     jettonMaster(address: Address) {
-        return this.#jettonMaster.get(address.toFriendly());
+        return this.#jettonMaster.get(address.toString());
     }
 
     staking(pool: Address, member: Address) {
-        return this.#staking.get(pool.toFriendly() + '#' + member.toFriendly());
+        return this.#staking.get(pool.toString() + '#' + member.toString());
     }
 
     plugin(address: Address) {
-        return this.#pluginCache.get(address.toFriendly());
+        return this.#pluginCache.get(address.toString());
     }
 
     metadata(address: Address) {
-        return this.#metadataCache.get(address.toFriendly());
+        return this.#metadataCache.get(address.toString());
     }
 
     accountLite(address: Address) {
-        return this.#liteAccountCache.get(address.toFriendly());
+        return this.#liteAccountCache.get(address.toString());
     }
 
     accountFull(address: Address) {
-        return this.#fullAccountCache.get(address.toFriendly());
+        return this.#fullAccountCache.get(address.toString());
     }
 
     download(key: string) {

@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { Engine } from "../Engine";
 import { Transaction } from "../Transaction";
 import { atom, atomFamily, RecoilState, RecoilValueReadOnly, selector, useRecoilValue, selectorFamily, useRecoilCallback } from "recoil";
@@ -18,7 +18,7 @@ import { storage } from "../../../storage/storage";
 export type JettonState = {
     wallet: Address,
     master: Address,
-    balance: BN,
+    balance: bigint,
     name: string,
     symbol: string,
     description: string,
@@ -65,7 +65,7 @@ export class WalletProduct {
         this.engine = engine;
         this.address = engine.address;
         this.#atom = atom<WalletState | null>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }),
+            key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }),
             default: null,
             dangerouslyAllowMutability: true
         });
@@ -76,7 +76,7 @@ export class WalletProduct {
             if (prevDisabled.length) {
                 this.disabledJettons.update((src) => {
                     for (let m of prevDisabled) {
-                        src.disabled[m.toFriendly({ testOnly: this.engine.isTestnet })] = { reason: 'disabled' };
+                        src.disabled[m.toString({ testOnly: this.engine.isTestnet })] = { reason: 'disabled' };
                     }
                 });
             }
@@ -84,7 +84,7 @@ export class WalletProduct {
         }
 
         this.#jettons = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/jettons',
+            key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }) + '/jettons',
             get: ({ get }) => {
 
                 // Load known jettons
@@ -93,7 +93,7 @@ export class WalletProduct {
                 // Load disabled jeetons
                 let disabledJettons = Object.keys(get(this.disabledJettons.atom).disabled)
                 // Load wallets
-                let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
+                let jettonWallets: { wallet: Address, master: Address, balance: bigint }[] = [];
                 for (let w of knownJettons) {
                     let jw = get(engine.persistence.jettonWallets.item(w).atom);
                     if (jw && jw.master) {
@@ -105,7 +105,7 @@ export class WalletProduct {
                 let jettonWalletsWithMasters: {
                     wallet: Address,
                     master: Address,
-                    balance: BN,
+                    balance: bigint,
                     name: string,
                     symbol: string,
                     description: string,
@@ -136,7 +136,7 @@ export class WalletProduct {
                             }
                         }
 
-                        const disabled = !!disabledJettons.find((m) => m === w.master.toFriendly({ testOnly: this.engine.isTestnet }));
+                        const disabled = !!disabledJettons.find((m) => m === w.master.toString({ testOnly: this.engine.isTestnet }));
 
                         jettonWalletsWithMasters.push({
                             ...w,
@@ -155,9 +155,9 @@ export class WalletProduct {
             dangerouslyAllowMutability: true
         });
         this.#txsAtom = atomFamily<TransactionDescription, string>({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs',
+            key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }) + '/txs',
             default: selectorFamily({
-                key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/txs/default',
+                key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }) + '/txs/default',
                 get: (id) => ({ get }) => {
                     let base = this.#txs.get(id);
                     if (!base) {
@@ -193,7 +193,7 @@ export class WalletProduct {
                     let verified: boolean | null = null;
                     if (
                         !!metadata?.jettonWallet
-                        && !!KnownJettonMasters(this.engine.isTestnet)[metadata.jettonWallet.master.toFriendly({ testOnly: this.engine.isTestnet })]
+                        && !!KnownJettonMasters(this.engine.isTestnet)[metadata.jettonWallet.master.toString({ testOnly: this.engine.isTestnet })]
                     ) {
                         verified = true;
                     }
@@ -301,7 +301,7 @@ export class WalletProduct {
 
         // Plugins
         this.#plugins = selector({
-            key: 'wallet/' + engine.address.toFriendly({ testOnly: this.engine.isTestnet }) + '/plugins',
+            key: 'wallet/' + engine.address.toString({ testOnly: this.engine.isTestnet }) + '/plugins',
             get: ({ get }) => {
                 // Load wallet
                 let wallet = get(engine.persistence.wallets.item(engine.address).atom);
@@ -436,7 +436,7 @@ export class WalletProduct {
 
     getJettons() {
         let knownJettons = this.engine.persistence.knownAccountJettons.item(this.engine.address).value;
-        let jettonWallets: { wallet: Address, master: Address, balance: BN }[] = [];
+        let jettonWallets: { wallet: Address, master: Address, balance: bigint }[] = [];
         for (let w of knownJettons ?? []) {
             let jw = this.engine.persistence.jettonWallets.item(w).value;
             if (jw && jw.master) {
@@ -448,7 +448,7 @@ export class WalletProduct {
         let jettonWalletsWithMasters: {
             wallet: Address,
             master: Address,
-            balance: BN,
+            balance: bigint,
             name: string,
             symbol: string,
             description: string,

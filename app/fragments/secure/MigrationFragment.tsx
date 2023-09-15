@@ -2,7 +2,7 @@ import { BN } from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode, WalletContractType } from 'ton';
+import { SendMode, WalletContractType } from '@ton/core';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -70,11 +70,11 @@ const MigrationProcessFragment = fragment(() => {
                 if (ended) {
                     return;
                 }
-                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: isTestnet })) }));
+                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toString({ testOnly: isTestnet })) }));
 
                 const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
-                if (state.balance.gt(new BN(0))) {
-                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: isTestnet })) }));
+                if (state.balance.gt(BigInt(0))) {
+                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toString({ testOnly: isTestnet })) }));
                     wallet.prepare(0, key.keyPair.publicKey, type);
 
                     // Seqno
@@ -84,7 +84,7 @@ const MigrationProcessFragment = fragment(() => {
                     await backoff('migration', () => wallet.transfer({
                         seqno,
                         to: targetContract.address,
-                        value: new BN(0),
+                        value: BigInt(0),
                         sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE,
                         secretKey: key.keyPair.secretKey,
                         bounce: false
@@ -134,7 +134,7 @@ export const MigrationFragment = systemFragment(() => {
     }, []);
 
     const state = useLegacyWallets();
-    let s = new BN(0);
+    let s = BigInt(0);
     for (let w of state) {
         s = s.add(w.balance);
     }
@@ -207,7 +207,7 @@ export const MigrationFragment = systemFragment(() => {
                         {state.map((v, i) => (
                             <>
                                 {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
-                                <View key={v.address.toFriendly()}
+                                <View key={v.address.toString()}
                                     style={{
                                         flexDirection: 'row',
                                         alignSelf: 'flex-start',
@@ -218,7 +218,7 @@ export const MigrationFragment = systemFragment(() => {
                                     <WalletAddress
                                         address={v.address}
                                         elipsise
-                                        value={v.address.toFriendly({ testOnly: isTestnet })}
+                                        value={v.address.toString({ testOnly: isTestnet })}
                                         style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                     />
                                     <Text>
@@ -231,7 +231,7 @@ export const MigrationFragment = systemFragment(() => {
                     <View style={{ flexGrow: 1 }} />
                 </ScrollView>
                 <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                    <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} display={s.lte(new BN(0)) ? 'secondary' : 'default'} />
+                    <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(BigInt(0))} display={s.lte(BigInt(0)) ? 'secondary' : 'default'} />
                 </View>
                 {Platform.OS === 'ios' && (
                     <CloseButton

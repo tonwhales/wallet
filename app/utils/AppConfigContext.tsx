@@ -4,8 +4,9 @@ import { storage, storagePersistence } from '../storage/storage';
 import { DefaultTheme, Theme as NavigationThemeType } from "@react-navigation/native";
 import { getCurrentAddress, markAddressSecured } from '../storage/appState';
 import { useReboot } from './RebootContext';
-import { createContext, memo, useContext, useMemo, useState } from 'react';
+import { createContext, memo, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
+import { changeNavBarColor } from '../components/modules/NavBar';
 
 export const isTestnetKey = 'isTestnet';
 
@@ -40,6 +41,9 @@ export type ThemeType = {
     transparent: string,
     white: string,
     black: string,
+
+    cardBackground: string,
+    warning: string,
 };
 
 const baseTheme: ThemeType = {
@@ -73,6 +77,9 @@ const baseTheme: ThemeType = {
     transparent: 'transparent',
     white: 'white',
     black: 'black',
+
+    cardBackground: '#181524',
+    warning: '#FF9A50'
 }
 
 const darkTheme: ThemeType = {
@@ -167,6 +174,10 @@ export const AppConfigContextProvider = memo((props: { children: React.ReactNode
         storagePersistence.clearAll();
         reboot();
     };
+
+    useEffect(() => {
+        changeNavBarColor(Theme.surfacePimary);
+    }, [Theme]);
 
     return (
         <AppConfigContext.Provider value={{ AppConfig, setNetwork, Theme, NavigationTheme }}>

@@ -27,11 +27,8 @@ import { StyleSheet, Text, TextInput } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { Root } from './app/Root';
-import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
-
-changeNavBarColor('white');
 
 // Note that it is a bad practice to disable font scaling globally.
 // TODO: extend Text and TextInput components to support or lock font scaling.

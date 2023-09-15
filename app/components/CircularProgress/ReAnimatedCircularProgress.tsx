@@ -1,7 +1,6 @@
-import { StyleProp, View, ViewStyle } from "react-native";
-
+import { StyleProp, ViewStyle } from "react-native";
 import { Svg, Circle } from 'react-native-svg';
-import Animated, { Easing, interpolate, useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedProps, useAnimatedStyle, useSharedValue, withRepeat, withSpring, withTiming } from 'react-native-reanimated';
 import { memo, useEffect } from "react";
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -12,23 +11,25 @@ export const ReAnimatedCircularProgress = memo(({
     strokeWidth,
     color,
     progress,
-    loop,
-    infinitRotate
+    reverse,
+    infinitRotate,
+    backdropColor
 }: {
     size: number,
     style?: StyleProp<ViewStyle>,
     strokeWidth?: number,
     color?: string,
     progress?: number,
-    loop?: boolean,
-    infinitRotate?: boolean
+    reverse?: boolean,
+    infinitRotate?: boolean,
+    backdropColor?: string
 }) => {
     const progressCircle = useSharedValue(progress !== undefined ? (progress - 1) : 1);
     const rotation = useSharedValue(0);
 
     const animatedRotation = useAnimatedStyle(() => {
         return {
-            transform: [{ rotate: `${ rotation.value * 360}deg` }],
+            transform: [{ rotate: `${rotation.value * 360}deg` }],
         }
     }, []);
 
@@ -39,7 +40,7 @@ export const ReAnimatedCircularProgress = memo(({
         strokeDashoffset: Circle_Length * progressCircle.value,
     }));
 
-    const animateLoop = () => {
+    const animateReverse = () => {
         'worklet'
         progressCircle.value = withRepeat(
             withTiming(0, { duration: 2000, easing: Easing.bezier(0.25, 1, 0.5, 1) }),
@@ -49,8 +50,8 @@ export const ReAnimatedCircularProgress = memo(({
     }
 
     useEffect(() => {
-        if (loop && !infinitRotate) {
-            animateLoop();
+        if (reverse && !infinitRotate) {
+            animateReverse();
         }
         if (infinitRotate) {
             rotation.value = withRepeat(
@@ -68,25 +69,37 @@ export const ReAnimatedCircularProgress = memo(({
 
     return (
         <Animated.View style={[{
-            height: size + 4,
-            width: size + 4,
+            height: size + (strokeWidth || 2) + 2,
+            width: size + (strokeWidth || 2) + 2,
             justifyContent: 'center', alignItems: 'center'
         },
             style,
             animatedRotation
         ]}>
             <Svg
-                height={size + 2}
-                width={size + 2}
+                height={size + (strokeWidth || 2)}
+                width={size + (strokeWidth || 2)}
                 style={{
-                    height: size + 2,
-                    width: size + 2,
+                    height: size + (strokeWidth || 2),
+                    width: size + (strokeWidth || 2),
                     justifyContent: 'center', alignItems: 'center'
                 }}
             >
+                {backdropColor && (
+                    <Circle
+                        cx={(size + (strokeWidth || 1.5)) / 2}
+                        cy={(size + (strokeWidth || 1.5)) / 2}
+                        r={Radius}
+                        stroke={backdropColor}
+                        strokeWidth={strokeWidth ?? 1.5}
+                        fill={"transparent"}
+                        strokeDasharray={Circle_Length}
+                        strokeLinecap="round"
+                    />
+                )}
                 <AnimatedCircle
-                    cx={size / 2 + 1}
-                    cy={size / 2 + 1}
+                    cx={(size + (strokeWidth || 1.5)) / 2}
+                    cy={(size + (strokeWidth || 1.5)) / 2}
                     r={Radius}
                     stroke={color ?? "#82CD47"}
                     strokeWidth={strokeWidth ?? 1.5}

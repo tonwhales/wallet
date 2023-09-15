@@ -153,7 +153,7 @@ export const LedgerWalletHeader = memo(() => {
                             <ReAnimatedCircularProgress
                                 size={14}
                                 color={Theme.white}
-                                loop
+                                reverse
                                 infinitRotate
                                 progress={0.8}
                             />

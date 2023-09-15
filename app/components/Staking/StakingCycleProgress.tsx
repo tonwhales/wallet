@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { StyleProp, ViewStyle } from "react-native"
+import { StyleProp, View, ViewStyle } from "react-native"
 import { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import CircularProgress from "../CircularProgress/CircularProgress";
@@ -39,33 +39,12 @@ export const StakingCycleProgress = React.memo((
     }, [progress]);
 
     return (
-        // <CircularProgress
-        //     style={{
-        //         transform: [{ rotate: '-90deg' }],
-        //         marginRight: 4
-        //     }}
-        //     progress={progress}
-        //     animateFromValue={0}
-        //     duration={500}
-        //     size={64}
-        //     width={8}
-        //     backgroundColor={Theme.divider}
-        //     color={'#AAA5F0'}
-        //     fullColor={null}
-        //     loop={false}
-        //     containerColor={Theme.transparent}
-        // />
         <ReAnimatedCircularProgress
-            size={30}
-            // strokeWidth={8}
-            // color={Theme.divider}
+            size={64}
             color={'#AAA5F0'}
-            // progress={progress}
-            // loop={false}
-            // style={{
-            //     transform: [{ rotate: '-90deg' }],
-            //     marginRight: 4
-            // }}
+            strokeWidth={8}
+            progress={(progress / 100) - 0.05}
+            backdropColor={Theme.divider}
         />
     );
 })

@@ -126,7 +126,7 @@ export const WalletHeader = memo(() => {
                                 <ReAnimatedCircularProgress
                                     size={14}
                                     color={Theme.textThird}
-                                    loop
+                                    reverse
                                     infinitRotate
                                     progress={0.8}
                                 />

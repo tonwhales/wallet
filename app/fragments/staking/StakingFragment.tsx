@@ -26,7 +26,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 
 import GraphIcon from '@assets/ic_graph.svg';
-import InfoIcon from '@assets/ic-info-accent.svg';
+import InfoIcon from '@assets/ic-info-staking.svg';
 import BN from "bn.js";
 
 export const StakingFragment = fragment(() => {
@@ -122,14 +122,9 @@ export const StakingFragment = fragment(() => {
         });
     }, [targetPool]);
 
-    const openMoreInfo = useCallback(
-        () => {
-            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
-        },
-        [],
-    );
-
+    const openMoreInfo = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
+    const openPoolSelector = useCallback(() => navigation.navigate('StakingPoolsSelector'), []);
 
     useFocusEffect(() => {
         setTimeout(() => {
@@ -157,11 +152,10 @@ export const StakingFragment = fragment(() => {
                     </Pressable>
                 }
                 titleComponent={
-                    <Pressable style={{
-                        alignItems: 'center', backgroundColor: Theme.border,
-                        paddingHorizontal: 16, paddingVertical: 8, borderRadius: 32,
-                        maxWidth: '70%'
-                    }}>
+                    <Pressable
+                        style={({ pressed }) => ({ alignItems: 'center', maxWidth: '70%', opacity: pressed ? 0.5 : 1 })}
+                        onPress={openPoolSelector}
+                    >
                         <Text style={{
                             fontSize: 17, lineHeight: 24,
                             color: Theme.textPrimary,
@@ -180,19 +174,17 @@ export const StakingFragment = fragment(() => {
                         : undefined,
                     paddingHorizontal: 16,
                 }}
-                contentInset={{ top: isLedger ? 44 + 16 : 0 }}
+                contentInset={{ top: isLedger ? 44 + 16 : 0, bottom: safeArea.bottom + 112 }}
                 scrollEventThrottle={16}
             >
                 <View
-                    style={[
-                        {
-                            marginVertical: 16,
-                            backgroundColor: Theme.backgroundUnchangeable,
-                            borderRadius: 20,
-                            paddingHorizontal: 20, paddingVertical: 16,
-                            overflow: 'hidden'
-                        }
-                    ]}
+                    style={{
+                        marginVertical: 16,
+                        backgroundColor: Theme.cardBackground,
+                        borderRadius: 20,
+                        paddingHorizontal: 20, paddingVertical: 16,
+                        overflow: 'hidden'
+                    }}
                     collapsable={false}
                 >
                     <Text
@@ -246,11 +238,13 @@ export const StakingFragment = fragment(() => {
                             <PriceComponent
                                 amount={member?.balance || new BN(0)}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                textStyle={{ color: Theme.textThird }}
                             />
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                                textStyle={{ color: Theme.textThird }}
                             />
                         </Pressable>
                     </View>
@@ -324,19 +318,17 @@ export const StakingFragment = fragment(() => {
                                     .add(member?.withdraw || new BN(0))
                                     .eq(new BN(0))
                             }
-                            style={({ pressed }) => {
-                                return {
-                                    opacity:
-                                        ((member?.balance || new BN(0))
-                                            .add(member?.pendingWithdraw || new BN(0))
-                                            .add(member?.withdraw || new BN(0))
-                                            .eq(new BN(0))
-                                            || pressed
-                                        ) ? 0.5 : 1,
-                                    borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 4
-                                }
-                            }}
+                            style={({ pressed }) => ({
+                                opacity:
+                                    ((member?.balance || new BN(0))
+                                        .add(member?.pendingWithdraw || new BN(0))
+                                        .add(member?.withdraw || new BN(0))
+                                        .eq(new BN(0))
+                                        || pressed
+                                    ) ? 0.5 : 1,
+                                borderRadius: 14, flex: 1, paddingVertical: 10,
+                                marginHorizontal: 4
+                            })}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                 <View style={{
@@ -362,16 +354,12 @@ export const StakingFragment = fragment(() => {
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
                         <Pressable
-                            onPress={() => {
-                                navigation.navigateStakingCalculator({ target: targetPool })
-                            }}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 4
-                                }
-                            }}
+                            onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                            style={({ pressed }) => ({
+                                opacity: pressed ? 0.5 : 1,
+                                borderRadius: 14, flex: 1, paddingVertical: 10,
+                                marginHorizontal: 4
+                            })}
                         >
                             <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                 <View style={{
@@ -398,19 +386,16 @@ export const StakingFragment = fragment(() => {
                 </View>
                 <StakingPendingComponent
                     target={targetPool}
-                    params={poolParams}
                     member={member}
                 />
-                {pool && (
+                {!!pool && (
                     <StakingCycle
                         stakeUntil={pool.params.stakeUntil}
                         locked={pool.params.locked}
-                        style={{
-                            marginBottom: 14
-                        }}
+                        style={{ marginBottom: 16 }}
                     />
                 )}
-                {type !== 'nominators' && !available && (
+                {(type !== 'nominators' && !available) && (
                     <RestrictedPoolBanner type={type} />
                 )}
             </Animated.ScrollView >

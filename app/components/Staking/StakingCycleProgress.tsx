@@ -3,6 +3,7 @@ import { StyleProp, ViewStyle } from "react-native"
 import { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import CircularProgress from "../CircularProgress/CircularProgress";
+import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 
 export const StakingCycleProgress = React.memo((
     {
@@ -38,21 +39,33 @@ export const StakingCycleProgress = React.memo((
     }, [progress]);
 
     return (
-        <CircularProgress
-            style={{
-                transform: [{ rotate: '-90deg' }],
-                marginRight: 4
-            }}
-            progress={progress}
-            animateFromValue={0}
-            duration={500}
-            size={64}
-            width={8}
-            backgroundColor={Theme.divider}
+        // <CircularProgress
+        //     style={{
+        //         transform: [{ rotate: '-90deg' }],
+        //         marginRight: 4
+        //     }}
+        //     progress={progress}
+        //     animateFromValue={0}
+        //     duration={500}
+        //     size={64}
+        //     width={8}
+        //     backgroundColor={Theme.divider}
+        //     color={'#AAA5F0'}
+        //     fullColor={null}
+        //     loop={false}
+        //     containerColor={Theme.transparent}
+        // />
+        <ReAnimatedCircularProgress
+            size={30}
+            // strokeWidth={8}
+            // color={Theme.divider}
             color={'#AAA5F0'}
-            fullColor={null}
-            loop={false}
-            containerColor={Theme.transparent}
+            // progress={progress}
+            // loop={false}
+            // style={{
+            //     transform: [{ rotate: '-90deg' }],
+            //     marginRight: 4
+            // }}
         />
     );
 })

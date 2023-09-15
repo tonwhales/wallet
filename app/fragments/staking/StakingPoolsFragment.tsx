@@ -1,10 +1,10 @@
 import React, { ReactElement, useCallback, useLayoutEffect, useMemo } from "react";
-import { View, ScrollView, ActivityIndicator, Alert } from "react-native";
+import { View, ScrollView, ActivityIndicator } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { KnownPools } from "../../utils/KnownPools";
-import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { Address } from "ton";
 import BN from "bn.js";
@@ -66,6 +66,18 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
+    const poolViewStyle = {
+        borderRadius: 20,
+        backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.border,
+        marginBottom: 20
+    };
+
+    const poolItemsStyle = {
+        backgroundColor: Theme.style === 'dark' ? Theme.surfaceSecondary : Theme.surfacePimary,
+        marginHorizontal: 4, marginBottom: 4,
+        borderRadius: 20
+    }
+
     if (poolsWithStake.length > 0) {
         const active: ReactElement[] = [];
         for (let p of poolsWithStake) {
@@ -82,16 +94,12 @@ export const StakingPoolsFragment = fragment(() => {
         }
 
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'active-header'}
                     text={t('products.staking.pools.active')}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {active}
                 </View>
             </View>
@@ -113,16 +121,12 @@ export const StakingPoolsFragment = fragment(() => {
             />
         );
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'best-header'}
                     text={t('products.staking.pools.best')}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {rec}
                 </View>
             </View>
@@ -151,7 +155,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'epn-header'}
                     text={t('products.staking.pools.epnPartners')}
@@ -161,11 +165,7 @@ export const StakingPoolsFragment = fragment(() => {
                         onAction: onEPNMore
                     }}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {epnItems}
                 </View>
             </View>
@@ -187,17 +187,13 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'nomanators-header'}
                     text={t('products.staking.pools.nominators')}
                     description={t('products.staking.pools.nominatorsDescription')}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {nominatorsItems}
                 </View>
             </View>
@@ -218,7 +214,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'club-header'}
                     text={t('products.staking.pools.club')}
@@ -228,11 +224,7 @@ export const StakingPoolsFragment = fragment(() => {
                         onAction: onJoinClub
                     }}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {clubItems}
                 </View>
             </View>
@@ -254,17 +246,13 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'lockups-header'}
                     text={t('products.staking.pools.lockups')}
                     description={t('products.staking.pools.lockupsDescription')}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {lockupsItems}
                 </View>
             </View>
@@ -285,7 +273,7 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'team-header'}
                     text={t('products.staking.pools.team')}
@@ -295,11 +283,7 @@ export const StakingPoolsFragment = fragment(() => {
                         onAction: onJoinTeam
                     }}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {teamItems}
                 </View>
             </View>
@@ -320,17 +304,13 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={{ borderRadius: 20, backgroundColor: Theme.border, marginBottom: 20 }}>
+            <View style={poolViewStyle}>
                 <StakingPoolsHeader
                     key={'tonkeeper-header'}
                     text={t('products.staking.pools.tonkeeper')}
                     description={t('products.staking.pools.tonkeeperDescription')}
                 />
-                <View style={{
-                    backgroundColor: Theme.surfaceSecondary,
-                    marginHorizontal: 4, marginBottom: 4,
-                    borderRadius: 20
-                }}>
+                <View style={poolItemsStyle}>
                     {keeperItems}
                 </View>
             </View>
@@ -359,17 +339,9 @@ export const StakingPoolsFragment = fragment(() => {
             <StatusBar style={'dark'} />
             <ScrollView
                 alwaysBounceVertical={false}
-                style={{
-                    flexShrink: 1,
-                    flexGrow: 1,
-                }}
-                contentContainerStyle={{
-                    paddingTop: 8,
-                    paddingHorizontal: 16
-                }}
-                contentInset={{
-                    bottom: 24,
-                }}
+                style={{ flexShrink: 1, flexGrow: 1 }}
+                contentContainerStyle={{ paddingTop: 8, paddingHorizontal: 16 }}
+                contentInset={{ bottom: 24 }}
             >
                 <View style={{ flexGrow: 1 }}>
                     {items}

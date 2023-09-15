@@ -45,6 +45,7 @@ export const HoldersCardTransactions = memo(({ id }: { id: string }) => {
                         notification={item}
                     />
                 )}
+                onEndReachedThreshold={0.5}
                 refreshing={loading}
                 renderSectionHeader={({ section: { title } }) => (
                     <View style={{ width: '100%', paddingHorizontal: 16, paddingVertical: 8 }}>

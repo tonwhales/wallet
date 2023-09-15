@@ -8,7 +8,6 @@ import { AppConfigContextProvider } from './utils/AppConfigContext';
 import { AppStateManagerLoader } from './engine/AppStateManager';
 import { LedgerTransportProvider } from './fragments/ledger/components/LedgerTransportProvider';
 import { memo, useCallback, useState } from 'react';
-import { SharedPersistence } from './engine/SharedPersistence';
 import { SharedPersistenceLoader } from './engine/persistence/SharedResistenceLoader';
 
 export const Root = memo(() => {

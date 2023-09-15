@@ -416,6 +416,8 @@ export type LocalizationSchema = {
                 cooldownActive: string,
                 cooldownInactive: string,
                 cooldownDescription: string,
+                cooldownAlert: string,
+                lockedAlert: string
             },
             minAmountWarning: string,
             tryAgainLater: string,

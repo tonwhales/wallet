@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableHighlight } from "react-native";
 import Animated, { SensorType, useAnimatedSensor, useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,16 +8,15 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { StakingCycle } from "../../components/Staking/StakingCycle";
-import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
+import { StakingCycle } from "../../components/staking/StakingCycle";
+import { StakingPendingComponent } from "../../components/staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
+import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
-import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
@@ -28,11 +27,13 @@ import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import GraphIcon from '@assets/ic_graph.svg';
 import InfoIcon from '@assets/ic-info-staking.svg';
 import BN from "bn.js";
+import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const safeArea = useSafeAreaInsets();
-    const params = useParams<{ backToHome?: boolean, pool: string }>();
+    const initParams = useParams<{ backToHome?: boolean, pool: string }>();
+    const [params, setParams] = useState(initParams);
     const navigation = useTypedNavigation();
     const route = useRoute();
     const engine = useEngine();
@@ -140,13 +141,11 @@ export const StakingFragment = fragment(() => {
                 rightButton={
                     <Pressable
                         onPress={openMoreInfo}
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                                position: 'absolute',
-                                bottom: 12, right: 16
-                            }
-                        }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1,
+                            position: 'absolute',
+                            bottom: 12, right: 16
+                        })}
                     >
                         <InfoIcon height={26} width={26} style={{ height: 26, width: 26 }} />
                     </Pressable>
@@ -270,7 +269,7 @@ export const StakingFragment = fragment(() => {
                 <View
                     style={{
                         flexDirection: 'row',
-                        backgroundColor: Theme.border,
+                        backgroundColor: Theme.surfaceSecondary,
                         borderRadius: 20,
                         marginBottom: 16, marginTop: 32
                     }}
@@ -398,6 +397,10 @@ export const StakingFragment = fragment(() => {
                 {(type !== 'nominators' && !available) && (
                     <RestrictedPoolBanner type={type} />
                 )}
+                {AppConfig.isTestnet && (
+                    <RestrictedPoolBanner type={'team'} />
+                )}
+                <StakingAnalyticsComponent pool={targetPool} />
             </Animated.ScrollView >
         </View>
     );

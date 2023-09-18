@@ -69,7 +69,7 @@ const baseTheme: ThemeType = {
 
     divider: '#E4E6EA',
     border: '#F7F8F9',
-    overlay: 'rgba(0, 0, 0, 0.60)',
+    overlay: 'rgba(0, 0, 0, 0.6)',
 
     ton: '#0098EA',
     telegram: '#59ADE7',
@@ -96,11 +96,11 @@ const darkTheme: ThemeType = {
     accentPrimaryDisabledViolet: '#7F7BBB',
 
     textPrimary: '#FFFFFF',
-    textSecondary: '#A6A6A8',
+    textSecondary: '#9398A1',
 
-    iconPrimary: '#AAB4BF',
+    iconPrimary: '#828B96',
 
-    divider: '#2C2C2D',
+    divider: '#444446',
 
     border: '#1C1C1E',
 }

@@ -117,15 +117,16 @@ export const initialNavigationTheme: NavigationThemeType = {
 
 export const initialAppConfig = {
     version: Application.nativeApplicationVersion,
-    isTestnet: (
-        Application.applicationId === 'com.tonhub.app.testnet' ||
-        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
-        Application.applicationId === 'com.tonhub.wallet.testnet' ||
-        Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
-        Application.applicationId === 'com.sandbox.app.zenpay.demo' ||
-        Application.applicationId === 'com.sandbox.app.zenpay.demo.debug' ||
-        storage.getBoolean(isTestnetKey) === true
-    ),
+    isTestnet: (storage.getBoolean(isTestnetKey) !== undefined)
+        ? storage.getBoolean(isTestnetKey) === true
+        : (
+            Application.applicationId === 'com.tonhub.app.testnet' ||
+            Application.applicationId === 'com.tonhub.app.debug.testnet' ||
+            Application.applicationId === 'com.tonhub.wallet.testnet' ||
+            Application.applicationId === 'com.tonhub.wallet.testnet.debug' ||
+            Application.applicationId === 'com.sandbox.app.zenpay.demo' ||
+            Application.applicationId === 'com.sandbox.app.zenpay.demo.debug'
+        ),
 };
 
 export const AppConfigContext = createContext<{
@@ -171,8 +172,7 @@ export const AppConfigContextProvider = memo((props: { children: React.ReactNode
             ...AppConfig,
             isTestnet,
         });
-        storagePersistence.clearAll();
-        reboot();
+        // reboot();
     };
 
     useEffect(() => {

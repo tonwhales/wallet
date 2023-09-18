@@ -115,8 +115,12 @@ export const HomeFragment = fragment(() => {
     }, []);
 
     const onBlur = useCallback(() => {
+        // Setting backdrop screens curve to device curve if we are navigating 
+        // to a specefic 'short' modal screen
         const status = navigation.base.getState();
-        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => r.name === 'AccountSelector');
+        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => {
+            return r.name === 'AccountSelector' || r.name === 'StakingPoolSelector';
+        });
         if (selectorOrLogout) {
             const deviceId = DeviceInfo.getDeviceId();
             const dCurve = getDeviceScreenCurve(deviceId);

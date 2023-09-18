@@ -26,7 +26,6 @@ import { setStatusBarStyle } from "expo-status-bar";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import BN from "bn.js";
 
-import GraphIcon from '@assets/ic_graph.svg';
 import InfoIcon from '@assets/ic-info-staking.svg';
 
 export const StakingFragment = fragment(() => {
@@ -124,7 +123,17 @@ export const StakingFragment = fragment(() => {
 
     const openMoreInfo = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [AppConfig.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const openPoolSelector = useCallback(() => navigation.navigate('StakingPoolsSelector'), []);
+    const openPoolSelector = useCallback(() => {
+        navigation.navigate(
+            isLedger ? 'StakingPoolSelectorLedger' : 'StakingPoolSelector',
+            {
+                current: targetPool,
+                callback: (pool: Address) => {
+                    setParams((prev) => ({ ...prev, pool: pool.toFriendly({ testOnly: AppConfig.isTestnet }) }));
+                }
+            },
+        )
+    }, [isLedger, targetPool, setParams]);
 
     useFocusEffect(() => {
         setTimeout(() => {

@@ -17,6 +17,7 @@ import { useParams } from "../../utils/useParams";
 
 import StakingIcon from '@assets/ic_staking.svg';
 import IcCheck from "@assets/ic-check.svg";
+import { useRoute } from "@react-navigation/native";
 
 const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool: Address, onSelect: () => void }) => {
     const { Theme, AppConfig } = useAppConfig();
@@ -109,21 +110,25 @@ const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool:
 export const StakingPoolSelectorFragment = fragment(() => {
     const { Theme } = useAppConfig();
     const dimentions = useWindowDimensions();
-    const params = useParams<{ current: Address, callback: (pool: Address) => void, ledger?: boolean }>();
     const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    
+    const route = useRoute();
+    const isLedger = route.name === 'StakingPoolSelectorLedger';
+    const params = useParams<{ current: Address, callback: (pool: Address) => void }>();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
-        if (!params.ledger || !ledgerContext?.addr?.address) return;
+        if (isLedger || !ledgerContext?.addr?.address) return;
         try {
             return Address.parse(ledgerContext?.addr?.address);
         } catch {
             return;
         }
-    }, [ledgerContext?.addr?.address]);
+    }, [ledgerContext?.addr?.address, isLedger]);
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
+
     const pools = engine.products.whalesStakingPools.useFull().pools;
 
     const activePools = useMemo(() => {

@@ -74,6 +74,7 @@ import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
+import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -175,11 +176,8 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
-    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
@@ -199,6 +197,13 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
+
+    // Staking
+    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
+    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
+    transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
+    transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
 
     // Settings
     genericScreen('Security', SecurityFragment, safeArea),

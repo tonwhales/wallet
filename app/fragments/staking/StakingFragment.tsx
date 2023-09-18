@@ -22,12 +22,12 @@ import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { setStatusBarStyle } from "expo-status-bar";
+import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
+import BN from "bn.js";
 
 import GraphIcon from '@assets/ic_graph.svg';
 import InfoIcon from '@assets/ic-info-staking.svg';
-import BN from "bn.js";
-import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 
 export const StakingFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -51,7 +51,6 @@ export const StakingFragment = fragment(() => {
 
     const targetPool = Address.parse(params.pool);
     const pool = engine.products.whalesStakingPools.usePool(targetPool, ledgerAddress);
-    const poolParams = pool?.params;
     const member = pool?.member;
     const stakingCurrent = engine.products.whalesStakingPools.useStakingCurrent();
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
@@ -123,7 +122,7 @@ export const StakingFragment = fragment(() => {
         });
     }, [targetPool]);
 
-    const openMoreInfo = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), []);
+    const openMoreInfo = useCallback(() => openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [AppConfig.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openPoolSelector = useCallback(() => navigation.navigate('StakingPoolsSelector'), []);
 
@@ -134,7 +133,7 @@ export const StakingFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + (Platform.OS === 'android' ? 208 : 32) }}>
             <ScreenHeader
                 style={{ marginTop: 32 }}
                 onBackPressed={navigation.goBack}
@@ -166,14 +165,12 @@ export const StakingFragment = fragment(() => {
                 }
             />
             <Animated.ScrollView
-                contentContainerStyle={{
-                    flexGrow: 1,
-                    paddingTop: Platform.OS === 'android'
-                        ? safeArea.top + 44
-                        : undefined,
-                    paddingHorizontal: 16,
+                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
+                style={[{ flexGrow: 1 }]}
+                contentInset={{
+                    top: isLedger ? 44 + 16 : 0,
+                    bottom: safeArea.bottom + 54 + 32
                 }}
-                contentInset={{ top: isLedger ? 44 + 16 : 0, bottom: safeArea.bottom + 112 }}
                 scrollEventThrottle={16}
             >
                 <View
@@ -211,12 +208,13 @@ export const StakingFragment = fragment(() => {
                         }}>{' TON'}</Text>
                     </Text>
                     <Animated.View
-                        style={[{
-                            position: 'absolute', top: 0, left: '50%',
-                            marginTop: -20, marginLeft: -20,
-                            height: 400, width: 400,
-                            overflow: 'hidden'
-                        },
+                        style={[
+                            {
+                                position: 'absolute', top: 0, left: '50%',
+                                marginTop: -20, marginLeft: -20,
+                                height: 400, width: 400,
+                                overflow: 'hidden'
+                            },
                             animatedStyle
                         ]}
                         pointerEvents={'none'}
@@ -401,6 +399,7 @@ export const StakingFragment = fragment(() => {
                     <RestrictedPoolBanner type={'team'} />
                 )}
                 <StakingAnalyticsComponent pool={targetPool} />
+                {/* <View style={{ height: 100, width: '100%', backgroundColor: Theme.surfacePimary }} /> */}
             </Animated.ScrollView >
         </View>
     );

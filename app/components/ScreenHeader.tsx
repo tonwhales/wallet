@@ -87,7 +87,7 @@ export const ScreenHeader = React.memo((
             <StatusBar style={statusBarStyle || (Platform.OS === 'ios' ? 'light' : 'dark')} />
             <AndroidToolbar
                 onBack={onBackPressed}
-                style={{ minHeight: 44, marginTop: 16 }}
+                style={{ minHeight: 44 }}
                 pageTitle={title}
                 tintColor={tintColor}
                 textColor={textColor}

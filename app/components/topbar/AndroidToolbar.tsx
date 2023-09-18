@@ -3,6 +3,7 @@ import React, { ReactNode, useMemo } from "react"
 import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const AndroidToolbar = React.memo((props: {
     style?: StyleProp<ViewStyle>,
@@ -14,10 +15,7 @@ export const AndroidToolbar = React.memo((props: {
     rightButton?: ReactNode,
     leftButton?: ReactNode,
 }) => {
-    if (Platform.OS === 'ios') {
-        return null;
-    }
-
+    const safeArea = useSafeAreaInsets();
     const { Theme } = useAppConfig();
     const navigation = useNavigation();
 
@@ -47,14 +45,18 @@ export const AndroidToolbar = React.memo((props: {
         return props.rightButton ? props.rightButton : null;
     }, [props.rightButton]);
 
+    if (Platform.OS === 'ios') {
+        return null;
+    }
+
     return (
         <View style={[
             {
-                height: 56,
                 flexDirection: 'row',
-                padding: 16,
+                paddingHorizontal: 16,
                 alignItems: 'center',
                 width: '100%',
+                marginTop: safeArea.top
             },
             props.style
         ]}>

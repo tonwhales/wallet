@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useMemo } from "react"
+import React, { ReactNode, useMemo } from "react"
 import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 import { useAppConfig } from "../../utils/AppConfigContext";
@@ -10,9 +10,9 @@ export const AndroidToolbar = React.memo((props: {
     onBack?: () => void,
     textColor?: string,
     tintColor?: string,
-    titleComponent?: React.ReactNode,
-    rightButton?: React.ReactNode,
-    leftButton?: React.ReactNode,
+    titleComponent?: ReactNode,
+    rightButton?: ReactNode,
+    leftButton?: ReactNode,
 }) => {
     if (Platform.OS === 'ios') {
         return null;
@@ -59,28 +59,30 @@ export const AndroidToolbar = React.memo((props: {
             props.style
         ]}>
             {leftButton}
-            {!!props.pageTitle && !props.titleComponent && (
-                <Text
-                    style={{
-                        alignItems: 'center',
-                        fontSize: 22, color: props.textColor ?? Theme.textPrimary, fontWeight: '700',
-                        flexGrow: 1,
-                        marginLeft: 32,
-                        height: 56,
-                        includeFontPadding: false,
-                        textAlignVertical: 'center',
-                    }}
-                    numberOfLines={1}
-                    ellipsizeMode={"tail"}
-                >
-                    {props.pageTitle}
-                </Text>
-            )}
-            {!!props.titleComponent && (
-                <View style={{ marginLeft: 8 }}>
-                    {props.titleComponent}
-                </View>
-            )}
+            {props.titleComponent
+                ? (
+                    <View style={{ marginLeft: 32 }}>
+                        {props.titleComponent}
+                    </View>
+                )
+                : (!!props.pageTitle &&
+                    <Text
+                        style={{
+                            alignItems: 'center',
+                            fontSize: 22, color: props.textColor ?? Theme.textPrimary, fontWeight: '700',
+                            flexGrow: 1,
+                            marginLeft: 32,
+                            height: 56,
+                            includeFontPadding: false,
+                            textAlignVertical: 'center',
+                        }}
+                        numberOfLines={1}
+                        ellipsizeMode={"tail"}
+                    >
+                        {props.pageTitle}
+                    </Text>
+                )
+            }
             {rightButton}
         </View>
     );

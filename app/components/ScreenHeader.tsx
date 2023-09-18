@@ -1,5 +1,5 @@
 import { StatusBar, StatusBarStyle } from "expo-status-bar";
-import React, { useEffect } from "react"
+import React, { ReactNode, useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
 import { ThemeType, useAppConfig } from "../utils/AppConfigContext";
@@ -18,8 +18,8 @@ export function useScreenHeader(
         tintColor?: string,
         onBackPressed?: () => void,
         onClosePressed?: () => void,
-        rightButton?: React.ReactNode,
-        leftButton?: React.ReactNode,
+        rightButton?: ReactNode,
+        leftButton?: ReactNode,
     } & NativeStackNavigationOptions
 ) {
     useEffect(() => {

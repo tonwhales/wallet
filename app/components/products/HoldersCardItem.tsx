@@ -174,7 +174,10 @@ export const HoldersCardItem = memo((props: {
                                 <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.textSecondary }}>
                                     {!!props.account && (
                                         <Text style={{ flexShrink: 1 }}>
-                                            {t(`products.zenPay.card.type.${props.account.type}`) + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
+                                            {
+                                                t(`products.zenPay.card.type.${props.account.type}`)
+                                                + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`
+                                            }
                                         </Text>
                                     )}
                                     {!props.account && (
@@ -206,7 +209,7 @@ export const HoldersCardItem = memo((props: {
                     </Swipeable>
                 </Animated.View>
                 {!props.last && (
-                    <View style={{ backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+                    <View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
                 )}
             </Pressable>
         ) : (

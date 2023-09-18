@@ -68,7 +68,7 @@ export const StakingPoolsFragment = fragment(() => {
 
     const poolViewStyle = {
         borderRadius: 20,
-        backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.border,
+        backgroundColor: Theme.border,
         marginBottom: 20
     };
 

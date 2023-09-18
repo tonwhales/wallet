@@ -203,13 +203,7 @@ export const HoldersProductComponent = memo(() => {
                     collapsed={collapsed}
                     items={visibleList}
                     divider={<View style={{ backgroundColor: Theme.surfaceSecondary, marginHorizontal: 16, paddingHorizontal: 20 }}>
-                        <View
-                            style={[
-                                {
-                                    backgroundColor: Theme.style === 'dark' ? Theme.surfacePimary : Theme.divider,
-                                    height: 1,
-                                },
-                            ]}
+                        <View style={{ backgroundColor: Theme.divider, height: 1 }}
                         />
                     </View>}
                     renderItem={(item, index) => {

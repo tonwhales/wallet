@@ -1,5 +1,5 @@
 import { useNavigation } from "@react-navigation/native";
-import React from "react"
+import React, { useMemo } from "react"
 import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
 import { useAppConfig } from "../../utils/AppConfigContext";
@@ -11,6 +11,8 @@ export const AndroidToolbar = React.memo((props: {
     textColor?: string,
     tintColor?: string,
     titleComponent?: React.ReactNode,
+    rightButton?: React.ReactNode,
+    leftButton?: React.ReactNode,
 }) => {
     if (Platform.OS === 'ios') {
         return null;
@@ -19,18 +21,9 @@ export const AndroidToolbar = React.memo((props: {
     const { Theme } = useAppConfig();
     const navigation = useNavigation();
 
-    return (
-        <View style={[
-            {
-                height: 56,
-                flexDirection: 'row',
-                padding: 16,
-                alignItems: 'center',
-                width: '100%',
-            },
-            props.style
-        ]}>
-            {(navigation.canGoBack() || !!props.onBack) && (
+    const leftButton = useMemo(() => {
+        return props.leftButton ? props.leftButton : (
+            (navigation.canGoBack() || !!props.onBack) ? (
                 <TouchableNativeFeedback
                     onPress={() => {
                         if (props.onBack) {
@@ -46,7 +39,26 @@ export const AndroidToolbar = React.memo((props: {
                         <Ionicons name="arrow-back-outline" size={28} color={props.tintColor ?? Theme.accent} />
                     </View>
                 </TouchableNativeFeedback>
-            )}
+            ) : null
+        );
+    }, [props.leftButton]);
+
+    const rightButton = useMemo(() => {
+        return props.rightButton ? props.rightButton : null;
+    }, [props.rightButton]);
+
+    return (
+        <View style={[
+            {
+                height: 56,
+                flexDirection: 'row',
+                padding: 16,
+                alignItems: 'center',
+                width: '100%',
+            },
+            props.style
+        ]}>
+            {leftButton}
             {!!props.pageTitle && !props.titleComponent && (
                 <Text
                     style={{
@@ -64,7 +76,12 @@ export const AndroidToolbar = React.memo((props: {
                     {props.pageTitle}
                 </Text>
             )}
-            {!!props.titleComponent && (props.titleComponent)}
+            {!!props.titleComponent && (
+                <View style={{ marginLeft: 8 }}>
+                    {props.titleComponent}
+                </View>
+            )}
+            {rightButton}
         </View>
     );
 });

@@ -64,6 +64,8 @@ export const JettonProductItem = memo((props: {
         });;
     }, [props.jetton, swiping]);
 
+    console.log({ last: props.last });
+
     return (
         (props.rightAction) ? (
             <Pressable

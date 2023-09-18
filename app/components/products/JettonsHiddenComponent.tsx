@@ -21,10 +21,6 @@ export const JettonsHiddenComponent = memo(() => {
     const hiddenList = engine.products.main.useJettons().filter((j) => j.disabled);
     const [collapsed, setCollapsed] = useState(true);
 
-    if (!AppConfig.isTestnet) {
-        return null;
-    }
-
     if (hiddenList.length === 0) {
         return null;
     }

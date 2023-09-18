@@ -34,8 +34,8 @@ export const JettonsProductComponent = memo(() => {
 
     const collapsedBorderStyle = useAnimatedStyle(() => {
         return {
-            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
-            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
+            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 200 }),
+            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 200 }),
         }
     });
 
@@ -216,7 +216,7 @@ export const JettonsProductComponent = memo(() => {
                             <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
-                                last={index === visibleCount - 1}
+                                last={index === visibleList.length - 2}
                                 rightAction={() => markJettonDisabled(engine, j.master)}
                                 rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             />

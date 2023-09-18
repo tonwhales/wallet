@@ -17,6 +17,7 @@ import IcTokens from '@assets/ic-jettons.svg';
 import IcChevron from '@assets/ic_chevron_down.svg'
 import IcHide from '@assets/ic-hide.svg';
 import IcTonIcon from '@assets/ic_ton_account.svg';
+import IcVerified from '@assets/ic-verified.svg';
 
 export const JettonsProductComponent = memo(() => {
     const engine = useEngine();
@@ -76,8 +77,15 @@ export const JettonsProductComponent = memo(() => {
                 ]}>
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <IcTonIcon width={46} height={46} />
+                        <IcVerified
+                            height={16} width={16}
+                            style={{
+                                height: 16, width: 16,
+                                position: 'absolute', right: -2, bottom: -2,
+                            }}
+                        />
                     </View>
-                    <View style={{ marginLeft: 12, flex: 1 }}>
+                    <View style={{ marginLeft: 12, flexShrink: 1 }}>
                         <Text
                             style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                             ellipsizeMode="tail"
@@ -86,12 +94,11 @@ export const JettonsProductComponent = memo(() => {
                             {'TON'}
                         </Text>
                         <Text
-                            numberOfLines={1} ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
                             style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.textSecondary }}
                         >
-                            <Text style={{ flexShrink: 1, flexGrow: 1 }}>
-                                {'The Open Network'}
-                            </Text>
+                            {'The Open Network'}
                         </Text>
                     </View>
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
@@ -104,13 +111,13 @@ export const JettonsProductComponent = memo(() => {
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
                                 alignSelf: 'flex-end',
-                                height: undefined
+                                height: undefined,
                             }}
                             textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                         />
                     </View>
                 </Animated.View>
-                <View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+                {visibleCount > 1 && (<View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />)}
             </Pressable>
         )
     }, [Theme, balance, onPressIn, onPressOut, animatedStyle, onTonPress, visibleCount]);

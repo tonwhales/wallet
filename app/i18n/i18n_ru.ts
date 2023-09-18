@@ -13,6 +13,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         logout: 'Выйти',
         cancel: 'Отменить',
         balance: 'Баланс',
+        totalBalance: 'Общий баланс',
         walletAddress: 'Адрес кошелька',
         recipientAddress: 'Адрес получателя',
         recipient: 'Получатель',
@@ -67,6 +68,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         ok: 'Ок',
         attention: 'Внимание',
         save: 'Сохранить',
+        assets: 'Активы',
     },
     syncStatus: {
         connecting: 'Идет подключение',

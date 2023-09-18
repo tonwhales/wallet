@@ -14,6 +14,7 @@ export type LocalizationSchema = {
         logout: string,
         cancel: string,
         balance: string,
+        totalBalance: string,
         walletAddress: string,
         recipientAddress: string,
         recipient: string,
@@ -67,7 +68,8 @@ export type LocalizationSchema = {
         recent: string, 
         ok: string,
         attention: string,
-        save: string
+        save: string,
+        assets: string
     },
     syncStatus: {
         connecting: string,

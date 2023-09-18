@@ -17,7 +17,7 @@ import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useA
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
-import { toNano } from 'ton';
+import { fromNano, toNano } from 'ton';
 import BN from 'bn.js';
 import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
 import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
@@ -35,7 +35,29 @@ function WalletComponent(props: { wallet: WalletState | null }) {
     const navigation = useTypedNavigation();
     const address = useMemo(() => getCurrentAddress().address, []);
     const account = props.wallet;
+    const engine = useEngine();
+    const staking = engine.products.whalesStakingPools.useFull();
+    const holdersCards = engine.products.holders.useCards();
+
     const { start, visible } = useCopilot();
+
+    const stakingBalance = useMemo(() => {
+        if (!staking) {
+            return new BN(0);
+        }
+        return staking.total;
+    }, [staking]);
+
+    const balance = useMemo(() => {
+        const accountWithStaking = (account ? account?.balance : new BN(0))
+            .add(stakingBalance || new BN(0));
+
+        const cardsBalance = holdersCards.reduce((acc, card) => {
+            return acc.add(card.balance);
+        }, new BN(0));
+
+        return cardsBalance.add(accountWithStaking);
+    }, [account, stakingBalance, holdersCards]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
@@ -97,13 +119,11 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                 alwaysBounceVertical={true}
             >
                 <View
-                    style={[
-                        {
-                            backgroundColor: Theme.backgroundUnchangeable,
-                            paddingHorizontal: 16,
-                            paddingVertical: 20,
-                        },
-                    ]}
+                    style={{
+                        backgroundColor: Theme.backgroundUnchangeable,
+                        paddingHorizontal: 16,
+                        paddingVertical: 20,
+                    }}
                     collapsable={false}
                 >
                     <View style={{
@@ -118,7 +138,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             fontWeight: '400',
                             marginBottom: 14
                         }}>
-                            {t('common.balance')}
+                            {t('common.totalBalance')}
                         </Text>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <Text style={{
@@ -130,7 +150,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             }}>
                                 <ValueComponent
                                     precision={4}
-                                    value={account?.balance ?? new BN(0)}
+                                    value={balance}
                                     centFontStyle={{ opacity: 0.5 }}
                                 />
                                 <Text style={{
@@ -175,7 +195,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 >
                                     <OnboadingView>
                                         <PriceComponent
-                                            amount={account?.balance ?? new BN(0)}
+                                            amount={balance}
                                             style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                             textStyle={{ color: Theme.textThird }}
                                         />
@@ -231,13 +251,11 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 }}>
                                     <Pressable
                                         onPress={onOpenBuy}
-                                        style={({ pressed }) => {
-                                            return {
-                                                opacity: pressed ? 0.5 : 1,
-                                                borderRadius: 14, flex: 1, paddingVertical: 10,
-                                                marginHorizontal: 20
-                                            }
-                                        }}
+                                        style={({ pressed }) => ({
+                                            opacity: pressed ? 0.5 : 1,
+                                            borderRadius: 14, flex: 1, paddingVertical: 10,
+                                            marginHorizontal: 20
+                                        })}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                             <View style={{

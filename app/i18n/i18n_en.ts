@@ -12,6 +12,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         logout: 'Log Out',
         cancel: 'Cancel',
         balance: 'Balance',
+        totalBalance: 'Total balance',
         walletAddress: 'Wallet address',
         recipientAddress: 'Recipient address',
         recipient: 'Recipient',
@@ -66,6 +67,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         ok: 'OK',
         attention: 'Attention',
         save: 'Save',
+        assets: 'Assets',
     },
     syncStatus: {
         connecting: 'Connecting',

@@ -1,4 +1,4 @@
-import { memo, useEffect, useState } from "react"
+import { ReactNode, memo, useEffect, useState } from "react"
 import { View, ViewStyle } from "react-native";
 import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useAppConfig } from "../../utils/AppConfigContext";
@@ -11,7 +11,8 @@ export const AnimatedChildrenCollapsible = memo(({
     itemHeight = 82,
     showDivider = true,
     dividerStyle,
-    divider
+    divider,
+    additionalFirstItem
 }: {
     collapsed: boolean,
     items: any[],
@@ -19,7 +20,8 @@ export const AnimatedChildrenCollapsible = memo(({
     itemHeight?: number,
     showDivider?: boolean,
     dividerStyle?: StyleProp<ViewStyle>,
-    divider?: any
+    divider?: any,
+    additionalFirstItem?: ReactNode,
 }) => {
     const { Theme } = useAppConfig();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
@@ -34,10 +36,31 @@ export const AnimatedChildrenCollapsible = memo(({
     }, [collapsed, items]);
 
     return (
-        <Animated.View style={[
-            { overflow: 'hidden' },
-            animStyle,
-        ]}>
+        <Animated.View style={[{ overflow: 'hidden' }, animStyle]}>
+            {!!additionalFirstItem && (
+                <Animated.View
+                    key={`collapsible-item-first`}
+                    entering={FadeInUp.delay(10).easing(Easing.cubic).duration(100)}
+                    exiting={FadeOutUp.delay(20).easing(Easing.cubic).duration(100)}
+                    style={{ height: itemHeight }}
+                >
+                    {showDivider && (
+                        divider
+                            ? divider
+                            : <View
+                                style={[
+                                    {
+                                        backgroundColor: Theme.divider,
+                                        height: 1,
+                                        marginHorizontal: 20
+                                    },
+                                    dividerStyle
+                                ]}
+                            />
+                    )}
+                    {additionalFirstItem}
+                </Animated.View>
+            )}
             {itemsToRender.map((item, index) => {
                 return (
                     <Animated.View
@@ -46,7 +69,7 @@ export const AnimatedChildrenCollapsible = memo(({
                         exiting={FadeOutUp.delay(20 * (itemsToRender.length - index)).easing(Easing.cubic).duration(100)}
                         style={{ height: itemHeight }}
                     >
-                        {index === 0 && showDivider && (
+                        {index === 0 && showDivider && !additionalFirstItem && (
                             divider
                                 ? divider
                                 : <View

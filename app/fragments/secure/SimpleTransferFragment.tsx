@@ -36,9 +36,9 @@ import { usePrice } from '../../engine/PriceContext';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 
-import Verified from '@assets/ic-verified.svg';
-import TonIcon from '@assets/ic_ton_account.svg';
-import Chevron from '@assets/ic_chevron_forward.svg';
+import IcVerified from '@assets/ic-verified.svg';
+import IcTonIcon from '@assets/ic_ton_account.svg';
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -709,9 +709,9 @@ export const SimpleTransferFragment = fragment(() => {
                                                     lockLoading
                                                 />
                                             )}
-                                            {!jettonState && (<TonIcon width={46} height={46} />)}
+                                            {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                             {isVerified && (
-                                                <Verified
+                                                <IcVerified
                                                     height={16} width={16}
                                                     style={{
                                                         height: 16, width: 16,
@@ -743,7 +743,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             </Text>
                                         </View>
                                     </View>
-                                    <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                    <IcChevron style={{ height: 16, width: 16 }} height={16} width={16} />
                                 </View>
                             </Pressable>
                         </View>

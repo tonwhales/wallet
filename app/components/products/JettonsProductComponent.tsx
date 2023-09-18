@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { useEngine } from "../../engine/Engine";
 import { JettonProductItem } from "./JettonProductItem";
@@ -7,25 +7,29 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { markJettonDisabled } from "../../engine/sync/ops";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { ValueComponent } from "../ValueComponent";
+import { PriceComponent } from "../PriceComponent";
+import BN from "bn.js";
 
-import Tokens from '@assets/ic-jettons.svg';
-import Chevron from '@assets/ic_chevron_down.svg'
-import Hide from '@assets/ic-hide.svg';
+import IcTokens from '@assets/ic-jettons.svg';
+import IcChevron from '@assets/ic_chevron_down.svg'
+import IcHide from '@assets/ic-hide.svg';
+import IcTonIcon from '@assets/ic_ton_account.svg';
 
-export const JettonsProductComponent = React.memo(() => {
+export const JettonsProductComponent = memo(() => {
     const engine = useEngine();
     const { Theme } = useAppConfig();
+    const navigaiton = useTypedNavigation();
+    const balance = engine.products.main.useAccount()?.balance ?? new BN(0);
 
     const visibleList = engine.products.main.useJettons().filter((j) => !j.disabled);
     const [collapsed, setCollapsed] = useState(true);
 
     const rotation = useSharedValue(0);
 
-    const animatedChevron = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }],
-        }
-    }, []);
+    const animatedChevron = useAnimatedStyle(() => ({ transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }] }), []);
 
     const collapsedBorderStyle = useAnimatedStyle(() => {
         return {
@@ -38,17 +42,84 @@ export const JettonsProductComponent = React.memo(() => {
         rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
     }, [collapsed])
 
-    if (visibleList.length === 0) {
-        return null;
-    }
+    const visibleCount = useMemo(() => {
+        return visibleList.length + 1; // Including main wallet TON balance
+    }, [visibleList.length]);
 
-    if (visibleList.length > 5) {
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+
+    const onTonPress = useCallback(() => {
+        navigaiton.navigate('SimpleTransfer');
+    }, []);
+
+    const tonItem = useMemo(() => {
+        return (
+            <Pressable
+                onPressIn={onPressIn}
+                onPressOut={onPressOut}
+                style={{ flex: 1, paddingHorizontal: 16 }}
+                onPress={onTonPress}
+            >
+                <Animated.View style={[
+                    {
+                        flexDirection: 'row', flexGrow: 1,
+                        alignItems: 'center',
+                        padding: 20,
+                        backgroundColor: Theme.surfaceSecondary,
+                        borderTopLeftRadius: visibleCount > 5 ? 0 : 20,
+                        borderTopRightRadius: visibleCount > 5 ? 0 : 20,
+                        borderBottomLeftRadius: visibleCount === 1 ? 20 : 0,
+                        borderBottomRightRadius: visibleCount === 1 ? 20 : 0,
+                        overflow: 'hidden'
+                    },
+                    animatedStyle
+                ]}>
+                    <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                        <IcTonIcon width={46} height={46} />
+                    </View>
+                    <View style={{ marginLeft: 12, flex: 1 }}>
+                        <Text
+                            style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'TON'}
+                        </Text>
+                        <Text
+                            numberOfLines={1} ellipsizeMode={'tail'}
+                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: Theme.textSecondary }}
+                        >
+                            <Text style={{ flexShrink: 1, flexGrow: 1 }}>
+                                {'The Open Network'}
+                            </Text>
+                        </Text>
+                    </View>
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <Text style={{ color: Theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                            <ValueComponent value={balance} precision={2} />{' TON'}
+                        </Text>
+                        <PriceComponent
+                            amount={balance}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined
+                            }}
+                            textStyle={{ color: Theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                        />
+                    </View>
+                </Animated.View>
+                <View style={{ backgroundColor: Theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+            </Pressable>
+        )
+    }, [Theme, balance, onPressIn, onPressOut, animatedStyle, onTonPress, visibleCount]);
+
+    if (visibleCount > 5) {
         return (
             <View>
                 <Pressable
-                    onPress={() => {
-                        setCollapsed(!collapsed)
-                    }}
+                    onPress={() => setCollapsed(!collapsed)}
                     style={{ marginHorizontal: 16 }}
                 >
                     <Animated.View style={[
@@ -70,7 +141,7 @@ export const JettonsProductComponent = React.memo(() => {
                             justifyContent: 'center', alignItems: 'center',
                             backgroundColor: Theme.accent
                         }}>
-                            <Tokens
+                            <IcTokens
                                 height={32} width={32}
                                 style={{ height: 32, width: 32 }}
                                 color={Theme.white}
@@ -82,10 +153,10 @@ export const JettonsProductComponent = React.memo(() => {
                                 backgroundColor: Theme.accent,
                                 justifyContent: 'center', alignItems: 'center',
                                 borderWidth: 2, borderColor: Theme.white,
-                                paddingHorizontal: visibleList.length > 9 ? 5 : 2.5
+                                paddingHorizontal: visibleCount > 9 ? 5 : 2.5
                             }}>
                                 <Text style={{ fontSize: 10, fontWeight: '500', color: Theme.white }}>
-                                    {visibleList.length}
+                                    {visibleCount}
                                 </Text>
                             </View>
                         </View>
@@ -96,7 +167,7 @@ export const JettonsProductComponent = React.memo(() => {
                                 lineHeight: 24,
                                 color: Theme.textPrimary,
                             }}>
-                                {t('jetton.productButtonTitle', { count: visibleList.length })}
+                                {t('common.assets')}
                             </Text>
                             <Text style={{
                                 fontWeight: '400',
@@ -106,7 +177,7 @@ export const JettonsProductComponent = React.memo(() => {
                             }}
                                 numberOfLines={1}
                             >
-                                {visibleList.map((j, index) => j.name).join(', ')}
+                                {'TON, ' + visibleList.map((j, index) => j.name).join(', ')}
                             </Text>
                         </View>
                         <Animated.View style={[
@@ -119,7 +190,7 @@ export const JettonsProductComponent = React.memo(() => {
                             },
                             animatedChevron
                         ]}>
-                            <Chevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                            <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                         </Animated.View>
                     </Animated.View>
                 </Pressable>
@@ -132,34 +203,34 @@ export const JettonsProductComponent = React.memo(() => {
                             <View style={{ backgroundColor: Theme.divider, height: 1 }} />
                         </View>
                     }
+                    additionalFirstItem={tonItem}
                     renderItem={(j, index) => {
                         return (
                             <JettonProductItem
                                 key={'jt' + j.wallet.toFriendly()}
                                 jetton={j}
-                                last={index === visibleList.length - 1}
+                                last={index === visibleCount - 1}
                                 rightAction={() => markJettonDisabled(engine, j.master)}
-                                rightActionIcon={<Hide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                                single={visibleList.length === 1}
+                                rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             />
                         )
                     }}
                 />
             </View>
-        )
+        );
     }
 
     return (
         <View>
+            {tonItem}
             {visibleList.map((j, index) => {
                 return (
                     <JettonProductItem
                         key={'jt' + j.wallet.toFriendly()}
                         jetton={j}
-                        first={index === 0}
                         last={index === visibleList.length - 1}
                         rightAction={() => markJettonDisabled(engine, j.master)}
-                        rightActionIcon={<Hide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                        rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                         single={visibleList.length === 1}
                     />
                 )

@@ -423,7 +423,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0({{price}})',
                 estimatedEarningsDev: 'Your estimated yearly earnings will decrease',
                 message: 'Are you sure about the unstaking?'
-            }
+            },
+            activePools: 'Active pools',
         },
         zenPay: {
             title: 'Tonhub Bank card',

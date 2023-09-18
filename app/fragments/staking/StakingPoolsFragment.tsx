@@ -41,7 +41,7 @@ export const StakingPoolsFragment = fragment(() => {
         }
     }, [ledgerContext?.addr?.address]);
 
-    const stakingMain = engine.products.whalesStakingPools.useStakingCurrent();
+    const stakingMain = engine.products.whalesStakingPools.useFull();
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
     const staking = isLedger ? ledgerStaking : stakingMain;
 

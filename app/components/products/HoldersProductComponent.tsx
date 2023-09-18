@@ -34,7 +34,7 @@ export const HoldersProductComponent = memo(() => {
         });
     }, [hiddenCards, accounts]);
 
-    const staking = engine.products.whalesStakingPools.useStakingCurrent();
+    const staking = engine.products.whalesStakingPools.useFull();
     const status = engine.products.holders.useStatus();
 
     const [collapsed, setCollapsed] = useState(true);

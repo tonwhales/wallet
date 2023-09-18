@@ -52,7 +52,7 @@ export const StakingFragment = fragment(() => {
     const targetPool = Address.parse(params.pool);
     const pool = engine.products.whalesStakingPools.usePool(targetPool, ledgerAddress);
     const member = pool?.member;
-    const stakingCurrent = engine.products.whalesStakingPools.useStakingCurrent();
+    const stakingCurrent = engine.products.whalesStakingPools.useFull();
     const ledgerStaking = engine.products.whalesStakingPools.useStaking(ledgerAddress);
     const staking = isLedger ? ledgerStaking : stakingCurrent;
 

@@ -107,7 +107,7 @@ export class StakingPoolsProduct {
         });
     }
 
-    useStakingCurrent() {
+    useFull() {
         return useRecoilValue(this.full);
     }
 

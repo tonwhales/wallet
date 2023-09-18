@@ -424,7 +424,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
                 estimatedEarningsDev: "Ваш предполагаемый годовой доход уменьшится",
                 message: "Уверены, что хотите вывести?"
-            }
+            },
+            activePools: 'Активные пулы',
         },
         zenPay: {
             title: 'Tonhub Bank card',
@@ -501,7 +502,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 moreInfo: 'Подробнее о ZenPay Card',
                 buttonSub: 'KYC и выпуск карты занимает ~5 минут'
             }
-        }
+        },
     },
     welcome: {
         title: 'Tonhub',

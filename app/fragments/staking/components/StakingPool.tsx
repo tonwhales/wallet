@@ -11,9 +11,9 @@ import { WImage } from "../../../components/WImage";
 import { openWithInApp } from "../../../utils/openWithInApp";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
+import { Countdown } from "../../../components/Countdown";
 
 import StakingIcon from '@assets/ic_staking.svg';
-import { Countdown } from "../../../components/Countdown";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(

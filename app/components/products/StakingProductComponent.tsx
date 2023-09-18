@@ -43,7 +43,7 @@ export const StakingProductComponent = React.memo(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const engine = useEngine();
-    const staking = engine.products.whalesStakingPools.useStakingCurrent();
+    const staking = engine.products.whalesStakingPools.useFull();
     const cards = engine.products.holders.useCards();
     const showJoin = staking.total.eq(new BN(0));
 

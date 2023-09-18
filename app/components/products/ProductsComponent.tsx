@@ -20,7 +20,7 @@ export const ProductsComponent = memo(() => {
     const engine = useEngine();
     const oldWalletsBalance = engine.products.legacy.useState();
     const cards = engine.products.holders.useCards();
-    const totalStaked = engine.products.whalesStakingPools.useStakingCurrent().total;
+    const totalStaked = engine.products.whalesStakingPools.useFull().total;
 
     // Resolve accounts
     let accounts: ReactElement[] = [];

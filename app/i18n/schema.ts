@@ -425,7 +425,8 @@ export type LocalizationSchema = {
                 estimatedEarnings: string,
                 estimatedEarningsDev: string,
                 message: string
-            }
+            },
+            activePools: string
         },
         zenPay: {
             title: string,

@@ -94,7 +94,10 @@ export const StakingPoolsFragment = fragment(() => {
         }
 
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'active-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'active-header'}
                     text={t('products.staking.pools.active')}
@@ -121,7 +124,10 @@ export const StakingPoolsFragment = fragment(() => {
             />
         );
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'best-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'best-header'}
                     text={t('products.staking.pools.best')}
@@ -155,7 +161,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'epn-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'epn-header'}
                     text={t('products.staking.pools.epnPartners')}
@@ -187,7 +196,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'nominators-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'nomanators-header'}
                     text={t('products.staking.pools.nominators')}
@@ -214,7 +226,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'club-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'club-header'}
                     text={t('products.staking.pools.club')}
@@ -246,7 +261,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'lockups-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'lockups-header'}
                     text={t('products.staking.pools.lockups')}
@@ -273,7 +291,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'team-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'team-header'}
                     text={t('products.staking.pools.team')}
@@ -304,7 +325,10 @@ export const StakingPoolsFragment = fragment(() => {
             );
         }
         items.push(
-            <View style={poolViewStyle}>
+            <View
+                key={'tonkeeper-view'}
+                style={poolViewStyle}
+            >
                 <StakingPoolsHeader
                     key={'tonkeeper-header'}
                     text={t('products.staking.pools.tonkeeper')}

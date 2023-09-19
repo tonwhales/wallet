@@ -63,7 +63,7 @@ export const AndroidToolbar = React.memo((props: {
             {leftButton}
             {props.titleComponent
                 ? (
-                    <View style={{ marginLeft: 32 }}>
+                    <View style={{ marginLeft: 32, maxWidth: '70%' }}>
                         {props.titleComponent}
                     </View>
                 )

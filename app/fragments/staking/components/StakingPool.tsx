@@ -14,6 +14,7 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { Countdown } from "../../../components/Countdown";
 
 import StakingIcon from '@assets/ic_staking.svg';
+import { fetchStakingNominator } from "../../../engine/api/fetchStakingNominator";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
@@ -95,6 +96,20 @@ export const StakingPool = memo((props: {
             clearInterval(timerId);
         };
     }, [stakeUntil]);
+
+    useEffect(() => {
+        (async () => {
+            const infoRes = await fetchStakingNominator({
+                pool: props.address,
+                nominator: props.engine.address,
+                isTestnet: props.engine.isTestnet,
+            });
+
+            if (infoRes) {
+                props.engine.persistence.nominatorInfo.item({ target: props.address, address: props.engine.address }).update(() => infoRes);
+            }
+        })();
+    }, []);
 
     return (
         <Pressable

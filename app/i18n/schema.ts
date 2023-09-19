@@ -428,7 +428,13 @@ export type LocalizationSchema = {
                 estimatedEarningsDev: string,
                 message: string
             },
-            activePools: string
+            activePools: string,
+            analytics: {
+                operations: string,
+                operationsDescription: string,
+                analyticsTitle: string,
+                analyticsSubtitle: string,
+            }
         },
         zenPay: {
             title: string,

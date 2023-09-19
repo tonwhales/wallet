@@ -3,6 +3,7 @@ import { Address, beginCell, Cell, TonClient4, TupleSlice4 } from "ton";
 import { backoff } from "../../utils/time";
 import { Engine } from "../Engine";
 import { startDependentSync } from "./utils/startDependentSync";
+import { fetchStakingNominator } from "../api/fetchStakingNominator";
 
 export type StakingPoolState = {
     lt: BN,
@@ -88,6 +89,7 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
     let key = `${member.toFriendly({ testOnly: engine.isTestnet })}/staking/${pool.toFriendly({ testOnly: engine.isTestnet })}`;
     let lite = engine.persistence.liteAccounts.item(pool);
     let item = engine.persistence.staking.item({ address: pool, target: member });
+    let infoItem = engine.persistence.nominatorInfo.item({ target: pool, address: member });
     let chartItem = engine.persistence.stakingChart.item({ address: pool, target: member });
 
     startDependentSync(key, lite, engine, async (parent) => {
@@ -181,6 +183,18 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             }
         };
         item.update(() => newState);
+
+        const infoRes = await fetchStakingNominator({
+            pool,
+            nominator: member,
+            isTestnet: engine.isTestnet,
+        });
+
+        console.log('fetchStakingNominator', { infoRes });
+
+        if (infoRes) {
+            infoItem.update(() => infoRes);
+        }
 
         if (Date.now() - (chartItem.value?.lastUpdate || 0) < 60 * 60 * 1000) { // syncing every hour
             return;

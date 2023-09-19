@@ -142,7 +142,7 @@ export const StakingFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom + (Platform.OS === 'android' ? 208 : 32) }}>
+        <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 style={{ marginTop: 32 }}
                 onBackPressed={navigation.goBack}
@@ -160,7 +160,10 @@ export const StakingFragment = fragment(() => {
                 }
                 titleComponent={
                     <Pressable
-                        style={({ pressed }) => ({ alignItems: 'center', maxWidth: '70%', opacity: pressed ? 0.5 : 1 })}
+                        style={({ pressed }) => ({
+                            alignItems: 'center',
+                            opacity: pressed ? 0.5 : 1
+                        })}
                         onPress={openPoolSelector}
                     >
                         <Text style={{
@@ -176,10 +179,7 @@ export const StakingFragment = fragment(() => {
             <Animated.ScrollView
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
                 style={[{ flexGrow: 1 }]}
-                contentInset={{
-                    top: isLedger ? 44 + 16 : 0,
-                    bottom: safeArea.bottom + 54 + 32
-                }}
+                // contentInset={{ bottom:  }}
                 scrollEventThrottle={16}
             >
                 <View
@@ -408,7 +408,6 @@ export const StakingFragment = fragment(() => {
                     <RestrictedPoolBanner type={'team'} />
                 )}
                 <StakingAnalyticsComponent pool={targetPool} />
-                {/* <View style={{ height: 100, width: '100%', backgroundColor: Theme.surfacePimary }} /> */}
             </Animated.ScrollView >
         </View>
     );

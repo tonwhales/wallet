@@ -428,6 +428,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: "Уверены, что хотите вывести?"
             },
             activePools: 'Активные пулы',
+            analytics: {
+                operations: 'Операции',
+                operationsDescription: 'Пополнение и вывод',
+                analyticsTitle: 'Аналитика',
+                analyticsSubtitle: 'Общая прибыль',
+            }
         },
         zenPay: {
             title: 'Tonhub Bank card',

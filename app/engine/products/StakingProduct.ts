@@ -5,6 +5,7 @@ import { KnownPools } from "../../utils/KnownPools";
 import { RecoilState, RecoilValueReadOnly, atomFamily, selector, useRecoilValue, selectorFamily } from "recoil";
 import BN from "bn.js";
 import { WalletConfig } from "../api/fetchWalletConfig";
+import { NominatorInfo } from "../api/fetchStakingNominator";
 
 export type StakingState = {
     pools: {
@@ -18,7 +19,7 @@ export type StakingState = {
 export class StakingPoolsProduct {
     readonly engine: Engine;
     readonly pools: Address[] = [];
-    readonly full: RecoilValueReadOnly<StakingState>
+    readonly full: RecoilValueReadOnly<StakingState>;
     readonly byAddress: ((address: string) => RecoilState<StakingState>) | null = null;
     readonly apyAtom;
 
@@ -109,6 +110,10 @@ export class StakingPoolsProduct {
 
     useFull() {
         return useRecoilValue(this.full);
+    }
+
+    useNominatorInfo(pool: Address, nominator: Address) {
+        return useRecoilValue(this.engine.persistence.nominatorInfo.item({ target: pool, address: nominator }).atom);
     }
 
     useStaking(address?: Address) {

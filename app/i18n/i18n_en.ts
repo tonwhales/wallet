@@ -427,6 +427,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'Are you sure about the unstaking?'
             },
             activePools: 'Active pools',
+            analytics: {
+                operations: 'Operations',
+                operationsDescription: 'Top Up and withdraw',
+                analyticsTitle: 'Analytics',
+                analyticsSubtitle: 'Total profit',
+            }
         },
         zenPay: {
             title: 'Tonhub Bank card',

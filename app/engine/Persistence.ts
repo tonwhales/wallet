@@ -35,6 +35,7 @@ import { CardsList as HoldersCardsList, cardsListCodec } from "./api/holders/fet
 import { HoldersOfflineResMap, holdersOfflineAppCodec } from "./api/holders/fetchAppFile";
 import { CardNotification } from "./api/holders/fetchCardsTransactions";
 import { ExtensionStats, extensionStatsCodec } from "./api/reviews";
+import { NominatorInfo, nominatorInfoCodec } from "./api/fetchStakingNominator";
 
 export class Persistence {
 
@@ -48,6 +49,7 @@ export class Persistence {
     readonly prices: PersistedCollection<void, PriceState>;
     readonly apps: PersistedCollection<Address, string>;
     readonly staking: PersistedCollection<{ address: Address, target: Address }, StakingPoolState>;
+    readonly nominatorInfo: PersistedCollection<{ address: Address, target: Address }, NominatorInfo>;
     readonly stakingChart: PersistedCollection<{ address: Address, target: Address }, StakingChart>;
     readonly stakingApy: PersistedCollection<void, StakingAPY>;
     readonly metadata: PersistedCollection<Address, ContractMetadata>;
@@ -113,12 +115,15 @@ export class Persistence {
         this.smartCursors = new PersistedCollection({ storage, namespace: 'cursors', key: keyedAddressKey, codec: t.number, engine });
         this.prices = new PersistedCollection({ storage, namespace: 'prices', key: voidKey, codec: priceCodec, engine });
         this.apps = new PersistedCollection({ storage, namespace: 'apps', key: addressKey, codec: t.string, engine });
-        this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
-        this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
         this.metadata = new PersistedCollection({ storage, namespace: 'metadata', key: addressKey, codec: metadataCodec(engine.isTestnet), engine });
         this.metadataPending = new PersistedCollection({ storage, namespace: 'metadataPending', key: voidKey, codec: codecPendingMetadata, engine });
         this.plugins = new PersistedCollection({ storage, namespace: 'plugins', key: addressKey, codec: pluginStateCodec(engine.isTestnet), engine });
         this.downloads = new PersistedCollection({ storage, namespace: 'downloads', key: stringKey, codec: t.string, engine });
+
+        // Staking
+        this.staking = new PersistedCollection({ storage, namespace: 'staking', key: addressWithTargetKey, codec: stakingPoolStateCodec, engine });
+        this.nominatorInfo = new PersistedCollection({ storage, namespace: 'nominatorInfo', key: addressWithTargetKey, codec: nominatorInfoCodec, engine });
+        this.stakingApy = new PersistedCollection({ storage, namespace: 'stakingApy', key: voidKey, codec: apyCodec, engine });
 
         // Hints
         this.hintState = new PersistedCollection({ storage, namespace: 'hintState', key: addressKey, codec: hintProcessingState, engine });

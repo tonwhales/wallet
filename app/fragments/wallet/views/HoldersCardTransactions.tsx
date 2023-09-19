@@ -45,6 +45,7 @@ export const HoldersCardTransactions = memo(({ id }: { id: string }) => {
                         notification={item}
                     />
                 )}
+                stickySectionHeadersEnabled={false}
                 onEndReachedThreshold={0.5}
                 refreshing={loading}
                 renderSectionHeader={({ section: { title } }) => (

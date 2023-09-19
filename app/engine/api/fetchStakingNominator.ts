@@ -20,9 +20,9 @@ export const nominatorInfoCodec = t.type({
                 profitByTimespan: t.union([c.bignum, t.null])
             }),
             t.type({
-                totalProfit: c.bignum,
-                totalDeposit: c.bignum,
-                totalWithdraw: c.bignum,
+                profitAmount: c.bignum,
+                totalDepositAmount: c.bignum,
+                totalWithdrawAmount: c.bignum,
                 withdraws: t.array(nominatorOperationCodec),
                 deposits: t.array(nominatorOperationCodec),
                 profits: t.array(t.type({

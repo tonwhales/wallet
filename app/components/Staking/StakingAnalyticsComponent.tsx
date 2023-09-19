@@ -16,6 +16,8 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const navigation = useTypedNavigation();
     const nominatorInfo = engine.products.whalesStakingPools.useNominatorInfo(pool, engine.address);
 
+    console.log({ nominatorInfo });
+
     if (!nominatorInfo) {
         return null;
     }
@@ -93,7 +95,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                                 fontSize: 15, lineHeight: 20,
                                 textAlign: 'right'
                             }}
-                            prefix={'+ '}
+                            prefix={'+'}
                             style={{
                                 backgroundColor: 'transparent',
                                 paddingHorizontal: 0, paddingVertical: 0,
@@ -101,7 +103,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                                 paddingLeft: 0,
                                 height: undefined,
                             }}
-                            amount={nominatorInfo.nominator?.totalProfit || new BN(0)}
+                            amount={nominatorInfo.nominator?.profitAmount || new BN(0)}
                         />
                     </View>
                 </View>

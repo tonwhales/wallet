@@ -75,6 +75,7 @@ import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragm
 import { memo, useEffect, useMemo, useState } from 'react';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
+import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -204,6 +205,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
+    modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
 
     // Settings
     genericScreen('Security', SecurityFragment, safeArea),

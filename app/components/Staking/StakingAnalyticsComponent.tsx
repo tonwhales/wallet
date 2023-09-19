@@ -4,18 +4,17 @@ import { useAppConfig } from "../../utils/AppConfigContext";
 import { t } from "../../i18n/t";
 import { Address } from "ton";
 import { useEngine } from "../../engine/Engine";
-import { ValueComponent } from "../ValueComponent";
 import BN from "bn.js";
+import { PriceComponent } from "../PriceComponent";
 
 import IcGrowth from "@assets/ic-growth.svg";
-import { PriceComponent } from "../PriceComponent";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const { Theme } = useAppConfig();
     const engine = useEngine();
+    const navigation = useTypedNavigation();
     const nominatorInfo = engine.products.whalesStakingPools.useNominatorInfo(pool, engine.address);
-
-    console.log(nominatorInfo);
 
     if (!nominatorInfo) {
         return null;
@@ -26,7 +25,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
             <Pressable
                 style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
                 onPress={() => {
-
+                    navigation.navigate('StakingOperations', { pool });
                 }}
             >
                 <View style={{

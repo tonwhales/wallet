@@ -436,7 +436,7 @@ PODS:
     - React-Core
   - react-native-view-shot (3.7.0):
     - React-Core
-  - react-native-webview (11.26.0):
+  - react-native-webview (13.6.0):
     - React-Core
   - React-perflogger (0.71.4)
   - React-RCTActionSheet (0.71.4):
@@ -986,7 +986,7 @@ SPEC CHECKSUMS:
   react-native-segmented-control: 2221962f5073e2e809aa3691e8e410fc10b60578
   react-native-skia: e2cb3443442bf7680e3276dc82cd87c97f96b6f9
   react-native-view-shot: f5507655f122e6b104888a11130f267a427f0d57
-  react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
+  react-native-webview: 669ae162965f629a8d6a4bdd3b99a304d36ef1f2
   React-perflogger: 0bb0522a12e058f6eb69d888bc16f40c16c4b907
   React-RCTActionSheet: bfd675a10f06a18728ea15d82082d48f228a213a
   React-RCTAnimation: 2fa220b2052ec75b733112aca39143d34546a941
@@ -1020,6 +1020,6 @@ SPEC CHECKSUMS:
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
   ZXingObjC: fdbb269f25dd2032da343e06f10224d62f537bdb
 
-PODFILE CHECKSUM: 925bf5ce3319997831958272fd66ab71308b77bb
+PODFILE CHECKSUM: 18e6166928d98f950a8b519dbcec1462f2e68d9a
 
 COCOAPODS: 1.12.1

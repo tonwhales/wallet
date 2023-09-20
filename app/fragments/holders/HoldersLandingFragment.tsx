@@ -20,7 +20,7 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { useFocusEffect } from '@react-navigation/native';
@@ -146,6 +146,7 @@ export const HoldersLandingFragment = fragment(() => {
     }, [onEnroll]);
 
     const onNavigation = useCallback((url: string) => {
+        console.log('Landing onNavigation', { url });
         const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             navigation.goBack();
@@ -160,6 +161,22 @@ export const HoldersLandingFragment = fragment(() => {
 
     const folderPath = `${FileSystem.cacheDirectory}holders`;
     const [offlineRender, setOfflineRender] = useState(0);
+
+    const source = useMemo(() => {
+        const queryParams = new URLSearchParams({
+            lang: lang,
+            currency: currency,
+            theme: 'holders',
+            'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
+            'initial-route': 'about',
+        });
+
+        return {
+            url: `${endpoint}/about?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            initialRoute: `/about?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            queryParams: queryParams.toString(),
+        };
+    }, [Theme, endpoint]);
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
@@ -191,6 +208,8 @@ export const HoldersLandingFragment = fragment(() => {
         }, 10);
     });
 
+    console.log('Landing', { source })
+
     return (
         <View style={{
             flex: 1,
@@ -199,13 +218,14 @@ export const HoldersLandingFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <View style={{ backgroundColor: Theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
-                {useOfflineApp && (
+                {useOfflineApp ? (
                     <OfflineWebView
                         ref={webRef}
                         key={`offline-rendered-${offlineRender}`}
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                        initialRoute={`/about?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`}
+                        initialRoute={source.initialRoute}
+                        queryParams={source.queryParams}
                         style={{
                             backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
@@ -245,58 +265,59 @@ export const HoldersLandingFragment = fragment(() => {
                             )
                         }}
                     />
-                )}
-                {!useOfflineApp && (
-                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                        <WebView
-                            ref={webRef}
-                            source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}` }}
-                            startInLoadingState={true}
-                            style={{
-                                backgroundColor: Theme.surfacePimary,
-                                flexGrow: 1, flexBasis: 0, height: '100%',
-                                alignSelf: 'stretch',
-                                marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
-                            }}
-                            onLoadProgress={(event) => {
-                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                )
+                    : (
+                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                            <WebView
+                                ref={webRef}
+                                source={{ uri: source.url }}
+                                startInLoadingState={true}
+                                style={{
+                                    backgroundColor: Theme.surfacePimary,
+                                    flexGrow: 1, flexBasis: 0, height: '100%',
+                                    alignSelf: 'stretch',
+                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
+                                }}
+                                onLoadEnd={() => {
+                                    setLoaded(true);
+                                    opacity.value = 0;
+                                }}
+                                onLoadProgress={(event) => {
+                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                        // Searching for supported query
+                                        onNavigation(event.nativeEvent.url);
+                                    }
+                                }}
+                                onNavigationStateChange={(event: WebViewNavigation) => {
                                     // Searching for supported query
-                                    onNavigation(event.nativeEvent.url);
-                                }
-                            }}
-                            onNavigationStateChange={(event: WebViewNavigation) => {
-                                // Searching for supported query
-                                onNavigation(event.url);
-                            }}
-                            // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
-                            contentInset={{ top: 0, bottom: 0 }}
-                            autoManageStatusBarEnabled={false}
-                            allowFileAccessFromFileURLs={false}
-                            allowUniversalAccessFromFileURLs={false}
-                            decelerationRate="normal"
-                            allowsInlineMediaPlayback={true}
-                            onMessage={handleWebViewMessage}
-                            keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                            bounces={false}
-                            renderError={(errorDomain, errorCode, errorDesc) => {
-                                return (
-                                    <WebViewErrorComponent
-                                        onReload={onContentProcessDidTerminate}
-                                        errorDomain={errorDomain}
-                                        errorCode={errorCode}
-                                        errorDesc={errorDesc}
-                                    />
-                                )
-                            }}
-                        />
-                    </Animated.View>
-                )}
+                                    onNavigation(event.url);
+                                }}
+                                // Locking scroll, it's handled within the Web App
+                                scrollEnabled={false}
+                                contentInset={{ top: 0, bottom: 0 }}
+                                autoManageStatusBarEnabled={false}
+                                allowFileAccessFromFileURLs={false}
+                                allowUniversalAccessFromFileURLs={false}
+                                decelerationRate="normal"
+                                allowsInlineMediaPlayback={true}
+                                onMessage={handleWebViewMessage}
+                                keyboardDisplayRequiresUserAction={false}
+                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                                bounces={false}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
+                            />
+                        </Animated.View>
+                    )
+                }
                 {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}

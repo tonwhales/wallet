@@ -286,6 +286,15 @@ export const DeveloperToolsFragment = fragment(() => {
                                     }}
                                 />
                                 <RoundButton
+                                    title={'Default URL'}
+                                    onPress={() => {
+                                        storage.set('zenpay-app-url', 'https://next.zenpay.org');
+                                        Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
+                                    }}
+                                    display={'default'}
+                                    style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
+                                />
+                                <RoundButton
                                     title={'Apply URL'}
                                     onPress={() => {
                                         storage.set('zenpay-app-url', holdersAppUrl);

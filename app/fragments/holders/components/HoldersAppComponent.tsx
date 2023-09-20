@@ -236,7 +236,7 @@ export const HoldersAppComponent = React.memo((
             theme: 'holders',
             'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
             'initial-route': route,
-        })
+        });
 
         return {
             url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
@@ -432,6 +432,7 @@ export const HoldersAppComponent = React.memo((
     }, []);
 
     const onNavigation = useCallback((url: string) => {
+        console.log('App onNavigation', { url });
         const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
@@ -487,6 +488,8 @@ export const HoldersAppComponent = React.memo((
             setOfflineRender(offlineRender + 1);
         }
     }, [useOfflineApp, offlineRender]);
+
+    console.log('App', { source })
 
     return (
         <>

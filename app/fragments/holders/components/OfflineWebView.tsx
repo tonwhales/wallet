@@ -50,8 +50,6 @@ export const OfflineWebView = memo(forwardRef((
         return props.uri;
     }, [props.uri, props.queryParams]);
 
-    console.log('uri', uri);
-
     return (
         <>
             {Platform.OS === 'android' && (

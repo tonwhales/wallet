@@ -432,7 +432,6 @@ export const HoldersAppComponent = React.memo((
     }, []);
 
     const onNavigation = useCallback((url: string) => {
-        console.log('onNavigation', url);
         const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
@@ -488,8 +487,6 @@ export const HoldersAppComponent = React.memo((
             setOfflineRender(offlineRender + 1);
         }
     }, [useOfflineApp, offlineRender]);
-
-    console.log('source', { source });
 
     return (
         <>

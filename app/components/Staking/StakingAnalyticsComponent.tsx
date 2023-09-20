@@ -16,8 +16,6 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const navigation = useTypedNavigation();
     const nominatorInfo = engine.products.whalesStakingPools.useNominatorInfo(pool, engine.address);
 
-    console.log({ nominatorInfo });
-
     if (!nominatorInfo) {
         return null;
     }

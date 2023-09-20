@@ -172,7 +172,6 @@ export const AppConfigContextProvider = memo((props: { children: React.ReactNode
             ...AppConfig,
             isTestnet,
         });
-        // reboot();
     };
 
     useEffect(() => {

@@ -1,9 +1,6 @@
-import React, { useState } from "react";
+import React, { ForwardedRef, forwardRef, memo, useImperativeHandle, useMemo, useRef, useState } from "react";
 import { Platform } from "react-native";
 import WebView, { WebViewProps } from "react-native-webview";
-import * as FileSystem from 'expo-file-system';
-import { OfflineErrorComponent } from "./OfflineErrorComponent";
-import { normalizePath } from "../../../engine/holders/HoldersProduct";
 
 export type AWebViewRef = {
     injectJavaScript: (script: string) => void;
@@ -11,17 +8,18 @@ export type AWebViewRef = {
     goBack: () => void;
 }
 
-export const OfflineWebView = React.memo(React.forwardRef((
+export const OfflineWebView = memo(forwardRef((
     props: Omit<WebViewProps, "source">
         & {
             uri: string,
             baseUrl: string,
-            initialRoute?: string
+            initialRoute?: string,
+            queryParams?: string,
         },
-    ref: React.ForwardedRef<AWebViewRef>
+    ref: ForwardedRef<AWebViewRef>
 ) => {
-    const tref = React.useRef<WebView>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<WebView>(null);
+    useImperativeHandle(ref, () => ({
         injectJavaScript: (script: string) => {
             tref.current!.injectJavaScript(script);
         },
@@ -45,6 +43,15 @@ export const OfflineWebView = React.memo(React.forwardRef((
         return props.injectedJavaScriptBeforeContentLoaded;
     }, []);
 
+    const uri = useMemo(() => {
+        if (props.queryParams) {
+            return `${props.uri}?${props.queryParams}`;
+        }
+        return props.uri;
+    }, [props.uri, props.queryParams]);
+
+    console.log('uri', uri);
+
     return (
         <>
             {Platform.OS === 'android' && (
@@ -52,7 +59,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     ref={tref}
                     {...props}
                     source={renderedOnce ? { // some wierd android bug with file:// protocol
-                        uri: props.uri,
+                        uri: uri,
                         baseUrl: props.baseUrl,
                     } : undefined}
                     onLoad={(e) => {
@@ -81,7 +88,7 @@ export const OfflineWebView = React.memo(React.forwardRef((
                     ref={tref}
                     {...props}
                     source={{
-                        uri: props.uri,
+                        uri: uri,
                         baseUrl: props.baseUrl,
                     }}
                     onLoad={(e) => {

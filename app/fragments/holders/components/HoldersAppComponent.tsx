@@ -230,9 +230,18 @@ export const HoldersAppComponent = React.memo((
             route = `/card/${props.variant.id}`;
         }
 
+        const queryParams = new URLSearchParams({
+            lang: lang,
+            currency: currency,
+            theme: 'holders',
+            'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
+            'initial-route': route,
+        })
+
         return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
+            queryParams: queryParams.toString(),
         };
     }, [props, lang, currency, status, Theme]);
 
@@ -423,6 +432,7 @@ export const HoldersAppComponent = React.memo((
     }, []);
 
     const onNavigation = useCallback((url: string) => {
+        console.log('onNavigation', url);
         const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             onCloseApp();
@@ -479,6 +489,8 @@ export const HoldersAppComponent = React.memo((
         }
     }, [useOfflineApp, offlineRender]);
 
+    console.log('source', { source });
+
     return (
         <>
             <View style={{ backgroundColor: Theme.surfacePimary, flex: 1 }}>
@@ -489,6 +501,7 @@ export const HoldersAppComponent = React.memo((
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
+                        queryParams={source.queryParams}
                         style={{
                             backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',

@@ -190,8 +190,6 @@ export function startStakingPoolSync(member: Address, pool: Address, engine: Eng
             isTestnet: engine.isTestnet,
         });
 
-        console.log('fetchStakingNominator', { infoRes });
-
         if (infoRes) {
             infoItem.update(() => infoRes);
         }

@@ -26,9 +26,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
         <View style={{ flexDirection: 'row', marginBottom: 20, minHeight: 126 }}>
             <Pressable
                 style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
-                onPress={() => {
-                    navigation.navigate('StakingOperations', { pool });
-                }}
+                onPress={() => navigation.navigate('StakingOperations', { pool })}
             >
                 <View style={{
                     flex: 1,
@@ -55,8 +53,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
             </Pressable>
             <Pressable
                 style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
-                onPress={() => {
-                }}
+                onPress={() => navigation.navigate('StakingAnalytics', { pool })}
             >
                 <View style={{
                     backgroundColor: Theme.surfaceSecondary,

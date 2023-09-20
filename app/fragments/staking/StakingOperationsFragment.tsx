@@ -105,8 +105,8 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
 });
 
 export const StakingOperationsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
     const { pool } = useParams<{ pool: Address }>();
+    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const navigation = useTypedNavigation();

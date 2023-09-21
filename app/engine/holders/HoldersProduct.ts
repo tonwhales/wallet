@@ -51,15 +51,18 @@ export class HoldersProduct {
     stableOfflineVersion: string | null = null;
 
     //TODO: REMOVE THIS, DEV DEMO ONLY
-    devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+    // devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+    // Temporary disable offline app until it's fixed
+    // TODO: fix SecurityError: Blocked attempt to use history.pushState()
+    devUseOffline = false;
 
     constructor(engine: Engine) {
         //TODO: REMOVE THIS, DEV DEMO ONLY
-        this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
-        if (this.devUseOffline === undefined) {
-            storage.set('dev-tools:use-offline-app', true);
-            this.devUseOffline = true;
-        }
+        // this.devUseOffline = storage.getBoolean('dev-tools:use-offline-app');
+        // if (this.devUseOffline === undefined) {
+        //     storage.set('dev-tools:use-offline-app', true);
+        //     this.devUseOffline = true;
+        // }
 
         this.engine = engine;
 

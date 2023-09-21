@@ -19,7 +19,7 @@ import { FragmentMediaContent } from '../components/FragmentMediaContent';
 import { RoundButton } from '../components/RoundButton';
 import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { CloseButton } from '../components/CloseButton';
+import { CloseButton } from '../components/navigation/CloseButton';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const { Theme } = useAppConfig();

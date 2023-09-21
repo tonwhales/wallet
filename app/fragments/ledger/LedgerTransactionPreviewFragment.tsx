@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { CloseButton } from "../../components/CloseButton";
+import { CloseButton } from "../../components/navigation/CloseButton";
 import { useParams } from "../../utils/useParams";
 import { Address, fromNano } from "ton";
 import BN from "bn.js";

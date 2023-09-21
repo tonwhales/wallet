@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../../components/CloseButton";
+import { CloseButton } from "../../../components/navigation/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";

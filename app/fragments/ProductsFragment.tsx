@@ -1,6 +1,5 @@
-import { View, Text, ScrollView } from "react-native";
+import { View, ScrollView } from "react-native";
 import { fragment } from "../fragment";
-import { CloseButton } from "../components/CloseButton";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { t } from "../i18n/t";
 import { ProductBanner } from "../components/products/ProductBanner";

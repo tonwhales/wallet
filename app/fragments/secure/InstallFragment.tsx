@@ -12,7 +12,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { fragment } from '../../fragment';
 import ChainIcon from '@assets/ic_chain.svg';
 import ProtectedIcon from '@assets/ic_protected.svg';
-import { CloseButton } from '../../components/CloseButton';
+import { CloseButton } from '../../components/navigation/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';

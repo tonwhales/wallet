@@ -85,12 +85,9 @@ export const WalletBackupFragment = systemFragment(() => {
             title: !init ? t('create.backupTitle') : '',
             headerShown: !logout,
             tintColor: Theme.accent,
+            onBackPressed: navigation.goBack
         }
     );
-
-    useEffect(() => {
-
-    }, []);
 
     useFocusEffect(() => {
         setTimeout(() => {

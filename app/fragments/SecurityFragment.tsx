@@ -17,6 +17,7 @@ import FaceIos from '@assets/ic_face_id.svg';
 import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
+import { ScreenHeader } from "../components/ScreenHeader"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -79,7 +80,7 @@ export const SecurityFragment = fragment(() => {
         }
 
     }, [biometricsState, deviceEncryption, passcodeState]);
-    
+
     useLayoutEffect(() => {
         (async () => {
             const encryption = await getDeviceEncryption();
@@ -103,6 +104,10 @@ export const SecurityFragment = fragment(() => {
                 onBack={navigation.goBack}
                 style={{ height: 44, marginTop: 16 }}
                 pageTitle={t('security.title')}
+            />
+            <ScreenHeader
+                title={t('security.title')}
+                onClosePressed={navigation.goBack}
             />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

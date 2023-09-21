@@ -7,7 +7,6 @@ import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CheckBox } from "../components/CheckBox";
-import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
@@ -106,10 +105,9 @@ export const SpamFilterFragment = fragment(() => {
             paddingBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16,
         }}>
             <StatusBar style={'dark'} />
-            <AndroidToolbar
-                onBack={navigation.goBack}
-                style={{ height: 44, marginTop: 16 }}
-                pageTitle={t('settings.spamFilter')}
+            <ScreenHeader
+                title={t('settings.spamFilter')}
+                onClosePressed={navigation.goBack}
             />
             <ScrollView>
                 <View style={{

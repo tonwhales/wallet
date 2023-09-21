@@ -1,5 +1,5 @@
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
@@ -104,18 +104,12 @@ export const ContactsFragment = fragment(() => {
         }
     );
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={'dark'} />
+            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
             {(!contactsList || contactsList.length === 0) && (
                 <ScrollView
                     style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}

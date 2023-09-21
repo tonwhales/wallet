@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { CloseButton } from "../CloseButton";
+import { CloseButton } from "../navigation/CloseButton";
 import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { AndroidToolbar } from "../topbar/AndroidToolbar";

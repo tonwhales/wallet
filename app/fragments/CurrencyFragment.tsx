@@ -10,8 +10,8 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import Animated from "react-native-reanimated";
+import { ScreenHeader } from "../components/ScreenHeader";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -36,25 +36,15 @@ export const CurrencyFragment = fragment(() => {
         [currency],
     );
 
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            navigation.setOptions({
-                headerShown: true,
-                title: t('settings.primaryCurrency'),
-            });
-        }
-    }, [navigation]);
-
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={'dark'} />
-            <AndroidToolbar
-                onBack={navigation.goBack}
-                style={{ height: 44, marginTop: 16 }}
-                pageTitle={t('settings.primaryCurrency')}
+            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
+            <ScreenHeader
+                title={t('settings.primaryCurrency')}
+                onClosePressed={navigation.goBack}
             />
             <ScrollView
                 style={{ marginTop: 16 }}

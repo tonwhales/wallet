@@ -52,7 +52,7 @@ export const OfflineWebView = memo(forwardRef((
 
     return (
         <>
-            {Platform.OS === 'android' && (
+            {Platform.OS === 'android' ? (
                 <WebView
                     ref={tref}
                     {...props}
@@ -80,36 +80,37 @@ export const OfflineWebView = memo(forwardRef((
                     }}
                     injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 />
-            )}
-            {Platform.OS === 'ios' && (
-                <WebView
-                    ref={tref}
-                    {...props}
-                    source={{
-                        uri: uri,
-                        baseUrl: props.baseUrl,
-                    }}
-                    onLoad={(e) => {
-                        if (props.onLoad) {
-                            props.onLoad(e);
-                        }
-                    }}
-                    allowFileAccess={true}
-                    allowFileAccessFromFileURLs={true}
-                    allowUniversalAccessFromFileURLs={true}
-                    originWhitelist={['*']}
-                    allowingReadAccessToURL={props.baseUrl}
-                    onShouldStartLoadWithRequest={(e) => {
-                        if (e.url.indexOf(props.baseUrl) !== -1) {
+            ) : (
+                Platform.OS === 'ios' && (
+                    <WebView
+                        ref={tref}
+                        {...props}
+                        source={{
+                            uri: uri,
+                            baseUrl: props.baseUrl,
+                        }}
+                        onLoad={(e) => {
+                            if (props.onLoad) {
+                                props.onLoad(e);
+                            }
+                        }}
+                        allowFileAccess={true}
+                        allowFileAccessFromFileURLs={true}
+                        allowUniversalAccessFromFileURLs={true}
+                        originWhitelist={['*']}
+                        allowingReadAccessToURL={props.baseUrl}
+                        onShouldStartLoadWithRequest={(e) => {
+                            if (e.url.indexOf(props.baseUrl) !== -1) {
+                                return true;
+                            }
+                            if (props.onShouldStartLoadWithRequest) {
+                                return props.onShouldStartLoadWithRequest(e);
+                            }
                             return true;
-                        }
-                        if (props.onShouldStartLoadWithRequest) {
-                            return props.onShouldStartLoadWithRequest(e);
-                        }
-                        return true;
-                    }}
-                    injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
-                />
+                        }}
+                        injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
+                    />
+                )
             )}
         </>
     );

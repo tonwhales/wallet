@@ -170,8 +170,8 @@ export const HoldersLandingFragment = fragment(() => {
             'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
         });
 
-        const url = `${endpoint}/about?${queryParams.toString()}}`;
-        const initialRoute = `/about?${queryParams.toString()}}`;
+        const url = `${endpoint}/about?${queryParams.toString()}`;
+        const initialRoute = `/about?${queryParams.toString()}`;
 
         queryParams.append('initial-route', 'about');
 

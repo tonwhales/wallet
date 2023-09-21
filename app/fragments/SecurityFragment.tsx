@@ -1,7 +1,5 @@
-import { StatusBar } from "expo-status-bar"
-import { Platform, View, Text, ScrollView } from "react-native"
+import { Platform, View, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
@@ -10,7 +8,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
-import { useEffect, useLayoutEffect, useMemo, useState } from "react"
+import { useLayoutEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
 import TouchIos from '@assets/ic_touch_ios.svg';
@@ -19,8 +17,6 @@ import FaceIos from '@assets/ic_face_id.svg';
 import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
-import { ItemGroup } from "../components/ItemGroup"
-import { ScreenHeader } from "../components/ScreenHeader"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

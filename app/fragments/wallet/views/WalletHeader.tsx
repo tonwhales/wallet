@@ -66,6 +66,7 @@ export const WalletHeader = memo(() => {
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between',
+                paddingVertical: 6
             }}>
                 <Pressable
                     style={({ pressed }) => {

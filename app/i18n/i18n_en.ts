@@ -98,6 +98,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         telegram: 'Telegram',
         rateApp: 'Rate app',
         deleteAccount: 'Delete account',
+        theme: 'Theme'
+    },
+    theme: {
+        title: 'Theme',
+        light: 'Light',
+        dark: 'Dark',
+        system: 'System',
     },
     wallet: {
         sync: 'Downloading wallet data',

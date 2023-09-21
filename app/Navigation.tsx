@@ -76,6 +76,7 @@ import { memo, useEffect, useMemo, useState } from 'react';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
 import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
+import { ThemeFragment } from './fragments/ThemeFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -208,11 +209,12 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
 
     // Settings
-    genericScreen('Security', SecurityFragment, safeArea),
-    genericScreen('Contacts', ContactsFragment, safeArea),
-    genericScreen('Contact', ContactFragment, safeArea),
-    genericScreen('SpamFilter', SpamFilterFragment, safeArea),
-    genericScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('Contacts', ContactsFragment, safeArea),
+    modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
+    modalScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Theme', ThemeFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),

@@ -168,15 +168,15 @@ export const HoldersLandingFragment = fragment(() => {
             currency: currency,
             theme: 'holders',
             'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
-            'initial-route': 'about',
         });
 
-        return {
-            url: `${endpoint}/about?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            initialRoute: `/about?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            queryParams: queryParams.toString(),
-        };
-    }, [Theme, endpoint]);
+        const url = `${endpoint}/about?${queryParams.toString()}}`;
+        const initialRoute = `/about?${queryParams.toString()}}`;
+
+        queryParams.append('initial-route', 'about');
+
+        return { url, initialRoute, queryParams: queryParams.toString() };
+    }, [Theme]);
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);

@@ -235,14 +235,14 @@ export const HoldersAppComponent = React.memo((
             currency: currency,
             theme: 'holders',
             'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
-            'initial-route': route,
         });
 
-        return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style=${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            queryParams: queryParams.toString(),
-        };
+        const url = `${props.endpoint}${route}?${queryParams.toString()}`;
+        const initialRoute = `${route}?${queryParams.toString()}`;
+
+        queryParams.append('initial-route', route);
+
+        return { url, initialRoute, queryParams: queryParams.toString() };
     }, [props, lang, currency, status, Theme]);
 
     // 

@@ -212,7 +212,7 @@ export const HoldersLandingFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: safeArea.top,
+            paddingTop: 36,
             backgroundColor: Theme.surfacePimary
         }}>
             <View style={{ backgroundColor: Theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>

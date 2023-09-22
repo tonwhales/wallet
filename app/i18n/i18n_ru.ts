@@ -582,7 +582,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         onLaterMessage: 'Вы можете настроить защиту позже в настройках приложения',
         onLaterButton: 'Настроить позже',
         onBiometricsError: 'Ошибка подтверждения биометрии',
-        lockAppWithAuth: 'Блокировать приложение {{method}}',
+        lockAppWithAuth: 'Блокировать приложение подтверждением',
         methodPasscode: 'паролем',
         passcodeSetupDescription: 'Пароль помогает защитить ваш кошелек от несанкционированного доступа',
     },

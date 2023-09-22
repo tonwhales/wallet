@@ -147,7 +147,8 @@ export const SecurityFragment = fragment(() => {
                                 <ItemSwitch
                                     title={biometricsProps.buttonText}
                                     value={biometricsProps.state === BiometricsState.InUse}
-                                    leftIconComponent={biometricsProps.icon}
+                                    leftIconComponent={deviceEncryption === 'face' ? undefined : biometricsProps.icon}
+                                    leftIcon={deviceEncryption === 'face' ? require('@assets/ic-secure-face.png') : undefined}
                                     onChange={async (newValue: boolean) => {
                                         try {
                                             if (newValue) {
@@ -179,6 +180,7 @@ export const SecurityFragment = fragment(() => {
                     justifyContent: 'center',
                 }}>
                     <ItemSwitch
+                        leftIcon={require('@assets/ic-secure-lock.png')}
                         title={
                             t(
                                 'secure.lockAppWithAuth',

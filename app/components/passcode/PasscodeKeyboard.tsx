@@ -13,7 +13,7 @@ export const PasscodeKeyboard = React.memo(({
     const { Theme } = useAppConfig();
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
             <View style={{ flexDirection: 'row' }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.One}

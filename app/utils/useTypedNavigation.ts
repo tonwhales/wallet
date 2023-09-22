@@ -134,6 +134,10 @@ export class TypedNavigation {
             this.navigate('Scanner', params);
         })();
     }
+
+    navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
+        this.navigate('ScreenCapture', params);
+    }
 }
 
 export function useTypedNavigation() {

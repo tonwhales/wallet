@@ -37,13 +37,13 @@ export const PasscodeInput = React.memo((
     const { Theme } = useAppConfig();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
-    const [isWrong, setIsWrong] = React.useState(false);
+    const [isWrong, setIsWrong] = useState(false);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
         return { transform: [{ translateX: translate.value }] };
     }, []);
-    const doShake = React.useCallback(() => {
+    const doShake = useCallback(() => {
         translate.value = withSequence(
             withTiming(-10, { duration: 30 }),
             withRepeat(withTiming(10, { duration: 30 }), 2, true),
@@ -249,10 +249,7 @@ export const PasscodeInput = React.memo((
                     )}
                 </Animated.View>
             </View>
-            <View style={{
-                flex: 1,
-                justifyContent: 'center', alignItems: 'center',
-            }}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <PasscodeKeyboard
                     leftIcon={deviceEncryptionIcon}
                     onKeyPress={onKeyPress}

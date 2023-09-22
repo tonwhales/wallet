@@ -1,15 +1,14 @@
 import * as React from 'react';
-import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
+import { Alert, Platform, View, Text, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
-import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useCallback, useState } from 'react';
+import { useDimensions } from '@react-native-community/hooks';
 
 export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
@@ -18,6 +17,7 @@ export const WalletSecureComponent = React.memo((props: {
     onLater?: () => void
     import?: boolean
 }) => {
+    const dimensions = useDimensions();
     const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     // Action
@@ -44,22 +44,35 @@ export const WalletSecureComponent = React.memo((props: {
     let buttonText = '';
     let title = t('secure.title');
     let text = t('secure.subtitle');
+    let imgSource = require('@assets/ios-protect-face.webp');
 
     switch (props.deviceEncryption) {
         case 'face':
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectFaceID')
                 : t('secure.protectBiometrics');
+            imgSource = Platform.select({
+                ios: require('@assets/ios-protect-face.webp'),
+                android: require('@assets/and-protect-face.webp')
+            });
             break;
         case 'biometric':
         case 'fingerprint':
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
+            imgSource = Platform.select({
+                ios: require('@assets/ios-protect-touch.webp'),
+                android: require('@assets/and-protect-finger.webp')
+            });
             break;
         case 'passcode':
         case 'secret':
             buttonText = t('secure.protectPasscode');
+            imgSource = Platform.select({
+                ios: require('@assets/ios-protect-passcode.webp'),
+                android: require('@assets/and-protect-passcode.webp')
+            });
             break;
         default:
             break;
@@ -71,9 +84,7 @@ export const WalletSecureComponent = React.memo((props: {
             t('secure.onLaterMessage'),
             [
                 { text: t('common.cancel') },
-                {
-                    text: t('secure.onLaterButton'), onPress: props.onLater
-                }
+                { text: t('secure.onLaterButton'), onPress: props.onLater }
             ]
         );
     }, []);
@@ -85,29 +96,56 @@ export const WalletSecureComponent = React.memo((props: {
             justifyContent: 'center',
             alignContent: 'center'
         }}>
-            <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                <View style={{ flexGrow: 1 }} />
-                <FragmentMediaContent
-                    animation={require('@assets/animations/lock.json')}
-                    title={title}
-                    text={text}
-                />
-                <View style={{ flexGrow: 1 }} />
-                <View style={{ marginHorizontal: 16, marginTop: 16, marginBottom: (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16, alignSelf: 'stretch' }}>
-                    <RoundButton
-                        onPress={onClick}
-                        title={buttonText}
-                        loading={loading}
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ paddingHorizontal: 16 }}>
+                <View style={{
+                    justifyContent: 'center', alignItems: 'center',
+                    aspectRatio: 0.92,
+                    width: dimensions.screen.width - 32,
+                }}>
+                    <Image
+                        resizeMode={'contain'}
+                        style={{ width: dimensions.screen.width - 32 }}
+                        source={imgSource}
                     />
-                    {props.onLater && (
-                        <RoundButton
-                            display={'secondary'}
-                            style={{ marginTop: 16 }}
-                            onPress={onLater}
-                            title={t('common.later')}
-                        />
-                    )}
                 </View>
+                <Text style={{
+                    fontSize: 32, lineHeight: 38,
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    marginTop: 26,
+                    color: Theme.textPrimary
+                }}>
+                    {title}
+                </Text>
+                <Text style={{
+                    textAlign: 'center',
+                    color: Theme.textSecondary,
+                    fontSize: 17, lineHeight: 24,
+                    marginTop: 12,
+                    flexShrink: 1,
+                }}>
+                    {text}
+                </Text>
+            </View>
+            <View style={{ flexGrow: 1 }} />
+            <View style={[
+                { marginHorizontal: 16, marginTop: 16, alignSelf: 'stretch' },
+                Platform.select({ android: { paddingBottom: 16 } })
+            ]}>
+                <RoundButton
+                    onPress={onClick}
+                    title={buttonText}
+                    loading={loading}
+                />
+                {props.onLater && (
+                    <RoundButton
+                        display={'secondary'}
+                        style={{ marginTop: 16 }}
+                        onPress={onLater}
+                        title={t('common.later')}
+                    />
+                )}
             </View>
         </View>
     );

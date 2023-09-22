@@ -1,10 +1,10 @@
 import { StatusBar, StatusBarStyle } from "expo-status-bar";
-import React, { ReactNode, useEffect } from "react"
+import React, { ReactNode, memo, useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { CloseButton } from "./navigation/CloseButton";
-import { TypedNavigation } from "../utils/useTypedNavigation";
+import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { ThemeType } from "../utils/Theme";
 import { BackButton } from "./navigation/BackButton";
@@ -78,7 +78,7 @@ export function useScreenHeader(
     }, [navigation, options, Theme]);
 }
 
-export const ScreenHeader = React.memo((
+export const ScreenHeader = memo((
     {
         style,
         title,
@@ -89,7 +89,8 @@ export const ScreenHeader = React.memo((
         leftButton,
         rightButton,
         titleComponent,
-        statusBarStyle
+        statusBarStyle,
+        options
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
@@ -100,15 +101,68 @@ export const ScreenHeader = React.memo((
         rightButton?: React.ReactNode,
         leftButton?: React.ReactNode,
         titleComponent?: React.ReactNode,
-        statusBarStyle?: StatusBarStyle
+        statusBarStyle?: StatusBarStyle,
+        options?: NativeStackNavigationOptions
     }
 ) => {
+    const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+            ...options
+        })
+    }, [options]);
 
     return (
         <View style={[{ width: '100%' }, style]}>
             <StatusBar style={statusBarStyle || (Platform.OS === 'ios' ? 'light' : 'dark')} />
-            <AndroidToolbar
+            <View style={{
+                flexDirection: 'row', alignItems: 'center',
+                height: 44,
+                marginTop: 14,
+            }}>
+                <View style={{
+                    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                    justifyContent: 'center', alignItems: 'center'
+                }}>
+                    {!!title && !titleComponent && (
+                        <Text style={{
+                            color: textColor ?? Theme.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 17,
+                            lineHeight: 24,
+                            maxWidth: '60%'
+                        }}
+                            ellipsizeMode={'tail'}
+                        >
+                            {title}
+                        </Text>
+                    )}
+                    {titleComponent}
+                </View>
+                {!!onBackPressed && !leftButton && (
+                    <BackButton onPress={onBackPressed} />
+                )}
+                {!!onClosePressed && !rightButton && (
+                    <>
+                        <View style={{ flexGrow: 1 }} />
+                        <CloseButton
+                            onPress={onClosePressed}
+                            style={{ marginRight: 16 }}
+                        />
+                    </>
+                )}
+                {!onBackPressed && !!leftButton && (leftButton)}
+                {!onClosePressed && !!rightButton && (
+                    <>
+                        <View style={{ flexGrow: 1 }} />
+                        {rightButton}
+                    </>
+                )}
+            </View>
+            {/* <AndroidToolbar
                 onBack={onBackPressed}
                 style={{ minHeight: 44 }}
                 pageTitle={title}
@@ -119,53 +173,8 @@ export const ScreenHeader = React.memo((
                 leftButton={leftButton}
             />
             {Platform.OS === 'ios' && (
-                <View style={{
-                    flexDirection: 'row', alignItems: 'center',
-                    height: 44,
-                    marginTop: 14,
-                }}>
-                    <View style={{
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        {!!title && !titleComponent && (
-                            <Text style={{
-                                color: textColor ?? Theme.textPrimary,
-                                fontWeight: '600',
-                                fontSize: 17,
-                                lineHeight: 24,
-                                maxWidth: '60%'
-                            }}
-                                ellipsizeMode={'tail'}
-                            >
-                                {title}
-                            </Text>
-                        )}
-                        {titleComponent}
-                    </View>
-                    {!!onBackPressed && !leftButton && (
-                        <BackButton
-                            onPress={onBackPressed}
-                        />
-                    )}
-                    {!!onClosePressed && !rightButton && (
-                        <>
-                            <View style={{ flexGrow: 1 }} />
-                            <CloseButton
-                                onPress={onClosePressed}
-                                style={{ marginRight: 16 }}
-                            />
-                        </>
-                    )}
-                    {!onBackPressed && !!leftButton && (leftButton)}
-                    {!onClosePressed && !!rightButton && (
-                        <>
-                            <View style={{ flexGrow: 1 }} />
-                            {rightButton}
-                        </>
-                    )}
-                </View>
-            )}
+                
+            )} */}
         </View>
     );
 });

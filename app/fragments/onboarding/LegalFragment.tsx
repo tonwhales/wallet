@@ -13,6 +13,7 @@ import { mnemonicNew } from "ton-crypto";
 import { storage } from "../../storage/storage";
 
 import IcCheck from "@assets/ic-check.svg";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const legalAcceptedKey = 'legalAccepted';
 
@@ -53,24 +54,24 @@ export const LegalFragment = systemFragment(() => {
     }, [state]);
 
     useEffect(() => {
-        if (ready) {
-            if (state) {
-                navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
-                return;
-            }
+        if (ready && state) {
+            navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+            return;
         }
     }, [accepted, state]);
 
     return (
         <View style={{
-            flex: 1,
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
             backgroundColor: Theme.background,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) + 42 : 0,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 16,
         }}>
-            <AndroidToolbar />
+            <ScreenHeader
+                style={[{ paddingLeft: 16 }, Platform.select({ ios: { paddingTop: 16 } })]}
+                onBackPressed={navigation.goBack}
+                statusBarStyle={Platform.select({ ios: Theme.style === 'dark' ? 'light' : 'dark', android: 'light' })}
+            />
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
                     <Text style={{
@@ -104,8 +105,8 @@ export const LegalFragment = systemFragment(() => {
                         />
                     </View>
                 </View>
-                <View style={{ flexGrow: 1 }} />
             </ScrollView>
+            <View style={{ flexGrow: 1 }} />
             <Pressable
                 style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24 }}
                 onPress={() => {
@@ -149,10 +150,7 @@ export const LegalFragment = systemFragment(() => {
                     </Text>
                 </Text>
             </Pressable>
-            <View style={{
-                padding: 16,
-                width: '100%'
-            }}>
+            <View style={[{ paddingHorizontal: 16, width: '100%' }, Platform.select({ android: { paddingBottom: 16 } })]}>
                 <RoundButton
                     disabled={!accepted}
                     loading={loading}

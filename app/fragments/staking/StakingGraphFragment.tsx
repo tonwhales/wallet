@@ -34,7 +34,6 @@ export const StakingGraphFragment = fragment(() => {
     const target = Address.parse(params.pool);
     const pool = useStakingPool(target);
     const member = pool?.member;
-    console.log(target.toString({ testOnly: isTestnet }));
     const stakingChart = useStakingChart(target);
     const knownPool = KnownPools(isTestnet)[params.pool];
 

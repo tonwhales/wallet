@@ -1,5 +1,5 @@
 import React, { ReactElement, useCallback, useLayoutEffect, useMemo } from "react";
-import { View, ScrollView, ActivityIndicator } from "react-native";
+import { View, ScrollView, ActivityIndicator, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
@@ -352,7 +352,7 @@ export const StakingPoolsFragment = fragment(() => {
                 title={t('products.staking.pools.title')}
                 onBackPressed={navigation.goBack}
                 style={{
-                    paddingTop: safeArea.top - 16,
+                    paddingTop: safeArea.top - (Platform.OS === 'ios' ? 16 : 0),
                     paddingHorizontal: 16
                 }}
             />

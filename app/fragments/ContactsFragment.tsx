@@ -1,5 +1,5 @@
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
@@ -8,11 +8,10 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { useScreenHeader } from "../components/ScreenHeader";
+import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useDimensions } from "@react-native-community/hooks";
 import { Address } from "ton";
-import { useFocusEffect } from "@react-navigation/native";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -109,6 +108,32 @@ export const ContactsFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
+            {(Object.entries(contacts).length <= 0) && (
+                <ScreenHeader
+                    title={t('contacts.title')}
+                    rightButton={<Pressable
+                        style={({ pressed }) => ({
+                            marginRight: 16,
+                            opacity: pressed ? 0.5 : 1,
+                        })}
+                        onPress={onAddContact}
+                        hitSlop={
+                            Platform.select({
+                                ios: undefined,
+                                default: { top: 16, right: 16, bottom: 16, left: 16 },
+                            })
+                        }
+                    >
+                        <Text style={{
+                            color: Theme.accent,
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '500',
+                        }}>
+                            {t('common.add')}
+                        </Text>
+                    </Pressable>}
+                />
+            )}
             <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
             {(!contactsList || contactsList.length === 0) && (
                 <ScrollView

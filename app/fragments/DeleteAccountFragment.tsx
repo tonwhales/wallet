@@ -317,10 +317,11 @@ export const DeleteAccountFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={t('settings.deleteAccount')}
                 onBackPressed={navigation.goBack}
+                style={{ paddingLeft: 16 }}
+                statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
             />
             <View style={{ flexGrow: 1, paddingHorizontal: 16, marginTop: 16 }}>
                 <View style={{

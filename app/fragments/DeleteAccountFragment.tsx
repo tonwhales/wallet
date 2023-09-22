@@ -4,8 +4,7 @@ import React, { useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
-import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
+import { Address, Cell, SendMode, beginCell, external, internal, storeMessage, toNano } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
@@ -26,11 +25,13 @@ import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
 import { useTheme } from '../engine/hooks/useTheme';
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
-import { clearHolders } from "./LogoutFragment";
-import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
-import { clients } from '../engine/clients';
 import { useClient4 } from '../engine/hooks/useClient4';
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
+import { useNetwork } from '../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
+import { useAccountLite } from '../engine/hooks/useAccountLite';
+import { fetchSeqno } from '../engine/api/fetchSeqno';
+import { getLastBlock } from '../engine/accountWatcher';
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -44,7 +45,8 @@ export const DeleteAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const reboot = useReboot();
-    const addr = useCurrentAddress();
+    const addr = useSelectedAccount();
+    const account = useAccountLite(addr.addressString);
     const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));
@@ -115,7 +117,7 @@ export const DeleteAccountFragment = fragment(() => {
             const target = {
                 isTestOnly: targetParsed.isTestOnly,
                 address: targetParsed.address,
-                balance: BigInt(targetState.account.balance.coins, 10),
+                balance: BigInt(targetState.account.balance.coins),
                 active: targetState.account.state.type === 'active'
             };
 
@@ -130,7 +132,7 @@ export const DeleteAccountFragment = fragment(() => {
             }
 
             // Check if target is not active
-            if (target.balance.lte(BigInt(0))) {
+            if (target.balance <= BigInt(0)) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
                     ended = true;
@@ -155,7 +157,7 @@ export const DeleteAccountFragment = fragment(() => {
             }
 
             // Check if has at least 0.1 TON 
-            if (account.balance.gt(toNano('0.1'))) {
+            if (account && account.balance || BigInt(0) > toNano('0.1')) {
                 const contract = await contractFromPublicKey(addr.publicKey);
 
                 // Check if same address
@@ -165,39 +167,34 @@ export const DeleteAccountFragment = fragment(() => {
                     return;
                 }
 
+                let seqno = await fetchSeqno(client, await getLastBlock(), addr.address);
+
                 // Create transfer all & dstr transfer
-                let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
-                    walletId: contract.source.walletId,
+                let transfer = contract.createTransfer({
+                    seqno: seqno,
                     secretKey: key.keyPair.secretKey,
-                    sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
-                    order: new InternalMessage({
+                    sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
+                    messages: [internal({
                         to: target.address,
-                        value: BigInt(0),
+                        value: 0n,
                         bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: null,
-                            body: null
-                        })
-                    })
+                    })]
                 });
 
                 // Create external message
-                let extMessage = new ExternalMessage({
+                let extMessage = external({
                     to: contract.address,
-                    body: new CommonMessageInfo({
-                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                        body: new CellMessage(transfer)
-                    })
+                    body: transfer,
+                    init: seqno === 0 ? contract.init : undefined,
                 });
-                let msg = new Cell();
-                extMessage.writeTo(msg);
+
+                let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
                 // Sending transaction
                 await backoff('delete_account', () => client.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', () => contract.getSeqNo());
+                    let s = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), addr.address));
                     // Check if wallet has been cleared
                     if (s === 0) {
                         setStatus('deleted');

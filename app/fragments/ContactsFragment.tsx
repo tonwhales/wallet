@@ -18,17 +18,19 @@ import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useContacts } from '../engine/hooks/useContacts';
-import { useAccountTransactions } from '../engine/hooks/useRawAccountTransactions';
-import { useAccount } from '../engine/hooks/useAccountLite';
-import { useCurrentAddress } from '../engine/hooks/useCurrentAddress';
+import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
+import { TransactionDescription, useAccountTransactions } from '../engine/hooks/useAccountTransactions';
+import { useClient4 } from '../engine/hooks/useClient4';
+import { useNetwork } from '../engine/hooks/useNetwork';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
-    const address = useCurrentAddress();
-    const transactions = useAccountTransactions(address.addressString);
+    const address = useSelectedAccount();
+    let client = useClient4(useNetwork().isTestnet);
+    const transactions = useAccountTransactions(client, address.addressString);
     const [addingAddress, setAddingAddress] = useState(false);
     const [domain, setDomain] = React.useState<string>();
     const [target, setTarget] = React.useState('');
@@ -65,21 +67,25 @@ export const ContactsFragment = fragment(() => {
     }, [contactsList, target]);
 
     const transactionsComponents: any[] = React.useMemo(() => {
-        let transactionsSectioned: { title: string, items: string[] }[] = [];
-        if (transactions.length > 0) {
-            let lastTime: string = getDateKey(transactions[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(transactions[0].time);
+        if (!transactions) {
+            return [];
+        }
+
+        let transactionsSectioned: { title: string, items: TransactionDescription[] }[] = [];
+        if (transactions.data.length > 0) {
+            let lastTime: string = getDateKey(transactions.data[0].base.time);
+            let lastSection: TransactionDescription[] = [];
+            let title = formatDate(transactions.data[0].base.time);
             transactionsSectioned.push({ title, items: lastSection });
-            for (let t of transactions.length >= 3 ? transactions.slice(0, 3) : transactions) {
-                let time = getDateKey(t.time);
+            for (let t of transactions.data.length >= 3 ? transactions.data.slice(0, 3) : transactions.data) {
+                let time = getDateKey(t.base.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(t.time);
+                    title = formatDate(t.base.time);
                     transactionsSectioned.push({ title, items: lastSection });
                 }
-                lastSection.push(t.id);
+                lastSection.push(t);
             }
         }
 
@@ -96,13 +102,17 @@ export const ContactsFragment = fragment(() => {
                     style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.item, overflow: 'hidden' }}
                     collapsable={false}
                 >
-                    {s.items.map((t, i) => <TransactionView
-                        own={address.address}
-                        tx={t}
-                        separator={i < s.items.length - 1}
-                        key={'tx-' + t}
-                        onPress={() => { }}
-                    />)}
+                    {s.items.map((t, i) => (
+                        <TransactionView
+                            own={address.address}
+                            tx={t}
+                            separator={i < s.items.length - 1}
+                            key={'tx-' + t}
+                            onPress={() => { }}
+                            theme={theme}
+                            fontScaleNormal={true}
+                        />
+                    ))}
                 </View >
             );
         }

@@ -1,4 +1,4 @@
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Platform } from "react-native";
 import { fragment } from "../fragment";
 import { useAppConfig } from "../utils/AppConfigContext";
 import Animated from "react-native-reanimated";
@@ -8,20 +8,22 @@ import { ScreenHeader } from "../components/ScreenHeader";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 
 import IcCheck from "@assets/ic-check.svg";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const ThemeFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
     const { changeTheme, Theme, themeStyle } = useAppConfig();
     const { onPressIn: onPressInSystem, onPressOut: onPressOutSystem, animatedStyle: animatedStyleSystem } = useAnimatedPressedInOut();
     const { onPressIn: onPressInLight, onPressOut: onPressOutLight, animatedStyle: animatedStyleLight } = useAnimatedPressedInOut();
     const { onPressIn: onPressInDark, onPressOut: onPressOutDark, animatedStyle: animatedStyleDark } = useAnimatedPressedInOut();
-
 
     return (
         <View>
             <ScreenHeader
                 title={t('theme.title')}
                 onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
             <Pressable
                 key={`theme-system`}

@@ -1,23 +1,29 @@
 import React from "react";
-import { Platform, View } from "react-native";
+import { View } from "react-native";
 import { WebView } from 'react-native-webview';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { systemFragment } from "../../systemFragment";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useAppConfig } from "../../utils/AppConfigContext";
 
 export const TermsFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
+    const { Theme } = useAppConfig();
+    const navigation = useTypedNavigation();
 
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom,
+            paddingTop: safeArea.top,
+            backgroundColor: Theme.background,
         }}>
-            <AndroidToolbar />
-            <WebView
-                source={{ uri: 'https://tonhub.com/legal/terms' }}
+            <ScreenHeader
+                onBackPressed={navigation.goBack}
+                statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
+                style={{ paddingLeft: 16 }}
             />
+            <WebView source={{ uri: 'https://tonhub.com/legal/terms' }} />
         </View>
     );
 });

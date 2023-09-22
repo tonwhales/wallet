@@ -10,8 +10,11 @@ import { extractDomain } from "../engine/utils/extractDomain";
 import { holdersUrl } from "../engine/holders/HoldersProduct";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useFocusEffect } from "@react-navigation/native";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const ProductsFragment = fragment(() => {
+    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { AppConfig, Theme } = useAppConfig();
     const engine = useEngine();
@@ -60,13 +63,6 @@ export const ProductsFragment = fragment(() => {
         [needsEnrolment],
     );
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerShown: true,
-            title: t('products.addNew'),
-        })
-    }, []);
-
     useFocusEffect(() => {
         setTimeout(() => {
             setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
@@ -75,7 +71,12 @@ export const ProductsFragment = fragment(() => {
 
     return (
         <View style={{ backgroundColor: Theme.background, flexGrow: 1 }}>
-            <StatusBar style={'dark'} />
+            <ScreenHeader
+                style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                title={t('products.addNew')}
+                statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
+                onBackPressed={navigation.goBack}
+            />
             <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
                 {AppConfig.isTestnet && (
                     <ProductBanner

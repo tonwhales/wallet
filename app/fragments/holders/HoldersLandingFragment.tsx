@@ -24,6 +24,7 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { useFocusEffect } from '@react-navigation/native';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -208,15 +209,12 @@ export const HoldersLandingFragment = fragment(() => {
         }, 10);
     });
 
-    console.log('Landing', { source })
-
     return (
         <View style={{
             flex: 1,
             paddingTop: safeArea.top,
             backgroundColor: Theme.surfacePimary
         }}>
-            <StatusBar style={'dark'} />
             <View style={{ backgroundColor: Theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {useOfflineApp ? (
                     <OfflineWebView
@@ -323,20 +321,9 @@ export const HoldersLandingFragment = fragment(() => {
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar tintColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
+                            <ScreenHeader onBackPressed={navigation.goBack} />
                         </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
@@ -344,20 +331,9 @@ export const HoldersLandingFragment = fragment(() => {
                     style={animatedAuthStyles}
                     pointerEvents={!auth ? 'none' : 'box-none'}
                 >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
+                        <ScreenHeader onBackPressed={navigation.goBack} />
                     </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
-                    )}
                     <ActivityIndicator size="small" color={'#564CE2'} />
                 </Animated.View>
             </View>

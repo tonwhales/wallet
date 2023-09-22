@@ -96,7 +96,7 @@ export const SecurityFragment = fragment(() => {
             <ScreenHeader
                 title={t('security.title')}
                 onClosePressed={navigation.goBack}
-                statusBarStyle={Platform.OS === 'ios' ? 'dark' : 'light'}
+                statusBarStyle={Platform.select({ ios: 'light', android: Theme.style === 'dark' ? 'light' : 'dark' })}
             />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

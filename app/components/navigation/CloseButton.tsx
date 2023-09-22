@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleProp, ViewStyle, Platform, Image } from "react-native";
+import { Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 
@@ -9,9 +9,7 @@ export const CloseButton = React.memo((props: {
 }) => {
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
-    if (Platform.OS !== 'ios') {
-        return null;
-    }
+
     return (
         <Pressable
             style={({ pressed }) => [

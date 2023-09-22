@@ -162,19 +162,6 @@ export const ScreenHeader = memo((
                     </>
                 )}
             </View>
-            {/* <AndroidToolbar
-                onBack={onBackPressed}
-                style={{ minHeight: 44 }}
-                pageTitle={title}
-                tintColor={tintColor}
-                textColor={textColor}
-                titleComponent={titleComponent}
-                rightButton={rightButton}
-                leftButton={leftButton}
-            />
-            {Platform.OS === 'ios' && (
-                
-            )} */}
         </View>
     );
 });

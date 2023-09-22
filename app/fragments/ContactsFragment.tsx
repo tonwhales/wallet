@@ -12,6 +12,7 @@ import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useDimensions } from "@react-native-community/hooks";
 import { Address } from "ton";
+import { RoundButton } from "../components/RoundButton";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -64,33 +65,7 @@ export const ContactsFragment = fragment(() => {
             headerShown: true,
             headerLargeTitle: true,
             tintColor: Theme.accent,
-            rightButton: (
-                !searchFocused ? (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                            }
-                        }}
-                        onPress={onAddContact}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                    >
-                        <Text style={{
-                            color: Theme.accent,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {t('common.add')}
-                        </Text>
-                    </Pressable>
-                )
-                    : undefined
-            ),
+            onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
             headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
                 hideWhenScrolling: false,
                 hideNavigationBar: false,
@@ -103,43 +78,24 @@ export const ContactsFragment = fragment(() => {
         }
     );
 
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom + 16,
         }}>
             {(Object.entries(contacts).length <= 0) && (
                 <ScreenHeader
                     title={t('contacts.title')}
-                    rightButton={<Pressable
-                        style={({ pressed }) => ({
-                            marginRight: 16,
-                            opacity: pressed ? 0.5 : 1,
-                        })}
-                        onPress={onAddContact}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                    >
-                        <Text style={{
-                            color: Theme.accent,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {t('common.add')}
-                        </Text>
-                    </Pressable>}
+                    onClosePressed={navigation.goBack}
+                    statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
                 />
             )}
-            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
             {(!contactsList || contactsList.length === 0) && (
                 <ScrollView
                     style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
                     showsVerticalScrollIndicator={true}
-                    contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
                     <Image
                         resizeMode={'contain'}
@@ -182,7 +138,6 @@ export const ContactsFragment = fragment(() => {
                 <ScrollView
                     style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
                     showsVerticalScrollIndicator={true}
-                    contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
                     {contactsList.map((d) => {
                         return (
@@ -195,6 +150,14 @@ export const ContactsFragment = fragment(() => {
                     })}
                 </ScrollView>
             )}
+            <RoundButton
+                title={t('contacts.add')}
+                onPress={onAddContact}
+                style={[
+                    { marginHorizontal: 16 },
+                    Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
+                ]}
+            />
         </View>
     )
 });

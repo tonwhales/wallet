@@ -342,6 +342,12 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
+
     return (
         <View style={{
             flex: 1,
@@ -356,7 +362,6 @@ export const StakingPoolsFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}
             />
-            <StatusBar style={Theme.style === 'dark' ? 'light' : 'dark'} />
             <ScrollView
                 alwaysBounceVertical={false}
                 style={{ flexShrink: 1, flexGrow: 1 }}

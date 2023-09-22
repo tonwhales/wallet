@@ -28,6 +28,7 @@ import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
+import { useEffect, useMemo, useState } from 'react';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -93,7 +94,7 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 });
 
 export const TransferFragment = fragment(() => {
-    const { AppConfig } = useAppConfig();
+    const { AppConfig, Theme } = useAppConfig();
     const params: TransferFragmentProps = useRoute().params! as any;
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
@@ -101,14 +102,14 @@ export const TransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
 
     // Memmoize all parameters just in case
-    const from = React.useMemo(() => getCurrentAddress(), []);
-    const text = React.useMemo(() => params.text, []);
-    const order = React.useMemo(() => params.order, []);
-    const job = React.useMemo(() => params.job, []);
-    const callback = React.useMemo(() => params.callback, []);
+    const from = useMemo(() => getCurrentAddress(), []);
+    const text = useMemo(() => params.text, []);
+    const order = useMemo(() => params.order, []);
+    const job = useMemo(() => params.job, []);
+    const callback = useMemo(() => params.callback, []);
 
     // Auto-cancel job on unmount
-    React.useEffect(() => {
+    useEffect(() => {
         return () => {
             if (params && params.job) {
                 engine.products.apps.commitCommand(false, params.job, new Cell());
@@ -120,9 +121,9 @@ export const TransferFragment = fragment(() => {
     }, []);
 
     // Fetch all required parameters
-    const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
+    const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
     const netConfig = engine.products.config.useConfig();
-    React.useEffect(() => {
+    useEffect(() => {
 
         // Await data
         if (!netConfig) {
@@ -401,8 +402,15 @@ export const TransferFragment = fragment(() => {
 
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader onBackPressed={navigation.goBack} onClosePressed={() => navigation.navigateAndReplaceAll('Home')} />
+            <ScreenHeader
+                style={{ paddingLeft: 16 }}
+                statusBarStyle={Platform.select({
+                    ios: 'dark',
+                    android: Theme.style === 'dark' ? 'light' : 'dark'
+                })}
+                onBackPressed={navigation.goBack}
+                onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
+            />
             <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
                 {!loadedProps && (
                     <View style={{

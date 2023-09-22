@@ -144,7 +144,6 @@ export const ContactsFragment = fragment(() => {
                             <ContactItemView
                                 key={`contact-${d[0]}`}
                                 addr={d[0]}
-                                contact={d[1]}
                             />
                         );
                     })}

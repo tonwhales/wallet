@@ -21,6 +21,7 @@ export function storeThemeStyle(style: ThemeStyle) {
 export type ThemeType = {
     style: 'light' | 'dark',
     background: string,
+    backgroundInverted: string,
     backgroundUnchangeable: string,
 
     surfacePimary: string,
@@ -33,6 +34,7 @@ export type ThemeType = {
     accentBlue: string,
 
     textPrimary: string,
+    textPrimaryInverted: string,
     textSecondary: string,
     textThird: string,
 
@@ -57,6 +59,7 @@ export type ThemeType = {
 export const baseTheme: ThemeType = {
     style: 'light',
     background: '#FFFFFF',
+    backgroundInverted: '#000000',
     backgroundUnchangeable: '#000000',
 
     surfacePimary: 'white',
@@ -69,6 +72,7 @@ export const baseTheme: ThemeType = {
     accentBlue: '#61BDFF',
 
     textPrimary: '#000',
+    textPrimaryInverted: '#FFFFFF',
     textSecondary: '#838D99',
     textThird: '#FFFFFF',
 
@@ -96,6 +100,7 @@ export const darkTheme: ThemeType = {
     style: 'dark',
 
     background: '#000000',
+    backgroundInverted: '#FFFFFF',
 
     surfacePimary: '#1C1C1E',
     surfaceSecondary: '#2C2C2D',
@@ -104,6 +109,7 @@ export const darkTheme: ThemeType = {
     accentPrimaryDisabledViolet: '#7F7BBB',
 
     textPrimary: '#FFFFFF',
+    textPrimaryInverted: '#000000',
     textSecondary: '#9398A1',
 
     iconPrimary: '#828B96',

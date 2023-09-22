@@ -18,6 +18,7 @@ import { ItemSwitch } from "../components/Item";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcInfo from '@assets/ic-info.svg';
+import { ContactItemView } from "../components/Contacts/ContactItemView";
 
 export type SpamFilterConfig = {
     minAmount: BN | null,
@@ -197,19 +198,17 @@ export const SpamFilterFragment = fragment(() => {
                             }}
                         />
                     </View>
-                    {denyList.map((d) => {
-                        return (
-                            <ProductButton
-                                key={`blocked-${d}`}
-                                name={d.slice(0, 10) + '...' + d.slice(d.length - 6)}
-                                subtitle={''}
-                                icon={SpamIcon}
-                                value={null}
-                                onPress={() => onUnblock(d)}
-                                style={{ marginVertical: 4, marginHorizontal: 0 }}
-                            />
-                        );
-                    })}
+                    <View style={{ marginTop: 16 }}>
+                        {denyList.map((d) => {
+                            return (
+                                <ContactItemView
+                                    key={`contact-${d[0]}`}
+                                    addr={d}
+                                    action={() => onUnblock(d)}
+                                />
+                            );
+                        })}
+                    </View>
                 </View>
             </ScrollView>
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>

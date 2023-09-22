@@ -86,28 +86,17 @@ export const SecurityFragment = fragment(() => {
             const encryption = await getDeviceEncryption();
             setDeviceEncryption(encryption);
         })();
-
-        if (Platform.OS === 'ios') {
-            navigation.setOptions({
-                headerShown: true,
-                title: t('security.title'),
-            });
-        }
-    }, [navigation]);
+    }, []);
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <AndroidToolbar
-                onBack={navigation.goBack}
-                style={{ height: 44, marginTop: 16 }}
-                pageTitle={t('security.title')}
-            />
             <ScreenHeader
                 title={t('security.title')}
                 onClosePressed={navigation.goBack}
+                statusBarStyle={Platform.OS === 'ios' ? 'dark' : 'light'}
             />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

@@ -1,45 +1,7 @@
 import BN from "bn.js";
 import { AppState } from "react-native";
-import { Address, Cell, Slice, configParse18, configParseGasLimitsPrices, configParseMsgPrices, parseDictRefs } from "@ton/core";
 import { Engine } from "../Engine";
 import { createEngineSync } from "../utils/createEngineSync";
-
-export type ConfigState = {
-    storage: {
-        utime_since: bigint;
-        bit_price_ps: bigint;
-        cell_price_ps: bigint;
-        mc_bit_price_ps: bigint;
-        mc_cell_price_ps: bigint;
-    }[],
-    masterchain: {
-        gas: {
-            flatLimit: bigint,
-            flatGasPrice: bigint,
-            price: bigint
-        },
-        message: {
-            lumpPrice: bigint;
-            bitPrice: bigint;
-            cellPrice: bigint;
-            firstFrac: bigint;
-        }
-    },
-    rootDnsAddress: Address,
-    workchain: {
-        gas: {
-            flatLimit: bigint,
-            flatGasPrice: bigint,
-            price: bigint
-        },
-        message: {
-            lumpPrice: bigint;
-            bitPrice: bigint;
-            cellPrice: bigint;
-            firstFrac: bigint;
-        }
-    }
-};
 
 function configParseDnsAddress(slice: Slice | undefined) {
     // Fallback to hardocoded address

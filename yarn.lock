@@ -2450,10 +2450,10 @@
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-"@ton/ton@^13.5.1":
-  version "13.5.1"
-  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.5.1.tgz#67b3bdb43ef125f5ea85095b0d8d4c9827c23e68"
-  integrity sha512-ffmlDqQG3K31tEIHwhKTdluaGvj1Cmb0QXOVG8AocojPiyJ1WnWh/uG19tk94oDGW8c6XRbkjQYUwhDK8ZlF5w==
+"@ton/ton@^13.7.0":
+  version "13.7.0"
+  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.7.0.tgz#ec2876e2c66eab7f68855d91b8573cca16b04beb"
+  integrity sha512-7ejZTmMwWTQH5hW/jVSnh6SFwsdl2Ul9dxpKchVLB6nYsSzPkAq9bV9zav9zMFyWTS1+vkVzjAwyeXeKUx1Y0Q==
   dependencies:
     axios "^0.25.0"
     dataloader "^2.0.0"

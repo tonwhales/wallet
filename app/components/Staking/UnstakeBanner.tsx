@@ -1,15 +1,13 @@
 import React, { useLayoutEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
-import BN from "bn.js";
 import { fromNano, toNano } from "@ton/core";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useConnectPrice } from '../../engine/hooks/useConnectPrice';
-import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { usePrice } from '../../engine/hooks/usePrice';
 
 export const UnstakeBanner = React.memo((
     {
@@ -30,8 +28,7 @@ export const UnstakeBanner = React.memo((
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     
-    const price = useConnectPrice();
-    const [currency,] = usePrimaryCurrency();
+    const [price, currency] = usePrice();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {

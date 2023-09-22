@@ -27,7 +27,6 @@ import { CalculatorButton } from "../../components/Staking/CalculatorButton";
 import { BN } from "bn.js";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
 import { useStaking } from '../../engine/hooks/useStaking';
 import { useStakingChart } from '../../engine/hooks/useStakingChart';
@@ -39,7 +38,6 @@ export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
-    const address = useCurrentAddress();
     const target = Address.parse(params.pool);
     const pool = useStakingPool(target);
     const poolParams = pool?.params;

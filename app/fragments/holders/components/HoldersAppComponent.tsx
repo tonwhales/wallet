@@ -31,10 +31,9 @@ import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
 import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
 import { createDomainSignature } from '../../../engine/effects/createDomainSignature';
-import { useAccount } from '../../../engine/hooks/useAccountLite';
-import { useCurrentAddress } from '../../../engine/hooks/useCurrentAddress';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -213,7 +212,7 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
-    const { address, publicKey } = useCurrentAddress();
+    const { address, publicKey } = useSelectedAccount();
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 

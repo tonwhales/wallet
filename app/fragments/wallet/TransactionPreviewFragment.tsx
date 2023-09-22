@@ -33,37 +33,37 @@ import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TxBody } from '../../engine/legacy/Transaction';
-import { useCurrentAddress } from '../../engine/hooks/useCurrentAddress';
 import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = useCurrentAddress();
+    const address = useSelectedAccount();
 
     const params = useParams<{ transaction: TransactionDescription }>();
     let transaction = params.transaction;
-    let operation = transaction.operation;
+    let operation = transaction.base.operation;
 
-    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
-    let item = transaction.operation.items[0];
+    let friendlyAddress = operation.address;
+    let item = transaction.base.operation.items[0];
     let op: string;
-    if (operation.op) {
-        op = operation.op;
+    if (transaction.op) {
+        op = transaction.op;
         if (op === 'airdrop') {
             op = t('tx.airdrop');
         }
     } else {
-        if (transaction.base.kind === 'out') {
-            if (transaction.base.status === 'pending') {
+        if (transaction.base.parsed.kind === 'out') {
+            if (transaction.base.parsed.status === 'pending') {
                 op = t('tx.sending');
             } else {
                 op = t('tx.sent');
             }
-        } else if (transaction.base.kind === 'in') {
-            if (transaction.base.bounced) {
+        } else if (transaction.base.parsed.kind === 'in') {
+            if (transaction.base.parsed.bounced) {
                 op = '⚠️ ' + t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -74,9 +74,9 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address.toString({ testOnly: isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address];
 
-    let body: TxBody | null = transaction.base.body;
+    let body: TxBody | null = transaction.base.parsed.body;
 
     const txId = useMemo(() => {
         if (!transaction.base.lt) {
@@ -87,7 +87,7 @@ export const TransactionPreviewFragment = fragment(() => {
         }
         return transaction.base.lt +
             '_' +
-            transaction.base.hash.toString('hex')
+            transaction.base.hash
     }, [transaction]);
 
     const explorerLink = useMemo(() => {
@@ -106,7 +106,7 @@ export const TransactionPreviewFragment = fragment(() => {
         }
         return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
             + `${address.addressString}/`
-            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash.toString('base64'))}`
+            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
     }, [txId]);
 
     const contact = useContactAddress(operation.address);

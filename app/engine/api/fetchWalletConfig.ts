@@ -12,8 +12,8 @@ export type WalletConfig = {
     recommended: string
 }
 
-export async function fetchWalletConfig(address: Address, isTestnet: boolean) {
-    let res = (await axios.get('https://connect.tonhubapi.com/config/' + address.toString({ testOnly: isTestnet }))).data;
+export async function fetchWalletConfig(address: string) {
+    let res = (await axios.get('https://connect.tonhubapi.com/config/' + address)).data;
     if (!walletConfigCodec.is(res)) {
         throw Error('Invalid config');
     }

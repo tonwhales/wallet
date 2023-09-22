@@ -24,7 +24,6 @@ import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBan
 import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/Staking/CalculatorButton";
-import { BN } from "bn.js";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useStakingPool } from '../../engine/hooks/useStakingPool';
@@ -63,7 +62,10 @@ export const StakingFragment = fragment(() => {
     }, [staking, target]);
 
     let canWithdraw = useMemo(() => {
-        return member?.balance.add(member.withdraw).gt(BigInt(0));
+        if (!member) {
+            return false;
+        }
+        return member.balance + member.withdraw > 0n;
     }, [member]);
 
     const window = useWindowDimensions();
@@ -140,9 +142,12 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     const onTopUp = useCallback(() => {
+        if (!pool) {
+            return;
+        }
         navigation.navigateStaking({
             target: target,
-            amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
+            amount: pool?.params.minStake + pool.params.receiptPrice + pool.params.depositFee,
             lockAddress: true,
             lockComment: true,
             action: 'top_up' as TransferAction,
@@ -169,7 +174,7 @@ export const StakingFragment = fragment(() => {
         if (!!stakingChart) {
             navigation.navigate('StakingGraph', { pool: target.toString({ testOnly: isTestnet }) });
         }
-    }, [member]);
+    }, [member, stakingChart]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -259,13 +264,19 @@ export const StakingFragment = fragment(() => {
                 <StakingPendingComponent
                     target={target}
                     style={{ marginHorizontal: 16 }}
-                    params={poolParams}
+                    params={{
+                        depositFee: poolParams?.depositFee || toNano('0.1'),
+                        withdrawFee: poolParams?.withdrawFee || toNano('0.1'),
+                        minStake: poolParams?.minStake || toNano('49.8'),
+                        receiptPrice: poolParams?.receiptPrice || toNano('0.1'),
+                        stakeUntil: pool?.status.proxyStakeUntil || 0,
+                    }}
                     member={member}
                 />
                 {pool && (
                     <StakingCycle
-                        stakeUntil={pool.params.stakeUntil}
-                        locked={pool.params.locked}
+                        stakeUntil={pool.status.proxyStakeUntil}
+                        locked={pool.status.locked}
                         style={{
                             marginHorizontal: 16,
                             marginBottom: 14

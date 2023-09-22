@@ -4,6 +4,12 @@ export const Queries = {
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
         JettonWallet: () => ['account', address, 'jettonWallet'],
+        StakingPool: () => ({
+            Status: () => ['account', address, 'staking', 'status'],
+            Params: () => ['account', address, 'staking', 'params'],
+            Member: (member: string) => ['account', address, 'staking', 'member', member],
+            Chart: (member: string) => ['account', address, 'staking', 'chart', member],
+        }),
         Transactions: () => ['transactions', address],
     }),
 

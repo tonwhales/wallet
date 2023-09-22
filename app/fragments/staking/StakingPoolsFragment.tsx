@@ -18,6 +18,8 @@ import { useTheme } from '../../engine/hooks/useTheme';
 import { TopBar } from "../../components/topbar/TopBar";
 import { useStaking } from '../../engine/hooks/useStaking';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useStakingApy } from '../../engine/hooks/useStakingApy';
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -69,12 +71,12 @@ function PoolComponent(props: {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const addr = props.address.toString({ testOnly: isTestnet });
-    const pool = props.engine.products.whalesStakingPools.usePool(props.address);
-    const poolFee = pool?.params.poolFee ? toNano(fromNano(pool.params.poolFee)).divn(100).toNumber() : undefined;
+    const pool = useStakingPool(props.address);
+    const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee)) / 100n) : undefined;
     const knownPools = KnownPools(isTestnet);
     const name = knownPools[addr].name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : addr.slice(0, 10) + '...' + addr.slice(addr.length - 6);
-    const apy = props.engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return `${t('products.staking.info.poolFeeTitle')} ${poolFee}%` + ` (${t('common.apy')} ~${(apy - apy * (poolFee / 100)).toFixed(2)}%)`;
@@ -169,7 +171,7 @@ export const StakingPoolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const staking = useStaking();
     const pools = staking.pools;
-    const poolsWithStake = pools.filter((v) => v.balance.gtn(0));
+    const poolsWithStake = pools.filter((v) => v.balance > 0n);
     const items: React.ReactElement[] = [];
     const processed = new Set<string>();
 

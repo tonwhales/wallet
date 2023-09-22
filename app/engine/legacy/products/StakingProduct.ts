@@ -3,7 +3,6 @@ import { Address } from "@ton/core";
 import { useOptItem } from "../persistence/PersistedItem";
 import { KnownPools } from "../../../utils/KnownPools";
 import { RecoilValueReadOnly, selector, useRecoilValue } from "recoil";
-import BN from "bn.js";
 import { WalletConfig } from "../../api/fetchWalletConfig";
 
 export type StakingState = {

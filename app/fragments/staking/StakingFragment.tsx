@@ -144,7 +144,7 @@ export const StakingFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
-                style={{ marginTop: 32 }}
+                style={{ marginTop: 32, paddingLeft: 16 }}
                 onBackPressed={navigation.goBack}
                 rightButton={
                     <Pressable

@@ -16,6 +16,7 @@ import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
 import { StakingPool } from "./components/StakingPool";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -341,26 +342,21 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerShown: true,
-            headerTitle: t('products.staking.pools.title'),
-        })
-    }, []);
-
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View style={{
             flex: 1,
             flexGrow: 1,
             paddingBottom: safeArea.bottom,
         }}>
-            <StatusBar style={'dark'} />
+            <ScreenHeader
+                title={t('products.staking.pools.title')}
+                onBackPressed={navigation.goBack}
+                style={{
+                    paddingTop: safeArea.top - 16,
+                    paddingHorizontal: 16
+                }}
+            />
+            <StatusBar style={Theme.style === 'dark' ? 'light' : 'dark'} />
             <ScrollView
                 alwaysBounceVertical={false}
                 style={{ flexShrink: 1, flexGrow: 1 }}

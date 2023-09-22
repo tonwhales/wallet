@@ -68,7 +68,7 @@ export const ItemSwitch = React.memo((props: {
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
                         textAlignVertical: 'center',
-                        flexShrink: 1, color: Theme.textPrimary
+                        flexShrink: 1, color: Theme.textPrimary, marginRight: 4,
                     }}
                 >
                     {props.title}

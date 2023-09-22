@@ -181,16 +181,7 @@ export const SecurityFragment = fragment(() => {
                 }}>
                     <ItemSwitch
                         leftIcon={require('@assets/ic-secure-lock.png')}
-                        title={
-                            t(
-                                'secure.lockAppWithAuth',
-                                {
-                                    method: (!!biometricsProps && biometricsProps.state !== BiometricsState.NotSet)
-                                        ? biometricsProps.buttonText
-                                        : t('secure.methodPasscode')
-                                }
-                            )
-                        }
+                        title={t('secure.lockAppWithAuth')}
                         value={lockAppWithAuthState}
                         onChange={(newValue: boolean) => {
                             engine.sharedPersistence.lockAppWithAuth.item().update(() => newValue);

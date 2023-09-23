@@ -147,7 +147,6 @@ export const HoldersLandingFragment = fragment(() => {
     }, [onEnroll]);
 
     const onNavigation = useCallback((url: string) => {
-        console.log('Landing onNavigation', { url });
         const params = extractHoldersQueryParams(url);
         if (params.closeApp) {
             navigation.goBack();

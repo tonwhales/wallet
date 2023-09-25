@@ -77,6 +77,7 @@ import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
 import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
 import { StakingAnalyticsFragment } from './fragments/staking/StakingAnalyticsFragment';
+import { ThemeFragment } from './fragments/ThemeFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -160,11 +161,11 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletCreate', WalletCreateFragment, safeArea),
     genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
-    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
+    modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     genericScreen('Settings', SettingsFragment, safeArea),
-    genericScreen('Privacy', PrivacyFragment, safeArea),
-    genericScreen('Terms', TermsFragment, safeArea),
+    genericScreen('Privacy', PrivacyFragment, safeArea, undefined, 0),
+    genericScreen('Terms', TermsFragment, safeArea, undefined, 0),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
@@ -210,11 +211,12 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
 
     // Settings
-    genericScreen('Security', SecurityFragment, safeArea),
-    genericScreen('Contacts', ContactsFragment, safeArea),
-    genericScreen('Contact', ContactFragment, safeArea),
-    genericScreen('SpamFilter', SpamFilterFragment, safeArea),
-    genericScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('Contacts', ContactsFragment, safeArea),
+    modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
+    modalScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Theme', ThemeFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),

@@ -9,7 +9,7 @@ import { AsyncLock } from "teslabot";
 import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { WalletV4Source } from "ton-contracts";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
-import { CloseButton } from "../../components/CloseButton";
+import { CloseButton } from "../../components/navigation/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";

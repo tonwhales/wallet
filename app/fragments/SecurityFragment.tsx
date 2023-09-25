@@ -1,7 +1,5 @@
-import { StatusBar } from "expo-status-bar"
-import { Platform, View, Text, ScrollView } from "react-native"
+import { Platform, View, ScrollView } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { CloseButton } from "../components/CloseButton"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
 import { t } from "../i18n/t"
@@ -10,7 +8,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation"
 import { useAppConfig } from "../utils/AppConfigContext"
 import { useEngine } from "../engine/Engine"
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
-import { useEffect, useLayoutEffect, useMemo, useState } from "react"
+import { useLayoutEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
 import { Ionicons } from '@expo/vector-icons';
 import TouchIos from '@assets/ic_touch_ios.svg';
@@ -19,7 +17,6 @@ import FaceIos from '@assets/ic_face_id.svg';
 import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
-import { ItemGroup } from "../components/ItemGroup"
 import { ScreenHeader } from "../components/ScreenHeader"
 
 export const SecurityFragment = fragment(() => {
@@ -83,30 +80,23 @@ export const SecurityFragment = fragment(() => {
         }
 
     }, [biometricsState, deviceEncryption, passcodeState]);
-    
+
     useLayoutEffect(() => {
         (async () => {
             const encryption = await getDeviceEncryption();
             setDeviceEncryption(encryption);
         })();
-
-        if (Platform.OS === 'ios') {
-            navigation.setOptions({
-                headerShown: true,
-                title: t('security.title'),
-            });
-        }
-    }, [navigation]);
+    }, []);
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <AndroidToolbar
-                onBack={navigation.goBack}
-                style={{ height: 44, marginTop: 16 }}
-                pageTitle={t('security.title')}
+            <ScreenHeader
+                title={t('security.title')}
+                onClosePressed={navigation.goBack}
+                statusBarStyle={Platform.select({ ios: 'light', android: Theme.style === 'dark' ? 'light' : 'dark' })}
             />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -157,7 +147,8 @@ export const SecurityFragment = fragment(() => {
                                 <ItemSwitch
                                     title={biometricsProps.buttonText}
                                     value={biometricsProps.state === BiometricsState.InUse}
-                                    leftIconComponent={biometricsProps.icon}
+                                    leftIconComponent={deviceEncryption === 'face' ? undefined : biometricsProps.icon}
+                                    leftIcon={deviceEncryption === 'face' ? require('@assets/ic-secure-face.png') : undefined}
                                     onChange={async (newValue: boolean) => {
                                         try {
                                             if (newValue) {
@@ -189,16 +180,8 @@ export const SecurityFragment = fragment(() => {
                     justifyContent: 'center',
                 }}>
                     <ItemSwitch
-                        title={
-                            t(
-                                'secure.lockAppWithAuth',
-                                {
-                                    method: (!!biometricsProps && biometricsProps.state !== BiometricsState.NotSet)
-                                        ? biometricsProps.buttonText
-                                        : t('secure.methodPasscode')
-                                }
-                            )
-                        }
+                        leftIcon={require('@assets/ic-secure-lock.png')}
+                        title={t('secure.lockAppWithAuth')}
                         value={lockAppWithAuthState}
                         onChange={(newValue: boolean) => {
                             engine.sharedPersistence.lockAppWithAuth.item().update(() => newValue);

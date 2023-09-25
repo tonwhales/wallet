@@ -15,7 +15,7 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { useScreenHeader } from "../components/ScreenHeader";
+import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { copyText } from "../utils/copyText";
 import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
@@ -218,27 +218,21 @@ export const ContactFragment = fragment(() => {
         return params.isNew && ready;
     }, [editing, hasChanges, params, ready]);
 
-    const reset = useCallback(() => {
-        setEditing(false);
-        setFields(contact?.fields || requiredFields);
-        setName(contact?.name);
-    }, []);
-
-    useScreenHeader(
-        navigation,
-        Theme,
-        {
-            title: t('contacts.title'),
-            headerShown: true,
-            headerLargeTitle: true,
-            tintColor: Theme.accent,
-            rightButton: (
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1,
-                        }
-                    }}
+    return (
+        <View style={{
+            flex: 1,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+        }}>
+            <StatusBar style={'dark'} />
+            <ScreenHeader
+                title={t('contacts.title')}
+                style={{ paddingLeft: 16 }}
+                onBackPressed={navigation.goBack}
+                rightButton={<Pressable
+                    style={({ pressed }) => ({
+                        marginRight: 16,
+                        opacity: pressed ? 0.5 : 1,
+                    })}
                     onPress={onAction}
                     hitSlop={
                         Platform.select({
@@ -259,17 +253,8 @@ export const ContactFragment = fragment(() => {
                     }}>
                         {editing ? t('contacts.save') : t('contacts.edit')}
                     </Text>
-                </Pressable>
-            ),
-        }
-    );
-
-    return (
-        <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-        }}>
-            <StatusBar style={'dark'} />
+                </Pressable>}
+            />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{

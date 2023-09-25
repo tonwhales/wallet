@@ -35,7 +35,10 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
     }
 
     return (
-        <Animated.View entering={FadeIn} exiting={FadeOut}>
+        <Animated.View
+            style={{ flex: 1 }}
+            entering={FadeIn} exiting={FadeOut}
+        >
             <Pressable
                 style={({ pressed }) => ({
                     flexDirection: 'row',

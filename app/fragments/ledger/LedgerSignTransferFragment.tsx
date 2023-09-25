@@ -19,7 +19,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
 import { ItemLarge } from '../../components/ItemLarge';
 import { ItemDivider } from '../../components/ItemDivider';
-import { CloseButton } from '../../components/CloseButton';
+import { CloseButton } from '../../components/navigation/CloseButton';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';

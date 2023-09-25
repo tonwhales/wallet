@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ImageSourcePropType, Pressable, Text, View, Image, Platform } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp, TextStyle } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useAppConfig } from '../utils/AppConfigContext';
 
@@ -41,6 +41,7 @@ export const ItemSwitch = React.memo((props: {
     onChange: (value: boolean) => void,
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
+    titleStyle?: StyleProp<TextStyle>
 }) => {
     const { Theme } = useAppConfig();
 
@@ -64,12 +65,15 @@ export const ItemSwitch = React.memo((props: {
                     </View>
                 )}
                 <Text
-                    style={{
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '600',
-                        textAlignVertical: 'center',
-                        flexShrink: 1, color: Theme.textPrimary
-                    }}
+                    style={[
+                        {
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                            textAlignVertical: 'center',
+                            flexShrink: 1, color: Theme.textPrimary, marginRight: 4,
+                        },
+                        props.titleStyle
+                    ]}
                 >
                     {props.title}
                 </Text>

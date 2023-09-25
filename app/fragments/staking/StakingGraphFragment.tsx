@@ -7,7 +7,7 @@ import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanima
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { CloseButton } from "../../components/CloseButton";
+import { CloseButton } from "../../components/navigation/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
 import { useEngine } from "../../engine/Engine";
 import { usePrice } from "../../engine/PriceContext";

@@ -59,7 +59,7 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
             }}>
                 <Image
                     style={{ width: 147, height: 175 }}
-                    source={require('@assets/ic-splash.png')}
+                    source={Theme.style === 'dark' ? require('@assets/ic-splash-dark.png') : require('@assets/ic-splash.png')}
                 />
             </View>
         </Animated.View>

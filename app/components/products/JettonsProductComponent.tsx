@@ -22,7 +22,7 @@ import IcVerified from '@assets/ic-verified.svg';
 export const JettonsProductComponent = memo(() => {
     const engine = useEngine();
     const { Theme } = useAppConfig();
-    const navigaiton = useTypedNavigation();
+    const navigation = useTypedNavigation();
     const balance = engine.products.main.useAccount()?.balance ?? new BN(0);
 
     const visibleList = engine.products.main.useJettons().filter((j) => !j.disabled);
@@ -50,7 +50,7 @@ export const JettonsProductComponent = memo(() => {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const onTonPress = useCallback(() => {
-        navigaiton.navigate('SimpleTransfer');
+        navigation.navigate('SimpleTransfer');
     }, []);
 
     const tonItem = useMemo(() => {

@@ -16,7 +16,7 @@ import { warn } from '../../utils/log';
 import SuccessIcon from '@assets/ic_success.svg';
 import ChainIcon from '@assets/ic_chain.svg';
 import ProtectedIcon from '@assets/ic_protected.svg';
-import { CloseButton } from '../../components/CloseButton';
+import { CloseButton } from '../../components/navigation/CloseButton';
 import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { ConnectEvent, ConnectItemReply, ConnectRequest, SessionCrypto } from '@tonconnect/protocol';

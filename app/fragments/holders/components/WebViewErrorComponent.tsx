@@ -37,7 +37,7 @@ export const WebViewErrorComponent = memo(({
             flexGrow: 1,
             justifyContent: 'center',
             alignItems: 'center',
-            padding: 16
+            padding: 16, height: '100%'
         }}>
             {!!networkState ? (
                 <View style={{ width: '100%' }}>

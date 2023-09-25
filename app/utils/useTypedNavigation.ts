@@ -8,6 +8,7 @@ import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateF
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -61,7 +62,7 @@ export class TypedNavigation {
         this.base.goBack();
     }
 
-    setOptions = (options: Partial<{}>) => {
+    setOptions = (options: Partial<NativeStackNavigationOptions>) => {
         this.base.setOptions(options);
     }
 
@@ -132,6 +133,10 @@ export class TypedNavigation {
             await BarCodeScanner.requestPermissionsAsync();
             this.navigate('Scanner', params);
         })();
+    }
+
+    navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
+        this.navigate('ScreenCapture', params);
     }
 }
 

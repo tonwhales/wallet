@@ -100,6 +100,13 @@ export type LocalizationSchema = {
         telegram: string,
         rateApp: string,
         deleteAccount: string,
+        theme: string
+    },
+    theme: {
+        title: string,
+        light: string,
+        dark: string,
+        system: string,
     },
     wallet: {
         sync: string,

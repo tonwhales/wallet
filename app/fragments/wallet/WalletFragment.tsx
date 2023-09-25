@@ -222,7 +222,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                                 fontSize: 15,
                                 lineHeight: 20,
                                 textAlign: 'left',
-                                color: Theme.textSecondary,
+                                color: Theme.divider,
                                 fontWeight: '400',
                                 fontFamily: undefined
                             }}

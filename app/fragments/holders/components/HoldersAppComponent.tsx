@@ -230,10 +230,19 @@ export const HoldersAppComponent = React.memo((
             route = `/card/${props.variant.id}`;
         }
 
-        return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`,
-        };
+        const queryParams = new URLSearchParams({
+            lang: lang,
+            currency: currency,
+            theme: 'holders',
+            'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
+        });
+
+        const url = `${props.endpoint}${route}?${queryParams.toString()}`;
+        const initialRoute = `${route}?${queryParams.toString()}`;
+
+        queryParams.append('initial-route', route);
+
+        return { url, initialRoute, queryParams: queryParams.toString() };
     }, [props, lang, currency, status, Theme]);
 
     // 
@@ -489,6 +498,7 @@ export const HoldersAppComponent = React.memo((
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                         initialRoute={source.initialRoute}
+                        queryParams={source.queryParams}
                         style={{
                             backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',

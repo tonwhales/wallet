@@ -20,10 +20,11 @@ import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { normalizePath } from '../../engine/holders/HoldersProduct';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { useFocusEffect } from '@react-navigation/native';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export const HoldersLandingFragment = fragment(() => {
     const { Theme } = useAppConfig();
@@ -161,6 +162,22 @@ export const HoldersLandingFragment = fragment(() => {
     const folderPath = `${FileSystem.cacheDirectory}holders`;
     const [offlineRender, setOfflineRender] = useState(0);
 
+    const source = useMemo(() => {
+        const queryParams = new URLSearchParams({
+            lang: lang,
+            currency: currency,
+            theme: 'holders',
+            'theme-style': Theme.style === 'dark' ? 'dark' : 'light',
+        });
+
+        const url = `${endpoint}/about?${queryParams.toString()}`;
+        const initialRoute = `/about?${queryParams.toString()}`;
+
+        queryParams.append('initial-route', 'about');
+
+        return { url, initialRoute, queryParams: queryParams.toString() };
+    }, [Theme]);
+
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
         opacity.value = 0;
@@ -194,18 +211,18 @@ export const HoldersLandingFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: safeArea.top,
+            paddingTop: 36,
             backgroundColor: Theme.surfacePimary
         }}>
-            <StatusBar style={'dark'} />
             <View style={{ backgroundColor: Theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
-                {useOfflineApp && (
+                {useOfflineApp ? (
                     <OfflineWebView
                         ref={webRef}
                         key={`offline-rendered-${offlineRender}`}
                         uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
                         baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                        initialRoute={`/about?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}`}
+                        initialRoute={source.initialRoute}
+                        queryParams={source.queryParams}
                         style={{
                             backgroundColor: Theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
@@ -245,77 +262,67 @@ export const HoldersLandingFragment = fragment(() => {
                             )
                         }}
                     />
-                )}
-                {!useOfflineApp && (
-                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                        <WebView
-                            ref={webRef}
-                            source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}&theme=holders&theme-style${Theme.style === 'dark' ? 'dark' : 'light'}` }}
-                            startInLoadingState={true}
-                            style={{
-                                backgroundColor: Theme.surfacePimary,
-                                flexGrow: 1, flexBasis: 0, height: '100%',
-                                alignSelf: 'stretch',
-                                marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadEnd={() => {
-                                setLoaded(true);
-                                opacity.value = 0;
-                            }}
-                            onLoadProgress={(event) => {
-                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                )
+                    : (
+                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                            <WebView
+                                ref={webRef}
+                                source={{ uri: source.url }}
+                                startInLoadingState={true}
+                                style={{
+                                    backgroundColor: Theme.surfacePimary,
+                                    flexGrow: 1, flexBasis: 0, height: '100%',
+                                    alignSelf: 'stretch',
+                                    marginTop: Platform.OS === 'ios' ? 0 : 8,
+                                }}
+                                onLoadEnd={() => {
+                                    setLoaded(true);
+                                    opacity.value = 0;
+                                }}
+                                onLoadProgress={(event) => {
+                                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                        // Searching for supported query
+                                        onNavigation(event.nativeEvent.url);
+                                    }
+                                }}
+                                onNavigationStateChange={(event: WebViewNavigation) => {
                                     // Searching for supported query
-                                    onNavigation(event.nativeEvent.url);
-                                }
-                            }}
-                            onNavigationStateChange={(event: WebViewNavigation) => {
-                                // Searching for supported query
-                                onNavigation(event.url);
-                            }}
-                            // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
-                            contentInset={{ top: 0, bottom: 0 }}
-                            autoManageStatusBarEnabled={false}
-                            allowFileAccessFromFileURLs={false}
-                            allowUniversalAccessFromFileURLs={false}
-                            decelerationRate="normal"
-                            allowsInlineMediaPlayback={true}
-                            onMessage={handleWebViewMessage}
-                            keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                            bounces={false}
-                            renderError={(errorDomain, errorCode, errorDesc) => {
-                                return (
-                                    <WebViewErrorComponent
-                                        onReload={onContentProcessDidTerminate}
-                                        errorDomain={errorDomain}
-                                        errorCode={errorCode}
-                                        errorDesc={errorDesc}
-                                    />
-                                )
-                            }}
-                        />
-                    </Animated.View>
-                )}
+                                    onNavigation(event.url);
+                                }}
+                                // Locking scroll, it's handled within the Web App
+                                scrollEnabled={false}
+                                contentInset={{ top: 0, bottom: 0 }}
+                                autoManageStatusBarEnabled={false}
+                                allowFileAccessFromFileURLs={false}
+                                allowUniversalAccessFromFileURLs={false}
+                                decelerationRate="normal"
+                                allowsInlineMediaPlayback={true}
+                                onMessage={handleWebViewMessage}
+                                keyboardDisplayRequiresUserAction={false}
+                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                                bounces={false}
+                                renderError={(errorDomain, errorCode, errorDesc) => {
+                                    return (
+                                        <WebViewErrorComponent
+                                            onReload={onContentProcessDidTerminate}
+                                            errorDomain={errorDomain}
+                                            errorCode={errorCode}
+                                            errorDesc={errorDesc}
+                                        />
+                                    )
+                                }}
+                            />
+                        </Animated.View>
+                    )
+                }
                 {!useOfflineApp && (
                     <Animated.View
                         style={animatedStyles}
                         pointerEvents={loaded ? 'none' : 'box-none'}
                     >
-                        <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                            <AndroidToolbar tintColor={'#564CE2'} onBack={() => navigation.goBack()} />
+                        <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
+                            <ScreenHeader onBackPressed={navigation.goBack} />
                         </View>
-                        {Platform.OS === 'ios' && (
-                            <Pressable
-                                style={{ position: 'absolute', top: 22, right: 16 }}
-                                onPress={() => {
-                                    navigation.goBack();
-                                }} >
-                                <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                    {t('common.close')}
-                                </Text>
-                            </Pressable>
-                        )}
                         <ActivityIndicator size="small" color={'#564CE2'} />
                     </Animated.View>
                 )}
@@ -323,20 +330,9 @@ export const HoldersLandingFragment = fragment(() => {
                     style={animatedAuthStyles}
                     pointerEvents={!auth ? 'none' : 'box-none'}
                 >
-                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                        <AndroidToolbar onBack={() => navigation.goBack()} />
+                    <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
+                        <ScreenHeader onBackPressed={navigation.goBack} />
                     </View>
-                    {Platform.OS === 'ios' && (
-                        <Pressable
-                            style={{ position: 'absolute', top: 22, right: 16 }}
-                            onPress={() => {
-                                navigation.goBack();
-                            }} >
-                            <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                                {t('common.close')}
-                            </Text>
-                        </Pressable>
-                    )}
                     <ActivityIndicator size="small" color={'#564CE2'} />
                 </Animated.View>
             </View>

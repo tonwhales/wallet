@@ -12,7 +12,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { WalletKeys } from '../../storage/walletKeys';
 import { useEngine } from '../../engine/Engine';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { CloseButton } from '../../components/CloseButton';
+import { CloseButton } from '../../components/navigation/CloseButton';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 

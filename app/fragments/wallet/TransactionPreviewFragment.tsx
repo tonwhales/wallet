@@ -3,7 +3,7 @@ import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Shar
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { CloseButton } from "../../components/CloseButton";
+import { CloseButton } from "../../components/navigation/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { fromNano } from "ton";

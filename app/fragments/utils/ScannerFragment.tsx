@@ -259,7 +259,7 @@ export const ScannerFragment = systemFragment(() => {
             </View>
             <ScreenHeader
                 tintColor={'white'}
-                style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
+                style={{ position: 'absolute', top: safeArea.top, left: 16, right: 0 }}
                 onBackPressed={() => {
                     setActive(false);
                     setTimeout(() => {

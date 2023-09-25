@@ -85,12 +85,9 @@ export const WalletBackupFragment = systemFragment(() => {
             title: !init ? t('create.backupTitle') : '',
             headerShown: !logout,
             tintColor: Theme.accent,
+            onBackPressed: navigation.goBack
         }
     );
-
-    useEffect(() => {
-
-    }, []);
 
     useFocusEffect(() => {
         setTimeout(() => {
@@ -114,11 +111,20 @@ export const WalletBackupFragment = systemFragment(() => {
             key={"content"}
         >
             <StatusBar style={'dark'} />
-            {logout && (
+            {logout ? (
                 <ScreenHeader
                     title={t('common.logout')}
                     onBackPressed={navigation.goBack}
                 />
+            ) : (
+                !init && (
+                    <ScreenHeader
+                        title={t('create.backupTitle')}
+                        onClosePressed={navigation.goBack}
+                        style={Platform.select({ android: { paddingTop: safeArea.top } })}
+                        statusBarStyle={Platform.OS === 'ios' ? 'dark' : 'light'}
+                    />
+                )
             )}
             <ScrollView
                 alwaysBounceVertical={false}

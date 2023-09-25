@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano } from "ton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { ATextInput } from "../../components/ATextInput";
-import { CloseButton } from "../../components/CloseButton";
+import { CloseButton } from "../../components/navigation/CloseButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";

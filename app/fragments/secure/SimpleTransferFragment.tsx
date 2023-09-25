@@ -657,6 +657,10 @@ export const SimpleTransferFragment = fragment(() => {
                 onBackPressed={header?.onBackPressed}
                 titleComponent={header.titleComponent}
                 rightButton={header.rightButton}
+                style={[
+                    { paddingLeft: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}

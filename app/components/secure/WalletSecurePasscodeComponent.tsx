@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform } from 'react-native';
+import { Alert, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
 import { mnemonicToWalletKey } from 'ton-crypto';
@@ -11,7 +11,6 @@ import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
 import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../passcode/PasscodeSetup';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { WalletSecureComponent } from './WalletSecureComponent';
@@ -19,9 +18,8 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
-import { useCallback, useEffect, useLayoutEffect } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useKeysAuth } from './AuthWalletKeys';
-import { HeaderBackButton } from "@react-navigation/elements";
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -34,10 +32,10 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
 
-    const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
-    const [loading, setLoading] = React.useState(false);
+    const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
+    const [loading, setLoading] = useState(false);
 
-    const onAfterImport = React.useCallback(() => {
+    const onAfterImport = useCallback(() => {
         const address = getBackup();
         let state = getAppState();
         if (!state) {
@@ -48,66 +46,67 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     }, []);
 
     useEffect(() => {
+        const appState = getAppState();
+        if (appState.addresses.length <= 0) {
+            return;
+        }
         (async () => {
-            const appState = getAppState();
-            if (appState.addresses.length > 0) {
-                setLoading(true);
-                try {
-                    // Encrypted token
-                    let secretKeyEnc: Buffer | undefined = undefined;
+            setLoading(true);
+            try {
+                // Encrypted token
+                let secretKeyEnc: Buffer | undefined = undefined;
 
-                    // Resolve key
-                    const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
+                // Resolve key
+                const key = await mnemonicToWalletKey(props.mnemonics.split(' '));
 
-                    // Resolve utility key
-                    const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
+                // Resolve utility key
+                const utilityKey = await deriveUtilityKey(props.mnemonics.split(' '));
 
-                    // Resolve contract
-                    const contract = await contractFromPublicKey(key.publicKey);
+                // Resolve contract
+                const contract = await contractFromPublicKey(key.publicKey);
 
-                    // Authenticate
-                    const passcodeState = getPasscodeState();
-                    const biometricsState = getBiometricsState();
-                    const useBiometrics = (biometricsState === BiometricsState.InUse);
+                // Authenticate
+                const passcodeState = getPasscodeState();
+                const biometricsState = getBiometricsState();
+                const useBiometrics = (biometricsState === BiometricsState.InUse);
 
-                    if (useBiometrics) {
-                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
-                    } else if (passcodeState === PasscodeState.Set) {
-                        const authRes = await authContext.authenticateWithPasscode();
-                        if (authRes) {
-                            secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
-                        }
+                if (useBiometrics) {
+                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
+                } else if (passcodeState === PasscodeState.Set) {
+                    const authRes = await authContext.authenticateWithPasscode();
+                    if (authRes) {
+                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
                     }
-
-                    if (!secretKeyEnc) {
-                        throw new Error('Invalid app key');
-                    }
-
-                    // Persist state
-                    const state = getAppState();
-                    setAppState({
-                        addresses: [
-                            ...state.addresses,
-                            {
-                                address: contract.address,
-                                publicKey: key.publicKey,
-                                secretKeyEnc, // With passcode
-                                utilityKey,
-                            }
-                        ],
-                        selected: state.addresses.length
-                    }, AppConfig.isTestnet);
-                    onAfterImport();
-                } catch {
-                    Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
-                } finally {
-                    setLoading(false);
                 }
+
+                if (!secretKeyEnc) {
+                    throw new Error('Invalid app key');
+                }
+
+                // Persist state
+                const state = getAppState();
+                setAppState({
+                    addresses: [
+                        ...state.addresses,
+                        {
+                            address: contract.address,
+                            publicKey: key.publicKey,
+                            secretKeyEnc, // With passcode
+                            utilityKey,
+                        }
+                    ],
+                    selected: state.addresses.length
+                }, AppConfig.isTestnet);
+                onAfterImport();
+            } catch {
+                Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
+            } finally {
+                setLoading(false);
             }
         })();
     }, []);
 
-    const onConfirmed = React.useCallback(async (passcode: string) => {
+    const onConfirmed = useCallback(async (passcode: string) => {
         setLoading(true);
         try {
 
@@ -231,64 +230,23 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', onBack);
         }
-        if (Platform.OS === 'ios') {
-            navigation.base.setOptions({
-                gestureEnabled: false,
-                headerLeft: () => {
-                    return (
-                        <HeaderBackButton
-                            label={t('common.back')}
-                            labelVisible
-                            style={{ marginLeft: -13 }}
-                            onPress={() => {
-                                if (props.onBack) {
-                                    resetConfirmedAddressState();
-                                    props.onBack();
-                                } else {
-                                    navigation.goBack();
-                                }
-                            }}
-                            tintColor={Theme.accent}
-                        />
-                    )
-                },
-            });
-        }
 
         return () => {
             if (Platform.OS === 'android') {
                 navigation.base.removeListener('beforeRemove', onBack);
             }
-            if (Platform.OS === 'ios') {
-                navigation.base.setOptions({
-                    headerLeft: () => {
-                        return (
-                            <HeaderBackButton
-                                style={{ marginLeft: -13 }}
-                                label={t('common.back')}
-                                labelVisible
-                                onPress={navigation.goBack}
-                                tintColor={Theme.accent}
-                            />
-                        )
-                    },
-                });
-            }
         }
-    }, [navigation, onBack, state, props.onBack, resetConfirmedAddressState]);
+    }, [navigation, onBack]);
 
     return (
-        <>
+        <View style={{ flexGrow: 1, width: '100%' }}>
             {!state && !loading && (
                 <Animated.View
-                    style={{
-                        flex: 1,
-                        paddingTop: (Platform.OS === 'android')
-                            ? 0
-                            : undefined,
-                    }}
+                    style={[
+                        { flex: 1 },
+                        Platform.select({ android: { paddingTop: 0, paddingBottom: 16 }, ios: { paddingBottom: undefined } })
+                    ]}
                 >
-                    <StatusBar style={'dark'} />
                     <PasscodeSetup
                         style={props.import ? { backgroundColor: Theme.background } : undefined}
                         onReady={onConfirmed}
@@ -307,7 +265,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
             {state && !loading && (
                 <Animated.View
-                    style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
+                    style={{ justifyContent: 'center', flexGrow: 1 }}
                     key={'content'}
                     entering={FadeIn}
                 >
@@ -350,6 +308,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     <LoadingIndicator simple />
                 </Animated.View>
             )}
-        </>
+        </View>
     );
 });

@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Alert, Platform, ToastAndroid, View, Text, KeyboardAvoidingView } from "react-native";
+import { Alert, Platform, ToastAndroid, View, KeyboardAvoidingView } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
 import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { setStatusBarStyle } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useEngine } from '../../engine/Engine';
 import { clearHolders } from '../LogoutFragment';
@@ -140,7 +140,7 @@ export const DeveloperToolsFragment = fragment(() => {
         navigation.setOptions({
             headerTitle: 'Dev. tools',
         });
-        
+
         setTimeout(() => {
             setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
         }, 10);
@@ -261,6 +261,7 @@ export const DeveloperToolsFragment = fragment(() => {
                                     onChange={(newValue: boolean) => {
                                         storage.set('dev-tools:use-offline-app', newValue);
                                         setOfflineAppEnabled(newValue);
+                                        reboot();
                                     }}
                                 />
                             </View>
@@ -283,6 +284,15 @@ export const DeveloperToolsFragment = fragment(() => {
                                         minHeight: 72,
                                         marginHorizontal: 16,
                                     }}
+                                />
+                                <RoundButton
+                                    title={'Default URL'}
+                                    onPress={() => {
+                                        storage.set('zenpay-app-url', 'https://next.zenpay.org');
+                                        Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
+                                    }}
+                                    display={'default'}
+                                    style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
                                 />
                                 <RoundButton
                                     title={'Apply URL'}

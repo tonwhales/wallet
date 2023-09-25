@@ -8,34 +8,44 @@ import { t } from '../i18n/t';
 import { useEngine } from '../engine/Engine';
 import BN from 'bn.js';
 import { useAppConfig } from '../utils/AppConfigContext';
-import { TabHeader } from '../components/topbar/TabHeader';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { openWithInApp } from '../utils/openWithInApp';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
+import { getAppState, getCurrentAddress } from '../storage/appState';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { usePrice } from '../engine/PriceContext';
 
-import Security from '@assets/ic-security.svg';
-import Spam from '@assets/ic-spam.svg';
-import Contacts from '@assets/ic-contacts.svg';
-import Currency from '@assets/ic-currency.svg';
-import Accounts from '@assets/ic-accounts.svg';
-import Terms from '@assets/ic-terms.svg';
-import Privacy from '@assets/ic-privacy.svg';
-import Support from '@assets/ic-support.svg';
-import Telegram from '@assets/ic-tg.svg';
-import RateApp from '@assets/ic-rate-app.svg';
+import IcSecurity from '@assets/ic-security.svg';
+import IcSpam from '@assets/ic-spam.svg';
+import IcContacts from '@assets/ic-contacts.svg';
+import IcCurrency from '@assets/ic-currency.svg';
+import IcTerms from '@assets/ic-terms.svg';
+import IcPrivacy from '@assets/ic-privacy.svg';
+import IcSupport from '@assets/ic-support.svg';
+import IcTelegram from '@assets/ic-tg.svg';
+import IcRateApp from '@assets/ic-rate-app.svg';
+import IcNoConnection from '@assets/ic-no-connection.svg';
+import IcTheme from '@assets/ic-theme.svg';
 
 export const SettingsFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
-    const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const oldWalletsBalance = engine.products.legacy.useState();
+    const { Theme, AppConfig, themeStyle } = useAppConfig();
+    const safeArea = useSafeAreaInsets();
     const { showActionSheetWithOptions } = useActionSheet();
+    const engine = useEngine();
+    const currentWalletIndex = getAppState().selected;
+    const address = useMemo(() => getCurrentAddress().address, []);
+    const walletSettings = engine.products.wallets.useWalletSettings(address);
+    const navigation = useTypedNavigation();
+    const oldWalletsBalance = engine.products.legacy.useState();
+    const syncState = engine.state.use();
+    const [price, currency] = usePrice();
 
-    const onVersionTap = React.useMemo(() => {
+    const onVersionTap = useMemo(() => {
         let count = 0;
         let timer: any | null = null;
         return () => {
@@ -93,7 +103,48 @@ export const SettingsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <TabHeader title={t('settings.title')} />
+            <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
+                <View style={{
+                    flexDirection: 'row',
+                    backgroundColor: Theme.surfaceSecondary,
+                    borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                    alignItems: 'center'
+                }}>
+                    <Text
+                        style={{
+                            fontWeight: '500',
+                            fontSize: 17, lineHeight: 24,
+                            color: Theme.textPrimary, flexShrink: 1,
+                            marginRight: 8
+                        }}
+                        ellipsizeMode='tail'
+                        numberOfLines={1}
+                    >
+                        {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
+                    </Text>
+                    {syncState === 'updating' && (
+                        <ReAnimatedCircularProgress
+                            size={14}
+                            color={Theme.textThird}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
+                    )}
+                    {syncState === 'connecting' && (
+                        <IcNoConnection
+                            height={16}
+                            width={16}
+                            style={{ height: 16, width: 16 }}
+                        />
+                    )}
+                    {syncState === 'online' && (
+                        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{ backgroundColor: Theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
+                        </View>
+                    )}
+                </View>
+            </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
@@ -111,7 +162,7 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center',
                 }}>
                     <ItemButton
-                        leftIconComponent={<Security width={24} height={24} />}
+                        leftIconComponent={<IcSecurity width={24} height={24} />}
                         title={t('security.title')}
                         onPress={() => navigation.navigate('Security')}
                     />
@@ -123,19 +174,34 @@ export const SettingsFragment = fragment(() => {
                         />
                     )}
                     <ItemButton
-                        leftIconComponent={<Spam width={24} height={24} />}
+                        leftIconComponent={<IcSpam width={24} height={24} />}
                         title={t('settings.spamFilter')}
                         onPress={() => navigation.navigate('SpamFilter')}
                     />
                     <ItemButton
-                        leftIconComponent={<Contacts width={24} height={24} />}
+                        leftIconComponent={<IcContacts width={24} height={24} />}
                         title={t('contacts.title')}
                         onPress={() => navigation.navigate('Contacts')}
                     />
                     <ItemButton
-                        leftIconComponent={<Currency width={24} height={24} />}
+                        leftIconComponent={<IcCurrency width={24} height={24} />}
                         title={t('settings.primaryCurrency')}
                         onPress={() => navigation.navigate('Currency')}
+                        hint={currency}
+                    />
+                </View>
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: Theme.border,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<IcTheme width={24} height={24} />}
+                        title={t('settings.theme')}
+                        onPress={() => navigation.navigate('Theme')}
+                        hint={t(`theme.${themeStyle}`)}
                     />
                 </View>
 
@@ -147,17 +213,17 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center'
                 }}>
                     <ItemButton
-                        leftIconComponent={<Support width={24} height={24} />}
+                        leftIconComponent={<IcSupport width={24} height={24} />}
                         title={t('settings.support.title')}
                         onPress={onSupport}
                     />
                     <ItemButton
-                        leftIconComponent={<Telegram width={24} height={24} />}
+                        leftIconComponent={<IcTelegram width={24} height={24} />}
                         title={t('settings.telegram')}
                         onPress={() => openWithInApp('https://t.me/tonhub')}
                     />
                     <ItemButton
-                        leftIconComponent={<RateApp width={24} height={24} />}
+                        leftIconComponent={<IcRateApp width={24} height={24} />}
                         title={t('settings.rateApp')}
                         onPress={onRateApp}
                     />
@@ -171,12 +237,12 @@ export const SettingsFragment = fragment(() => {
                     alignItems: 'center'
                 }}>
                     <ItemButton
-                        leftIconComponent={<Terms width={24} height={24} />}
+                        leftIconComponent={<IcTerms width={24} height={24} />}
                         title={t('settings.termsOfService')}
                         onPress={() => navigation.navigate('Terms')}
                     />
                     <ItemButton
-                        leftIconComponent={<Privacy width={24} height={24} />}
+                        leftIconComponent={<IcPrivacy width={24} height={24} />}
                         title={t('settings.privacyPolicy')}
                         onPress={() => navigation.navigate('Privacy')}
                     />

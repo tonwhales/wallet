@@ -7,10 +7,13 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
-import { CloseButton } from "../CloseButton";
-import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
+import { CloseButton } from "../navigation/CloseButton";
+import { useAppConfig } from "../../utils/AppConfigContext";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { AndroidToolbar } from "../topbar/AndroidToolbar";
+import { ThemeType } from "../../utils/Theme";
+import { ScreenHeader } from "../ScreenHeader";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -20,7 +23,7 @@ type ScreenState = {
     passcodeLength: number,
 };
 
-const SetupLoader = React.memo((props: {
+const SetupLoader = memo((props: {
     onLoadEnd: (action: Action) => void,
     load: (input: string) => Promise<void>,
     input: string,
@@ -104,6 +107,7 @@ export const PasscodeSetup = memo((
         style?: StyleProp<ViewStyle>,
         onBack?: () => void,
     }) => {
+    const safeArea = useSafeAreaInsets()
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
 
@@ -128,74 +132,31 @@ export const PasscodeSetup = memo((
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', goBack);
         }
-        if (Platform.OS === 'ios') {
-            navigation.base.setOptions({
-                gestureEnabled: false,
-                headerLeft: () => {
-                    return (
-                        <HeaderBackButton
-                            label={t('common.back')}
-                            labelVisible
-                            style={{ marginLeft: -13 }}
-                            onPress={() => {
-                                if (state.step === 're-enter') {
-                                    dispatch({ type: 'input', input: '' });
-                                    return;
-                                }
-                                if (onBack) {
-                                    onBack();
-                                } else {
-                                    navigation.base.goBack();
-                                }
-                            }}
-                            tintColor={Theme.accent}
-                        />
-                    )
-                },
-            });
-        }
 
         return () => {
             if (Platform.OS === 'android') {
                 navigation.base.removeListener('beforeRemove', goBack);
             }
-            if (Platform.OS === 'ios') {
-                navigation.base.setOptions({
-                    headerLeft: () => {
-                        return (
-                            <HeaderBackButton
-                                style={{ marginLeft: -13 }}
-                                label={t('common.back')}
-                                labelVisible
-                                onPress={() => {
-                                    if (state.step === 're-enter') {
-                                        dispatch({ type: 'input', input: '' });
-                                        return;
-                                    }
-                                    navigation.goBack();
-                                }}
-                                tintColor={Theme.accent}
-                            />
-                        )
-                    },
-                });
-            }
         }
-    }, [navigation, onBack, state, goBack]);
+    }, [navigation, goBack]);
 
     return (
-        <View style={[{ flex: 1, width: '100%', height: '100%', }, style]}>
-            <AndroidToolbar onBack={() => {
-                if (state.step === 're-enter') {
-                    dispatch({ type: 'input', input: '' });
-                    return;
-                }
-                if (onBack) {
-                    onBack();
-                } else {
-                    navigation.base.goBack();
-                }
-            }} />
+        <View style={[{ flexGrow: 1, width: '100%', height: '100%', }, style]}>
+            <ScreenHeader
+                onBackPressed={() => {
+                    if (state.step === 're-enter') {
+                        dispatch({ type: 'input', input: '' });
+                        return;
+                    }
+                    if (onBack) {
+                        onBack();
+                    } else {
+                        navigation.base.goBack();
+                    }
+                }}
+                style={[{ paddingTop: 32 }, Platform.select({ android: { paddingLeft: 16 } })]}
+                statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
+            />
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>
                     <PasscodeInput

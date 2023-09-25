@@ -3,7 +3,6 @@ import { Platform, View, Text, ToastAndroid, Alert, ScrollView } from 'react-nat
 import { mnemonicNew } from 'ton-crypto';
 import Animated, { FadeIn, FadeOutDown, FadeOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
@@ -15,12 +14,10 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { HeaderBackButton } from "@react-navigation/elements";
 import * as ScreenCapture from 'expo-screen-capture';
-import { useFocusEffect } from '@react-navigation/native';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -58,34 +55,10 @@ export const WalletCreateFragment = systemFragment(() => {
     useLayoutEffect(() => {
 
         let subscription: ScreenCapture.Subscription;
-        subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigate('ScreenCapture');
-        });
+        subscription = ScreenCapture.addScreenshotListener(() => navigation.navigateScreenCapture);
 
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', onBack);
-        }
-        if (Platform.OS === 'ios') {
-            navigation.base.setOptions({
-                gestureEnabled: !state?.saved,
-                headerLeft: () => {
-                    return (
-                        <HeaderBackButton
-                            label={t('common.back')}
-                            labelVisible
-                            style={{ marginLeft: -13 }}
-                            onPress={() => {
-                                if (state?.saved) {
-                                    setState({ ...state, saved: false });
-                                } else {
-                                    navigation.goBack();
-                                }
-                            }}
-                            tintColor={Theme.accent}
-                        />
-                    )
-                },
-            });
         }
 
         return () => {
@@ -93,40 +66,16 @@ export const WalletCreateFragment = systemFragment(() => {
             if (Platform.OS === 'android') {
                 navigation.base.removeListener('beforeRemove', onBack);
             }
-            if (Platform.OS === 'ios') {
-                navigation.base.setOptions({
-                    headerLeft: () => {
-                        return (
-                            <HeaderBackButton
-                                style={{ marginLeft: -13 }}
-                                label={t('common.back')}
-                                labelVisible
-                                onPress={navigation.goBack}
-                                tintColor={Theme.accent}
-                            />
-                        )
-                    },
-                });
-            }
         }
     }, [navigation, onBack, state]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View
-            style={{
-                flex: 1,
-                flexGrow: 1,
-                paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 16 : safeArea.bottom) : 0
-            }}
+            style={[
+                { flexGrow: 1 },
+                Platform.select({ android: { paddingBottom: safeArea.bottom } }),
+            ]}
         >
-            <StatusBar style={'dark'} />
             {!state && (
                 <Animated.View
                     style={{
@@ -136,7 +85,6 @@ export const WalletCreateFragment = systemFragment(() => {
                     key={'loading'}
                     exiting={FadeOutDown}
                 >
-                    <AndroidToolbar />
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                         <View style={{ flexGrow: 1 }} />
                         <FragmentMediaContent
@@ -148,19 +96,29 @@ export const WalletCreateFragment = systemFragment(() => {
                 </Animated.View>
             )}
             {state && !state?.saved && (
-                <>
-                    <AndroidToolbar />
+                <View style={{ flexGrow: 1 }}>
+                    <ScreenHeader
+                        onBackPressed={() => {
+                            if (state?.saved) {
+                                setState({ ...state, saved: false });
+                            } else {
+                                navigation.goBack();
+                            }
+                        }}
+                        style={[{ paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
+                        statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
+                    />
                     <ScrollView
                         alwaysBounceVertical={false}
                         style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
-                        contentInset={{ bottom: safeArea.bottom + 56 + 16 }}
+                        contentInset={{ bottom: safeArea.bottom + 16 }}
                     >
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
                             fontWeight: '600',
                             textAlign: 'center',
                             color: Theme.textPrimary,
-                            marginBottom: 12, marginTop: 16
+                            marginBottom: 12
                         }}>
                             {t('create.backupTitle')}
                         </Text>
@@ -197,14 +155,11 @@ export const WalletCreateFragment = systemFragment(() => {
                                 }}
                             />
                         )}
-                        <View style={{ height: 56 + 16 }} />
                     </ScrollView>
-                    <View style={{
-                        justifyContent: 'flex-end',
-                        padding: 16,
-                        position: 'absolute', bottom: 0, left: 0, right: 0,
-                        paddingBottom: Platform.OS === 'ios' ? safeArea.bottom === 0 ? 56 : safeArea.bottom + 56 : undefined,
-                    }}>
+                    <View style={[
+                        { paddingHorizontal: 16 },
+                        Platform.select({ android: { paddingBottom: 16 } })
+                    ]}>
                         <RoundButton
                             title={t('create.okSaved')}
                             onPress={() => {
@@ -212,7 +167,7 @@ export const WalletCreateFragment = systemFragment(() => {
                             }}
                         />
                     </View>
-                </>
+                </View>
             )}
             {state?.saved && (
                 <Animated.View
@@ -220,7 +175,7 @@ export const WalletCreateFragment = systemFragment(() => {
                         alignItems: 'center', justifyContent: 'center',
                         flexGrow: 1, backgroundColor: Theme.background,
                     }}
-                    key={"content"}
+                    key={'content'}
                     entering={FadeIn}
                     exiting={FadeOutRight}
                 >

@@ -1,4 +1,4 @@
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,11 +8,11 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useAppConfig } from "../utils/AppConfigContext";
-import { useScreenHeader } from "../components/ScreenHeader";
+import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useDimensions } from "@react-native-community/hooks";
 import { Address } from "ton";
-import { useFocusEffect } from "@react-navigation/native";
+import { RoundButton } from "../components/RoundButton";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -65,33 +65,7 @@ export const ContactsFragment = fragment(() => {
             headerShown: true,
             headerLargeTitle: true,
             tintColor: Theme.accent,
-            rightButton: (
-                !searchFocused ? (
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                            }
-                        }}
-                        onPress={onAddContact}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                    >
-                        <Text style={{
-                            color: Theme.accent,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {t('common.add')}
-                        </Text>
-                    </Pressable>
-                )
-                    : undefined
-            ),
+            onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
             headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
                 hideWhenScrolling: false,
                 hideNavigationBar: false,
@@ -104,23 +78,24 @@ export const ContactsFragment = fragment(() => {
         }
     );
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
 
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom + 16,
         }}>
-            <StatusBar style={'dark'} />
+            {(Object.entries(contacts).length <= 0) && (
+                <ScreenHeader
+                    title={t('contacts.title')}
+                    onClosePressed={navigation.goBack}
+                    statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
+                />
+            )}
             {(!contactsList || contactsList.length === 0) && (
                 <ScrollView
                     style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
                     showsVerticalScrollIndicator={true}
-                    contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
                     <Image
                         resizeMode={'contain'}
@@ -163,19 +138,25 @@ export const ContactsFragment = fragment(() => {
                 <ScrollView
                     style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
                     showsVerticalScrollIndicator={true}
-                    contentInset={{ top: 0, bottom: safeArea.bottom + 44 + 64 + 16 }}
                 >
                     {contactsList.map((d) => {
                         return (
                             <ContactItemView
                                 key={`contact-${d[0]}`}
                                 addr={d[0]}
-                                contact={d[1]}
                             />
                         );
                     })}
                 </ScrollView>
             )}
+            <RoundButton
+                title={t('contacts.add')}
+                onPress={onAddContact}
+                style={[
+                    { marginHorizontal: 16 },
+                    Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
+                ]}
+            />
         </View>
     )
 });

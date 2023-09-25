@@ -1,13 +1,13 @@
 import { StatusBar, StatusBarStyle } from "expo-status-bar";
-import React, { ReactNode, useEffect } from "react"
+import React, { ReactNode, memo, useEffect } from "react"
 import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
 import { AndroidToolbar } from "./topbar/AndroidToolbar";
-import { ThemeType, useAppConfig } from "../utils/AppConfigContext";
-import { HeaderBackButton } from "@react-navigation/elements";
-import { t } from "../i18n/t";
-import { CloseButton } from "./CloseButton";
-import { TypedNavigation } from "../utils/useTypedNavigation";
+import { useAppConfig } from "../utils/AppConfigContext";
+import { CloseButton } from "./navigation/CloseButton";
+import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
+import { ThemeType } from "../utils/Theme";
+import { BackButton } from "./navigation/BackButton";
 
 export function useScreenHeader(
     navigation: TypedNavigation,
@@ -20,6 +20,7 @@ export function useScreenHeader(
         onClosePressed?: () => void,
         rightButton?: ReactNode,
         leftButton?: ReactNode,
+        headerComponentStyle?: StyleProp<ViewStyle>,
     } & NativeStackNavigationOptions
 ) {
     useEffect(() => {
@@ -29,33 +30,55 @@ export function useScreenHeader(
             headerLeft: () => {
                 return (
                     options.leftButton ? options.leftButton : !!options.onBackPressed
-                        ? <HeaderBackButton
-                            label={t('common.back')}
-                            labelVisible
-                            onPress={options.onBackPressed}
-                            tintColor={options.tintColor ?? Theme.accent}
-                            style={{ marginLeft: -12 }}
-                        />
+                        ? <BackButton onPress={options.onBackPressed} />
                         : null
                 );
             },
             title: options.title,
+            headerTitleStyle: {
+                color: options.textColor ?? Theme.textPrimary,
+                fontWeight: '600',
+                fontSize: 17
+            },
             headerBackVisible: true,
             headerRight: () => {
                 return (
                     options.rightButton ? options.rightButton : !!options.onClosePressed
-                        ? <CloseButton
-                            onPress={options.onClosePressed}
-                            tintColor={options.tintColor}
-                        />
+                        ? <CloseButton onPress={options.onClosePressed} />
                         : null
                 );
-            }
+            },
+            header: options.headerSearchBarOptions
+                ? undefined
+                : () => {
+                    return (
+                        <ScreenHeader
+                            style={[
+                                {
+                                    backgroundColor: Theme.background,
+                                    borderTopLeftRadius: 16,
+                                    borderTopRightRadius: 16,
+                                    paddingHorizontal: 16,
+                                },
+                                options.headerStyle,
+                                options.headerComponentStyle
+                            ]}
+                            title={options.title}
+                            textColor={options.textColor}
+                            tintColor={options.tintColor}
+                            onBackPressed={options.onBackPressed}
+                            onClosePressed={options.onClosePressed}
+                            rightButton={options.rightButton}
+                            leftButton={options.leftButton}
+                            statusBarStyle={options.statusBarStyle}
+                        />
+                    );
+                },
         });
     }, [navigation, options, Theme]);
 }
 
-export const ScreenHeader = React.memo((
+export const ScreenHeader = memo((
     {
         style,
         title,
@@ -66,7 +89,8 @@ export const ScreenHeader = React.memo((
         leftButton,
         rightButton,
         titleComponent,
-        statusBarStyle
+        statusBarStyle,
+        options
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
@@ -77,76 +101,67 @@ export const ScreenHeader = React.memo((
         rightButton?: React.ReactNode,
         leftButton?: React.ReactNode,
         titleComponent?: React.ReactNode,
-        statusBarStyle?: StatusBarStyle
+        statusBarStyle?: StatusBarStyle,
+        options?: NativeStackNavigationOptions
     }
 ) => {
+    const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
+
+    useEffect(() => {
+        navigation.setOptions({
+            headerShown: false,
+            ...options
+        })
+    }, [options]);
 
     return (
         <View style={[{ width: '100%' }, style]}>
             <StatusBar style={statusBarStyle || (Platform.OS === 'ios' ? 'light' : 'dark')} />
-            <AndroidToolbar
-                onBack={onBackPressed}
-                style={{ minHeight: 44 }}
-                pageTitle={title}
-                tintColor={tintColor}
-                textColor={textColor}
-                titleComponent={titleComponent}
-                rightButton={rightButton}
-                leftButton={leftButton}
-            />
-            {Platform.OS === 'ios' && (
+            <View style={{
+                flexDirection: 'row', alignItems: 'center',
+                height: 44,
+                marginTop: 14,
+            }}>
                 <View style={{
-                    flexDirection: 'row', alignItems: 'center',
-                    height: 44,
-                    marginTop: 14,
+                    position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                    justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <View style={{
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        justifyContent: 'center', alignItems: 'center'
-                    }}>
-                        {!!title && !titleComponent && (
-                            <Text style={{
-                                color: textColor ?? Theme.textPrimary,
-                                fontWeight: '600',
-                                fontSize: 17,
-                                lineHeight: 24,
-                                maxWidth: '60%'
-                            }}
-                                ellipsizeMode={'tail'}
-                            >
-                                {title}
-                            </Text>
-                        )}
-                        {titleComponent}
-                    </View>
-                    {!!onBackPressed && !leftButton && (
-                        <HeaderBackButton
-                            label={t('common.back')}
-                            labelVisible
-                            onPress={onBackPressed}
-                            tintColor={tintColor ?? Theme.accent}
-                        />
+                    {!!title && !titleComponent && (
+                        <Text style={{
+                            color: textColor ?? Theme.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 17,
+                            lineHeight: 24,
+                            maxWidth: '60%'
+                        }}
+                            ellipsizeMode={'tail'}
+                        >
+                            {title}
+                        </Text>
                     )}
-                    {!!onClosePressed && !rightButton && (
-                        <>
-                            <View style={{ flexGrow: 1 }} />
-                            <CloseButton
-                                onPress={onClosePressed}
-                                tintColor={tintColor}
-                                style={{ marginRight: 16 }}
-                            />
-                        </>
-                    )}
-                    {!onBackPressed && !!leftButton && (leftButton)}
-                    {!onClosePressed && !!rightButton && (
-                        <>
-                            <View style={{ flexGrow: 1 }} />
-                            {rightButton}
-                        </>
-                    )}
+                    {titleComponent}
                 </View>
-            )}
+                {!!onBackPressed && !leftButton && (
+                    <BackButton onPress={onBackPressed} />
+                )}
+                {!!onClosePressed && !rightButton && (
+                    <>
+                        <View style={{ flexGrow: 1 }} />
+                        <CloseButton
+                            onPress={onClosePressed}
+                            style={{ marginRight: 16 }}
+                        />
+                    </>
+                )}
+                {!onBackPressed && !!leftButton && (leftButton)}
+                {!onClosePressed && !!rightButton && (
+                    <>
+                        <View style={{ flexGrow: 1 }} />
+                        {rightButton}
+                    </>
+                )}
+            </View>
         </View>
     );
 });

@@ -98,6 +98,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         telegram: 'Telegram',
         rateApp: 'Rate app',
         deleteAccount: 'Delete account',
+        theme: 'Theme'
+    },
+    theme: {
+        title: 'Theme',
+        light: 'Light',
+        dark: 'Dark',
+        system: 'System',
     },
     wallet: {
         sync: 'Downloading wallet data',
@@ -574,7 +581,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
         onBiometricsError: 'Error authenticating with biometrics',
-        lockAppWithAuth: 'Lock app with {{method}}',
+        lockAppWithAuth: 'Lock app with authentication',
         methodPasscode: 'passcode',
         passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },
@@ -664,10 +671,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
         applyConfig: 'Apply selected SPAM filter settings',
         denyList: 'Manual spam filter',
-        denyListEmpty: 'No blocked addresses yet',
+        denyListEmpty: 'No blocked addresses',
         unblockConfirm: 'Unblock address',
         blockConfirm: 'Mark address as spam',
-        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
+        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu'
     },
     security: {
         title: 'Security',

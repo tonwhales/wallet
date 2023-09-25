@@ -11,14 +11,12 @@ import IcGrowth from "@assets/ic-growth.svg";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
-    const { Theme } = useAppConfig();
+    const { Theme, AppConfig } = useAppConfig();
     const engine = useEngine();
     const navigation = useTypedNavigation();
     const nominatorInfo = engine.products.whalesStakingPools.useNominatorInfo(pool, engine.address);
 
-    console.log({ nominatorInfo });
-
-    if (!nominatorInfo) {
+    if (!nominatorInfo  || AppConfig.isTestnet) {
         return null;
     }
 

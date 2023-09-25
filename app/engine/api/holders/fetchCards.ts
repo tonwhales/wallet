@@ -35,7 +35,7 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
     'https://' + holdersEndpoint + '/public/cards',
     {
       walletKind: 'tonhub',
-      network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
+      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
       address: address.toFriendly({ testOnly: isTestnet })
     },
     {

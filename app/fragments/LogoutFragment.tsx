@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useState } from "react";
-import { Platform, View, Text, useWindowDimensions, Pressable } from "react-native";
+import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { RoundButton } from "../components/RoundButton";
@@ -40,16 +40,13 @@ export const LogoutFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const appStateManager = useAppStateManager();
     const authContext = useKeysAuth();
-    const dimentions = useWindowDimensions();
     const { showActionSheetWithOptions } = useActionSheet();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
     const engine = useEngine();
-    const wallets = engine.products.wallets;
     const acc = getCurrentAddress();
     const appState = getAppState();
-    const name = wallets.useWalletSettings(acc.address)?.name ?? `${t('common.wallet')} ${appState.selected + 1}`;
 
     const onSupport = useCallback(() => {
         const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
@@ -145,10 +142,14 @@ export const LogoutFragment = fragment(() => {
             paddingBottom: safeArea.bottom,
             backgroundColor: Theme.background
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={t('common.logout')}
                 onBackPressed={navigation.goBack}
+                style={[
+                    { paddingLeft: 16 },
+                    Platform.select({ android: { marginTop: safeArea.top } })
+                ]}
+                statusBarStyle={Theme.style === 'dark' ? 'light' : 'dark'}
             />
             <View style={{ paddingHorizontal: 16, flexGrow: 1, marginTop: 16 }}>
                 <View style={{
@@ -156,7 +157,7 @@ export const LogoutFragment = fragment(() => {
                     borderRadius: 20, padding: 20,
                     marginBottom: 16
                 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <IcLogout width={24} height={24} color={Theme.accentRed} />
                         <Text style={{
                             fontSize: 17, lineHeight: 24,

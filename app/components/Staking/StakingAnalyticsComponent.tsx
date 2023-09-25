@@ -6,9 +6,9 @@ import { Address } from "ton";
 import { useEngine } from "../../engine/Engine";
 import BN from "bn.js";
 import { PriceComponent } from "../PriceComponent";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 import IcGrowth from "@assets/ic-growth.svg";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const { Theme, AppConfig } = useAppConfig();
@@ -103,6 +103,6 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                     </View>
                 </View>
             </Pressable>
-        </View >
+        </View>
     );
 });

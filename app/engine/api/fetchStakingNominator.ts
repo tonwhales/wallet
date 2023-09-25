@@ -47,16 +47,6 @@ export async function fetchStakingNominator(args: {
 }) {
     const { pool, nominator, timespan, isTestnet } = args;
 
-    console.log({
-        url: stakingIndexerUrl + '/indexer/nominator',
-        params: {
-            pool: pool.toFriendly({ testOnly: isTestnet }),
-            addr: nominator.toFriendly({ testOnly: isTestnet }),
-            timespan
-        },
-        timeout: { timeout: args.timeout || 10_000 }
-    });
-
     const res = await axios.post(
         stakingIndexerUrl + '/indexer/nominator',
         {
@@ -67,8 +57,6 @@ export async function fetchStakingNominator(args: {
         { timeout: args.timeout || 10_000 }
     );
 
-    console.log('fetchStakingNominator', { data: JSON.stringify(res.data) });
-
     if (res.status !== 200) {
         throw new Error('Failed to fetch staking nominator info');
     }
@@ -78,5 +66,13 @@ export async function fetchStakingNominator(args: {
         throw new Error('Invalid staking nominator info');
     }
 
-    return parsed.right as NominatorInfo
+    return {
+        ...parsed.right,
+        profits: (parsed.right.nominator?.profits || []).sort((a, b) => {
+            const aDate = new Date(a.time);
+            const bDate = new Date(b.time);
+
+            return aDate.getTime() - bDate.getTime();
+        })
+    } as NominatorInfo
 }

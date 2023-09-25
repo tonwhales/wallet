@@ -1,22 +1,23 @@
-import { View, Text, Pressable, SectionList } from "react-native";
+import { View, Text, Pressable, SectionList, Platform } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
+import { Address } from "ton";
 import { useEngine } from "../../engine/Engine";
 import { memo, useMemo } from "react";
-import { ScrollView } from "react-native-gesture-handler";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { NominatorOperation } from "../../engine/api/fetchStakingNominator";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
-
-import IcDeposit from "@assets/ic-top-up.svg";
-import IcWithdraw from "@assets/ic-tx-in.svg";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { setStatusBarStyle } from "expo-status-bar";
+import { useFocusEffect } from "@react-navigation/native";
+
+import IcDeposit from "@assets/ic-top-up.svg";
+import IcWithdraw from "@assets/ic-tx-in.svg";
 
 export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation & { type: 'withdraw' | 'deposit' } }) => {
     const { Theme } = useAppConfig();
@@ -143,6 +144,16 @@ export const StakingOperationsFragment = fragment(() => {
         }
         return data;
     }, [operations]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(Platform.select({
+                ios: 'light',
+                android: Theme.style === 'dark' ? 'light' : 'dark',
+                default: 'light',
+            }));
+        }, 10);
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>

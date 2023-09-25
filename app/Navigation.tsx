@@ -76,7 +76,6 @@ import { memo, useEffect, useMemo, useState } from 'react';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
 import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
-import { StakingAnalyticsFragment } from './fragments/staking/StakingAnalyticsFragment';
 import { ThemeFragment } from './fragments/ThemeFragment';
 
 const Stack = createNativeStackNavigator();

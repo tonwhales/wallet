@@ -224,7 +224,8 @@ export type LocalizationSchema = {
         title: string,
         requestingPermission: string,
         noPermission: string,
-        requestPermission: string
+        requestPermission: string,
+        failedToReadFromImage: string
     },
     products: {
         tonConnect: {

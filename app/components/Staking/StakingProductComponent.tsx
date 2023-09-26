@@ -1,5 +1,4 @@
-import React, { useMemo } from "react";
-import { BN } from "bn.js";
+import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { TouchableHighlight, View, Text, useWindowDimensions } from "react-native";
 import StakingIcon from '../../../assets/ic_staking.svg';
@@ -11,7 +10,7 @@ import { useStakingApy } from '../../engine/hooks/useStakingApy';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 
-export const StakingProductComponent = React.memo(() => {
+export const StakingProductComponent = memo(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
@@ -63,7 +62,7 @@ export const StakingProductComponent = React.memo(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: staking.total && staking.total.gt(BigInt(0))
+                                color: staking.total && staking.total > BigInt(0)
                                     ? theme.pricePositive
                                     : theme.textColor
                             }}>

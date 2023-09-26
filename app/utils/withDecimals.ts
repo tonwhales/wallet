@@ -44,7 +44,7 @@ export function toBnWithDecimals(src: bigint | number | string, precision: numbe
     return r;
   }
   
-  export function fromBnWithDecimals(src: bigint | string, precision?: number): string {
+  export function fromBnWithDecimals(src: bigint | string, precision?: number | null): string {
     precision = precision || 9;
     
     const prec = 10n ** BigInt(precision);

@@ -35,7 +35,7 @@ import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
-import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
@@ -107,7 +107,7 @@ export const TransferSingle = React.memo((props: Props) => {
                     parsing.skip(32);
                     parsing.skip(64);
                     const unformatted = parsing.loadCoins();
-                    return fromBNWithDecimals(unformatted, jettonMaster.decimals);
+                    return fromBnWithDecimals(unformatted, jettonMaster.decimals);
                 }
             }
         } catch (e) {

@@ -23,7 +23,7 @@ import { useTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
-import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerWallet } from '../../engine/hooks/useLedgerWallet';
@@ -292,7 +292,7 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
+        setAmount(jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
     }, [balance, jettonWallet, jettonMaster]);
 
     //
@@ -415,7 +415,7 @@ export const LedgerTransferFragment = fragment(() => {
                             color: '#6D6D71',
                             marginBottom: 5
                         }}>
-                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
+                            {jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

@@ -9,7 +9,7 @@ import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
-import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
 import { Operation } from '../../engine/legacy/transactions/types';
@@ -101,7 +101,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                     color: theme.textColor,
                                     includeFontPadding: false,
                                 }}>
-                                    {`${fromBNWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
+                                    {`${fromBnWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
                                 </Text>
                             </View>
                         )}

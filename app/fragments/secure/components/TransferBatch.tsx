@@ -27,7 +27,7 @@ import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
-import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
@@ -517,7 +517,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 color: theme.textColor,
                                                 marginLeft: 2
                                             }}>
-                                                {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
+                                                {`${fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
                                             </Text>
                                         </View>
                                     </View>

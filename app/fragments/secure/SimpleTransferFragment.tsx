@@ -22,7 +22,7 @@ import { KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { createJettonOrder, createSimpleOrder } from './ops/Order';
 import { useLinkNavigator } from "../../useLinkNavigator";
-import { fromBNWithDecimals, toBNWithDecimals } from '../../utils/withDecimals';
+import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
@@ -111,7 +111,7 @@ export const SimpleTransferFragment = fragment(() => {
             const validAmount = amount.replace(',', '.').trim();
             // Manage jettons with decimals
             if (jettonWallet) {
-                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+                value = toBnWithDecimals(validAmount, jettonMaster?.decimals);
             } else {
                 value = toNano(validAmount);
             }
@@ -176,7 +176,7 @@ export const SimpleTransferFragment = fragment(() => {
             const validAmount = amount.replace(',', '.');
             // Manage jettons with decimals
             if (jettonWallet) {
-                value = toBNWithDecimals(validAmount, jettonMaster?.decimals);
+                value = toBnWithDecimals(validAmount, jettonMaster?.decimals);
             } else {
                 value = toNano(validAmount);
             }
@@ -339,7 +339,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const onAddAll = React.useCallback(() => {
-        setAmount(jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
+        setAmount(jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
     }, [balance, jettonWallet, jettonMaster]);
 
     //
@@ -461,7 +461,7 @@ export const SimpleTransferFragment = fragment(() => {
                             color: theme.priceSecondary,
                             marginBottom: 5
                         }}>
-                            {jettonWallet ? fromBNWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
+                            {jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>

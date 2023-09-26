@@ -6,7 +6,7 @@ import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
-import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
+import { StakingProductComponent } from "../../../components/staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
 import { JettonProduct } from "./JettonProduct"
 import { getConnectionReferences } from "../../../storage/appState"

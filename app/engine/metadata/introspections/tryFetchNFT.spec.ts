@@ -1,5 +1,6 @@
-import { Address, TonClient4 } from "@ton/core";
+import { Address } from "@ton/core";
 import { tryFetchNFT } from "./tryFetchNFT";
+import { TonClient4 } from "@ton/ton";
 
 const client = new TonClient4({ endpoint: 'https://sandbox-v4.tonhubapi.com' });
 

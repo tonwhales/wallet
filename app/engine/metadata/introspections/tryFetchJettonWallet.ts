@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import { Address } from "@ton/core";
 import { warn } from "../../../utils/log";
 import { JettonWallet } from "../Metadata";

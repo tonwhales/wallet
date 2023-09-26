@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useRef } from "react";
-import { Platform, View, Text, ScrollView, Alert } from "react-native";
+import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
@@ -8,19 +8,21 @@ import { CloseButton } from "../components/CloseButton";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProduct } from "./wallet/products/JettonProduct";
+import { JettonProduct, confirmJettonAction } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useJettons } from '../engine/hooks/useJettons';
 import { markJettonDisabled } from '../engine/effects/markJettonDisabled';
 import { markJettonActive } from '../engine/effects/markJettonActive';
+import { useSelectedAccount } from "../engine/hooks/useSelectedAccount";
 
 export const AccountsFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const selected = useSelectedAccount();
 
-    const jettons = useJettons();
+    const jettons = useJettons(selected.addressString);
     const active = jettons.filter((j: any) => !j.disabled);
     const disabled = jettons.filter((j: any) => j.disabled);
 

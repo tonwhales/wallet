@@ -283,7 +283,7 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Account(account).Transactions(),
         getNextPageParam: (last) => {
-            if (!last) {
+            if (!last || !last[last.length - 1]) {
                 return null;
             }
             

@@ -219,10 +219,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failed: 'Migration failed',
     },
     qr: {
-        title: 'Scan QR code',
-        requestingPermission: 'Requesting for camera permission...',
-        noPermission: 'No access to camera',
+        title: 'Point camera at QR code',
+        requestingPermission: 'Requesting camera permissions...',
+        noPermission: 'Allow camera access to scan QR codes',
         requestPermission: 'Open settings',
+        failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
         tonConnect: {

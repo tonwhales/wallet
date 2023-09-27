@@ -2,18 +2,29 @@ import { Platform, View, Text, Pressable } from "react-native"
 import { fragment } from "../../fragment"
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const AlertFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { Theme } = useAppConfig();
     const { title, message } = useParams<{ title: string, message?: string }>();
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(
+                Platform.OS === 'ios'
+                    ? 'light'
+                    : Theme.style === 'dark' ? 'light' : 'dark'
+            )
+        }, 10);
+    });
 
     return (
         <View style={{
@@ -23,10 +34,6 @@ export const AlertFragment = fragment(() => {
             paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
             backgroundColor: Platform.OS === 'android' ? Theme.background : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios'
-                ? 'light'
-                : Theme.style === 'dark' ? 'light' : 'dark'
-            } />
             <AndroidToolbar />
             <View style={{ flexGrow: 1 }} />
             <View style={{

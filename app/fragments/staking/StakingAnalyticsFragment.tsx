@@ -341,6 +341,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                 paddingBottom: 20,
                 paddingTop: 16,
                 paddingHorizontal: 20,
+                marginTop: 22
             }}>
                 <Text style={{ color: Theme.textSecondary }}>
                     {formatDate(selectedPoint.date.getTime() / 1000)}

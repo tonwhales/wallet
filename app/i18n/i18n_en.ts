@@ -375,10 +375,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             empty: {
                 message: 'You have no transactions'
             },
-            pending: {
-                deposit: 'Pending Deposit',
-                withdraw: 'Pending Withdraw'
-            },
+            pending: 'pending',
             withdrawStatus: {
                 pending: 'Withdraw pending',
                 ready: 'Withdraw ready',

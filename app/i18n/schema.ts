@@ -377,10 +377,7 @@ export type LocalizationSchema = {
             empty: {
                 message: string
             },
-            pending: {
-                deposit: string,
-                withdraw: string
-            },
+            pending: string,
             withdrawStatus: {
                 pending: string,
                 ready: string,

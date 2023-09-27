@@ -142,7 +142,7 @@ export const StakingFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1 }}>
+        <View style={{ flex: 1 }}>
             <ScreenHeader
                 style={{ marginTop: 32, paddingLeft: 16 }}
                 onBackPressed={navigation.goBack}
@@ -178,8 +178,7 @@ export const StakingFragment = fragment(() => {
             />
             <Animated.ScrollView
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
-                style={[{ flexGrow: 1 }]}
-                contentInset={{ bottom: safeArea.bottom + 112 }}
+                style={{ flexGrow: 1 }}
                 scrollEventThrottle={16}
             >
                 <View

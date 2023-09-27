@@ -27,12 +27,23 @@ export const StakingPendingComponent = memo((
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
 
-    if (!member) return null;
+    member = {
+        balance: toNano('233434'),
+        pendingDeposit: toNano('233434'),
+        pendingWithdraw: toNano('233434'),
+        withdraw: toNano('233434'),
+    }
+
     if (
-        member.pendingDeposit.eqn(0)
-        && member.pendingWithdraw.eqn(0)
-        && member.withdraw.eqn(0)
-    ) return null;
+        !member
+        || (
+            member.pendingDeposit.eqn(0)
+            && member.pendingWithdraw.eqn(0)
+            && member.withdraw.eqn(0)
+        )
+    ) {
+        return null;
+    }
 
     return (
         <View style={[{
@@ -50,13 +61,22 @@ export const StakingPendingComponent = memo((
                     justifyContent: 'space-between', alignItems: 'center',
                     marginBottom: 20
                 }}>
-                    <Text style={{
-                        fontSize: 17,
-                        fontWeight: '600',
-                        color: Theme.textPrimary
-                    }}>
-                        {t('products.staking.pending.deposit')}
-                    </Text>
+                    <View>
+                        <Text style={{
+                            fontSize: 17,
+                            fontWeight: '600',
+                            color: Theme.textPrimary
+                        }}>
+                            {t('products.staking.actions.deposit')}
+                        </Text>
+                        <Text style={{
+                            fontSize: 15,
+                            fontWeight: '400',
+                            color: Theme.textSecondary
+                        }}>
+                            {t('products.staking.pending')}
+                        </Text>
+                    </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <Text style={{
                             fontSize: 17,
@@ -90,13 +110,23 @@ export const StakingPendingComponent = memo((
                         justifyContent: 'space-between', alignItems: 'center',
                         marginBottom: 20
                     }}>
-                        <Text style={{
-                            fontSize: 17,
-                            fontWeight: '600',
-                            color: Theme.textPrimary
-                        }}>
-                            {t('products.staking.pending.withdraw')}
-                        </Text>
+                        <View>
+
+                            <Text style={{
+                                fontSize: 17,
+                                fontWeight: '600',
+                                color: Theme.textPrimary
+                            }}>
+                                {t('products.staking.actions.withdraw')}
+                            </Text>
+                            <Text style={{
+                                fontSize: 15,
+                                fontWeight: '400',
+                                color: Theme.textSecondary
+                            }}>
+                                {t('products.staking.pending')}
+                            </Text>
+                        </View>
                         <View style={{ alignItems: 'flex-end' }}>
                             <Text style={{
                                 fontSize: 17,

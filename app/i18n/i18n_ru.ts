@@ -376,10 +376,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             empty: {
                 message: 'У вас нет транзакций'
             },
-            pending: {
-                deposit: 'Выполняется внесение',
-                withdraw: 'Ожидание вывода'
-            },
+            pending: 'Ожидает',
             withdrawStatus: {
                 pending: 'Вывод ожидает',
                 ready: 'Готово к выводу',

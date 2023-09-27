@@ -27,13 +27,6 @@ export const StakingPendingComponent = memo((
     const { Theme } = useAppConfig();
     const navigation = useTypedNavigation();
 
-    member = {
-        balance: toNano('233434'),
-        pendingDeposit: toNano('233434'),
-        pendingWithdraw: toNano('233434'),
-        withdraw: toNano('233434'),
-    }
-
     if (
         !member
         || (

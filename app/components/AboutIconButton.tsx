@@ -2,6 +2,7 @@ import { memo, useCallback } from "react"
 import { Alert, Pressable, StyleProp, ViewStyle } from "react-native"
 
 import IcInfo from '@assets/ic-info.svg'
+import { useTypedNavigation } from "../utils/useTypedNavigation"
 
 export const AboutIconButton = memo(({
     title,
@@ -12,12 +13,10 @@ export const AboutIconButton = memo(({
     description: string,
     style: StyleProp<ViewStyle>
 }) => {
+    const navigation = useTypedNavigation();
 
     const onPressed = useCallback(() => {
-        Alert.alert(
-            title,
-            description
-        );
+        navigation.navigate('Alert', { title, message: description });
     }, [title, description]);
 
 

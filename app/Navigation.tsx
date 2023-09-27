@@ -78,6 +78,7 @@ import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSele
 import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
 import { StakingAnalyticsFragment } from './fragments/staking/StakingAnalyticsFragment';
 import { ThemeFragment } from './fragments/ThemeFragment';
+import { AlertFragment } from './fragments/utils/AlertFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -175,9 +176,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
-    genericScreen('Scanner', ScannerFragment, safeArea, true, 0),
-    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
-    genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
@@ -243,7 +241,14 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
     genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
 
+    // Utils
+    transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
+    genericScreen('Scanner', ScannerFragment, safeArea, true, 0),
+
+    // Dev
+    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
+    genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 ];
 
 export const Navigation = memo(() => {

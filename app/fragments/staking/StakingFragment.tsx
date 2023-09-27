@@ -390,10 +390,6 @@ export const StakingFragment = fragment(() => {
                         </Pressable>
                     </View>
                 </View>
-                <StakingPendingComponent
-                    target={targetPool}
-                    member={member}
-                />
                 {!!pool && (
                     <StakingCycle
                         stakeUntil={pool.params.stakeUntil}
@@ -401,6 +397,10 @@ export const StakingFragment = fragment(() => {
                         style={{ marginBottom: 16 }}
                     />
                 )}
+                <StakingPendingComponent
+                    target={targetPool}
+                    member={member}
+                />
                 {(type !== 'nominators' && !available) && (
                     <RestrictedPoolBanner type={type} />
                 )}

@@ -405,7 +405,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 yearlyTopUp: 'После пополнения',
                 yearlyTotal: 'Всего вознаграждений за год',
                 yearlyCurrent: 'Текущая',
-                topUpTitle: 'Ваша годовая доходность'
+                topUpTitle: 'Ваша годовая доходность',
+                goToTopUp: 'Пополнить',
             },
             info: {
                 rate: '~13.3%',

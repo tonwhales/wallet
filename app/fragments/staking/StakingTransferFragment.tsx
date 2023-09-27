@@ -73,9 +73,7 @@ export const StakingTransferFragment = fragment(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
         try {
             return Address.parse(ledgerContext?.addr?.address);
-        } catch {
-            return;
-        }
+        } catch {}
     }, [ledgerContext?.addr?.address]);
 
     const currentAccount = useItem(engine.model.wallet(engine.address));

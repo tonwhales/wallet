@@ -15,6 +15,7 @@ import { ThemeType } from "../../utils/Theme";
 const priceTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }) as StyleProp<TextStyle>;
 const priceViewStyle = (theme: ThemeType) => ({ backgroundColor: theme.transparent, paddingHorizontal: 0, paddingVertical: 0, height: 'auto', alignSelf: 'flex-end' }) as StyleProp<ViewStyle>;
 const itemTitleTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }) as StyleProp<TextStyle>;
+const itemValueTextStyle = (theme: ThemeType) => ({ color: theme.textPrimary, fontSize: 17, fontWeight: '400' }) as StyleProp<TextStyle>;
 
 export const StakingCalcComponent = memo((
     {
@@ -146,26 +147,20 @@ export const StakingCalcComponent = memo((
     return (
         <View style={{
             backgroundColor: Theme.surfaceSecondary,
-            padding: 16,
+            padding: 20,
             borderRadius: 20,
             justifyContent: 'center',
             alignItems: 'center',
-            marginVertical: 14
         }}>
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                height: 56
             }}>
                 <Text style={itemTitleTextStyle(Theme)}>
                     {t('products.staking.calc.yearly')}
                 </Text>
                 <View>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                        color: Theme.accentGreen
-                    }}>
+                    <Text style={itemValueTextStyle(Theme)}>
                         {'≈ '}
                         <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
                         {' TON'}
@@ -180,21 +175,17 @@ export const StakingCalcComponent = memo((
             <View style={{
                 height: 1, width: '100%',
                 backgroundColor: Theme.divider,
+                marginVertical: 16
             }} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                height: 56
             }}>
                 <Text style={itemTitleTextStyle(Theme)}>
                     {t('products.staking.calc.monthly')}
                 </Text>
                 <View>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                        color: Theme.accentGreen
-                    }}>
+                    <Text style={itemValueTextStyle(Theme)}>
                         {'≈ '}
                         <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
                         {' TON'}
@@ -209,21 +200,17 @@ export const StakingCalcComponent = memo((
             <View style={{
                 height: 1, width: '100%',
                 backgroundColor: Theme.divider,
+                marginVertical: 16
             }} />
             <View style={{
                 flexDirection: 'row', width: '100%',
                 justifyContent: 'space-between', alignItems: 'center',
-                height: 56
             }}>
                 <Text style={itemTitleTextStyle(Theme)}>
                     {t('products.staking.calc.daily')}
                 </Text>
                 <View>
-                    <Text style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                        color: Theme.accentGreen
-                    }}>
+                    <Text style={itemValueTextStyle(Theme)}>
                         {'≈ '}
                         <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
                         {' TON'}
@@ -234,6 +221,21 @@ export const StakingCalcComponent = memo((
                         textStyle={priceTextStyle(Theme)}
                     />
                 </View>
+            </View>
+            <View style={{
+                borderRadius: 12,
+                paddingHorizontal: 16, paddingVertical: 12,
+                backgroundColor: Theme.background,
+                width: '100%',
+                justifyContent: 'center', alignItems: 'center',
+                marginTop: 16
+            }}>
+                <Text style={{
+                    color: Theme.textSecondary,
+                    fontSize: 15, fontWeight: '400',
+                }}>
+                    {t('products.staking.calc.note')}
+                </Text>
             </View>
         </View>
     );

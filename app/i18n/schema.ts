@@ -406,7 +406,8 @@ export type LocalizationSchema = {
                 yearlyTopUp: string,
                 yearlyTotal: string,
                 yearlyCurrent: string,
-                topUpTitle: string
+                topUpTitle: string,
+                goToTopUp: string,
             },
             info: {
                 rate: string,

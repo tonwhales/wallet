@@ -231,6 +231,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
     modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
 
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),

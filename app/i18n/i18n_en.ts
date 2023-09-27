@@ -404,7 +404,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 yearlyTopUp: 'After Top Up',
                 yearlyTotal: 'Total rewards in a year',
                 yearlyCurrent: 'Current',
-                topUpTitle: 'Your yearly rewards'
+                topUpTitle: 'Your yearly rewards',
+                goToTopUp: 'Go to Top Up',
             },
             info: {
                 rate: 'up to 13.3%',

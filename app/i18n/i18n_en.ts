@@ -692,7 +692,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             enterNew: 'Create PIN code',
             confirmNew: 'Confirm new PIN code',
             enterCurrent: 'Enter your PIN code',
-            enterPrevious: 'Enter your previous PIN code',
+            enterPrevious: 'Enter current PIN code',
             enterNewDescription: 'Setting a password provides an additional layer of security when using the application',
             changeLength: 'Use {{length}}-digit PIN code',
             forgotPasscode: 'Forgot PIN code?',

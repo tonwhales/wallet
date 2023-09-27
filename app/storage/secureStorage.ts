@@ -265,6 +265,7 @@ export async function updatePasscode(prevPasscode: string, newPasscode: string) 
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, newPasscode.length);
     } catch (e) {
         throw Error('Unable to migrate to new passcode');
     }

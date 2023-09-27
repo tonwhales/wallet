@@ -15,6 +15,7 @@ export const PasscodeChangeFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 80,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader title={t('security.passcodeSettings.changeTitle')} onClosePressed={navigation.goBack} />

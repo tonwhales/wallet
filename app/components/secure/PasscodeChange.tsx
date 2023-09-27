@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useReducer } from "react";
+import React, { memo, useLayoutEffect, useReducer, useState } from "react";
 import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
@@ -9,6 +9,7 @@ import { getCurrentAddress } from "../../storage/appState";
 import { loadWalletKeys } from "../../storage/walletKeys";
 import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
+import { ToastDuration, useToaster } from "../toast/ToastProvider";
 
 type Action =
     | { type: 'auth', input: string }
@@ -71,12 +72,13 @@ function reduceSteps() {
     };
 }
 
-export const PasscodeChange = React.memo(() => {
+export const PasscodeChange = memo(() => {
     const acc = getCurrentAddress();
-    const [isFirstRender, setFirstRender] = React.useState(true);
+    const [isFirstRender, setFirstRender] = useState(true);
     const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
     const navigation = useTypedNavigation();
+    const toaster = useToaster();
 
     useLayoutEffect(() => {
         setFirstRender(false);
@@ -137,7 +139,12 @@ export const PasscodeChange = React.memo(() => {
 
                             updatePasscode(state.prev, newPasscode);
 
-                            dispatch({ type: 'success' });
+                            toaster.show({
+                                message: t('security.passcodeSettings.success'),
+                                type: 'success',
+                                duration: ToastDuration.SHORT,
+                                onDestroy: navigation.goBack
+                            });
                         }}
                     />
                 </Animated.View>

@@ -11,7 +11,7 @@ import BN from "bn.js";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { TopBar } from "../../components/topbar/TopBar";
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { setStatusBarStyle } from "expo-status-bar";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { useLedgerTransport } from "../ledger/components/LedgerTransportProvider";
 import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
@@ -352,7 +352,6 @@ export const StakingPoolsFragment = fragment(() => {
         <View style={{
             flex: 1,
             flexGrow: 1,
-            paddingBottom: safeArea.bottom,
         }}>
             <ScreenHeader
                 title={t('products.staking.pools.title')}
@@ -366,14 +365,12 @@ export const StakingPoolsFragment = fragment(() => {
                 alwaysBounceVertical={false}
                 style={{ flexShrink: 1, flexGrow: 1 }}
                 contentContainerStyle={{ paddingTop: 8, paddingHorizontal: 16 }}
-                contentInset={{ bottom: 24 }}
             >
                 <View style={{ flexGrow: 1 }}>
                     {items}
                     <View style={{ height: 24 }} />
                 </View>
             </ScrollView>
-            <View style={{ height: safeArea.bottom }} />
         </View>
     );
 });

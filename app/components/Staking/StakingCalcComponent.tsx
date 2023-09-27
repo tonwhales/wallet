@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { View, Text, StyleProp, TextStyle, ViewStyle } from "react-native";
 import { fromNano, toNano } from "ton";
 import { useEngine } from "../../engine/Engine";
@@ -16,7 +16,7 @@ const priceTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, font
 const priceViewStyle = (theme: ThemeType) => ({ backgroundColor: theme.transparent, paddingHorizontal: 0, paddingVertical: 0, height: 'auto', alignSelf: 'flex-end' }) as StyleProp<ViewStyle>;
 const itemTitleTextStyle = (theme: ThemeType) => ({ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }) as StyleProp<TextStyle>;
 
-export const StakingCalcComponent = React.memo((
+export const StakingCalcComponent = memo((
     {
         amount,
         topUp,
@@ -144,97 +144,95 @@ export const StakingCalcComponent = React.memo((
     const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
 
     return (
-        <View style={{}}>
+        <View style={{
+            backgroundColor: Theme.surfaceSecondary,
+            padding: 16,
+            borderRadius: 20,
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginVertical: 14
+        }}>
             <View style={{
-                backgroundColor: Theme.surfaceSecondary,
-                padding: 16,
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginVertical: 14
+                flexDirection: 'row', width: '100%',
+                justifyContent: 'space-between', alignItems: 'center',
+                height: 56
             }}>
-                <View style={{
-                    flexDirection: 'row', width: '100%',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    height: 56
-                }}>
-                    <Text style={itemTitleTextStyle(Theme)}>
-                        {t('products.staking.calc.yearly')}
+                <Text style={itemTitleTextStyle(Theme)}>
+                    {t('products.staking.calc.yearly')}
+                </Text>
+                <View>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 16,
+                        color: Theme.accentGreen
+                    }}>
+                        {'≈ '}
+                        <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
+                        {' TON'}
                     </Text>
-                    <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: Theme.accentGreen
-                        }}>
-                            {'≈ '}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
-                            {' TON'}
-                        </Text>
-                        <PriceComponent
-                            amount={yearly}
-                            style={priceViewStyle(Theme)}
-                            textStyle={priceTextStyle(Theme)}
-                        />
-                    </View>
+                    <PriceComponent
+                        amount={yearly}
+                        style={priceViewStyle(Theme)}
+                        textStyle={priceTextStyle(Theme)}
+                    />
                 </View>
-                <View style={{
-                    height: 1, width: '100%',
-                    backgroundColor: Theme.divider,
-                }} />
-                <View style={{
-                    flexDirection: 'row', width: '100%',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    height: 56
-                }}>
-                    <Text style={itemTitleTextStyle(Theme)}>
-                        {t('products.staking.calc.monthly')}
+            </View>
+            <View style={{
+                height: 1, width: '100%',
+                backgroundColor: Theme.divider,
+            }} />
+            <View style={{
+                flexDirection: 'row', width: '100%',
+                justifyContent: 'space-between', alignItems: 'center',
+                height: 56
+            }}>
+                <Text style={itemTitleTextStyle(Theme)}>
+                    {t('products.staking.calc.monthly')}
+                </Text>
+                <View>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 16,
+                        color: Theme.accentGreen
+                    }}>
+                        {'≈ '}
+                        <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
+                        {' TON'}
                     </Text>
-                    <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: Theme.accentGreen
-                        }}>
-                            {'≈ '}
-                            <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
-                            {' TON'}
-                        </Text>
-                        <PriceComponent
-                            amount={monthly}
-                            style={priceViewStyle(Theme)}
-                            textStyle={priceTextStyle(Theme)}
-                        />
-                    </View>
+                    <PriceComponent
+                        amount={monthly}
+                        style={priceViewStyle(Theme)}
+                        textStyle={priceTextStyle(Theme)}
+                    />
                 </View>
-                <View style={{
-                    height: 1, width: '100%',
-                    backgroundColor: Theme.divider,
-                }} />
-                <View style={{
-                    flexDirection: 'row', width: '100%',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    height: 56
-                }}>
-                    <Text style={itemTitleTextStyle(Theme)}>
-                        {t('products.staking.calc.daily')}
+            </View>
+            <View style={{
+                height: 1, width: '100%',
+                backgroundColor: Theme.divider,
+            }} />
+            <View style={{
+                flexDirection: 'row', width: '100%',
+                justifyContent: 'space-between', alignItems: 'center',
+                height: 56
+            }}>
+                <Text style={itemTitleTextStyle(Theme)}>
+                    {t('products.staking.calc.daily')}
+                </Text>
+                <View>
+                    <Text style={{
+                        fontWeight: '600',
+                        fontSize: 16,
+                        color: Theme.accentGreen
+                    }}>
+                        {'≈ '}
+                        <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
+                        {' TON'}
                     </Text>
-                    <View>
-                        <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: Theme.accentGreen
-                        }}>
-                            {'≈ '}
-                            <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
-                            {' TON'}
-                        </Text>
-                        <PriceComponent
-                            amount={daily}
-                            style={priceViewStyle(Theme)}
-                            textStyle={priceTextStyle(Theme)}
-                        />
-                    </View>
+                    <PriceComponent
+                        amount={daily}
+                        style={priceViewStyle(Theme)}
+                        textStyle={priceTextStyle(Theme)}
+                    />
                 </View>
             </View>
         </View>

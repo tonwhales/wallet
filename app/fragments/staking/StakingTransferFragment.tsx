@@ -30,6 +30,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'reac
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { usePrice } from '../../engine/PriceContext';
+import { AboutIconButton } from '../../components/AboutIconButton';
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -440,8 +441,7 @@ export const StakingTransferFragment = fragment(() => {
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                marginTop: 14,
-                                marginBottom: 15,
+                                marginVertical: 16,
                                 padding: 20
                             }}>
                                 <View style={{
@@ -449,15 +449,23 @@ export const StakingTransferFragment = fragment(() => {
                                     justifyContent: 'space-between', alignItems: 'center',
                                 }}>
                                     <Text style={{
-                                        fontSize: 16,
+                                        fontSize: 15,
+                                        fontWeight: '400',
                                         color: Theme.textSecondary
                                     }}>
                                         {t('products.staking.info.withdrawFee')}
+                                        <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                                            <AboutIconButton
+                                                title={t('products.staking.info.withdrawCompleteFee')}
+                                                description={t('products.staking.info.withdrawFeeDescription')}
+                                                style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
+                                            />
+                                        </View>
                                     </Text>
                                     <View style={{ justifyContent: 'center' }}>
                                         <Text style={{
                                             fontWeight: '400',
-                                            fontSize: 16,
+                                            fontSize: 17,
                                             color: Theme.textPrimary
                                         }}>
                                             {`${fromNano(withdrawFee)} TON`}
@@ -466,10 +474,11 @@ export const StakingTransferFragment = fragment(() => {
                                             amount={withdrawFee}
                                             style={{
                                                 backgroundColor: Theme.transparent,
-                                                paddingHorizontal: 0, paddingVertical: 2,
-                                                alignSelf: 'flex-end'
+                                                paddingHorizontal: 0, paddingVertical: 0,
+                                                alignSelf: 'flex-end',
+                                                height: 'auto'
                                             }}
-                                            textStyle={{ color: Theme.textSecondary, fontWeight: '400' }}
+                                            textStyle={{ color: Theme.textSecondary, fontSize: 15, fontWeight: '400' }}
                                         />
                                     </View>
                                 </View>
@@ -484,9 +493,6 @@ export const StakingTransferFragment = fragment(() => {
                                     }}
                                     withdraw={true}
                                 />
-                            )}
-                            {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
-                                <UnstakeBanner amount={amount} member={member} />
                             )}
                         </>
                     )}

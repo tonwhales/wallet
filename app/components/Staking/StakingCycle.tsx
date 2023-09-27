@@ -6,6 +6,7 @@ import { StakingCycleProgress } from "./StakingCycleProgress"
 import { useAppConfig } from "../../utils/AppConfigContext"
 
 import IcInfo from '@assets/ic-info.svg'
+import { AboutIconButton } from "../AboutIconButton"
 
 export const StakingCycle = React.memo((
     {
@@ -31,15 +32,6 @@ export const StakingCycle = React.memo((
             clearInterval(timerId);
         };
     }, [stakeUntil]);
-
-    const infoAlert = (locked?: boolean) => {
-        if (!locked) {
-            Alert.alert(t('products.staking.info.cooldownAlert'));
-            return;
-        }
-        Alert.alert(t('products.staking.info.lockedAlert'));
-    }
-
     return (
         <View style={[{
             backgroundColor: Theme.surfaceSecondary,
@@ -68,22 +60,21 @@ export const StakingCycle = React.memo((
                                 />
                             </Text>
                         </View>
-                        <Pressable onPress={() => infoAlert(true)}>
-                            <Text style={{
-                                color: Theme.textSecondary,
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20,
-                                marginTop: 2
-                            }}>
-                                {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
-                                <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
-                                    <IcInfo
-                                        height={16} width={16}
-                                        style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
-                                    />
-                                </View>
-                            </Text>
-                        </Pressable>
+                        <Text style={{
+                            color: Theme.textSecondary,
+                            fontWeight: '400',
+                            fontSize: 15, lineHeight: 20,
+                            marginTop: 2
+                        }}>
+                            {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
+                            <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                                <AboutIconButton
+                                    title={withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
+                                    description={t('products.staking.info.lockedAlert')}
+                                    style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
+                                />
+                            </View>
+                        </Text>
                     </View>
                     <StakingCycleProgress left={left} />
                 </View>
@@ -109,22 +100,21 @@ export const StakingCycle = React.memo((
                             {t('products.staking.info.cooldownActive')}
                         </Text>
                     </View>
-                    <Pressable onPress={() => infoAlert()}>
-                        <Text style={{
-                            color: Theme.textSecondary,
-                            fontWeight: '400',
-                            fontSize: 13,
-                            marginTop: 8
-                        }}>
-                            {t('products.staking.info.cooldownDescription')}
-                            <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
-                                <IcInfo
-                                    height={16} width={16}
-                                    style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
-                                />
-                            </View>
-                        </Text>
-                    </Pressable>
+                    <Text style={{
+                        color: Theme.textSecondary,
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: 8
+                    }}>
+                        {t('products.staking.info.cooldownDescription')}
+                        <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                            <AboutIconButton
+                                title={t('products.staking.info.cooldownDescription')}
+                                description={t('products.staking.info.cooldownAlert')}
+                                style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
+                            />
+                        </View>
+                    </Text>
                 </View>
             )}
         </View>

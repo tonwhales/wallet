@@ -141,7 +141,7 @@ export const PasscodeChange = memo(() => {
 
                             toaster.show({
                                 message: t('security.passcodeSettings.success'),
-                                type: 'success',
+                                type: 'default',
                                 duration: ToastDuration.SHORT,
                                 onDestroy: navigation.goBack
                             });

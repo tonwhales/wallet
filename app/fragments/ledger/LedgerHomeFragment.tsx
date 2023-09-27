@@ -86,7 +86,6 @@ export const LedgerHomeFragment = fragment(() => {
         }
     }, []);
 
-    const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const navigateTransfer = useCallback(() => {
         navigation.navigate('LedgerTransfer', {
@@ -278,11 +277,15 @@ export const LedgerHomeFragment = fragment(() => {
                                     fontSize: 15,
                                     lineHeight: 20,
                                     textAlign: 'left',
-                                    color: Theme.textSecondary,
+                                    color: Theme.divider,
                                     fontWeight: '400',
-                                    fontFamily: undefined
+                                    fontFamily: undefined,
+                                    opacity: 0.7
                                 }}
+                                disableContextMenu
+                                copyToastProps={{ marginBottom: 16 }}
                                 limitActions
+                                copyOnPress
                             />
                         )}
                     </View>

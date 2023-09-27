@@ -89,6 +89,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
+                style={{ paddingHorizontal: 16 }}
             />
             <Text style={{
                 color: Theme.textPrimary,
@@ -167,7 +168,14 @@ export const LedgerSelectAccountFragment = fragment(() => {
                         </View>
                     </>
                 )}
-                {accounts.map((acc) => <AccountButton key={acc.i} loadingAcc={selected} onSelect={onLoadAccount} acc={acc} />)}
+                {accounts.map((acc) => (
+                    <AccountButton
+                        key={acc.i}
+                        loadingAcc={selected}
+                        onSelect={onLoadAccount}
+                        acc={acc}
+                    />
+                ))}
                 <View style={{ height: 56 }} />
             </ScrollView>
         </View>

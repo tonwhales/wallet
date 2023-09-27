@@ -49,6 +49,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 <ScreenHeader
                     title={t('hardwareWallet.title')}
                     onBackPressed={navigation.goBack}
+                    style={{ paddingHorizontal: 16 }}
                 />
                 <Text style={{
                     fontSize: 18,
@@ -122,6 +123,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
+                style={{ paddingHorizontal: 16 }}
             />
             <Text style={{
                 color: Theme.textPrimary,
@@ -142,13 +144,12 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 flexDirection: 'row',
                 position: 'absolute',
                 bottom: safeArea.bottom + 16,
-                left: 0, right: 0,
+                left: 16, right: 16,
                 alignItems: 'center', justifyContent: 'center',
                 paddingHorizontal: 8
             }}>
                 <RoundButton
                     title={t('hardwareWallet.actions.scanBluetooth')}
-                    display={'secondary'}
                     size={'large'}
                     style={{ width: '100%' }}
                     onPress={newScan}

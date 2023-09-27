@@ -7,9 +7,9 @@ import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useAppConfig } from "../../utils/AppConfigContext";
+import { ProductBanner } from "./ProductBanner";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { ProductBanner } from "./ProductBanner";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,

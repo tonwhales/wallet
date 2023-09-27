@@ -22,7 +22,6 @@ export const LedgerProductsComponent = React.memo(() => {
                         justifyContent: 'space-between', alignItems: 'center',
                         marginTop: 16,
                         paddingVertical: 12,
-                        marginBottom: 4
                     }}>
                         <Text style={{
                             fontSize: 17,
@@ -34,7 +33,7 @@ export const LedgerProductsComponent = React.memo(() => {
                         </Text>
                     </View>
 
-                    <View style={{ marginTop: 8 }}>
+                    <View style={{ marginTop: 4 }}>
                         <LedgerStakingProductComponent key={'pool'} />
                     </View>
 

@@ -228,7 +228,7 @@ function WalletComponent(props: { wallet: WalletState | null }) {
                             }}
                             disableContextMenu
                             copyOnPress
-                            copyToastProps={{ marginBottom: 32 }}
+                            copyToastProps={{ marginBottom: 16 }}
                         />
                     </View>
                     <View

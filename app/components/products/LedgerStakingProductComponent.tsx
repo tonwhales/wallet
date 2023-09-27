@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { BN } from "bn.js";
 import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { TouchableHighlight, View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
+import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
@@ -75,7 +75,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={icStyle}>
-                        <View style={{ backgroundColor: Theme.accentGreen, ...icStyleInner }}>
+                        <View style={{ backgroundColor: Theme.accent, ...icStyleInner }}>
                             <StakingIcon width={32} height={32} color={'white'} />
                         </View>
                     </View>
@@ -111,7 +111,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     backgroundColor: Theme.transparent,
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
-                                    height: undefined
+                                    height: 'auto'
                                 }}
                                 textStyle={{ color: Theme.textSecondary, ...subtitleStyle }}
                             />

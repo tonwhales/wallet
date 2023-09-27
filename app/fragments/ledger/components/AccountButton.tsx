@@ -1,16 +1,24 @@
-import React from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Pressable, View, Text, ActivityIndicator } from "react-native";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { t } from "../../../i18n/t";
 import { LedgerAccount } from "../LedgerSelectAccountFragment";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import Chevron from '@assets/ic-chevron-down.svg';
+import CircularProgress from "../../../components/CircularProgress/CircularProgress";
 
-
-export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {
+export const AccountButton = memo(({
+    acc,
+    onSelect,
+    loadingAcc
+}: {
+    acc: LedgerAccount,
+    onSelect: (acc: LedgerAccount) => Promise<any>,
+    loadingAcc?: number
+}) => {
     const { Theme } = useAppConfig();
-    const [loading, setLoading] = React.useState(false);
-    const doAction = React.useCallback(() => {
+    const [loading, setLoading] = useState(false);
+    const doAction = useCallback(() => {
         if (!!loadingAcc && loadingAcc !== acc.i) {
             return;
         }
@@ -81,7 +89,21 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 )}
                 <View style={{ flexGrow: 1 }} />
                 {loading ? (
-                    <ActivityIndicator color={Theme.accent} size='small' />
+                    <CircularProgress
+                        style={{
+                            transform: [{ rotate: '-90deg' }],
+                        }}
+                        progress={100}
+                        animateFromValue={0}
+                        duration={6000}
+                        size={24}
+                        width={2}
+                        color={Theme.accent}
+                        backgroundColor={Theme.transparent}
+                        fullColor={null}
+                        loop={true}
+                        containerColor={Theme.transparent}
+                    />
                 ) : (
                     <Chevron
                         height={16} width={16}

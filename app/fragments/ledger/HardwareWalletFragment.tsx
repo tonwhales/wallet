@@ -61,6 +61,7 @@ export const HardwareWalletFragment = fragment(() => {
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
+                style={{ paddingHorizontal: 16 }}
             />
             {Platform.OS === 'ios' && (
                 <View style={{

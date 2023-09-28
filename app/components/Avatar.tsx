@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { View } from 'react-native';
+import { View, Text } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 import { useAppConfig } from '../utils/AppConfigContext';
 import FastImage from 'react-native-fast-image';
+import { memo } from 'react';
 
-import SpamIcon from '@assets/known/spam_icon.svg';
 import Verified from '@assets/ic-verified.svg';
 import ContactIcon from '@assets/ic_contacts.svg';
 
@@ -57,18 +57,20 @@ export const avatarColors = [
     '#d1b04d'
 ];
 
-export const Avatar = React.memo((props: {
+export const Avatar = memo((props: {
     size: number,
     id: string,
     hash?: number | null,
     address?: string,
     image?: string,
     spam?: boolean,
+    showSpambadge?: boolean,
     markContact?: boolean,
     verified?: boolean,
     dontShowVerified?: boolean,
     borderColor?: string,
     borderWith?: number,
+    backgroundColor?: string
 }) => {
     const { AppConfig, Theme } = useAppConfig();
 
@@ -82,52 +84,80 @@ export const Avatar = React.memo((props: {
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
 
-    if (!props.spam) {
-        if (props.image) {
-            img = (
-                <FastImage
-                    source={{ uri: props.image }}
-                    style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
-                />
-            );
-        } else if (!known || (!known.ic) && imgSource) {
-            img = (
-                <FastImage
-                    source={imgSource}
-                    style={{ width: props.size * .83, height: props.size * .83, borderRadius: props.size / 2, overflow: 'hidden' }}
-                />
-            );
-        } else {
-            img = <KnownAvatar size={props.size} wallet={known} />;
-        }
-    } else { // Mark avatar as spam
-        img = <SpamIcon width={props.size} height={props.size} />
+    if (props.image) {
+        img = (
+            <FastImage
+                source={{ uri: props.image }}
+                style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
+            />
+        );
+    } else if (!known || (!known.ic) && imgSource) {
+        img = (
+            <FastImage
+                source={imgSource}
+                style={{ width: props.size * .83, height: props.size * .83, borderRadius: props.size / 2, overflow: 'hidden' }}
+            />
+        );
+    } else {
+        img = <KnownAvatar size={props.size} wallet={known} />;
+    }
+
+    let backgroundColor: string | undefined = props.backgroundColor ?? Theme.surfaceSecondary;
+
+    if (known && known?.ic) {
+        backgroundColor = undefined;
     }
 
     return (
-        <View style={{
-            width: props.size,
-            height: props.size,
-            borderRadius: props.size / 2,
-            backgroundColor: (!known || !known.ic) ? Theme.surfaceSecondary : undefined,
-            borderColor: props.borderColor ?? color,
-            borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
-            alignItems: 'center', justifyContent: 'center'
-        }}>
-            {img}
-            {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
-                <Verified
-                    style={{ position: 'absolute', bottom: -2, right: -2 }}
-                    height={verifiedSize}
-                    width={verifiedSize}
-                />
-            )}
-            {props.markContact && (
-                <ContactIcon
-                    style={{ position: 'absolute', top: -1, right: -4 }}
-                    height={verifiedSize}
-                    width={verifiedSize}
-                />
+        <View>
+            <View style={{
+                width: props.size,
+                height: props.size,
+                borderRadius: props.size / 2,
+                backgroundColor: backgroundColor,
+                borderColor: props.borderColor ?? color,
+                borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
+                alignItems: 'center', justifyContent: 'center',
+            }}>
+                <View style={{ opacity: props.spam ? .5 : 1 }}>
+                    {img}
+                </View>
+                {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
+                    <Verified
+                        style={{ position: 'absolute', bottom: -2, right: -2 }}
+                        height={verifiedSize}
+                        width={verifiedSize}
+                    />
+                )}
+                {props.markContact && (
+                    <ContactIcon
+                        style={{ position: 'absolute', top: -1, right: -4 }}
+                        height={verifiedSize}
+                        width={verifiedSize}
+                    />
+                )}
+            </View>
+            {(props.showSpambadge && props.spam) && (
+                <View style={{
+                    backgroundColor: Theme.backgroundInverted,
+                    borderRadius: 100,
+                    height: 15,
+                    paddingHorizontal: 5,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    alignSelf: 'center',
+                    position: 'absolute', bottom: 0,
+                    width: 40
+                }}>
+                    <Text style={{
+                        fontSize: 10,
+                        fontWeight: '500',
+                        color: Theme.textPrimaryInverted,
+                        flexShrink: 1
+                    }}>
+                        {'SPAM'}
+                    </Text>
+                </View>
             )}
         </View>
     );

@@ -68,6 +68,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         attention: 'Attention',
         save: 'Save',
         assets: 'Assets',
+        message: 'Message',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -136,7 +137,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     txPreview: {
         sendAgain: 'Send again',
-        blockchainFee: 'Blockchain fee'
+        blockchainFee: 'Blockchain fee',
+        blockchainFeeDescription: 'All fees are calculated in Gas. It\'s a special currency for fees in TON. All fees are nominated and fixed in a certain gas amount, but the gas price itself is not fixed. Even if TON price increases 100 times, transactions will remain ultra-cheap; less than $0.01. Moreover, validators may lower this value if they see commissions have become expensive. The gas fee, like many other parameters of TON, is configurable and may be changed by a special vote made in the mainnet. Fees on TON are difficult to calculate in advance, as their amount depends on transaction run time, account status, message content and size, blockchain network settings, and a number of other variables that cannot be calculated until the transaction is sent.',
     },
     receive: {
         title: 'Receive',
@@ -809,6 +811,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressMarkSpam: 'Mark address as spam',
         txShare: 'Share transaction',
         txRepeat: 'Repeat transaction',
+        view: 'View in explorer',
         share: {
             address: 'TON address',
             transaction: 'TON transaction',

@@ -69,7 +69,8 @@ export type LocalizationSchema = {
         ok: string,
         attention: string,
         save: string,
-        assets: string
+        assets: string,
+        message: string
     },
     syncStatus: {
         connecting: string,
@@ -138,7 +139,8 @@ export type LocalizationSchema = {
     },
     txPreview: {
         sendAgain: string,
-        blockchainFee: string
+        blockchainFee: string,
+        blockchainFeeDescription: string,
     },
     receive: {
         title: string,
@@ -811,6 +813,7 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
+        view: string,
         share: {
             address: string,
             transaction: string

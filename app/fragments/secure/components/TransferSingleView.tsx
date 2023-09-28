@@ -157,7 +157,8 @@ export const TransferSingleView = memo(({
                                             blurhash={jettonMaster?.image?.blurhash}
                                             width={64}
                                             heigh={64}
-                                            borderRadius={32} />
+                                            borderRadius={32} 
+                                            />
                                     </View>
                                 )}
                                 {!jettonAmountString && (

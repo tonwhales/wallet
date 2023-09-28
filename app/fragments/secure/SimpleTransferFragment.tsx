@@ -5,7 +5,7 @@ import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable,
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from 'ton';
+import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano, WalletV4Source } from 'ton';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -18,7 +18,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { KnownJettonMasters, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
-import { createJettonOrder, createSimpleOrder } from './ops/Order';
+import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder, createSimpleOrder } from './ops/Order';
 import { useItem } from '../../engine/persistence/PersistedItem';
 import { estimateFees } from '../../engine/estimate/estimateFees';
 import { useRecoilValue } from 'recoil';
@@ -39,6 +39,8 @@ import { ValueComponent } from '../../components/ValueComponent';
 import IcVerified from '@assets/ic-verified.svg';
 import IcTonIcon from '@assets/ic_ton_account.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useRoute } from '@react-navigation/native';
+import { useLedgerTransport } from '../ledger/components/LedgerTransportProvider';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -59,11 +61,25 @@ export const SimpleTransferFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerSimpleTransfer';
     const engine = useEngine();
     const account = useItem(engine.model.wallet(engine.address));
     const safeArea = useSafeAreaInsets();
     const acc = useMemo(() => getCurrentAddress(), []);
     const [price, currency] = usePrice();
+
+    // Ledger
+    const ledgerContext = useLedgerTransport();
+    const addr = ledgerContext?.addr;
+    const ledgerAddress = useMemo(() => {
+        if (addr && isLedger) {
+            try {
+                return Address.parse(addr.address);
+            } catch { }
+        }
+    }, [addr]);
+    const accountV4State = engine.products.ledger.useWallet(ledgerAddress);
 
     const [target, setTarget] = useState(params?.target || '');
     const [addressDomainInput, setAddressDomainInput] = useState(target);
@@ -152,11 +168,13 @@ export const SimpleTransferFragment = fragment(() => {
         let value;
         if (jettonState) {
             value = jettonState.wallet.balance;
+        } else if (isLedger) {
+            value = accountV4State?.balance || new BN(0);
         } else {
             value = account.balance;
         }
         return value;
-    }, [jettonState, account.balance]);
+    }, [jettonState, account.balance, isLedger]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {
@@ -204,6 +222,34 @@ export const SimpleTransferFragment = fragment(() => {
             return null;
         }
 
+        if (isLedger && ledgerAddress) {
+            // Resolve jetton order
+            if (jettonState) {
+                return createLedgerJettonOrder({
+                    wallet: params!.jetton!,
+                    target: target,
+                    domain: domain,
+                    responseTarget: ledgerAddress,
+                    text: comment,
+                    amount: validAmount,
+                    tonAmount: toNano(0.1),
+                    txAmount: toNano(0.2),
+                    payload: null
+                }, AppConfig.isTestnet);
+            }
+
+            // Resolve order
+            return createSimpleLedgerOrder({
+                target: target,
+                domain: domain,
+                text: comment,
+                payload: null,
+                amount: accountV4State?.balance?.eq(validAmount) ? toNano('0') : validAmount,
+                amountAll: accountV4State?.balance?.eq(validAmount) ? true : false,
+                stateInit
+            });
+        }
+
         // Resolve jetton order
         if (jettonState) {
             return createJettonOrder({
@@ -242,78 +288,169 @@ export const SimpleTransferFragment = fragment(() => {
     useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
-            await backoff('simple-transfer', async () => {
-                if (ended) {
-                    return;
-                }
+            if (isLedger) {
+                await backoff('ledger-transfer', async () => {
+                    if (!addr) {
+                        return;
+                    }
 
-                // Load app state
-                const appState = getCurrentAddress();
+                    if (!accountV4State) {
+                        return;
+                    }
+                    if (ended) {
+                        return;
+                    }
 
-                // Parse order
-                let intMessage: InternalMessage;
-                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
-                if (!order) {
+                    if (!order) {
+                        return;
+                    }
+
+                    // Parse value
+                    let value: BN;
+                    try {
+                        const validAmount = amount.replace(',', '.');
+                        value = toNano(validAmount);
+                    } catch (e) {
+                        return null;
+                    }
+
+                    // Parse address
+                    let address: Address;
+                    try {
+                        let parsed = Address.parseFriendly(target);
+                        address = parsed.address;
+                    } catch (e) {
+                        return null;
+                    }
+
+                    const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+                    // Load contract
+                    const contract = await contractFromPublicKey(addr.publicKey);
+                    const seqno = (await engine.client4.getLastBlock()).last.seqno;
+                    // Fetch account light state
+                    const accountState = (await backoff('account-state', () => engine.client4.getAccountLite(seqno, contract.address))).account;
+
+
+                    // Parse order
+                    let intMessage: InternalMessage;
+                    let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
+
                     intMessage = new InternalMessage({
-                        to: appState.address,
-                        value: new BN(0),
+                        to: address,
+                        value: value,
                         bounce: false,
                         body: new CommonMessageInfo({
-                            stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: new CommentMessage(comment)
+                            stateInit: accountV4State.seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
+                            body: new CommentMessage(comment || '')
                         })
                     });
-                } else {
-                    intMessage = new InternalMessage({
-                        to: Address.parse(order.messages[0].target),
-                        value: order.messages[0].amount,
-                        bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                            body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : null
-                        })
-                    });
-                    if (order.messages[0].amountAll) {
+                    if ((order as LedgerOrder).amountAll) {
                         sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
                     }
-                }
 
-                // Load contract
-                const contract = await contractFromPublicKey(appState.publicKey);
+                    // Create transfer
+                    let transfer = await contract.createTransfer({
+                        seqno: accountV4State.seqno,
+                        walletId: contract.source.walletId,
+                        secretKey: null,
+                        sendMode,
+                        order: intMessage
+                    });
+                    if (ended) {
+                        return;
+                    }
 
-                // Create transfer
-                let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
-                    walletId: contract.source.walletId,
-                    secretKey: null,
-                    sendMode,
-                    order: intMessage
+                    // Resolve fee
+                    if (config) {
+                        let inMsg = new Cell();
+                        new ExternalMessage({
+                            to: contract.address,
+                            body: new CommonMessageInfo({
+                                stateInit: accountV4State.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                body: new CellMessage(transfer)
+                            })
+                        }).writeTo(inMsg);
+                        let outMsg = new Cell();
+                        intMessage.writeTo(outMsg);
+                        let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStat]);
+                        setEstimation(local);
+                    }
                 });
-                if (ended) {
-                    return;
-                }
+            } else {
+                await backoff('simple-transfer', async () => {
+                    if (ended) {
+                        return;
+                    }
 
-                // Resolve fee
-                if (config && accountState) {
-                    let inMsg = new Cell();
-                    new ExternalMessage({
-                        to: contract.address,
-                        body: new CommonMessageInfo({
-                            stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                            body: new CellMessage(transfer)
-                        })
-                    }).writeTo(inMsg);
-                    let outMsg = new Cell();
-                    intMessage.writeTo(outMsg);
-                    let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
-                    setEstimation(local);
-                }
-            });
+                    // Load app state
+                    const appState = getCurrentAddress();
+
+                    // Parse order
+                    let intMessage: InternalMessage;
+                    let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
+                    if (!order) {
+                        intMessage = new InternalMessage({
+                            to: appState.address,
+                            value: new BN(0),
+                            bounce: false,
+                            body: new CommonMessageInfo({
+                                stateInit: stateInit ? new CellMessage(stateInit) : null,
+                                body: new CommentMessage(comment)
+                            })
+                        });
+                    } else {
+                        const message = (order as Order).messages[0];
+                        intMessage = new InternalMessage({
+                            to: Address.parse(message.target),
+                            value: message.amount,
+                            bounce: false,
+                            body: new CommonMessageInfo({
+                                stateInit: message.stateInit ? new CellMessage(message.stateInit) : null,
+                                body: message.payload ? new CellMessage(message.payload) : null
+                            })
+                        });
+                        if (message.amountAll) {
+                            sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                        }
+                    }
+
+                    // Load contract
+                    const contract = await contractFromPublicKey(appState.publicKey);
+
+                    // Create transfer
+                    let transfer = await contract.createTransfer({
+                        seqno: account.seqno,
+                        walletId: contract.source.walletId,
+                        secretKey: null,
+                        sendMode,
+                        order: intMessage
+                    });
+                    if (ended) {
+                        return;
+                    }
+
+                    // Resolve fee
+                    if (config && accountState) {
+                        let inMsg = new Cell();
+                        new ExternalMessage({
+                            to: contract.address,
+                            body: new CommonMessageInfo({
+                                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
+                                body: new CellMessage(transfer)
+                            })
+                        }).writeTo(inMsg);
+                        let outMsg = new Cell();
+                        intMessage.writeTo(outMsg);
+                        let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
+                        setEstimation(local);
+                    }
+                });
+            }
         });
         return () => {
             ended = true;
         }
-    }, [order, account.seqno, config, accountState, comment]);
+    }, [order, account.seqno, config, accountState, comment, isLedger]);
 
     const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -351,6 +488,17 @@ export const SimpleTransferFragment = fragment(() => {
                     mStateInit = null;
                 }
 
+                if (isLedger) {
+                    navigation.navigateLedgerTransfer({
+                        target: mTarget,
+                        comment: mComment,
+                        amount: mAmount,
+                        stateInit: mStateInit,
+                        jetton: mJetton,
+                    });
+                    return;
+                }
+
                 navigation.navigateSimpleTransfer({
                     target: mTarget,
                     comment: mComment,
@@ -360,7 +508,7 @@ export const SimpleTransferFragment = fragment(() => {
                 });
             }
         }
-    }, [comment, target, amount, stateInit, jetton]);
+    }, [comment, target, amount, stateInit, jetton,]);
 
     const onAddAll = useCallback(() => {
         setAmount(jettonState ? fromBNWithDecimals(balance, jettonState.master.decimals) : fromNano(balance));
@@ -454,9 +602,19 @@ export const SimpleTransferFragment = fragment(() => {
         const contract = await contractFromPublicKey(acc.publicKey);
 
         // Check if same address
-        if (address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
+        if (isLedger) {
+            if (!ledgerAddress) {
+                return;
+            }
+            if (address.equals(ledgerAddress)) {
+                Alert.alert(t('transfer.error.sendingToYourself'));
+                return;
+            }
+        } else {
+            if (address.equals(contract.address)) {
+                Alert.alert(t('transfer.error.sendingToYourself'));
+                return;
+            }
         }
 
         // Check amount
@@ -475,15 +633,22 @@ export const SimpleTransferFragment = fragment(() => {
             Keyboard.dismiss();
         }
 
+        if (isLedger) {
+            navigation.replace('LedgerSignTransfer', {
+                text: null,
+                order: order as LedgerOrder,
+            });
+        }
+
         // Navigate to transaction confirmation
         navigation.navigateTransfer({
             text: comment,
-            order,
+            order: order as Order,
             job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState]);
+    }, [amount, target, domain, comment, account.seqno, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
@@ -591,7 +756,7 @@ export const SimpleTransferFragment = fragment(() => {
                     ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: refs[0]?.current?.focus,
+                    onBackPressed: resetInput,
                     title: t('common.recipient'),
                     titleComponent: undefined,
                     rightButton: saveButton
@@ -604,7 +769,7 @@ export const SimpleTransferFragment = fragment(() => {
                 selected: 'comment',
                 onNext: resetInput,
                 header: {
-                    onBackPressed: refs[1]?.current?.focus,
+                    onBackPressed: resetInput,
                     ...headertitle,
                     rightButton: saveButton
                 }

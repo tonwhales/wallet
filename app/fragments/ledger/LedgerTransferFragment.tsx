@@ -31,21 +31,18 @@ import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { AddressDomainInput } from "../../components/address/AddressDomainInput";
 
 export const LedgerTransferFragment = fragment(() => {
+    const { Theme, AppConfig } = useAppConfig();
     const ledgerContext = useLedgerTransport();
     const addr = ledgerContext?.addr;
-    const { Theme, AppConfig } = useAppConfig();
     const address = useMemo(() => {
         if (addr) {
             try {
                 return Address.parse(addr.address);
-            } catch (e) {
-                console.warn(e);
-            }
+            } catch { }
         }
     }, [addr]);
     const engine = useEngine();
     const params: SimpleTransferParams | undefined = useParams();
-
     const accountV4State = engine.products.ledger.useWallet(address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -58,9 +55,11 @@ export const LedgerTransferFragment = fragment(() => {
     const [comment, setComment] = useState(params?.comment ?? '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(null);
+
     const jettonWallet = params && params.jetton ? useItem(engine.model.jettonWallet(params.jetton!)) : null;
     const jettonMaster = jettonWallet ? useItem(engine.model.jettonMaster(jettonWallet.master!)) : null;
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
+    
     const balance = useMemo(() => {
         let value;
         if (jettonWallet) {

@@ -49,7 +49,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
         if (isLedgerScreen) {
-            navigation.replace('LedgerTransfer', {
+            navigation.replace('LedgerSimpleTransfer', {
                 amount: null,
                 target: target,
                 comment: null,
@@ -77,7 +77,7 @@ export const AssetsFragment = fragment(() => {
             return;
         }
         if (isLedgerScreen) {
-            navigation.replace('LedgerTransfer', {
+            navigation.replace('LedgerSimpleTransfer', {
                 amount: null,
                 target: target,
                 stateInit: null,

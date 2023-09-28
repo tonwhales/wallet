@@ -221,7 +221,7 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
     lockedModalScreen('LedgerSelectAccount', LedgerSelectAccountFragment, safeArea),
     fullScreen('LedgerApp', LedgerAppFragment),
-    modalScreen('LedgerTransfer', LedgerTransferFragment, safeArea),
+    modalScreen('LedgerSimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('LedgerReceive', ReceiveFragment, safeArea),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment, safeArea),

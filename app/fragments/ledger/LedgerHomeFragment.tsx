@@ -88,7 +88,7 @@ export const LedgerHomeFragment = fragment(() => {
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const navigateTransfer = useCallback(() => {
-        navigation.navigate('LedgerTransfer', {
+        navigation.navigate('LedgerSimpleTransfer', {
             amount: null,
             target: null,
             comment: null,

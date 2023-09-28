@@ -135,7 +135,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if target is not active
             if (target.balance.lte(new BN(0))) {
-                let cont = await confirmconfirmAlert('transfer.error.addressIsNotActive');
+                let cont = await confirmAlert('transfer.error.addressIsNotActive');
                 if (!cont) {
                     ended = true;
                     setStatus(undefined);
@@ -436,7 +436,3 @@ export const DeleteAccountFragment = fragment(() => {
         </View>
     );
 });
-
-function confirmconfirmAlert(arg0: string) {
-    throw new Error("Function not implemented.");
-}

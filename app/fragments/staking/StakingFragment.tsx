@@ -137,7 +137,11 @@ export const StakingFragment = fragment(() => {
 
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+            setStatusBarStyle(
+                Platform.OS === 'ios'
+                    ? 'light'
+                    : Theme.style === 'dark' ? 'light' : 'dark'
+            )
         }, 10);
     });
 

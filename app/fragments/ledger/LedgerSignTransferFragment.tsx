@@ -6,7 +6,7 @@ import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, Interna
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useEngine } from '../../engine/Engine';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
@@ -40,6 +40,7 @@ import { TransferSingleView } from '../secure/components/TransferSingleView';
 import { fromBNWithDecimals } from '../../utils/withDecimals';
 import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
+import { setStatusBarStyle } from 'expo-status-bar';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -469,6 +470,16 @@ export const LedgerSignTransferFragment = fragment(() => {
             exited = true;
         };
     }, [netConfig]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(
+                Platform.OS === 'ios'
+                    ? 'light'
+                    : Theme.style === 'dark' ? 'light' : 'dark'
+            )
+        }, 10);
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>

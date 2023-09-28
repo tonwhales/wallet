@@ -1,8 +1,8 @@
-import { Platform, View, Text, Pressable } from "react-native"
+import { Platform, View, Text } from "react-native"
 import { fragment } from "../../fragment"
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { setStatusBarStyle } from "expo-status-bar";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { RoundButton } from "../../components/RoundButton";

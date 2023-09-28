@@ -3,7 +3,6 @@ import * as React from 'react';
 import { NativeSyntheticEvent, Platform, Pressable, Share, Text, useWindowDimensions, View } from 'react-native';
 import { Address } from 'ton';
 import { ValueComponent } from '../../../components/ValueComponent';
-import { formatTime } from '../../../utils/dates';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
@@ -17,10 +16,6 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAppConfig } from '../../../utils/AppConfigContext';
 import { PriceComponent } from '../../../components/PriceComponent';
 
-function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
-    return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
-}
-
 export function TransactionView(props: {
     own: Address,
     tx: string,
@@ -31,6 +26,7 @@ export function TransactionView(props: {
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
+    const dontShowComments = props.engine.products.settings.useDontShowComments();
 
     const tx = props.engine.products.main.useTransaction(props.tx);
     let parsed = tx.base;
@@ -76,9 +72,6 @@ export function TransactionView(props: {
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
-
-    const verified = !!tx.verified
-        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
 
     const spamMinAmount = props.engine.products.settings.useSpamMinAmount();
     const isSpam = props.engine.products.settings.useDenyAddress(operation.address);
@@ -233,6 +226,7 @@ export function TransactionView(props: {
                                 address={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 id={avatarId}
                                 borderWith={0}
+                                spam={spam}
                             />
                         )}
                         {parsed.status === 'pending' && (
@@ -244,32 +238,36 @@ export function TransactionView(props: {
                         )}
                     </View>
                     <View style={{ flex: 1, marginRight: 4 }}>
-                        <Text
-                            style={{ color: Theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            {op}
-                        </Text>
-                        {spam && (
-                            <View style={{
-                                borderColor: Theme.textSecondary,
-                                borderWidth: 1,
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                borderRadius: 4,
-                                paddingHorizontal: 4
-                            }}>
-                                <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
-                            </View>
-                        )}
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <Text
+                                style={{ color: Theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                {op}
+                            </Text>
+                            {spam && (
+                                <View style={{
+                                    backgroundColor: Theme.backgroundUnchangeable,
+                                    borderWidth: 1,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    borderRadius: 100,
+                                    paddingHorizontal: 5,
+                                    marginLeft: 10,
+                                    height: 15
+                                }}>
+                                    <Text style={{ color: Theme.textPrimaryInverted, fontSize: 10, fontWeight: '500' }}>{'SPAM'}</Text>
+                                </View>
+                            )}
+                        </View>
                         <Text
                             style={{ color: Theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
                             {known
-                                ? knownAddressLabel(known, AppConfig.isTestnet, friendlyAddress)
+                                ? known.name
                                 : <AddressComponent address={operation.address} />
                             }
                         </Text>
@@ -322,7 +320,7 @@ export function TransactionView(props: {
                         )}
                     </View>
                 </View>
-                {!!operation.comment && (
+                {!!operation.comment && !(spam && dontShowComments) && (
                     <View style={{
                         flexShrink: 1, alignSelf: 'flex-start',
                         backgroundColor: Theme.border,

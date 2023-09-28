@@ -70,7 +70,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('LedgerStakingPools')}
                 style={({ pressed }) => {
-                    return [style, { backgroundColor: Theme.border, opacity: pressed ? 0.5 : 1 }]
+                    return [style, { backgroundColor: Theme.surfaceSecondary, opacity: pressed ? 0.5 : 1 }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>

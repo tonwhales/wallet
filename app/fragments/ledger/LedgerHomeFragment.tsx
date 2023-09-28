@@ -25,7 +25,7 @@ export const LedgerHomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
     const engine = useEngine();
-    
+
     const address = useMemo(() => {
         if (!ledgerContext?.addr) {
             return null;
@@ -173,7 +173,11 @@ export const LedgerHomeFragment = fragment(() => {
                                 fontWeight: '500',
                                 lineHeight: 32,
                             }}>
-                                <ValueComponent precision={6} value={account?.balance ?? new BN(0)} />
+                                <ValueComponent
+                                    precision={4}
+                                    value={account?.balance ?? new BN(0)}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
                                 <Text style={{
                                     fontSize: 17,
                                     lineHeight: Platform.OS === 'ios' ? 24 : undefined,
@@ -211,11 +215,13 @@ export const LedgerHomeFragment = fragment(() => {
                                 <PriceComponent
                                     amount={account?.balance ?? new BN(0)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
+                                    textStyle={{ color: Theme.textThird }}
                                 />
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
+                                    textStyle={{ color: Theme.textThird }}
                                 />
                             </Pressable>
                         </View>
@@ -283,7 +289,7 @@ export const LedgerHomeFragment = fragment(() => {
                                     <Text
                                         style={{
                                             fontSize: 15, lineHeight: 20,
-                                            color: Theme.surfacePimary,
+                                            color: Theme.textThird,
                                             marginTop: 6
                                         }}>
                                         {t('wallet.actions.receive')}
@@ -316,7 +322,9 @@ export const LedgerHomeFragment = fragment(() => {
                                     }}>
                                         <Image source={require('@assets/ic_send.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 15, color: Theme.surfacePimary, marginTop: 6, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                    <Text style={{ fontSize: 15, color: Theme.textThird, marginTop: 6, fontWeight: '400' }}>
+                                        {t('wallet.actions.send')}
+                                    </Text>
                                 </View>
                             </Pressable>
                         </View>
@@ -339,7 +347,7 @@ export const LedgerHomeFragment = fragment(() => {
                     </View>
                 </View>
                 <LedgerProductsComponent />
-                <View style={{ height: 100, width: '100%', backgroundColor: Theme.white }} />
+                <View style={{ height: 100, width: '100%', backgroundColor: Theme.surfacePimary }} />
             </Animated.ScrollView>
         </View>
     );

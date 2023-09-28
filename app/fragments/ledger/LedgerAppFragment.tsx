@@ -36,6 +36,10 @@ export const LedgerAppFragment = fragment(() => {
             <Tab.Navigator
                 initialRouteName={'Wallet'}
                 screenOptions={({ route }) => ({
+                    tabBarStyle: {
+                        backgroundColor: Theme.surfacePimary,
+                        borderTopColor: Theme.border,
+                    },
                     headerShown: false,
                     header: undefined,
                     unmountOnBlur: true,

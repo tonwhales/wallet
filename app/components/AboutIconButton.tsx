@@ -16,9 +16,8 @@ export const AboutIconButton = memo(({
     const navigation = useTypedNavigation();
 
     const onPressed = useCallback(() => {
-        navigation.navigate('Alert', { title, message: description });
+        navigation.navigateAlert({ title, message: description });
     }, [title, description]);
-
 
     return (
         <Pressable

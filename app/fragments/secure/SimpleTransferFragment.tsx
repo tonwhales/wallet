@@ -638,6 +638,7 @@ export const SimpleTransferFragment = fragment(() => {
                 text: null,
                 order: order as LedgerOrder,
             });
+            return;
         }
 
         // Navigate to transaction confirmation

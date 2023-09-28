@@ -35,6 +35,7 @@ import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import { confirmAlert } from "../utils/confirmAlert";
 
 export const DeleteAccountFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -72,23 +73,6 @@ export const DeleteAccountFragment = fragment(() => {
 
     const onDeleteAccount = useCallback(() => {
         let ended = false;
-
-        async function confirm(title: LocalizedResources) {
-            return await new Promise<boolean>(resolve => {
-                Alert.alert(t(title), t('transfer.confirm'), [{
-                    text: t('common.yes'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.no'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-        }
 
         backoff('delete_account', async () => {
             if (ended) {
@@ -141,7 +125,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if trying to send to testnet
             if (!AppConfig.isTestnet && target.isTestOnly) {
-                let cont = await confirm('transfer.error.addressIsForTestnet');
+                let cont = await confirmAlert('transfer.error.addressIsForTestnet');
                 if (!cont) {
                     ended = true;
                     setStatus(undefined);
@@ -151,7 +135,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if target is not active
             if (target.balance.lte(new BN(0))) {
-                let cont = await confirm('transfer.error.addressIsNotActive');
+                let cont = await confirmconfirmAlert('transfer.error.addressIsNotActive');
                 if (!cont) {
                     ended = true;
                     setStatus(undefined);
@@ -452,3 +436,7 @@ export const DeleteAccountFragment = fragment(() => {
         </View>
     );
 });
+
+function confirmconfirmAlert(arg0: string) {
+    throw new Error("Function not implemented.");
+}

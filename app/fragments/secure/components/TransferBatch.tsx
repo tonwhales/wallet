@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import React from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Alert, View, Text, ScrollView, Pressable } from "react-native";
 import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
@@ -13,7 +13,6 @@ import { parseMessageBody } from "../../../engine/transactions/parseMessageBody"
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
 import { createWalletTransferV4, internalFromSignRawMessage } from "../../../engine/utils/createWalletTransferV4";
-import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
@@ -30,12 +29,12 @@ import { fromBNWithDecimals } from "../../../utils/withDecimals";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
+import { confirmAlert } from "../../../utils/confirmAlert";
 
 import IcAlert from '@assets/ic-alert.svg';
 import TonSign from '@assets/ic_ton_sign.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
 import Verified from '@assets/ic-verified.svg';
-import { ValueComponent } from "../../../components/ValueComponent";
 
 type Props = {
     text: string | null,
@@ -65,7 +64,7 @@ type Props = {
     totalAmount: BN
 }
 
-export const TransferBatch = React.memo((props: Props) => {
+export const TransferBatch = memo((props: Props) => {
     const authContext = useKeysAuth();
     const { Theme, AppConfig } = useAppConfig();
     const navigation = useTypedNavigation();
@@ -83,7 +82,7 @@ export const TransferBatch = React.memo((props: Props) => {
         totalAmount
     } = props;
 
-    const { internals, totalJettons, gas } = React.useMemo(() => {
+    const { internals, totalJettons, gas } = useMemo(() => {
         const temp = [];
         const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: BN, gas: BN }>();
         let gas = {
@@ -173,15 +172,16 @@ export const TransferBatch = React.memo((props: Props) => {
         return { internals: temp, totalJettons, gas };
     }, []);
 
-    const jettonsGasAlert = React.useCallback(() => {
-        Alert.alert(t('transfer.unusualJettonsGasTitle', { amount: fromNano(gas.total) }),
-            t('transfer.unusualJettonsGasMessage'),
-            [{ text: t('common.gotIt') }])
+    const jettonsGasAlert = useCallback(() => {
+        navigation.navigateAlert({
+            title: t('transfer.unusualJettonsGasTitle', { amount: fromNano(gas.total) }),
+            message: t('transfer.unusualJettonsGasMessage'),
+        })
     }, [gas]);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
             trackEvent(MixpanelEvent.TransferCancel, { order }, AppConfig.isTestnet);
         }
@@ -189,24 +189,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
-        async function confirm(title: LocalizedResources, message?: string) {
-            return await new Promise<boolean>(resolve => {
-                Alert.alert(t(title), `${message ? message + ' ' : ''}${t('transfer.confirm')}`, [{
-                    text: t('common.yes'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.no'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-        }
-
+    const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
@@ -224,7 +207,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Check if restricted
             if (restricted) {
-                let cont = await confirm('transfer.error.addressCantReceive');
+                let cont = await confirmAlert('transfer.error.addressCantReceive');
                 if (!cont) {
                     return;
                 }
@@ -232,7 +215,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Check if restricted
             if (restricted) {
-                let cont = await confirm('transfer.error.addressCantReceive');
+                let cont = await confirmAlert('transfer.error.addressCantReceive');
                 if (!cont) {
                     return;
                 }

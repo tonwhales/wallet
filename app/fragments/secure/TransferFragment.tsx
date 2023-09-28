@@ -401,7 +401,7 @@ export const TransferFragment = fragment(() => {
     }, [netConfig]);
 
     return (
-        <>
+        <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 style={{ paddingLeft: 16 }}
                 statusBarStyle={Platform.select({
@@ -411,8 +411,8 @@ export const TransferFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
                 onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
             />
-            <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+                {!loadedProps ? (
                     <View style={{
                         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     }}>
@@ -420,9 +420,10 @@ export const TransferFragment = fragment(() => {
                             <TransferSkeleton />
                         </View>
                     </View>
+                ) : (
+                    <TransferLoaded {...loadedProps} />
                 )}
-                {!!loadedProps && <TransferLoaded {...loadedProps} />}
             </View>
-        </>
+        </View>
     );
 });

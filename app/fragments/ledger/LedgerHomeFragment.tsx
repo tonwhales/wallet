@@ -25,6 +25,7 @@ export const LedgerHomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
     const engine = useEngine();
+    
     const address = useMemo(() => {
         if (!ledgerContext?.addr) {
             return null;
@@ -39,54 +40,9 @@ export const LedgerHomeFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const account = engine.products.ledger.useAccount();
 
-    const onQRCodeRead = useCallback((src: string) => {
-        try {
-            let res = resolveUrl(src, AppConfig.isTestnet);
-            if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
-                if (res.type === 'transaction') {
-                    if (res.payload) {
-                        navigation.navigateLedgerSignTransfer({
-                            order: {
-                                target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                amount: res.amount || new BN(0),
-                                amountAll: false,
-                                stateInit: res.stateInit,
-                                payload: {
-                                    type: 'unsafe',
-                                    message: new CellMessage(res.payload),
-                                },
-                            },
-                            text: res.comment
-                        });
-                    } else {
-                        navigation.navigateLedgerTransfer({
-                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                            comment: res.comment,
-                            amount: res.amount,
-                            stateInit: res.stateInit,
-                            job: null,
-                            jetton: null,
-                            callback: null
-                        });
-                    }
-                    return;
-                }
-                navigation.navigateLedgerTransfer({
-                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                    comment: res.comment,
-                    amount: res.amount,
-                    stateInit: null,
-                    job: null,
-                    jetton: res.jettonMaster,
-                    callback: null
-                });
-            }
-        } catch {
-            // Ignore
-        }
-    }, []);
-
+    // Navigation
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
+
     const navigateTransfer = useCallback(() => {
         navigation.navigate('LedgerSimpleTransfer', {
             amount: null,

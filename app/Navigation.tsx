@@ -65,7 +65,6 @@ import { BottomSheetProvider } from './components/modal/BottomSheetModal';
 import { AvatarPickerFragment } from './fragments/wallet/AvatarPickerFragment';
 import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
-import { LedgerTransferFragment } from './fragments/ledger/LedgerTransferFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { LedgerTransactionPreviewFragment } from './fragments/ledger/LedgerTransactionPreviewFragment';
 import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';

@@ -22,7 +22,10 @@ export class WalletsProduct {
         return useRecoilValue(this.engine.persistence.wallets.item(address).atom);
     }
 
-    useWalletSettings(address: Address): WalletSettings | null {
+    useWalletSettings(address?: Address): WalletSettings | null {
+        if (!address) {
+            return null;
+        }
         return useRecoilValue(this.engine.sharedPersistence.walletSettings.item(address).atom);
     }
 

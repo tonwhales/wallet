@@ -7,7 +7,6 @@ import { CurrencySymbols, PrimaryCurrency } from "../engine/products/PriceProduc
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useAppConfig } from "../utils/AppConfigContext";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
@@ -28,10 +27,7 @@ export const CurrencyFragment = fragment(() => {
             if (currency === code) {
                 return;
             }
-            const c = await confirmAlertWithTitle(t('confirm.changeCurrency', { currency: code }));
-            if (c) {
-                priceProduct.setPrimaryCurrency(code)
-            }
+            priceProduct.setPrimaryCurrency(code)
         },
         [currency],
     );

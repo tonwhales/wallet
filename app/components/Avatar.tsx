@@ -105,7 +105,7 @@ export const Avatar = memo((props: {
     let backgroundColor: string | undefined = props.backgroundColor ?? Theme.surfaceSecondary;
 
     if (known && known?.ic) {
-        backgroundColor = undefined;
+        backgroundColor = Theme.white;
     }
 
     return (

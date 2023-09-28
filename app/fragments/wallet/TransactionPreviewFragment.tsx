@@ -170,13 +170,13 @@ export const TransactionPreviewFragment = fragment(() => {
             t('common.cancel'),
             t('txActions.view'),
             t('common.copy'),
-            t('txActions.share.transaction')
+            t('common.share')
         ];
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({
             title: t('common.tx'),
-            message: txId || undefined,
+            message: (txId?.slice(0, 6) + '...' + txId?.slice(-4)) || undefined,
             options,
             cancelButtonIndex,
         }, (selectedIndex?: number) => {

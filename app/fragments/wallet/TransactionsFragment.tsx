@@ -22,6 +22,7 @@ import { PressableChip } from "../../PressableChip";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { RequestsView } from "./views/RequestsView";
 import { useFocusEffect } from "@react-navigation/native";
+import { TransactionsEmptyState } from "./views/TransactionsEmptyStateView";
 
 const WalletTransactions = memo((props: {
     txs: { id: string, time: number }[],
@@ -217,32 +218,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                     onLoadMore={onReachedEnd}
                                 />
                             )
-                            : (
-                                <View>
-                                    <RequestsView />
-                                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                                        <Pressable onPress={() => animRef.current?.play()}>
-                                            <LottieView
-                                                ref={animRef}
-                                                source={require('@assets/animations/duck.json')}
-                                                autoPlay={true}
-                                                loop={false}
-                                                progress={0.2}
-                                                style={{ width: 192, height: 192 }}
-                                            />
-                                        </Pressable>
-                                        <Text style={{ fontSize: 16, color: Theme.textSecondary }}>
-                                            {t('wallet.empty.message')}
-                                        </Text>
-                                        <RoundButton
-                                            title={t('wallet.empty.receive')}
-                                            size="normal"
-                                            display="text"
-                                            onPress={() => navigation.navigate('Receive')}
-                                        />
-                                    </View>
-                                </View>
-                            )
+                            : (<TransactionsEmptyState />)
                     } else {
                         return <HoldersCardTransactions id={sceneProps.route.key} />
                     }

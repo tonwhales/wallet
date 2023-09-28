@@ -1,21 +1,19 @@
-import { NativeScrollEvent, NativeSyntheticEvent, Pressable, View, useWindowDimensions, Text, ScrollView } from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, View, ScrollView } from "react-native";
 import { fragment } from "../../fragment";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Engine, useEngine } from "../../engine/Engine";
-import React, { useCallback, useMemo, useRef } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { Address } from "ton";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { t } from "../../i18n/t";
-import LottieView from "lottie-react-native";
 import { LedgerTransactionsSection } from "./components/LedgerTransactionsSection";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { RoundButton } from "../../components/RoundButton";
+import { TransactionsEmptyState } from "../wallet/views/TransactionsEmptyStateView";
 
-const WalletTransactions = React.memo((props: {
+const WalletTransactions = memo((props: {
     txs: { id: string, time: number }[],
     next: { lt: string, hash: string } | null,
     address: Address,
@@ -23,7 +21,7 @@ const WalletTransactions = React.memo((props: {
     navigation: TypedNavigation,
     safeArea: EdgeInsets
 }) => {
-    const transactionsSectioned = React.useMemo(() => {
+    const transactionsSectioned = useMemo(() => {
         let sections: { title: string, items: string[] }[] = [];
         if (props.txs.length > 0) {
             let lastTime: string = getDateKey(props.txs[0].time);
@@ -82,7 +80,6 @@ const WalletTransactions = React.memo((props: {
 });
 
 export const LedgerTransactionsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
     const safeArea = useSafeAreaInsets();
     const engine = useEngine();
     const ledgerContext = useLedgerTransport();
@@ -99,7 +96,6 @@ export const LedgerTransactionsFragment = fragment(() => {
     }, [ledgerContext?.addr?.address]);
     const account = engine.products.ledger.useAccount();
     const navigation = useTypedNavigation();
-    const animRef = useRef<LottieView>(null);
 
     const onReachedEnd = useMemo(() => {
         let prev = account?.next;
@@ -134,33 +130,9 @@ export const LedgerTransactionsFragment = fragment(() => {
                 scrollEventThrottle={26}
                 removeClippedSubviews={true}
             >
-                {!account || !address || account.transactions.length === 0 && (
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                        <Pressable
-                            onPress={() => {
-                                animRef.current?.play();
-                            }}>
-                            <LottieView
-                                ref={animRef}
-                                source={require('@assets/animations/duck.json')}
-                                autoPlay={true}
-                                loop={false}
-                                progress={0.2}
-                                style={{ width: 192, height: 192 }}
-                            />
-                        </Pressable>
-                        <Text style={{ fontSize: 16, color: Theme.textSecondary }}>
-                            {t('wallet.empty.message')}
-                        </Text>
-                        <RoundButton
-                            title={t('wallet.empty.receive')}
-                            size="normal"
-                            display="text"
-                            onPress={() => navigation.navigate('Receive')}
-                        />
-                    </View>
-                )}
-                {!!account && !!address && (account.transactions.length > 0) && (
+                {(!account || !address || account.transactions.length === 0) ? (
+                    <TransactionsEmptyState isLedger />
+                ) : (
                     <WalletTransactions
                         txs={account.transactions}
                         next={account.next}

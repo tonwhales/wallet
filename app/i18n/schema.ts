@@ -118,7 +118,8 @@ export type LocalizationSchema = {
         },
         empty: {
             message: string,
-            receive: string
+            receive: string,
+            description: string,
         },
         pendingTransactions: string
     },

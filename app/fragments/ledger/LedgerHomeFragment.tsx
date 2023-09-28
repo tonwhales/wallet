@@ -5,7 +5,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useEngine } from "../../engine/Engine";
 import { useCallback, useEffect, useMemo } from "react";
-import { Address, CellMessage, toNano } from "ton";
+import { Address, toNano } from "ton";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { warn } from "../../utils/log";
@@ -16,7 +16,6 @@ import { PriceComponent } from "../../components/PriceComponent";
 import BN from "bn.js";
 import { WalletAddress } from "../../components/WalletAddress";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
-import { resolveUrl } from "../../utils/resolveUrl";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
 
 export const LedgerHomeFragment = fragment(() => {

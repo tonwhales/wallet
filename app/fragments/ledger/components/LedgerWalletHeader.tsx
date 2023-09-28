@@ -1,4 +1,4 @@
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image } from "react-native";
 import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -7,10 +7,8 @@ import { useBottomSheet } from '../../../components/modal/BottomSheetModal';
 import { useEngine } from "../../../engine/Engine";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
-import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { useLedgerTransport } from "./LedgerTransportProvider";
-import { Address, CellMessage } from "ton";
+import { CellMessage } from "ton";
 import BN from "bn.js";
 
 import Scanner from '@assets/ic-scan-white.svg';
@@ -18,26 +16,11 @@ import NoConnection from '@assets/ic-no-connection.svg';
 
 export const LedgerWalletHeader = memo(() => {
     const { Theme, AppConfig } = useAppConfig();
-    const ledgerContext = useLedgerTransport();
     const engine = useEngine();
-    const address = useMemo(() => {
-        if (!ledgerContext?.addr) {
-            return null;
-        }
-        try {
-            const address = Address.parse(ledgerContext.addr.address);
-            engine.products.ledger.startSync(address);
-            return address;
-        } catch (e) {
-            return null;
-        }
-    }, [ledgerContext?.addr?.address]);
     const account = engine.products.ledger.useAccount();
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
     const safeArea = useSafeAreaInsets();
     const modal = useBottomSheet();
     const navigation = useTypedNavigation();
-    const txs = useMemo(() => account?.transactions ?? [], [account]);
     const syncState = engine.state.use();
 
     const onQRCodeRead = useCallback((src: string) => {

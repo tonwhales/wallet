@@ -16,7 +16,7 @@ import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
-export const holdersUrl = 'https://stage.zenpay.org';
+export const holdersUrl = 'https://stage.holders.io';
 const currentTokenVersion = 1;
 
 export type HoldersAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })

@@ -12,7 +12,6 @@ import { AuthWalletKeysType } from "../../components/secure/AuthWalletKeys";
 import { warn } from "../../utils/log";
 import { HoldersOfflineResMap, fetchHoldersResourceMap, holdersOfflineAppCodec } from "../api/holders/fetchAppFile";
 import * as FileSystem from 'expo-file-system';
-import * as Application from 'expo-application';
 import { fetchCardsTransactions } from "../api/holders/fetchCardsTransactions";
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
@@ -300,20 +299,8 @@ export class HoldersProduct {
                         if (account?.state === 'no-ref') {
                             return { state: 'need-enrolment' };
                         }
-                        if (account?.state === 'need-phone') {
-                            if (src?.state !== 'need-phone') {
-                                return { ...account, token: token };
-                            }
-                        }
-                        if (account?.state === 'need-kyc') {
-                            if (src?.state !== 'need-kyc') {
-                                return { ...account, token: token };
-                            }
-                        }
-                        if (account?.state === 'ok') {
-                            if (src?.state !== 'ok') {
-                                return { ...account, token: token };
-                            }
+                        if (account && account.state !== src?.state) {
+                            return { ...account, token: token };
                         }
                         return src;
                     });

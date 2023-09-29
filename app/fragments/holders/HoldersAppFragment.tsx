@@ -7,7 +7,7 @@ import { useEngine } from '../../engine/Engine';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -42,7 +42,7 @@ export const HoldersAppFragment = fragment(() => {
         return false;
     }, [status]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (needsEnrollment) {
             navigation.goBack();
         }

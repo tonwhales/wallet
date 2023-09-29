@@ -33,6 +33,7 @@ export const accountStateCodec = t.union([
             t.literal('need-phone'),
             t.literal('ok'),
             t.literal('no-ref'),
+            t.literal('need-email'),
         ]),
         notificationSettings: t.type({
             enabled: t.boolean,

@@ -17,6 +17,9 @@ import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
+import { useFocusEffect } from "@react-navigation/native";
+import { setStatusBarStyle } from "expo-status-bar";
+import { CheckBox } from "../../../components/CheckBox";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -53,10 +56,14 @@ export const DappAuthComponent = memo(({
     state,
     onApprove,
     onCancel,
+    addExtension,
+    setAddExtension
 }: {
     state: SignState,
     onApprove: () => Promise<void>,
     onCancel?: () => void,
+    addExtension?: boolean,
+    setAddExtension?: (add: boolean) => void,
 }) => {
     const safeArea = useSafeAreaInsets();
     const { Theme, AppConfig } = useAppConfig();
@@ -154,6 +161,17 @@ export const DappAuthComponent = memo(({
             )
         }
     }, [state, domain, addressString]);
+
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(
+                Platform.OS === 'ios'
+                    ? 'light'
+                    : Theme.style === 'dark' ? 'light' : 'dark'
+            )
+        }, 10);
+    });
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -254,6 +272,18 @@ export const DappAuthComponent = memo(({
                             >
                                 {description}
                             </Text>
+                            {state.type === 'initing' && !!setAddExtension && (
+                                <CheckBox
+                                    checked={addExtension}
+                                    onToggle={setAddExtension}
+                                    text={t('auth.apps.installExtension')}
+                                    style={{
+                                        paddingHorizontal: 24,
+                                        marginBottom: 32,
+                                        width: '100%'
+                                    }}
+                                />
+                            )}
                         </>
                     )}
                     <RoundButton

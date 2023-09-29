@@ -237,7 +237,6 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
         navigation.goBack();
     }, [state]);
 
-
     return (
         <DappAuthComponent
             state={{ ...state, connector: 'ton-connect' }}

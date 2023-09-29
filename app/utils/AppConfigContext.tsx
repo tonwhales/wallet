@@ -118,7 +118,7 @@ export const initialNavigationTheme: NavigationThemeType = {
 };
 
 export const initialAppConfig = {
-    version: Application.nativeApplicationVersion,
+    version: `${Application.nativeApplicationVersion || 1} (${Application.nativeBuildVersion || 1})`,
     isTestnet: (
         Application.applicationId === 'com.tonhub.app.testnet' ||
         Application.applicationId === 'com.tonhub.app.debug.testnet' ||

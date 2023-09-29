@@ -13,10 +13,10 @@ import { getCurrentAddress } from "../../../storage/appState";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
+import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
-import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 
 export type TonConnectSignState =
     { type: 'loading' }

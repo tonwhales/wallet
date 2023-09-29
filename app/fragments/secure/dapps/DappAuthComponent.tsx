@@ -113,11 +113,11 @@ export const DappAuthComponent = memo(({
     const connectLineSvg = useMemo(() => {
         return Skia.SVG.MakeFromString(
             `<svg xmlns="http://www.w3.org/2000/svg" width="79" height="51" viewBox="0 0 79 51" fill="none">
-            <path d="M16.8405 23.9492C16.8405 23.9492 16.9389 26.6872 15.0678 28.1756C13.1967 29.6641 11.3008 29.6641 11.3008 29.6641M27.9199 44.4336V37.0488V25.5M38.9994 44.4336V31.5" stroke="#3CADF5" stroke-width="4" stroke-linecap="round"/>
+            <path d="M16.8405 23.9492C16.8405 23.9492 16.9389 26.6872 15.0678 28.1756C13.1967 29.6641 11.3008 29.6641 11.3008 29.6641M27.9199 44.4336V37.0488V25.5M38.9994 44.4336V31.5" stroke="${primaryIconColor}" stroke-width="4" stroke-linecap="round"/>
             <path d="M61.1595 33.6797V27.5195C61.1595 27.5195 61.0611 24.7815 62.9322 23.2931C64.8033 21.8047 66.6992 21.8047 66.6992 21.8047M50.0801 11.9688V26.9688M39.0006 7.96875V15.3215V16.9688" stroke="url(#paint0_linear_11710_129036)" stroke-width="4" stroke-linecap="round"/>
             <defs>
               <linearGradient id="paint0_linear_11710_129036" x1="40.8466" y1="30.9336" x2="80.2159" y2="30.9336" gradientUnits="userSpaceOnUse">
-                <stop stop-color="${dAppIconColors}"/>
+                <stop stop-color="${primaryIconColor}"/>
                 <stop offset="0.497277" stop-color="#6E49FD"/>
               </linearGradient>
             </defs>

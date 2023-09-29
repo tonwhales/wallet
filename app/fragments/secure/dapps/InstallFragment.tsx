@@ -1,24 +1,24 @@
 import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
 import { Platform, StyleProp, Text, TextStyle, View, Image } from "react-native";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { t, tStyled } from "../../i18n/t";
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { t, tStyled } from "../../../i18n/t";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { RoundButton } from '../../components/RoundButton';
-import { getCurrentAddress } from '../../storage/appState';
-import { fragment } from '../../fragment';
+import { LoadingIndicator } from '../../../components/LoadingIndicator';
+import { RoundButton } from '../../../components/RoundButton';
+import { getCurrentAddress } from '../../../storage/appState';
+import { fragment } from '../../../fragment';
 import ChainIcon from '@assets/ic_chain.svg';
 import ProtectedIcon from '@assets/ic_protected.svg';
-import { CloseButton } from '../../components/navigation/CloseButton';
-import { useEngine } from '../../engine/Engine';
-import { extractDomain } from '../../engine/utils/extractDomain';
-import { WImage } from '../../components/WImage';
-import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { useAppConfig } from '../../utils/AppConfigContext';
-import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { CloseButton } from '../../../components/navigation/CloseButton';
+import { useEngine } from '../../../engine/Engine';
+import { extractDomain } from '../../../engine/utils/extractDomain';
+import { WImage } from '../../../components/WImage';
+import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
+import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

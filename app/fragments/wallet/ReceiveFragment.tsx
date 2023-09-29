@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
-import { View, Text, Pressable, useWindowDimensions, ScrollView } from "react-native";
+import { View, Text, Pressable, useWindowDimensions, ScrollView, Platform } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -24,6 +24,8 @@ import { Avatar } from "../../components/Avatar";
 import Verified from '@assets/ic-verified.svg';
 import TonIcon from '@assets/ic_ton_account.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
+import { useImageColors } from "../../utils/useImageColors";
+import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -74,7 +76,18 @@ export const ReceiveFragment = fragment(() => {
             + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
     }, [jetton]);
 
-    const [mainColor, setMainColor] = useState('#0098EA');
+    const previewImageColors = useImageColors(jetton?.data?.image?.preview256, '#0098EA');
+
+    const mainColor = useMemo(() => {
+        if (previewImageColors) {
+            return Platform.select({
+                android: (previewImageColors as AndroidImageColors).dominant,
+                ios: (previewImageColors as IOSImageColors).primary,
+            }) || '#0098EA';
+        }
+        return '#0098EA';
+    }, [previewImageColors]);
+
     const isDark = useMemo(() => {
         if (mainColor === '#0098EA') {
             return true;
@@ -83,18 +96,6 @@ export const ReceiveFragment = fragment(() => {
         const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
         return luminance < 0.5;
     }, [mainColor]);
-
-    const image = useImage(jetton?.data?.image?.preview256);
-
-    useEffect(() => {
-        if (image) {
-            const bytes = image.encodeToBytes();
-            const color = getMostPrevalentColorFromBytes(bytes);
-            setMainColor(color);
-            return;
-        }
-        setMainColor('#0098EA');
-    }, [image]);
 
     return (
         <View

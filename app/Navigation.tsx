@@ -26,7 +26,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
 import * as Notifications from 'expo-notifications';
 import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
-import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
+import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -36,7 +36,7 @@ import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
-import { InstallFragment } from './fragments/secure/InstallFragment';
+import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
@@ -48,7 +48,7 @@ import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
@@ -171,14 +171,14 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
-    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
-    modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
-    modalScreen('Migration', MigrationFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-    modalScreen('Review', ReviewFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+
+    // dApps
+    transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('Install', InstallFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
@@ -191,6 +191,11 @@ const navigation = (safeArea: EdgeInsets) => [
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />,
+    modalScreen('Review', ReviewFragment, safeArea),
+
+
+    // Settings
+    modalScreen('Migration', MigrationFragment, safeArea),
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
@@ -229,12 +234,11 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
-    fullScreen('AppStartAuth', AppStartAuthFragment),
 
+    // Logout
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     modalScreen('Logout', LogoutFragment, safeArea),
     modalScreen('WalletBackupLogout', WalletBackupFragment, safeArea),
-    transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 
     // Holders
     genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
@@ -244,6 +248,8 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
     genericScreen('Scanner', ScannerFragment, safeArea, true, 0),
+    fullScreen('AppStartAuth', AppStartAuthFragment),
+    transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),

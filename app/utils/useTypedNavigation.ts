@@ -4,7 +4,7 @@ import { Address, Cell } from 'ton';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
-import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 import { BarCodeScanner } from 'expo-barcode-scanner';

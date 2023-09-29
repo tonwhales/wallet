@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getCurrentAddress } from "../../storage/appState";
@@ -15,17 +15,16 @@ import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppConfig } from "../../utils/AppConfigContext";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { Canvas, LinearGradient, Rect, useImage, vec } from "@shopify/react-native-skia";
-import { getMostPrevalentColorFromBytes } from "../../utils/image/getMostPrevalentColorFromBytes";
+import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
 import { Avatar } from "../../components/Avatar";
+import { useImageColors } from "../../utils/useImageColors";
+import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 
 import Verified from '@assets/ic-verified.svg';
 import TonIcon from '@assets/ic_ton_account.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
-import { useImageColors } from "../../utils/useImageColors";
-import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();

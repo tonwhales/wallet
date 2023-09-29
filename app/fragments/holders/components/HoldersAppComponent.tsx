@@ -24,7 +24,7 @@ import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
@@ -193,7 +193,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
     );
 }
 
-export const HoldersAppComponent = React.memo((
+export const HoldersAppComponent = memo((
     props: {
         variant: HoldersAppParams,
         token: string,
@@ -209,8 +209,11 @@ export const HoldersAppComponent = React.memo((
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+
+    // TODO: Uncomment when stable version with offline support will be available
+    // const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const stableOfflineV = null;
     const useOfflineApp = !!stableOfflineV;
 
     const [mainButton, dispatchMainButton] = React.useReducer(
@@ -232,7 +235,7 @@ export const HoldersAppComponent = React.memo((
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'account') {
-            route = status.state === 'ok' ? '/create' : '/';
+            route = (status.state === 'ok' || status.state === 'need-email') ? '/create' : '/';
         } else if (props.variant.type === 'card') {
             route = `/card/${props.variant.id}`;
         }

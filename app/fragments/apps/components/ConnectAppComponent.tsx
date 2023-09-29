@@ -15,8 +15,9 @@ import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mix
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useDAppBridge } from '../../../engine/tonconnect/useInjectConnectEngine';
 import { useAppConfig } from '../../../utils/AppConfigContext';
+import { memo, useMemo, useState } from 'react';
 
-export const ConnectAppComponent = React.memo((props: {
+export const ConnectAppComponent = memo((props: {
     endpoint: string,
     title: string,
 }) => {
@@ -41,8 +42,7 @@ export const ConnectAppComponent = React.memo((props: {
     //
 
     const safeArea = useSafeAreaInsets();
-    let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.useRef<WebView>(null);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -97,13 +97,20 @@ export const ConnectAppComponent = React.memo((props: {
         navigation
     );
 
+    const endpoint = useMemo(() => {
+        const url = new URL(props.endpoint);
+        url.searchParams.set('utm_source', 'tonhub');
+        url.searchParams.set('utm_content', 'extension');
+        return url.toString();
+    }, [props.endpoint]);
+
     return (
         <>
             <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <View style={{ height: safeArea.top }} />
                 <WebView
                     ref={ref}
-                    source={{ uri: props.endpoint }}
+                    source={{ uri: endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {

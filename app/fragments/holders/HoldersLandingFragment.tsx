@@ -34,7 +34,10 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
-    const stableOfflineV = engine.products.holders.stableOfflineVersion;
+
+    // TODO: Uncomment when stable version with offline support will be available
+    // const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const stableOfflineV = null;
     const useOfflineApp = !!stableOfflineV;
 
     //

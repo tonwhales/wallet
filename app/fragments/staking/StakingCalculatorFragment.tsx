@@ -9,7 +9,7 @@ import { ATextInput } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
-import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
+import { StakingCalcComponent } from "../../components/Staking/StakingCalcComponent";
 import { useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";

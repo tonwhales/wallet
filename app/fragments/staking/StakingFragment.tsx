@@ -139,7 +139,7 @@ export const StakingFragment = fragment(() => {
         setTimeout(() => {
             setStatusBarStyle(
                 Platform.OS === 'ios'
-                    ? 'light'
+                    ? 'dark'
                     : Theme.style === 'dark' ? 'light' : 'dark'
             )
         }, 10);

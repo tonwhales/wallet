@@ -14,6 +14,8 @@ import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
 import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
+import { useSetBiometricsState } from "../../../engine/effects/useSetBiometricsState";
+import { useSetPasscodeState } from "../../../engine/effects/useSetPasscodeState";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();
@@ -23,6 +25,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
     const storageType = loadKeyStorageType();
     const isLocalAuth = storageType === 'local-authentication';
+    const setBiometricsState = useSetBiometricsState();
+    const setPasscodeState = useSetPasscodeState();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
@@ -32,19 +36,16 @@ export const PasscodeSetupFragment = systemFragment(() => {
             throw Error('Failed to load wallet keys');
         }
         try {
-            if (!!settings) {
-                settings.setPasscodeState(PasscodeState.Set);
-    
-                if (isLocalAuth) {
-                    const ref = loadKeyStorageRef();
-                    let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
-    
-                    // Remove old unencrypted key
-                    storage.delete(key);
-                } else {
-                    // Set only if there are biometrics to use
-                    settings.setBiometricsState(BiometricsState.InUse);
-                }
+            setPasscodeState(PasscodeState.Set);
+            if (isLocalAuth) {
+                const ref = loadKeyStorageRef();
+                let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
+
+                // Remove old unencrypted key
+                storage.delete(key);
+            } else {
+                // Set only if there are biometrics to use
+                setBiometricsState(BiometricsState.InUse);
             }
         } catch {
             warn(`Failed to set passcode state on PasscodeSetup ${init ? 'init' : 'change'}`);

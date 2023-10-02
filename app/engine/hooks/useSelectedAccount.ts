@@ -5,9 +5,7 @@ import { Address } from '@ton/core';
 export function useSelectedAccount() {
     let state = useRecoilValue(appStateAtom);
 
-    return {
-        ...state.addresses[state.selected],
-        addressString: 'EQA-daKmzkx5nLMKT465D_-uyhwgBTEucMeyvfGLfzHoWspv',
-        address: Address.parse('EQA-daKmzkx5nLMKT465D_-uyhwgBTEucMeyvfGLfzHoWspv'),
-    };
+    return (state.selected === -1 || state.selected >= state.addresses.length)
+        ? null
+        : state.addresses[state.selected];
 }

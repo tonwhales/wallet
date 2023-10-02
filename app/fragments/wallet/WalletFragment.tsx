@@ -27,10 +27,11 @@ import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChar
 import { useSyncState } from '../../engine/hooks/useSyncState';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
+import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 
-const PendingTxs = React.memo((props: {
+const PendingTxs = memo((props: {
     txs: TransactionDescription[],
     next: { lt: string, hash: string } | null,
     address: Address,
@@ -65,16 +66,16 @@ const PendingTxs = React.memo((props: {
     );
 });
 
-function WalletComponent(props: { wallet: AccountLite }) {
+function WalletComponent(props: { selected: SelectedAccount }) {
+    const account = useAccountLite(props.selected.addressString);
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const animRef = React.useRef<LottieView>(null);
-    const address = useSelectedAccount().address;
+    const animRef = useRef<LottieView>(null);
+    const address = props.selected.address;
     const syncState = useSyncState();
     const balanceChart = useAccountBalanceChart();
-    const account = props.wallet;
 
     //
     // Transactions
@@ -169,28 +170,23 @@ function WalletComponent(props: { wallet: AccountLite }) {
         }
     };
 
-    const onOpenBuy = React.useCallback(
-        () => {
-            navigation.navigate('Buy');
-        },
-        [],
-    );
+    const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
-    const openGraph = React.useCallback(() => {
+    const openGraph = useCallback(() => {
         if (balanceChart && balanceChart.chart.length > 0) {
             navigation.navigate('AccountBalanceGraph');
         }
     }, [navigation]);
 
-    const navigateToCurrencySettings = React.useCallback(() => {
+    const navigateToCurrencySettings = useCallback(() => {
         navigation.navigate('Currency');
     }, []);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [navigation]);
 
-    return (
+    return !!account ? (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <Animated.ScrollView
                 contentContainerStyle={{
@@ -566,21 +562,24 @@ function WalletComponent(props: { wallet: AccountLite }) {
                     </View>
                 )
             }
-        </View >
-    );
+        </View>
+    ) : (
+        <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+            <LoadingIndicator />
+        </View>
+    )
 }
 
 export const WalletFragment = fragment(() => {
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString);
-    
-    if (!account) {
+
+    if (!selected) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
             </View>
         );
     } else {
-        return <WalletComponent wallet={account} />
+        return <WalletComponent selected={selected} />
     }
 }, true);

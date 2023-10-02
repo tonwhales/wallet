@@ -1,6 +1,6 @@
-import BN from "bn.js";
-import { Cell, fromNano, SupportedMessage, toNano } from "@ton/core";
+import { fromNano } from "@ton/core";
 import { LocalizedResources } from "../../i18n/schema";
+import { SupportedMessage } from "./parseMessageBody";
 
 export function formatSupportedBody(supportedMessage: SupportedMessage): { res: LocalizedResources, options?: any } | null {
     if (supportedMessage.type === 'deposit') {
@@ -10,8 +10,8 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { res: 
         return { res: 'known.depositOk' };
     }
     if (supportedMessage.type === 'withdraw') {
-        let coins = supportedMessage.data['stake'] as BN;
-        if (coins.eq(toNano(0))) {
+        let coins = supportedMessage.data['stake'] as bigint;
+        if (coins === BigInt(0)) {
             return { res: 'known.withdrawAll' };
         } else {
             return { res: 'known.withdraw', options: { coins: fromNano(coins) } };
@@ -19,13 +19,6 @@ export function formatSupportedBody(supportedMessage: SupportedMessage): { res: 
     }
     if (supportedMessage.type === 'withdraw::ok') {
         return { res: 'known.withdrawAll' };
-    }
-    if (supportedMessage.type === 'upgrade') {
-        let code = supportedMessage.data['code'] as Cell;
-        return { res: 'known.upgrade', options: { hash: code.hash().toString('base64') } };
-    }
-    if (supportedMessage.type === 'upgrade::ok') {
-        return { res: 'known.upgradeOk' };
     }
     if (supportedMessage.type === 'jetton::excesses') {
         return { res: 'known.cashback' };

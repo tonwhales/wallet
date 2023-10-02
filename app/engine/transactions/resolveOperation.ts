@@ -39,23 +39,23 @@ export function resolveOperation(args: {
             }
 
             if (parsedBody.type === 'jetton::transfer') {
-                address = parsedBody.data['destination'] as Address;
-                let amount = parsedBody.data['amount'] as BN;
+                address = parsedBody.data.destination;
+                let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
+                let body = parseBody(parsedBody.data.forwardPayload);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
                 op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {
-                    address = parsedBody.data['sender'] as Address;
+                    address = parsedBody.data.sender;
                 } else {
                     op = { res: 'common.airdrop' };
                 }
-                let amount = parsedBody.data['amount'] as BN;
+                let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
+                let body = parseBody(parsedBody.data.forwardPayload);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }

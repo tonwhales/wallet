@@ -1,21 +1,20 @@
-import React from "react"
+import React, { memo } from "react"
 import { View, Text, Pressable, Alert } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
 import { Address, Cell, fromNano } from "@ton/core";
 import { AddressComponent } from "../AddressComponent";
-import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
-import { fromBNWithDecimals } from "../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
 import { Operation } from '../../engine/legacy/transactions/types';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 
-export const TransferComponent = React.memo(({ transfer, last, first, index }: {
+export const TransferComponent = memo(({ transfer, last, first, index }: {
     transfer: {
         message: {
             addr: {
@@ -101,7 +100,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                     color: theme.textColor,
                                     includeFontPadding: false,
                                 }}>
-                                    {`${fromBNWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
+                                    {`${fromBnWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
                                 </Text>
                             </View>
                         )}

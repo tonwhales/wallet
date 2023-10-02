@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getCurrentAddress } from "../../storage/appState";
 import { View, Platform, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
@@ -12,7 +11,6 @@ import { useParams } from "../../utils/useParams";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
-import { Address } from "@ton/core";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -153,10 +151,9 @@ export const ReceiveFragment = fragment(() => {
                         />
                     </View>
 
-                    <View style={{
-                        justifyContent: 'center'
-                    }}>
+                    <View style={{ justifyContent: 'center' }}>
                         <CopyButton
+                            showIcon
                             body={address.addressString}
                             style={{ marginBottom: 8 }}
                         />

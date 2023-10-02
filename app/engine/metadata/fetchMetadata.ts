@@ -3,7 +3,6 @@ import { tryFetchJettonMaster } from "./introspections/tryFetchJettonMaster";
 import { tryFetchJettonWallet } from "./introspections/tryFetchJettonWallet";
 import { tryGetJettonWallet } from "./introspections/tryGetJettonWallet";
 import { ContractMetadata } from "./Metadata";
-import { InteractionManager } from 'react-native';
 import { TonClient4 } from '@ton/ton';
 
 export async function fetchMetadata(client: TonClient4, seqno: number, address: Address): Promise<ContractMetadata> {

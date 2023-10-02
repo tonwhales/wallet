@@ -1,6 +1,3 @@
-import BN from "bn.js";
-import { Address } from "@ton/core"
-
 export type StoredJettonWallet = {
     balance: string,
     owner: string,

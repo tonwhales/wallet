@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import { Address, Slice } from "@ton/core";
 import { warn } from "../../../utils/log";
 import { ContentSource, JettonMaster } from "../Metadata";

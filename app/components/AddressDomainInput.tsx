@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { ForwardedRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react"
 import { View, Text, ViewStyle, StyleProp, Alert, TextInput, Pressable } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { t } from "../i18n/t"
@@ -49,7 +49,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     contact?: AddressContact,
     labelText?: string,
     showToMainAddress?: boolean,
-}, ref: React.ForwardedRef<ATextInputRef>) => {
+}, ref: ForwardedRef<ATextInputRef>) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
@@ -57,8 +57,8 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
 
-    const tref = React.useRef<TextInput>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         },
@@ -241,7 +241,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             />
                         </Animated.View>
                     )}
-                    {input.length === 0 && showToMainAddress && (
+                    {input.length === 0 && showToMainAddress && selected && (
                         <Animated.View
                             style={{
                                 flexDirection: 'row',

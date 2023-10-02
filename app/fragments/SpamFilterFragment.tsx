@@ -18,7 +18,7 @@ import SpamIcon from '../../assets/known/spam_icon.svg';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useDontShowComments } from '../engine/hooks/useDontShowComments';
 import { useSpamMinAmount } from '../engine/hooks/useSpamMinAmount';
-import { useDenyList } from '../engine/hooks/useDenyList';
+import { useDenyList } from '../engine/hooks/contacts/useDenyList';
 
 export type SpamFilterConfig = {
     minAmount: bigint | null,

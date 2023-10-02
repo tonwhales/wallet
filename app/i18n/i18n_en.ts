@@ -50,6 +50,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         checkInternetConnection: 'Check your internet connection',
         reload: 'Reload',
         errorOccurred: 'Error occurred: {{error}}',
+        airdrop: 'Airdrop',
     },
     syncStatus: {
         connecting: 'Connecting',

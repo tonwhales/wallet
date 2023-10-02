@@ -5,6 +5,7 @@ import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
 import { TxBody } from '../legacy/Transaction';
 import { StoredOperation, StoredOperationItem } from '../hooks/useRawAccountTransactions';
+import { LocalizedResources } from "../../i18n/schema";
 
 export function resolveOperation(args: {
     account: Address,
@@ -21,11 +22,8 @@ export function resolveOperation(args: {
         comment = args.body.comment;
     }
 
-    // Resolve default name
-    // let op: string | undefined = undefined;
-
-    // Resolve default name
-    // let title: string | undefined = undefined;
+    // Resolve default op
+    let op: { res: LocalizedResources, options?: any } | undefined = undefined;
 
     // Resolve default items
     let items: StoredOperationItem[] = [];
@@ -37,7 +35,7 @@ export function resolveOperation(args: {
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                // op = f.text;
+                op = f;
             }
 
             if (parsedBody.type === 'jetton::transfer') {
@@ -48,12 +46,12 @@ export function resolveOperation(args: {
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
-                // op = t('tx.tokenTransfer');
+                op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {
                     address = parsedBody.data['sender'] as Address;
                 } else {
-                    // op = 'airdrop';
+                    op = { res: 'common.airdrop' };
                 }
                 let amount = parsedBody.data['amount'] as BN;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
@@ -69,6 +67,7 @@ export function resolveOperation(args: {
     return {
         address: address.toString({ testOnly: isTestnet }),
         items,
-        comment
+        comment,
+        op
     }
 }

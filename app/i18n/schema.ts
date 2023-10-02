@@ -52,6 +52,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
+        airdrop: string
     },
     syncStatus: {
         connecting: string,

@@ -26,10 +26,10 @@ import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useContactAddress } from '../../engine/hooks/useContactAddress';
+import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
-import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
+import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TxBody } from '../../engine/legacy/Transaction';

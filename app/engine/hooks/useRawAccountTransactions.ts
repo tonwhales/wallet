@@ -8,6 +8,7 @@ import { TxBody } from '../legacy/Transaction';
 import { parseBody } from '../transactions/parseWalletTransaction';
 import { resolveOperation } from '../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
+import { LocalizedResources } from '../../i18n/schema';
 
 type StoredAddressExternal = {
     bits: number;
@@ -55,7 +56,7 @@ export type StoredOperation = {
     items: StoredOperationItem[];
 
     // Address
-    // op?: string;
+    op?: { res: LocalizedResources, options?: any };
     // title?: string;
     // image?: string;
 
@@ -286,7 +287,7 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
             if (!last || !last[last.length - 1]) {
                 return null;
             }
-            
+
             return {
                 lt: last[last.length - 1].lt,
                 hash: last[last.length - 1].hash,

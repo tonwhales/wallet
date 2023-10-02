@@ -1,40 +1,40 @@
 import BN from "bn.js";
 import { Cell, fromNano, SupportedMessage, toNano } from "@ton/core";
-import { t } from '../../i18n/t';
+import { LocalizedResources } from "../../i18n/schema";
 
-export function formatSupportedBody(supportedMessage: SupportedMessage): { text: string } | null {
+export function formatSupportedBody(supportedMessage: SupportedMessage): { res: LocalizedResources, options?: any } | null {
     if (supportedMessage.type === 'deposit') {
-        return { text: t('known.deposit') };
+        return { res: 'known.deposit' };
     }
     if (supportedMessage.type === 'deposit::ok') {
-        return { text: t('known.depositOk') };
+        return { res: 'known.depositOk' };
     }
     if (supportedMessage.type === 'withdraw') {
         let coins = supportedMessage.data['stake'] as BN;
         if (coins.eq(toNano(0))) {
-            return { text: t('known.withdrawAll') };
+            return { res: 'known.withdrawAll' };
         } else {
-            return { text: t('known.withdraw', { coins: fromNano(coins) }) };
+            return { res: 'known.withdraw', options: { coins: fromNano(coins) } };
         }
     }
     if (supportedMessage.type === 'withdraw::ok') {
-        return { text: t('known.withdrawAll') };
+        return { res: 'known.withdrawAll' };
     }
     if (supportedMessage.type === 'upgrade') {
         let code = supportedMessage.data['code'] as Cell;
-        return { text: t('known.upgrade', { hash: code.hash().toString('base64') }) };
+        return { res: 'known.upgrade', options: { hash: code.hash().toString('base64') } };
     }
     if (supportedMessage.type === 'upgrade::ok') {
-        return { text: t('known.upgradeOk') };
+        return { res: 'known.upgradeOk' };
     }
     if (supportedMessage.type === 'jetton::excesses') {
-        return { text: t('known.cashback') };
+        return { res: 'known.cashback' };
     }
     if (supportedMessage.type === 'jetton::transfer') {
-        return { text: t('known.tokenSent') };
+        return { res: 'known.tokenSent' };
     }
     if (supportedMessage.type === 'jetton::transfer_notification') {
-        return { text: t('known.tokenReceived') };
+        return { res: 'known.tokenReceived' };
     }
     return null;
 }

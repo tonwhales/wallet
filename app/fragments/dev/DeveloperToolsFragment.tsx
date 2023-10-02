@@ -3,7 +3,7 @@ import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-nat
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence } from '../../storage/storage';
+import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
@@ -51,6 +51,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const reboot = useReboot();
     const resetCache = useCallback(() => {
         storagePersistence.clearAll();
+        storageQuery.clearAll();
         // clearHolders(engine);
         reboot();
     }, []);

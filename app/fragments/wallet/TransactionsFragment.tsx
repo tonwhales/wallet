@@ -1,5 +1,5 @@
-import React, { useCallback } from "react";
-import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent, SectionList, Dimensions, useWindowDimensions, SectionListRenderItem, SectionListRenderItemInfo, SectionListData } from "react-native";
+import React, { memo, useCallback } from "react";
+import { Platform, View, Text, Pressable, SectionList, useWindowDimensions, SectionListRenderItemInfo, SectionListData } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
@@ -11,14 +11,14 @@ import { formatDate, getDateKey } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { TransactionDescription, useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionView } from './views/TransactionView';
 import { ThemeType } from '../../engine/state/theme';
 
-const SectionHeader = React.memo(({ theme, title }: { theme: ThemeType, title: string }) => {
+const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View
             style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
@@ -37,7 +37,7 @@ const SectionHeader = React.memo(({ theme, title }: { theme: ThemeType, title: s
     )
 });
 
-const WalletTransactions = React.memo((props: {
+const WalletTransactions = memo((props: {
     txs: TransactionDescription[],
     hasNext: boolean,
     address: Address,
@@ -117,17 +117,28 @@ const WalletTransactions = React.memo((props: {
     );
 });
 
-function TransactionsComponent(props: { address: Address, transactions: TransactionDescription[], loadMore: () => void, }) {
+function TransactionsComponent(props: { account: SelectedAccount }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
-    const { transactions, address } = props;
+    const client = useClient4(useNetwork().isTestnet);
+    const txs = useAccountTransactions(client, props.account.addressString);
+    const transactions = txs?.data;
+    const address = props.account.address;
 
     const onReachedEnd = React.useCallback(() => {
-        props.loadMore();
-    }, []);
+        txs?.next();
+    }, [txs?.next]);
+
+    if (!transactions) {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <LoadingIndicator />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -250,10 +261,8 @@ function TransactionsComponent(props: { address: Address, transactions: Transact
 
 export const TransactionsFragment = fragment(() => {
     const account = useSelectedAccount();
-    const client = useClient4(useNetwork().isTestnet);
-    const transactions = useAccountTransactions(client, account.addressString);
 
-    if (!transactions) {
+    if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
@@ -261,11 +270,7 @@ export const TransactionsFragment = fragment(() => {
         );
     } else {
         return (
-            <TransactionsComponent
-                address={account.address}
-                transactions={transactions.data}
-                loadMore={transactions.next}
-            />
+            <TransactionsComponent account={account} />
         )
     }
 }, true);

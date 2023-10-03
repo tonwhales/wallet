@@ -57,7 +57,6 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     const switchNetwork = useCallback(() => {
-        console.log({ isTestnet });
         Alert.alert(
             t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
             t('devTools.switchNetworkAlertMessage'),

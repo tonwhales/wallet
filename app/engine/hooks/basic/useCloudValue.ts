@@ -117,14 +117,10 @@ async function writeValueToCloud(key: string, seq: number, value: Buffer, params
 }
 
 async function updateCloudValue(key: string, updater: (value: Buffer | null) => Promise<Buffer>, params: { utilityKey: Buffer, isTestnet: boolean }) {
-    console.log('here');
     let current = await readValueFromCloud(key, params);
-    console.log(current);
     while (true) {
         let updated = await updater(current.value);
-        console.log('updated', updated);
         let res = await writeValueToCloud(key, current.seq, updated, params);
-        console.log('res', res);
         if (!res.updated) {
             current = res.current;
         } else {
@@ -161,19 +157,13 @@ export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (u
         if (!account) {
             return;
         }
-        console.log('here_0');
         localAmValue.update(updater);
-        console.log('here_1');
         queryClient.setQueryData(Queries.Cloud(account.addressString).Key(key), localAmValue.save().toString('base64'));
-        console.log('here_2');
         
         await updateCloudValue(key, async (buffer) => {
-            console.log('here_3');
             let remoteAmValue = AutomergeValue.fromExisting<T>(buffer || AutomergeValue.fromEmpty<T>(initial).save());
-            console.log('here_4');
             
             remoteAmValue.apply(localAmValue);
-            console.log('here_5');
 
             return remoteAmValue.save();
         }, { utilityKey: account.utilityKey, isTestnet });

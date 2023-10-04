@@ -22,6 +22,10 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { getCurrentAddress } from '../../../storage/appState';
+import { ConfigStore } from '../../../utils/ConfigStore';
+import { useMemo } from 'react';
+import { createDomainSignature } from '../../../engine/effects/dapps/createDomainSignature';
 
 export const AppComponent = React.memo((props: {
     endpoint: string,
@@ -131,21 +135,27 @@ export const AppComponent = React.memo((props: {
     // Injection
     //
 
-    const injectSource = React.useMemo(() => {
-        const contract = contractFromPublicKey(engine.publicKey);
-        const walletConfig = contract.source.backup();
-        const walletType = contract.source.type;
+    const injectSource = useMemo(() => {
+        const currentAccount = getCurrentAddress();
+        const contract = contractFromPublicKey(currentAccount.publicKey);
+        const config = new ConfigStore();
+        config.setInt('wc', contract.workchain);
+        config.setBuffer('pk', contract.publicKey);
+        config.setInt('walletId', contract.walletId);
+
+        let walletConfig = config.save();
+        let walletType = 'org.ton.wallets.v4';
         const domain = extractDomain(props.endpoint);
 
-        let domainSign = engine.products.keys.createDomainSignature(domain);
+        let domainSign = createDomainSignature(domain);
 
         return createInjectSource({
             version: 1,
             platform: Platform.OS,
             platformVersion: Platform.Version,
             network: isTestnet ? 'testnet' : 'mainnet',
-            address: engine.address.toString({ testOnly: isTestnet }),
-            publicKey: engine.publicKey.toString('base64'),
+            address: currentAccount.address.toString({ testOnly: isTestnet }),
+            publicKey: currentAccount.publicKey.toString('base64'),
             walletConfig,
             walletType,
             signature: domainSign.signature,

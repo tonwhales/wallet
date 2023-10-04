@@ -9,7 +9,8 @@ import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { Picker } from '@react-native-picker/picker';
 import { useTheme } from '../../../../engine/hooks/useTheme';
-import { useAppData } from '../../../../engine/hooks/useAppData';
+import { useAppData } from '../../../../engine/hooks/dapps/useAppData';
+import { useNetwork } from "../../../../engine/hooks/useNetwork";
 
 export const ReportComponent = React.memo(({ url }: { url: string }) => {
     const theme = useTheme();

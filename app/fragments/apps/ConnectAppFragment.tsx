@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
-import { useAppManifest } from '../../engine/hooks/useAppManifest';
+import { useAppManifest } from '../../engine/hooks/dapps/useAppManifest';
 import { useTheme } from '../../engine/hooks/useTheme';
 
 export const ConnectAppFragment = fragment(() => {

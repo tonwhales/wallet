@@ -17,9 +17,12 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useAppData } from '../../engine/hooks/useAppData';
+import { useAppData } from '../../engine/hooks/dapps/useAppData';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { createDomainKeyIfNeeded } from '../../engine/effects/dapps/createDomainKeyIfNeeded';
+import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -27,44 +30,44 @@ const labelStyle: StyleProp<TextStyle> = {
     fontSize: 17
 };
 
-const SignStateLoader = React.memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
+const SignStateLoader = memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
     const authContext = useKeysAuth();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
+    const addExtension = useAddExtension();
 
     // App Data
     let appData = useAppData(props.url);
 
     // Approve
-    const acc = React.useMemo(() => getCurrentAddress(), []);
-    let active = React.useRef(true);
-    let success = React.useRef(false);
-    React.useEffect(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
+    let active = useRef(true);
+    let success = useRef(false);
+    useEffect(() => {
         return () => { active.current = false; };
     }, []);
-    const approve = React.useCallback(async () => {
+    const approve = useCallback(async () => {
 
         // Create Domain Key if Needed
         let domain = extractDomain(props.url);
-        let created = await engine.products.keys.createDomainKeyIfNeeded(domain, authContext);
+        let created = await createDomainKeyIfNeeded(domain, authContext);
         if (!created) {
             return;
         }
 
         // Add extension
-        engine.products.extensions.addExtension(props.url, props.title, props.image);
+        addExtension(props.url, props.title, props.image);
 
         // Track installation
         success.current = true;
         trackEvent(MixpanelEvent.AppInstall, { url: props.url, domain: domain }, isTestnet);
 
         // Navigate
-        navigation.goBack();
-        navigation.navigate('App', { url: props.url });
+        navigation.replace('App', { url: props.url });
     }, []);
-    React.useEffect(() => {
+    useEffect(() => {
         if (!success.current) {
             let domain = extractDomain(props.url);
             trackEvent(MixpanelEvent.AppInstallCancel, { url: props.url, domain: domain }, isTestnet);

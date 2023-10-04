@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { AppManifest, fetchManifest } from '../api/fetchManifest';
-import { Queries } from '../queries';
+import { AppManifest, fetchManifest } from '../../api/fetchManifest';
+import { Queries } from '../../queries';
 
 export function useAppManifest(url: string): AppManifest | null {
     let res = useQuery({

@@ -1,33 +1,32 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { t } from "../i18n/t";
 import { WImage } from "./WImage";
 import { useTheme } from '../engine/hooks/useTheme';
 import { AppData } from '../engine/api/fetchAppData';
 import { AppManifest } from '../engine/api/fetchManifest';
-import { useAppData } from '../engine/hooks/useAppData';
-import { useAppManifest } from '../engine/hooks/useAppManifest';
+import { useAppData } from '../engine/hooks/dapps/useAppData';
+import { useAppManifest } from '../engine/hooks/dapps/useAppManifest';
 import { extractDomain } from '../engine/utils/extractDomain';
 
-type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
+export type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
-export const ConnectedAppButton = React.memo((
-    {
-        name,
-        url,
-        tonconnect,
-        onRevoke
-    }: {
-        name: string,
-        url: string,
-        tonconnect?: boolean,
-        onRevoke?: () => void,
-    }
-) => {
+export const ConnectedAppButton = memo(({
+    name,
+    url,
+    tonconnect,
+    onRevoke
+}: {
+    name?: string | null,
+    url: string,
+    tonconnect?: boolean,
+    onRevoke?: () => void,
+}) => {
     const theme = useTheme();
     const appData = useAppData(url);
     const appManifest = useAppManifest(url);
-    let app: AppInfo = useMemo(() => {
+    
+    const app: AppInfo = useMemo(() => {
         if (appData) {
             return { ...appData, type: 'app-data' };
         } else if (appManifest && tonconnect) {
@@ -35,7 +34,19 @@ export const ConnectedAppButton = React.memo((
         } else {
             return null;
         }
-    }, [appData, appManifest, tonconnect]);
+    }, [appData, appManifest, tonconnect, name]);
+
+    const title = useMemo(() => {
+        if (!app) {
+            return name;
+        }
+        if (app.type === 'app-data') {
+            return app.title;
+        } else {
+            return app.name;
+        }
+    }, [app, name]);
+
 
     return (
         <View style={{
@@ -60,7 +71,7 @@ export const ConnectedAppButton = React.memo((
                     height: 42
                 }}
             >
-                {!!name && (
+                {!!title && (
                     <Text style={{
                         fontSize: 16,
                         color: theme.textColor,
@@ -71,7 +82,7 @@ export const ConnectedAppButton = React.memo((
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {name}
+                        {title}
                     </Text>
                 )}
                 {!!url && (

@@ -30,7 +30,7 @@ import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
 import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
-import { createDomainSignature } from '../../../engine/effects/createDomainSignature';
+import { createDomainSignature } from '../../../engine/effects/dapps/createDomainSignature';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';

@@ -14,7 +14,7 @@ export type SupportedMessage =
             queryId: number;
             amount: bigint;
             destination: Address;
-            responseDestination: Address;
+            responseDestination: Address | null;
             customPayload: Cell | null;
             forwardTonAmount: bigint;
             forwardPayload: Cell;
@@ -74,7 +74,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             let queryId = sc.loadUint(64);
             let amount = sc.loadCoins();
             let destination = sc.loadAddress();
-            let responseDestination = sc.loadAddress();
+            let responseDestination = sc.loadMaybeAddress();
             let customPayload = sc.loadBit() ? sc.loadRef() : null;
             let forwardTonAmount = sc.loadCoins();
             let forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();

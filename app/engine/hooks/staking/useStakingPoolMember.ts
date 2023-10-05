@@ -3,13 +3,16 @@ import { getLastBlock } from '../../accountWatcher';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 
-function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool: Address, member: Address) {
+function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool: Address, member?: Address) {
+    if (!member) {
+        return async () => null;
+    }
     return async () => {
         let memberResponse = await client.runMethod(
             await getLastBlock(), pool, 'get_member',
             [{ type: 'slice', cell: beginCell().storeAddress(member).endCell() }]
         );
-        // // Member
+        // Member
         let memberParser = new TupleReader(memberResponse.result);
         let memberState: {
             balance: bigint;
@@ -29,15 +32,15 @@ function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool:
     }
 }
 
-export function stakingPoolMemberQuery(pool: Address, member: Address, client: TonClient4, isTestnet: boolean) {
+export function stakingPoolMemberQuery(pool: Address, member: Address | undefined, client: TonClient4, isTestnet: boolean) {
     return {
-        queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Member(member.toString({ testOnly: isTestnet })),
+        queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Member(member?.toString({ testOnly: isTestnet }) || 'default-null'),
         queryFn: fetchStakingMemberQueryFn(client, isTestnet, pool, member),
     };
 }
 
 
-export function useStakingPoolMember(pool: Address, member: Address, client: TonClient4, isTestnet: boolean) {
+export function useStakingPoolMember(pool: Address, member: Address | undefined, client: TonClient4, isTestnet: boolean) {
     return useQuery(stakingPoolMemberQuery(pool, member, client, isTestnet)).data;
 }
 

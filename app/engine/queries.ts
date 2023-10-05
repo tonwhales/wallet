@@ -34,4 +34,5 @@ export const Queries = {
         Key: () => ['domain', domain, 'key'],
         Signrature: () => ['domain', domain, 'signature'],
     }),
+    Job: () => (['job']),
 }

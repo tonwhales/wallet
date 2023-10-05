@@ -13,6 +13,8 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { CloseButton } from '../../components/CloseButton';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
+import { useCallback, useEffect } from 'react';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -33,17 +35,18 @@ export const SignFragment = fragment(() => {
         name: string
     } = useRoute().params as any;
     const safeArea = useSafeAreaInsets();
-    React.useEffect(() => {
+    const commitCommand = useCommitCommand();
+    useEffect(() => {
         return () => {
             if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
+                commitCommand(false, params.job, new Cell());
             }
             if (params && params.callback) {
                 params.callback(false, null);
             }
         }
     }, []);
-    const approve = React.useCallback(async () => {
+    const approve = useCallback(async () => {
 
         // Read key
         let walletKeys: WalletKeys;
@@ -63,7 +66,7 @@ export const SignFragment = fragment(() => {
 
         // Commit
         if (params.job) {
-            await engine.products.apps.commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
+            await commitCommand(true, params.job, beginCell().storeBuffer(signed).endCell());
         }
 
         // Callback
@@ -73,7 +76,7 @@ export const SignFragment = fragment(() => {
 
         // Go back
         navigation.goBack();
-    }, []);
+    }, [commitCommand]);
 
     return (
         <>

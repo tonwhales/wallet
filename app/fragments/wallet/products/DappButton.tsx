@@ -7,11 +7,15 @@ import { AppInfo } from "../../../components/ConnectedAppButton";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getDomainKey } from "../../../engine/effects/dapps/getDomainKey";
+import { Alert } from "react-native";
+import { t } from "../../../i18n/t";
+import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
 
 export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, name?: string | null, url: string, tonconnect?: boolean }) => {
     const navigation = useTypedNavigation();
     const appData = useAppData(url);
     const appManifest = useAppManifest(url);
+    const removeExtension = useRemoveExtension();
 
     const app: AppInfo = useMemo(() => {
         if (appData) {
@@ -74,6 +78,18 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
         navigation.navigate('App', { url });
     }, [url, tonconnect]);
 
+    let onRemoveExtension = useCallback((key: string) => {
+        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
+            text: t('common.delete'),
+            style: 'destructive',
+            onPress: () => {
+                if (!tonconnect) {
+                    removeExtension(key);
+                }
+            }
+        }]);
+    }, [tonconnect]);
+
     return (
         <AnimatedProductButton
             entering={FadeInUp}
@@ -83,6 +99,7 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
             subtitle={subtitle}
             image={image}
             value={null}
+            onLongPress={() => onRemoveExtension(key)}
             onPress={onPress}
             extension={true}
             style={{ marginVertical: 4 }}

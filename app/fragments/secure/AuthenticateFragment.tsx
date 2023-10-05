@@ -68,7 +68,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                 return;
             }
             let currentState = await axios.get('https://' + props.endpoint + '/connect/' + props.session);
-            console.log(currentState.data);
             if (ended) {
                 return;
             }
@@ -78,7 +77,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             }
             if (currentState.data.state === 'initing') {
                 const appData = await getAppData(currentState.data.url);
-                console.log(appData);
                 if (appData) {
                     setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
                     return;
@@ -121,7 +119,9 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         let walletType = 'org.ton.wallets.v4';
         let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
+
         let endpoint = 'https://connect.tonhubapi.com/connect/command';
+
         let name = state.name;
         let url = state.url;
         let title = state.app ? state.app.title : name;
@@ -258,7 +258,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             // Track installation
             trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, isTestnet);
 
-            console.log('Added extension', endpoint);
             // Navigate
             navigation.replace('App', { url });
         }

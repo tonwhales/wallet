@@ -1,5 +1,4 @@
-import BN from "bn.js"
-import React, { ReactElement, useLayoutEffect } from "react"
+import React, { ReactElement, memo, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -16,7 +15,7 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
-import { useCurrentJob } from '../../../engine/hooks/useCurrentJob';
+import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
@@ -25,21 +24,30 @@ import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnec
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
-import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { DappButton } from "./DappButton";
+import { Address } from "@ton/core";
 
-export const ProductsComponent = React.memo(() => {
+export const ProductsComponent = memo(({ selected }: {
+    selected: {
+        address: Address;
+        addressString: string;
+        publicKey: Buffer;
+        secretKeyEnc: Buffer;
+        utilityKey: Buffer;
+    }
+}) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalance();
-    const currentJob = useCurrentJob();
+    const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
-    const [installedExtensions,] = useExtensions();
-    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
     const ledger = useLedger();
     const cards = useCards();
+
+    const [installedExtensions,] = useExtensions();
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+
     const tonconnectExtensions = useTonConnectExtensions();
     const tonconnectRequests = useTonConnectPendingRequests();
 
@@ -72,17 +80,6 @@ export const ProductsComponent = React.memo(() => {
             );
         }
     }
-
-    let removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: () => {
-                // TODO:
-                // removeExtension(key);
-            }
-        }]);
-    }, []);
 
     const removeLedger = React.useCallback(() => {
         Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
@@ -190,7 +187,7 @@ export const ProductsComponent = React.memo(() => {
     return (
         <View style={{ paddingTop: 8 }}>
             {tonconnect}
-            {currentJob && currentJob.job.type === 'transaction' && (
+            {!!currentJob && currentJob.job.type === 'transaction' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}
@@ -218,7 +215,7 @@ export const ProductsComponent = React.memo(() => {
                     }}
                 />
             )}
-            {currentJob && currentJob.job.type === 'sign' && (
+            {!!currentJob && currentJob.job.type === 'sign' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}

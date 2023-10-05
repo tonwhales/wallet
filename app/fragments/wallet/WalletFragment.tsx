@@ -384,7 +384,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                 )} */}
 
                 {/* Jettons, Extensions & other products */}
-                <ProductsComponent />
+                <ProductsComponent selected={props.selected} />
 
                 <View style={{ height: 56 + safeArea.bottom }} />
             </Animated.ScrollView>

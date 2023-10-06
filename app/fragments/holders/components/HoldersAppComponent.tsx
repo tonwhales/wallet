@@ -440,11 +440,19 @@ export const HoldersAppComponent = React.memo((
             onCloseApp();
             return;
         }
-        setHoldersParams(params);
+        setHoldersParams((prev) => {
+            const newValue = {
+                ...prev,
+                ...Object.fromEntries(
+                    Object.entries(params).filter(([, value]) => value !== undefined)
+                )
+            }
+            return newValue;
+        });
         if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, []);
+    }, [setHoldersParams]);
 
     const onHardwareBackPress = useCallback(() => {
         if (holdersParams.backPolicy === 'lock') {
@@ -570,8 +578,7 @@ export const HoldersAppComponent = React.memo((
                                 onNavigation(event.url);
                             }}
                             // Locking scroll, it's handled within the Web App
-                            // scrollEnabled={!holdersParams.lockScroll}
-                            scrollEnabled={true}
+                            scrollEnabled={!holdersParams.lockScroll}
                             contentInset={{ top: 0, bottom: 0 }}
                             autoManageStatusBarEnabled={false}
                             allowFileAccessFromFileURLs={false}

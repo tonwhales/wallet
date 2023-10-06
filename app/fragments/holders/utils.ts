@@ -2,12 +2,12 @@ import { warn } from "../../utils/log";
 import { BackPolicy, HoldersQueryParams } from "./types";
 
 export type HoldersParams = {
-    closeApp: boolean,
-    openUrl: string | null,
+    closeApp?: boolean,
+    openUrl?: string | null,
     backPolicy: BackPolicy,
-    openEnrollment: boolean,
-    showKeyboardAccessoryView: boolean,
-    lockScroll: boolean,
+    openEnrollment?: boolean,
+    showKeyboardAccessoryView?: boolean,
+    lockScroll?: boolean,
 }
 
 export function extractHoldersQueryParams(url: string): HoldersParams {
@@ -19,7 +19,7 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
         let backPolicy: BackPolicy = 'close';
         let openEnrollment = false;
         let showKeyboardAccessoryView = false;
-        let lockScroll = true;
+        let lockScroll = undefined;
 
         if (params.has(HoldersQueryParams.CloseApp)) {
             const queryValue = params.get(HoldersQueryParams.CloseApp);
@@ -60,6 +60,8 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
             const queryValue = params.get(HoldersQueryParams.LockScroll);
             if (queryValue === 'false') {
                 lockScroll = false;
+            } else if (queryValue === 'true') {
+                lockScroll = true;
             }
         }
 
@@ -73,13 +75,6 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
         }
     } catch (error) {
         warn(error);
-        return {
-            closeApp: false,
-            openUrl: null,
-            backPolicy: 'close',
-            openEnrollment: false,
-            showKeyboardAccessoryView: false,
-            lockScroll: true
-        }
+        return { backPolicy: 'close' }
     }
 }

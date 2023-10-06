@@ -34,7 +34,7 @@ import { handleConnectDeeplink } from '../../engine/effects/dapps/handleConnectD
 import { isUrl } from '../../utils/resolveUrl';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
-import { memo, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ConfigStore } from '../../utils/ConfigStore';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -67,7 +67,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = useState<SignState>({ type: 'loading' });
-    React.useEffect(() => {
+    useEffect(() => {
         (async () => {
             if (connectProps.type === 'qr') {
                 try {
@@ -130,13 +130,13 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     }, []);
 
     // Approve
-    const acc = React.useMemo(() => getCurrentAddress(), []);
-    let active = React.useRef(true);
-    React.useEffect(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
+    let active = useRef(true);
+    useEffect(() => {
         return () => { active.current = false; };
     }, []);
 
-    const approve = React.useCallback(async () => {
+    const approve = useCallback(async () => {
 
         if (state.type !== 'initing') {
             return;

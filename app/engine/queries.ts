@@ -28,8 +28,5 @@ export const Queries = {
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],
     }),
-    TonConnect: () => ({
-        Connections: () => ['tonConnect', 'connections'],
-    }),
     Job: () => (['job']),
 }

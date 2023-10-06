@@ -20,12 +20,10 @@ export const DappButton = memo(({ appKey, url, name, tonconnect }: { appKey: str
     const domainKey = useDomainKey(domain);
 
     const app: AppInfo = useMemo(() => {
-        if (appData) {
-            return { ...appData, type: 'app-data' };
-        } else if (appManifest && tonconnect) {
-            return { ...appManifest, type: 'app-manifest' };
+        if (!tonconnect) {
+            return appData ? { ...appData, type: 'app-data' } : null;
         } else {
-            return null;
+            return appManifest ? { ...appManifest, type: 'app-manifest' } : null;
         }
     }, [appData, appManifest, tonconnect]);
 
@@ -75,7 +73,7 @@ export const DappButton = memo(({ appKey, url, name, tonconnect }: { appKey: str
         }
 
         navigation.navigate('App', { url });
-    }, [url, tonconnect, domainKey]);
+    }, [url, tonconnect, domainKey, app]);
 
     let onRemoveExtension = useCallback((key: string) => {
         Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {

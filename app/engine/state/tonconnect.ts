@@ -78,7 +78,7 @@ function storeConnectionsState(state: { [key: string]: ConnectedAppConnection[] 
     storagePersistence.set(collectionKey, JSON.stringify(state));
 }
 
-export const appConnections = atom<{ [key: string]: ConnectedAppConnection[] }>({
+export const appsConnectionsState = atom<{ [key: string]: ConnectedAppConnection[] }>({
     key: 'tonconnect/connections',
     default: getConnectionsState(),
     effects: [({ onSet }) => {

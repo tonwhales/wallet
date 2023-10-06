@@ -1,7 +1,7 @@
 import { useRecoilValue } from "recoil";
-import { appConnections } from "../../state/tonconnect";
+import { appsConnectionsState } from "../../state/tonconnect";
 
 export function useTonConnectConnections(key: string) {
-    const value = useRecoilValue(appConnections)[key];
+    const value = useRecoilValue(appsConnectionsState)[key];
     return value || [];
 }

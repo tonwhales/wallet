@@ -17,7 +17,7 @@ import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useExtensions } from '../../engine/hooks/dapps/useExtensions';
-import { useTonConnectExtensions } from '../../engine/hooks/useTonConnectExtenstions';
+import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
 import { useLedger } from '../../engine/hooks/useLedger';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useRemoveExtension } from '../../engine/effects/dapps/useRemoveExtension';
@@ -57,9 +57,12 @@ export const ConnectionsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const [installedExtensions,] = useExtensions();
-    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
-    const tonconnectApps = useTonConnectExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
     const ledger = useLedger();
+
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const tonconnectApps = Object.entries(inastalledConnectApps.installed).map(([key, ext]) => ({ ...ext, key }));
+    
     let [apps, setApps] = useState(groupItems(getConnectionReferences()));
     const removeExtension = useRemoveExtension();
 

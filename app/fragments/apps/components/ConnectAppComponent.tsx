@@ -12,7 +12,7 @@ import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useDAppBridge } from '../../../engine/hooks/useDAppBridge';
+import { useDAppBridge } from '../../../engine/hooks/dapps/useDAppBridge';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 

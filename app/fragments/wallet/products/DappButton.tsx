@@ -6,16 +6,18 @@ import { useAppManifest } from "../../../engine/hooks/dapps/useAppManifest";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { getDomainKey } from "../../../engine/effects/dapps/getDomainKey";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
+import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 
 export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, name?: string | null, url: string, tonconnect?: boolean }) => {
     const navigation = useTypedNavigation();
     const appData = useAppData(url);
     const appManifest = useAppManifest(url);
     const removeExtension = useRemoveExtension();
+    const domain = extractDomain(url);
+    const domainKey = useDomainKey(domain);
 
     const app: AppInfo = useMemo(() => {
         if (appData) {
@@ -58,8 +60,6 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
     }, [appData, appManifest]);
 
     const onPress = useCallback(() => {
-        let domain = extractDomain(url);
-
         if (!domain) {
             return; // Shouldn't happen
         }
@@ -69,14 +69,13 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
             return;
         }
 
-        const key = getDomainKey(domain);
-        if (!key) {
+        if (!domainKey) {
             navigation.navigate('Install', { url });
             return;
         }
 
         navigation.navigate('App', { url });
-    }, [url, tonconnect]);
+    }, [url, tonconnect, domainKey]);
 
     let onRemoveExtension = useCallback((key: string) => {
         Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {

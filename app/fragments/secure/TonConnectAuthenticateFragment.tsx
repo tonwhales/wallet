@@ -8,8 +8,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { beginCell, Cell, safeSign, StateInit } from '@ton/core';
+import { contractFromPublicKey, walletConfigFromContract, walletContactType } from '../../engine/contractFromPublicKey';
+import { beginCell, Cell, safeSign, StateInit, storeStateInit } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -30,6 +30,12 @@ import { ConnectReplyBuilder } from '../../engine/legacy/tonconnect/ConnectReply
 import { tonConnectDeviceInfo } from '../../engine/legacy/tonconnect/config';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { handleConnectDeeplink } from '../../engine/effects/dapps/handleConnectDeeplink';
+import { isUrl } from '../../utils/resolveUrl';
+import { extractDomain } from '../../engine/utils/extractDomain';
+import { getAppManifest } from '../../engine/getters/getAppManifest';
+import { memo, useState } from 'react';
+import { ConfigStore } from '../../utils/ConfigStore';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -54,43 +60,42 @@ type SignState = { type: 'loading' }
     | { type: 'authorized', returnStrategy?: ReturnStrategy }
     | { type: 'failed', returnStrategy?: ReturnStrategy }
 
-const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
+const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
-    const [state, setState] = React.useState<SignState>({ type: 'loading' });
+    const [state, setState] = useState<SignState>({ type: 'loading' });
     React.useEffect(() => {
         (async () => {
             if (connectProps.type === 'qr') {
                 try {
-                    // TODO
-                    // const handled = await engine.products.tonConnect.handleConnectDeeplink(connectProps.query);
+                    const handled = await handleConnectDeeplink(connectProps.query);
 
-                    // if (handled) {
-                    //     checkProtocolVersionCapability(handled.protocolVersion);
-                    //     verifyConnectRequest(handled.request);
+                    if (handled) {
+                        checkProtocolVersionCapability(handled.protocolVersion);
+                        verifyConnectRequest(handled.request);
 
-                    //     if (handled.manifest) {
-                    //         const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
+                        if (handled.manifest) {
+                            const domain = isUrl(handled.manifest.url) ? extractDomain(handled.manifest.url) : handled.manifest.url;
 
-                    //         setState({
-                    //             type: 'initing',
-                    //             name: handled.manifest.name,
-                    //             url: handled.manifest.url,
-                    //             app: handled.manifest,
-                    //             protocolVersion: handled.protocolVersion,
-                    //             request: handled.request,
-                    //             clientSessionId: handled.clientSessionId,
-                    //             returnStrategy: handled.returnStrategy,
-                    //             domain: domain
-                    //         });
-                    //         return;
-                    //     }
-                    //     setState({ type: 'failed', returnStrategy: connectProps.query.ret });
-                    //     return;
-                    // }
+                            setState({
+                                type: 'initing',
+                                name: handled.manifest.name,
+                                url: handled.manifest.url,
+                                app: handled.manifest,
+                                protocolVersion: handled.protocolVersion,
+                                request: handled.request,
+                                clientSessionId: handled.clientSessionId,
+                                returnStrategy: handled.returnStrategy,
+                                domain: domain
+                            });
+                            return;
+                        }
+                        setState({ type: 'failed', returnStrategy: connectProps.query.ret });
+                        return;
+                    }
 
                 } catch (e) {
                     warn('Failed to handle deeplink');
@@ -101,23 +106,22 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
             checkProtocolVersionCapability(connectProps.protocolVersion);
             verifyConnectRequest(connectProps.request);
 
-            // TODO
-            // const manifest = await engine.products.tonConnect.getConnectAppManifest(connectProps.request.manifestUrl);
+            const manifest = await getAppManifest(connectProps.request.manifestUrl);
 
-            // if (manifest) {
-            //     const domain = isUrl(manifest.url) ? extractDomain(manifest.url) : manifest.url;
+            if (manifest) {
+                const domain = isUrl(manifest.url) ? extractDomain(manifest.url) : manifest.url;
 
-            //     setState({
-            //         type: 'initing',
-            //         name: manifest.name,
-            //         url: manifest.url,
-            //         app: manifest,
-            //         protocolVersion: connectProps.protocolVersion,
-            //         request: connectProps.request,
-            //         domain: domain
-            //     });
-            //     return;
-            // }
+                setState({
+                    type: 'initing',
+                    name: manifest.name,
+                    url: manifest.url,
+                    app: manifest,
+                    protocolVersion: connectProps.protocolVersion,
+                    request: connectProps.request,
+                    domain: domain
+                });
+                return;
+            }
 
             setState({ type: 'failed' });
             return;
@@ -147,8 +151,11 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
 
         try {
             const contract = contractFromPublicKey(acc.publicKey);
-            let walletConfig = contract.source.backup();
-            let walletType = contract.source.type;
+            const config = walletConfigFromContract(contract);
+
+            const walletConfig = config.walletConfig;
+            const walletType = config.type;
+
             let address = contract.address.toString({ testOnly: isTestnet });
             let appInstanceKeyPair = await getAppInstanceKeyPair();
 
@@ -161,9 +168,9 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                 return;
             }
 
-            const stateInit = new StateInit({ code: contract.source.initialCode, data: contract.source.initialData });
-            const stateInitCell = new Cell();
-            stateInit.writeTo(stateInitCell);
+            const initialCode = contract.init.code;
+            const initialData = contract.init.data;
+            const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
             const stateInitStr = stateInitCell.toBoc({ idx: false }).toString('base64');
             const replyBuilder = new ConnectReplyBuilder(state.request, state.app);
 
@@ -194,7 +201,7 @@ const SignStateLoader = React.memo(({ connectProps }: { connectProps: TonConnect
                     .storeCoins(0)
                     .storeBuffer(Buffer.from(state.clientSessionId, 'hex'))
                     .storeAddress(contract.address)
-                    .storeRefMaybe(beginCell()
+                    .storeMaybeRef(beginCell()
                         .storeBuffer(Buffer.from(state.app.url))
                         .endCell())
                     .storeRef(beginCell()

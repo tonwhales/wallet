@@ -19,8 +19,8 @@ import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
-import { useTonConnectExtensions } from '../../../engine/hooks/useTonConnectExtenstions';
-import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnectPendingRequests';
+import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
+import { useTonConnectPendingRequests } from '../../../engine/hooks/dapps/useTonConnectPendingRequests';
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
@@ -46,9 +46,11 @@ export const ProductsComponent = memo(({ selected }: {
     const cards = useCards();
 
     const [installedExtensions,] = useExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const tonconnectExtensions = Object.entries(inastalledConnectApps.installed).map(([key, ext]) => ({ ...ext, key }));
 
-    const tonconnectExtensions = useTonConnectExtensions();
     const tonconnectRequests = useTonConnectPendingRequests();
 
     // Resolve accounts
@@ -118,7 +120,7 @@ export const ProductsComponent = memo(({ selected }: {
             <DappButton
                 key={e.key}
                 url={e.url}
-                name={e.title}
+                name={e.name}
                 tonconnect={true}
             />
         );

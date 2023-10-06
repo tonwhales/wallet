@@ -271,7 +271,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 connection: 'Connection error',
             }
         },
-        accounts: 'Accounts',
+        accounts: 'Tokens',
         services: 'Extensions',
         oldWallets: {
             title: 'Old wallets',

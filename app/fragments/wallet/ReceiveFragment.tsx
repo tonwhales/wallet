@@ -25,6 +25,7 @@ import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/bu
 import Verified from '@assets/ic-verified.svg';
 import TonIcon from '@assets/ic_ton_account.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
+import { CloseButton } from "../../components/navigation/CloseButton";
 
 export const ReceiveFragment = fragment(() => {
     const { Theme, AppConfig } = useAppConfig();
@@ -77,24 +78,36 @@ export const ReceiveFragment = fragment(() => {
 
     const previewImageColors = useImageColors(jetton?.data?.image?.preview256, '#0098EA');
 
-    const mainColor = useMemo(() => {
-        if (previewImageColors) {
-            return Platform.select({
+    const { mainColor, luminance } = useMemo(() => {
+        let color = '#0098EA';
+
+        if (!!jetton?.data?.image?.preview256 && previewImageColors) {
+            color = Platform.select({
                 android: (previewImageColors as AndroidImageColors).dominant,
                 ios: (previewImageColors as IOSImageColors).primary,
             }) || '#0098EA';
         }
-        return '#0098EA';
-    }, [previewImageColors]);
+
+        let hexColor = color.replace(/^#/, '');
+        if (hexColor.length === 3) {
+            hexColor = hexColor.split('').map((c) => c + c).join('');
+        }
+        const [r, g, b] = hexColor.match(/\w\w/g)?.map((x) => parseInt(x, 16)) ?? [0, 0, 0];
+        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+        if (luminance > 0.8) {
+            color = '#0098EA';
+        }
+        return { mainColor: color, luminance };
+    }, [previewImageColors, jetton]);
 
     const isDark = useMemo(() => {
         if (mainColor === '#0098EA') {
             return true;
         }
-        const [r, g, b] = mainColor.match(/\d+/g)?.map(Number) ?? [0, 0, 0];
-        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-        return luminance < 0.5;
-    }, [mainColor]);
+
+        return luminance < 0.58;
+    }, [mainColor, luminance]);
 
     return (
         <View
@@ -109,9 +122,10 @@ export const ReceiveFragment = fragment(() => {
             <ScreenHeader
                 style={{ opacity: isSharing ? 0 : 1, flex: 1, minHeight: safeArea.bottom === 0 ? 60 : undefined }}
                 title={t('receive.title')}
-                onClosePressed={navigation.goBack}
+                // onClosePressed={navigation.goBack}
                 textColor={isDark ? '#fff' : '#000'}
                 tintColor={isDark ? '#fff' : '#000'}
+                rightButton={<CloseButton style={{ backgroundColor: Theme.white, marginRight: 16 }} onPress={navigation.goBack} />}
             />
             <View style={{ position: 'absolute', top: 60, bottom: 0, left: 0, right: 0 }}>
                 <Canvas style={{ flex: 1 }}>
@@ -128,7 +142,7 @@ export const ReceiveFragment = fragment(() => {
                 <View style={{ paddingHorizontal: 28, width: '100%' }}>
                     <View style={{
                         justifyContent: 'center',
-                        backgroundColor: Theme.surfaceSecondary,
+                        backgroundColor: Theme.white,
                         borderRadius: 20,
                         padding: 32,
                         paddingTop: 52,
@@ -146,6 +160,7 @@ export const ReceiveFragment = fragment(() => {
                                 id={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                                 size={77}
                                 borderWith={0}
+                                backgroundColor={Theme.white}
                             />
                         </View>
                         <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
@@ -153,11 +168,11 @@ export const ReceiveFragment = fragment(() => {
                                 data={link}
                                 size={qrSize}
                                 icon={jetton?.data.image}
-                                color={isDark && Theme.style === 'dark' ? Theme.textPrimary : mainColor}
+                                color={isDark ? mainColor : Theme.black}
                             />
                         </View>
                     </View>
-                    <View style={{ backgroundColor: Theme.surfaceSecondary, borderRadius: 20, padding: 20 }}>
+                    <View style={{ backgroundColor: Theme.white, borderRadius: 20, padding: 20 }}>
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -209,7 +224,7 @@ export const ReceiveFragment = fragment(() => {
                                     <View style={{ justifyContent: 'space-between' }}>
                                         <Text style={{
                                             fontSize: 17,
-                                            color: Theme.textPrimary,
+                                            color: Theme.black,
                                             fontWeight: '600',
                                             lineHeight: 24
                                         }}>
@@ -248,13 +263,13 @@ export const ReceiveFragment = fragment(() => {
                     <CopyButton
                         style={{
                             marginRight: 16,
-                            backgroundColor: Theme.surfaceSecondary,
+                            backgroundColor: Theme.white,
                             borderWidth: 0,
                             height: 56,
                         }}
                         body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
                         textStyle={{
-                            color: (isDark && Theme.style === 'dark') ? Theme.textPrimary : mainColor,
+                            color: isDark ? mainColor : Theme.black,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '600',
                         }}
@@ -262,13 +277,13 @@ export const ReceiveFragment = fragment(() => {
                     <ShareButton
                         style={{
                             marginRight: 8,
-                            backgroundColor: Theme.surfaceSecondary,
+                            backgroundColor: Theme.white,
                             borderWidth: 0,
                             height: 56,
                         }}
                         body={link}
                         textStyle={{
-                            color: (isDark && Theme.style === 'dark') ? Theme.textPrimary : mainColor,
+                            color: isDark ? mainColor : Theme.black,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '600',
                         }}

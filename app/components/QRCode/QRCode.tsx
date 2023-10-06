@@ -153,7 +153,7 @@ export const QRCode = React.memo((props: {
             flexWrap: 'wrap',
             borderRadius: 20,
         }}>
-            <Canvas style={{ width: props.size, height: props.size, backgroundColor: Theme.surfaceSecondary }}>
+            <Canvas style={{ width: props.size, height: props.size, backgroundColor: Theme.white }}>
                 {items}
             </Canvas>
             <View style={{

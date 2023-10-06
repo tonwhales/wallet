@@ -114,8 +114,9 @@ export const AssetsFragment = fragment(() => {
             backgroundColor: Theme.background
         }}>
             <ScreenHeader
-                onClosePressed={navigation.goBack}
+                onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
+                style={{ paddingHorizontal: 16 }}
             />
             <ScrollView
                 style={{ flexGrow: 1, marginTop: 16 }}

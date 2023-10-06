@@ -272,7 +272,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 connection: 'Ошибка соединения',
             }
         },
-        accounts: 'Счета',
+        accounts: 'Жетоны',
         services: 'Расширения',
         oldWallets: {
             title: 'Старые кошельки',

@@ -8,6 +8,12 @@ export type AccountStateRes = { ok: boolean, state: AccountState };
 
 export const accountStateCodec = t.union([
     t.type({
+        state: t.union([
+            t.literal('need-phone'),
+            t.literal('no-ref'),
+        ]),
+    }),
+    t.type({
         state: t.literal('need-kyc'),
         kycStatus: t.union([
             t.null,
@@ -30,9 +36,7 @@ export const accountStateCodec = t.union([
     }),
     t.type({
         state: t.union([
-            t.literal('need-phone'),
             t.literal('ok'),
-            t.literal('no-ref'),
             t.literal('need-email'),
         ]),
         notificationSettings: t.type({

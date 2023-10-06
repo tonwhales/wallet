@@ -15,7 +15,7 @@ import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { extractHoldersQueryParams } from '../utils';
+import { HoldersParams, extractHoldersQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { BackPolicy } from '../types';
 import { getLocales } from 'react-native-localize';
@@ -219,8 +219,11 @@ export const HoldersAppComponent = React.memo((
             onPress: undefined,
         }
     );
-    const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+    const [holdersParams, setHoldersParams] = useState<Omit<HoldersParams, 'openEnrollment' | 'openUrl' | 'closeApp'>>({
+        backPolicy: 'back',
+        showKeyboardAccessoryView: false,
+        lockScroll: true
+    });
 
     const source = useMemo(() => {
         let route = '';
@@ -437,29 +440,28 @@ export const HoldersAppComponent = React.memo((
             onCloseApp();
             return;
         }
-        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
-        setBackPolicy(params.backPolicy);
+        setHoldersParams(params);
         if (params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
     }, []);
 
     const onHardwareBackPress = useCallback(() => {
-        if (backPolicy === 'lock') {
+        if (holdersParams.backPolicy === 'lock') {
             return true;
         }
-        if (backPolicy === 'back') {
+        if (holdersParams.backPolicy === 'back') {
             if (webRef.current) {
                 webRef.current.goBack();
             }
             return true;
         }
-        if (backPolicy === 'close') {
+        if (holdersParams.backPolicy === 'close') {
             navigation.goBack();
             return true;
         }
         return false;
-    }, [backPolicy]);
+    }, [holdersParams.backPolicy]);
 
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
@@ -517,7 +519,7 @@ export const HoldersAppComponent = React.memo((
                             onNavigation(event.url);
                         }}
                         // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
+                        scrollEnabled={!holdersParams.lockScroll}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         decelerationRate="normal"
@@ -530,7 +532,7 @@ export const HoldersAppComponent = React.memo((
                         onRenderProcessGone={onContentProcessDidTerminate}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                         renderError={(errorDomain, errorCode, errorDesc) => {
                             return (
                                 <WebViewErrorComponent
@@ -568,7 +570,7 @@ export const HoldersAppComponent = React.memo((
                                 onNavigation(event.url);
                             }}
                             // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
+                            scrollEnabled={!holdersParams.lockScroll}
                             contentInset={{ top: 0, bottom: 0 }}
                             autoManageStatusBarEnabled={false}
                             allowFileAccessFromFileURLs={false}
@@ -583,7 +585,7 @@ export const HoldersAppComponent = React.memo((
                             onRenderProcessGone={onContentProcessDidTerminate}
                             onMessage={handleWebViewMessage}
                             keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                            hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                             bounces={false}
                         />
                     </Animated.View>

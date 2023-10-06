@@ -13,7 +13,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { HoldersAppParams } from './HoldersAppFragment';
-import { extractHoldersQueryParams } from './utils';
+import { HoldersParams, extractHoldersQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
 import { useAppConfig } from '../../utils/AppConfigContext';
@@ -32,7 +32,11 @@ export const HoldersLandingFragment = fragment(() => {
     const authContext = useKeysAuth();
     const engine = useEngine();
     const navigation = useTypedNavigation();
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+    const [holdersParams, setHoldersParams] = useState<Omit<HoldersParams, 'openEnrollment' | 'openUrl' | 'closeApp'>>({
+        backPolicy: 'back',
+        showKeyboardAccessoryView: false,
+        lockScroll: true
+    });
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
     const lang = getLocales()[0].languageCode;
     const currency = engine.products.price.usePrimaryCurrency();
@@ -152,7 +156,7 @@ export const HoldersLandingFragment = fragment(() => {
             navigation.goBack();
             return;
         }
-        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
+        setHoldersParams(params);
         if (params.openEnrollment) {
             onEnroll();
             return;
@@ -241,14 +245,14 @@ export const HoldersLandingFragment = fragment(() => {
                             onNavigation(event.url);
                         }}
                         // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
+                        scrollEnabled={!holdersParams.lockScroll}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
                         decelerationRate="normal"
                         allowsInlineMediaPlayback={true}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                        hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                         bounces={false}
                         startInLoadingState={true}
                         renderError={(errorDomain, errorCode, errorDesc) => {
@@ -290,7 +294,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     onNavigation(event.url);
                                 }}
                                 // Locking scroll, it's handled within the Web App
-                                scrollEnabled={false}
+                                scrollEnabled={!holdersParams.lockScroll}
                                 contentInset={{ top: 0, bottom: 0 }}
                                 autoManageStatusBarEnabled={false}
                                 allowFileAccessFromFileURLs={false}
@@ -299,7 +303,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 allowsInlineMediaPlayback={true}
                                 onMessage={handleWebViewMessage}
                                 keyboardDisplayRequiresUserAction={false}
-                                hideKeyboardAccessoryView={hideKeyboardAccessoryView}
+                                hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                                 bounces={false}
                                 renderError={(errorDomain, errorCode, errorDesc) => {
                                     return (

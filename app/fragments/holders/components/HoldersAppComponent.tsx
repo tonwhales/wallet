@@ -587,6 +587,16 @@ export const HoldersAppComponent = React.memo((
                             keyboardDisplayRequiresUserAction={false}
                             hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                             bounces={false}
+                            renderError={(errorDomain, errorCode, errorDesc) => {
+                                return (
+                                    <WebViewErrorComponent
+                                        onReload={onContentProcessDidTerminate}
+                                        errorDomain={errorDomain}
+                                        errorCode={errorCode}
+                                        errorDesc={errorDesc}
+                                    />
+                                )
+                            }}
                         />
                     </Animated.View>
                 )}

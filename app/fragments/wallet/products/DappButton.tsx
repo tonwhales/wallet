@@ -11,7 +11,7 @@ import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 
-export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, name?: string | null, url: string, tonconnect?: boolean }) => {
+export const DappButton = memo(({ appKey, url, name, tonconnect }: { appKey: string, name?: string | null, url: string, tonconnect?: boolean }) => {
     const navigation = useTypedNavigation();
     const appData = useAppData(url);
     const appManifest = useAppManifest(url);
@@ -93,12 +93,11 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
         <AnimatedProductButton
             entering={FadeInUp}
             exiting={FadeOutDown}
-            key={key}
             name={title ?? 'Unknown'}
             subtitle={subtitle}
             image={image}
             value={null}
-            onLongPress={() => onRemoveExtension(key)}
+            onLongPress={() => onRemoveExtension(appKey)}
             onPress={onPress}
             extension={true}
             style={{ marginVertical: 4 }}

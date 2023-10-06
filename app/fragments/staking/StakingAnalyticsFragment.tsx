@@ -197,7 +197,6 @@ export const StakingAnalyticsFragment = fragment(() => {
                     isTestnet: engine.isTestnet,
                     timespan: { start: Math.floor(Date.now() / 1000) - 32 * 24 * 60 * 60 }
                 }));
-                console.log({ resDates: res?.nominator?.profits.map(p => new Date(p.time)) })
 
                 setNominatorInfo(res);
             } else if (timespan === 'Y') {
@@ -450,7 +449,6 @@ export const StakingAnalyticsFragment = fragment(() => {
                     }}
                     yAxisInterval={1}
                     formatXLabel={(value) => {
-                        console.log({ value });
                         if (loading) {
                             return '';
                         }

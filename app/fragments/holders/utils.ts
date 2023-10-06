@@ -58,8 +58,8 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
 
         if (params.has(HoldersQueryParams.LockScroll)) {
             const queryValue = params.get(HoldersQueryParams.LockScroll);
-            if (queryValue === 'true') {
-                lockScroll = true;
+            if (queryValue === 'false') {
+                lockScroll = false;
             }
         }
 

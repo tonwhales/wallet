@@ -307,7 +307,7 @@ export const HoldersAppComponent = React.memo((
                         status: {
                             state: accountState.state,
                             kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
-                            suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
+                            suspended: !!(accountState as { suspended: boolean | undefined }).suspended,
                         },
                         token: accountState.state === 'ok' ? accountState.token : engine.products.holders.getToken(),
                     }
@@ -441,7 +441,7 @@ export const HoldersAppComponent = React.memo((
             return;
         }
         setHoldersParams(params);
-        if (params.openUrl) {
+        if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
     }, []);
@@ -570,7 +570,8 @@ export const HoldersAppComponent = React.memo((
                                 onNavigation(event.url);
                             }}
                             // Locking scroll, it's handled within the Web App
-                            scrollEnabled={!holdersParams.lockScroll}
+                            // scrollEnabled={!holdersParams.lockScroll}
+                            scrollEnabled={true}
                             contentInset={{ top: 0, bottom: 0 }}
                             autoManageStatusBarEnabled={false}
                             allowFileAccessFromFileURLs={false}

@@ -47,7 +47,9 @@ export const ProductsComponent = memo(({ selected }: {
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
-    
+
+    console.log({ inastalledConnectApps });
+
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
     const tonconnectExtensions = Object.entries(inastalledConnectApps.installed).map(([key, ext]) => ({ ...ext, key }));
 

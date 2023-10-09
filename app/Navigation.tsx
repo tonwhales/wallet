@@ -20,12 +20,9 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
+import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
-import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
-import * as Notifications from 'expo-notifications';
-import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
@@ -62,7 +59,6 @@ import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChan
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
 import { useNetwork } from './engine/hooks/useNetwork';
 import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
@@ -70,6 +66,7 @@ import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
+import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 
 const Stack = createNativeStackNavigator();
 
@@ -296,6 +293,9 @@ export const Navigation = React.memo(() => {
 
     // Watch blocks
     useBlocksWatcher();
+
+    // Watch for TonConnect requests
+    useTonconnectWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

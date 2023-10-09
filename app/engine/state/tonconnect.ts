@@ -1,10 +1,11 @@
 import { atom } from "recoil";
 import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
-import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, TonConnectBridgeType } from "../legacy/tonconnect/types";
+import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, SendTransactionRequest, TonConnectBridgeType } from "../legacy/tonconnect/types";
 import { CHAIN } from "@tonconnect/protocol";
 
-const collectionKey = 'connectConnectedApps';
+const appConnectionsKey = 'connectConnectedApps';
+const pendingRequestsKey = 'connectPendingRequests';
 
 const tonProofItemReplyErrorCodec = z.object({
   name: z.literal('ton_proof'),
@@ -61,29 +62,62 @@ const connectedAppConnectionsCodec = z.array(appConnectionCodec);
 const connectedAppConnectionsMapCodec = z.record(connectedAppConnectionsCodec);
 
 function getConnectionsState() {
-    const stored = storagePersistence.getString(collectionKey);
-    if (!stored) {
-        return {};
-    }
-    const parsed = connectedAppConnectionsMapCodec.safeParse(JSON.parse(stored));
-
-    if (parsed.success) {
-        return parsed.data;
-    }
-
+  const stored = storagePersistence.getString(appConnectionsKey);
+  if (!stored) {
     return {};
+  }
+  const parsed = connectedAppConnectionsMapCodec.safeParse(JSON.parse(stored));
+
+  if (parsed.success) {
+    return parsed.data;
+  }
+
+  return {};
 }
 
 function storeConnectionsState(state: { [key: string]: ConnectedAppConnection[] }) {
-    storagePersistence.set(collectionKey, JSON.stringify(state));
+  storagePersistence.set(appConnectionsKey, JSON.stringify(state));
 }
 
 export const appsConnectionsState = atom<{ [key: string]: ConnectedAppConnection[] }>({
-    key: 'tonconnect/connections',
-    default: getConnectionsState(),
-    effects: [({ onSet }) => {
-        onSet((newValue) => {
-            storeConnectionsState(newValue);
-        })
-    }]
+  key: 'tonconnect/connections',
+  default: getConnectionsState(),
+  effects: [({ onSet }) => {
+    onSet((newValue) => {
+      storeConnectionsState(newValue);
+    })
+  }]
+});
+
+function getPendingRequestsState() {
+  const stored = storagePersistence.getString(pendingRequestsKey);
+  if (!stored) {
+    return [];
+  }
+  const parsed = z.array(z.object({
+    method: z.literal('sendTransaction'),
+    params: z.array(z.string()),
+    id: z.string(),
+    from: z.string(),
+  })).safeParse(JSON.parse(stored));
+
+  if (parsed.success) {
+    return parsed.data;
+  }
+
+  return [];
+}
+
+function storePendingRequestsState(newState: SendTransactionRequest[]) {
+  storagePersistence.set(pendingRequestsKey, JSON.stringify(newState));
+}
+
+export const pendingRequestsState = atom<SendTransactionRequest[]>({
+  key: 'tonconnect/pendingRequests',
+  default: getPendingRequestsState(),
+  effects: [({ onSet }) => {
+    onSet((newValue) => {
+      storePendingRequestsState(newValue);
+    })
+  }]
 });

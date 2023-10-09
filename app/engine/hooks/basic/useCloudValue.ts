@@ -140,11 +140,13 @@ export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (u
             if (!account) {
                 return null;
             }
+            console.log('read value from cloud', key);
             let data = await readValueFromCloud(key, {
                 isTestnet: isTestnet,
                 utilityKey: account.utilityKey,
             });
-
+            console.log('read value from cloud data: ', data);
+            
             return data.value?.toString('base64') || null;
         },
         refetchOnMount: true,

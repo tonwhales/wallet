@@ -10,7 +10,7 @@ export function useSaveAppConnection() {
         app,
         connection
     }: {
-        app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl?: string },
+        app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl: string },
         connection: ConnectedAppConnection
     }) => {
         let key = extensionKey(app.url);

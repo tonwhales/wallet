@@ -1,7 +1,5 @@
-import { BN } from "bn.js";
-import { Address, Cell } from "@ton/core";
-import { Transaction, TxBody } from '../hooks/useAccountTransactions';
-import { StoredTransaction } from '../hooks/useRawAccountTransactions';
+import { Cell } from "@ton/core";
+import { TxBody } from '../hooks/useAccountTransactions';
 
 export function parseBody(cell: Cell): TxBody | null {
     let slice = cell.beginParse();

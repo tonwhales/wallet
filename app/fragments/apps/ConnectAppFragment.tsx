@@ -7,14 +7,22 @@ import { useRoute } from '@react-navigation/native';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
 import { useAppManifest } from '../../engine/hooks/dapps/useAppManifest';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { extensionKey } from '../../engine/effects/dapps/useAddExtension';
+import { useMemo } from 'react';
+import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
 
 export const ConnectAppFragment = fragment(() => {
     const theme = useTheme();
     const url = (useRoute().params as any).url as string;
-    const appData = useAppManifest(url);
+    const appKey = extensionKey(url)
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const manifestUrl = useMemo(() => {
+        return inastalledConnectApps?.installed?.[appKey]?.manifestUrl;
+    }, [inastalledConnectApps, appKey]);
+    const appManifest = useAppManifest(manifestUrl ?? '');
     const safeArea = useSafeAreaInsets();
 
-    if (!appData) {
+    if (!appManifest) {
         throw Error('No App Data');
     }
     return (
@@ -27,7 +35,7 @@ export const ConnectAppFragment = fragment(() => {
 
             <ConnectAppComponent
                 endpoint={url}
-                title={appData.name}
+                title={appManifest.name}
             />
         </View>
     );

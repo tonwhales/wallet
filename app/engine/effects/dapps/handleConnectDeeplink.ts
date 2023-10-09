@@ -27,5 +27,6 @@ export async function handleConnectDeeplink(query: ConnectQrQuery) {
         clientSessionId,
         manifest,
         returnStrategy,
+        manifestUrl: request.manifestUrl,
     });
 }

@@ -8,8 +8,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../storage/appState';
-import { contractFromPublicKey, walletConfigFromContract, walletContactType } from '../../engine/contractFromPublicKey';
-import { beginCell, Cell, safeSign, StateInit, storeStateInit } from '@ton/core';
+import { contractFromPublicKey, walletConfigFromContract } from '../../engine/contractFromPublicKey';
+import { beginCell, safeSign, storeStateInit } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -24,7 +24,7 @@ import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { ConnectQrQuery, ReturnStrategy } from '../../engine/legacy/tonconnect/types';
+import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../engine/legacy/tonconnect/types';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/legacy/tonconnect/utils';
 import { ConnectReplyBuilder } from '../../engine/legacy/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../engine/legacy/tonconnect/config';
@@ -35,7 +35,7 @@ import { isUrl } from '../../utils/resolveUrl';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ConfigStore } from '../../utils/ConfigStore';
+import { useSaveAppConnection } from '../../engine/effects/dapps/useSaveAppConnection';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -54,7 +54,8 @@ type SignState = { type: 'loading' }
         request: ConnectRequest,
         clientSessionId?: string,
         returnStrategy?: ReturnStrategy,
-        domain: string
+        domain: string,
+        manifestUrl: string
     }
     | { type: 'completed', returnStrategy?: ReturnStrategy }
     | { type: 'authorized', returnStrategy?: ReturnStrategy }
@@ -67,6 +68,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = useState<SignState>({ type: 'loading' });
+    const saveAppConnection = useSaveAppConnection();
     useEffect(() => {
         (async () => {
             if (connectProps.type === 'qr') {
@@ -89,7 +91,8 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                                 request: handled.request,
                                 clientSessionId: handled.clientSessionId,
                                 returnStrategy: handled.returnStrategy,
-                                domain: domain
+                                domain: domain,
+                                manifestUrl: handled.manifestUrl
                             });
                             return;
                         }
@@ -118,7 +121,8 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     app: manifest,
                     protocolVersion: connectProps.protocolVersion,
                     request: connectProps.request,
-                    domain: domain
+                    domain: domain,
+                    manifestUrl: connectProps.request.manifestUrl
                 });
                 return;
             }
@@ -229,21 +233,21 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 // Save connection
-                // TODO: save connection
-                // engine.products.tonConnect.saveAppConnection(
-                //     {
-                //         name: state.app.name,
-                //         url: state.app.url,
-                //         iconUrl: state.app.iconUrl,
-                //         autoConnectDisabled: false
-                //     },
-                //     {
-                //         type: TonConnectBridgeType.Remote,
-                //         sessionKeyPair: sessionCrypto.stringifyKeypair(),
-                //         clientSessionId: state.clientSessionId,
-                //         replyItems,
-                //     },
-                // );
+                await saveAppConnection({
+                    app: {
+                        name: state.app.name,
+                        url: state.app.url,
+                        iconUrl: state.app.iconUrl,
+                        autoConnectDisabled: false,
+                        manifestUrl: state.manifestUrl
+                    },
+                    connection: {
+                        type: TonConnectBridgeType.Remote,
+                        sessionKeyPair: sessionCrypto.stringifyKeypair(),
+                        clientSessionId: state.clientSessionId,
+                        replyItems,
+                    },
+                });
 
                 setState({ type: 'authorized', returnStrategy: state.returnStrategy });
                 return;

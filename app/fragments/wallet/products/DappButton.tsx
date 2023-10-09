@@ -10,11 +10,27 @@ import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
+import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
 
-export const DappButton = memo(({ appKey, url, name, tonconnect }: { appKey: string, name?: string | null, url: string, tonconnect?: boolean }) => {
+export const DappButton = memo(({
+    appKey,
+    url,
+    name,
+    tonconnect 
+}: {
+        appKey: string,
+        name?: string | null,
+        url: string,
+        tonconnect?: boolean
+    }
+) => {
     const navigation = useTypedNavigation();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const manifestUrl = useMemo(() => {
+        return inastalledConnectApps?.installed?.[appKey]?.manifestUrl;
+    }, [inastalledConnectApps, appKey]);
     const appData = useAppData(url);
-    const appManifest = useAppManifest(url);
+    const appManifest = useAppManifest(manifestUrl ?? '');
     const removeExtension = useRemoveExtension();
     const domain = extractDomain(url);
     const domainKey = useDomainKey(domain);

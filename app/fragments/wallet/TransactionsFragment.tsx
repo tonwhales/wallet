@@ -1,5 +1,5 @@
 import React, { memo, useCallback } from "react";
-import { Platform, View, Text, Pressable, SectionList, useWindowDimensions, SectionListRenderItemInfo, SectionListData } from "react-native";
+import { Platform, View, Text, Pressable, SectionList, useWindowDimensions, SectionListRenderItemInfo, SectionListData, ActivityIndicator } from "react-native";
 import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
@@ -45,6 +45,7 @@ const WalletTransactions = memo((props: {
     safeArea: EdgeInsets,
     frameArea: Rect,
     onLoadMore: () => void,
+    loading: boolean,
 }) => {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
@@ -108,7 +109,13 @@ const WalletTransactions = memo((props: {
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
-            ListFooterComponent={(Platform.OS !== 'ios' && props.hasNext) ? (<View style={{ height: 64 }} />) : undefined}
+            ListFooterComponent={props.loading ? (
+                <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
+                    <LoadingIndicator simple />
+                </View>
+            ) : (
+                props.hasNext ? (<View style={{ height: 64 }} />) : undefined
+            )}
             renderItem={renderItem}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={0.5}
@@ -129,8 +136,10 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
     const address = props.account.address;
 
     const onReachedEnd = React.useCallback(() => {
-        txs?.next();
-    }, [txs?.next]);
+        if (txs?.hasNext) {
+            txs?.next();
+        }
+    }, [txs?.next, txs?.hasNext]);
 
     if (!transactions) {
         return (
@@ -175,8 +184,9 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                     navigation={navigation}
                     safeArea={safeArea}
                     onLoadMore={onReachedEnd}
-                    hasNext={true} // TODO: fix
+                    hasNext={txs.hasNext}
                     frameArea={frameArea}
+                    loading={txs.loading}
                 />
             )}
             {/* iOS Toolbar */}

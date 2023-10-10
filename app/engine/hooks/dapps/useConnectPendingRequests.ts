@@ -1,4 +1,4 @@
-import { useRecoilCallback, useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pendingRequestsState } from "../../state/tonconnect";
 import { SendTransactionRequest } from "../../legacy/tonconnect/types";
 

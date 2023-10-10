@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useLayoutEffect } from "react"
+import React, { ReactElement, memo, useCallback, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -20,12 +20,13 @@ import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
 import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useTonConnectPendingRequests } from '../../../engine/hooks/dapps/useTonConnectPendingRequests';
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
 import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
+import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
+import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
+import { tonConnectTransactionCallback } from "../../../engine/legacy/tonconnect/utils";
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -48,12 +49,11 @@ export const ProductsComponent = memo(({ selected }: {
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
 
-    console.log({ inastalledConnectApps });
-
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
     const tonconnectExtensions = Object.entries(inastalledConnectApps.installed).map(([key, ext]) => ({ ...ext, key }));
 
-    const tonconnectRequests = useTonConnectPendingRequests();
+    const [tonconnectRequests,] = useConnectPendingRequests();
+    const prepareTonConnectRequest = usePrepareConnectRequest();
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -85,7 +85,7 @@ export const ProductsComponent = memo(({ selected }: {
         }
     }
 
-    const removeLedger = React.useCallback(() => {
+    const removeLedger = useCallback(() => {
         Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
             text: t('common.continue'),
             style: 'destructive',
@@ -97,7 +97,7 @@ export const ProductsComponent = memo(({ selected }: {
     }, []);
 
     // Resolve apps
-    let apps: React.ReactElement[] = [];
+    let apps: ReactElement[] = [];
 
     if (isTestnet) {
         cards.map((c) => {
@@ -172,9 +172,9 @@ export const ProductsComponent = memo(({ selected }: {
                             text: null,
                             order: {
                                 messages: prepared.messages,
-                                app: (prepared.app && prepared.app.connectedApp) ? {
-                                    title: prepared.app.connectedApp.name,
-                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                app: (prepared.app && prepared.app) ? {
+                                    title: prepared.app.name,
+                                    domain: extractDomain(prepared.app.url),
                                 } : undefined
                             },
                             job: null,

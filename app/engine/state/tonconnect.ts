@@ -117,6 +117,7 @@ export const pendingRequestsState = atom<SendTransactionRequest[]>({
   default: getPendingRequestsState(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
+      console.log('pendingRequestsState onSet', newValue);
       storePendingRequestsState(newValue);
     })
   }]

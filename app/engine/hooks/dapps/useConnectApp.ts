@@ -1,6 +1,6 @@
 import { extensionKey } from "../../effects/dapps/useAddExtension";
-import { ConnectedAppConnection, TonConnectBridgeType } from "../../legacy/tonconnect/types";
-import { useTonConnectExtensions } from "./useTonConnectExtenstions";
+import { ConnectedAppConnectionRemote, TonConnectBridgeType } from "../../legacy/tonconnect/types";
+import { ConnectedApp, useTonConnectExtensions } from "./useTonConnectExtenstions";
 import { useAppConnections } from "./useAppConnections";
 
 export function useConnectApp() {
@@ -20,21 +20,18 @@ export function useConnectAppByClientSessionId() {
     const connectedAppsList = Object.values(extensions.installed);
 
     return (clientSessionId: string) => {
+        let res: { connectedApp: ConnectedApp | null, session: ConnectedAppConnectionRemote | null } = { connectedApp: null, session: null };
 
-        let connection: ConnectedAppConnection | null = null;
-
-        const connectedApp = connectedAppsList.find((app) => {
+        for (const app of connectedAppsList) {
             const connections = connectAppConnections(extensionKey(app.url));
-            return connections?.find((item) => {
+            for (const item of connections ?? []) {
                 if (item.type === TonConnectBridgeType.Remote && item.clientSessionId === clientSessionId) {
-                    connection = item;
-                    return true;
+                    res = { connectedApp: app, session: item };
+                    break;
                 }
 
-                return false;
-            })
-        });
-
-        return { connectedApp: connectedApp ?? null, connection };
+            }
+        }
+        return res;
     }
 }

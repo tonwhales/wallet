@@ -15,13 +15,14 @@ import { getTimeSec } from '../../../utils/getTimeSec';
 import { Cell, fromNano, toNano } from '@ton/core';
 import { extractDomain } from '../../utils/extractDomain';
 import { useWebViewBridge } from '../../legacy/tonconnect/useWebViewBridge';
+import { useDisconnectApp } from '../../effects/dapps/useDisconnect';
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {
     const saveAppConnection = useSaveAppConnection();
     const getConnectApp = useConnectApp();
     const autoConnect = useAutoConnect();
     const removeInjectedConnection = useRemoveInjectedConnection();
-    const disconnect = useDisconnectApp();
+    const onDisconnect = useDisconnectApp();
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
 
@@ -237,7 +238,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
 
     const disconnect = useCallback(async () => {
         try {
-            await disconnect(webViewUrl);
+            await onDisconnect(endpoint);
             sendEvent({ event: 'disconnect', payload: {} });
         } catch { }
     }, [endpoint, sendEvent]);

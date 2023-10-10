@@ -28,7 +28,7 @@ export type SupportedMessage =
             forwardPayload: Cell;
         }
     } | {
-        type: 'deposit',
+        type: 'whales-staking::deposit',
         data: {
             queryId: number;
             gasLimit: bigint;
@@ -51,6 +51,17 @@ export type SupportedMessage =
         data: {}
     };
 
+export enum OperationType {
+    JettonExcesses = 0xd53276db,
+    JettonTransfer = 0xf8a7ea5,
+    JettonTransferNotification = 0x7362d09c,
+    WhalesStakingDeposit = crc32str('op::stake_deposit'),
+    WhalesStakingDepositResponse = crc32str('op::stake_deposit::response'),
+    WhalesStakingWithdraw = crc32str('op::stake_withdraw'),
+    WhalesStakingWithdrawDelayed = crc32str('op::stake_withdraw::delayed'),
+    WhalesStakingWithdrawResponse = crc32str('op::stake_withdraw::response'),
+}
+
 export function parseMessageBody(payload: Cell): SupportedMessage | null {
     // Load OP
     let sc = payload.beginParse();
@@ -63,14 +74,14 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
     }
 
     switch (op) {
-        case 0xd53276db: {
+        case OperationType.JettonExcesses: {
             let queryId = sc.loadUint(64);
             return {
                 type: 'jetton::excesses',
                 data: { queryId }
             };
         }
-        case 0xf8a7ea5: {
+        case OperationType.JettonTransfer: {
             let queryId = sc.loadUint(64);
             let amount = sc.loadCoins();
             let destination = sc.loadAddress();
@@ -91,7 +102,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
                 }
             };
         }
-        case 0x7362d09c: {
+        case OperationType.JettonTransferNotification: {
             let queryId = sc.loadUint(64);
             let amount = sc.loadCoins();
             let sender = sc.loadAddress();
@@ -106,24 +117,24 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
                 }
             };
         }
-        case crc32str('op::stake_deposit'): {
+        case OperationType.WhalesStakingDeposit: {
             let queryId = sc.loadUint(64);
             let gasLimit = sc.loadCoins();
             return {
-                type: 'deposit',
+                type: 'whales-staking::deposit',
                 data: {
                     queryId,
                     gasLimit,
                 }
             };
         }
-        case crc32str('op::stake_deposit::response'): {
+        case OperationType.WhalesStakingDepositResponse: {
             return {
                 type: 'deposit::ok',
                 data: {}
             };
         }
-        case crc32str('op::stake_withdraw'): {
+        case OperationType.WhalesStakingWithdraw: {
             let queryId = sc.loadUint(64);
             let gasLimit = sc.loadCoins();
             const stake = sc.loadCoins();
@@ -136,13 +147,13 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
                 }
             };
         }
-        case crc32str('op::stake_withdraw::delayed'): {
+        case OperationType.WhalesStakingWithdrawDelayed: {
             return {
                 type: 'withdraw::delayed',
                 data: {}
             };
         }
-        case crc32str('op::stake_withdraw::response'): {
+        case OperationType.WhalesStakingWithdrawResponse: {
             return {
                 type: 'withdraw::ok',
                 data: {}

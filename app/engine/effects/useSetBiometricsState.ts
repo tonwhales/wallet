@@ -1,9 +1,6 @@
-import { useRecoilCallback } from 'recoil';
-import { BiometricsState } from '../../storage/secureStorage';
+import { useSetRecoilState } from 'recoil';
 import { biometricsState } from '../state/biometricsAndPasscode';
 
 export function useSetBiometricsState() {
-    return useRecoilCallback(({ set }) => (value: BiometricsState) => {
-        set(biometricsState, () => value);
-    }, []);
+    return useSetRecoilState(biometricsState);
 }

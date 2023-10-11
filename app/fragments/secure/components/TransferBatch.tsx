@@ -36,7 +36,7 @@ import { useClient4 } from '../../../engine/hooks/useClient4';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
-import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/createWalletTransferV4';
+import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/internalFromSignRawMessage';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { usePrice } from '../../../engine/hooks/usePrice';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';

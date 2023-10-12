@@ -26,7 +26,7 @@ import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
 import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
 import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
-import { tonConnectTransactionCallback } from "../../../engine/legacy/tonconnect/utils";
+import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -54,6 +54,7 @@ export const ProductsComponent = memo(({ selected }: {
 
     const [tonconnectRequests,] = useConnectPendingRequests();
     const prepareTonConnectRequest = usePrepareConnectRequest();
+    const connectCallback = useConnectCallback();
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -178,7 +179,7 @@ export const ProductsComponent = memo(({ selected }: {
                                 } : undefined
                             },
                             job: null,
-                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                            callback: (ok, result) => connectCallback(ok, result, prepared.request, prepared.sessionCrypto)
                         })
                     }}
                 />

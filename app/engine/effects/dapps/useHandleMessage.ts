@@ -124,15 +124,13 @@ export function useHandleMessage(
 
                 const temp = [...pendingRequests];
 
-                console.log('add pending request', request.id.toString());
-
                 temp.push({
                     from: from,
                     id: request.id.toString(),
                     params: request.params,
                     method: 'sendTransaction'
                 });
-                console.log('update pendingRequests', temp);
+
                 update(temp);
 
                 return;
@@ -146,7 +144,6 @@ export function useHandleMessage(
                 id: request.id.toString(),
             });
         } catch (e) {
-            console.log(e);
             warn('Failed to handle message');
         }
     }

@@ -9,6 +9,9 @@ export function parseBody(cell: Cell): TxBody | null {
 
     // Comment
     if (slice.loadUint(32) === 0) {
+        if (slice.remainingBits / 8 === 0) {
+            return null;
+        }
         let res = slice.loadBuffer(Math.floor(slice.remainingBits / 8)).toString();
         let rr = slice;
         if (rr.remainingRefs > 0) {

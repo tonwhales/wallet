@@ -1,8 +1,8 @@
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, View, Alert } from "react-native";
+import { Platform, View, Alert, Text } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CommonMessageInfoRelaxedInternal, MessageRelaxed, SendMode, comment, external, internal, loadStateInit, storeMessage, storeMessageRelaxed } from '@ton/core';
+import { Address, Cell, CommonMessageInfoRelaxedInternal, MessageRelaxed, SendMode, comment, external, fromNano, internal, loadStateInit, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
@@ -94,11 +94,14 @@ export type ConfirmLoadedProps = {
 };
 
 const TransferLoaded = memo((props: ConfirmLoadedProps) => {
-    console.log('TransferLoaded', props);
-    return null;
     if (props.type === 'single') {
-        // return <TransferSingle {...props} />
+        return <TransferSingle {...props} />
     }
+    return <View>
+        <Text>
+            {fromNano(props.fees)}
+        </Text>
+    </View>;
 
     // return <TransferBatch {...props} />;
 });

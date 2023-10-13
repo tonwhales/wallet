@@ -5,7 +5,7 @@ import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from '@ton/core';
+import { Address, Cell, fromNano, loadStateInit, SendMode, comment, toNano, internal, MessageRelaxed, external, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
@@ -37,6 +37,8 @@ import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { getLastBlock } from '../../engine/accountWatcher';
+import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
+import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -68,18 +70,18 @@ export const SimpleTransferFragment = fragment(() => {
     const tonClient4 = useClient4(isTestnet);
     const safeArea = useSafeAreaInsets();
 
-    const [target, setTarget] = React.useState(params?.target || '');
-    const [addressDomainInput, setAddressDomainInput] = React.useState(target);
-    const [domain, setDomain] = React.useState<string>();
-    const [comment, setComment] = React.useState(params?.comment || '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [stateInit, setStateInit] = React.useState<Cell | null>(params?.stateInit || null);
-    const [estimation, setEstimation] = React.useState<BN | null>(null);
-    const acc = React.useMemo(() => getCurrentAddress(), []);
+    const [target, setTarget] = useState(params?.target || '');
+    const [addressDomainInput, setAddressDomainInput] = useState(target);
+    const [domain, setDomain] = useState<string>();
+    const [text, setComment] = useState(params?.comment || '');
+    const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
+    const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
+    const [estimation, setEstimation] = useState<bigint | null>(null);
+    const acc = useMemo(() => getCurrentAddress(), []);
     const jettonWallet = useJettonWallet(params.jetton!);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance = React.useMemo(() => {
+    const balance: bigint = useMemo(() => {
         let value;
         if (jettonWallet) {
             value = jettonWallet.balance;
@@ -88,22 +90,24 @@ export const SimpleTransferFragment = fragment(() => {
         }
         return value;
     }, [jettonWallet, jettonMaster, account.balance]);
+
+    const commitCommand = useCommitCommand();
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
 
     // Auto-cancel job
-    React.useEffect(() => {
-        // return () => {
-        //     if (params && params.job) {
-        //         engine.products.apps.commitCommand(false, params.job, new Cell());
-        //     }
-        //     if (params && params.callback) {
-        //         params.callback(false, null);
-        //     }
-        // }
+    useEffect(() => {
+        return () => {
+            if (params && params.job) {
+                commitCommand(false, params.job, new Cell());
+            }
+            if (params && params.callback) {
+                params.callback(false, null);
+            }
+        }
     }, []);
 
     // Resolve order
-    const order = React.useMemo(() => {
+    const order = useMemo(() => {
 
         // Parse value
         let value: bigint;
@@ -135,7 +139,7 @@ export const SimpleTransferFragment = fragment(() => {
                 target: target,
                 domain: domain,
                 responseTarget: acc.address,
-                text: comment,
+                text: text,
                 amount: value,
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
@@ -147,17 +151,17 @@ export const SimpleTransferFragment = fragment(() => {
         return createSimpleOrder({
             target: target,
             domain: domain,
-            text: comment,
+            text: text,
             payload: null,
-            amount: value.eq(account.balance) ? toNano('0') : value,
-            amountAll: value.eq(account.balance),
+            amount: (value === account.balance) ? toNano('0') : value,
+            amountAll: value === account.balance,
             stateInit,
             app: params?.app
         });
 
-    }, [amount, target, domain, comment, stateInit, jettonWallet, jettonMaster, params?.app]);
+    }, [amount, target, domain, text, stateInit, jettonWallet, jettonMaster, params?.app]);
 
-    const doSend = React.useCallback(async () => {
+    const doSend = useCallback(async () => {
 
         let address: Address;
         let isTestOnly: boolean;
@@ -186,7 +190,7 @@ export const SimpleTransferFragment = fragment(() => {
             return;
         }
 
-        if (value.isNeg()) {
+        if (value < 0n) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
@@ -206,11 +210,11 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if (!value.eq(balance) && balance.lt(value)) {
+        if (value !== balance && balance < value) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (value.eq(BigInt(0))) {
+        if (value === 0n) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -222,20 +226,20 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Navigate to transaction confirmation
         navigation.navigateTransfer({
-            text: comment,
+            text: text,
             order,
             job: params && params.job ? params.job : null,
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, comment, stateInit, order, callback, jettonWallet, jettonMaster]);
+    }, [amount, target, domain, text, stateInit, order, callback, jettonWallet, jettonMaster]);
 
     // Estimate fee
     const config = useConfig();
-    const lock = React.useMemo(() => {
+    const lock = useMemo(() => {
         return new AsyncLock();
     }, []);
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
             await backoff('simple-transfer', async () => {
@@ -244,78 +248,100 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Load app state
-                const appState = getCurrentAddress();
+                const currentAddress = getCurrentAddress();
 
-                let seqno = await fetchSeqno(tonClient4, await getLastBlock(), appState.address);
+                let seqno = await fetchSeqno(tonClient4, await getLastBlock(), currentAddress.address);
 
                 // Parse order
-                let intMessage: InternalMessage;
-                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
+                let intMessage: MessageRelaxed;
+                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY;
+
+                let storageStats = [];
+
+                const block = await backoff('transfer', () => tonClient4.getLastBlock());
+
                 if (!order) {
-                    intMessage = new InternalMessage({
-                        to: appState.address,
-                        value: BigInt(0),
+                    const internalStateInit = !!stateInit
+                        ? loadStateInit(stateInit.asSlice())
+                        : null;
+
+                    const body = comment(text);
+
+                    intMessage = internal({
+                        to: currentAddress.address,
+                        value: 0n,
+                        init: internalStateInit,
                         bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: stateInit ? new CellMessage(stateInit) : null,
-                            body: new CommentMessage(comment)
-                        })
+                        body,
                     });
+
+                    const state = await backoff('transfer', () => tonClient4.getAccount(block.last.seqno, currentAddress.address));
+                    storageStats = state.account.storageStat ? [state.account.storageStat] : [];
                 } else {
-                    intMessage = new InternalMessage({
+                    const internalStateInit = !!order.messages[0].stateInit
+                        ? loadStateInit(order.messages[0].stateInit.asSlice())
+                        : null;
+
+                    const body = order.messages[0].payload ? order.messages[0].payload : null;
+
+                    intMessage = internal({
                         to: Address.parse(order.messages[0].target),
-                        value: order.messages[0].amount,
+                        value: 0n,
+                        init: internalStateInit,
                         bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                            body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : null
-                        })
+                        body,
                     });
+
+                    const state = await backoff('transfer', () => tonClient4.getAccount(block.last.seqno, Address.parse(order.messages[0].target)));
+                    storageStats = state.account.storageStat ? [state.account.storageStat] : [];
+
                     if (order.messages[0].amountAll) {
-                        sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                        sendMode = SendMode.CARRY_ALL_REMAINING_BALANCE;
                     }
                 }
 
                 // Load contract
-                const contract = await contractFromPublicKey(appState.publicKey);
+                const contract = await contractFromPublicKey(currentAddress.publicKey);
 
                 // Create transfer
-                let transfer = await contract.createTransfer({
+                let transfer = contract.createTransfer({
                     seqno: seqno,
-                    walletId: contract.source.walletId,
-                    secretKey: null,
+                    secretKey: Buffer.alloc(64),
                     sendMode,
-                    order: intMessage
+                    messages: [intMessage],
                 });
+
+
                 if (ended) {
                     return;
                 }
 
                 // Resolve fee
                 if (config && account) {
-                    let inMsg = new Cell();
-                    new ExternalMessage({
+                    const externalMessage = external({
                         to: contract.address,
-                        body: new CommonMessageInfo({
-                            stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                            body: new CellMessage(transfer)
-                        })
-                    }).writeTo(inMsg);
-                    let outMsg = new Cell();
-                    intMessage.writeTo(outMsg);
-                    // TODO:
-                    // let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStats]);
-                    // setEstimation(local);
+                        body: transfer,
+                        init: seqno === 0 ? contract.init : null
+                    });
+
+                    let inMsg = new Cell().asBuilder();
+                    storeMessage(externalMessage)(inMsg);
+
+                    let outMsg = new Cell().asBuilder();
+                    storeMessageRelaxed(intMessage)(outMsg);
+
+                    let local = estimateFees(config, inMsg.endCell(), [outMsg.endCell()], storageStats);
+                    setEstimation(local);
                 }
             });
         });
         return () => {
             ended = true;
         }
-    }, [order, account, tonClient4, config, comment]);
+    }, [order, account, tonClient4, config, text]);
 
     const linkNavigator = useLinkNavigator(isTestnet);
-    const onQRCodeRead = React.useCallback((src: string) => {
+    const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
@@ -338,7 +364,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, []);
 
-    const onAddAll = React.useCallback(() => {
+    const onAddAll = useCallback(() => {
         setAmount(jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
     }, [balance, jettonWallet, jettonMaster]);
 
@@ -346,12 +372,12 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = React.useState(0);
+    const [selectedInput, setSelectedInput] = useState(0);
 
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
+    const refs = useMemo(() => {
+        let r: RefObject<ATextInputRef>[] = [];
         for (let i = 0; i < 3; i++) {
-            r.push(React.createRef());
+            r.push(createRef());
         }
         return r;
     }, []);
@@ -360,7 +386,7 @@ export const SimpleTransferFragment = fragment(() => {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -380,19 +406,19 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
-    const onSubmit = React.useCallback((index: number) => {
+    const onSubmit = useCallback((index: number) => {
         let next = refs[index + 1].current;
         if (next) {
             next.focus();
@@ -533,7 +559,7 @@ export const SimpleTransferFragment = fragment(() => {
                         />
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 }} />
                         <ATextInput
-                            value={comment}
+                            value={text}
                             index={2}
                             ref={refs[2]}
                             onFocus={onFocus}

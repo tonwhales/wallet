@@ -21,10 +21,6 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { RoundButton } from "../../../components/RoundButton";
 import { TransferComponent } from "../../../components/transactions/TransferComponent";
 import { WImage } from "../../../components/WImage";
-import Question from '../../../../assets/ic_question.svg';
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import LottieView from 'lottie-react-native';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useTheme } from '../../../engine/hooks/useTheme';
@@ -42,6 +38,11 @@ import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 import { getAccountLite } from "../../../engine/getters/getAccountLite";
 import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
+
+import Question from '../../../../assets/ic_question.svg';
+import TonSign from '../../../../assets/ic_ton_sign.svg';
+import LottieView from 'lottie-react-native';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
 
 type Props = {
     text: string | null,
@@ -277,7 +278,6 @@ export const TransferBatch = React.memo((props: Props) => {
             if (msg) {
                 messages.push(msg);
             }
-
         }
 
         const account = getAccountLite(selected.addressString);

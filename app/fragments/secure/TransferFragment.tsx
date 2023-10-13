@@ -33,6 +33,7 @@ import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterConten
 import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
+import { getLastBlock } from '../../engine/accountWatcher';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -234,8 +235,10 @@ export const TransferFragment = fragment(() => {
                     body,
                 });
 
-                let transfer = await contract.createTransfer({
-                    seqno,
+                const accSeqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), contract.address));
+
+                let transfer = contract.createTransfer({
+                    seqno: accSeqno,
                     secretKey: emptySecret,
                     sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     messages: [intMessage]

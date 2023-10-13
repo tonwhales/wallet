@@ -1,7 +1,6 @@
-import BN from "bn.js";
 import React from "react";
 import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
+import { Address, beginCell, Cell, fromNano, external, SendMode, storeMessage, toNano, MessageRelaxed, internal, loadStateInit, comment } from "@ton/core";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
@@ -30,19 +29,19 @@ import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
-import { createWalletTransferV4, internalFromSignRawMessage } from '../../../engine/legacy/utils/internalFromSignRawMessage';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { usePrice } from '../../../engine/hooks/usePrice';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
+import { getAccountLite } from "../../../engine/getters/getAccountLite";
+import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
 
 type Props = {
     text: string | null,
@@ -79,7 +78,7 @@ export const TransferBatch = React.memo((props: Props) => {
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString);
+    const commitCommand = useCommitCommand();
     const [price, currency] = usePrice();
     const {
         text,
@@ -114,9 +113,9 @@ export const TransferBatch = React.memo((props: Props) => {
                     const temp = message.payload;
                     if (temp) {
                         const parsing = temp.beginParse();
-                        parsing.readUint(32);
-                        parsing.readUint(64);
-                        jettonAmount = parsing.readCoins();
+                        parsing.loadUint(32);
+                        parsing.loadUint(64);
+                        jettonAmount = parsing.loadCoins();
                     }
                 }
             } catch (e) {
@@ -127,7 +126,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 const addr = message.metadata.jettonWallet?.master.toString({ testOnly: isTestnet });
                 const value = totalJettons.get(addr);
                 if (!!value) {
-                    value.jettonAmount = value.jettonAmount.add(jettonAmount);
+                    value.jettonAmount = value.jettonAmount + jettonAmount;
                     totalJettons.set(addr, value);
                 } else {
                     totalJettons.set(addr, {
@@ -137,9 +136,9 @@ export const TransferBatch = React.memo((props: Props) => {
                     });
                 }
 
-                gas.total = gas.total.add(message.amount);
+                gas.total = gas.total + message.amount;
 
-                if (message.amount.gt(toNano('0.2'))) {
+                if (message.amount > toNano('0.2')) {
                     gas.unusual = true;
                 }
             }
@@ -221,7 +220,11 @@ export const TransferBatch = React.memo((props: Props) => {
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        const messages: InternalMessage[] = [];
+        if (!selected) {
+            return;
+        }
+
+        const messages: MessageRelaxed[] = [];
         for (const i of internals) {
             const target = i.message.addr.address;
             const restricted = i.message.restricted;
@@ -254,14 +257,22 @@ export const TransferBatch = React.memo((props: Props) => {
                 bounce = false;
             }
 
+            const internalStateInit = !!i.message.stateInit
+                ? loadStateInit(i.message.stateInit.asSlice())
+                : null;
+
+            const body = !!order.messages[0].payload
+                ? order.messages[0].payload
+                : text ? comment(text) : null;
+
             // Create message
-            const msg = internalFromSignRawMessage({
-                target: i.message.addr.address.toString({ testOnly: isTestnet }),
-                amount: i.message.amount,
-                payload: i.message.payload,
-                amountAll: i.message.amountAll,
-                stateInit: i.message.stateInit
-            }, bounce);
+            const msg = internal({
+                to: i.message.addr.address,
+                value: i.message.amount,
+                init: internalStateInit,
+                bounce,
+                body,
+            });
 
             if (msg) {
                 messages.push(msg);
@@ -269,12 +280,14 @@ export const TransferBatch = React.memo((props: Props) => {
 
         }
 
+        const account = getAccountLite(selected.addressString);
+
         // Check amount
-        if (account!.balance.lt(totalAmount)) {
+        if (account!.balance < totalAmount) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (totalAmount.eq(BigInt(0))) {
+        if (totalAmount === 0n) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -294,12 +307,13 @@ export const TransferBatch = React.memo((props: Props) => {
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = createWalletTransferV4({
+            transfer = contract.createTransfer({
                 seqno: seqno,
-                walletId: contract.source.walletId,
                 secretKey: walletKeys.keyPair.secretKey,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                messages
+                sendMode: order.messages[0].amountAll
+                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages,
             });
         } catch (e) {
             warn('Failed to create transfer');
@@ -307,24 +321,21 @@ export const TransferBatch = React.memo((props: Props) => {
         }
 
         // Create external message
-        let extMessage = new ExternalMessage({
+        const extMessage = external({
             to: contract.address,
-            body: new CommonMessageInfo({
-                stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                body: new CellMessage(transfer)
-            })
+            body: transfer,
+            init: seqno === 0 ? contract.init : undefined
         });
-        let msg = new Cell();
-        extMessage.writeTo(msg);
+
+        let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
         // Sending transaction
         await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
-        // TODO
-        // if (job) {
-        //     await engine.products.apps.commitCommand(true, job, transfer);
-        // }
+        if (job) {
+            await commitCommand(true, job, transfer);
+        }
 
         // Notify callback
         if (callback) {

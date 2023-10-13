@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { storage } from '../storage/storage';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
@@ -22,13 +22,16 @@ export function getLastEventId() {
 export function useTonconnectWatcher() {
     const [extensions,] = useTonConnectExtensions();
     const getConnections = useAppConnections();
-    const apps = Object.keys(extensions);
-    const connections: ConnectedAppConnection[] = []
+    const appKeys = Object.keys(extensions);
 
-    for (let appKey of apps) {
-        const appConnections = getConnections(appKey);
-        connections.push(...(appConnections ?? []));
-    }
+    const connections = useMemo(() => {
+        const temp: ConnectedAppConnection[] = [];
+        for (let appKey of appKeys) {
+            const appConnections = getConnections(appKey);
+            temp.push(...(appConnections ?? []));
+        }
+        return temp
+    }, [appKeys, getConnections]);
 
     const handleMessage = useHandleMessage(
         connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[],
@@ -36,7 +39,7 @@ export function useTonconnectWatcher() {
     );
 
     useEffect(() => {
-        const apps = Object.keys(extensions.installed);
+        const apps = Object.keys(extensions);
         const connections: ConnectedAppConnectionRemote[] = [];
         for (let appKey of apps) {
             const appConnections = getConnections(appKey);

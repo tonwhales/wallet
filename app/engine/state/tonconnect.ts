@@ -123,9 +123,31 @@ export const pendingRequestsState = atom<SendTransactionRequest[]>({
   }]
 });
 
+function getConnectExtensions() {
+  const stored = storagePersistence.getString('wallet.tonconnect.extensions.v2');
+  if (!stored) {
+    return {};
+  }
+
+  const parsed = z.record(z.object({
+    date: z.number(),
+    name: z.string(),
+    url: z.string(),
+    iconUrl: z.string(),
+    autoConnectDisabled: z.boolean(),
+    manifestUrl: z.string(),
+  })).safeParse(JSON.parse(stored));
+
+  if (parsed.success) {
+    return parsed.data;
+  }
+
+  return {};
+}
+
 export const connectExtensions = atom<{ [key: string]: ConnectedApp }>({
   key: 'tonconnect/extensions',
-  default: {},
+  default: getConnectExtensions(),
   effects_UNSTABLE: [({ onSet }) => {
     onSet((newValue) => {
       storagePersistence.set('wallet.tonconnect.extensions.v2', JSON.stringify(newValue));

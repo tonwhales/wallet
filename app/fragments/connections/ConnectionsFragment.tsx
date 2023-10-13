@@ -21,6 +21,7 @@ import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectE
 import { useLedger } from '../../engine/hooks/useLedger';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useRemoveExtension } from '../../engine/effects/dapps/useRemoveExtension';
+import { useDisconnectApp } from '../../engine/effects/dapps/useDisconnect';
 
 type Item = {
     key: string;
@@ -61,10 +62,12 @@ export const ConnectionsFragment = fragment(() => {
     const ledger = useLedger();
 
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
-    const tonconnectApps = Object.entries(inastalledConnectApps.installed).map(([key, ext]) => ({ ...ext, key }));
-    
+    const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
     let [apps, setApps] = useState(groupItems(getConnectionReferences()));
+
     const removeExtension = useRemoveExtension();
+    const disconnectConnect = useDisconnectApp();
 
     let disconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
@@ -103,7 +106,7 @@ export const ConnectionsFragment = fragment(() => {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.tonConnect.disconnect(key);
+                disconnectConnect(key);
             }
         }]);
     }, []);

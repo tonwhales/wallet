@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../legacy/tonconnect/types';
-import { useTonConnectExtensions } from './useTonConnectExtenstions';
 import { useConnectApp } from './useConnectApp';
 import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../legacy/tonconnect/config';

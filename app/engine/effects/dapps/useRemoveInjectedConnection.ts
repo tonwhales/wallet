@@ -10,7 +10,7 @@ export function useRemoveInjectedConnection() {
     return (endpoint: string) => {
         let key = extensionKey(endpoint);
     
-        const app = extensions.installed[key];
+        const app = extensions[key];
         if (!app) {
             return;
         }

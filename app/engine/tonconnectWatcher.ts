@@ -22,7 +22,7 @@ export function getLastEventId() {
 export function useTonconnectWatcher() {
     const [extensions,] = useTonConnectExtensions();
     const getConnections = useAppConnections();
-    const apps = Object.keys(extensions.installed);
+    const apps = Object.keys(extensions);
     const connections: ConnectedAppConnection[] = []
 
     for (let appKey of apps) {

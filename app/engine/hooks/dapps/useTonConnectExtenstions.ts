@@ -1,4 +1,5 @@
-import { useCloudValue } from "../basic/useCloudValue";
+import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
+import { connectExtensions } from "../../state/tonconnect";
 
 export type ConnectedApp = {
   date: number,
@@ -6,11 +7,11 @@ export type ConnectedApp = {
   url: string,
   iconUrl: string,
   autoConnectDisabled: boolean,
-  manifestUrl?: string
+  manifestUrl: string
 }
 
-const version = 2;
-
-export function useTonConnectExtensions() {
-  return useCloudValue<{ installed: { [key: string]: ConnectedApp } }>(`wallet.tonconnect.extensions.v${version}`, (src) => { src.installed = {} });
+export function useTonConnectExtensions(): [{ [key: string]: ConnectedApp; }, SetterOrUpdater<{ [key: string]: ConnectedApp }>] {
+  const value = useRecoilValue(connectExtensions);
+  const update = useSetRecoilState(connectExtensions);
+  return [value, update];
 }

@@ -17,7 +17,7 @@ export const ConnectAppFragment = fragment(() => {
     const appKey = extensionKey(url)
     const [inastalledConnectApps,] = useTonConnectExtensions();
     const manifestUrl = useMemo(() => {
-        return inastalledConnectApps?.installed?.[appKey]?.manifestUrl;
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);
     const appManifest = useAppManifest(manifestUrl ?? '');
     const safeArea = useSafeAreaInsets();

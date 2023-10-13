@@ -3,6 +3,7 @@ import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
 import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, SendTransactionRequest, TonConnectBridgeType } from "../legacy/tonconnect/types";
 import { CHAIN } from "@tonconnect/protocol";
+import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
 
 const appConnectionsKey = 'connectConnectedApps';
 const pendingRequestsKey = 'connectPendingRequests';
@@ -121,3 +122,13 @@ export const pendingRequestsState = atom<SendTransactionRequest[]>({
     })
   }]
 });
+
+export const connectExtensions = atom<{ [key: string]: ConnectedApp }>({
+  key: 'tonconnect/extensions',
+  default: {},
+  effects_UNSTABLE: [({ onSet }) => {
+    onSet((newValue) => {
+      storagePersistence.set('wallet.tonconnect.extensions.v2', JSON.stringify(newValue));
+    })
+  }]
+})

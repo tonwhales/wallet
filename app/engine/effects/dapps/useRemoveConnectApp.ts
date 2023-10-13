@@ -6,13 +6,14 @@ export function useRemoveConnectApp() {
 
     return (url: string) => {
         update((doc) => {
-            doc.installed
+            let temp = { ...doc };
             let key = extensionKey(url);
 
-            if (!doc.installed[key]) {
-                return;
+            if (!temp[key]) {
+                return doc;
             }
-            delete doc.installed[key];
+            delete temp[key];
+            return temp;
         });
     }
 }

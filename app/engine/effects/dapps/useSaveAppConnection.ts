@@ -14,19 +14,25 @@ export function useSaveAppConnection() {
         connection: ConnectedAppConnection
     }) => {
         let key = extensionKey(app.url);
-        const connected = extensions.installed[key];
+        const connected = extensions[key];
         if (!!connected) {
-            await update((doc) => {
-                doc.installed[key].iconUrl = app.iconUrl;
-                doc.installed[key].name = app.name;
-                doc.installed[key].date = Date.now();
-                doc.installed[key].autoConnectDisabled = app.autoConnectDisabled;
-                doc.installed[key].manifestUrl = app.manifestUrl;
+            update((doc) => {
+                let temp = { ...doc };
+
+                temp[key].iconUrl = app.iconUrl;
+                temp[key].name = app.name;
+                temp[key].date = Date.now();
+                temp[key].autoConnectDisabled = app.autoConnectDisabled;
+                temp[key].manifestUrl = app.manifestUrl;
+
+                return temp;
             });
         } else {
             await update((doc) => {
-                delete doc.installed[key];
-                doc.installed[key] = {
+                let temp = { ...doc };
+
+                delete temp[key];
+                temp[key] = {
                     url: app.url,
                     iconUrl: app.iconUrl,
                     name: app.name,
@@ -34,6 +40,8 @@ export function useSaveAppConnection() {
                     autoConnectDisabled: app.autoConnectDisabled,
                     manifestUrl: app.manifestUrl
                 }
+
+                return temp;
             });
         }
 

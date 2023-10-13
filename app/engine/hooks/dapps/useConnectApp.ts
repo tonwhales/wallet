@@ -6,7 +6,7 @@ import { useAppConnections } from "./useAppConnections";
 export function useConnectApp() {
     const [extensions,] = useTonConnectExtensions();
 
-    const apps = Object.values(extensions.installed);
+    const apps = Object.values(extensions);
 
     return (url: string) => {
         const fixedUrl = url.replace(/\/$/, '');;
@@ -17,7 +17,7 @@ export function useConnectApp() {
 export function useConnectAppByClientSessionId() {
     const [extensions,] = useTonConnectExtensions();
     const connectAppConnections = useAppConnections();
-    const connectedAppsList = Object.values(extensions.installed);
+    const connectedAppsList = Object.values(extensions);
 
     return (clientSessionId: string) => {
         let res: { connectedApp: ConnectedApp | null, session: ConnectedAppConnectionRemote | null } = { connectedApp: null, session: null };

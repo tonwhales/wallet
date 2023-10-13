@@ -29,7 +29,7 @@ export const ConnectedAppButton = memo(({
     const [inastalledConnectApps,] = useTonConnectExtensions();
     const appKey = extensionKey(url)
     const manifestUrl = useMemo(() => {
-        return inastalledConnectApps?.installed?.[appKey]?.manifestUrl;
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);
     const appManifest = useAppManifest(manifestUrl ?? '');
 

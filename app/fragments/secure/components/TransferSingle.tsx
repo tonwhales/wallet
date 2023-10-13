@@ -1,7 +1,6 @@
-import BN from "bn.js";
 import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, comment, CommonMessageInfo, fromNano, internal, loadStateInit, SendMode, StateInit, toNano, external, storeMessage, beginCell } from "@ton/core";
+import { Address, Cell, comment, fromNano, internal, loadStateInit, SendMode, external, storeMessage, beginCell } from "@ton/core";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Order } from "../../../fragments/secure/ops/Order";
@@ -14,16 +13,6 @@ import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
-import Contact from '../../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../../assets/ic_verified.svg';
-import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../../assets/ic_sign_staking.svg';
-import Question from '../../../../assets/ic_question.svg';
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
@@ -54,6 +43,17 @@ import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterCon
 import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
 import { holdersUrl } from "../../../engine/legacy/holders/HoldersProduct";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
+
+import TonSign from '../../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
+import Contact from '../../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../../assets/ic_verified.svg';
+import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
+import WithStateInit from '../../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
+import Staking from '../../../../assets/ic_sign_staking.svg';
+import Question from '../../../../assets/ic_question.svg';
 
 type Props = {
     target: {

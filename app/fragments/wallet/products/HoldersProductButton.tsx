@@ -25,7 +25,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
     const fontScaleNormal = dimentions.fontScale <= 1;
     const status = { state: 'need-enrollment' };
 
-    const needsEnrolment = React.useMemo(() => {
+    const needsenrollment = React.useMemo(() => {
         try {
             let domain = extractDomain(holdersUrl);
             if (!domain) {
@@ -35,7 +35,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrolment') {
+            if (status.state === 'need-enrollment') {
                 return true;
             }
         } catch (error) {
@@ -46,7 +46,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
 
     const onPress = useCallback(
         () => {
-            if (needsEnrolment) {
+            if (needsenrollment) {
                 navigation.navigate(
                     'HoldersLanding',
                     {
@@ -58,7 +58,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
             }
             navigation.navigate('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
         },
-        [account, needsEnrolment],
+        [account, needsenrollment],
     );
 
     const colors = account ? (colorsMap[account.card.personalizationCode] ?? colorsMap['default-2']) : ['#333A5A', "#A7AFD3"];

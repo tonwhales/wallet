@@ -328,7 +328,7 @@ const spamFilterCodec = t.type({
 });
 
 const holdersStatusCodec = t.union([
-    t.type({ state: t.literal('need-enrolment') }),
+    t.type({ state: t.literal('need-enrollment') }),
     t.intersection([
         t.type({ token: t.string }),
         accountStateCodec

@@ -318,7 +318,7 @@ export const HoldersAppComponent = React.memo((
         //                 status: {
         //                     state: accountState.state,
         //                     kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
-        //                     suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
+        //                     suspended: accountState.state === 'need-enrollment' ? false : accountState.suspended,
         //                 },
         //                 token: accountState.state === 'ok' ? accountState.token : engine.products.holders.getToken(),
         //             }

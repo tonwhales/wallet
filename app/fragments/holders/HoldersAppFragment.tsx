@@ -33,7 +33,7 @@ export const HoldersAppFragment = fragment(() => {
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrolment') {
+            if (status.state === 'need-enrollment') {
                 return true;
             }
         } catch (error) {

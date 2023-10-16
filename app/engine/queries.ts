@@ -11,6 +11,9 @@ export const Queries = {
             Chart: (member: string) => ['account', address, 'staking', 'chart', member],
         }),
         Transactions: () => ['transactions', address],
+        Holders: () => ({
+            Status: () => ['account', address, 'holders', 'status'],
+        }),
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

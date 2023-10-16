@@ -1,8 +1,16 @@
 import { DefaultTheme, Theme as NavigationThemeType } from '@react-navigation/native';
-import { selector } from 'recoil';
-import { networkSelector } from './network';
+import { atom } from 'recoil';
+import { storagePersistence } from '../../storage/storage';
+import { z } from "zod";
+
+export enum ThemeStyle {
+    Light = 'light',
+    Dark = 'dark',
+    System = 'system'
+}
 
 export type ThemeType = {
+    style: Exclude<ThemeStyle, ThemeStyle.System>,
     textColor: string,
     textSecondary: string,
     textSubtitle: string,
@@ -52,7 +60,8 @@ export type ThemeType = {
     operationIcon: string
 };
 
-const initialTheme = {
+export const baseTheme = {
+    style: ThemeStyle.Light,
     textColor: '#000',
     textSecondary: '#8E8E92',
     textSubtitle: '#8E979D',
@@ -102,42 +111,48 @@ const initialTheme = {
     operationIcon: '#60C75E',
 }
 
+export const darkTheme: ThemeType = {
+    ...baseTheme,
+    style: ThemeStyle.Dark,
+    textColor: '#fff',
+    textSecondary: '#ccc',
+    textSubtitle: '#ddd',
+    background: '#222',
+    item: '#333',
+}
+
 export const initialNavigationTheme: NavigationThemeType = {
     dark: false,
     colors: {
         ...DefaultTheme.colors,
-        primary: initialTheme.accent,
-        background: initialTheme.background,
-        card: initialTheme.background
+        primary: baseTheme.accent,
+        background: baseTheme.background,
+        card: baseTheme.background
     }
 };
 
-export const themeSelector = selector({
-    key: 'theme',
-    get: ({ get }) => {
-        const isTestnet = get(networkSelector).isTestnet;
+const themeStyleKey = 'themeStyle';
 
-        return {
-            ...initialTheme,
-            accent: isTestnet ? '#F3A203' : '#47A9F1',
-            accentDark: isTestnet ? '#F3A203' : '#288FD8',
-            accentText: isTestnet ? '#E99A02' : '#1C8FE3',
-        }
+function getThemeStyleState() {
+    const res = storagePersistence.getString(themeStyleKey);
+
+    if (z.union([z.literal('light'), z.literal('dark'), z.literal('system')]).safeParse(res).success) {
+        return res as ThemeStyle;
     }
-});
 
-export const navigationThemeSelector = selector({
-    key: 'theme/navigation',
-    get: ({ get }) => {
-        const theme = get(themeSelector);
-        return {
-            dark: false,
-            colors: {
-                ...DefaultTheme.colors,
-                primary: theme.accent,
-                background: theme.background,
-                card: theme.background
-            }
-        }
-    } 
+    return ThemeStyle.System;
+}
+
+function storeThemeStyleState(state: ThemeStyle) {
+    storagePersistence.set(themeStyleKey, state);
+}
+
+export const themeStyleState = atom<ThemeStyle>({
+    key: 'theme/style',
+    default: getThemeStyleState(),
+    effects: [({ onSet }) => {
+        onSet((newValue) => {
+            storeThemeStyleState(newValue);
+        })
+    }]
 });

@@ -14,6 +14,5 @@ export function useTonConnectExtensions(): [{ [key: string]: ConnectedApp; }, Se
   const value = useRecoilValue(connectExtensions);
   const update = useSetRecoilState(connectExtensions);
 
-  console.log('useTonConnectExtensions', value);
   return [value || {}, update];
 }

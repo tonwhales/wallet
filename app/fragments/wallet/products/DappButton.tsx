@@ -11,6 +11,7 @@ import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
+import { useRemoveConnectApp } from "../../../engine/effects/dapps/useRemoveConnectApp";
 
 export const DappButton = memo(({
     appKey,
@@ -31,9 +32,11 @@ export const DappButton = memo(({
     }, [inastalledConnectApps, appKey]);
     const appData = useAppData(url);
     const appManifest = useAppManifest(manifestUrl ?? '');
-    const removeExtension = useRemoveExtension();
     const domain = extractDomain(url);
     const domainKey = useDomainKey(domain);
+
+    const removeConnectApp = useRemoveConnectApp();
+    const removeExtension = useRemoveExtension();
 
     const app: AppInfo = useMemo(() => {
         if (!tonconnect) {
@@ -98,10 +101,14 @@ export const DappButton = memo(({
             onPress: () => {
                 if (!tonconnect) {
                     removeExtension(key);
+                    return
+                }
+                if (app) {
+                    removeConnectApp(app.url);
                 }
             }
         }]);
-    }, [tonconnect]);
+    }, [tonconnect, app]);
 
     return (
         <AnimatedProductButton

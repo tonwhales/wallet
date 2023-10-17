@@ -37,7 +37,7 @@ export const HoldersLandingFragment = fragment(() => {
 
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
 
-    const domain = extractDomain(endpoint)
+    const domain = extractDomain(endpoint);
     const enroll = useHoldersEnroll(acc, domain, authContext);
     const lang = getLocales()[0].languageCode;
 
@@ -111,7 +111,6 @@ export const HoldersLandingFragment = fragment(() => {
 
             authOpacity.value = 0;
             setAuth(false);
-
         } catch (error) {
             authOpacity.value = 0;
             setAuth(false);

@@ -31,7 +31,7 @@ export const cardListPublicSchema = z.union([
 ]);
 
 export async function fetchCardsPublic(address: string | Address, isTestnet: boolean) {
-
+  console.log('fetchCardsPublic', { address, isTestnet });
   let res = await axios.post(
     'https://' + holdersEndpoint + '/public/cards',
     {
@@ -48,6 +48,8 @@ export async function fetchCardsPublic(address: string | Address, isTestnet: boo
       }
     }
   );
+
+  console.log('fetchCardsPublic', { status: res.status, data: res.data });
 
   if (res.status === 401) {
     return null;
@@ -147,6 +149,8 @@ export async function fetchCardsList(token: string) {
       }
     }
   );
+
+  console.log('fetchCards', { status: res.status, data: res.data });
 
   if (res.status === 401) {
     return null;

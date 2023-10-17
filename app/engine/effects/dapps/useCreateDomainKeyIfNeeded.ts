@@ -7,19 +7,17 @@ import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { DomainSubkey } from "../../legacy/products/ExtensionsProduct";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { useDomainKeys } from "../../hooks/dapps/useDomainKeys";
-import { useSetDomainKeysState } from "./useSetDomainKeysState";
 
 export function useCreateDomainKeyIfNeeded() {
-    const domainKeys = useDomainKeys();
-    const setDomainKeysState = useSetDomainKeysState();
+    const [domainKeys, setDomainKeysState] = useDomainKeys();
     return async (domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) => {
         // Normalize
         domain = domain.toLowerCase();
     
         const exising = domainKeys[domain] as DomainSubkey | undefined;
     
-        if (exising) {
-            return true;
+        if (!!exising) {
+            return exising;
         }
     
         // Create new key
@@ -54,6 +52,6 @@ export function useCreateDomainKeyIfNeeded() {
         const newKey = { time, signature, secret };
         setDomainKeysState({...domainKeys, [domain]: newKey});
     
-        return true;
+        return newKey;
     }
 }

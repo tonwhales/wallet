@@ -21,15 +21,15 @@ export function useHoldersEnroll(
     const { isTestnet } = useNetwork();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
     const createDomainSignature = useCreateDomainSignature();
-    const status = useHoldersAccountStatus(acc.addressString);
+    const status = useHoldersAccountStatus(acc.address);
     return (async () => {
         let res = await (async () => {
             //
             // Create domain key if needed
             //
 
-            let created = await createDomainKeyIfNeeded(domain, authContext);
-            if (!created) {
+            let existingKey = await createDomainKeyIfNeeded(domain, authContext);
+            if (!existingKey) {
                 return false;
             }
 
@@ -37,8 +37,8 @@ export function useHoldersEnroll(
             // Check holders token cloud value
             // 
 
-            let existing = getHoldersToken(acc.addressString);
-            if (existing && existing.toString().length > 0) {
+            let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
+            if (existingToken && existingToken.toString().length > 0) {
                 return true;
             } else {
                 //
@@ -48,7 +48,7 @@ export function useHoldersEnroll(
                 try {
                     let contract = contractFromPublicKey(acc.publicKey);
                     let config = walletConfigFromContract(contract);
-                    let signed = createDomainSignature(domain);
+                    let signed = createDomainSignature(domain, existingKey);
                     let token = await fetchAccountToken({
                         address: contract.address.toString({ testOnly: isTestnet }),
                         walletConfig: config.walletConfig,
@@ -58,10 +58,10 @@ export function useHoldersEnroll(
                         subkey: signed.subkey
                     }, isTestnet);
 
-                    setHoldersToken(acc.addressString, token);
+                    setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
                 } catch (e) {
                     console.warn(e);
-                    deleteHoldersToken(acc.addressString);
+                    deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }));
                     throw Error('Failed to create signature and fetch token');
                 }
             }

@@ -12,6 +12,7 @@ import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHolder
 import { getCurrentAddress } from "../../../storage/appState";
 import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { HoldersCard } from "../../../engine/api/holders/fetchCards";
+import { useNetwork } from "../../../engine/hooks/useNetwork";
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -24,12 +25,13 @@ const colorsMap: { [key: string]: string[] } = {
 
 export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }) => {
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
     const acc = useMemo(() => getCurrentAddress(), []);
-    const status = useHoldersAccountStatus(acc.addressString).data;
+    const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
 
     const domain = extractDomain(holdersUrl);
     const domainKey = useDomainKey(domain);

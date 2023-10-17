@@ -2,14 +2,10 @@ import { beginCell, safeSign } from "@ton/core";
 import { getCurrentAddress } from "../../../storage/appState";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
 import { keyPairFromSeed } from "ton-crypto";
-import { useDomainKeys } from "../../hooks/dapps/useDomainKeys";
 import { DomainSubkey } from "../../legacy/products/ExtensionsProduct";
 
 export function useCreateDomainSignature() {
-    const keys = useDomainKeys();
-    return (domain: string) => {
-        const domainKey = keys[domain] as DomainSubkey | undefined;
-
+    return (domain: string, domainKey: DomainSubkey) => {
         if (!domainKey) {
             throw new Error('Domain key not found');
         }

@@ -11,7 +11,7 @@ export function useHoldersCards(address: string | Address) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
-    let addressString = useMemo(() => {
+    const addressString = useMemo(() => {
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
@@ -21,7 +21,7 @@ export function useHoldersCards(address: string | Address) {
     let query = useQuery({
         queryKey: Queries.Account(addressString).Holders().Cards(),
         queryFn: async (key) => {
-            if (!!status && status.state !== HoldersAccountState.NeedEnrollment) {
+            if (!!status && status.state !== HoldersAccountState.NoRef && status.state !== HoldersAccountState.NeedEnrollment) {
                 const res = await fetchCardsList(status.token);
                 if (!!res) {
                     return res;

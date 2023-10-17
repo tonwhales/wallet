@@ -13,6 +13,8 @@ export const Queries = {
         Transactions: () => ['transactions', address],
         Holders: () => ({
             Status: () => ['account', address, 'holders', 'status'],
+            Cards: () => ['account', address, 'holders', 'cards'],
+            Notifications: (id: string) => ['account', address, 'holders', 'notifications', id],
         }),
     }),
 

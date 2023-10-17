@@ -26,7 +26,7 @@ export function getHoldersToken(address: string) {
     return storage.getString(`holders-jwt-${address}`);
 }
 
-export function useHoldersAccountStatus(address: string | Address): HoldersAccountStatus {
+export function useHoldersAccountStatus(address: string | Address) {
     let { isTestnet } = useNetwork();
 
     let addressString = useMemo(() => {
@@ -36,14 +36,14 @@ export function useHoldersAccountStatus(address: string | Address): HoldersAccou
         return address;
     }, [address, isTestnet]);
 
-    let query = useQuery({
+    return useQuery({
         queryKey: Queries.Account(addressString).Holders().Status(),
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             const token = getHoldersToken(addr);
 
             if (!token) {
-                return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment };
+                return { state: HoldersAccountState.NeedEnrollment } as { state: HoldersAccountState.NeedEnrollment }; // This looks amazingly stupid
             }
 
             const fetched = await fetchAccountState(token);
@@ -55,6 +55,4 @@ export function useHoldersAccountStatus(address: string | Address): HoldersAccou
             return { ...fetched, token };
         },
     });
-
-    return query.data ?? { state: HoldersAccountState.NeedEnrollment };
 }

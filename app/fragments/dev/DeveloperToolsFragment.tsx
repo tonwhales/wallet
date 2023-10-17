@@ -25,6 +25,8 @@ import { ThemeStyle } from '../../engine/state/theme';
 import { useThemeStyle } from '../../engine/hooks/useThemeStyle';
 import { useLanguage } from '../../engine/hooks/useLanguage';
 import i18n from 'i18next';
+import { onAccountTouched } from '../../engine/effects/onAccountTouched';
+import { getCurrentAddress } from '../../storage/appState';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -58,9 +60,11 @@ export const DeveloperToolsFragment = fragment(() => {
     const resetCache = useCallback(() => {
         storagePersistence.clearAll();
         storageQuery.clearAll();
+        const acc = getCurrentAddress();
+        onAccountTouched(acc.addressString, isTestnet);
         // clearHolders(engine);
         reboot();
-    }, []);
+    }, [isTestnet]);
 
     const switchNetwork = useCallback(() => {
         Alert.alert(

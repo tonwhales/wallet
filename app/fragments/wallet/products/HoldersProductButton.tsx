@@ -1,5 +1,5 @@
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
-import React, { useCallback } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
@@ -7,7 +7,11 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useTheme } from '../../../engine/hooks/useTheme';
-import { HoldersCard, holdersUrl } from '../../../engine/legacy/holders/HoldersProduct';
+import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
+import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { getCurrentAddress } from "../../../storage/appState";
+import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { HoldersCard } from "../../../engine/api/holders/fetchCards";
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -18,31 +22,31 @@ const colorsMap: { [key: string]: string[] } = {
     'default-2': ['#792AF6', "#954CF9"], // Default
 }
 
-export const HoldersProductButton = React.memo(({ account }: { account?: HoldersCard }) => {
+export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }) => {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
     const fontScaleNormal = dimentions.fontScale <= 1;
-    const status = { state: 'need-enrollment' };
 
-    const needsenrollment = React.useMemo(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
+    const status = useHoldersAccountStatus(acc.addressString).data;
+
+    const domain = extractDomain(holdersUrl);
+    const domainKey = useDomainKey(domain);
+
+    const needsenrollment = useMemo(() => {
         try {
-            let domain = extractDomain(holdersUrl);
-            if (!domain) {
-                return; // Shouldn't happen
-            }
-            let domainKey = engine.products.keys.getDomainKey(domain);
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrollment') {
+            if (!!status && status.state === HoldersAccountState.NeedEnrollment) {
                 return true;
             }
         } catch (error) {
             return true;
         }
         return false;
-    }, [status]);
+    }, [status, domainKey]);
 
     const onPress = useCallback(
         () => {
@@ -62,6 +66,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
     );
 
     const colors = account ? (colorsMap[account.card.personalizationCode] ?? colorsMap['default-2']) : ['#333A5A', "#A7AFD3"];
+    const cardKind = account?.card.kind === 'virtual' ? 'virtual' : 'physical';
 
     return (
         <TouchableHighlight
@@ -92,10 +97,9 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
                     {!account && (
                         <Image source={require('../../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
-                    {account && account.type === 'virtual' && (
+                    {account && cardKind === 'virtual' ? (
                         <Image source={require('../../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
-                    )}
-                    {account && account.type === 'physical' && (
+                    ) : (
                         <Image source={require('../../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                 </View>
@@ -103,9 +107,9 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                             <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' :''}`}
+                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                             </Text>
-                            {!!account && account.balance && (
+                            {!!account && (
                                 <Text style={{ color: theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                     <ValueComponent value={account.balance} precision={2} />{' TON'}
                                 </Text>
@@ -119,7 +123,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
                             >
                                 {!!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t(`products.zenPay.card.type.${account.type}` as any)}
+                                        {t(`products.zenPay.card.type.${cardKind}` as any)}
                                     </Text>
                                 )}
                                 {!account && (
@@ -131,7 +135,7 @@ export const HoldersProductButton = React.memo(({ account }: { account?: Holders
                             {!!account &&
                                 (
                                     <PriceComponent
-                                        amount={account.balance}
+                                        amount={BigInt(account.balance)}
                                         style={{
                                             backgroundColor: 'transparent',
                                             paddingHorizontal: 0, paddingVertical: 0,

@@ -18,20 +18,29 @@ import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useHoldersEnroll } from '../../engine/effects/holders/useHoldersEnroll';
+import { getCurrentAddress } from '../../storage/appState';
+import { getAppData } from '../../engine/getters/getAppData';
 
 export const HoldersLandingFragment = fragment(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
-    const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
+    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+
+    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
+
+    const domain = extractDomain(endpoint)
+    const enroll = useHoldersEnroll(acc, domain, authContext);
+    const lang = getLocales()[0].languageCode;
+
     // TODO
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const useOfflineApp = false;
@@ -81,23 +90,21 @@ export const HoldersLandingFragment = fragment(() => {
         setAuth(true);
 
         try {
-            // TODO
-            // const data = await engine.products.extensions.getAppData(endpoint);
-            // if (!data) {
-            //     Alert.alert(t('auth.failed'));
-            //     authOpacity.value = 0;
-            //     setAuth(false);
-            //     return;
-            // }
+            const data = await getAppData(endpoint);
+            if (!data) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false);
+                return;
+            }
 
-            // const domain = extractDomain(endpoint);
-            // const res = await engine.products.holders.enroll(domain, authContext);
-            // if (!res) {
-            //     Alert.alert(t('auth.failed'));
-            //     authOpacity.value = 0;
-            //     setAuth(false)
-            //     return;
-            // }
+            const res = await enroll();
+            if (!res) {
+                Alert.alert(t('auth.failed'));
+                authOpacity.value = 0;
+                setAuth(false)
+                return;
+            }
 
             // Navigate to continue
             navigation.replace('Holders', onEnrollType);
@@ -111,7 +118,7 @@ export const HoldersLandingFragment = fragment(() => {
             Alert.alert(t('auth.failed'));
             warn(error);
         }
-    }, [auth]);
+    }, [auth, enroll]);
 
     //
     // Navigation

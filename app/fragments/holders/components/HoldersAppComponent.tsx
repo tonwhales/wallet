@@ -35,6 +35,9 @@ import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { ConfigStore } from '../../../utils/ConfigStore';
+import { getCurrentAddress } from '../../../storage/appState';
+import { useHoldersAccountStatus } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -208,7 +211,8 @@ export const HoldersAppComponent = React.memo((
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const status = useHoldersStatus();
+    const acc = getCurrentAddress();
+    const status = useHoldersAccountStatus(acc.addressString).data;
     const createDomainSignature = useCreateDomainSignature();
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
@@ -240,7 +244,7 @@ export const HoldersAppComponent = React.memo((
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'account') {
-            route = status.state === 'ok' ? '/create' : '/';
+            route = status?.state === HoldersAccountState.Ok ? '/create' : '/';
         } else if (props.variant.type === 'card') {
             route = `/card/${props.variant.id}`;
         }

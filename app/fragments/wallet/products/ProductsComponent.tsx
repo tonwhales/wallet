@@ -44,7 +44,7 @@ export const ProductsComponent = memo(({ selected }: {
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
     const ledger = useLedger();
-    const cards = useHoldersCards(selected.addressString).data ?? [];
+    const cards = useHoldersCards(selected.address).data ?? [];
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();

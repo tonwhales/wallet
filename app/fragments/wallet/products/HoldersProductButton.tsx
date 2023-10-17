@@ -28,7 +28,6 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
     const { isTestnet } = useNetwork();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
-    const fontScaleNormal = dimentions.fontScale <= 1;
 
     const acc = useMemo(() => getCurrentAddress(), []);
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
@@ -80,7 +79,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                 marginHorizontal: 16, marginVertical: 4
             }}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                 <View style={{ width: 34, height: 46, borderRadius: 6, borderWidth: 0, marginVertical: 8, marginLeft: 14, marginRight: 14, overflow: 'hidden' }}>
                     <Canvas style={{ width: 34, height: 46, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                         <Rect x={0} y={0} width={34} height={46}>
@@ -108,7 +107,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                 {!!account && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
                                 {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                             </Text>
                             {!!account && (
@@ -156,7 +155,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                                <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                                <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
                                     {t('products.zenPay.card.defaultTitle')}
                                 </Text>
                             </View>

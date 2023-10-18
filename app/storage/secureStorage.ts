@@ -284,6 +284,10 @@ export function getPasscodeState() {
     return (storage.getString(passcodeStateKey) ?? null) as PasscodeState | null;
 }
 
+export function storePasscodeState(state: PasscodeState) {
+    storage.set(passcodeStateKey, state);
+}
+
 export function getBiometricsState() {
     return (storage.getString(biometricsStateKey) ?? null) as BiometricsState | null;
 }

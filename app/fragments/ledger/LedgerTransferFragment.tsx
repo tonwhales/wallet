@@ -32,7 +32,7 @@ import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
-import { useContact } from '../../engine/hooks/useContact';
+import { useContact } from '../../engine/hooks/contacts/useContact';
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();

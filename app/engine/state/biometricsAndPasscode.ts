@@ -1,5 +1,5 @@
-import { atom, selector } from 'recoil';
-import { BiometricsState, getBiometricsState, getPasscodeState, storeBiometricsState } from '../../storage/secureStorage';
+import { atom } from 'recoil';
+import { BiometricsState, PasscodeState, getBiometricsState, getPasscodeState, storeBiometricsState, storePasscodeState } from '../../storage/secureStorage';
 
 export const biometricsState = atom({
     key: 'auth/biometricsState',
@@ -11,7 +11,12 @@ export const biometricsState = atom({
     }]
 });
 
-export const passcodeState = selector({
+export const passcodeState = atom({
     key: 'auth/passcodeState',
-    get: () => getPasscodeState(),
+    default: (getPasscodeState() || PasscodeState.NotSet),
+    effects: [({ onSet }) => {
+        onSet((newValue) => {
+            storePasscodeState(newValue);
+        })
+    }]
 });

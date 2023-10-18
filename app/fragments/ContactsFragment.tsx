@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { RefObject, createRef, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
 import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -17,25 +17,26 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
 import { useTheme } from '../engine/hooks/useTheme';
-import { useContacts } from '../engine/hooks/useContacts';
 import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
 import { TransactionDescription, useAccountTransactions } from '../engine/hooks/useAccountTransactions';
 import { useClient4 } from '../engine/hooks/useClient4';
 import { useNetwork } from '../engine/hooks/useNetwork';
+import { useContacts } from "../engine/hooks/contacts/useContacts";
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
-    const address = useSelectedAccount();
+    const account = useSelectedAccount();
     let client = useClient4(useNetwork().isTestnet);
-    const transactions = useAccountTransactions(client, address.addressString);
+    const transactions = useAccountTransactions(client, account?.addressString ?? '');
+
     const [addingAddress, setAddingAddress] = useState(false);
-    const [domain, setDomain] = React.useState<string>();
-    const [target, setTarget] = React.useState('');
-    const [addressDomainInput, setAddressDomainInput] = React.useState('');
-    const inputRef: React.RefObject<ATextInputRef> = React.createRef();
+    const [domain, setDomain] = useState<string>();
+    const [target, setTarget] = useState('');
+    const [addressDomainInput, setAddressDomainInput] = useState('');
+    const inputRef: RefObject<ATextInputRef> = createRef();
     const validAddress = useMemo(() => {
         try {
             const valid = target.trim();
@@ -46,15 +47,12 @@ export const ContactsFragment = fragment(() => {
         }
     }, [target]);
 
-    const onAddContact = useCallback(
-        () => {
-            if (validAddress) {
-                setAddingAddress(false);
-                navigation.navigate('Contact', { address: validAddress });
-            }
-        },
-        [validAddress],
-    );
+    const onAddContact = useCallback(() => {
+        if (validAddress) {
+            setAddingAddress(false);
+            navigation.navigate('Contact', { address: validAddress });
+        }
+    }, [validAddress]);
 
     const contactsList = useMemo(() => {
         return Object.entries(contacts);
@@ -66,8 +64,8 @@ export const ContactsFragment = fragment(() => {
         });
     }, [contactsList, target]);
 
-    const transactionsComponents: any[] = React.useMemo(() => {
-        if (!transactions) {
+    const transactionsComponents: any[] = useMemo(() => {
+        if (!transactions || !account) {
             return [];
         }
 
@@ -104,7 +102,7 @@ export const ContactsFragment = fragment(() => {
                 >
                     {s.items.map((t, i) => (
                         <TransactionView
-                            own={address.address}
+                            own={account.address}
                             tx={t}
                             separator={i < s.items.length - 1}
                             key={'tx-' + t}

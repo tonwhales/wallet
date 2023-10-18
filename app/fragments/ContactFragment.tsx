@@ -1,6 +1,6 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { RefObject, createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,7 +20,9 @@ import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
-import { useContactAddress } from '../engine/hooks/useContactAddress';
+import { useContactAddress } from '../engine/hooks/contacts/useContactAddress';
+import { useSetContact } from "../engine/effects/useSetContact";
+import { useRemoveContact } from "../engine/effects/useRemoveContact";
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -40,6 +42,8 @@ export const ContactFragment = fragment(() => {
         navigation.goBack();
     }
     const address = useMemo(() => Address.parse(params.address), []);
+    const setContact = useSetContact();
+    const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
     const contact = useContactAddress(Address.parse(params.address));
 
@@ -59,62 +63,45 @@ export const ContactFragment = fragment(() => {
         return false
     }, [fields, name, contact]);
 
-    useEffect(() => {
-        if (contact) {
-            setName(contact.name);
-            setFields(contact.fields || requiredFields);
+    const onSave = useCallback(async () => {
+        if (!editing) {
+            setEditing(true);
+            return;
         }
-    }, [contact]);
+        if (!name || name.length > 126) {
+            Alert.alert(t('contacts.alert.name'), t('contacts.alert.nameDescription'))
+            return;
+        }
 
-
-    const onCancel = useCallback(
-        () => {
-            setEditing(false);
-        },
-        [],
-    );
-
-    const onAction = useCallback(
-        () => {
-            // Dismiss keyboard for iOS
-            if (Platform.OS === 'ios') {
-                Keyboard.dismiss();
-            }
-            if (!editing) {
-                setEditing(true);
+        for (let field of fields) {
+            if (field.value && field.value.length > 280) {
+                Alert.alert(
+                    t('contacts.alert.notes'),
+                    t('contacts.alert.notesDescription')
+                );
                 return;
             }
-            if (!name || name.length > 126) {
-                Alert.alert(t('contacts.alert.name'), t('contacts.alert.nameDescription'))
-                return;
-            }
+        }
 
-            for (let field of fields) {
-                if (field.value && field.value.length > 280) {
-                    Alert.alert(
-                        t('contacts.alert.notes'),
-                        t('contacts.alert.notesDescription')
-                    );
-                    return;
-                }
-            }
+        try {
+            await setContact(address.toString({ testOnly: isTestnet }), { name, fields });
+        } catch {
+            Alert.alert(t('errors.title'), t('errors.unknown'));
+        }
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
+        }
+        setEditing(false);
+    }, [editing, fields, name, address, isTestnet]);
 
-            settings.setContact(address, { name, fields });
-            setEditing(false);
-        },
-        [editing, fields, name, address],
-    );
-
-    const onDelete = useCallback(
-        async () => {
-            const confirmed = await confirmAlert('contacts.delete');
-            if (confirmed) {
-                settings.removeContact(address);
-                navigation.goBack();
-            }
-        },
-        [address],
-    );
+    const onDelete = useCallback(async () => {
+        const confirmed = await confirmAlert('contacts.delete');
+        if (confirmed) {
+            removeContact(address.toString({ testOnly: isTestnet }));
+            navigation.goBack();
+        }
+    }, [address, isTestnet]);
 
     const onFieldChange = useCallback((index: number, value: string) => {
         setFields((prev) => {
@@ -125,20 +112,20 @@ export const ContactFragment = fragment(() => {
     }, [fields, setFields]);
 
     // Scroll with Keyboard
-    const [selectedInput, setSelectedInput] = React.useState(0);
+    const [selectedInput, setSelectedInput] = useState(0);
 
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
-        r.push(React.createRef()); // name input ref
+    const refs = useMemo(() => {
+        let r: RefObject<ATextInputRef>[] = [];
+        r.push(createRef()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(React.createRef());
+            r.push(createRef());
         }
         return r;
     }, [fields]);
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -159,19 +146,19 @@ export const ContactFragment = fragment(() => {
 
     const keyboard = useKeyboard();
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
-    const onSubmit = React.useCallback((index: number) => {
+    const onSubmit = useCallback((index: number) => {
         let next = refs[index + 1]?.current;
         if (next) {
             next.focus();
@@ -181,7 +168,6 @@ export const ContactFragment = fragment(() => {
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [editing]);
-
 
     return (
         <View style={{
@@ -352,7 +338,7 @@ export const ContactFragment = fragment(() => {
                         <RoundButton
                             title={t('common.cancel')}
                             disabled={!editing}
-                            onPress={onAction}
+                            action={onSave}
                             display={'secondary'}
                             style={{ flexGrow: 1, marginRight: 8 }}
                         />
@@ -367,7 +353,7 @@ export const ContactFragment = fragment(() => {
                         )}
                         style={{ flexGrow: 1 }}
                         disabled={editing && !hasChanges}
-                        onPress={onAction}
+                        action={onSave}
                         display={editing && !hasChanges ? 'secondary' : 'default'}
                     />
                 </View>

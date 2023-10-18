@@ -5,6 +5,7 @@ import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
 import { TxBody } from '../legacy/Transaction';
 import { StoredOperation, StoredOperationItem } from '../hooks/useRawAccountTransactions';
+import { LocalizedResources } from "../../i18n/schema";
 
 export function resolveOperation(args: {
     account: Address,
@@ -21,11 +22,8 @@ export function resolveOperation(args: {
         comment = args.body.comment;
     }
 
-    // Resolve default name
-    // let op: string | undefined = undefined;
-
-    // Resolve default name
-    // let title: string | undefined = undefined;
+    // Resolve default op
+    let op: { res: LocalizedResources, options?: any } | undefined = undefined;
 
     // Resolve default items
     let items: StoredOperationItem[] = [];
@@ -37,27 +35,27 @@ export function resolveOperation(args: {
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                // op = f.text;
+                op = f;
             }
 
             if (parsedBody.type === 'jetton::transfer') {
-                address = parsedBody.data['destination'] as Address;
-                let amount = parsedBody.data['amount'] as BN;
+                address = parsedBody.data.destination;
+                let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
+                let body = parseBody(parsedBody.data.forwardPayload);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
-                // op = t('tx.tokenTransfer');
+                op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {
-                    address = parsedBody.data['sender'] as Address;
+                    address = parsedBody.data.sender;
                 } else {
-                    // op = 'airdrop';
+                    op = { res: 'common.airdrop' };
                 }
-                let amount = parsedBody.data['amount'] as BN;
+                let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
+                let body = parseBody(parsedBody.data.forwardPayload);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
@@ -69,6 +67,7 @@ export function resolveOperation(args: {
     return {
         address: address.toString({ testOnly: isTestnet }),
         items,
-        comment
+        comment,
+        op
     }
 }

@@ -51,6 +51,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         checkInternetConnection: 'Проверьте подключение к интернету',
         reload: 'Перезагрузить',
         errorOccurred: 'Произошла ошибка: {{error}}',
+        airdrop: 'Раздача',
     },
     syncStatus: {
         connecting: 'Идет подключение',

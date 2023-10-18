@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { systemFragment } from '../systemFragment';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../storage/secureStorage';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -19,6 +19,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
 import { useBiometricsState } from '../engine/hooks/useBiometricsState';
 import { useTheme } from '../engine/hooks/useTheme';
+import { useSetBiometricsState } from '../engine/effects/useSetBiometricsState';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const theme = useTheme();
@@ -26,6 +27,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const authContext = useKeysAuth();
     const biometricsState = useBiometricsState();
+    const setBiometricsState = useSetBiometricsState();
 
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
@@ -89,7 +91,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
 
     // Action
     const [loading, setLoading] = React.useState(false);
-    const onClick = React.useCallback((bypassEncryption?: boolean) => {
+    const onClick = useCallback((bypassEncryption?: boolean) => {
         (async () => {
             setLoading(true);
             try {

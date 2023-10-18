@@ -21,7 +21,7 @@ import { warn } from "../utils/log"
 import { ItemGroup } from "../components/ItemGroup"
 import { usePasscodeState } from '../engine/hooks/usePasscodeState'
 import { useBiometricsState } from '../engine/hooks/useBiometricsState'
-import { setBiometricsState } from '../engine/effects/useSetBiometricsState'
+import { useSetBiometricsState } from "../engine/effects/useSetBiometricsState"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -31,6 +31,7 @@ export const SecurityFragment = fragment(() => {
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
+    const setBiometricsState = useSetBiometricsState();
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {

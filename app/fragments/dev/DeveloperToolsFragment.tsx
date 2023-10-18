@@ -3,7 +3,7 @@ import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-nat
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence } from '../../storage/storage';
+import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
@@ -16,7 +16,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { clearHolders } from '../LogoutFragment';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
@@ -31,7 +31,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
-    const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0); 
+    const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
@@ -49,33 +49,31 @@ export const DeveloperToolsFragment = fragment(() => {
     // }, [offlineApp]);
 
     const reboot = useReboot();
-    const resetCache = React.useCallback(() => {
+    const resetCache = useCallback(() => {
         storagePersistence.clearAll();
+        storageQuery.clearAll();
         // clearHolders(engine);
         reboot();
     }, []);
 
-    const switchNetwork = React.useCallback(
-        () => {
-            Alert.alert(
-                t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
-                t('devTools.switchNetworkAlertMessage'),
-                [
-                    {
-                        text: t('common.cancel'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: t('devTools.switchNetworkAlertAction'),
-                        onPress: () => setNetwork(isTestnet ? 'testnet' : 'mainnet'),
-                    }
-                ]
-            );
-        },
-        [isTestnet],
-    );
+    const switchNetwork = useCallback(() => {
+        Alert.alert(
+            t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
+            t('devTools.switchNetworkAlertMessage'),
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('devTools.switchNetworkAlertAction'),
+                    onPress: () => setNetwork(isTestnet ? 'mainnet' : 'testnet'),
+                }
+            ]
+        );
+    }, [isTestnet]);
 
-    const copySeed = React.useCallback(async () => {
+    const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
             walletKeys = await authContext.authenticate({ backgroundColor: theme.item });
@@ -95,7 +93,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }
     }, [])
 
-    const onExportSeedAlert = React.useCallback(() => {
+    const onExportSeedAlert = useCallback(() => {
         Alert.alert(
             t('devTools.copySeedAlertTitle'),
             t('devTools.copySeedAlertMessage'),
@@ -142,7 +140,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Counter"}  hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
+                        <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
                     </View>
 
                     {!(

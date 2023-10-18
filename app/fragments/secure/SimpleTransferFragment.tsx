@@ -30,7 +30,7 @@ import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
-import { useContact } from '../../engine/hooks/useContact';
+import { useContact } from '../../engine/hooks/contacts/useContact';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';

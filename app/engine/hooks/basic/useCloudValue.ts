@@ -132,11 +132,14 @@ async function updateCloudValue(key: string, updater: (value: Buffer | null) => 
 export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (updater: (value: T) => void) => Promise<void>] {
     const account = useSelectedAccount();
     const { isTestnet } = useNetwork();
-    const queryKey = Queries.Cloud(account.addressString).Key(key);
+    const queryKey = Queries.Cloud(account?.addressString || 'null-address-string').Key(key);
 
     let valueQuery = useQuery({
         queryKey,
         queryFn: async () => {
+            if (!account) {
+                return null;
+            }
             let data = await readValueFromCloud(key, {
                 isTestnet: isTestnet,
                 utilityKey: account.utilityKey,
@@ -151,12 +154,15 @@ export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (u
     const localAmValue = useMemo(() => valueQuery.data ? AutomergeValue.fromExisting<T>(Buffer.from(valueQuery.data, 'base64')) : AutomergeValue.fromEmpty<T>(initial), [valueQuery]);
 
     const update = async (updater: (prevValue: T) => void) => {
+        if (!account) {
+            return;
+        }
         localAmValue.update(updater);
         queryClient.setQueryData(Queries.Cloud(account.addressString).Key(key), localAmValue.save().toString('base64'));
-
+        
         await updateCloudValue(key, async (buffer) => {
             let remoteAmValue = AutomergeValue.fromExisting<T>(buffer || AutomergeValue.fromEmpty<T>(initial).save());
-
+            
             remoteAmValue.apply(localAmValue);
 
             return remoteAmValue.save();

@@ -29,13 +29,13 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
-import { useContactAddress } from '../../engine/hooks/useContactAddress';
+import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { TransactionDescription } from '../../engine/legacy/products/WalletProduct';
 import { Body } from '../../engine/legacy/Transaction';
 import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
-import { useDenyAddress } from '../../engine/hooks/useDenyAddress';
+import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {

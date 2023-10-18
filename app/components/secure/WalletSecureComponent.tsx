@@ -9,8 +9,9 @@ import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { memo, useCallback, useState } from 'react';
 
-export const WalletSecureComponent = React.memo((props: {
+export const WalletSecureComponent = memo((props: {
     deviceEncryption: DeviceEncryption,
     passcode: string,
     callback: (res: boolean) => void,
@@ -20,25 +21,23 @@ export const WalletSecureComponent = React.memo((props: {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     // Action
-    const [loading, setLoading] = React.useState(false);
-    const onClick = React.useCallback(() => {
-        (async () => {
-            setLoading(true);
-            try {
-                encryptAndStoreAppKeyWithBiometrics(props.passcode);
-                // Save default state to Use biometrics
-                storeBiometricsState(BiometricsState.InUse);
+    const [loading, setLoading] = useState(false);
+    const onClick = useCallback((async () => {
+        setLoading(true);
+        try {
+            encryptAndStoreAppKeyWithBiometrics(props.passcode);
+            // Save default state to Use biometrics
+            storeBiometricsState(BiometricsState.InUse);
 
-                props.callback(true);
-            } catch (e) {
-                warn('Failed to generate new key');
-                Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
-                props.callback(false);
-            } finally {
-                setLoading(false);
-            }
-        })();
-    }, []);
+            props.callback(true);
+        } catch (e) {
+            warn('Failed to generate new key');
+            Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
+            props.callback(false);
+        } finally {
+            setLoading(false);
+        }
+    }), []);
 
     let iconImage: ImageSourcePropType | undefined;
     let icon: any | undefined;
@@ -77,7 +76,7 @@ export const WalletSecureComponent = React.memo((props: {
             break;
     }
 
-    const onLater = React.useCallback(() => {
+    const onLater = useCallback(() => {
         Alert.alert(
             t('secure.onLaterTitle'),
             t('secure.onLaterMessage'),

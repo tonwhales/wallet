@@ -8,7 +8,7 @@ import Color from 'color';
 import { useRoute } from '@react-navigation/native';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useAppData } from '../../engine/hooks/dapps/useAppData';
-import { getDomainKey } from '../../engine/effects/dapps/getDomainKey';
+import { getDomainKey } from '../../engine/getters/getDomainKey';
 
 export const AppFragment = fragment(() => {
     const url = (useRoute().params as any).url as string;

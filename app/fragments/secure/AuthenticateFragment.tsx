@@ -36,7 +36,7 @@ import { useAppData } from '../../engine/hooks/dapps/useAppData';
 import { createDomainKeyIfNeeded } from '../../engine/effects/dapps/createDomainKeyIfNeeded';
 import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
 import { ConfigStore } from '../../utils/ConfigStore';
-import { getAppData } from '../../engine/effects/dapps/getAppData';
+import { getAppData } from '../../engine/getters/getAppData';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

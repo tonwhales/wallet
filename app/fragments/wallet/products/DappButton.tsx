@@ -6,7 +6,7 @@ import { useAppManifest } from "../../../engine/hooks/dapps/useAppManifest";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { getDomainKey } from "../../../engine/effects/dapps/getDomainKey";
+import { getDomainKey } from "../../../engine/getters/getDomainKey";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";

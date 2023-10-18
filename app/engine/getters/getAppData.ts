@@ -1,6 +1,6 @@
-import { AppData, fetchAppData } from "../../api/fetchAppData";
-import { queryClient } from "../../clients";
-import { Queries } from "../../queries";
+import { AppData, fetchAppData } from "../api/fetchAppData";
+import { queryClient } from "../clients";
+import { Queries } from "../queries";
 
 export async function getAppData(url: string) {
     const exising = queryClient.getQueryData<AppData | null>(Queries.Apps(url).AppData());

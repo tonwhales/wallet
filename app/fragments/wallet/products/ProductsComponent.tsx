@@ -106,6 +106,7 @@ export const ProductsComponent = memo(({ selected }: {
         apps.push(
             <DappButton
                 key={e.key}
+                appKey={e.key}
                 url={e.url}
                 name={e.title}
                 tonconnect={false}
@@ -117,8 +118,9 @@ export const ProductsComponent = memo(({ selected }: {
         apps.push(
             <DappButton
                 key={e.key}
+                appKey={e.key}
                 url={e.url}
-                name={e.title}
+                name={e.name}
                 tonconnect={true}
             />
         );

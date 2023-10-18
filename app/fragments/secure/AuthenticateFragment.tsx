@@ -11,7 +11,7 @@ import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
+import { contractFromPublicKey, walletConfigFromContract, walletContactType } from '../../engine/contractFromPublicKey';
 import { beginCell, Cell, safeSign } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
@@ -32,8 +32,7 @@ import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useAppData } from '../../engine/hooks/dapps/useAppData';
-import { createDomainKeyIfNeeded } from '../../engine/effects/dapps/createDomainKeyIfNeeded';
+import { useCreateDomainKeyIfNeeded } from '../../engine/effects/dapps/useCreateDomainKeyIfNeeded';
 import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
 import { ConfigStore } from '../../utils/ConfigStore';
 import { getAppData } from '../../engine/getters/getAppData';
@@ -60,6 +59,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const [addExt, setAddExt] = useState(false);
     const addExtension = useAddExtension();
+    const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
 
     useEffect(() => {
         let ended = false;
@@ -109,14 +109,11 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 
         // Load data
         const contract = contractFromPublicKey(acc.publicKey);
+        const config = walletConfigFromContract(contract);
 
-        const config = new ConfigStore();
-        config.setInt('wc', contract.workchain);
-        config.setBuffer('pk', contract.publicKey);
-        config.setInt('walletId', contract.walletId);
+        const walletConfig = config.walletConfig;
+        const walletType = config.type;
 
-        let walletConfig = config.save();
-        let walletType = 'org.ton.wallets.v4';
         let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
 
@@ -246,7 +243,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 
             // Create domain key if needed
             let domain = extractDomain(endpoint);
-            await createDomainKeyIfNeeded(domain, authContext, walletKeys); // Always succeeds
+            await createDomainKeyIfNeeded(domain, authContext, walletKeys);
 
             // Add extension
             addExtension(
@@ -261,7 +258,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             // Navigate
             navigation.replace('App', { url });
         }
-    }, [state, addExt]);
+    }, [state, addExt, useCreateDomainKeyIfNeeded]);
 
     // When loading
     if (state.type === 'loading') {

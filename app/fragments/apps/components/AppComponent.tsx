@@ -11,7 +11,7 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { warn } from '../../../utils/log';
 import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
-import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { contractFromPublicKey, walletConfigFromContract } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
@@ -24,10 +24,11 @@ import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { getCurrentAddress } from '../../../storage/appState';
 import { ConfigStore } from '../../../utils/ConfigStore';
-import { useMemo } from 'react';
-import { createDomainSignature } from '../../../engine/effects/dapps/createDomainSignature';
+import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useCreateDomainSignature } from '../../../engine/effects/dapps/useCreateDomainSignature';
+import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
 
-export const AppComponent = React.memo((props: {
+export const AppComponent = memo((props: {
     endpoint: string,
     color: string,
     dark: boolean,
@@ -37,15 +38,18 @@ export const AppComponent = React.memo((props: {
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    // 
+    const domain = useMemo(() => extractDomain(props.endpoint), []);
+
+    const domainKey = useDomainKey(domain);
+    const createDomainSignature = useCreateDomainSignature();
+    //
     // Track events
-    // 
-    const domain = extractDomain(props.endpoint);
+    //
     const navigation = useTypedNavigation();
-    const start = React.useMemo(() => {
+    const start = useMemo(() => {
         return Date.now();
     }, []);
-    const close = React.useCallback(() => {
+    const close = useCallback(() => {
         navigation.goBack();
         trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, isTestnet);
     }, []);
@@ -55,39 +59,30 @@ export const AppComponent = React.memo((props: {
     // Actions menu
     // 
 
-    const onShare = React.useCallback(
-        () => {
-            const link = generateAppLink(props.endpoint, props.title, isTestnet);
-            if (Platform.OS === 'ios') {
-                Share.share({ title: t('receive.share.title'), url: link });
-            } else {
-                Share.share({ title: t('receive.share.title'), message: link });
-            }
-        },
-        [props],
-    );
+    const onShare = useCallback(() => {
+        const link = generateAppLink(props.endpoint, props.title, isTestnet);
+        if (Platform.OS === 'ios') {
+            Share.share({ title: t('receive.share.title'), url: link });
+        } else {
+            Share.share({ title: t('receive.share.title'), message: link });
+        }
+    }, [props]);
 
-    const onReview = React.useCallback(
-        () => {
-            navigation.navigateReview({ type: 'review', url: props.endpoint });
-        },
-        [props],
-    );
+    const onReview = useCallback(() => {
+        navigation.navigateReview({ type: 'review', url: props.endpoint });
+    }, [props]);
 
-    const onReport = React.useCallback(
-        () => {
-            navigation.navigateReview({ type: 'report', url: props.endpoint });
-        },
-        [props],
-    );
+    const onReport = useCallback(() => {
+        navigation.navigateReview({ type: 'report', url: props.endpoint });
+    }, [props]);
 
     //
     // View
     //
 
     const safeArea = useSafeAreaInsets();
-    let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.useRef<WebView>(null);
+    let [loaded, setLoaded] = useState(false);
+    const webRef = useRef<WebView>(null);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -108,7 +103,7 @@ export const AppComponent = React.memo((props: {
     //
 
     const linkNavigator = useLinkNavigator(isTestnet);
-    const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
+    const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
@@ -138,16 +133,16 @@ export const AppComponent = React.memo((props: {
     const injectSource = useMemo(() => {
         const currentAccount = getCurrentAddress();
         const contract = contractFromPublicKey(currentAccount.publicKey);
-        const config = new ConfigStore();
-        config.setInt('wc', contract.workchain);
-        config.setBuffer('pk', contract.publicKey);
-        config.setInt('walletId', contract.walletId);
+        const config = walletConfigFromContract(contract);
 
-        let walletConfig = config.save();
-        let walletType = 'org.ton.wallets.v4';
-        const domain = extractDomain(props.endpoint);
+        const walletConfig = config.walletConfig;
+        const walletType = config.type;
 
-        let domainSign = createDomainSignature(domain);
+        if (!domainKey) {
+            return '';
+        }
+
+        let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource({
             version: 1,
@@ -167,9 +162,9 @@ export const AppComponent = React.memo((props: {
                 signature: domainSign.subkey.signature
             }
         });
-    }, []);
+    }, [domainKey]);
     const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
-    const handleWebViewMessage = React.useCallback((event: WebViewMessageEvent) => {
+    const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
         // Resolve parameters
@@ -201,14 +196,11 @@ export const AppComponent = React.memo((props: {
 
     }, []);
 
-    const handleAction = React.useCallback(
-        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-            if (e.nativeEvent.name === t('common.share')) onShare();
-            if (e.nativeEvent.name === t('review.title')) onReview();
-            if (e.nativeEvent.name === t('report.title')) onReport();
-        },
-        [onShare, onReview, onReport],
-    );
+    const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        if (e.nativeEvent.name === t('common.share')) onShare();
+        if (e.nativeEvent.name === t('review.title')) onReview();
+        if (e.nativeEvent.name === t('report.title')) onReport();
+    }, [onShare, onReview, onReport]);
 
     return (
         <>

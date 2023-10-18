@@ -2,30 +2,41 @@ import { memo, useCallback, useMemo } from "react";
 import { AnimatedProductButton } from "./AnimatedProductButton";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useAppData } from "../../../engine/hooks/dapps/useAppData";
-import { useAppManifest } from "../../../engine/hooks/dapps/useAppManifest";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { getDomainKey } from "../../../engine/getters/getDomainKey";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
+import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 
-export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, name?: string | null, url: string, tonconnect?: boolean }) => {
+export const DappButton = memo(({
+    appKey,
+    url,
+    name,
+    tonconnect
+}: {
+        appKey: string,
+        name?: string | null,
+        url: string,
+        tonconnect?: boolean
+    }
+) => {
     const navigation = useTypedNavigation();
     const appData = useAppData(url);
-    const appManifest = useAppManifest(url);
+    const domain = extractDomain(url);
+    const domainKey = useDomainKey(domain);
+
+    // const removeConnectApp = useRemoveConnectApp();
     const removeExtension = useRemoveExtension();
 
     const app: AppInfo = useMemo(() => {
-        if (appData) {
-            return { ...appData, type: 'app-data' };
-        } else if (appManifest && tonconnect) {
-            return { ...appManifest, type: 'app-manifest' };
+        if (!tonconnect) {
+            return appData ? { ...appData, type: 'app-data' } : null;
         } else {
             return null;
         }
-    }, [appData, appManifest, tonconnect]);
+    }, [appData, tonconnect]);
 
     const title = useMemo(() => {
         if (!app) {
@@ -34,7 +45,7 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
         if (app.type === 'app-data') {
             return app.title;
         } else {
-            return app.name;
+            return '';
         }
     }, [app, name]);
 
@@ -45,21 +56,17 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
         if (app.type === 'app-data') {
             return app.description ?? extractDomain(app.url);
         } else {
-            return extractDomain(app.url);
+            return '';
         }
     }, [app, url]);
 
     const image = useMemo(() => {
         if (appData?.image) {
             return appData.image.preview256;
-        } else if (appManifest?.iconUrl) {
-            return appManifest.iconUrl;
         }
-    }, [appData, appManifest]);
+    }, [appData]);
 
     const onPress = useCallback(() => {
-        let domain = extractDomain(url);
-
         if (!domain) {
             return; // Shouldn't happen
         }
@@ -69,14 +76,13 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
             return;
         }
 
-        const key = getDomainKey(domain);
-        if (!key) {
+        if (!domainKey) {
             navigation.navigate('Install', { url });
             return;
         }
 
         navigation.navigate('App', { url });
-    }, [url, tonconnect]);
+    }, [url, tonconnect, domainKey, app]);
 
     let onRemoveExtension = useCallback((key: string) => {
         Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
@@ -85,21 +91,25 @@ export const DappButton = memo(({ key, url, name, tonconnect }: { key: string, n
             onPress: () => {
                 if (!tonconnect) {
                     removeExtension(key);
+                    return
+                }
+                if (app) {
+                    // TODO
+                    // removeConnectApp(app.url);
                 }
             }
         }]);
-    }, [tonconnect]);
+    }, [tonconnect, app]);
 
     return (
         <AnimatedProductButton
             entering={FadeInUp}
             exiting={FadeOutDown}
-            key={key}
             name={title ?? 'Unknown'}
             subtitle={subtitle}
             image={image}
             value={null}
-            onLongPress={() => onRemoveExtension(key)}
+            onLongPress={() => onRemoveExtension(appKey)}
             onPress={onPress}
             extension={true}
             style={{ marginVertical: 4 }}

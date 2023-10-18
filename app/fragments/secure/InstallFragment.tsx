@@ -21,8 +21,8 @@ import { useAppData } from '../../engine/hooks/dapps/useAppData';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { createDomainKeyIfNeeded } from '../../engine/effects/dapps/createDomainKeyIfNeeded';
 import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
+import { useCreateDomainKeyIfNeeded } from '../../engine/effects/dapps/useCreateDomainKeyIfNeeded';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -37,6 +37,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const addExtension = useAddExtension();
+    const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
 
     // App Data
     let appData = useAppData(props.url);

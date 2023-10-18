@@ -237,21 +237,21 @@ export const Navigation = React.memo(() => {
     React.useEffect(() => {
         let ended = false;
         (async () => {
-            // const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            // if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
-            //     const token = await backoff('navigation', () => registerForPushNotificationsAsync());
-            //     if (token) {
-            //         if (ended) {
-            //             return;
-            //         }
-            //         await backoff('navigation', async () => {
-            //             if (ended) {
-            //                 return;
-            //             }
-            //             await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
-            //         });
-            //     }
-            // }
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
+                const token = await backoff('navigation', () => registerForPushNotificationsAsync());
+                if (token) {
+                    if (ended) {
+                        return;
+                    }
+                    await backoff('navigation', async () => {
+                        if (ended) {
+                            return;
+                        }
+                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
+                    });
+                }
+            }
         })();
         return () => {
             ended = true;

@@ -28,7 +28,7 @@ export const DappButton = memo(({
     const navigation = useTypedNavigation();
     const [inastalledConnectApps,] = useTonConnectExtensions();
     const manifestUrl = useMemo(() => {
-        return inastalledConnectApps.installed?.[appKey]?.manifestUrl;
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);
     const appData = useAppData(url);
     const appManifest = useAppManifest(manifestUrl ?? '');

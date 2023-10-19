@@ -2,6 +2,7 @@ import { memo, useCallback, useMemo } from "react";
 import { AnimatedProductButton } from "./AnimatedProductButton";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useAppData } from "../../../engine/hooks/dapps/useAppData";
+import { useAppManifest } from "../../../engine/hooks/dapps/useAppManifest";
 import { AppInfo } from "../../../components/ConnectedAppButton";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -9,12 +10,14 @@ import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
+import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
+import { useRemoveConnectApp } from "../../../engine/effects/dapps/useRemoveConnectApp";
 
 export const DappButton = memo(({
     appKey,
     url,
     name,
-    tonconnect
+    tonconnect 
 }: {
         appKey: string,
         name?: string | null,
@@ -25,16 +28,15 @@ export const DappButton = memo(({
     const navigation = useTypedNavigation();
     const [inastalledConnectApps,] = useTonConnectExtensions();
     const manifestUrl = useMemo(() => {
-        return inastalledConnectApps?.installed?.[appKey]?.manifestUrl;
+        return inastalledConnectApps.installed?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);
     const appData = useAppData(url);
+    const appManifest = useAppManifest(manifestUrl ?? '');
     const domain = extractDomain(url);
     const domainKey = useDomainKey(domain);
 
-    // const removeConnectApp = useRemoveConnectApp();
+    const removeConnectApp = useRemoveConnectApp();
     const removeExtension = useRemoveExtension();
-    const domain = extractDomain(url);
-    const domainKey = useDomainKey(domain);
 
     const app: AppInfo = useMemo(() => {
         if (!tonconnect) {
@@ -42,7 +44,7 @@ export const DappButton = memo(({
         } else {
             return appManifest ? { ...appManifest, type: 'app-manifest' } : null;
         }
-    }, [appData, tonconnect]);
+    }, [appData, appManifest, tonconnect]);
 
     const title = useMemo(() => {
         if (!app) {
@@ -51,7 +53,7 @@ export const DappButton = memo(({
         if (app.type === 'app-data') {
             return app.title;
         } else {
-            return '';
+            return app.name;
         }
     }, [app, name]);
 
@@ -62,15 +64,17 @@ export const DappButton = memo(({
         if (app.type === 'app-data') {
             return app.description ?? extractDomain(app.url);
         } else {
-            return '';
+            return extractDomain(app.url);
         }
     }, [app, url]);
 
     const image = useMemo(() => {
         if (appData?.image) {
             return appData.image.preview256;
+        } else if (appManifest?.iconUrl) {
+            return appManifest.iconUrl;
         }
-    }, [appData]);
+    }, [appData, appManifest]);
 
     const onPress = useCallback(() => {
         if (!domain) {
@@ -100,8 +104,7 @@ export const DappButton = memo(({
                     return
                 }
                 if (app) {
-                    // TODO
-                    // removeConnectApp(app.url);
+                    removeConnectApp(app.url);
                 }
             }
         }]);

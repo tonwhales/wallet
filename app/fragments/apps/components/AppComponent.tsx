@@ -25,7 +25,8 @@ import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { getCurrentAddress } from '../../../storage/appState';
 import { ConfigStore } from '../../../utils/ConfigStore';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useCreateDomainSignature } from '../../../engine/effects/dapps/useCreateDomainSignature';
+import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
+import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -37,11 +38,12 @@ export const AppComponent = memo((props: {
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const createDomainSignature = useCreateDomainSignature();
-    // 
+    const domain = useMemo(() => extractDomain(props.endpoint), []);
+
+    const domainKey = useDomainKey(domain);
+    //
     // Track events
-    // 
-    const domain = extractDomain(props.endpoint);
+    //
     const navigation = useTypedNavigation();
     const start = useMemo(() => {
         return Date.now();
@@ -135,7 +137,11 @@ export const AppComponent = memo((props: {
         const walletConfig = config.walletConfig;
         const walletType = config.type;
 
-        let domainSign = createDomainSignature(domain);
+        if (!domainKey) {
+            return '';
+        }
+
+        let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource({
             version: 1,
@@ -155,7 +161,7 @@ export const AppComponent = memo((props: {
                 signature: domainSign.subkey.signature
             }
         });
-    }, []);
+    }, [domainKey]);
     const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;

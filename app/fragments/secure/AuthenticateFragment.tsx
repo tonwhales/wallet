@@ -113,7 +113,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 
         const walletConfig = config.walletConfig;
         const walletType = config.type;
-        
         let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
 

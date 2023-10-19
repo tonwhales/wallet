@@ -1,7 +1,8 @@
-import { useRecoilValue } from "recoil";
-import { domainKeys } from "../../state/domainKeys";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { DomainKeysState, domainKeys } from "../../state/domainKeys";
 
-export function useDomainKeys() {
+export function useDomainKeys(): [DomainKeysState, (value: DomainKeysState) => void] {
     const value = useRecoilValue(domainKeys);
-    return value || {};
+    const update = useSetRecoilState(domainKeys);
+    return [(value || {}), update];
 }

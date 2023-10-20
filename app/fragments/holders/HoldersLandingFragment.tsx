@@ -200,6 +200,18 @@ export const HoldersLandingFragment = fragment(() => {
         }
     }, [useOfflineApp, offlineRender]);
 
+    const injectSource = useMemo(() => {
+        return `
+        window['ton-x'] = (() => {
+            let __IS_TON_X = true;
+            const obj = { __IS_TON_X };
+            Object.freeze(obj);
+            return obj;
+        })();
+        true;
+        `
+    }, []);
+
     useLayoutEffect(() => {
         navigation.setOptions({
             headerShown: false
@@ -250,6 +262,7 @@ export const HoldersLandingFragment = fragment(() => {
                         autoManageStatusBarEnabled={false}
                         decelerationRate="normal"
                         allowsInlineMediaPlayback={true}
+                        injectedJavaScriptBeforeContentLoaded={injectSource}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
                         hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
@@ -302,6 +315,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 decelerationRate="normal"
                                 allowsInlineMediaPlayback={true}
                                 onMessage={handleWebViewMessage}
+                                injectedJavaScriptBeforeContentLoaded={injectSource}
                                 keyboardDisplayRequiresUserAction={false}
                                 hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                                 bounces={false}

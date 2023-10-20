@@ -1,6 +1,20 @@
 import { BN } from "bn.js";
 import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "@ton/core";
-import { ConfigState } from "../sync/startConfigSync";
+import { ConfigState } from "../../hooks/useConfig";
+
+function convertToJSONstringifyable(data: any) {
+    if (typeof data === 'bigint') {
+        return data.toString();
+    } else if (typeof data === 'object') {
+        let result: any = {};
+        for (let key in data) {
+            result[key] = convertToJSONstringifyable(data[key]);
+        }
+        return result;
+    } else {
+        return data;
+    }
+}
 
 const gasUsageByOutMsgs: { [key: number]: number } = {
     1: 3308,
@@ -9,15 +23,22 @@ const gasUsageByOutMsgs: { [key: number]: number } = {
     4: 5234
 }
 
-export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], storageStats: ({
-    lastPaid: number;
-    duePayment: string | null;
-    used: {
-        bits: number;
-        cells: number;
-        publicCells: number;
-    }
-} | null)[]) {
+export function estimateFees(
+    config: ConfigState,
+    inMsg: Cell,
+    outMsgs: Cell[],
+    storageStats: ({
+        lastPaid: number;
+        duePayment: string | null;
+        used: {
+            bits: number;
+            cells: number;
+            publicCells: number;
+        }
+    } | null)[]
+) {
+    let parsable = convertToJSONstringifyable(config);
+    parsable = convertToJSONstringifyable(storageStats);
 
     // Storage fees
     let storageFees = BigInt(0);
@@ -35,7 +56,7 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], 
                     publicCells: storageStat.used.publicCells
                 }
             });
-            storageFees = storageFees.add(computed);
+            storageFees = storageFees + computed;
         }
     }
 
@@ -49,14 +70,14 @@ export function estimateFees(config: ConfigState, inMsg: Cell, outMsgs: Cell[], 
 
     // Total
     let total = BigInt(0);
-    total = total.add(storageFees);
-    total = total.add(importFees);
-    total = total.add(gasFees);
+    total += storageFees;
+    total += importFees;
+    total += gasFees;
 
     // Forward fees
     for (let outMsg of outMsgs) {
         let fwdFees = computeMessageForwardFees(config.workchain.message as any, outMsg);
-        total = total.add(fwdFees.fees);
+        total += fwdFees.fees;
     }
     return total;
 }

@@ -27,8 +27,8 @@ import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
-import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
-import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
+import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
+import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
@@ -122,7 +122,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const spamMinAmount = useSpamMinAmount();
-    const dontShowComments = useDontShowComments();
+    const [dontShowComments,] = useDontShowComments();
     const isSpam = useDenyAddress(operation.address);
 
     let spam = useIsSpamWallet(friendlyAddress)

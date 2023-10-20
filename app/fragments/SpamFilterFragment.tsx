@@ -1,7 +1,6 @@
-import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useState } from "react";
-import { Platform, View, Text, ScrollView, Alert } from "react-native";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { Platform, View, Text, ScrollView, Alert, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
@@ -16,9 +15,10 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
 import { useTheme } from '../engine/hooks/useTheme';
-import { useDontShowComments } from '../engine/hooks/useDontShowComments';
-import { useSpamMinAmount } from '../engine/hooks/useSpamMinAmount';
+import { useDontShowComments } from '../engine/hooks/spam/useDontShowComments';
+import { useSpamMinAmount } from '../engine/hooks/spam/useSpamMinAmount';
 import { useDenyList } from '../engine/hooks/contacts/useDenyList';
+import { useRemoveFromDenyList } from "../engine/effects/spam/useRemoveFromDenyList";
 
 export type SpamFilterConfig = {
     minAmount: bigint | null,
@@ -29,63 +29,64 @@ export const SpamFilterFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const dontShow = useDontShowComments();
-    const min = useSpamMinAmount();
+    const [dontShow, setDontShow] = useDontShowComments();
+    const [min, setMinAmount] = useSpamMinAmount();
     const denyMap = useDenyList();
     const denyList = React.useMemo(() => {
         return Object.keys(denyMap);
     }, [denyMap]);
+
     const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
     const [minValue, setMinValue] = useState<string>(fromNano(min));
 
-    const onUnblock = useCallback(
-        async (addr: string) => {
-            const confirmed = await confirmAlert('spamFilter.unblockConfirm');
-            if (confirmed) {
-                try {
-                    let parsed = Address.parseFriendly(addr);
-                    removeFromDenyList(parsed.address);
-                } catch (e) {
-                    console.warn(e);
-                    Alert.alert(t('transfer.error.invalidAddress'));
-                    return;
-                }
-            }
-        }, [denyList]
-    );
+    const removeFromDenyList = useRemoveFromDenyList();
 
-    const onApply = useCallback(
-        async () => {
-            const confirmed = await confirmAlert('spamFilter.applyConfig');
-            if (confirmed) {
-                let value: bigint
-                try {
-                    const validAmount = minValue.replace(',', '.');
-                    value = toNano(validAmount);
-                } catch (e) {
-                    Alert.alert(t('transfer.error.invalidAmount'));
-                    return;
-                }
-                setSpamFilter({
-                    minAmount: value,
-                    dontShowComments: dontShowComments
-                });
-
+    const onUnblock = useCallback(async (addr: string) => {
+        const confirmed = await confirmAlert('spamFilter.unblockConfirm');
+        if (confirmed) {
+            try {
+                let parsed = Address.parseFriendly(addr);
+                removeFromDenyList(parsed.address);
+            } catch {
+                Alert.alert(t('transfer.error.invalidAddress'));
                 return;
             }
+        }
+    }, [removeFromDenyList]);
 
-            setDontShowComments(dontShow);
-            setMinValue(fromNano(min));
-        },
-        [dontShowComments, minValue, min, denyList, dontShow],
-    );
+    const setSpamFilter = useCallback(({ minAmount, dontShowComments }: { minAmount: bigint, dontShowComments: boolean }) => {
+        setMinAmount(minAmount);
+        setDontShowComments(dontShowComments);
+    }, [setDontShow, setMinAmount]);
+
+    const onApply = useCallback(() => {
+        let value: bigint
+        try {
+            const validAmount = minValue.replace(',', '.');
+            value = toNano(validAmount);
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
+        }
+        setSpamFilter({
+            minAmount: value,
+            dontShowComments: dontShowComments
+        });
+    }, [dontShowComments, minValue, min, denyList, dontShow]);
+
+    useEffect(() => {
+        setMinValue(fromNano(min));
+    }, [min]);
 
     useEffect(() => {
         setDontShowComments(dontShow);
-        setMinValue(fromNano(min));
-    }, [min, dontShow]);
+    }, [dontShow]);
 
-    const disabled = dontShowComments === dontShow && minValue === fromNano(min);
+
+    const hasChanges = useMemo(() => {
+        return (dontShowComments !== dontShow)
+            || (minValue !== fromNano(min));
+    }, [dontShowComments, minValue, min, dontShow]);
 
     return (
         <View style={{
@@ -219,14 +220,19 @@ export const SpamFilterFragment = fragment(() => {
                     })}
                 </View>
             </ScrollView>
-            <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton
-                    title={t('common.apply')}
-                    onPress={onApply}
-                    disabled={disabled}
-                    display={disabled ? 'secondary' : 'default'}
-                />
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                keyboardVerticalOffset={16}
+            >
+                <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
+                    <RoundButton
+                        title={t('common.apply')}
+                        onPress={onApply}
+                        disabled={!hasChanges}
+                        display={!hasChanges ? 'secondary' : 'default'}
+                    />
+                </View>
+            </KeyboardAvoidingView>
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

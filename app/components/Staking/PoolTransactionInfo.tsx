@@ -4,7 +4,7 @@ import { View, Text } from "react-native"
 import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
-import { useStakingApy } from '../../engine/hooks/useStakingApy';
+import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
 import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';

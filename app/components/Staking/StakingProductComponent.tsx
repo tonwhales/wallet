@@ -5,8 +5,8 @@ import StakingIcon from '../../../assets/ic_staking.svg';
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
-import { useStaking } from '../../engine/hooks/useStaking';
-import { useStakingApy } from '../../engine/hooks/useStakingApy';
+import { useStaking } from '../../engine/hooks/staking/useStaking';
+import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 

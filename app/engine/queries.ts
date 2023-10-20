@@ -34,4 +34,5 @@ export const Queries = {
         AppData: () => ['apps', url, 'appData'],
     }),
     Job: () => (['job']),
+    APY: () => (['staking', 'apy']),
 }

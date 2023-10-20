@@ -5,7 +5,7 @@ import { contractFromPublicKey, walletConfigFromContract } from "../../contractF
 import { deleteHoldersToken, getHoldersToken, setHoldersToken, useHoldersAccountStatus } from "../../hooks/holders/useHoldersAccountStatus";
 import { useNetwork } from "../../hooks/useNetwork";
 import { useCreateDomainKeyIfNeeded } from "../dapps/useCreateDomainKeyIfNeeded";
-import { useCreateDomainSignature } from "../dapps/useCreateDomainSignature";
+import { createDomainSignature } from "../../utils/createDomainSignature";
 
 export function useHoldersEnroll(
     acc: {
@@ -20,7 +20,6 @@ export function useHoldersEnroll(
 ) {
     const { isTestnet } = useNetwork();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
-    const createDomainSignature = useCreateDomainSignature();
     const status = useHoldersAccountStatus(acc.address);
     return (async () => {
         let res = await (async () => {

@@ -25,8 +25,8 @@ import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { getCurrentAddress } from '../../../storage/appState';
 import { ConfigStore } from '../../../utils/ConfigStore';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useCreateDomainSignature } from '../../../engine/effects/dapps/useCreateDomainSignature';
 import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
+import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -41,10 +41,9 @@ export const AppComponent = memo((props: {
     const domain = useMemo(() => extractDomain(props.endpoint), []);
 
     const domainKey = useDomainKey(domain);
-    const createDomainSignature = useCreateDomainSignature();
-    // 
+    //
     // Track events
-    // 
+    //
     const navigation = useTypedNavigation();
     const start = useMemo(() => {
         return Date.now();

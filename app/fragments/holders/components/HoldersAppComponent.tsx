@@ -30,7 +30,6 @@ import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { usePrimaryCurrency } from '../../../engine/hooks/usePrimaryCurrency';
 import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
-import { useCreateDomainSignature } from '../../../engine/effects/dapps/useCreateDomainSignature';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
@@ -342,11 +341,9 @@ export const HoldersAppComponent = React.memo((
         window.initialState = ${JSON.stringify(initialState)};
         `;
 
-        if (!domainKey) {
-            return initialInjection;
-        }
-
-        let domainSign = createDomainSignature(domain, domainKey);
+        return ''
+        // TODO
+        // let domainSign = createDomainSignature(domain);
 
         return createInjectSource(
             {

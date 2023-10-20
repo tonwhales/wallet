@@ -1,7 +1,5 @@
-import BN from "bn.js"
-import React, { useLayoutEffect } from "react"
+import React, { ReactElement, memo, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-import { ProductButton } from "./ProductButton"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
 import TransactionIcon from '../../../../assets/ic_transaction.svg';
@@ -17,47 +15,44 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
-import { useCurrentJob } from '../../../engine/hooks/useCurrentJob';
+import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
-import { useExtensions } from '../../../engine/hooks/useExtensions';
+import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
 import { useTonConnectExtensions } from '../../../engine/hooks/useTonConnectExtenstions';
 import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnectPendingRequests';
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
-import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { DappButton } from "./DappButton";
+import { Address } from "@ton/core";
 
-export const ProductsComponent = React.memo(() => {
+export const ProductsComponent = memo(({ selected }: {
+    selected: {
+        address: Address;
+        addressString: string;
+        publicKey: Buffer;
+        secretKeyEnc: Buffer;
+        utilityKey: Buffer;
+    }
+}) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalance();
-    const currentJob = useCurrentJob();
+    const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
-    const extensions = useExtensions();
     const ledger = useLedger();
     const cards = useCards();
+
+    const [installedExtensions,] = useExtensions();
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+
     const tonconnectExtensions = useTonConnectExtensions();
     const tonconnectRequests = useTonConnectPendingRequests();
-    const openExtension = React.useCallback((url: string) => {
-        let domain = extractDomain(url);
-        if (!domain) {
-            return; // Shouldn't happen
-        }
-
-        navigation.navigate('Install', { url });
-        // let k = engine.persistence.domainKeys.getValue(domain);
-        // if (!k) {
-        //     navigation.navigate('Install', { url });
-        // } else {
-        //     navigation.navigate('App', { url });
-        // }
-    }, []);
 
     // Resolve accounts
-    let accounts: React.ReactElement[] = [];
+    let accounts: ReactElement[] = [];
     if (oldWalletsBalance > 0n) {
         accounts.push(
             <AnimatedProductButton
@@ -86,17 +81,6 @@ export const ProductsComponent = React.memo(() => {
         }
     }
 
-    let removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: () => {
-                // TODO:
-                // removeExtension(key);
-            }
-        }]);
-    }, []);
-
     const removeLedger = React.useCallback(() => {
         Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
             text: t('common.continue'),
@@ -120,38 +104,24 @@ export const ProductsComponent = React.memo(() => {
 
     for (let e of extensions) {
         apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
+            <DappButton
                 key={e.key}
-                name={e.name}
-                subtitle={e.description ? e.description : e.url}
-                image={e.image?.url}
-                blurhash={e.image?.blurhash}
-                value={null}
-                onLongPress={() => removeExtension(e.key)}
-                onPress={() => openExtension(e.url)}
-                extension={true}
-                style={{ marginVertical: 4 }}
+                appKey={e.key}
+                url={e.url}
+                name={e.title}
+                tonconnect={false}
             />
         );
     }
 
     for (let e of tonconnectExtensions) {
         apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
+            <DappButton
                 key={e.key}
+                appKey={e.key}
+                url={e.url}
                 name={e.name}
-                subtitle={e.url}
-                image={e.image ?? undefined}
-                value={null}
-                onPress={() => {
-                    navigation.navigate('ConnectApp', { url: e.url });
-                }}
-                extension={true}
-                style={{ marginVertical: 4 }}
+                tonconnect={true}
             />
         );
     }
@@ -219,7 +189,7 @@ export const ProductsComponent = React.memo(() => {
     return (
         <View style={{ paddingTop: 8 }}>
             {tonconnect}
-            {currentJob && currentJob.job.type === 'transaction' && (
+            {!!currentJob && currentJob.job.type === 'transaction' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}
@@ -247,7 +217,7 @@ export const ProductsComponent = React.memo(() => {
                     }}
                 />
             )}
-            {currentJob && currentJob.job.type === 'sign' && (
+            {!!currentJob && currentJob.job.type === 'sign' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}

@@ -1,5 +1,4 @@
 import { useQuery } from '@tanstack/react-query';
-import BN from 'bn.js';
 import { Queries } from '../queries';
 import { getLastBlock } from '../accountWatcher';
 import { useClient4 } from './useClient4';

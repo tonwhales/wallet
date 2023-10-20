@@ -1,5 +1,4 @@
-import BN from "bn.js";
-import { Address, Cell } from "@ton/core";
+import { Address } from "@ton/core";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';

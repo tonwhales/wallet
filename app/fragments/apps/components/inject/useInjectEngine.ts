@@ -31,11 +31,11 @@ const signResponseCodec = t.type({
 });
 
 function parseString(slice: Slice) {
-    let res = slice.readBuffer(Math.floor(slice.remaining / 8)).toString();
+    let res = slice.loadBuffer(Math.floor(slice.remainingBits / 8)).toString();
     let rr = slice;
     if (rr.remainingRefs > 0) {
-        rr = rr.readRef();
-        res += rr.readBuffer(Math.floor(rr.remaining / 8)).toString();
+        rr = rr.loadRef().asSlice();
+        res += rr.loadBuffer(Math.floor(rr.remainingBits / 8)).toString();
     }
     return res;
 }

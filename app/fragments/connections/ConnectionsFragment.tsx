@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -16,10 +16,11 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
-import { useExtensions } from '../../engine/hooks/useExtensions';
+import { useExtensions } from '../../engine/hooks/dapps/useExtensions';
 import { useTonConnectExtensions } from '../../engine/hooks/useTonConnectExtenstions';
 import { useLedger } from '../../engine/hooks/useLedger';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useRemoveExtension } from '../../engine/effects/dapps/useRemoveExtension';
 
 type Item = {
     key: string;
@@ -55,12 +56,14 @@ export const ConnectionsFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const extensions = useExtensions();
+    const [installedExtensions,] = useExtensions();
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
     const tonconnectApps = useTonConnectExtensions();
     const ledger = useLedger();
-    let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+    let [apps, setApps] = useState(groupItems(getConnectionReferences()));
+    const removeExtension = useRemoveExtension();
 
-    let disconnectApp = React.useCallback((url: string) => {
+    let disconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
         if (toRemove.length === 0) {
@@ -84,17 +87,15 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    let removeExtension = React.useCallback((key: string) => {
+    let onRemoveExtension = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
-            onPress: () => {
-                engine.products.extensions.removeExtension(key);
-            }
+            onPress: () => removeExtension(key)
         }]);
     }, []);
 
-    let disconnectConnectApp = React.useCallback((key: string) => {
+    let disconnectConnectApp = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
@@ -104,7 +105,7 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    const toggleLedger = React.useCallback(() => {
+    const toggleLedger = useCallback(() => {
         if (!ledger) {
             Alert.alert(
                 t('hardwareWallet.ledger'),
@@ -256,9 +257,9 @@ export const ConnectionsFragment = fragment(() => {
                             {extensions.map((app) => (
                                 <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                                     <ConnectedAppButton
-                                        onRevoke={() => removeExtension(app.key)}
+                                        onRevoke={() => onRemoveExtension(app.key)}
                                         url={app.url}
-                                        name={app.name}
+                                        name={app.title}
                                     />
                                 </View>
                             ))}

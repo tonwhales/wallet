@@ -10,7 +10,8 @@ import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
 import { useTheme } from '../../../../engine/hooks/useTheme';
-import { useAppData } from '../../../../engine/hooks/useAppData';
+import { useAppData } from '../../../../engine/hooks/dapps/useAppData';
+import { useNetwork } from "../../../../engine/hooks/useNetwork";
 
 export const ReviewComponent = React.memo(({ url }: { url: string }) => {
     const theme = useTheme();
@@ -69,7 +70,8 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
         (async () => {
             setLoading(true);
             try {
-                const reviewRes = await fetchExtensionReview(engine.address, url, engine.isTestnet);
+                const selectedAddress = getCurrentAddress();
+                const reviewRes = await fetchExtensionReview(selectedAddress.address, url, isTestnet);
                 if (reviewRes) {
                     setRating(reviewRes.rating);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);

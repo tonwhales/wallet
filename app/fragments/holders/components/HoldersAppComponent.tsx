@@ -7,7 +7,7 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { walletConfigFromContract, contractFromPublicKey, walletContactType } from '../../../engine/contractFromPublicKey';
+import { walletConfigFromContract, contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
@@ -39,6 +39,7 @@ import { getHoldersToken, useHoldersAccountStatus } from '../../../engine/hooks/
 import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
 import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
 import { useHoldersCards } from '../../../engine/hooks/holders/useHoldersCards';
+import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -218,7 +219,6 @@ export const HoldersAppComponent = React.memo((
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
     const cards = useHoldersCards(acc.address.toString({ testOnly: isTestnet })).data;
     const domainKey = useDomainKey(domain);
-    const createDomainSignature = useCreateDomainSignature();
 
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
@@ -341,9 +341,11 @@ export const HoldersAppComponent = React.memo((
         window.initialState = ${JSON.stringify(initialState)};
         `;
 
-        return ''
-        // TODO
-        // let domainSign = createDomainSignature(domain);
+        if (!domainKey) {
+            return initialInjection;
+        }
+
+        let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource(
             {
@@ -518,7 +520,7 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: theme.item, flex: 1 }}>
-                {useOfflineApp ? (
+                {useOfflineApp ? ( // TODO
                     <>
                         {/* <OfflineWebView
                             key={`offline-rendered-${offlineRender}`}

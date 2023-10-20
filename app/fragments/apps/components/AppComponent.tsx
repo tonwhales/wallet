@@ -23,7 +23,6 @@ import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { getCurrentAddress } from '../../../storage/appState';
-import { ConfigStore } from '../../../utils/ConfigStore';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';

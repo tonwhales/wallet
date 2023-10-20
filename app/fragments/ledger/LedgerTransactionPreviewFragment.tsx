@@ -36,7 +36,7 @@ import { Body } from '../../engine/legacy/Transaction';
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();

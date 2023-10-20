@@ -20,7 +20,7 @@ import { PendingTransactionAvatar } from '../../../components/PendingTransaction
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSpamMinAmount } from '../../../engine/hooks/spam/useSpamMinAmount';
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAddToDenyList } from '../../../engine/effects/spam/useAddToDenyList';

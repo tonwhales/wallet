@@ -20,6 +20,7 @@ export const Queries = {
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
     Config: () => ['config'],
+    ServerConfig: () => ['serverConfig'],
 
     Hints: (address: string) => (['hints', address]),
     Cloud: (address: string) => ({

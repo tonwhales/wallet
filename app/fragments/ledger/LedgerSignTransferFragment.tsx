@@ -50,7 +50,7 @@ import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useLedgerAccount } from '../../engine/hooks/useLedgerAccount';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useConfig } from '../../engine/hooks/useConfig';

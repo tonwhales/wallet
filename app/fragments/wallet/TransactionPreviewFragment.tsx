@@ -30,7 +30,7 @@ import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TxBody } from '../../engine/legacy/Transaction';
 import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';

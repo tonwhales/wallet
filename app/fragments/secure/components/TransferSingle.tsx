@@ -30,7 +30,7 @@ import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';

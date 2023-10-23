@@ -202,9 +202,8 @@ export const HoldersLandingFragment = fragment(() => {
 
     const injectSource = useMemo(() => {
         return `
-        window['ton-x'] = (() => {
-            let __IS_TON_X = true;
-            const obj = { __IS_TON_X };
+        window['tonhub'] = (() => {
+            const obj = {};
             Object.freeze(obj);
             return obj;
         })();

@@ -2605,10 +2605,10 @@
     teslabot "^1.5.0"
     ton-crypto "^3.2.0"
 
-"@ton/core@^0.52.2":
-  version "0.52.2"
-  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.52.2.tgz#bec763fda9164ac831fdaa45cf86135d8394d5ef"
-  integrity sha512-h7ILb3XIrZ+tZ4sqTBORna3HVaVnSjhc6gGQY11yKeDBRrhIXO7wdlpk7IICwpUndbWB9YzgmXXLDvtpoIixTg==
+"@ton/core@^0.53.0":
+  version "0.53.0"
+  resolved "https://registry.yarnpkg.com/@ton/core/-/core-0.53.0.tgz#9a2c101c4d2f48d0c9ec0e889b067da72d914df1"
+  integrity sha512-tB5RxXFS6Z/ivmsqMn/eebEZmkWXIAz+hS1PDZXhbBkcvnBTknZ12g2AFrZtXyuvpm8O6SbL15UI/3NgkyIWzQ==
   dependencies:
     symbol.inspect "1.0.1"
 
@@ -2628,10 +2628,10 @@
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-"@ton/ton@^13.7.0":
-  version "13.7.0"
-  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.7.0.tgz#ec2876e2c66eab7f68855d91b8573cca16b04beb"
-  integrity sha512-7ejZTmMwWTQH5hW/jVSnh6SFwsdl2Ul9dxpKchVLB6nYsSzPkAq9bV9zav9zMFyWTS1+vkVzjAwyeXeKUx1Y0Q==
+"@ton/ton@^13.8.0":
+  version "13.8.0"
+  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.8.0.tgz#c1d772948db91183af4a12c1b559dd48ee08b15a"
+  integrity sha512-e9skTvAVOdyaWU+iUD9daiGHCU6HvOuGenAEbX03zoS4bvzVFUsxxbIhm2dHvf+YNdugP954H0ouVGd3GcTCbQ==
   dependencies:
     axios "^0.25.0"
     dataloader "^2.0.0"

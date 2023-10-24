@@ -1,7 +1,6 @@
-import BN from "bn.js";
-import React from "react";
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, CommonMessageInfo, fromNano, SendMode, StateInit, toNano } from "@ton/core";
+import { Address, Cell, comment, fromNano, internal, loadStateInit, SendMode, external, storeMessage, beginCell } from "@ton/core";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
 import { Order } from "../../../fragments/secure/ops/Order";
@@ -14,16 +13,6 @@ import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
-import Contact from '../../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../../assets/ic_verified.svg';
-import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../../assets/ic_sign_staking.svg';
-import Question from '../../../../assets/ic_question.svg';
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
@@ -43,7 +32,6 @@ import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddr
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
-import { parseBody } from '../../../engine/legacy/transactions/parseWalletTransaction';
 import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
 import { useClient4 } from '../../../engine/hooks/useClient4';
@@ -52,6 +40,20 @@ import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
+import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
+import { holdersUrl } from "../../../engine/legacy/holders/HoldersProduct";
+import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
+
+import TonSign from '../../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
+import Contact from '../../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../../assets/ic_verified.svg';
+import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
+import WithStateInit from '../../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
+import Staking from '../../../../assets/ic_sign_staking.svg';
+import Question from '../../../../assets/ic_question.svg';
 
 type Props = {
     target: {
@@ -72,14 +74,15 @@ type Props = {
     back?: number
 }
 
-export const TransferSingle = React.memo((props: Props) => {
+export const TransferSingle = memo((props: Props) => {
     const authContext = useKeysAuth();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString);
+    const account = useAccountLite(selected!.addressString);
+    const commitCommand = useCommitCommand();
 
     const {
         restricted,
@@ -98,7 +101,7 @@ export const TransferSingle = React.memo((props: Props) => {
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
-    const jettonAmount = React.useMemo(() => {
+    const jettonAmount = useMemo(() => {
         try {
             if (jettonMaster && order.messages[0].payload) {
                 const temp = order.messages[0].payload;
@@ -118,8 +121,8 @@ export const TransferSingle = React.memo((props: Props) => {
     }, [order]);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
             trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
         }
@@ -144,7 +147,7 @@ export const TransferSingle = React.memo((props: Props) => {
 
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
+    const doSend = useCallback(async () => {
         async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
                 Alert.alert(t(title), t('transfer.confirm'), [{
@@ -213,27 +216,34 @@ export const TransferSingle = React.memo((props: Props) => {
             return;
         }
 
-        let seqno = await backoff('transfer', async () => fetchSeqno(client, await getLastBlock(), selected.address));
+        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), selected!.address));
 
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = await contract.createTransfer({
+            const internalStateInit = !!order.messages[0].stateInit
+                ? loadStateInit(order.messages[0].stateInit.asSlice())
+                : null;
+
+            const body = !!order.messages[0].payload
+                ? order.messages[0].payload
+                : text ? comment(text) : null;
+
+            let intMessage = internal({
+                to: target.address,
+                value: order.messages[0].amount,
+                init: internalStateInit,
+                bounce,
+                body,
+            });
+
+            transfer = contract.createTransfer({
                 seqno: seqno,
-                walletId: contract.source.walletId,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: order.messages[0].amountAll
                     ? SendMode.CARRY_ALL_REMAINING_BALANCE
                     : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
-                order: new InternalMessage({
-                    to: target.address,
-                    value: order.messages[0].amount,
-                    bounce,
-                    body: new CommonMessageInfo({
-                        stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                        body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
-                    })
-                })
+                messages: [intMessage],
             });
         } catch (e) {
             warn('Failed to create transfer');
@@ -241,29 +251,27 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Create external message
-        let extMessage = new ExternalMessage({
+        const extMessage = external({
             to: contract.address,
-            body: new CommonMessageInfo({
-                stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                body: new CellMessage(transfer)
-            })
+            body: transfer,
+            init: seqno === 0 ? contract.init : undefined
         });
-        let msg = new Cell();
-        extMessage.writeTo(msg);
+
+        let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
         // Sending transaction
         await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
-        // TODO:
-        // if (job) {
-        //     await engine.products.apps.commitCommand(true, job, transfer);
-        // }
+        if (job) {
+            await commitCommand(true, job, transfer);
+        }
 
         // Notify callback
         if (callback) {
             try {
-                callback(true, transfer);
+                -
+                    callback(true, transfer);
             } catch (e) {
                 warn(e);
                 // Ignore on error
@@ -302,22 +310,19 @@ export const TransferSingle = React.memo((props: Props) => {
         }
     }, []);
 
-    const anim = React.useRef<LottieView>(null);
+    const anim = useRef<LottieView>(null);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         setTimeout(() => {
             anim.current?.play()
         }, 300);
     }, []);
 
-    const inactiveAlert = React.useCallback(
-        () => {
-            Alert.alert(t('transfer.error.addressIsNotActive'),
-                t('transfer.error.addressIsNotActiveDescription'),
-                [{ text: t('common.gotIt') }])
-        },
-        [],
-    );
+    const inactiveAlert = useCallback(() => {
+        Alert.alert(t('transfer.error.addressIsNotActive'),
+            t('transfer.error.addressIsNotActiveDescription'),
+            [{ text: t('common.gotIt') }])
+    }, []);
 
 
     return (

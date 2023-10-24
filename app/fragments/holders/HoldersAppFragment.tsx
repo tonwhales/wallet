@@ -6,12 +6,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersStatus } from '../../engine/hooks/useHoldersStatus';
 import { holdersUrl } from '../../engine/legacy/holders/HoldersProduct';
 import { useTheme } from '../../engine/hooks/useTheme';
+import { useDomainKey } from '../../engine/hooks/dapps/useDomainKey';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -21,17 +22,17 @@ export const HoldersAppFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const status = useHoldersStatus();
+    const domain = extractDomain(holdersUrl);
+    const domainKey = useDomainKey(domain);
 
     const needsEnrollment = useMemo(() => {
         try {
-            let domain = extractDomain(holdersUrl);
             if (!domain) {
                 return; // Shouldn't happen
             }
-            // let domainKey = getDomainKey(domain);
-            // if (!domainKey) {
-            //     return true;
-            // }
+            if (!domainKey) {
+                return true;
+            }
             if (status.state === 'need-enrolment') {
                 return true;
             }
@@ -39,9 +40,9 @@ export const HoldersAppFragment = fragment(() => {
             return true;
         }
         return false;
-    }, [status]);
+    }, [status, domainKey]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (needsEnrollment) {
             navigation.goBack();
         }

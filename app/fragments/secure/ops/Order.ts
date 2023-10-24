@@ -1,5 +1,6 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, comment } from "@ton/core";
+import { OperationType } from "../../../engine/transactions/parseMessageBody";
 /// mport { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
@@ -58,7 +59,7 @@ export function createLedgerJettonOrder(args: {
     //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
     //              = InternalMsgBody;
     const msg = beginCell()
-        .storeUint(0xf8a7ea5, 32)
+        .storeUint(OperationType.JettonTransfer, 32)
         .storeUint(0, 64)
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))
@@ -198,7 +199,7 @@ export function createJettonOrder(args: {
     //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
     //              = InternalMsgBody;
     const msg = beginCell()
-        .storeUint(0xf8a7ea5, 32)
+        .storeUint(OperationType.JettonTransfer, 32)
         .storeUint(0, 64)
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))

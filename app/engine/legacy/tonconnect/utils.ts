@@ -26,35 +26,6 @@ export function verifyConnectRequest(request: ConnectRequest) {
   }
 }
 
-export const tonConnectTransactionCallback = (
-  ok: boolean,
-  result: Cell | null,
-  request: { from: string } & SendTransactionRequest,
-  sessionCrypto: SessionCrypto,
-  engine: Engine
-) => {
-  if (!ok) {
-    sendTonConnectResponse({
-      response: new SendTransactionError(
-        request.id,
-        SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-        'Wallet declined the request',
-      ),
-      sessionCrypto,
-      clientSessionId: request.from
-    });
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    return;
-  }
-
-  sendTonConnectResponse({
-    response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
-    sessionCrypto,
-    clientSessionId: request.from
-  });
-  engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-}
-
 export const prepareTonConnectRequest = (request: { from: string } & SendTransactionRequest, engine: Engine) => {
   const params = JSON.parse(request.params[0]) as SignRawParams;
 

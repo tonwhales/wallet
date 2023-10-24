@@ -5,7 +5,7 @@ import { Queries } from '../queries';
 import { useClient4 } from './useClient4';
 import { useNetwork } from './useNetwork';
 
-type ConfigState = {
+export type ConfigState = {
     storage: StoragePrices[],
     masterchain: {
         gas: {
@@ -20,7 +20,7 @@ type ConfigState = {
             firstFrac: number;
         }
     },
-    rootDnsAddress: string | null,
+    rootDnsAddress: string,
     workchain: {
         gas: {
             flatLimit: bigint,
@@ -93,8 +93,10 @@ export function useConfig() {
     const { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
 
-    return useQuery({
+    const query = useQuery({
         queryKey: Queries.Config(),
         queryFn: fetchConfigQueryFn(client, isTestnet),
     });
+
+    return query.data || null;
 }

@@ -8,6 +8,8 @@ import { AppManifest } from '../engine/api/fetchManifest';
 import { useAppData } from '../engine/hooks/dapps/useAppData';
 import { useAppManifest } from '../engine/hooks/dapps/useAppManifest';
 import { extractDomain } from '../engine/utils/extractDomain';
+import { useTonConnectExtensions } from "../engine/hooks/dapps/useTonConnectExtenstions";
+import { extensionKey } from "../engine/legacy/products/ExtensionsProduct";
 
 export type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
@@ -24,7 +26,12 @@ export const ConnectedAppButton = memo(({
 }) => {
     const theme = useTheme();
     const appData = useAppData(url);
-    const appManifest = useAppManifest(url);
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const appKey = extensionKey(url)
+    const manifestUrl = useMemo(() => {
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
+    }, [inastalledConnectApps, appKey]);
+    const appManifest = useAppManifest(manifestUrl ?? '');
     
     const app: AppInfo = useMemo(() => {
         if (appData) {

@@ -7,7 +7,7 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { walletConfigFromContract, contractFromPublicKey, walletContactType } from '../../../engine/contractFromPublicKey';
 import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
@@ -33,6 +33,7 @@ import { useHoldersStatus } from '../../../engine/hooks/useHoldersStatus';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { ConfigStore } from '../../../utils/ConfigStore';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -207,11 +208,12 @@ export const HoldersAppComponent = React.memo((
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const status = useHoldersStatus();
+    const createDomainSignature = useCreateDomainSignature();
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
-    const { address, publicKey } = useSelectedAccount();
+    const selectedAccount = useSelectedAccount();
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
@@ -292,9 +294,16 @@ export const HoldersAppComponent = React.memo((
     // Injection
     //
     const injectSource = useMemo(() => {
-        const contract = contractFromPublicKey(publicKey);
-        const walletConfig = contract.source.backup();
-        const walletType = contract.source.type;
+        if (!selectedAccount) {
+            throw new Error('No account selected');
+        }
+
+        const contract = contractFromPublicKey(selectedAccount.publicKey);
+        const config = walletConfigFromContract(contract);
+
+        const walletConfig = config.walletConfig;
+        const walletType = config.type;
+
         const domain = extractDomain(props.endpoint);
 
         // TODO
@@ -332,8 +341,8 @@ export const HoldersAppComponent = React.memo((
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
                 network: isTestnet ? 'testnet' : 'mainnet',
-                address: address.toString({ testOnly: isTestnet }),
-                publicKey: publicKey.toString('base64'),
+                address: selectedAccount.address.toString({ testOnly: isTestnet }),
+                publicKey: selectedAccount.publicKey.toString('base64'),
                 walletConfig,
                 walletType,
                 signature: domainSign.signature,

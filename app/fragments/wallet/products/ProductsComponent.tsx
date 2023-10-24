@@ -1,4 +1,4 @@
-import React, { ReactElement, memo, useLayoutEffect } from "react"
+import React, { ReactElement, memo, useCallback, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';
@@ -19,13 +19,14 @@ import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
-import { useTonConnectExtensions } from '../../../engine/hooks/useTonConnectExtenstions';
-import { useTonConnectPendingRequests } from '../../../engine/hooks/useTonConnectPendingRequests';
+import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
 import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { prepareTonConnectRequest } from '../../../engine/legacy/tonconnect/utils';
 import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
+import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
+import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
+import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -46,10 +47,14 @@ export const ProductsComponent = memo(({ selected }: {
     const cards = useCards();
 
     const [installedExtensions,] = useExtensions();
-    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const [inastalledConnectApps,] = useTonConnectExtensions();
 
-    const tonconnectExtensions = useTonConnectExtensions();
-    const tonconnectRequests = useTonConnectPendingRequests();
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const tonconnectExtensions = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
+    const [tonconnectRequests,] = useConnectPendingRequests();
+    const prepareTonConnectRequest = usePrepareConnectRequest();
+    const connectCallback = useConnectCallback();
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -81,7 +86,7 @@ export const ProductsComponent = memo(({ selected }: {
         }
     }
 
-    const removeLedger = React.useCallback(() => {
+    const removeLedger = useCallback(() => {
         Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
             text: t('common.continue'),
             style: 'destructive',
@@ -93,7 +98,7 @@ export const ProductsComponent = memo(({ selected }: {
     }, []);
 
     // Resolve apps
-    let apps: React.ReactElement[] = [];
+    let apps: ReactElement[] = [];
 
     if (isTestnet) {
         cards.map((c) => {
@@ -168,13 +173,13 @@ export const ProductsComponent = memo(({ selected }: {
                             text: null,
                             order: {
                                 messages: prepared.messages,
-                                app: (prepared.app && prepared.app.connectedApp) ? {
-                                    title: prepared.app.connectedApp.name,
-                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                app: (prepared.app && prepared.app) ? {
+                                    title: prepared.app.name,
+                                    domain: extractDomain(prepared.app.url),
                                 } : undefined
                             },
                             job: null,
-                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                            callback: (ok, result) => connectCallback(ok, result, prepared.request, prepared.sessionCrypto)
                         })
                     }}
                 />

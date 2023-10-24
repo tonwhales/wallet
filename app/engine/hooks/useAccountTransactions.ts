@@ -90,7 +90,12 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
 }
 
 
-export function useAccountTransactions(client: TonClient4, account: string): { data: TransactionDescription[], next: () => void, } | null {
+export function useAccountTransactions(client: TonClient4, account: string): {
+    data: TransactionDescription[],
+    next: () => void,
+    hasNext: boolean,
+    loading: boolean
+} | null {
     let raw = useRawAccountTransactions(client, account);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
@@ -158,5 +163,7 @@ export function useAccountTransactions(client: TonClient4, account: string): { d
             console.log('next called');
             raw!.fetchNextPage();
         },
+        hasNext: !!raw.hasNextPage,
+        loading: raw.isFetching
     }
 }

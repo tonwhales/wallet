@@ -1,6 +1,6 @@
-import { BN } from "bn.js";
-import { Cell, computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "@ton/core";
+import { Cell } from "@ton/core";
 import { ConfigState } from "../../hooks/useConfig";
+import { computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "@ton/ton";
 
 function convertToJSONstringifyable(data: any) {
     if (typeof data === 'bigint') {

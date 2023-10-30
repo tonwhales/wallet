@@ -32,7 +32,6 @@ export const ConnectedAppButton = memo(({
         return inastalledConnectApps?.[appKey]?.manifestUrl;
     }, [inastalledConnectApps, appKey]);
     const appManifest = useAppManifest(manifestUrl ?? '');
-
     const app: AppInfo = useMemo(() => {
         if (appData) {
             return { ...appData, type: 'app-data' };

@@ -30,9 +30,5 @@ export const Queries = {
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],
     }),
-    Domains: (domain: string) => ({
-        Key: () => ['domain', domain, 'key'],
-        Signrature: () => ['domain', domain, 'signature'],
-    }),
     Job: () => (['job']),
 }

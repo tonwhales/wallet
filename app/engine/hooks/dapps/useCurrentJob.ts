@@ -45,7 +45,7 @@ const jobResponseCodec = z.union([
     })
 ]);
 
-async function fetchJob(): Promise<string | null> {
+export async function fetchJob(): Promise<string | null> {
     let keypair = await getAppInstanceKeyPair();
     let key = keypair.publicKey.toString('base64').replace(/\//g, '_')
         .replace(/\+/g, '-')

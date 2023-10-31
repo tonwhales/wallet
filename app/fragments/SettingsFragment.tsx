@@ -7,7 +7,6 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
-import { ProfileComponent } from './profile/ProfileComponent';
 import BN from 'bn.js';
 import { useOldWalletsBalance } from '../engine/hooks/useOldWalletsBalance';
 import { useTheme } from '../engine/hooks/useTheme';
@@ -105,9 +104,6 @@ export const SettingsFragment = fragment(() => {
                     marginBottom: 52 + safeArea.bottom
                 }}
             >
-                {__DEV__ && (
-                    <ProfileComponent address={account.address} />
-                )}
                 <View style={{
                     marginBottom: 16, marginTop: 17,
                     backgroundColor: theme.item,

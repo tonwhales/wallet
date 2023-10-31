@@ -3,7 +3,6 @@ import { Alert } from 'react-native';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
-import BN from 'bn.js';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();

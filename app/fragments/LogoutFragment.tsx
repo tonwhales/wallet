@@ -15,10 +15,10 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useTheme } from '../engine/hooks/useTheme';
 import { Address } from "@ton/core";
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
-import { holdersUrl } from '../engine/legacy/holders/HoldersProduct';
 import { useNetwork } from '../engine/hooks/useNetwork';
 
 export function clearHolders(isTestnet: boolean, address?: Address) {
+    // TODO
     // const holdersDomain = extractDomain(holdersUrl);
     // engine.products.holders.stopWatching();
     // engine.persistence.domainKeys.setValue(

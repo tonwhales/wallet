@@ -19,6 +19,9 @@ import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
+import { fetchJob } from '../engine/hooks/dapps/useCurrentJob';
+import { Cell } from '@ton/core';
+import { parseJob } from '../engine/legacy/apps/parseJob';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -37,53 +40,63 @@ export const HomeFragment = fragment(() => {
                 (async () => {
                     try {
                         await backoff('home', async () => {
-                            let existing = await engine.products.apps.fetchJob();
-                            if (!existing) {
+                            let fetched = await fetchJob();
+                            if (!fetched) {
                                 return;
                             }
 
-                            if (existing.job.job.type === 'transaction') {
+                            const jobCell = Cell.fromBoc(Buffer.from(fetched, 'base64'))[0];
+                            const parsed = parseJob(jobCell.beginParse());
+
+                            if (!parsed) {
+                                return;
+                            }
+
+                            const existing = { ...parsed, jobCell, raw: fetched };
+
+
+                            if (existing.job.type === 'transaction') {
                                 try {
                                     SplashScreen.hideAsync();
                                 } catch (e) {
                                     // Ignore
                                 }
-                                if (existing.job.job.payload) {
+                                if (existing.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {
                                             messages: [{
-                                                target: existing.job.job.target.toString({ testOnly: isTestnet }),
-                                                amount: existing.job.job.amount,
+                                                target: existing.job.target.toString({ testOnly: isTestnet }),
+                                                amount: existing.job.amount,
                                                 amountAll: false,
-                                                payload: existing.job.job.payload,
-                                                stateInit: existing.job.job.stateInit,
+                                                payload: existing.job.payload,
+                                                stateInit: existing.job.stateInit,
                                             }]
                                         },
-                                        text: existing.job.job.text,
+                                        text: existing.job.text,
                                         job: existing.raw,
                                         callback: null
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
-                                        target: existing.job.job.target.toString({ testOnly: isTestnet }),
-                                        comment: existing.job.job.text,
-                                        amount: existing.job.job.amount,
-                                        stateInit: existing.job.job.stateInit,
+                                        target: existing.job.target.toString({ testOnly: isTestnet }),
+                                        comment: existing.job.text,
+                                        amount: existing.job.amount,
+                                        stateInit: existing.job.stateInit,
                                         job: existing.raw,
                                         jetton: null,
                                         callback: null
                                     })
                                 }
                             }
-                            if (existing.job.job.type === 'sign') {
-                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.job.key));
+                            if (existing.job.type === 'sign') {
+                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.key));
                                 if (!connection) {
                                     return; // Just in case
                                 }
                                 navigation.navigateSign({
-                                    text: existing.job.job.text,
-                                    textCell: existing.job.job.textCell,
-                                    payloadCell: existing.job.job.payloadCell,
+                                    text: existing.job.text,
+                                    textCell: existing.job.textCell,
+                                    payloadCell: existing.job.payloadCell,
                                     job: existing.raw,
                                     callback: null,
                                     name: connection.name

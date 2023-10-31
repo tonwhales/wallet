@@ -10,9 +10,9 @@ import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersStatus } from '../../engine/hooks/useHoldersStatus';
-import { holdersUrl } from '../../engine/legacy/holders/HoldersProduct';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useDomainKey } from '../../engine/hooks/dapps/useDomainKey';
+import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 

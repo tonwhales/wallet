@@ -41,7 +41,6 @@ import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
-import { holdersUrl } from "../../../engine/legacy/holders/HoldersProduct";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 
 import TonSign from '../../../../assets/ic_ton_sign.svg';
@@ -54,6 +53,7 @@ import WithStateInit from '../../../../assets/ic_sign_contract.svg';
 import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../../assets/ic_sign_staking.svg';
 import Question from '../../../../assets/ic_question.svg';
+import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 
 type Props = {
     target: {

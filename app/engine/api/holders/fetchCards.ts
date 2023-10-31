@@ -1,7 +1,7 @@
 import axios from "axios";
-import { holdersEndpoint } from "../../legacy/holders/HoldersProduct";
 import { Address } from "@ton/core";
 import { z } from "zod";
+import { holdersEndpoint } from "./fetchAccountState";
 
 const publicCardSchema = z.object({
   id: z.string(),

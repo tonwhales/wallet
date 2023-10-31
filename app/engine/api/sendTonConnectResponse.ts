@@ -1,7 +1,7 @@
 import { Base64, ConnectEvent, DisconnectEvent, hexToByteArray, RpcMethod, SessionCrypto, WalletResponse } from "@tonconnect/protocol";
 import axios from "axios";
 import { warn } from "../../utils/log";
-import { bridgeUrl } from "../legacy/products/ConnectProduct";
+import { bridgeUrl } from "../tonconnectWatcher";
 
 export const defaultTtl = 300;
 

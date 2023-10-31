@@ -26,10 +26,11 @@ import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/staking/CalculatorButton";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useStakingPool } from '../../engine/hooks/useStakingPool';
-import { useStaking } from '../../engine/hooks/useStaking';
-import { useStakingChart } from '../../engine/hooks/useStakingChart';
+import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
+import { useStaking } from '../../engine/hooks/staking/useStaking';
+import { useStakingChart } from '../../engine/hooks/staking/useStakingChart';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { getCurrentAddress } from "../../storage/appState";
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -37,12 +38,13 @@ export const StakingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
+    const acc = useMemo(() => getCurrentAddress(), []);
     const target = Address.parse(params.pool);
     const pool = useStakingPool(target);
     const poolParams = pool?.params;
     const member = pool?.member;
     const staking = useStaking();
-    const stakingChart = useStakingChart(target);
+    const stakingChart = useStakingChart(target, acc.address);
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(isTestnet)[params.pool].name.toLowerCase().includes('club')) {

@@ -1,42 +1,42 @@
 import axios from "axios";
-import * as t from "io-ts";
 import { holdersEndpoint } from "../../legacy/holders/HoldersProduct";
 import { Address } from "@ton/core";
+import { z } from "zod";
 
-export const cardListPublicCodec = t.union([
-  t.type({
-    ok: t.literal(true),
-    accounts: t.array(
-      t.type({
-        id: t.string,
-        address: t.string,
-        state: t.string,
-        balance: t.string,
-        card: t.type({
-          lastFourDigits: t.union([t.string, t.undefined, t.null]),
-          productId: t.string,
-          personalizationCode: t.string,
-          provider: t.string,
-          kind: t.string,
-          tzOffset: t.number
-        }),
-        contract: t.string
-      })
-    ),
+const publicCardSchema = z.object({
+  id: z.string(),
+  address: z.string(),
+  state: z.string(),
+  balance: z.string(),
+  card: z.object({
+    lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
+    productId: z.string(),
+    personalizationCode: z.string(),
+    provider: z.string(),
+    kind: z.string(),
+    tzOffset: z.number()
   }),
-  t.type({
-    ok: t.literal(false),
-    error: t.string,
+  contract: z.string()
+});
+
+export const cardListPublicSchema = z.union([
+  z.object({
+    ok: z.literal(true),
+    accounts: z.array(publicCardSchema),
+  }),
+  z.object({
+    ok: z.literal(false),
+    error: z.string(),
   }),
 ]);
 
-export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
+export async function fetchCardsPublic(address: string | Address, isTestnet: boolean) {
   let res = await axios.post(
     'https://' + holdersEndpoint + '/public/cards',
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
-      address: address.toString({ testOnly: isTestnet })
+      address: (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address
     },
     {
       headers: {
@@ -52,7 +52,7 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
     return null;
   }
 
-  if (!cardListPublicCodec.is(res.data)) {
+  if (!cardListPublicSchema.safeParse(res.data).success) {
     throw Error("Invalid card list response");
   }
 
@@ -60,7 +60,7 @@ export async function fetchCardsPublic(address: Address, isTestnet: boolean) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  return res.data.accounts;
+  return res.data.accounts as HoldersCard[];
 }
 
 export enum CardStatus {
@@ -71,77 +71,67 @@ export enum CardStatus {
   DELIVERED = 'DELIVERED',
 }
 
-export type CardDelivery = {
-  id: string,
-  status: CardStatus,
-  countryCode: string,
-  address: string,
-  postalCode: string | undefined | null,
-  apartment: string | undefined | null,
-  floor: string | undefined | null,
-  phone: string,
-  email: string,
-  trackNumber: string | undefined | null,
-  deliveryMethod: string
-}
+export type CardDelivery = z.infer<typeof cardDeliverySchema>;
 
-export const cardDeliveryCodec = t.type({
-  id: t.string,
-  status: t.union([
-    t.literal(CardStatus.PENDING),
-    t.literal(CardStatus.ORDERED),
-    t.literal(CardStatus.PERSONALIZED),
-    t.literal(CardStatus.DISPATCHED),
-    t.literal(CardStatus.DELIVERED),
-  ]),
-  countryCode: t.string,
-  address: t.string,
-  postalCode: t.union([t.string, t.undefined, t.null]),
-  apartment: t.union([t.string, t.undefined, t.null]),
-  floor: t.union([t.string, t.undefined, t.null]),
-  phone: t.string,
-  email: t.string,
-  trackNumber: t.union([t.string, t.undefined, t.null]),
-  deliveryMethod: t.string
-});
-
-export type CardsList = t.TypeOf<typeof cardsListCodec>
-
-export const cardsListCodec = t.type({
-  accounts: t.array(
-    t.type({
-      id: t.string,
-      address: t.string,
-      state: t.string,
-      balance: t.string,
-      card: t.type({
-        lastFourDigits: t.union([t.string, t.undefined, t.null]),
-        productId: t.string,
-        personalizationCode: t.string,
-        provider: t.string,
-        kind: t.string,
-        tzOffset: t.number
-      }),
-      contract: t.string,
-      limits: t.type({
-        tzOffset: t.number,
-        onetime: t.string,
-        daily: t.string,
-        dailySpent: t.string,
-        monthly: t.string,
-        monthlySpent: t.string,
-        dailyDeadline: t.number,
-        monthlyDeadline: t.number
-      }),
-      delivery: t.union([cardDeliveryCodec, t.null])
-    })
-  ),
-});
-
-export const cardsListResCodec = t.intersection([
-  t.type({ ok: t.literal(true) }),
-  cardsListCodec
+const cardDeliveryStatusSchema = z.union([
+  z.literal(CardStatus.PENDING),
+  z.literal(CardStatus.ORDERED),
+  z.literal(CardStatus.PERSONALIZED),
+  z.literal(CardStatus.DISPATCHED),
+  z.literal(CardStatus.DELIVERED),
 ]);
+
+const cardDeliverySchema = z.object({
+  id: z.string(),
+  status: cardDeliveryStatusSchema,
+  countryCode: z.string(),
+  address: z.string(),
+  postalCode: z.union([z.string(), z.undefined(), z.null()]),
+  apartment: z.union([z.string(), z.undefined(), z.null()]),
+  floor: z.union([z.string(), z.undefined(), z.null()]),
+  phone: z.string(),
+  email: z.string(),
+  trackNumber: z.union([z.string(), z.undefined(), z.null()]),
+  deliveryMethod: z.string()
+});
+
+const cardLimitsSchema = z.object({
+  tzOffset: z.number(),
+  onetime: z.string(),
+  daily: z.string(),
+  dailySpent: z.string(),
+  monthly: z.string(),
+  monthlySpent: z.string(),
+  dailyDeadline: z.number(),
+  monthlyDeadline: z.number()
+});
+
+const cardSchema = z.object({
+  id: z.string(),
+  address: z.string(),
+  state: z.string(),
+  balance: z.string(),
+  card: z.object({
+    lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
+    productId: z.string(),
+    personalizationCode: z.string(),
+    provider: z.string(),
+    kind: z.string(),
+    tzOffset: z.number()
+  }),
+  contract: z.string(),
+  limits: cardLimitsSchema,
+  delivery: z.union([cardDeliverySchema, z.null()])
+});
+
+const cardsListSchema = z.object({ accounts: z.array(cardSchema) });
+
+export type CardsList = z.infer<typeof cardsListSchema>;
+
+export const cardsListResCodec = z.intersection(z.object({ ok: z.literal(true) }), cardsListSchema);
+
+export const generalCardSchema = z.intersection(cardSchema, publicCardSchema);
+export type HoldersCard = z.infer<typeof generalCardSchema>;
 
 export async function fetchCardsList(token: string) {
   let res = await axios.post(
@@ -165,9 +155,9 @@ export async function fetchCardsList(token: string) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  if (!cardsListResCodec.is(res.data)) {
+  if (!cardsListResCodec.safeParse(res.data).success) {
     throw Error("Invalid card list response");
   }
 
-  return res.data as CardsList;
+  return res.data.accounts as HoldersCard[];
 }

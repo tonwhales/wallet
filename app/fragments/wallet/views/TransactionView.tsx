@@ -18,12 +18,12 @@ import { memo, useCallback, useMemo } from 'react';
 import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddress';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { useSpamMinAmount } from '../../../engine/hooks/useSpamMinAmount';
+import { useSpamMinAmount } from '../../../engine/hooks/spam/useSpamMinAmount';
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useAddToDenyList } from '../../../engine/effects/useAddToDenyList';
+import { useAddToDenyList } from '../../../engine/effects/spam/useAddToDenyList';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`

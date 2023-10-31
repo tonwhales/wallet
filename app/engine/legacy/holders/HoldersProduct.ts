@@ -20,7 +20,7 @@ export const holdersEndpoint = 'card-staging.whales-api.com';
 export const holdersUrl = 'https://stage.zenpay.org';
 const currentTokenVersion = 1;
 
-export type HoldersAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })
+export type HoldersAccountStatus = { state: 'need-enrollment' } | (AccountState & { token: string })
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -116,7 +116,7 @@ export class HoldersProduct {
     }
 
     useStatus() {
-        return useRecoilValue(this.engine.persistence.holdersStatus.item(this.engine.address).atom) || { state: 'need-enrolment' };
+        return useRecoilValue(this.engine.persistence.holdersStatus.item(this.engine.address).atom) || { state: 'need-enrollment' };
     }
 
     useCards() {
@@ -166,7 +166,7 @@ export class HoldersProduct {
         }
         try {
             let status = this.engine.persistence.holdersStatus.item(this.engine.address).value;
-            if (status && status?.state !== 'need-enrolment') {
+            if (status && status?.state !== 'need-enrollment') {
                 const token = status.token;
                 const cards = await fetchCardsList(token);
                 this.engine.persistence.holdersCards.item(this.engine.address).update((src) => {
@@ -251,7 +251,7 @@ export class HoldersProduct {
             let status: HoldersAccountStatus | null = targetStatus.value;
 
             // If not enrolled locally
-            if (!status || status.state === 'need-enrolment') {
+            if (!status || status.state === 'need-enrollment') {
                 const existingToken = this.getToken();
                 if (existingToken && existingToken.toString().length > 0) {
                     let state = await fetchAccountState(existingToken.toString());
@@ -265,7 +265,7 @@ export class HoldersProduct {
                     targetStatus.update((src) => {
                         if (!src) {
                             this.stopWatching();
-                            return { state: 'need-enrolment' };
+                            return { state: 'need-enrollment' };
                         }
                         return src;
                     });
@@ -275,7 +275,7 @@ export class HoldersProduct {
             }
 
             // Update state from server
-            if (status.state !== 'need-enrolment') {
+            if (status.state !== 'need-enrollment') {
                 const token = status.token;
 
                 if (token && token.length > 0) {
@@ -298,7 +298,7 @@ export class HoldersProduct {
 
                     targetStatus.update((src) => {
                         if (account?.state === 'no-ref') {
-                            return { state: 'need-enrolment' };
+                            return { state: 'need-enrollment' };
                         }
                         if (account?.state === 'need-phone') {
                             if (src?.state !== 'need-phone') {
@@ -319,7 +319,7 @@ export class HoldersProduct {
                     });
                 } else {
                     targetStatus.update(() => {
-                        return { state: 'need-enrolment' };
+                        return { state: 'need-enrollment' };
                     });
                 }
             }

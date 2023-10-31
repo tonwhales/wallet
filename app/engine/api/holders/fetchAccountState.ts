@@ -1,48 +1,65 @@
 import axios from 'axios';
-import { holdersEndpoint } from '../../legacy/holders/HoldersProduct';
-import * as t from "io-ts";
+import { z } from 'zod';
 
-export type AccountState = t.TypeOf<typeof accountStateCodec>;
+export const holdersEndpoint = 'card-staging.whales-api.com';
+export const holdersUrl = 'https://stage.zenpay.org';
+
+export type AccountState = z.infer<typeof accountStateCodec>;
 
 export type AccountStateRes = { ok: boolean, state: AccountState };
 
-export const accountStateCodec = t.union([
-    t.type({
-        state: t.literal('need-kyc'),
-        kycStatus: t.union([
-            t.null,
-            t.type({
-                applicantStatus: t.union([
-                    t.union([
-                        t.type({ review: t.type({ reviewStatus: t.string, }) }),
-                        t.null,
-                        t.undefined
+export enum HoldersAccountState {
+    NeedEnrollment = 'need-enrollment',
+    NeedPhone = 'need-phone',
+    NoRef = 'no-ref',
+    NeedKyc = 'need-kyc',
+    NeedEmail = 'need-email',
+    Ok = 'ok',
+}
+
+export const accountStateCodec = z.union([
+    z.object({
+        state: z.union([
+            z.literal(HoldersAccountState.NeedPhone),
+            z.literal(HoldersAccountState.NoRef),
+        ]),
+    }),
+    z.object({
+        state: z.literal(HoldersAccountState.NeedKyc),
+        kycStatus: z.union([
+            z.null(),
+            z.object({
+                applicantStatus: z.union([
+                    z.union([
+                        z.object({ review: z.object({ reviewStatus: z.string() }) }),
+                        z.null(),
+                        z.undefined()
                     ]),
-                    t.undefined,
-                    t.null
+                    z.undefined(),
+                    z.null()
                 ]),
             }),
         ]),
-        notificationSettings: t.type({
-            enabled: t.boolean,
+        notificationSettings: z.object({
+            enabled: z.boolean(),
         }),
-        suspended: t.boolean,
+        suspended: z.boolean(),
     }),
-    t.type({
-        state: t.union([
-            t.literal('need-phone'),
-            t.literal('ok'),
-            t.literal('no-ref'),
+    z.object({
+        state: z.union([
+            z.literal(HoldersAccountState.Ok),
+            z.literal(HoldersAccountState.NeedEmail),
+            z.literal(HoldersAccountState.NeedPhone),
         ]),
-        notificationSettings: t.type({
-            enabled: t.boolean,
+        notificationSettings: z.object({
+            enabled: z.boolean(),
         }),
-        suspended: t.boolean,
+        suspended: z.boolean(),
     }),
 ]);
 
-export const accountStateResCodec = t.type({
-    ok: t.boolean,
+export const accountStateResCodec = z.object({
+    ok: z.boolean(),
     state: accountStateCodec,
 });
 

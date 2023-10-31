@@ -7,7 +7,7 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
-import { walletConfigFromContract, contractFromPublicKey, walletContactType } from '../../../engine/contractFromPublicKey';
+import { walletConfigFromContract, contractFromPublicKey } from '../../../engine/contractFromPublicKey';
 import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
 import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
@@ -34,6 +34,12 @@ import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { ConfigStore } from '../../../utils/ConfigStore';
+import { getCurrentAddress } from '../../../storage/appState';
+import { getHoldersToken, useHoldersAccountStatus } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
+import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
+import { useHoldersCards } from '../../../engine/hooks/holders/useHoldersCards';
+import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -207,8 +213,13 @@ export const HoldersAppComponent = React.memo((
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const status = useHoldersStatus();
-    const createDomainSignature = useCreateDomainSignature();
+    const acc = useMemo(() => getCurrentAddress(), []);
+    const domain = useMemo(() => extractDomain(props.endpoint), []);
+
+    const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
+    const cards = useHoldersCards(acc.address.toString({ testOnly: isTestnet })).data;
+    const domainKey = useDomainKey(domain);
+
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
@@ -239,7 +250,7 @@ export const HoldersAppComponent = React.memo((
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'account') {
-            route = status.state === 'ok' ? '/create' : '/';
+            route = status?.state === HoldersAccountState.Ok ? '/create' : '/';
         } else if (props.variant.type === 'card') {
             route = `/card/${props.variant.id}`;
         }
@@ -304,36 +315,37 @@ export const HoldersAppComponent = React.memo((
         const walletConfig = config.walletConfig;
         const walletType = config.type;
 
-        const domain = extractDomain(props.endpoint);
+        let suspended = false;
 
-        // TODO
-        // const cardsState = engine.persistence.holdersCards.item(engine.address).value;
-        // const accountState = engine.persistence.holdersStatus.item(engine.address).value;
+        if (!!status && typeof (status as any).suspended === 'boolean' ) {
+            suspended = (status as any).suspended;
+        }
 
-        // const initialState = {
-        //     ...accountState
-        //         ? {
-        //             account: {
-        //                 status: {
-        //                     state: accountState.state,
-        //                     kycStatus: accountState.state === 'need-kyc' ? accountState.kycStatus : null,
-        //                     suspended: accountState.state === 'need-enrolment' ? false : accountState.suspended,
-        //                 },
-        //                 token: accountState.state === 'ok' ? accountState.token : engine.products.holders.getToken(),
-        //             }
-        //         }
-        //         : {},
-        //     ...(cardsState ? { cardsList: cardsState.accounts } : {}),
-        // }
-        const initialState = {};
+        const initialState = {
+            ...status
+                ? {
+                    account: {
+                        status: {
+                            state: status.state,
+                            kycStatus: status.state === HoldersAccountState.NeedKyc ? status.kycStatus : null,
+                            suspended
+                        },
+                        token: status.state === HoldersAccountState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
+                    }
+                }
+                : {},
+            ...cards ? { cardsList: cards } : {},
+        }
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
         `;
 
-        return ''
-        // TODO
-        // let domainSign = createDomainSignature(domain);
+        if (!domainKey) {
+            return initialInjection;
+        }
+
+        let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource(
             {
@@ -358,6 +370,7 @@ export const HoldersAppComponent = React.memo((
             true
         );
     }, []);
+
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
@@ -507,7 +520,7 @@ export const HoldersAppComponent = React.memo((
     return (
         <>
             <View style={{ backgroundColor: theme.item, flex: 1 }}>
-                {useOfflineApp ? (
+                {useOfflineApp ? ( // TODO
                     <>
                         {/* <OfflineWebView
                             key={`offline-rendered-${offlineRender}`}

@@ -16,7 +16,7 @@ import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
@@ -26,7 +26,7 @@ export const StakingCalculatorFragment = fragment(() => {
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
 
-    const [amount, setAmount] = useState(pool?.member.balance ? fromNano(pool.member.balance) : '');
+    const [amount, setAmount] = useState(pool?.member?.balance ? fromNano(pool.member.balance) : '');
 
     const onChangeAmount = useCallback(
         (value: string) => {

@@ -11,10 +11,16 @@ export const Queries = {
             Chart: (member: string) => ['account', address, 'staking', 'chart', member],
         }),
         Transactions: () => ['transactions', address],
+        Holders: () => ({
+            Status: () => ['account', address, 'holders', 'status'],
+            Cards: () => ['account', address, 'holders', 'cards'],
+            Notifications: (id: string) => ['account', address, 'holders', 'notifications', id],
+        }),
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
     Config: () => ['config'],
+    ServerConfig: () => ['serverConfig'],
 
     Hints: (address: string) => (['hints', address]),
     Cloud: (address: string) => ({
@@ -29,4 +35,5 @@ export const Queries = {
         AppData: () => ['apps', url, 'appData'],
     }),
     Job: () => (['job']),
+    APY: () => (['staking', 'apy']),
 }

@@ -16,10 +16,10 @@ import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { TopBar } from "../../components/topbar/TopBar";
-import { useStaking } from '../../engine/hooks/useStaking';
+import { useStaking } from '../../engine/hooks/staking/useStaking';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useStakingPool } from '../../engine/hooks/useStakingPool';
-import { useStakingApy } from '../../engine/hooks/useStakingApy';
+import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
+import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 

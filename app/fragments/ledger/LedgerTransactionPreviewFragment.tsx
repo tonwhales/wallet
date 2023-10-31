@@ -33,10 +33,10 @@ import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress
 import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
 import { TransactionDescription } from '../../engine/legacy/products/WalletProduct';
 import { Body } from '../../engine/legacy/Transaction';
-import { useSpamMinAmount } from '../../engine/hooks/useSpamMinAmount';
-import { useDontShowComments } from '../../engine/hooks/useDontShowComments';
+import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
+import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/useIsSpamWallet';
+import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();
@@ -116,7 +116,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     }
 
     const spamMinAmount = useSpamMinAmount();
-    const dontShowComments = useDontShowComments();
+    const [dontShowComments,] = useDontShowComments();
     const isSpam = useDenyAddress(operation.address);
 
     let spam = useIsSpamWallet(friendlyAddress)

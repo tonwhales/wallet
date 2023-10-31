@@ -18,8 +18,8 @@ import { KnownPools } from "../../utils/KnownPools";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useStakingPool } from '../../engine/hooks/useStakingPool';
-import { useStakingChart } from '../../engine/hooks/useStakingChart';
+import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
+import { useStakingChart } from '../../engine/hooks/staking/useStakingChart';
 import { usePrice } from '../../engine/hooks/usePrice';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 

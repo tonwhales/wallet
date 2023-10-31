@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { View, Text } from "react-native";
 import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
@@ -8,10 +8,10 @@ import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useStakingApy } from '../../engine/hooks/useStakingApy';
-import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync';
+import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
+import { StakingPoolState } from "../../engine/hooks/staking/useStakingPool";
 
-export const StakingCalcComponent = React.memo((
+export const StakingCalcComponent = memo((
     {
         amount,
         topUp,
@@ -30,7 +30,7 @@ export const StakingCalcComponent = React.memo((
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
-    const poolFee = pool.params.poolFee ? Number(pool.params.poolFee / 100n) : undefined;
+    const poolFee = pool.params?.poolFee ? Number(pool.params.poolFee / 100n) : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return (apy - apy * (poolFee / 100)) / 100;

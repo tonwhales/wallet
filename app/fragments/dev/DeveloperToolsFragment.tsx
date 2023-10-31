@@ -15,7 +15,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
@@ -25,6 +25,11 @@ import { ThemeStyle } from '../../engine/state/theme';
 import { useThemeStyle } from '../../engine/hooks/useThemeStyle';
 import { useLanguage } from '../../engine/hooks/useLanguage';
 import i18n from 'i18next';
+import { onAccountTouched } from '../../engine/effects/onAccountTouched';
+import { getCurrentAddress } from '../../storage/appState';
+import { useClearHolders } from '../../engine/effects/holders/useClearHolders';
+import { useHoldersCards } from '../../engine/hooks/holders/useHoldersCards';
+import { useHoldersAccountStatus } from '../../engine/hooks/holders/useHoldersAccountStatus';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -34,6 +39,12 @@ export const DeveloperToolsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const offlineApp = useOfflineApp();
+
+    const acc = useMemo(() => getCurrentAddress(), []);
+
+    const cards = useHoldersCards(acc.address);
+    const holdersStatus = useHoldersAccountStatus(acc.address);
+
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
@@ -55,12 +66,15 @@ export const DeveloperToolsFragment = fragment(() => {
     // }, [offlineApp]);
 
     const reboot = useReboot();
-    const resetCache = useCallback(() => {
+    const clearHolders = useClearHolders(acc.address.toString({ testOnly: isTestnet }));
+
+    const resetCache = useCallback(async () => {
         storagePersistence.clearAll();
         storageQuery.clearAll();
-        // clearHolders(engine);
+        await clearHolders();
+        await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         reboot();
-    }, []);
+    }, [isTestnet, clearHolders]);
 
     const switchNetwork = useCallback(() => {
         Alert.alert(
@@ -239,6 +253,33 @@ export const DeveloperToolsFragment = fragment(() => {
                                     setLang('en');
                                 }
                                 setTimeout(() => reboot(), 100);
+                            }}
+                        />
+                    </View>
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Refetch cards'}
+                            onPress={() => {
+                                cards.refetch();
+                            }}
+                        />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Refetch status'}
+                            hint={holdersStatus.data?.state}
+                            onPress={() => {
+                                holdersStatus.refetch();
                             }}
                         />
                     </View>

@@ -32,8 +32,6 @@ import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddr
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
-import { parseMessageBody } from '../../../engine/legacy/transactions/parseMessageBody';
-import { resolveOperation } from '../../../engine/legacy/transactions/resolveOperation';
 import { useClient4 } from '../../../engine/hooks/useClient4';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
@@ -42,7 +40,6 @@ import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
-
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
 import Contact from '../../../../assets/ic_transfer_contact.svg';
@@ -54,6 +51,8 @@ import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
 import Staking from '../../../../assets/ic_sign_staking.svg';
 import Question from '../../../../assets/ic_question.svg';
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
+import { resolveOperation } from '../../../engine/transactions/resolveOperation';
 
 type Props = {
     target: {
@@ -100,7 +99,7 @@ export const TransferSingle = memo((props: Props) => {
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
-    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
+    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target) }, isTestnet);
     const jettonAmount = useMemo(() => {
         try {
             if (jettonMaster && order.messages[0].payload) {
@@ -136,8 +135,8 @@ export const TransferSingle = memo((props: Props) => {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[friendlyTarget]) {
         known = KnownWallets(isTestnet)[friendlyTarget];
-    } else if (operation.title) {
-        known = { name: operation.title };
+    } else if (operation.op) {
+        known = { name: t(operation.op.res) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }

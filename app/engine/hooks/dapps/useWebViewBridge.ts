@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useRef } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
-import { UseWebViewBridgeReturnType, WebViewBridgeMessage, WebViewBridgeMessageType } from './types';
-import { getInjectableJSMessage, objectToInjection } from './utils';
+import { getInjectableJSMessage, objectToInjection } from '../../tonconnect/utils';
+import { UseWebViewBridgeReturnType, WebViewBridgeMessage, WebViewBridgeMessageType } from '../../tonconnect/types';
 
 export const useWebViewBridge = <
-  BridgeObject extends object = {},
+  BridgeObject extends { [key: string]: any } = {},
   Event extends object = {},
 >(
   bridgeObj: BridgeObject,

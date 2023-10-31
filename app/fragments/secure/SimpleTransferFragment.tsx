@@ -29,7 +29,6 @@ import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useConfig } from '../../engine/hooks/useConfig';
-import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 import { useContact } from '../../engine/hooks/contacts/useContact';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
@@ -39,6 +38,7 @@ import { useClient4 } from '../../engine/hooks/useClient4';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
 import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { estimateFees } from '../../utils/estimateFees';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -66,7 +66,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString)!;
+    const account = useAccountLite(selected!.addressString)!;
     const tonClient4 = useClient4(isTestnet);
     const safeArea = useSafeAreaInsets();
 

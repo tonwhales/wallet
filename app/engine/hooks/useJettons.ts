@@ -1,10 +1,9 @@
 import { Address } from '@ton/core';
-import BN from 'bn.js';
 import { useFilteredHints } from './basic/useFilteredHints';
 import { useJettonContents } from './basic/useJettonContents';
 import { useJettonWallets } from './basic/useJettonWallets';
 
-type PreparedJetton = {
+export type Jetton = {
     master: Address;
     wallet: Address;
     name: string;
@@ -15,14 +14,14 @@ type PreparedJetton = {
     decimals: number | null;
 };
 
-export function useJettons(owner: string): PreparedJetton[] {
+export function useJettons(owner: string): Jetton[] {
     let hints = useFilteredHints(owner, (a) => !!a.jettonWallet && a.jettonWallet?.owner === owner && !!a.jettonWallet.master);
     let masterContents = useJettonContents(hints.map(a => a.jettonWallet!.master));
     let actualBalances = useJettonWallets(hints.map(a => a.address));
 
-    let jettons: PreparedJetton[] = hints
+    let jettons: Jetton[] = hints
         .filter(a => !!masterContents.find(b => a.jettonWallet?.master === b.data?.address))
-        .map<PreparedJetton>(a => {
+        .map<Jetton>(a => {
             let content = masterContents.find(b => a.jettonWallet?.master === b.data?.address)!.data!;
             let balance = actualBalances.find(b => a.address === b.data?.address)?.data?.balance ?? a.jettonWallet!.balance;
             

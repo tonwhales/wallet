@@ -22,7 +22,7 @@ export const AccountsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
 
-    const jettons = useJettons(selected.addressString);
+    const jettons = useJettons(selected!.addressString);
     const active = jettons.filter((j: any) => !j.disabled);
     const disabled = jettons.filter((j: any) => j.disabled);
 

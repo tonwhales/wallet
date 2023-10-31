@@ -9,26 +9,24 @@ import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TonIcon from '../../../assets/ic_ton_account.svg';
-import BN from "bn.js";
 import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useJettons } from '../../engine/hooks/useJettons';
+import { Jetton, useJettons } from '../../engine/hooks/useJettons';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
-import { JettonState } from '../../engine/legacy/products/WalletProduct';
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { addr } = useTransport();
-    const address = useMemo(() => Address.parse(addr!.address), [addr]);
-    const jettons = useJettons(address)?.jettons ?? [];
+    const address = useMemo(() => Address.parse(addr!.address).toString({ testOnly: false }), [addr]);
+    const jettons = useJettons(address);
     const account = useAccountLite(addr!.address);
 
-    const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
+    const navigateToJettonTransfer = useCallback((jetton: Jetton) => {
         navigation.replace('LedgerTransfer', {
             amount: null,
             target: target,

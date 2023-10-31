@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/useSelectedAccount";
-import { watchHoldersAccountUpdates } from "./legacy/holders/watchHoldersAccountUpdates";
 import { HoldersAccountState } from "./api/holders/fetchAccountState";
 import { useHoldersCards } from "./hooks/holders/useHoldersCards";
 import { useNetwork } from "./hooks/useNetwork";
+import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();

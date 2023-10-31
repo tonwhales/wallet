@@ -39,7 +39,7 @@ import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
 import { LedgerOrder } from '../secure/ops/Order';
 import { WalletContractV4 } from '@ton/ton';
-// import { TonTransport } from 'ton-ledger';
+import { TonTransport } from '@ton-community/ton-ledger';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
@@ -56,14 +56,12 @@ import { useClient4 } from '../../engine/hooks/useClient4';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { getJettonMaster } from '../../engine/getters/getJettonMaster';
-import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
-import { parseMessageBody } from '../../engine/legacy/transactions/parseMessageBody';
-import { resolveOperation } from '../../engine/legacy/transactions/resolveOperation';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
-import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { resolveOperation } from '../../engine/transactions/resolveOperation';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,

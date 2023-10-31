@@ -1,7 +1,7 @@
 import { extensionKey } from "../../effects/dapps/useAddExtension";
-import { ConnectedAppConnectionRemote, TonConnectBridgeType } from "../../legacy/tonconnect/types";
 import { ConnectedApp, useTonConnectExtensions } from "./useTonConnectExtenstions";
 import { useAppConnections } from "./useAppConnections";
+import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
 export function useConnectApp() {
     const [extensions,] = useTonConnectExtensions();

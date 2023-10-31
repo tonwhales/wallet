@@ -1,7 +1,6 @@
-import { failure, success, Type } from "io-ts"
+import { failure, success, Type } from "io-ts";
 import * as t from 'io-ts';
-import { Address, ExternalAddress, BitString, Cell, BitBuilder } from "@ton/core"
-import BN from "bn.js";
+import { Address, ExternalAddress, Cell, BitBuilder } from "@ton/core";
 
 export class AddressType extends Type<Address, string, unknown> {
     readonly _tag: 'AddressType' = 'AddressType'
@@ -46,7 +45,7 @@ export class BNType extends Type<bigint, string, unknown> {
     }
 }
 
-export const bignum  =new BNType();
+export const bignum = new BNType();
 
 
 export class BufferType extends Type<Buffer, string, unknown> {

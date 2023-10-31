@@ -10,9 +10,9 @@ export function useStaking() {
     let selected = useSelectedAccount();
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
-    let config = useStakingWalletConfig(selected.addressString);
+    let config = useStakingWalletConfig(selected!.addressString);
     let knownPools = Object.keys(KnownPools(isTestnet)).map((key) => Address.parse(key));
-    let members = useStakingPoolMembers(client, isTestnet, knownPools.map(p => ({ pool: p, member: selected.address })));
+    let members = useStakingPoolMembers(client, isTestnet, knownPools.map(p => ({ pool: p, member: selected!.address })));
     
     let pools: { address: Address, balance: bigint }[] = [];
     let total = BigInt(0);

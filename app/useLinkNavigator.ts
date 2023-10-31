@@ -37,10 +37,12 @@ export function useLinkNavigator(isTestnet: boolean) {
             }
         }
         if (resolved.type === 'jetton-transaction') {
-            const jettons = engine.products.main.getJettons().jettons;
-            const jetton = jettons.find((j) => {
-                return j.master.equals(resolved.jettonMaster);
-            });
+            // TODO:
+            // const jettons = engine.products.main.getJettons().jettons;
+            // const jetton = jettons.find((j) => {
+            //     return j.master.equals(resolved.jettonMaster);
+            // });
+            const jetton: any = null;
 
             // TODO: try fetching jetton master on SimpleTransferFragment
             if (!jetton) {

@@ -1,8 +1,8 @@
 import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protocol";
-import { SendTransactionError, SendTransactionRequest } from "../../legacy/tonconnect/types";
 import { Cell } from "@ton/core";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
+import { SendTransactionError, SendTransactionRequest } from '../../tonconnect/types';
 
 export function useConnectCallback() {
     const deleteActiveRemoteRequests = useDeleteActiveRemoteRequests();

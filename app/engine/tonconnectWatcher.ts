@@ -2,11 +2,11 @@ import { useEffect, useMemo } from 'react';
 import { storage } from '../storage/storage';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
-import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './legacy/tonconnect/types';
 import { useTonConnectExtensions } from './hooks/dapps/useTonConnectExtenstions';
 import { useAppConnections } from './hooks/dapps/useAppConnections';
 import { SessionCrypto } from '@tonconnect/protocol';
 import { useHandleMessage } from './effects/dapps/useHandleMessage';
+import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './tonconnect/types';
 
 const logger = createLogger('tonconnect');
 export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';

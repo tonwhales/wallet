@@ -3,7 +3,7 @@ import { getLastBlock } from '../../accountWatcher';
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 
-type Params = {
+export type StakingPoolParams = {
     enabled: boolean,
     udpatesEnabled: boolean,
     minStake: bigint,
@@ -14,12 +14,12 @@ type Params = {
 }
 
 function fetchStakingParamsQueryFn(client: TonClient4, pool: Address) {
-    return async (): Promise<Params> => {
+    return async (): Promise<StakingPoolParams> => {
         let paramsResponse = await client.runMethod(await getLastBlock(), pool, 'get_params');
 
         // Parse params
         let paramsParser = new TupleReader(paramsResponse.result);
-        let params: Params = {
+        let params: StakingPoolParams = {
             enabled: paramsParser.readBoolean(),
             udpatesEnabled: paramsParser.readBoolean(),
             minStake: paramsParser.readBigNumber(),

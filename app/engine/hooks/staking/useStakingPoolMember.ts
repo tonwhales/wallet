@@ -3,6 +3,15 @@ import { getLastBlock } from '../../accountWatcher';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 
+
+export type StakingPoolMember = {
+    balance: bigint;
+    pendingWithdraw: bigint;
+    pendingDeposit: bigint;
+    withdraw: bigint;
+    pool: string;
+};
+
 function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool: Address, member?: Address) {
     if (!member) {
         return async () => null;
@@ -14,13 +23,7 @@ function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool:
         );
         // Member
         let memberParser = new TupleReader(memberResponse.result);
-        let memberState: {
-            balance: bigint;
-            pendingWithdraw: bigint;
-            pendingDeposit: bigint;
-            withdraw: bigint;
-            pool: string;
-        } = {
+        let memberState: StakingPoolMember = {
             balance: memberParser.readBigNumber(),
             pendingDeposit: memberParser.readBigNumber(),
             pendingWithdraw: memberParser.readBigNumber(),

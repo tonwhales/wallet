@@ -32,8 +32,7 @@ import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { TxBody } from '../../engine/legacy/Transaction';
-import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
+import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 export const TransactionPreviewFragment = fragment(() => {
@@ -41,7 +40,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = useSelectedAccount();
+    const address = useSelectedAccount()!;
 
     const params = useParams<{ transaction: TransactionDescription }>();
     let transaction = params.transaction;

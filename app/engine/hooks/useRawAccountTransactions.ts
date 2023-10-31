@@ -4,11 +4,11 @@ import { AccountStatus, Address, CommonMessageInfo, ExternalAddress, Message, St
 import { getLastBlock } from '../accountWatcher';
 import { useNetwork } from './useNetwork';
 import { log } from '../../utils/log';
-import { TxBody } from '../legacy/Transaction';
 import { parseBody } from '../transactions/parseWalletTransaction';
 import { resolveOperation } from '../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
 import { LocalizedResources } from '../../i18n/schema';
+import { TxBody } from './useAccountTransactions';
 
 type StoredAddressExternal = {
     bits: number;

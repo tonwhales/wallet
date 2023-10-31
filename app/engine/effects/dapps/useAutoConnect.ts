@@ -1,15 +1,15 @@
 import { CONNECT_EVENT_ERROR_CODES, ConnectEvent } from "@tonconnect/protocol";
 import { getCurrentAddress } from "../../../storage/appState";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
-import { ConnectReplyBuilder } from "../../legacy/tonconnect/ConnectReplyBuilder";
 import { useNetwork } from "../../hooks/useNetwork";
 import { warn } from "../../../utils/log";
-import { ConnectEventError } from "../../legacy/tonconnect/types";
 import { useAppConnections } from "../../hooks/dapps/useAppConnections";
 import { extensionKey } from "./useAddExtension";
-import { tonConnectDeviceInfo } from "../../legacy/tonconnect/config";
 import { useConnectApp } from "../../hooks/dapps/useConnectApp";
 import { beginCell, storeStateInit } from "@ton/core";
+import { ConnectEventError } from '../../tonconnect/types';
+import { ConnectReplyBuilder } from '../../tonconnect/ConnectReplyBuilder';
+import { tonConnectDeviceInfo } from '../../tonconnect/config';
 
 export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
     const { isTestnet } = useNetwork();

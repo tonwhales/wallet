@@ -1,5 +1,5 @@
 import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
-import { TonConnectBridgeType } from "../../legacy/tonconnect/types";
+import { TonConnectBridgeType } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 

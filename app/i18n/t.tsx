@@ -13,7 +13,7 @@ export function t(source: LocalizedResources, options?: any): string {
 export function tStyled(source: LocalizedResources, options?: any): any {
     return (
         <Trans
-            i18nKey={source}
+            i18nKey={source as any}
             t={t}
             values={options}
             components={{ strong }}

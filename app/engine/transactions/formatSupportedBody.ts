@@ -3,7 +3,7 @@ import { LocalizedResources } from "../../i18n/schema";
 import { SupportedMessage } from "./parseMessageBody";
 
 export function formatSupportedBody(supportedMessage: SupportedMessage): { res: LocalizedResources, options?: any } | null {
-    if (supportedMessage.type === 'deposit') {
+    if (supportedMessage.type === 'whales-staking::deposit') {
         return { res: 'known.deposit' };
     }
     if (supportedMessage.type === 'deposit::ok') {

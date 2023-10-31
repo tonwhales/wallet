@@ -5,7 +5,7 @@ export class AutomergeValue<T> {
     static fromEmpty<T>(initial: (src: T) => void) {
         // Create schema
         let schema = Automerge.change(Automerge.init<T>({ actorId: '0000' }), { time: 0 }, (src) => {
-            initial(src);
+            initial(src as T);
         });
         let initChange = Automerge.getLastLocalChange(schema);
 
@@ -28,7 +28,7 @@ export class AutomergeValue<T> {
 
     update(updater: (src: T) => void) {
         this.#doc = Automerge.change(this.#doc, (s) => {
-            updater(s);
+            updater(s as T);
         });
     }
 

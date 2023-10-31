@@ -1,6 +1,6 @@
 import { Cell } from "@ton/core";
-import { ConfigState } from "../../hooks/useConfig";
 import { computeExternalMessageFees, computeGasPrices, computeMessageForwardFees, computeStorageFees } from "@ton/ton";
+import { ConfigState } from '../engine/hooks/useConfig';
 
 function convertToJSONstringifyable(data: any) {
     if (typeof data === 'bigint') {

@@ -1,15 +1,15 @@
 import { Address } from '@ton/core';
-import { useStakingPoolParams } from './useStakingPoolParams';
+import { StakingPoolParams, useStakingPoolParams } from './useStakingPoolParams';
 import { useSelectedAccount } from '../useSelectedAccount';
 import { useNetwork } from '../useNetwork';
 import { useClient4 } from '../useClient4';
-import { useStakingPoolStatus } from './useStakingPoolStatus';
-import { useStakingPoolMember } from './useStakingPoolMember';
+import { StakingPoolStatus, useStakingPoolStatus } from './useStakingPoolStatus';
+import { StakingPoolMember, useStakingPoolMember } from './useStakingPoolMember';
 
 export type StakingPoolState = {
-    params: ReturnType<typeof useStakingPoolParams>;
-    status: ReturnType<typeof useStakingPoolStatus>;
-    member: ReturnType<typeof useStakingPoolMember>;
+    params: StakingPoolParams;
+    status: StakingPoolStatus;
+    member: StakingPoolMember;
 }
 
 export function useStakingPool(address: Address) {

@@ -23,9 +23,6 @@ import { TransferBatch } from './components/TransferBatch';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { getJettonMaster } from '../../engine/getters/getJettonMaster';
-import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
-import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
-import { internalFromSignRawMessage } from '../../engine/legacy/utils/internalFromSignRawMessage';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -34,6 +31,9 @@ import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { getLastBlock } from '../../engine/accountWatcher';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { estimateFees } from '../../utils/estimateFees';
+import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
 
 export type ATextInputRef = {
     focus: () => void;

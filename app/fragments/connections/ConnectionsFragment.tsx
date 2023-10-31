@@ -121,7 +121,7 @@ export const ConnectionsFragment = fragment(() => {
                         text: t('common.cancel')
                     }, {
                         text: t('common.add'),
-                        onPress: () => engine.products.settings.setLedger(true)
+                        onPress: () => null,/* TODO(LEDGER): engine.products.settings.setLedger(true) */
                     }
                 ]
             );
@@ -136,7 +136,7 @@ export const ConnectionsFragment = fragment(() => {
                 }, {
                     text: t('common.delete'),
                     style: 'destructive',
-                    onPress: () => engine.products.settings.setLedger(false)
+                    onPress: () => null, /* TODO(LEDGER): engine.products.settings.setLedger(false) */
                 }
             ]
         );

@@ -11,13 +11,10 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import BN from "bn.js";
-import { Address } from "@ton/core";
-import { useJettons } from '../../engine/hooks/useJettons';
+import TonIcon from '../../../assets/ic_ton_account.svg'; 
+import { Jetton, useJettons } from '../../engine/hooks/useJettons';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { JettonState } from '../../engine/legacy/products/WalletProduct';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 
 export const AssetsFragment = fragment(() => {
@@ -25,11 +22,11 @@ export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const jettons = useJettons(selected.addressString);
-    const account = useAccountLite(selected.addressString);
+    const jettons = useJettons(selected!.addressString);
+    const account = useAccountLite(selected!.addressString);
     const { isTestnet } = useNetwork();
 
-    const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
+    const navigateToJettonTransfer = useCallback((jetton: Jetton) => {
         navigation.navigateSimpleTransfer({
             amount: null,
             target: target,

@@ -51,17 +51,12 @@ export const TransactionView = memo((props: {
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = tx.base.parsed.resolvedAddress;
     const verified = !!tx.verified || !!KnownJettonMasters(isTestnet)[opAddress];
-    const operationAddress = useMemo(() => {
-        try {
-            return Address.parse(tx.base.parsed.resolvedAddress);
-        } catch { }
-    }, [operation.address]);
 
     const navigation = useTypedNavigation();
     const selectedAccount = useSelectedAccount();
-    const contact = useContactAddress(operationAddress);
-    const isSpam = useDenyAddress(operationAddress);
-    const spamMinAmount = useSpamMinAmount();
+    const contact = useContactAddress(opAddress);
+    const isSpam = useDenyAddress(opAddress);
+    const [spamMinAmount,] = useSpamMinAmount();
     const addToDenyList = useAddToDenyList();
 
     const op = useMemo(() => {

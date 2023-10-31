@@ -1,6 +1,5 @@
-import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,8 +14,6 @@ import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { KnownWallets } from "../secure/KnownWallets";
-import { getCurrentAddress } from "../storage/appState";
-import { storage } from "../storage/storage";
 import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
@@ -46,7 +43,7 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const reboot = useReboot();
     const addr = useSelectedAccount();
-    const account = useAccountLite(addr.addressString);
+    const account = useAccountLite(addr!.addressString);
     const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));
@@ -81,7 +78,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has nfts
             try {
-                const nftsConnection = await fetchNfts(addr.address.toString({ testOnly: isTestnet }), isTestnet);
+                const nftsConnection = await fetchNfts(addr!.address.toString({ testOnly: isTestnet }), isTestnet);
                 if (nftsConnection.items && nftsConnection.items.length > 0) {
                     Alert.alert(t('deleteAccount.error.hasNfts'));
                     ended = true;
@@ -158,7 +155,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has at least 0.1 TON 
             if (account && account.balance || BigInt(0) > toNano('0.1')) {
-                const contract = await contractFromPublicKey(addr.publicKey);
+                const contract = await contractFromPublicKey(addr!.publicKey);
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {
@@ -167,7 +164,7 @@ export const DeleteAccountFragment = fragment(() => {
                     return;
                 }
 
-                let seqno = await fetchSeqno(client, await getLastBlock(), addr.address);
+                let seqno = await fetchSeqno(client, await getLastBlock(), addr!.address);
 
                 // Create transfer all & dstr transfer
                 let transfer = contract.createTransfer({
@@ -194,7 +191,7 @@ export const DeleteAccountFragment = fragment(() => {
                 await backoff('delete_account', () => client.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), addr.address));
+                    let s = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), addr!.address));
                     // Check if wallet has been cleared
                     if (s === 0) {
                         setStatus('deleted');

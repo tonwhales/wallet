@@ -24,10 +24,6 @@ import { useParams } from '../../utils/useParams';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../engine/api/sendTonConnectResponse';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../engine/legacy/tonconnect/types';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/legacy/tonconnect/utils';
-import { ConnectReplyBuilder } from '../../engine/legacy/tonconnect/ConnectReplyBuilder';
-import { tonConnectDeviceInfo } from '../../engine/legacy/tonconnect/config';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { handleConnectDeeplink } from '../../engine/effects/dapps/handleConnectDeeplink';
@@ -36,6 +32,10 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { getAppManifest } from '../../engine/getters/getAppManifest';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSaveAppConnection } from '../../engine/effects/dapps/useSaveAppConnection';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../engine/tonconnect/utils';
+import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../engine/tonconnect/types';
+import { ConnectReplyBuilder } from '../../engine/tonconnect/ConnectReplyBuilder';
+import { tonConnectDeviceInfo } from '../../engine/tonconnect/config';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

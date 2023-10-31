@@ -1,9 +1,9 @@
 import { atom } from "recoil";
 import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
-import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, SendTransactionRequest, TonConnectBridgeType } from "../legacy/tonconnect/types";
 import { CHAIN } from "@tonconnect/protocol";
 import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
+import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
 
 const appConnectionsKey = 'connectConnectedApps';
 const pendingRequestsKey = 'connectPendingRequests';

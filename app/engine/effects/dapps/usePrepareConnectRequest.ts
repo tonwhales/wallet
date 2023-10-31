@@ -1,17 +1,14 @@
-import { Alert } from "react-native";
 import { useConnectAppByClientSessionId } from "../../hooks/dapps/useConnectApp";
-import { SendTransactionRequest, SignRawParams } from "../../legacy/tonconnect/types";
 import { SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from "@tonconnect/protocol";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { getTimeSec } from "../../../utils/getTimeSec";
 import { warn } from "../../../utils/log";
 import { Cell, fromNano, toNano } from "@ton/core";
-import { useConnectPendingRequests } from "../../hooks/dapps/useConnectPendingRequests";
 import { useDeleteActiveRemoteRequests } from "./useDeleteActiveRemoteRequests";
+import { SendTransactionRequest, SignRawParams } from '../../tonconnect/types';
 
 export function usePrepareConnectRequest() {
   const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
-  const [requests, update] = useConnectPendingRequests();
   const deleteActiveRemoteRequest = useDeleteActiveRemoteRequests();
 
   return (request: { from: string } & SendTransactionRequest) => {

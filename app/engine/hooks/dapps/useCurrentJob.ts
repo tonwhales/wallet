@@ -3,9 +3,9 @@ import { Queries } from "../../queries";
 import { getAppInstanceKeyPair } from "../../../storage/appState";
 import axios from "axios";
 import { Address, Cell } from "@ton/core";
-import { parseJob } from "../../legacy/apps/parseJob";
 import { queryClient } from "../../clients";
 import { z } from 'zod';
+import { parseJob } from '../../apps/parseJob';
 
 export type Job = {
     type: 'transaction',

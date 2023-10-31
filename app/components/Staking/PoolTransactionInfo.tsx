@@ -5,9 +5,9 @@ import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
-import { StakingPoolState } from '../../engine/legacy/sync/startStakingPoolSync';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { StakingPoolState } from '../../engine/hooks/staking/useStakingPool';
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
     if (!pool) return null;

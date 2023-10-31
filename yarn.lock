@@ -2628,10 +2628,10 @@
     jssha "3.2.0"
     tweetnacl "1.0.3"
 
-"@ton/ton@^13.8.0":
-  version "13.8.0"
-  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.8.0.tgz#c1d772948db91183af4a12c1b559dd48ee08b15a"
-  integrity sha512-e9skTvAVOdyaWU+iUD9daiGHCU6HvOuGenAEbX03zoS4bvzVFUsxxbIhm2dHvf+YNdugP954H0ouVGd3GcTCbQ==
+"@ton/ton@^13.9.0":
+  version "13.9.0"
+  resolved "https://registry.yarnpkg.com/@ton/ton/-/ton-13.9.0.tgz#18b0a447d49c84b30997bda385af30278bac8033"
+  integrity sha512-bvDn9vv0rNsN/OH84Q4DKH3N21AD0MvTxXmnS0wPEOoU38F4mltXmA7an2SjaSgd9kAlsOSHa0EirkTie+Zitw==
   dependencies:
     axios "^0.25.0"
     dataloader "^2.0.0"
@@ -8900,7 +8900,7 @@ type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typescript@^4.9.4:
+typescript@4.9.5:
   version "4.9.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.5.tgz#095979f9bcc0d09da324d58d03ce8f8374cbe65a"
   integrity sha512-1FXk9E2Hm+QzZQ7z+McJiHL4NW1F2EzMu9Nq9i3zAaGqibafqYwCVU6WyWAuyQRRzOlxou8xZSyXLEN8oKj24g==

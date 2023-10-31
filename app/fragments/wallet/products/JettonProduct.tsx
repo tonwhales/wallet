@@ -9,6 +9,7 @@ import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { Alert } from 'react-native';
 import { t } from '../../../i18n/t';
+import { Jetton } from '../../../engine/hooks/useJettons';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -34,16 +35,7 @@ export async function confirmJettonAction(disable: boolean, symbol: string) {
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
-    jetton: {
-        master: Address;
-        wallet: Address;
-        name: string;
-        description: string;
-        symbol: string;
-        balance: bigint;
-        icon: string | null;
-        decimals: number | null;
-    },
+    jetton: Jetton,
     onPress?: () => void
     onLongPress?: () => void,
 }) => {

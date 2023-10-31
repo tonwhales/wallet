@@ -35,17 +35,19 @@ export const ContactFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
 
+    let address!: Address;
     try {
-        Address.parse(params.address);
+        address = Address.parse(params.address);
     } catch (e) {
         warn(e);
         navigation.goBack();
+        return null;
     }
-    const address = useMemo(() => Address.parse(params.address), []);
+    
     const setContact = useSetContact();
     const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
-    const contact = useContactAddress(Address.parse(params.address));
+    const contact = useContactAddress(params.address);
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);

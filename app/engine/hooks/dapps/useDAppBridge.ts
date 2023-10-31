@@ -1,10 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
-import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../legacy/tonconnect/types';
 import { useConnectApp } from './useConnectApp';
 import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
-import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../legacy/tonconnect/config';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../legacy/tonconnect/utils';
 import { getAppManifest } from '../../getters/getAppManifest';
 import { TonConnectAuthResult } from '../../../fragments/secure/TonConnectAuthenticateFragment';
 import { useSaveAppConnection } from '../../effects/dapps/useSaveAppConnection';
@@ -13,8 +10,11 @@ import { useRemoveInjectedConnection } from '../../effects/dapps/useRemoveInject
 import { getTimeSec } from '../../../utils/getTimeSec';
 import { Cell, fromNano, toNano } from '@ton/core';
 import { extractDomain } from '../../utils/extractDomain';
-import { useWebViewBridge } from '../../legacy/tonconnect/useWebViewBridge';
 import { useDisconnectApp } from '../../effects/dapps/useDisconnect';
+import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
+import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
+import { useWebViewBridge } from './useWebViewBridge';
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {
     const saveAppConnection = useSaveAppConnection();
@@ -237,7 +237,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
 
     const disconnect = useCallback(async () => {
         try {
-            await onDisconnect(endpoint);
+            onDisconnect(endpoint);
             sendEvent({ event: 'disconnect', payload: {} });
         } catch { }
     }, [endpoint, sendEvent]);

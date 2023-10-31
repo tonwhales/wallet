@@ -72,12 +72,16 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
     }
 }
 
-export function usePrefetchHints(address: string) {
+export function usePrefetchHints(address?: string) {
     const hints = useHints(address);
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
 
     useEffect(() => {
+        if (!address) {
+            return;
+        }
+
         (async () => {
             await Promise.all(hints.map(async hint => {
                 let result = queryClient.getQueryData<StoredContractMetadata>(Queries.ContractMetadata(hint));
@@ -120,5 +124,5 @@ export function usePrefetchHints(address: string) {
         })().catch((e) => {
             console.error(e);
         });
-    }, [hints]);
+    }, [address, hints]);
 }

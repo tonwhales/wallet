@@ -6,9 +6,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { useSelectedAccount } from '../useSelectedAccount';
 import { useNetwork } from '../useNetwork';
-import { AutomergeValue } from '../../legacy/cloud/AutomergeValue';
 import { useEffect, useMemo, useRef } from 'react';
 import { queryClient } from '../../clients';
+import { AutomergeValue } from '../../cloud/AutomergeValue';
 
 async function deriveContentKey(utilityKey: Buffer, contentId: string, isTestnet: boolean) {
     let signKey = await deriveSymmetricPath(utilityKey, [isTestnet ? 'sandbox' : 'mainnet', 'content', contentId, 'sign']);

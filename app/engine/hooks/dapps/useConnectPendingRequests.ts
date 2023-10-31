@@ -1,6 +1,6 @@
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { pendingRequestsState } from "../../state/tonconnect";
-import { SendTransactionRequest } from "../../legacy/tonconnect/types";
+import { SendTransactionRequest } from '../../tonconnect/types';
 
 export function useConnectPendingRequests(): [SendTransactionRequest[], (newState: SendTransactionRequest[]) => void] {
     const value = useRecoilValue(pendingRequestsState);

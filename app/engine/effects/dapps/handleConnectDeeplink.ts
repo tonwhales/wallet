@@ -1,8 +1,8 @@
 import { ConnectRequest } from "@tonconnect/protocol";
-import { connectRequestCodec } from "../../legacy/tonconnect/codecs";
-import { ConnectQrQuery } from "../../legacy/tonconnect/types";
-import { isHexString } from "../../legacy/tonconnect/utils";
 import { getAppManifest } from "../../getters/getAppManifest";
+import { connectRequestCodec } from '../../tonconnect/codecs';
+import { isHexString } from '../../tonconnect/utils';
+import { ConnectQrQuery } from '../../tonconnect/types';
 
 export async function handleConnectDeeplink(query: ConnectQrQuery) {
     const protocolVersion = Number(query.v);

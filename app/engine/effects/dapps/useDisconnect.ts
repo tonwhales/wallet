@@ -1,11 +1,11 @@
 import { DisconnectEvent, SessionCrypto } from "@tonconnect/protocol";
 import { useConnectApp } from "../../hooks/dapps/useConnectApp";
 import { useAppConnections } from "../../hooks/dapps/useAppConnections";
-import { ConnectedAppConnectionRemote, TonConnectBridgeType } from "../../legacy/tonconnect/types";
 import { extensionKey } from "./useAddExtension";
 import { sendTonConnectResponse } from "../../api/sendTonConnectResponse";
 import { useConnectPendingRequests } from "../../hooks/dapps/useConnectPendingRequests";
 import { useRemoveConnectApp } from "./useRemoveConnectApp";
+import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';
 
 export function useDisconnectApp() {
     const getConnectApp = useConnectApp();

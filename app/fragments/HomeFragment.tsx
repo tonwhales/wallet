@@ -19,9 +19,7 @@ import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
-import { fetchJob } from '../engine/hooks/dapps/useCurrentJob';
-import { Cell } from '@ton/core';
-import { parseJob } from '../engine/legacy/apps/parseJob';
+import { useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -31,6 +29,7 @@ export const HomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const linkNavigator = useLinkNavigator(isTestnet);
+    let [currentJob, _] = useCurrentJob();
 
     // Subscribe for links
     React.useEffect(() => {
@@ -40,20 +39,10 @@ export const HomeFragment = fragment(() => {
                 (async () => {
                     try {
                         await backoff('home', async () => {
-                            let fetched = await fetchJob();
-                            if (!fetched) {
+                            let existing = currentJob;
+                            if (!existing) {
                                 return;
                             }
-
-                            const jobCell = Cell.fromBoc(Buffer.from(fetched, 'base64'))[0];
-                            const parsed = parseJob(jobCell.beginParse());
-
-                            if (!parsed) {
-                                return;
-                            }
-
-                            const existing = { ...parsed, jobCell, raw: fetched };
-
 
                             if (existing.job.type === 'transaction') {
                                 try {
@@ -73,7 +62,7 @@ export const HomeFragment = fragment(() => {
                                             }]
                                         },
                                         text: existing.job.text,
-                                        job: existing.raw,
+                                        job: existing.jobRaw,
                                         callback: null
                                     });
                                 } else {
@@ -82,7 +71,7 @@ export const HomeFragment = fragment(() => {
                                         comment: existing.job.text,
                                         amount: existing.job.amount,
                                         stateInit: existing.job.stateInit,
-                                        job: existing.raw,
+                                        job: existing.jobRaw,
                                         jetton: null,
                                         callback: null
                                     })
@@ -97,7 +86,7 @@ export const HomeFragment = fragment(() => {
                                     text: existing.job.text,
                                     textCell: existing.job.textCell,
                                     payloadCell: existing.job.payloadCell,
-                                    job: existing.raw,
+                                    job: existing.jobRaw,
                                     callback: null,
                                     name: connection.name
                                 });
@@ -119,7 +108,7 @@ export const HomeFragment = fragment(() => {
                 }
             }
         });
-    }, []);
+    }, [currentJob]);
 
     if (tab === 0) {
         useTrackScreen('Wallet', isTestnet);

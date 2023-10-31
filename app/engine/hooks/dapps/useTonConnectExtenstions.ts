@@ -13,6 +13,5 @@ export type ConnectedApp = {
 export function useTonConnectExtensions(): [{ [key: string]: ConnectedApp; }, SetterOrUpdater<{ [key: string]: ConnectedApp }>] {
   const value = useRecoilValue(connectExtensions);
   const update = useSetRecoilState(connectExtensions);
-
   return [value || {}, update];
 }

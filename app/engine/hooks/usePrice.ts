@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { PriceState } from '../legacy/products/PriceProduct';
 import { Queries } from '../queries';
-import { fetchPrice } from '../api/fetchPrice';
+import { PriceState, fetchPrice } from '../api/fetchPrice';
 import { usePrimaryCurrency } from './usePrimaryCurrency';
 
 export function usePrice(): [PriceState, string] {

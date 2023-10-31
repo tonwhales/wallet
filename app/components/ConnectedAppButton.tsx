@@ -9,7 +9,7 @@ import { useAppData } from '../engine/hooks/dapps/useAppData';
 import { useAppManifest } from '../engine/hooks/dapps/useAppManifest';
 import { extractDomain } from '../engine/utils/extractDomain';
 import { useTonConnectExtensions } from "../engine/hooks/dapps/useTonConnectExtenstions";
-import { extensionKey } from "../engine/legacy/products/ExtensionsProduct";
+import { extensionKey } from "../engine/effects/dapps/useAddExtension";
 
 export type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 

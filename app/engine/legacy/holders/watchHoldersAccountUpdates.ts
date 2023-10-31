@@ -1,4 +1,4 @@
-import { holdersEndpoint } from "./HoldersProduct";
+import { holdersEndpoint } from "../../api/holders/fetchAccountState";
 
 let index = 0;
 

@@ -11,7 +11,7 @@ import CheckMark from '../../assets/ic_check_mark.svg';
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
 import { useTheme } from '../engine/hooks/useTheme';
 import { usePrimaryCurrency } from '../engine/hooks/usePrimaryCurrency';
-import { CurrencySymbols, PrimaryCurrency } from '../engine/legacy/products/PriceProduct';
+import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

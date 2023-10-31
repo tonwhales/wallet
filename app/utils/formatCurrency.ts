@@ -1,5 +1,30 @@
 import { getNumberFormatSettings } from "react-native-localize";
-import { CurrencySymbols } from '../engine/legacy/products/PriceProduct';
+
+export const PrimaryCurrency: { [key: string]: string } = {
+    Usd: 'USD',
+    Eur: 'EUR',
+    Rub: 'RUB',
+    Gbp: 'GBP',
+    Chf: 'CHF',
+    Cny: 'CNY',
+    Krw: 'KRW',
+    Idr: 'IDR',
+    Inr: 'INR',
+    Jpy: 'JPY',
+}
+
+export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean } } = {
+    [PrimaryCurrency.Usd]: { symbol: '$' },
+    [PrimaryCurrency.Eur]: { symbol: '€' },
+    [PrimaryCurrency.Rub]: { symbol: '₽', end: true },
+    [PrimaryCurrency.Gbp]: { symbol: '£' },
+    [PrimaryCurrency.Chf]: { symbol: '₣' },
+    [PrimaryCurrency.Cny]: { symbol: '¥' },
+    [PrimaryCurrency.Krw]: { symbol: '₩' },
+    [PrimaryCurrency.Idr]: { symbol: 'Rp', end: true },
+    [PrimaryCurrency.Inr]: { symbol: '₹' },
+    [PrimaryCurrency.Jpy]: { symbol: '¥' },
+};
 
 function toLocaleNumber(value: string) {
     const { decimalSeparator } = getNumberFormatSettings();

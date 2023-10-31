@@ -1,9 +1,9 @@
 import { atom } from "recoil";
 import { storagePersistence } from "../../storage/storage";
-import { DomainSubkey } from "../legacy/products/ExtensionsProduct";
 
 const collectionKey = 'domainKeys';
 
+export type DomainSubkey = { time: number, signature: Buffer, secret: Buffer };
 export type DomainKeysState = { [key: string]: DomainSubkey | undefined };
 
 function mapStringToDomainKeysState(value: string | undefined): DomainKeysState {

@@ -1,4 +1,4 @@
-import { DomainSubkey } from "../../legacy/products/ExtensionsProduct";
+import { DomainSubkey } from "../../state/domainKeys";
 import { useDomainKeys } from "./useDomainKeys";
 
 export function useDomainKey(domain: string) {

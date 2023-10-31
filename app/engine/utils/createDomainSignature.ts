@@ -2,7 +2,7 @@ import { beginCell, safeSign } from "@ton/core";
 import { getCurrentAddress } from "../../storage/appState";
 import { contractFromPublicKey } from "../contractFromPublicKey";
 import { keyPairFromSeed } from "ton-crypto";
-import { DomainSubkey } from "../legacy/products/ExtensionsProduct";
+import { DomainSubkey } from "../state/domainKeys";
 
 export function createDomainSignature(domain: string, domainKey: DomainSubkey) {
     if (!domainKey) {

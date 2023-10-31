@@ -4,9 +4,9 @@ import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
-import { DomainSubkey } from "../../legacy/products/ExtensionsProduct";
 import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
 import { useDomainKeys } from "../../hooks/dapps/useDomainKeys";
+import { DomainSubkey } from "../../state/domainKeys";
 
 export function useCreateDomainKeyIfNeeded() {
     const [domainKeys, setDomainKeysState] = useDomainKeys();

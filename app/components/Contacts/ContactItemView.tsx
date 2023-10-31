@@ -5,7 +5,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
+import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
     const theme = useTheme();

@@ -10,9 +10,9 @@ import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
 import { useTheme } from '../../engine/hooks/useTheme';
-import { AddressContact } from '../../engine/legacy/products/SettingsProduct';
 import { Operation } from '../../engine/legacy/transactions/types';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 
 export const TransferComponent = memo(({ transfer, last, first, index }: {
     transfer: {

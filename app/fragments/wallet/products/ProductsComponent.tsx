@@ -14,7 +14,6 @@ import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
-import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
 import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
@@ -27,6 +26,7 @@ import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnec
 import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
 import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
 import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
+import { useOldWalletsBalances } from "../../../engine/hooks/useOldWalletsBalances";
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -40,7 +40,10 @@ export const ProductsComponent = memo(({ selected }: {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const oldWalletsBalance = useOldWalletsBalance();
+    const oldWalletsBalance = useOldWalletsBalances().total;
+
+    console.log({ oldWalletsBalance: oldWalletsBalance.toString() });
+
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
     const ledger = useLedger();

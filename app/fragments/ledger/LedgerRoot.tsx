@@ -42,10 +42,10 @@ const ledgerNavigation = [
     lockedModalScreen('LedgerHID', LedgerHIDFragment),
     lockedModalScreen('LedgerBle', LedgerBleFragment),
     lockedModalScreen('LedgerApp', LedgerAppFragment),
-    modalScreen('LedgerTransfer', LedgerTransferFragment),
+    // modalScreen('LedgerTransfer', LedgerTransferFragment),
     modalScreen('LedgerReceive', ReceiveFragment),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
-    modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment),
+    // modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment),
     modalScreen('LedgerAssets', LedgerAssetsFragment),
 ]
 

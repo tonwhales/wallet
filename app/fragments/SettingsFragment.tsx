@@ -7,12 +7,11 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
-import BN from 'bn.js';
-import { useOldWalletsBalance } from '../engine/hooks/useOldWalletsBalance';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
 import * as Application from 'expo-application';
 import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
+import { useOldWalletsBalances } from '../engine/hooks/useOldWalletsBalances';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -20,7 +19,7 @@ export const SettingsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const account = useSelectedAccount();
-    const oldWalletsBalance = useOldWalletsBalance();
+    const oldWalletsBalance = useOldWalletsBalances().total;
 
     const onVersionTap = React.useMemo(() => {
         let count = 0;

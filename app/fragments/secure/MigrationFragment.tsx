@@ -1,8 +1,7 @@
-import { BN } from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode } from '@ton/core';
+import { SendMode, internal, external, beginCell, storeMessage } from '@ton/core';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -22,7 +21,12 @@ import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useLegacyWallets } from '../../engine/hooks/useLegacyWallets';
+import { useEffect, useState } from 'react';
+import { useOldWalletsBalances } from '../../engine/hooks/useOldWalletsBalances';
+import { useClient4 } from '../../engine/hooks/useClient4';
+import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2 } from '@ton/ton';
+import { getLastBlock } from '../../engine/accountWatcher';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -34,11 +38,12 @@ const MigrationProcessFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
+    const client = useClient4(isTestnet);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
-    const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
+    const [status, setStatus] = useState<string>(t('migrate.inProgress'));
 
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
 
         backoff('migration', async () => {
@@ -54,48 +59,58 @@ const MigrationProcessFragment = fragment(() => {
             let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
 
             // Check possible addresses
-            const legacyTypes: WalletContractType[] = [
-                'org.ton.wallets.simple.r2',
-                'org.ton.wallets.simple.r3',
-                'org.ton.wallets.v2',
-                'org.ton.wallets.v2.r2',
-                'org.ton.wallets.v3',
-                'org.ton.wallets.v3.r2'
+            const legacyContracts = [
+                WalletContractV1R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV1R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV1R3.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV2R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV2R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV3R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV3R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                // TODO: add v4, when next version will be implemented
             ];
-            for (let type of legacyTypes) {
-                if (ended) {
-                    return;
-                }
-                let wallet = engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
-                if (ended) {
-                    return;
-                }
-                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toString({ testOnly: isTestnet })) }));
 
-                const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
-                if (state.balance.gt(BigInt(0))) {
-                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toString({ testOnly: isTestnet })) }));
-                    wallet.prepare(0, key.keyPair.publicKey, type);
+            for (let contract of legacyContracts) {
+                if (ended) {
+                    return;
+                }
+                setStatus(t('migrate.check', { address: ellipsiseAddress(contract.address.toString({ testOnly: isTestnet })) }));
+
+                const last = await getLastBlock();
+                const state = await backoff('migration', () => client.getAccountLite(last, contract.address));
+                if (BigInt(state.account.balance.coins) > BigInt(0)) {
+                    setStatus(t(
+                        'migrate.transfer',
+                        { address: ellipsiseAddress(contract.address.toString({ testOnly: isTestnet })) }
+                    ));
 
                     // Seqno
-                    const seqno = await backoff('migration', () => wallet.getSeqNo());
+                    const seqno = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), contract.address));
 
                     // Transfer
-                    await backoff('migration', () => wallet.transfer({
-                        seqno,
-                        to: targetContract.address,
-                        value: BigInt(0),
-                        sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE,
-                        secretKey: key.keyPair.secretKey,
-                        bounce: false
-                    }));
 
-                    while (!ended) {
-                        let s = await backoff('migration', () => wallet.getSeqNo());
-                        if (s > seqno) {
-                            break;
-                        }
-                    }
+                    // Create transfer all & dstr transfer
+                    let transfer = contract.createTransfer({
+                        seqno: seqno,
+                        secretKey: key.keyPair.secretKey,
+                        sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE, // Transfer full balance
+                        messages: [internal({
+                            to: targetContract.address,
+                            value: 0n,
+                            bounce: false,
+                        })]
+                    });
+
+                    // Create external message
+                    let extMessage = external({
+                        to: contract.address,
+                        body: transfer,
+                        init: seqno === 0 ? contract.init : undefined,
+                    });
+
+                    let msg = beginCell().store(storeMessage(extMessage)).endCell();
+
+                    await backoff('migration', () => client.sendMessage(msg.toBoc({ idx: false })));
                 }
             }
 
@@ -127,17 +142,14 @@ export const MigrationFragment = systemFragment(() => {
     const navigation = useTypedNavigation();
     const animRef = React.useRef<LottieView>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (Platform.OS === 'ios') {
             setTimeout(() => animRef.current?.play(), 500);
         }
     }, []);
 
-    const state = useLegacyWallets();
-    let s = BigInt(0);
-    for (let w of state) {
-        s = s + w.balance;
-    }
+    const state = useOldWalletsBalances();
+    const s = state.total;
 
     if (!confirm) {
         return (
@@ -204,34 +216,44 @@ export const MigrationFragment = systemFragment(() => {
                         borderRadius: 14,
                     }}>
 
-                        {state.map((v, i) => (
-                            <>
-                                {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
-                                <View key={v.address.toString()}
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignSelf: 'flex-start',
-                                        height: 40,
-                                        alignItems: 'center',
-                                        marginHorizontal: 8
-                                    }}>
-                                    <WalletAddress
-                                        address={v.address}
-                                        elipsise
-                                        value={v.address.toString({ testOnly: isTestnet })}
-                                        style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
-                                    />
-                                    <Text>
-                                        <ValueComponent value={v.balance} /> TON
-                                    </Text>
-                                </View>
-                            </>
-                        ))}
+                        {state.wallets.map((v, i) => {
+                            if (!v) {
+                                return null;
+                            }
+                            return (
+                                <>
+                                    {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
+                                    <View key={v.address.toString()}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignSelf: 'flex-start',
+                                            height: 40,
+                                            alignItems: 'center',
+                                            marginHorizontal: 8
+                                        }}>
+                                        <WalletAddress
+                                            address={v.address}
+                                            elipsise
+                                            value={v?.address.toString({ testOnly: isTestnet })}
+                                            style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
+                                        />
+                                        <Text>
+                                            <ValueComponent value={v.balace} /> TON
+                                        </Text>
+                                    </View>
+                                </>
+                            )
+                        })}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </ScrollView>
                 <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                    <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(BigInt(0))} display={s.lte(BigInt(0)) ? 'secondary' : 'default'} />
+                    <RoundButton
+                        title={t('common.start')}
+                        onPress={() => setConfirm(true)}
+                        disabled={s <= BigInt(0)}
+                        display={s <= BigInt(0) ? 'secondary' : 'default'}
+                    />
                 </View>
                 {Platform.OS === 'ios' && (
                     <CloseButton

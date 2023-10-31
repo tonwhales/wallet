@@ -1,89 +1,19 @@
 import React, { useCallback } from "react";
 import { View, Text, Image, useWindowDimensions, TouchableHighlight, NativeSyntheticEvent, NativeScrollEvent, ScrollView, Platform } from "react-native";
-import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "@ton/core";
-// import { TonTransport } from "ton-ledger";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { WalletAddress } from "../../../components/WalletAddress";
 import { t } from "../../../i18n/t";
-import { formatDate, getDateKey } from "../../../utils/dates";
-import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { LedgerTransactionsSection } from "./LedgerTransactionsSection";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useTheme } from '../../../engine/hooks/useTheme';
-import { useLedgerAccount } from '../../../engine/hooks/useLedgerAccount';
-
-const WalletTransactions = React.memo((props: {
-    txs: { id: string, time: number }[],
-    next: { lt: string, hash: string } | null,
-    address: Address,
-    engine: Engine,
-    navigation: TypedNavigation,
-    safeArea: EdgeInsets,
-    frameArea: Rect,
-}) => {
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(props.txs[0].time);
-            sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
-                }
-                lastSection.push(t.id);
-            }
-        }
-        return sections;
-    }, [props.txs]);
-
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <LedgerTransactionsSection
-                key={s.title}
-                section={s}
-                address={props.address}
-                engine={props.engine}
-                navigation={props.navigation}
-            />
-        );
-    }
-
-    // Last
-    if (props.next) {
-        components.push(
-            <View
-                key="prev-loader"
-                style={{
-                    height: 94,
-                    alignSelf: 'stretch',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <LoadingIndicator simple={true} />
-            </View>
-        );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 94 }} />
-        );
-    }
-
-    return (
-        <View>
-            {components}
-        </View>
-    );
-});
+import { TonTransport } from '@ton-community/ton-ledger';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useAccountTransactions } from '../../../engine/hooks/useAccountTransactions';
+import { useClient4 } from '../../../engine/hooks/useClient4';
+import { useAccountLite } from '../../../engine/hooks/useAccountLite';
+import { WalletTransactions } from '../../wallet/TransactionsFragment';
 
 export const LedgerApp = React.memo((props: {
     transport: TonTransport,
@@ -95,34 +25,25 @@ export const LedgerApp = React.memo((props: {
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
-    const account = useLedgerAccount();
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
 
-    const onReachedEnd = React.useMemo(() => {
-        let prev = account?.next;
-        let called = false;
-        return () => {
-            if (called) {
-                return;
-            }
-            called = true;
-            if (prev) {
-                engine.products.ledger.loadMore(address, prev.lt, prev.hash);
-            }
-        }
-    }, [account?.next?.lt ?? null]);
+    const account = useAccountLite(props.address.address);
+
+    const client4 = useClient4(isTestnet);
+    const transactions = useAccountTransactions(client4, props.address.address);
+
 
     const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (!event) return;
         const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
         if (!layoutMeasurement || !contentOffset || !contentSize) return;
 
-        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
-            onReachedEnd();
+        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000 && transactions?.hasNext) {
+            transactions?.next();
         }
-    }, [onReachedEnd]);
+    }, [transactions?.next]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -233,12 +154,13 @@ export const LedgerApp = React.memo((props: {
                         </TouchableHighlight>
                     </View>
                 </View>
-                {(!!account && account.transactions.length > 0) && (
+                {(!!transactions && transactions.data.length > 0) && (
                     <WalletTransactions
-                        txs={account.transactions}
-                        next={account.next}
+                        txs={transactions.data}
+                        hasNext={transactions.hasNext}
+                        loading={transactions.loading}
+                        onLoadMore={transactions.next}
                         address={address}
-                        engine={engine}
                         navigation={navigation}
                         safeArea={safeArea}
                         frameArea={frameArea}

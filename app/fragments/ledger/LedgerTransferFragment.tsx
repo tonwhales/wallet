@@ -6,7 +6,6 @@ import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard 
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "@ton/core";
 import { AddressDomainInput } from "../../components/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
@@ -31,7 +30,9 @@ import { useConfig } from '../../engine/hooks/useConfig';
 import { useJettonWallet } from '../../engine/hooks/useJettonWallet';
 import { useJettonMaster } from '../../engine/hooks/useJettonMaster';
 import { useClient4 } from '../../engine/hooks/useClient4';
-import { estimateFees } from '../../engine/legacy/estimate/estimateFees';
+import { Address, WalletContractV4, internal, toNano, comment as commentCell, fromNano, SendMode, beginCell, external, storeMessage, storeMessageRelaxed, Cell } from '@ton/ton';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { estimateFees } from '../../utils/estimateFees';
 import { useContact } from '../../engine/hooks/contacts/useContact';
 
 export const LedgerTransferFragment = fragment(() => {
@@ -63,7 +64,7 @@ export const LedgerTransferFragment = fragment(() => {
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = React.useState<Cell | null>(null);
     const jettonWallet = useJettonWallet(params.jetton);
-    const jettonMaster = useJettonMaster(jettonWallet.master);
+    const jettonMaster = useJettonMaster(jettonWallet?.master || null);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance = React.useMemo(() => {
         let value;
@@ -75,7 +76,7 @@ export const LedgerTransferFragment = fragment(() => {
         return value;
     }, [jettonWallet, jettonMaster, accountV4State?.balance]);
 
-    const [estimation, setEstimation] = React.useState<BN | null>(null);
+    const [estimation, setEstimation] = React.useState<bigint | null>(null);
 
     // Resolve order
     const order = React.useMemo(() => {
@@ -196,7 +197,7 @@ export const LedgerTransferFragment = fragment(() => {
                     return null;
                 }
 
-                const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+                const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
                 // Load contract
                 const contract = await contractFromPublicKey(addr.publicKey);
                 const seqno = (await client.getLastBlock()).last.seqno;
@@ -205,29 +206,25 @@ export const LedgerTransferFragment = fragment(() => {
 
 
                 // Parse order
-                let intMessage: InternalMessage;
-                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY;
-
-                intMessage = new InternalMessage({
+                let intMessage = internal({
                     to: address,
                     value: value,
                     bounce: false,
-                    body: new CommonMessageInfo({
-                        stateInit: accountV4State.seqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                        body: new CommentMessage(comment || '')
-                    })
+                    body: commentCell(comment || ''),
+                    init: accountV4State.seqno === 0 ? source.init : null
                 });
+                let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY;
+
                 if (order.amountAll) {
-                    sendMode = SendMode.CARRRY_ALL_REMAINING_BALANCE;
+                    sendMode = SendMode.CARRY_ALL_REMAINING_BALANCE;
                 }
 
                 // Create transfer
                 let transfer = await contract.createTransfer({
                     seqno: accountV4State.seqno,
-                    walletId: contract.source.walletId,
-                    secretKey: null,
+                    secretKey: Buffer.from('ebac0c'),
                     sendMode,
-                    order: intMessage
+                    messages: [intMessage]
                 });
                 if (ended) {
                     return;
@@ -235,16 +232,13 @@ export const LedgerTransferFragment = fragment(() => {
 
                 // Resolve fee
                 if (config) {
-                    let inMsg = new Cell();
-                    new ExternalMessage({
+                    let e = external({
                         to: contract.address,
-                        body: new CommonMessageInfo({
-                            stateInit: accountV4State.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                            body: new CellMessage(transfer)
-                        })
-                    }).writeTo(inMsg);
-                    let outMsg = new Cell();
-                    intMessage.writeTo(outMsg);
+                        body: transfer,
+                        init: accountV4State.seqno === 0 ? contract.init : null,
+                    });
+                    let inMsg = beginCell().store(storeMessage(e)).endCell();
+                    let outMsg = beginCell().store(storeMessageRelaxed(intMessage)).endCell();
                     let local = estimateFees(config, inMsg, [outMsg], [accountState.storageStat]);
                     setEstimation(local);
                 }
@@ -347,7 +341,7 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const isKnown: boolean = !!KnownWallets(isTestnet)[target];
-    const contact = useCrontact(target);
+    const contact = useContact(target);
 
     return (
         <View style={{

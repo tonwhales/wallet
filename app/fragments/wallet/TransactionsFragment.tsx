@@ -38,7 +38,7 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
     )
 });
 
-const WalletTransactions = memo((props: {
+export const WalletTransactions = memo((props: {
     txs: TransactionDescription[],
     hasNext: boolean,
     address: Address,

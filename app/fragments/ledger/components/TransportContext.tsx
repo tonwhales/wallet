@@ -1,12 +1,12 @@
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import React, { useCallback, useEffect } from "react";
-// import { TonTransport } from "ton-ledger";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { warn } from "../../../utils/log";
+import { TonTransport } from '@ton-community/ton-ledger';
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };

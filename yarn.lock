@@ -2041,7 +2041,7 @@
     "@ledgerhq/errors" "^6.11.1"
     events "^3.3.0"
 
-"@ledgerhq/hw-transport@^6.28.4":
+"@ledgerhq/hw-transport@^6.28.4", "@ledgerhq/hw-transport@^6.28.8":
   version "6.28.8"
   resolved "https://registry.yarnpkg.com/@ledgerhq/hw-transport/-/hw-transport-6.28.8.tgz#f99a5c71c5c09591e9bfb1b970c42aafbe81351f"
   integrity sha512-XxQVl4htd018u/M66r0iu5nlHi+J6QfdPsORzDF6N39jaz+tMqItb7tUlXM/isggcuS5lc7GJo7NOuJ8rvHZaQ==
@@ -2055,14 +2055,14 @@
   resolved "https://registry.yarnpkg.com/@ledgerhq/logs/-/logs-6.10.1.tgz#5bd16082261d7364eabb511c788f00937dac588d"
   integrity sha512-z+ILK8Q3y+nfUl43ctCPuR4Y2bIxk/ooCQFwZxhtci1EhAtMDzMAx2W25qx8G1PPL9UUOdnUax19+F0OjXoj4w==
 
-"@ledgerhq/react-native-hid@^6.28.8":
-  version "6.28.8"
-  resolved "https://registry.yarnpkg.com/@ledgerhq/react-native-hid/-/react-native-hid-6.28.8.tgz#63ee98fbe9b4e6f6d9f61052fd8d0f5199ba5a6b"
-  integrity sha512-8IImhe7NW3gBF3yDfJNU074MCUpvlBME0B70qjIEf5i5jNZsik1POdmZ/U4Z4dLRQqaQuVzCblv4hXpFm0/D/Q==
+"@ledgerhq/react-native-hid@^6.30.0":
+  version "6.30.0"
+  resolved "https://registry.yarnpkg.com/@ledgerhq/react-native-hid/-/react-native-hid-6.30.0.tgz#a2837c0d640b986282eef5c2aa79e88c4b924ad7"
+  integrity sha512-BLSN/WmKDw6I7A2HF8C9NWyR2WEMSopKKT4lmae7xEI4avP4A8QFLVX3WMT891q5utJ6Pngbyc6/34/N5A0IxQ==
   dependencies:
-    "@ledgerhq/devices" "^7.0.3"
-    "@ledgerhq/errors" "^6.11.1"
-    "@ledgerhq/hw-transport" "^6.27.6"
+    "@ledgerhq/devices" "^8.0.7"
+    "@ledgerhq/errors" "^6.14.0"
+    "@ledgerhq/hw-transport" "^6.28.8"
     "@ledgerhq/logs" "^6.10.1"
     rxjs "6"
 

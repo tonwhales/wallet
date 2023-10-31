@@ -13,6 +13,7 @@ import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useClient4 } from '../../../engine/hooks/useClient4';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 
@@ -41,7 +42,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                     try {
                         const address = Address.parse(addr.address);
                         const liteAcc = await client.getAccountLite(seqno, address);
-                        return { i, addr, balance: BigInt(liteAcc.account.balance.coins, 10) };
+                        return { i, addr, balance: BigInt(liteAcc.account.balance.coins) };
                     } catch (error) {
                         return { i, addr, balance: BigInt(0) };
                     }

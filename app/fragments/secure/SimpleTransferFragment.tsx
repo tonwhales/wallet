@@ -84,7 +84,7 @@ export const SimpleTransferFragment = fragment(() => {
     const balance: bigint = useMemo(() => {
         let value;
         if (jettonWallet) {
-            value = jettonWallet.balance;
+            value = BigInt(jettonWallet.balance);
         } else {
             value = account.balance;
         }
@@ -114,8 +114,8 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.').trim();
             // Manage jettons with decimals
-            if (jettonWallet) {
-                value = toBnWithDecimals(validAmount, jettonMaster?.decimals);
+            if (jettonMaster?.decimals) {
+                value = toBnWithDecimals(validAmount, jettonMaster.decimals);
             } else {
                 value = toNano(validAmount);
             }
@@ -179,8 +179,8 @@ export const SimpleTransferFragment = fragment(() => {
         try {
             const validAmount = amount.replace(',', '.');
             // Manage jettons with decimals
-            if (jettonWallet) {
-                value = toBnWithDecimals(validAmount, jettonMaster?.decimals);
+            if (jettonMaster?.decimals) {
+                value = toBnWithDecimals(validAmount, jettonMaster.decimals);
             } else {
                 value = toNano(validAmount);
             }

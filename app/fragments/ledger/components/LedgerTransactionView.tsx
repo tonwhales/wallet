@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import * as React from 'react';
 import { Image, NativeSyntheticEvent, Platform, Share, Text, useWindowDimensions, View } from 'react-native';
 import { Address } from '@ton/core';
@@ -16,6 +15,7 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { StoredTransaction } from '../../../engine/hooks/useRawAccountTransactions';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -23,9 +23,8 @@ function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: s
 
 export function LedgerTransactionView(props: {
     own: Address,
-    tx: string,
+    tx: StoredTransaction,
     separator: boolean,
-    engine: Engine,
     onPress: (src: string) => void
 }) {
     const theme = useTheme();
@@ -34,18 +33,17 @@ export function LedgerTransactionView(props: {
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
-    const tx = props.engine.products.ledger.useTransaction(props.tx);
+    const tx = props.tx;
     if (!tx) {
         return <></>;
     }
-    let parsed = tx.base;
+    let parsed = tx.parsed;
     let operation = tx.operation;
 
     // Operation
-    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
-    let avatarId = operation.address.toString({ testOnly: isTestnet });
+    let friendlyAddress = operation.address;
+    let avatarId = operation.address;
     let item = operation.items[0];
-    let amount = item.amount;
     let op: string;
     if (operation.op) {
         op = operation.op;

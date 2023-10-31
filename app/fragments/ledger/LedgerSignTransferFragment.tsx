@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, Text, View, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from '@ton/core';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -38,7 +37,6 @@ import { ItemCollapsible } from '../../components/ItemCollapsible';
 import { WImage } from '../../components/WImage';
 import { ItemAddress } from '../../components/ItemAddress';
 import { LedgerOrder } from '../secure/ops/Order';
-import { WalletContractV4 } from '@ton/ton';
 import { TonTransport } from '@ton-community/ton-ledger';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
@@ -62,6 +60,10 @@ import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
+import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
+import { Address, Cell, SendMode, beginCell, external, fromNano, internal, storeMessage, storeMessageRelaxed } from '@ton/core';
+import { WalletContractV4 } from '@ton/ton';
+import { estimateFees } from '../../utils/estimateFees';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -114,7 +116,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
     let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
-    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, isTestnet);
 
     // Resolve Jettion amount
     const jettonAmount = React.useMemo(() => {
@@ -123,9 +125,9 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 const temp = payload;
                 if (temp) {
                     const parsing = temp.beginParse();
-                    parsing.readUint(32);
-                    parsing.readUint(64);
-                    return parsing.readCoins();
+                    parsing.loadUint(32);
+                    parsing.loadUint(64);
+                    return parsing.loadCoins();
                 }
             }
         } catch (e) {
@@ -148,7 +150,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = useContactAddress(target.address);
+    const contact = useContactAddress(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -158,7 +160,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         known = { name: contact.name }
     }
 
-    const isSpam = useDenyAddress(target.address);
+    const isSpam = useDenyAddress(friendlyTarget);
     let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation
@@ -169,7 +171,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         let address: Address = target.address;
 
         const contract = await contractFromPublicKey(addr.publicKey);
-        const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+        const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
 
         try {
             // Fetch data
@@ -189,7 +191,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let bounce = true;
             if (targetState.account.state.type !== 'active' && !order.stateInit) {
                 bounce = false;
-                if (target.balance.lte(BigInt(0))) {
+                if (target.balance <= BigInt(0)) {
                     let cont = await confirm('transfer.error.addressIsNotActive');
                     if (!cont) {
                         navigation.goBack();
@@ -204,7 +206,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 signed = await transport.signTransaction(path, {
                     to: address!,
                     sendMode: order.amountAll
-                        ? SendMode.CARRRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                        ? SendMode.CARRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     amount: value!,
                     seqno: accountSeqno,
                     timeout: Math.floor(Date.now() / 1e3) + 60000,
@@ -225,15 +227,13 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             }
 
             // Sending when accepted
-            let extMessage = new ExternalMessage({
+            let extMessage = external({
                 to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                    body: new CellMessage(signed!)
-                })
+                body: signed,
+                init: accountSeqno === 0 ? source.init : null
             });
-            let msg = new Cell();
-            extMessage.writeTo(msg);
+            
+            let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
             // Transfer
             await backoff('ledger-transfer', async () => {
@@ -254,7 +254,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     const lastBlock = await client.getLastBlock();
                     const lite = await client.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    if (BigInt(account.account.last.lt, 10).lt(BigInt(lite.account.last?.lt || '0', 10))) {
+                    if (BigInt(account.account.last.lt) < BigInt(lite.account.last?.lt || '0')) {
                         setTransferState('sent');
                         navigation.goBack();
                         return;
@@ -835,7 +835,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 fontSize: 17,
                                                 color: theme.textColor,
                                             }}>
-                                                {operation.op}
+                                                {t(operation.op.res, operation.op.options)}
                                             </Text>
                                         </View>
                                     )}
@@ -861,10 +861,10 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         position: 'absolute',
                                         left: -48, top: 0, bottom: 0,
                                     }}>
-                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                        {(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                             <Staking />
                                         )}
-                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                        {!(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                             <SmartContract />
                                         )}
                                     </View>
@@ -877,7 +877,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toString({ testOnly: isTestnet })}
+                                text={operation.address}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}
@@ -891,7 +891,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                             {!!operation.op && (
                                 <>
                                     <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
+                                    <ItemLarge title={t('transfer.purpose')} text={t(operation.op.res, operation.op.options)} />
                                 </>
                             )}
                             {!operation.comment && !operation.op && !!text && (
@@ -967,7 +967,7 @@ export const LedgerSignTransferFragment = fragment(() => {
 
             // Confirm domain-resolved wallet address
             if (order.domain) {
-                const tonDnsRootAddress = netConfig.rootDnsAddress;
+                const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
                 try {
                     const tonZoneMatch = order.domain.match(/\.ton$/);
                     const tMeZoneMatch = order.domain.match(/\.t\.me$/);
@@ -1017,23 +1017,20 @@ export const LedgerSignTransferFragment = fragment(() => {
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;
 
             // Create transfer
-            let intMessage = new InternalMessage({
+            let intMessage = internal({
                 to: target.address,
                 value: order.amount,
                 bounce: false,
-                body: new CommonMessageInfo({
-                    stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                    body: payload ? new CellMessage(payload) : null
-                })
+                body: payload,
+
             });
 
             let seqno = await backoff('transfer', () => fetchSeqno(client, 0, contract.address));
             let transfer = await contract.createTransfer({
                 seqno: seqno,
-                walletId: contract.source.walletId,
-                secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                order: intMessage
+                secretKey: Buffer.from('abacaba'),
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages: [intMessage]
             });
 
             // Fetch data
@@ -1070,17 +1067,16 @@ export const LedgerSignTransferFragment = fragment(() => {
             }
 
             // Estimate fee
-            let inMsg = new Cell();
-            new ExternalMessage({
+            let inMsgExt = external({
                 to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                    body: new CellMessage(transfer)
-                })
-            }).writeTo(inMsg);
-            let outMsg = new Cell();
-            intMessage.writeTo(outMsg);
-            let fees = estimateFees(netConfig!, inMsg, [outMsg], [state!.account.storageStat]);
+                body: transfer,
+                init: seqno === 0 ? contract.init : null
+            });
+
+            let inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
+
+
+            let fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
 
             // Set state
             setLoadedProps({
@@ -1088,7 +1084,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                 target: {
                     isTestOnly: target.isTestOnly,
                     address: target.address,
-                    balance: BigInt(state.account.balance.coins, 10),
+                    balance: BigInt(state.account.balance.coins),
                     active: state.account.state.type === 'active',
                     domain: order.domain
                 },

@@ -1,5 +1,3 @@
-import { extractDomain } from "./utils/extractDomain";
-
 export const Queries = {
     // Everything in account is invalidated futher in onAccountTouched.ts
     Account: (address: string) => ({
@@ -29,10 +27,6 @@ export const Queries = {
     Apps: (url: string) => ({
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],
-    }),
-    Domains: (domain: string) => ({
-        Key: () => ['domain', domain, 'key'],
-        Signrature: () => ['domain', domain, 'signature'],
     }),
     Job: () => (['job']),
 }

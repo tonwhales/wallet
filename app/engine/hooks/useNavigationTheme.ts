@@ -1,6 +1,17 @@
-import { useRecoilValue } from 'recoil';
-import { navigationThemeSelector } from '../state/theme';
+import { ThemeStyle } from '../state/theme';
+import { useTheme } from './useTheme';
+import { DefaultTheme } from '@react-navigation/native';
 
 export function useNavigationTheme() {
-    return useRecoilValue(navigationThemeSelector);
+    const theme = useTheme();
+
+    return {
+        dark: theme.style === ThemeStyle.Dark,
+        colors: {
+            ...DefaultTheme.colors,
+            primary: theme.accent,
+            background: theme.background,
+            card: theme.background
+        }
+    }
 }

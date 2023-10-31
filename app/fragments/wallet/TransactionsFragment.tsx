@@ -28,7 +28,8 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
                     fontSize: 18,
                     fontWeight: '700',
                     marginHorizontal: 16,
-                    marginVertical: 8
+                    marginVertical: 8,
+                    color: theme.textColor
                 }}
             >
                 {title}

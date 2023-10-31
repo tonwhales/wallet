@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
@@ -15,13 +15,16 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { clearHolders } from '../LogoutFragment';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useOfflineApp } from '../../engine/hooks/useOfflineApp';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useSetNetwork } from '../../engine/effects/useSetNetwork';
 import { useCloudValue } from '../../engine/hooks/basic/useCloudValue';
+import { ThemeStyle } from '../../engine/state/theme';
+import { useThemeStyle } from '../../engine/hooks/useThemeStyle';
+import { useLanguage } from '../../engine/hooks/useLanguage';
+import i18n from 'i18next';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -35,6 +38,9 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
+
+    const [themeStyle, setThemeStyle] = useThemeStyle();
+    const [lang, setLang] = useLanguage();
 
     // useEffect(() => {
     //     (async () => {
@@ -185,6 +191,57 @@ export const DeveloperToolsFragment = fragment(() => {
                             await engine.products.holders.forceSyncOfflineApp();
                         }} />
                     </View> */}
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Theme'}
+                            hint={themeStyle}
+                            onPress={() => {
+                                if (theme.style === ThemeStyle.Light) {
+                                    setThemeStyle(ThemeStyle.Dark);
+                                    return;
+                                }
+
+                                setThemeStyle(ThemeStyle.Light);
+                                return;
+                            }}
+                        />
+                    </View>
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Language'}
+                            hint={i18n.language}
+                            onPress={async () => {
+                                if (i18n.language === 'en') {
+                                    await i18n.changeLanguage('ru');
+                                    setLang('ru');
+                                } else {
+                                    await i18n.changeLanguage('en');
+                                    setLang('en');
+                                }
+                                setTimeout(() => reboot(), 100);
+                            }}
+                        />
+                    </View>
                 </View>
             </ScrollView>
         </View>

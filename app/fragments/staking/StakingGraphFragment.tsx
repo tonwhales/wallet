@@ -22,6 +22,7 @@ import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 import { useStakingChart } from '../../engine/hooks/staking/useStakingChart';
 import { usePrice } from '../../engine/hooks/usePrice';
 import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
@@ -34,7 +35,8 @@ export const StakingGraphFragment = fragment(() => {
     const target = Address.parse(params.pool);
     const pool = useStakingPool(target);
     const member = pool?.member;
-    const stakingChart = useStakingChart(target);
+    const account = useSelectedAccount()!;
+    const stakingChart = useStakingChart(target, account.address);
     const knownPool = KnownPools(isTestnet)[params.pool];
 
     const points: GraphPoint[] = (stakingChart?.chart || []).map((p) => {

@@ -136,7 +136,7 @@ export const TransferSingle = memo((props: Props) => {
     if (KnownWallets(isTestnet)[friendlyTarget]) {
         known = KnownWallets(isTestnet)[friendlyTarget];
     } else if (operation.op) {
-        known = { name: t(operation.op.res) };
+        known = { name: t(operation.op.res, operation.op.options) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
@@ -830,7 +830,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 fontSize: 17,
                                                 color: theme.textColor,
                                             }}>
-                                                {operation.op}
+                                                {t(operation.op.res, operation.op.options)}
                                             </Text>
                                         </View>
                                     )}
@@ -857,10 +857,10 @@ export const TransferSingle = memo((props: Props) => {
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
                                         }}>
-                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            {(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                                 <Staking />
                                             )}
-                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            {!(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                                 <SmartContract />
                                             )}
                                         </View>
@@ -890,7 +890,7 @@ export const TransferSingle = memo((props: Props) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toString({ testOnly: isTestnet })}
+                                text={operation.address}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}
@@ -904,7 +904,7 @@ export const TransferSingle = memo((props: Props) => {
                             {!!operation.op && (
                                 <>
                                     <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
+                                    <ItemLarge title={t('transfer.purpose')} text={t(operation.op.res, operation.op.options)} />
                                 </>
                             )}
                             {!operation.comment && !operation.op && !!text && (

@@ -30,7 +30,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString);
+    const account = useAccountLite(selected!.addressString);
     const balanceChart = useAccountBalanceChart();
     // const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 

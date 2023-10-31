@@ -15,10 +15,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
-import { StakingCycle } from "../../components/staking/StakingCycle";
-import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
-import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
-import { UnstakeBanner } from '../../components/staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
@@ -28,6 +24,10 @@ import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
+import { UnstakeBanner } from '../../components/staking/UnstakeBanner';
+import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
+import { StakingCycle } from '../../components/staking/StakingCycle';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -71,9 +71,9 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected.addressString);
+    const account = useAccountLite(selected!.addressString);
     const safeArea = useSafeAreaInsets();
-    const pool = useStakingPool(params.target);
+    const pool = useStakingPool(params.target!);
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
@@ -83,7 +83,7 @@ export const StakingTransferFragment = fragment(() => {
     let balance = account!.balance || BigInt(0);
     if (params?.action === 'withdraw') {
         balance = member
-            ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
+            ? member!.balance + member!.withdraw + member!.pendingDeposit
             : toNano(0);
     }
 
@@ -100,9 +100,7 @@ export const StakingTransferFragment = fragment(() => {
     const doContinue = React.useCallback(async () => {
         let value: bigint;
         let minAmount = pool?.params.minStake
-            ? pool.params.minStake
-                .add(pool.params.receiptPrice)
-                .add(pool.params.depositFee)
+            ? pool.params.minStake + pool.params.receiptPrice + pool.params.depositFee
             : toNano(isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
@@ -145,11 +143,11 @@ export const StakingTransferFragment = fragment(() => {
         let transferAmount = value;
         if (params.action === 'withdraw_ready') {
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
         } else if (params?.action === 'withdraw') {
             if (transferAmount === balance) transferAmount = BigInt(0);
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
         } else if (params.action === 'deposit' || params.action === 'top_up') {
             payload = createAddStakeCommand();
         } else {
@@ -160,7 +158,7 @@ export const StakingTransferFragment = fragment(() => {
         if ((transferAmount === account!.balance || account!.balance < transferAmount)) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
-                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
+                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee + pool.params.receiptPrice) : '0.2' })
                     : t('transfer.error.notEnoughCoins')
             );
             return;
@@ -264,7 +262,7 @@ export const StakingTransferFragment = fragment(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
-    const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+    const withdrawFee = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
 
     return (
         <>
@@ -405,7 +403,6 @@ export const StakingTransferFragment = fragment(() => {
                                     <StakingCalcComponent
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
-                                        member={member}
                                         pool={pool}
                                     />
                                 )}
@@ -457,8 +454,8 @@ export const StakingTransferFragment = fragment(() => {
                                 </View>
                                 {!!pool && params.action !== 'withdraw_ready' && (
                                     <StakingCycle
-                                        stakeUntil={pool.params.stakeUntil}
-                                        locked={pool.params.locked}
+                                        stakeUntil={pool.status.proxyStakeUntil}
+                                        locked={pool.status.locked}
                                         style={{
                                             marginBottom: 15,
                                             marginHorizontal: 0

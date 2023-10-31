@@ -40,6 +40,10 @@ import Question from '../../../../assets/ic_question.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
+import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
+import { parseBody } from '../../../engine/transactions/parseWalletTransaction';
+import { resolveOperation } from '../../../engine/transactions/resolveOperation';
+import { BigMath } from '../../../utils/BigMath';
 
 type Props = {
     text: string | null,
@@ -146,17 +150,15 @@ export const TransferBatch = React.memo((props: Props) => {
                 body: body,
                 amount: message.amount,
                 account: message.addr.address,
-                metadata: message.metadata,
-                jettonMaster
-            });
+            }, isTestnet);
 
             // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toString({ testOnly: isTestnet })];
             const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
             let known: KnownWallet | undefined = undefined;
             if (KnownWallets(isTestnet)[friendlyTarget]) {
                 known = KnownWallets(isTestnet)[friendlyTarget];
-            } else if (operation.title) {
-                known = { name: operation.title };
+            } else if (operation.op) {
+                known = { name: t(operation.op.res, operation.op.options) };
             }
             // } else if (!!contact) { // Resolve contact known wallet
             //     known = { name: contact.name }
@@ -556,7 +558,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
                                                     {(!isTestnet && price)
-                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
+                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(BigMath.abs(gas.total))) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
                                                         : fromNano(gas.total) + ' TON'
                                                     }
                                                 </Text>
@@ -621,7 +623,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                         <ItemAddress
                                             key={'address' + index}
                                             title={`#${index + 1} ` + t('common.walletAddress')}
-                                            text={i.operation.address.toString({ testOnly: isTestnet })}
+                                            text={i.operation.address}
                                         />
                                         {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
                                     </>

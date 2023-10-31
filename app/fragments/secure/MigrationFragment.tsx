@@ -2,7 +2,7 @@ import { BN } from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode, WalletContractType } from '@ton/core';
+import { SendMode } from '@ton/core';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -136,7 +136,7 @@ export const MigrationFragment = systemFragment(() => {
     const state = useLegacyWallets();
     let s = BigInt(0);
     for (let w of state) {
-        s = s.add(w.balance);
+        s = s + w.balance;
     }
 
     if (!confirm) {

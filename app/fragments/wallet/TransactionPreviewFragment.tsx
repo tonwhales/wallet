@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
-import { fromNano } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
@@ -34,6 +34,7 @@ import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { BigMath } from '../../utils/BigMath';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -48,6 +49,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
     let friendlyAddress = operation.address;
     let item = transaction.base.operation.items[0];
+    let jetton = transaction.masterMetadata;
     let op: string;
     if (transaction.op) {
         op = transaction.op;
@@ -114,24 +116,24 @@ export const TransactionPreviewFragment = fragment(() => {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[friendlyAddress]) {
         known = KnownWallets(isTestnet)[friendlyAddress];
-    } else if (operation.title) {
-        known = { name: operation.title };
+    } else if (operation.op) {
+        known = { name: t(operation.op.res, operation.op.options) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const spamMinAmount = useSpamMinAmount();
+    const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
     const isSpam = useDenyAddress(operation.address);
 
     let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
-            transaction.base.amount.abs().lt(spamMinAmount)
-            && transaction.base.body?.type === 'comment'
+            BigMath.abs(BigInt(transaction.base.parsed.amount)) < spamMinAmount
+            && transaction.base.parsed.body?.type === 'comment'
             && !KnownWallets(isTestnet)[friendlyAddress]
             && !isTestnet
-        ) && transaction.base.kind !== 'out';
+        ) && transaction.base.parsed.kind !== 'out';
 
     const onCopy = React.useCallback((text: string) => {
         copyText(text);
@@ -226,7 +228,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             verified={verified}
                         />
                     </View>
-                    {transaction.base.status === 'failed' ? (
+                    {transaction.base.parsed.status === 'failed' ? (
                         <Text style={{ color: theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
@@ -234,7 +236,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         <>
                             <Text
                                 style={{
-                                    color: item.amount.gte(BigInt(0))
+                                    color: BigInt(item.amount) >= BigInt(0)
                                         ? spam
                                             ? theme.textColor
                                             : theme.pricePositive
@@ -247,10 +249,10 @@ export const TransactionPreviewFragment = fragment(() => {
                             >
                                 <ValueComponent
                                     value={item.amount}
-                                    decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    decimals={item.kind === 'token' ? jetton!.decimals : undefined}
                                     precision={5}
                                 />
-                                {item.kind === 'token' ? ' ' + item.symbol : ''}
+                                {item.kind === 'token' ? ' ' + jetton!.symbol : ''}
                                 {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
@@ -261,7 +263,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         alignSelf: 'center'
                                     }}
                                     textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
-                                    amount={item.amount}
+                                    amount={BigInt(item.amount)}
                                 />
                             )}
                         </>
@@ -363,7 +365,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toString({ testOnly: isTestnet }) }
+                                                { address: operation.address }
                                             );
                                         }
                                     }}
@@ -409,7 +411,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address || address}
+                                address={operation.address ? Address.parse(operation.address) : address.address}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -428,7 +430,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toString({ testOnly: isTestnet }))}
+                                onPress={() => onCopy(operation.address || address.addressString)}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -503,7 +505,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 {!isTestnet && (' TON (')}
                             </Text>
                             <PriceComponent
-                                amount={transaction.base.fees}
+                                amount={BigInt(transaction.base.fees)}
                                 style={{
                                     backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
@@ -530,15 +532,15 @@ export const TransactionPreviewFragment = fragment(() => {
                 </View>
             </ScrollView>
             <View style={{ paddingHorizontal: 16 }}>
-                {transaction.base.kind === 'out' && (transaction.base.body === null || transaction.base.body.type !== 'payload') && (
+                {transaction.base.parsed.kind === 'out' && (transaction.base.parsed.body === null || transaction.base.parsed.body.type !== 'payload') && (
                     <View style={{ flexDirection: 'row', width: '100%', marginBottom: 8 }}>
                         <RoundButton
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
                             onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.address!.toString({ testOnly: isTestnet }),
-                                comment: transaction.base.body && transaction.base.body.type === 'comment' ? transaction.base.body.comment : null,
-                                amount: transaction.base.amount.neg(),
+                                target: transaction.base.address,
+                                comment: transaction.base.parsed.body && transaction.base.parsed.body.type === 'comment' ? transaction.base.parsed.body.comment : null,
+                                amount: BigMath.neg(BigInt(transaction.base.parsed.amount)),
                                 job: null,
                                 stateInit: null,
                                 jetton: null,

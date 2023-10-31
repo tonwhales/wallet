@@ -1,6 +1,7 @@
 import BN from "bn.js";
 import { Address, beginCell, Cell, comment } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
+import { TonPayloadFormat } from '@ton-community/ton-ledger';
 /// mport { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
@@ -73,7 +74,7 @@ export function createLedgerJettonOrder(args: {
         target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
-        payload: { type: 'unsafe', message: new CellMessage(msg) }, // TODO: upgrade to new ton-ledger
+        payload: { type: 'comment', text: args.text || '' }, // TODO: upgrade to new ton-ledger
         amountAll: false,
         stateInit: null,
     }
@@ -96,7 +97,9 @@ export function createSimpleLedgerOrder(args: {
     // Resolve payload
     let payload: TonPayloadFormat | null = null;
     if (args.payload) {
-        payload = { type: 'unsafe', message: new CellMessage(args.payload) };
+        // payload = { type: 'unsafe', message: new CellMessage(args.payload) };
+        // TODO
+        throw new Error('Not implemented');
     } else if (args.text) {
         payload = { type: 'comment', text: args.text };
     }

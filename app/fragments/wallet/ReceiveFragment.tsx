@@ -27,7 +27,7 @@ export const ReceiveFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
-    const address = useSelectedAccount();
+    const address = useSelectedAccount()!;
     const [jetton, setJetton] = useState<{ master: string, data: JettonMasterState } | null>(null);
 
     const onAssetSelected = useCallback((address?: string) => {

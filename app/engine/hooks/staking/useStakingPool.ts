@@ -9,16 +9,16 @@ import { StakingPoolMember, useStakingPoolMember } from './useStakingPoolMember'
 export type StakingPoolState = {
     params: StakingPoolParams;
     status: StakingPoolStatus;
-    member: StakingPoolMember;
+    member: StakingPoolMember | null;
 }
 
-export function useStakingPool(address: Address) {
+export function useStakingPool(address: Address): StakingPoolState | null {
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
     let selected = useSelectedAccount()?.address;
     let params = useStakingPoolParams(address, client, isTestnet);
     let status = useStakingPoolStatus(address, client, isTestnet);
-    let member = useStakingPoolMember(address, selected, client, isTestnet);
+    let member = useStakingPoolMember(address, selected, client, isTestnet) || null;
     if (!params || !status) {
         return null;
     }

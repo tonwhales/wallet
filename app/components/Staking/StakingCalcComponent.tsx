@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import React, { memo, useMemo } from "react"
 import { View, Text } from "react-native";
 import { fromNano, toNano } from "@ton/core";
@@ -15,21 +14,15 @@ export const StakingCalcComponent = memo((
     {
         amount,
         topUp,
-        member,
         pool
     }: {
         amount: string,
         topUp?: boolean,
-        member?: {
-            balance: bigint,
-            pendingDeposit: bigint,
-            pendingWithdraw: bigint,
-            withdraw: bigint
-        } | null,
         pool: StakingPoolState
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
+    const member = pool.member;
     const poolFee = pool.params?.poolFee ? Number(pool.params.poolFee / 100n) : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {

@@ -1,6 +1,6 @@
 import { toUrlSafe } from "../../../utils/toUrlSafe";
 import { useExtensions } from "../../hooks/dapps/useExtensions";
-import { sha256_sync } from "ton-crypto";
+import { sha256_sync } from "@ton/crypto";
 
 export function extensionKey(src: string) {
     return toUrlSafe(sha256_sync(src.toLocaleLowerCase().trim()).toString('base64'));

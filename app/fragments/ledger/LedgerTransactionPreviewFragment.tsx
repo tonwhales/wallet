@@ -30,37 +30,34 @@ import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
 import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
-import { parseBody } from '../../engine/legacy/transactions/parseWalletTransaction';
-import { TransactionDescription } from '../../engine/legacy/products/WalletProduct';
-import { Body } from '../../engine/legacy/Transaction';
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
+import { useNetwork } from '../../engine/hooks/useNetwork';
+import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
+import { BigMath } from '../../utils/BigMath';
 
 const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    let operation = transaction.operation;
-    let friendlyAddress = operation.address.toString({ testOnly: isTestnet });
-    let item = transaction.operation.items[0];
+    let operation = transaction.base.operation;
+    let friendlyAddress = operation.address;
+    let item = operation.items[0];
     let op: string;
     if (operation.op) {
-        op = operation.op;
-        if (op === 'airdrop') {
-            op = t('tx.airdrop');
-        }
+        op = t(operation.op.res, operation.op.options);
     } else {
-        if (transaction.base.kind === 'out') {
-            if (transaction.base.status === 'pending') {
+        if (transaction.base.parsed.kind === 'out') {
+            if (transaction.base.parsed.status === 'pending') {
                 op = t('tx.sending');
             } else {
                 op = t('tx.sent');
             }
-        } else if (transaction.base.kind === 'in') {
-            if (transaction.base.bounced) {
+        } else if (transaction.base.parsed.kind === 'in') {
+            if (transaction.base.parsed.bounced) {
                 op = '⚠️ ' + t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -71,12 +68,9 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address.toString({ testOnly: isTestnet })];
+        || !!KnownJettonMasters(isTestnet)[operation.address];
 
-    let body: Body | null = null;
-    if (transaction.base.body?.type === 'payload') {
-        body = parseBody(transaction.base.body.cell);
-    }
+    let body: TxBody | null = transaction.base.parsed.body;
 
     const txId = useMemo(() => {
         if (!transaction.base.lt) {
@@ -109,24 +103,24 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[friendlyAddress]) {
         known = KnownWallets(isTestnet)[friendlyAddress];
-    } else if (operation.title) {
-        known = { name: operation.title };
+    } else if (operation.op) {
+        known = { name: t(operation.op.res, operation.op.options) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const spamMinAmount = useSpamMinAmount();
+    const [spamMinAmount, ] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
     const isSpam = useDenyAddress(operation.address);
 
     let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
-            transaction.base.amount.abs().lt(spamMinAmount)
-            && transaction.base.body?.type === 'comment'
+            BigMath.abs(BigInt(transaction.base.parsed.amount)) < spamMinAmount
+            && transaction.base.parsed.body?.type === 'comment'
             && !KnownWallets(isTestnet)[friendlyAddress]
             && !isTestnet
-        ) && transaction.base.kind !== 'out';
+        ) && transaction.base.parsed.kind !== 'out';
 
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
@@ -208,7 +202,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             verified={verified}
                         />
                     </View>
-                    {transaction.base.status === 'failed' ? (
+                    {transaction.base.parsed.status === 'failed' ? (
                         <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
@@ -216,7 +210,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                         <>
                             <Text
                                 style={{
-                                    color: item.amount.gte(BigInt(0))
+                                    color: BigInt(item.amount) >= BigInt(0)
                                         ? spam
                                             ? theme.textColor
                                             : '#4FAE42'
@@ -229,10 +223,10 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             >
                                 <ValueComponent
                                     value={item.amount}
-                                    decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    decimals={item.kind === 'token' ? transaction.masterMetadata?.decimals : undefined}
                                     precision={5}
                                 />
-                                {item.kind === 'token' ? ' ' + item.symbol : ''}
+                                {item.kind === 'token' ? ' ' + transaction.masterMetadata?.symbol : ''}
                                 {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
@@ -485,7 +479,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                 {!isTestnet && (' TON (')}
                             </Text>
                             <PriceComponent
-                                amount={transaction.base.fees}
+                                amount={BigInt(transaction.base.fees)}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0,

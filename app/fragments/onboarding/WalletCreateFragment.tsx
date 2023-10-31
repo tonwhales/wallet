@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Platform, View } from 'react-native';
-import { mnemonicNew } from 'ton-crypto';
+import { mnemonicNew } from '@ton/crypto';
 import { minimumDelay } from 'teslabot';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

@@ -11,7 +11,7 @@ import {
   import { Buffer } from 'buffer';
   import { Address } from '@ton/core';
   import { Int64LE } from 'int64-buffer';
-  import { sha256_sync } from 'ton-crypto';
+  import { sha256_sync } from '@ton/crypto';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';

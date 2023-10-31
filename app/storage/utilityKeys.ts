@@ -1,4 +1,4 @@
-import { mnemonicToSeed } from 'ton-crypto';
+import { mnemonicToSeed } from '@ton/crypto';
 
 function normalizeMnemonic(src: string[]) {
     return src.map((v) => v.toLowerCase().trim());

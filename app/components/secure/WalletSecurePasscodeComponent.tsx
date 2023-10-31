@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
-import { mnemonicToWalletKey } from 'ton-crypto';
+import { mnemonicToWalletKey } from '@ton/crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';

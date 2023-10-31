@@ -4,7 +4,7 @@ import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { contractFromPublicKey } from "../../contractFromPublicKey";
-import { getSecureRandomBytes, keyPairFromSeed } from "ton-crypto";
+import { getSecureRandomBytes, keyPairFromSeed } from "@ton/crypto";
 import { useDomainKeys } from "../../hooks/dapps/useDomainKeys";
 import { DomainSubkey } from "../../state/domainKeys";
 

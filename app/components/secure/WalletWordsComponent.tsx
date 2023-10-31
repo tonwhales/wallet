@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
-import { mnemonicValidate } from "ton-crypto";
+import { mnemonicValidate } from "@ton/crypto";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";

@@ -1,6 +1,6 @@
 import BN from "bn.js";
 import { Address, Cell, TupleItem, beginCell } from "@ton/core";
-import { sha256 } from "ton-crypto";
+import { sha256 } from "@ton/crypto";
 import { bytesToHex } from "./bytesToHex";
 import { TonClient4 } from '@ton/ton';
 

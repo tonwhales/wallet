@@ -1,4 +1,4 @@
-import { KeyPair, mnemonicToWalletKey } from "ton-crypto";
+import { KeyPair, mnemonicToWalletKey } from "@ton/crypto";
 import { decryptData } from "./secureStorage";
 
 export type WalletKeys = {

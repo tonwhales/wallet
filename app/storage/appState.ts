@@ -2,7 +2,7 @@ import { Address } from '@ton/core';
 import { storage } from './storage';
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
-import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
+import { getSecureRandomBytes, keyPairFromSeed } from '@ton/crypto';
 import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';

@@ -20,13 +20,13 @@ import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
 import { useLedger } from '../../../engine/hooks/useLedger';
 import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useCards } from '../../../engine/hooks/useCards';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
 import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
 import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
 import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
+import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -44,7 +44,7 @@ export const ProductsComponent = memo(({ selected }: {
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
     const ledger = useLedger();
-    const cards = useCards();
+    const cards = useHoldersCards(selected.address).data ?? [];
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();

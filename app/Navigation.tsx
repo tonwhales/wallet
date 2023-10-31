@@ -67,6 +67,7 @@ import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
+import { useHoldersWatcher } from './engine/holdersWatcher';
 
 const Stack = createNativeStackNavigator();
 
@@ -296,6 +297,9 @@ export const Navigation = React.memo(() => {
 
     // Watch for TonConnect requests
     useTonconnectWatcher();
+
+    // Watch for holders updates
+    useHoldersWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

@@ -23,7 +23,7 @@ import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../.
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
-import { useStakingPool } from '../../engine/hooks/useStakingPool';
+import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 import { useAccountLite } from '../../engine/hooks/useAccountLite';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { useTheme } from '../../engine/hooks/useTheme';

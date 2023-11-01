@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { View, Text, Image, useWindowDimensions, TouchableHighlight } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address, toNano } from "@ton/core";
@@ -15,7 +15,7 @@ import { useClient4 } from '../../../engine/hooks/useClient4';
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
 import { WalletTransactions } from "../../wallet/views/WalletTransactions";
 
-export const LedgerApp = React.memo((props: {
+export const LedgerApp = memo((props: {
     transport: TonTransport,
     account: number,
     address: { address: string, publicKey: Buffer },
@@ -24,15 +24,15 @@ export const LedgerApp = React.memo((props: {
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
-    const address = React.useMemo(() => Address.parse(props.address.address), [props.address.address]);
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
-    const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
-
-    const account = useAccountLite(props.address.address);
-
     const client4 = useClient4(isTestnet);
+
+    const address = useMemo(() => Address.parse(props.address.address), [props.address.address]);
+    const account = useAccountLite(props.address.address);
     const transactions = useAccountTransactions(client4, props.address.address);
+
+    const cardHeight = Math.floor((window.width / (358 + 32)) * 196);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -46,7 +46,7 @@ export const LedgerApp = React.memo((props: {
                 safeArea={safeArea}
                 frameArea={frameArea}
                 sectionedListProps={{
-                    contentInset: { top: 0, bottom: safeArea.bottom },
+                    contentInset: { top: 0, bottom: safeArea.bottom + 32 },
                     contentOffset: { y: -(44 + safeArea.top), x: 0 },
                 }}
                 header={

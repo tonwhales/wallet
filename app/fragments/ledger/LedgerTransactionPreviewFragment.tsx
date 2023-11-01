@@ -27,7 +27,6 @@ import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useLedgerTransaction } from '../../engine/hooks/useLedgerTransaction';
 import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
@@ -528,15 +527,14 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
 export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
-    const params = useParams<{ transaction: string }>();
+    const params = useParams<{ transaction: TransactionDescription }>();
     const { addr } = useTransport();
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);
-    const transaction = useLedgerTransaction(params.transaction);
     const navigation = useTypedNavigation();
 
-    if (!transaction) {
+    if (!params.transaction) {
         navigation.goBack();
     }
 
@@ -547,18 +545,18 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
             backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
-            {!transaction && (
+            {!params.transaction && (
                 <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} />
             )}
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {transaction && address && (
+            {params.transaction && address && (
                 <LoadedTransaction
-                    transaction={transaction}
-                    transactionHash={transaction.base?.hash.toString('base64')}
+                    transaction={params.transaction}
+                    transactionHash={params.transaction.base?.hash}
                     address={address}
                 />
             )}
-            {!transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
+            {!params.transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

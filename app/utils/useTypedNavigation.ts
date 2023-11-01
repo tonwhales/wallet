@@ -104,7 +104,7 @@ export class TypedNavigation {
     }
 
     navigateLedgerApp() {
-        this.navigate('LedgerApp');
+        this.replace('LedgerApp');
     }
     
     navigateConnectAuth(params: TonConnectAuthProps) {

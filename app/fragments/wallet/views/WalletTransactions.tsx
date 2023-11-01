@@ -45,6 +45,7 @@ export const WalletTransactions = memo((props: {
         contentInset?: Insets,
         contentOffset?: PointProp
     },
+    ledger?: boolean,
 }) => {
     const theme = useTheme();
     const dimentions = useWindowDimensions();
@@ -71,13 +72,20 @@ export const WalletTransactions = memo((props: {
         return { transactionsSectioned: sectioned };
     }, [props.txs]);
 
+    const navigateToPreview = useCallback((transaction: TransactionDescription) => {
+        props.navigation.navigate(
+            props.ledger ? 'LedgerTransactionPreview' : 'Transaction',
+            { transaction }
+        );
+    }, [props.ledger, props.navigation]);
+
     const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
         return (
             <TransactionView
                 own={props.address}
                 tx={item}
                 separator={section.data[index + 1] !== undefined}
-                onPress={() => { }}
+                onPress={() => navigateToPreview(item)}
                 theme={theme}
                 fontScaleNormal={fontScaleNormal}
             />

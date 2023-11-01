@@ -69,7 +69,9 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
     const opAddress = useMemo(() => {
         try {
             return Address.parse(friendlyAddress);
-        } catch {}
+        } catch {
+            return null;
+        }
     }, [friendlyAddress]);
 
     const verified = !!transaction.verified

@@ -12,7 +12,7 @@ export function useCardTransactions(address: string, id: string) {
         lastCursor: string;
         data: CardNotification[];
     } | null>({
-        queryKey: Queries.Account(address).Holders().Notifications(id),
+        queryKey: Queries.Holders(address).Notifications(id),
         getNextPageParam: (last) => {
             if (!last?.lastCursor) {
                 return null;

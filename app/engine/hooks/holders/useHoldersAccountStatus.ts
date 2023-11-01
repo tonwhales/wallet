@@ -37,7 +37,7 @@ export function useHoldersAccountStatus(address: string | Address) {
     }, [address, isTestnet]);
 
     return useQuery({
-        queryKey: Queries.Account(addressString).Holders().Status(),
+        queryKey: Queries.Holders(addressString).Status(),
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             const token = getHoldersToken(addr);

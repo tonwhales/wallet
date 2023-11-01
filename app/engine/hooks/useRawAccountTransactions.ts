@@ -282,7 +282,7 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
 export function useRawAccountTransactions(client: TonClient4, account: string) {
     const { isTestnet } = useNetwork();
     let query = useInfiniteQuery<StoredTransaction[]>({
-        queryKey: Queries.Account(account).Transactions(),
+        queryKey: Queries.Transactions(account),
         getNextPageParam: (last) => {
             if (!last || !last[last.length - 1]) {
                 return null;

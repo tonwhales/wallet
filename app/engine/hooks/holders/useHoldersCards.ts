@@ -19,7 +19,7 @@ export function useHoldersCards(address: string | Address) {
     }, [address, isTestnet]);
 
     let query = useQuery({
-        queryKey: Queries.Account(addressString).Holders().Cards(),
+        queryKey: Queries.Holders(addressString).Cards(),
         queryFn: async (key) => {
             if (!!status && status.state !== HoldersAccountState.NoRef && status.state !== HoldersAccountState.NeedEnrollment) {
                 const res = await fetchCardsList(status.token);

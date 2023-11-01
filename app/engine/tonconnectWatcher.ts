@@ -7,17 +7,10 @@ import { useAppConnections } from './hooks/dapps/useAppConnections';
 import { SessionCrypto } from '@tonconnect/protocol';
 import { useHandleMessage } from './effects/dapps/useHandleMessage';
 import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './tonconnect/types';
+import { getLastEventId } from './tonconnect/utils';
+import { bridgeUrl } from './tonconnect/config';
 
 const logger = createLogger('tonconnect');
-export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
-
-export function setLastEventId(lastEventId: string) {
-    storage.set('connect_last_event_id', lastEventId);
-}
-
-export function getLastEventId() {
-    return storage.getString('connect_last_event_id');
-}
 
 export function useTonconnectWatcher() {
     const [extensions,] = useTonConnectExtensions();

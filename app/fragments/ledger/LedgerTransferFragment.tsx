@@ -44,8 +44,8 @@ export const LedgerTransferFragment = fragment(() => {
         if (addr) {
             try {
                 return Address.parse(addr.address);
-            } catch (e) {
-                console.warn(e);
+            } catch {
+                return null;
             }
         }
     }, [addr]);

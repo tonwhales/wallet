@@ -1,129 +1,19 @@
-import React, { memo, useCallback } from "react";
-import { Platform, View, Text, Pressable, SectionList, useWindowDimensions, SectionListRenderItemInfo, SectionListData, ActivityIndicator } from "react-native";
-import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import React, {  } from "react";
+import { Platform, View, Text, Pressable } from "react-native";
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
-import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { Address } from "@ton/core";
-import { formatDate, getDateKey } from "../../utils/dates";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { TransactionDescription, useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
+import { useAccountTransactions } from '../../engine/hooks/useAccountTransactions';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
-import { TransactionView } from './views/TransactionView';
-import { ThemeType } from '../../engine/state/theme';
-
-const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
-    return (
-        <View
-            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
-        >
-            <Text
-                style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    marginHorizontal: 16,
-                    marginVertical: 8,
-                    color: theme.textColor
-                }}
-            >
-                {title}
-            </Text>
-        </View>
-    )
-});
-
-export const WalletTransactions = memo((props: {
-    txs: TransactionDescription[],
-    hasNext: boolean,
-    address: Address,
-    navigation: TypedNavigation,
-    safeArea: EdgeInsets,
-    frameArea: Rect,
-    onLoadMore: () => void,
-    loading: boolean,
-}) => {
-    const theme = useTheme();
-    const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
-
-    const { transactionsSectioned } = React.useMemo(() => {
-        let sectioned: { title: string, data: TransactionDescription[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].base.time);
-            let lastItems: TransactionDescription[] = [];
-            let title = formatDate(props.txs[0].base.time);
-            sectioned.push({ data: lastItems, title });
-            for (let t of props.txs) {
-                let time = getDateKey(t.base.time);
-                if (lastTime !== time) {
-                    lastTime = time;
-                    lastItems = [];
-                    title = formatDate(t.base.time);
-                    sectioned.push({ data: lastItems, title });
-                }
-                lastItems.push(t);
-            }
-        }
-        return { transactionsSectioned: sectioned };
-    }, [props.txs]);
-
-    const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
-        return (
-            <TransactionView
-                own={props.address}
-                tx={item}
-                separator={section.data[index + 1] !== undefined}
-                onPress={() => { }}
-                theme={theme}
-                fontScaleNormal={fontScaleNormal}
-            />
-        );
-    }, [props.address.hash, theme, fontScaleNormal]);
-
-    const renderSectionHeader = useCallback((section: { section: SectionListData<TransactionDescription, { title: string }> }) => (
-        <SectionHeader theme={theme} title={section.section.title} />
-    ), [theme]);
-
-    return (
-        <SectionList
-            contentContainerStyle={{
-                paddingTop: Platform.OS === 'android'
-                    ? props.safeArea.top + 44
-                    : undefined,
-            }}
-            sections={transactionsSectioned}
-            contentInset={{ top: 44, bottom: 52 }}
-            contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
-            scrollEventThrottle={26}
-            removeClippedSubviews={true}
-            stickySectionHeadersEnabled={false}
-            initialNumToRender={300}
-            maxToRenderPerBatch={20}
-            updateCellsBatchingPeriod={100}
-            getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
-            getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
-            renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined}
-            ListFooterComponent={props.loading ? (
-                <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <LoadingIndicator simple />
-                </View>
-            ) : (
-                props.hasNext ? (<View style={{ height: 64 }} />) : undefined
-            )}
-            renderItem={renderItem}
-            onEndReached={() => props.onLoadMore()}
-            onEndReachedThreshold={0.5}
-            keyExtractor={(item) => 'tx-' + item.id}
-        />
-    );
-});
+import { WalletTransactions } from "./views/WalletTransactions";
 
 function TransactionsComponent(props: { account: SelectedAccount }) {
     const theme = useTheme();

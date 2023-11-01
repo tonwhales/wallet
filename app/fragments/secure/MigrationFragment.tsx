@@ -214,7 +214,7 @@ export const MigrationFragment = systemFragment(() => {
                         borderRadius: 14,
                     }}>
 
-                        {state.wallets.map((v, i) => {
+                        {state.accounts.map((v, i) => {
                             if (!v) {
                                 return null;
                             }
@@ -236,7 +236,7 @@ export const MigrationFragment = systemFragment(() => {
                                             style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                         />
                                         <Text>
-                                            <ValueComponent value={v.balace} /> TON
+                                            <ValueComponent value={v.account.balance.coins} /> TON
                                         </Text>
                                     </View>
                                 </>

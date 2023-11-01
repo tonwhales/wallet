@@ -10,12 +10,13 @@ export const Queries = {
             Member: (member: string) => ['account', address, 'staking', 'member', member],
             Chart: (member: string) => ['account', address, 'staking', 'chart', member],
         }),
-        Transactions: () => ['transactions', address],
-        Holders: () => ({
-            Status: () => ['account', address, 'holders', 'status'],
-            Cards: () => ['account', address, 'holders', 'cards'],
-            Notifications: (id: string) => ['account', address, 'holders', 'notifications', id],
-        }),
+    }),
+    
+    Transactions: (address: string) => ['transactions', address],
+    Holders: (address: string) => ({
+        Status: () => ['holders', address, 'status'],
+        Cards: () => ['holders', address, 'cards'],
+        Notifications: (id: string) => ['holders', address, 'notifications', id],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

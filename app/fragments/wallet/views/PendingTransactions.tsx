@@ -12,16 +12,16 @@ import { useJettonContent } from "../../../engine/hooks/basic/useJettonContent";
 import { knownAddressLabel } from "./TransactionView";
 import { AddressComponent } from "../../../components/AddressComponent";
 import { formatTime } from "../../../utils/dates";
-import { useContactAddress } from "../../../engine/hooks/contacts/useContactAddress";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useContact } from "../../../engine/hooks/contacts/useContact";
 
-const PendingTransactionView = memo(({ tx }: { tx: PendingTransaction }) => {
+const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, last?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const targetFriendly = tx.address?.toString({ testOnly: isTestnet });
     const jettonMaster = useJettonContent(tx.body?.type === 'token' ? tx.body?.master.toString({ testOnly: isTestnet }) : null);
-    const contact = useContactAddress(targetFriendly);
+    const contact = useContact(targetFriendly);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -101,7 +101,7 @@ const PendingTransactionView = memo(({ tx }: { tx: PendingTransaction }) => {
                         <Text style={{ color: theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(tx.time)}</Text>
                     </View>
                     <View style={{ flexGrow: 1 }} />
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider }} />
+                    {!last && <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider }} />}
                 </View>
             </View>
         </Animated.View>
@@ -111,9 +111,29 @@ const PendingTransactionView = memo(({ tx }: { tx: PendingTransaction }) => {
 export const PendingTransactions = memo(() => {
     const pending = usePendingTransactions();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     return (
-        <View style={{ paddingTop: (pending.length === 0 && Platform.OS === 'ios') ? safeArea.top : undefined }}>
-            {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} />)}
+        <View style={{ marginTop: Platform.OS === 'ios' ? safeArea.top : undefined }}>
+            {pending.length > 0 && (
+                <Animated.View
+                    entering={FadeInDown}
+                    exiting={FadeOutUp}
+                    style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+                >
+                    <Text
+                        style={{
+                            fontSize: 18,
+                            fontWeight: '700',
+                            marginHorizontal: 16,
+                            marginVertical: 8,
+                            color: theme.textColor
+                        }}
+                    >
+                        {t('wallet.pendingTransactions')}
+                    </Text>
+                </Animated.View>
+            )}
+            {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} last={i === pending.length - 1} />)}
         </View>
     );
 });

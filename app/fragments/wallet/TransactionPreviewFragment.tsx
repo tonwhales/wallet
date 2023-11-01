@@ -109,7 +109,7 @@ export const TransactionPreviewFragment = fragment(() => {
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
     }, [txId]);
 
-    const contact = useContact(operation.address);
+    const contact = useContact(friendlyAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

@@ -53,6 +53,7 @@ import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
 import { useContact } from '../../../engine/hooks/contacts/useContact';
+import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
 
 type Props = {
     target: {

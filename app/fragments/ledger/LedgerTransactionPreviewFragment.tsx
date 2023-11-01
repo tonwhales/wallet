@@ -1,11 +1,10 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
 import { useParams } from "../../utils/useParams";
 import { Address, fromNano } from "@ton/core";
-import BN from "bn.js";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -38,11 +37,12 @@ import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
 import { BigMath } from '../../utils/BigMath';
 
-const LoadedTransaction = React.memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
+const LoadedTransaction = memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
+
     let operation = transaction.base.operation;
     let friendlyAddress = operation.address;
     let item = operation.items[0];
@@ -67,8 +67,14 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
         }
     }
 
+    const opAddress = useMemo(() => {
+        try {
+            return Address.parse(friendlyAddress);
+        } catch {}
+    }, [friendlyAddress]);
+
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address];
+        || !!KnownJettonMasters(isTestnet)[friendlyAddress];
 
     let body: TxBody | null = transaction.base.parsed.body;
 
@@ -97,7 +103,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
             '/' + txId
     }, [txId]);
 
-    const contact = useContactAddress(operation.address);
+    const contact = useContactAddress(friendlyAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -111,7 +117,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
 
     const [spamMinAmount, ] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const isSpam = useDenyAddress(operation.address);
+    const isSpam = useDenyAddress(friendlyAddress);
 
     let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
@@ -237,7 +243,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         alignSelf: 'center'
                                     }}
                                     textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
-                                    amount={item.amount}
+                                    amount={BigInt(item.amount)}
                                 />
                             )}
                         </>
@@ -339,7 +345,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toString({ testOnly: isTestnet }) }
+                                                { address: friendlyAddress }
                                             );
                                         }
                                     }}
@@ -385,7 +391,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address || address}
+                                address={opAddress || address}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -404,7 +410,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, address }:
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toString({ testOnly: isTestnet }))}
+                                onPress={() => onCopy((opAddress || address).toString({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>

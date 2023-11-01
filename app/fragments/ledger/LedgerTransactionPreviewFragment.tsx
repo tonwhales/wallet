@@ -27,7 +27,6 @@ import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useTheme } from '../../engine/hooks/useTheme';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
@@ -35,6 +34,7 @@ import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
 import { BigMath } from '../../utils/BigMath';
+import { useContact } from '../../engine/hooks/contacts/useContact';
 
 const LoadedTransaction = memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();
@@ -104,7 +104,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
             '/' + txId
     }, [txId]);
 
-    const contact = useContactAddress(friendlyAddress);
+    const contact = useContact(friendlyAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

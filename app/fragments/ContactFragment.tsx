@@ -20,9 +20,9 @@ import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
-import { useContactAddress } from '../engine/hooks/contacts/useContactAddress';
 import { useSetContact } from "../engine/effects/useSetContact";
 import { useRemoveContact } from "../engine/effects/useRemoveContact";
+import { useContact } from '../engine/hooks/contacts/useContact';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -47,7 +47,7 @@ export const ContactFragment = fragment(() => {
     const setContact = useSetContact();
     const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
-    const contact = useContactAddress(params.address);
+    const contact = useContact(params.address);
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);

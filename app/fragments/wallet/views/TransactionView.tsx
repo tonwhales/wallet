@@ -15,7 +15,6 @@ import { confirmAlert } from '../../../utils/confirmAlert';
 import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
 import { ThemeType } from '../../../engine/state/theme';
 import { memo, useCallback, useMemo } from 'react';
-import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddress';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { useSpamMinAmount } from '../../../engine/hooks/spam/useSpamMinAmount';
@@ -24,6 +23,7 @@ import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAddToDenyList } from '../../../engine/effects/spam/useAddToDenyList';
+import { useContact } from '../../../engine/hooks/contacts/useContact';
 
 function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -54,7 +54,7 @@ export const TransactionView = memo((props: {
 
     const navigation = useTypedNavigation();
     const selectedAccount = useSelectedAccount();
-    const contact = useContactAddress(opAddress);
+    const contact = useContact(opAddress);
     const isSpam = useDenyAddress(opAddress);
     const [spamMinAmount,] = useSpamMinAmount();
     const addToDenyList = useAddToDenyList();

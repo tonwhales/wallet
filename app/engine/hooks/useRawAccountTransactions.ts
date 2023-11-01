@@ -271,7 +271,7 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
             resolvedAddress: addressResolved,
         },
         operation: resolveOperation({
-            account: own,
+            account: Address.parse(addressResolved),
             amount: amount,
             body: body
         }, isTestnet),

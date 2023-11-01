@@ -49,7 +49,6 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { useLedgerAccount } from '../../engine/hooks/useLedgerAccount';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
-import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useConfig } from '../../engine/hooks/useConfig';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
@@ -64,6 +63,7 @@ import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, SendMode, beginCell, external, fromNano, internal, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { WalletContractV4 } from '@ton/ton';
 import { estimateFees } from '../../utils/estimateFees';
+import { useContact } from '../../engine/hooks/contacts/useContact';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -150,7 +150,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = useContactAddress(friendlyTarget);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

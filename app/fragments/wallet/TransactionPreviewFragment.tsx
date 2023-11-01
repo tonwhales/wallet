@@ -25,7 +25,6 @@ import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
 import { useTheme } from '../../engine/hooks/useTheme';
-import { useContactAddress } from '../../engine/hooks/contacts/useContactAddress';
 import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
 import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
@@ -34,6 +33,7 @@ import { useNetwork } from '../../engine/hooks/useNetwork';
 import { TransactionDescription, TxBody } from '../../engine/hooks/useAccountTransactions';
 import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
 import { BigMath } from '../../utils/BigMath';
+import { useContact } from '../../engine/hooks/contacts/useContact';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -109,7 +109,7 @@ export const TransactionPreviewFragment = fragment(() => {
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
     }, [txId]);
 
-    const contact = useContactAddress(operation.address);
+    const contact = useContact(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -537,9 +537,9 @@ export const TransactionPreviewFragment = fragment(() => {
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
                             onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.address,
+                                target: transaction.base.parsed.resolvedAddress,
                                 comment: transaction.base.parsed.body && transaction.base.parsed.body.type === 'comment' ? transaction.base.parsed.body.comment : null,
-                                amount: BigMath.neg(BigInt(transaction.base.parsed.amount)),
+                                amount: BigMath.abs(BigInt(transaction.base.parsed.amount)),
                                 job: null,
                                 stateInit: null,
                                 jetton: null,

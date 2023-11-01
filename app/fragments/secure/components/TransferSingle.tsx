@@ -28,7 +28,6 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { useContactAddress } from '../../../engine/hooks/contacts/useContactAddress';
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
 import { useAccountLite } from '../../../engine/hooks/useAccountLite';
@@ -53,7 +52,7 @@ import Question from '../../../../assets/ic_question.svg';
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
-import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
+import { useContact } from '../../../engine/hooks/contacts/useContact';
 
 type Props = {
     target: {
@@ -131,7 +130,7 @@ export const TransferSingle = memo((props: Props) => {
 
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = useContactAddress(operation.address);
+    const contact = useContact(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;

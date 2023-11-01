@@ -7,6 +7,10 @@ import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { warn } from "../../../utils/log";
 import { TonTransport } from '@ton-community/ton-ledger';
+import { useAccountLite } from '../../../engine/hooks/useAccountLite';
+import { useAccountTransactions } from '../../../engine/hooks/useAccountTransactions';
+import { useClient4 } from '../../../engine/hooks/useClient4';
+import { useNetwork } from '../../../engine/hooks/useNetwork';
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };

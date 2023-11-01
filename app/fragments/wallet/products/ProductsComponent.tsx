@@ -18,7 +18,7 @@ import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance
 import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
-import { useLedger } from '../../../engine/hooks/useLedger';
+import { useLedgerEnabled } from '../../../engine/hooks/useLedgerEnabled';
 import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
 import { useNetwork } from '../../../engine/hooks/useNetwork';
 import { DappButton } from "./DappButton";
@@ -43,7 +43,7 @@ export const ProductsComponent = memo(({ selected }: {
     const oldWalletsBalance = useOldWalletsBalance();
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
-    const ledger = useLedger();
+    const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();
     const cards = useHoldersCards(selected.address).data ?? [];
 
     const [installedExtensions,] = useExtensions();
@@ -91,8 +91,7 @@ export const ProductsComponent = memo(({ selected }: {
             text: t('common.continue'),
             style: 'destructive',
             onPress: () => {
-                // TODO
-                // setLedger(false);
+                setLedgerEnabled(false);
             }
         }]);
     }, []);
@@ -131,7 +130,7 @@ export const ProductsComponent = memo(({ selected }: {
         );
     }
 
-    if (ledger) {
+    if (ledgerEnabled) {
         apps.push(
             <AnimatedProductButton
                 key={'ledger'}

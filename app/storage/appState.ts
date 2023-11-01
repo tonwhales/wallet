@@ -337,3 +337,16 @@ export function removePendingRevoke(key: string) {
     }
     storage.set('app_references_revoke', JSON.stringify(pendingGrant.filter((v) => v !== key)));
 }
+
+//
+// Ledger
+//
+
+export function getLedgerEnabled() {
+    let ledgerEnabled = storage.getBoolean('app_ledger_enabled') || false;
+    return ledgerEnabled;
+}
+
+export function setLedgerEnabled(enabled: boolean) {
+    storage.set('app_ledger_enabled', enabled);
+}

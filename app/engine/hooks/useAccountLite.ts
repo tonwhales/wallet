@@ -11,16 +11,21 @@ export type AccountLite = {
     balance: bigint,
 }
 
-export function useAccountLite(address: string | Address): AccountLite | null {
+export function useAccountLite(address?: string | Address | null): AccountLite | null {
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
 
     let addressString = useMemo(() => {
+        if (!address) {
+            return '';
+        }
+
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
         return address;
     }, [address, isTestnet]);
+    
 
     let query = useQuery({
         queryKey: Queries.Account(addressString).Lite(),

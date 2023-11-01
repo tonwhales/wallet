@@ -18,7 +18,7 @@ import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
 import { useExtensions } from '../../engine/hooks/dapps/useExtensions';
 import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useLedger } from '../../engine/hooks/useLedger';
+import { useLedgerEnabled } from '../../engine/hooks/useLedgerEnabled';
 import { useTheme } from '../../engine/hooks/useTheme';
 import { useRemoveExtension } from '../../engine/effects/dapps/useRemoveExtension';
 import { useDisconnectApp } from '../../engine/effects/dapps/useDisconnect';
@@ -59,7 +59,7 @@ export const ConnectionsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
-    const ledger = useLedger();
+    const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();
 
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
     const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
@@ -112,7 +112,7 @@ export const ConnectionsFragment = fragment(() => {
     }, []);
 
     const toggleLedger = useCallback(() => {
-        if (!ledger) {
+        if (!ledgerEnabled) {
             Alert.alert(
                 t('hardwareWallet.ledger'),
                 t('hardwareWallet.confirm.add'),
@@ -121,7 +121,7 @@ export const ConnectionsFragment = fragment(() => {
                         text: t('common.cancel')
                     }, {
                         text: t('common.add'),
-                        onPress: () => null,/* TODO(LEDGER): engine.products.settings.setLedger(true) */
+                        onPress: () => setLedgerEnabled(true), 
                     }
                 ]
             );
@@ -136,11 +136,11 @@ export const ConnectionsFragment = fragment(() => {
                 }, {
                     text: t('common.delete'),
                     style: 'destructive',
-                    onPress: () => null, /* TODO(LEDGER): engine.products.settings.setLedger(false) */
+                    onPress: () => setLedgerEnabled(false),
                 }
             ]
         );
-    }, [ledger]);
+    }, [ledgerEnabled]);
 
     // 
     // Lottie animation
@@ -179,7 +179,7 @@ export const ConnectionsFragment = fragment(() => {
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
+                && !ledgerEnabled
             ) && (
                     <View style={{
                         alignItems: 'center',
@@ -238,7 +238,7 @@ export const ConnectionsFragment = fragment(() => {
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
+                && !ledgerEnabled
             ) && (
                     <ScrollView style={{ flexGrow: 1 }}>
                         <View style={{
@@ -310,7 +310,7 @@ export const ConnectionsFragment = fragment(() => {
                                 }}
                                 value={null}
                                 onPress={() => {
-                                    if (!ledger) {
+                                    if (!ledgerEnabled) {
                                         toggleLedger();
                                         return;
                                     }

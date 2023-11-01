@@ -1,8 +1,5 @@
 import React, { ReactElement, memo, useCallback, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { StakingProductComponent } from "../../../components/staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
@@ -14,7 +11,6 @@ import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
 import { useTheme } from '../../../engine/hooks/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
-import { useOldWalletsBalance } from '../../../engine/hooks/useOldWalletsBalance';
 import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
 import { useJettons } from '../../../engine/hooks/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
@@ -27,6 +23,11 @@ import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnec
 import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
 import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
 import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
+import { useOldWalletsBalances } from "../../../engine/hooks/useOldWalletsBalances";
+
+import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../../assets/ic_transaction.svg';
 
 export const ProductsComponent = memo(({ selected }: {
     selected: {
@@ -40,7 +41,8 @@ export const ProductsComponent = memo(({ selected }: {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const oldWalletsBalance = useOldWalletsBalance();
+    const oldWalletsBalance = useOldWalletsBalances().total;
+
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);
     const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();

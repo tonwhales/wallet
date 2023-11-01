@@ -68,6 +68,7 @@ import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
+import { usePendingWatcher } from './engine/hooks/usePendingWatcher';
 
 const Stack = createNativeStackNavigator();
 
@@ -300,6 +301,9 @@ export const Navigation = React.memo(() => {
 
     // Watch for holders updates
     useHoldersWatcher();
+
+    // clear pending txs on account change
+    usePendingWatcher();
 
     return (
         <View style={{ flexGrow: 1, alignItems: 'stretch' }}>

@@ -215,6 +215,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         tokenTransfer: 'Трансфер токенов',
         airdrop: 'Airdrop',
         failed: 'Ошибка',
+        batch: 'Несколько отправок',
     },
     txPreview: {
         sendAgain: 'Повторить',

@@ -1,4 +1,4 @@
-import React, {  } from "react";
+import React, { } from "react";
 import { Platform, View, Text, Pressable } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -14,6 +14,8 @@ import { useAccountTransactions } from '../../engine/hooks/useAccountTransaction
 import { useClient4 } from '../../engine/hooks/useClient4';
 import { useNetwork } from '../../engine/hooks/useNetwork';
 import { WalletTransactions } from "./views/WalletTransactions";
+import { usePendingTransactions } from "../../engine/hooks/usePendingTransactions";
+import { PendingTransactions } from "./views/PendingTransactions";
 
 function TransactionsComponent(props: { account: SelectedAccount }) {
     const theme = useTheme();
@@ -78,6 +80,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                     hasNext={txs.hasNext}
                     frameArea={frameArea}
                     loading={txs.loading}
+                    header={<PendingTransactions />}
                 />
             )}
             {/* iOS Toolbar */}

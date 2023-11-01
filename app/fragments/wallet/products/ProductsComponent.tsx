@@ -1,8 +1,5 @@
 import React, { ReactElement, memo, useCallback, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
 import { StakingProductComponent } from "../../../components/staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
@@ -28,6 +25,10 @@ import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCall
 import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
 import { useOldWalletsBalances } from "../../../engine/hooks/useOldWalletsBalances";
 
+import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../../assets/ic_transaction.svg';
+
 export const ProductsComponent = memo(({ selected }: {
     selected: {
         address: Address;
@@ -41,8 +42,6 @@ export const ProductsComponent = memo(({ selected }: {
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-
-    console.log({ oldWalletsBalance: oldWalletsBalance.toString() });
 
     const [currentJob,] = useCurrentJob();
     const jettons = useJettons(selected.addressString);

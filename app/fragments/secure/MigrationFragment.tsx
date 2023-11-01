@@ -77,7 +77,7 @@ const MigrationProcessFragment = fragment(() => {
                 setStatus(t('migrate.check', { address: ellipsiseAddress(contract.address.toString({ testOnly: isTestnet })) }));
 
                 const last = await getLastBlock();
-                const state = await backoff('migration', () => client.getAccountLite(last, contract.address));
+                const state = await backoff('migr-acc', () => client.getAccountLite(last, contract.address));
                 if (BigInt(state.account.balance.coins) > BigInt(0)) {
                     setStatus(t(
                         'migrate.transfer',
@@ -85,11 +85,9 @@ const MigrationProcessFragment = fragment(() => {
                     ));
 
                     // Seqno
-                    const seqno = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), contract.address));
+                    const seqno = await backoff('migr-seq', async () => fetchSeqno(client, await getLastBlock(), contract.address));
 
-                    // Transfer
-
-                    // Create transfer all & dstr transfer
+                    // Create send all transfer
                     let transfer = contract.createTransfer({
                         seqno: seqno,
                         secretKey: key.keyPair.secretKey,
@@ -110,7 +108,7 @@ const MigrationProcessFragment = fragment(() => {
 
                     let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
-                    await backoff('migration', () => client.sendMessage(msg.toBoc({ idx: false })));
+                    await backoff('migr-msg', () => client.sendMessage(msg.toBoc({ idx: false })));
                 }
             }
 

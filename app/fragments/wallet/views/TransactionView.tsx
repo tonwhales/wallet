@@ -25,7 +25,7 @@ import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAddToDenyList } from '../../../engine/effects/spam/useAddToDenyList';
 
-function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
+export function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
 }
 

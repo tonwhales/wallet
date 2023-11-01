@@ -44,6 +44,7 @@ import { parseMessageBody } from '../../../engine/transactions/parseMessageBody'
 import { parseBody } from '../../../engine/transactions/parseWalletTransaction';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
 import { BigMath } from '../../../utils/BigMath';
+import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
 
 type Props = {
     text: string | null,
@@ -81,6 +82,8 @@ export const TransferBatch = React.memo((props: Props) => {
     const client = useClient4(isTestnet);
     const selected = useSelectedAccount();
     const commitCommand = useCommitCommand();
+    const registerPending = useRegisterPending();
+
     const [price, currency] = usePrice();
     const {
         text,
@@ -351,6 +354,16 @@ export const TransferBatch = React.memo((props: Props) => {
         trackEvent(MixpanelEvent.Transfer, { order }, isTestnet);
 
         // Register pending
+        registerPending({
+            id: 'pending-' + seqno,
+            fees: fees,
+            amount: totalAmount * (BigInt(-1)),
+            address: null,
+            seqno: seqno,
+            body: { type: 'batch' },
+            time: Math.floor(Date.now() / 1000),
+            hash: msg.hash(),
+        });
         // TODO
         // engine.products.main.registerPending({
         //     id: 'pending-' + account.seqno,

@@ -99,6 +99,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenTransfer: 'Token transfer',
         airdrop: 'Airdrop',
         failed: 'Failed',
+        batch: 'Batch transfer',
     },
     txPreview: {
         sendAgain: 'Send again',

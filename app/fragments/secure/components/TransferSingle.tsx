@@ -53,6 +53,7 @@ import Question from '../../../../assets/ic_question.svg';
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
+import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
 
 type Props = {
     target: {
@@ -82,6 +83,7 @@ export const TransferSingle = memo((props: Props) => {
     const selected = useSelectedAccount();
     const account = useAccountLite(selected!.addressString);
     const commitCommand = useCommitCommand();
+    const registerPending = useRegisterPending();
 
     const {
         restricted,
@@ -269,8 +271,7 @@ export const TransferSingle = memo((props: Props) => {
         // Notify callback
         if (callback) {
             try {
-                -
-                    callback(true, transfer);
+                callback(true, transfer);
             } catch (e) {
                 warn(e);
                 // Ignore on error
@@ -282,22 +283,16 @@ export const TransferSingle = memo((props: Props) => {
         trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
 
         // Register pending
-        // engine.products.main.registerPending({
-        //     id: 'pending-' + account.seqno,
-        //     lt: null,
-        //     fees: fees,
-        //     amount: order.messages[0].amount.mul(BigInt(-1)),
-        //     address: target.address,
-        //     seqno: account.seqno,
-        //     kind: 'out',
-        //     body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
-        //     status: 'pending',
-        //     time: Math.floor(Date.now() / 1000),
-        //     bounced: false,
-        //     prev: null,
-        //     mentioned: [],
-        //     hash: msg.hash(),
-        // });
+        registerPending({
+            id: 'pending-' + seqno,
+            fees: fees,
+            amount: order.messages[0].amount * (BigInt(-1)),
+            address: target.address,
+            seqno: seqno,
+            body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+            time: Math.floor(Date.now() / 1000),
+            hash: msg.hash(),
+        });
 
         // Reset stack to root
         if (props.back && props.back > 0) {

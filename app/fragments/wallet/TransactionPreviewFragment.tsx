@@ -46,7 +46,7 @@ export const TransactionPreviewFragment = fragment(() => {
     let transaction = params.transaction;
     let operation = transaction.base.operation;
 
-    let friendlyAddress = operation.address;
+    let friendlyAddress = transaction.base.parsed.resolvedAddress;
     let item = transaction.base.operation.items[0];
     let jetton = transaction.masterMetadata;
     let op: string;
@@ -74,7 +74,7 @@ export const TransactionPreviewFragment = fragment(() => {
     }
 
     const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[operation.address];
+        || !!KnownJettonMasters(isTestnet)[friendlyAddress];
 
     let body: TxBody | null = transaction.base.parsed.body;
 
@@ -109,7 +109,7 @@ export const TransactionPreviewFragment = fragment(() => {
             + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
     }, [txId]);
 
-    const contact = useContactAddress(operation.address);
+    const contact = useContactAddress(friendlyAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -123,7 +123,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const isSpam = useDenyAddress(operation.address);
+    const isSpam = useDenyAddress(friendlyAddress);
 
     let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
@@ -364,7 +364,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address }
+                                                { address: friendlyAddress }
                                             );
                                         }
                                     }}
@@ -410,7 +410,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address ? Address.parse(operation.address) : address.address}
+                                address={Address.parse(friendlyAddress)}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -429,7 +429,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy(operation.address || address.addressString)}
+                                onPress={() => onCopy(friendlyAddress)}
                             >
                                 <CopyIcon />
                             </Pressable>

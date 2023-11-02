@@ -481,7 +481,7 @@ PODS:
     - React
     - React-callinvoker
     - React-Core
-  - react-native-webview (13.3.1):
+  - react-native-webview (13.6.2):
     - React-Core
   - React-NativeModulesApple (0.72.5):
     - hermes-engine
@@ -1045,7 +1045,7 @@ SPEC CHECKSUMS:
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-safe-area-context: 39c2d8be3328df5d437ac1700f4f3a4f75716acc
   react-native-skia: d0b0aab6bb1f146eb6f379fb671b719deabd20fb
-  react-native-webview: 994b9f8fbb504d6314dc40d83f94f27c6831b3bf
+  react-native-webview: 8fc09f66a1a5b16bbe37c3878fda27d5982bb776
   React-NativeModulesApple: 797bc6078d566eef3fb3f74127e6e1d2e945a15f
   React-perflogger: cd8886513f68e1c135a1e79d20575c6489641597
   React-RCTActionSheet: 726d2615ca62a77ce3e2c13d87f65379cdc73498

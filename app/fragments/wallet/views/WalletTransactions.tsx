@@ -81,14 +81,23 @@ export const WalletTransactions = memo((props: {
 
     const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
         return (
-            <TransactionView
-                own={props.address}
-                tx={item}
-                separator={section.data[index + 1] !== undefined}
-                onPress={() => navigateToPreview(item)}
-                theme={theme}
-                fontScaleNormal={fontScaleNormal}
-            />
+            <View style={[
+                {
+                    marginHorizontal: 16,
+                    overflow: 'hidden',
+                },
+                index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
+                section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
+            ]}>
+                <TransactionView
+                    own={props.address}
+                    tx={item}
+                    separator={section.data[index + 1] !== undefined}
+                    onPress={() => navigateToPreview(item)}
+                    theme={theme}
+                    fontScaleNormal={fontScaleNormal}
+                />
+            </View>
         );
     }, [props.address.hash, theme, fontScaleNormal]);
 

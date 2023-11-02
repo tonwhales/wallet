@@ -13,14 +13,19 @@ import { ThemeType } from "../../../engine/state/theme";
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View
-            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+            style={{
+                backgroundColor: theme.background,
+                justifyContent: 'flex-end',
+                paddingBottom: 2,
+                paddingTop: 12,
+                marginHorizontal: 16,
+                marginVertical: 8,
+            }}
         >
             <Text
                 style={{
                     fontSize: 18,
                     fontWeight: '700',
-                    marginHorizontal: 16,
-                    marginVertical: 8,
                     color: theme.textColor
                 }}
             >

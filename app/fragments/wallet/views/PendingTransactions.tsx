@@ -16,7 +16,7 @@ import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContact } from "../../../engine/hooks/contacts/useContact";
 
-const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, last?: boolean }) => {
+const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const targetFriendly = tx.address?.toString({ testOnly: isTestnet });
@@ -35,7 +35,11 @@ const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, las
         <Animated.View
             entering={FadeInDown}
             exiting={FadeOutUp}
-            style={{ backgroundColor: theme.item }}
+            style={[
+                { backgroundColor: theme.item, overflow: 'hidden' },
+                first ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
+                last ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
+            ]}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
@@ -118,7 +122,13 @@ export const PendingTransactions = memo(() => {
                 <Animated.View
                     entering={FadeInDown}
                     exiting={FadeOutUp}
-                    style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+                    style={{
+                        backgroundColor: theme.background,
+                        justifyContent: 'flex-end',
+                        paddingBottom: 2,
+                        paddingTop: 12,
+                        marginVertical: 8,
+                    }}
                 >
                     <Text
                         style={{
@@ -133,7 +143,12 @@ export const PendingTransactions = memo(() => {
                     </Text>
                 </Animated.View>
             )}
-            {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} last={i === pending.length - 1} />)}
+            <View style={{
+                marginHorizontal: 16,
+                overflow: 'hidden',
+            }}>
+                {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} first={i === 0} last={i === pending.length - 1} />)}
+            </View>
         </View>
     );
 });

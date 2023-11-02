@@ -69,6 +69,9 @@ import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
 import { usePendingWatcher } from './engine/hooks/usePendingWatcher';
+import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
+ import * as Notifications from 'expo-notifications';
+ import { PermissionStatus } from 'expo-modules-core';
 
 const Stack = createNativeStackNavigator();
 
@@ -236,21 +239,21 @@ export const Navigation = React.memo(() => {
     React.useEffect(() => {
         let ended = false;
         (async () => {
-            // const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            // if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
-            //     const token = await backoff('navigation', () => registerForPushNotificationsAsync());
-            //     if (token) {
-            //         if (ended) {
-            //             return;
-            //         }
-            //         await backoff('navigation', async () => {
-            //             if (ended) {
-            //                 return;
-            //             }
-            //             await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
-            //         });
-            //     }
-            // }
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
+                const token = await backoff('navigation', () => registerForPushNotificationsAsync());
+                if (token) {
+                    if (ended) {
+                        return;
+                    }
+                    await backoff('navigation', async () => {
+                        if (ended) {
+                            return;
+                        }
+                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
+                    });
+                }
+            }
         })();
         return () => {
             ended = true;

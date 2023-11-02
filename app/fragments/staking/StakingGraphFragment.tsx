@@ -17,12 +17,12 @@ import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { KnownPools } from "../../utils/KnownPools";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 import { useStakingChart } from '../../engine/hooks/staking/useStakingChart';
-import { usePrice } from '../../engine/hooks/usePrice';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { usePrice } from '../../engine/hooks/currency/usePrice';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 

@@ -9,8 +9,8 @@ import { systemFragment } from "../../systemFragment";
 import { doUpgrade } from "../../storage/appState";
 import { useReboot } from "../../utils/RebootContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from "../../engine/hooks/useNetwork";
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from "../../engine/hooks/network/useNetwork";
 
 export const WalletUpgradeFragment = systemFragment(() => {
     const theme = useTheme();

@@ -6,7 +6,7 @@ import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
 import { StakingPoolState } from "../../engine/hooks/staking/useStakingPool";
 

@@ -2,7 +2,7 @@ import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { Queries } from '../queries';
 import { InfiniteData } from '@tanstack/react-query';
-import { StoredTransaction } from '../hooks/useRawAccountTransactions';
+import { StoredTransaction } from '../hooks/transactions/useRawAccountTransactions';
 
 export async function onAccountTouched(account: string, isTestnet: boolean) {
     // If account touched - transactions and state changed

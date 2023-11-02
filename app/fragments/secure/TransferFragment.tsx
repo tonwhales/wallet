@@ -20,14 +20,14 @@ import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
-import { useConfig } from '../../engine/hooks/useConfig';
-import { useClient4 } from '../../engine/hooks/useClient4';
-import { getJettonMaster } from '../../engine/getters/getJettonMaster';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { useConfig } from '../../engine/hooks/network/useConfig';
+import { useClient4 } from '../../engine/hooks/network/useClient4';
+import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
-import { useCommitCommand } from '../../engine/effects/dapps/useCommitCommand';
+import { useCommitCommand } from '../../engine/hooks/dapps/useCommitCommand';
 import { memo, useEffect, useMemo, useState } from 'react';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
 import { getLastBlock } from '../../engine/accountWatcher';
@@ -271,7 +271,7 @@ export const TransferFragment = fragment(() => {
                                 let op = sc.loadUint(32);
                                 // Jetton transfer op
                                 if (op === OperationType.JettonTransfer) {
-                                    jettonMaster = await getJettonMaster(metadata.jettonWallet!.master, isTestnet);
+                                    jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
                                 }
                             }
                         }

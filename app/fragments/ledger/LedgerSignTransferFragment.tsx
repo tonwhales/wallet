@@ -46,16 +46,16 @@ import { useTransport } from './components/TransportContext';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useLedgerAccount } from '../../engine/hooks/useLedgerAccount';
+import { useLedgerAccount } from '../../engine/hooks/ledger/useLedgerAccount';
 import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
-import { useClient4 } from '../../engine/hooks/useClient4';
-import { useConfig } from '../../engine/hooks/useConfig';
+import { useClient4 } from '../../engine/hooks/network/useClient4';
+import { useConfig } from '../../engine/hooks/network/useConfig';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
-import { getJettonMaster } from '../../engine/getters/getJettonMaster';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
@@ -1062,7 +1062,7 @@ export const LedgerSignTransferFragment = fragment(() => {
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (metadata.jettonWallet) {
-                jettonMaster = getJettonMaster(metadata.jettonWallet!.master);
+                jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
             }
 
             // Estimate fee

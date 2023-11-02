@@ -11,10 +11,10 @@ import { warn } from "../utils/log"
 import { AddressComponent } from "./AddressComponent"
 import CircularProgress from "./CircularProgress/CircularProgress"
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../utils/dns/dns"
-import { useClient4 } from '../engine/hooks/useClient4'
-import { useSelectedAccount } from '../engine/hooks/useSelectedAccount'
-import { useNetwork } from '../engine/hooks/useNetwork'
-import { useTheme } from '../engine/hooks/useTheme'
+import { useClient4 } from '../engine/hooks/network/useClient4'
+import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount'
+import { useNetwork } from '../engine/hooks/network/useNetwork'
+import { useTheme } from '../engine/hooks/theme/useTheme'
 import { AddressContact } from "../engine/hooks/contacts/useAddressBook"
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');

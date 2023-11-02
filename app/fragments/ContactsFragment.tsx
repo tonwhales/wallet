@@ -16,11 +16,11 @@ import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/useTheme';
-import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
-import { TransactionDescription, useAccountTransactions } from '../engine/hooks/useAccountTransactions';
-import { useClient4 } from '../engine/hooks/useClient4';
-import { useNetwork } from '../engine/hooks/useNetwork';
+import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount';
+import { TransactionDescription, useAccountTransactions } from '../engine/hooks/transactions/useAccountTransactions';
+import { useClient4 } from '../engine/hooks/network/useClient4';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
 import { useContacts } from "../engine/hooks/contacts/useContacts";
 
 export const ContactsFragment = fragment(() => {

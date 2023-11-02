@@ -18,11 +18,11 @@ import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useAppData } from '../../engine/hooks/dapps/useAppData';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
-import { useCreateDomainKeyIfNeeded } from '../../engine/effects/dapps/useCreateDomainKeyIfNeeded';
+import { useAddExtension } from '../../engine/hooks/dapps/useAddExtension';
+import { useCreateDomainKeyIfNeeded } from '../../engine/hooks/dapps/useCreateDomainKeyIfNeeded';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

@@ -1,10 +1,10 @@
 import { useStakingWalletConfig } from './useStakingWalletConfig';
-import { useSelectedAccount } from '../useSelectedAccount';
+import { useSelectedAccount } from '../appstate/useSelectedAccount';
 import { Address } from '@ton/core';
 import { KnownPools } from '../../../utils/KnownPools';
-import { useNetwork } from '../useNetwork';
+import { useNetwork } from '../network/useNetwork';
 import { useStakingPoolMembers } from './useStakingPoolMember';
-import { useClient4 } from '../useClient4';
+import { useClient4 } from '../network/useClient4';
 
 export function useStaking() {
     let selected = useSelectedAccount();

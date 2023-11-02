@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { TransactionDescription } from "../../../engine/hooks/useAccountTransactions";
+import { TransactionDescription } from "../../../engine/hooks/transactions/useAccountTransactions";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets, Rect } from "react-native-safe-area-context";
-import { useTheme } from "../../../engine/hooks/useTheme";
+import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, useWindowDimensions, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";

@@ -14,10 +14,10 @@ import { Address, fromNano, toNano } from "@ton/core";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { TopBar } from "../../components/topbar/TopBar";
 import { useStaking } from '../../engine/hooks/staking/useStaking';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
 

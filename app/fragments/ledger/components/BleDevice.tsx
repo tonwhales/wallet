@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, Text } from "react-native";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 
 export type LedgerDevice = {
     id: string,

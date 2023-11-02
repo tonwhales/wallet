@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { View, Text, Platform, Pressable } from "react-native";
 import { t } from "../../../i18n/t";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import * as Network from 'expo-network';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";

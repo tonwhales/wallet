@@ -4,8 +4,8 @@ import { Address } from '@ton/core';
 import { AddressComponent } from '../../components/AddressComponent';
 import { Avatar } from '../../components/Avatar';
 import { ItemButton } from '../../components/ItemButton';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 
 export const ProfileComponent = React.memo((props: { address: Address }) => {
     const theme = useTheme();

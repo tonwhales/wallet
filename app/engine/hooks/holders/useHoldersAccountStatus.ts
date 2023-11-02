@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { Address } from "@ton/core";
 import { useMemo } from "react";
-import { useNetwork } from "../useNetwork";
+import { useNetwork } from "../network/useNetwork";
 import { storage } from "../../../storage/storage";
 import { HoldersAccountState, accountStateCodec, fetchAccountState } from "../../api/holders/fetchAccountState";
 import { z } from 'zod';

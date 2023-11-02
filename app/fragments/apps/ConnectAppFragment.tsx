@@ -6,8 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
 import { useAppManifest } from '../../engine/hooks/dapps/useAppManifest';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { extensionKey } from '../../engine/effects/dapps/useAddExtension';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { extensionKey } from '../../engine/hooks/dapps/useAddExtension';
 import { useMemo } from 'react';
 import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
 

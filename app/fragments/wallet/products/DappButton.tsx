@@ -8,10 +8,10 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
-import { useRemoveExtension } from "../../../engine/effects/dapps/useRemoveExtension";
+import { useRemoveExtension } from "../../../engine/hooks/dapps/useRemoveExtension";
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
-import { useRemoveConnectApp } from "../../../engine/effects/dapps/useRemoveConnectApp";
+import { useRemoveConnectApp } from "../../../engine/hooks/dapps/useRemoveConnectApp";
 
 export const DappButton = memo(({
     appKey,

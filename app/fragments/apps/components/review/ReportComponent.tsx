@@ -8,9 +8,9 @@ import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { Picker } from '@react-native-picker/picker';
-import { useTheme } from '../../../../engine/hooks/useTheme';
+import { useTheme } from '../../../../engine/hooks/theme/useTheme';
 import { useAppData } from '../../../../engine/hooks/dapps/useAppData';
-import { useNetwork } from "../../../../engine/hooks/useNetwork";
+import { useNetwork } from "../../../../engine/hooks/network/useNetwork";
 
 export const ReportComponent = React.memo(({ url }: { url: string }) => {
     const theme = useTheme();

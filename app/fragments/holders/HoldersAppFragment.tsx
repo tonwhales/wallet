@@ -9,8 +9,8 @@ import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersStatus } from '../../engine/hooks/useHoldersStatus';
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useHoldersStatus } from '../../engine/hooks/holders/useHoldersStatus';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { useDomainKey } from '../../engine/hooks/dapps/useDomainKey';
 import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
 

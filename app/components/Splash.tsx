@@ -3,7 +3,7 @@ import { View, Image } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
 import { StatusBar } from "expo-status-bar";
-import { useTheme } from "../engine/hooks/useTheme";
+import { useTheme } from "../engine/hooks/theme/useTheme";
 
 export const Splash = React.memo(({ hide }: { hide: boolean }) => {
     const [visible, setVisible] = React.useState(true);

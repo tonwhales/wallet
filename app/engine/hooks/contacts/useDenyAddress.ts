@@ -1,6 +1,6 @@
 import { Address } from '@ton/core';
 import { useAddressBook } from './useAddressBook';
-import { useNetwork } from '../useNetwork';
+import { useNetwork } from '../network/useNetwork';
 
 export function useDenyAddress(addressString?: string): boolean {
     const [full,] = useAddressBook();

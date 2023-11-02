@@ -3,7 +3,7 @@ import { Pressable, View, Text } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Chevron from '../../assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { title?: string, children?: any, hideDivider?: boolean }) => {
     const theme = useTheme();

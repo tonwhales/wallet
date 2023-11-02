@@ -14,8 +14,8 @@ import { storage } from "../../storage/storage";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from "../../engine/hooks/useNetwork";
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from "../../engine/hooks/network/useNetwork";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';

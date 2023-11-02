@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ThemeType } from '../engine/state/theme';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 const height = 50;
 

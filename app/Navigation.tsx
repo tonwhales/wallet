@@ -60,15 +60,15 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork } from './engine/hooks/useNetwork';
-import { useNavigationTheme } from './engine/hooks/useNavigationTheme';
+import { useNetwork } from './engine/hooks/network/useNetwork';
+import { useNavigationTheme } from './engine/hooks/theme/useNavigationTheme';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
 import { useBlocksWatcher } from './engine/accountWatcher';
 import { HintsPrefetcher } from './components/HintsPrefetcher';
 import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
-import { usePendingWatcher } from './engine/hooks/usePendingWatcher';
+import { usePendingWatcher } from './engine/hooks/transactions/usePendingWatcher';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
  import * as Notifications from 'expo-notifications';
  import { PermissionStatus } from 'expo-modules-core';

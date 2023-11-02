@@ -13,8 +13,8 @@ import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useDAppBridge } from '../../../engine/hooks/dapps/useDAppBridge';
-import { useTheme } from '../../../engine/hooks/useTheme';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
 
 export const ConnectAppComponent = React.memo((props: {
     endpoint: string,

@@ -23,18 +23,18 @@ import { TransferComponent } from "../../../components/transactions/TransferComp
 import { WImage } from "../../../components/WImage";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { getJettonMaster } from '../../../engine/getters/getJettonMaster';
-import { useClient4 } from '../../../engine/hooks/useClient4';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { usePrice } from '../../../engine/hooks/usePrice';
-import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { fetchJettonMaster, getJettonMaster } from '../../../engine/getters/getJettonMaster';
+import { useClient4 } from '../../../engine/hooks/network/useClient4';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { usePrice } from '../../../engine/hooks/currency/usePrice';
+import { useSelectedAccount } from '../../../engine/hooks/appstate/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
 import { getAccountLite } from "../../../engine/getters/getAccountLite";
-import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
+import { useCommitCommand } from "../../../engine/hooks/dapps/useCommitCommand";
 
 import Question from '../../../../assets/ic_question.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
@@ -44,7 +44,7 @@ import { parseMessageBody } from '../../../engine/transactions/parseMessageBody'
 import { parseBody } from '../../../engine/transactions/parseWalletTransaction';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
 import { BigMath } from '../../../utils/BigMath';
-import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
+import { useRegisterPending } from "../../../engine/hooks/transactions/useRegisterPending";
 
 type Props = {
     text: string | null,
@@ -109,7 +109,7 @@ export const TransferBatch = React.memo((props: Props) => {
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (message.metadata.jettonWallet) {
-                jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master);
+                jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master, isTestnet) || null;
             }
 
             let jettonAmount: bigint | null = null;

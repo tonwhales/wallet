@@ -3,7 +3,7 @@ import { Pressable, StyleProp, View, ViewStyle, Text, Platform, Share } from "re
 import ShareIcon from '../../assets/ic_share_address.svg';
 import { t } from "../i18n/t";
 import { iOSUIKit } from 'react-native-typography';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 const size = {
     height: 56,

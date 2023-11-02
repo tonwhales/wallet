@@ -12,10 +12,10 @@ import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import { Address } from "@ton/core";
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
-import { useNetwork } from '../engine/hooks/useNetwork';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
 
 export function clearHolders(isTestnet: boolean, address?: Address) {
     // TODO

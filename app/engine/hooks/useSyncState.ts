@@ -1,5 +1,5 @@
 import { Queries } from '../queries';
-import { useSelectedAccount } from './useSelectedAccount';
+import { useSelectedAccount } from './appstate/useSelectedAccount';
 import { useRecoilValue } from 'recoil';
 import { blockWatcherAtom } from '../state/blockWatcherState';
 import { useIsFetching } from '@tanstack/react-query';

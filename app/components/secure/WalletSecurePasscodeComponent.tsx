@@ -18,9 +18,9 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useSetAppState } from '../../engine/effects/useSetAppState';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useSetAppState } from '../../engine/hooks/appstate/useSetAppState';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,

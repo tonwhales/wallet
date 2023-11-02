@@ -7,8 +7,8 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { useStaking } from '../../engine/hooks/staking/useStaking';
 import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 
 export const StakingProductComponent = memo(() => {
     const theme = useTheme();

@@ -17,9 +17,9 @@ import { RoundButton } from '../components/RoundButton';
 import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
-import { useBiometricsState } from '../engine/hooks/useBiometricsState';
-import { useTheme } from '../engine/hooks/useTheme';
-import { useSetBiometricsState } from '../engine/effects/useSetBiometricsState';
+import { useBiometricsState } from '../engine/hooks/appstate/useBiometricsState';
+import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useSetBiometricsState } from '../engine/hooks/appstate/useSetBiometricsState';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const theme = useTheme();

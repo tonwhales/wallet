@@ -14,12 +14,12 @@ import { ShareButton } from "../../components/ShareButton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { queryClient } from '../../engine/clients';
 import { Queries } from '../../engine/queries';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();

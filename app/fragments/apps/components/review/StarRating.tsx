@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from "react"
 import { Pressable, StyleProp, View, ViewStyle } from "react-native";
 import FilledStar from '../../../../../assets/ic_star_filled.svg';
 import Star from '../../../../../assets/ic_star_outline.svg';
-import { useTheme } from '../../../../engine/hooks/useTheme';
-import { useNetwork } from '../../../../engine/hooks/useNetwork';
+import { useTheme } from '../../../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../../../engine/hooks/network/useNetwork';
 
 const StarView = React.memo(({
     rate,

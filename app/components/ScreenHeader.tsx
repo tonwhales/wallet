@@ -5,7 +5,7 @@ import { CloseButton } from "./navigation/CloseButton";
 import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { BackButton } from "./navigation/BackButton";
-import { useTheme } from "../engine/hooks/useTheme";
+import { useTheme } from "../engine/hooks/theme/useTheme";
 
 export function useScreenHeader(
     navigation: TypedNavigation,

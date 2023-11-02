@@ -22,13 +22,13 @@ import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ExchangeRate } from '../../components/ExchangeRate';
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { AccountLite, useAccountLite } from '../../engine/hooks/useAccountLite';
-import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
+import { AccountLite, useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
+import { useAccountBalanceChart } from '../../engine/hooks/accounts/useAccountBalanceChart';
 import { useSyncState } from '../../engine/hooks/useSyncState';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { TransactionDescription } from '../../engine/hooks/useAccountTransactions';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
+import { TransactionDescription } from '../../engine/hooks/transactions/useAccountTransactions';
 import { memo, useCallback, useLayoutEffect, useRef } from 'react';
 
 const PendingTxs = memo((props: {

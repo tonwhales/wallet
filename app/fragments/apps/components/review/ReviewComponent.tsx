@@ -9,9 +9,9 @@ import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
-import { useTheme } from '../../../../engine/hooks/useTheme';
+import { useTheme } from '../../../../engine/hooks/theme/useTheme';
 import { useAppData } from '../../../../engine/hooks/dapps/useAppData';
-import { useNetwork } from "../../../../engine/hooks/useNetwork";
+import { useNetwork } from "../../../../engine/hooks/network/useNetwork";
 
 export const ReviewComponent = React.memo(({ url }: { url: string }) => {
     const theme = useTheme();

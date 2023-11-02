@@ -26,18 +26,18 @@ import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
-import { useAccountLite } from '../../../engine/hooks/useAccountLite';
-import { useClient4 } from '../../../engine/hooks/useClient4';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { useAccountLite } from '../../../engine/hooks/accounts/useAccountLite';
+import { useClient4 } from '../../../engine/hooks/network/useClient4';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useSelectedAccount } from '../../../engine/hooks/appstate/useSelectedAccount';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
-import { useCommitCommand } from "../../../engine/effects/dapps/useCommitCommand";
+import { useCommitCommand } from "../../../engine/hooks/dapps/useCommitCommand";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
@@ -53,7 +53,7 @@ import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
 import { resolveOperation } from '../../../engine/transactions/resolveOperation';
 import { useContact } from '../../../engine/hooks/contacts/useContact';
-import { useRegisterPending } from "../../../engine/effects/useRegisterPending";
+import { useRegisterPending } from "../../../engine/hooks/transactions/useRegisterPending";
 
 type Props = {
     target: {

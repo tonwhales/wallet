@@ -5,7 +5,7 @@ import * as t from "io-ts";
 import { warn } from '../utils/log';
 import WebView from "react-native-webview";
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 export function processMainButtonMessage(
     parsed: any,

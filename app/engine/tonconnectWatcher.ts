@@ -5,7 +5,7 @@ import { createLogger, warn } from '../utils/log';
 import { useTonConnectExtensions } from './hooks/dapps/useTonConnectExtenstions';
 import { useAppConnections } from './hooks/dapps/useAppConnections';
 import { SessionCrypto } from '@tonconnect/protocol';
-import { useHandleMessage } from './effects/dapps/useHandleMessage';
+import { useHandleMessage } from './hooks/dapps/useHandleMessage';
 import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './tonconnect/types';
 import { getLastEventId } from './tonconnect/utils';
 import { bridgeUrl } from './tonconnect/config';

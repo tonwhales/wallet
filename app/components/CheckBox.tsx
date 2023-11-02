@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import CheckMark from '../../assets/ic_check_mark.svg';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 export const CheckBox = React.memo((
     {

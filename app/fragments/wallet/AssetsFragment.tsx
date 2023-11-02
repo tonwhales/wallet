@@ -12,10 +12,10 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg'; 
-import { Jetton, useJettons } from '../../engine/hooks/useJettons';
-import { useAccountLite } from '../../engine/hooks/useAccountLite';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { Jetton, useJettons } from '../../engine/hooks/jettons/useJettons';
+import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
+import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: string) => void }>();
@@ -31,7 +31,7 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             comment: null,
-            jetton: jetton.wallet,
+            jetton: jetton.wallet.toString({ testOnly: isTestnet }),
             stateInit: null,
             job: null,
             callback: null

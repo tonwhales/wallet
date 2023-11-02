@@ -6,8 +6,8 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { isTermsAccepted } from '../../storage/terms';
 
 export const WelcomeFragment = systemFragment(() => {

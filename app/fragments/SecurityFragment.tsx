@@ -7,7 +7,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
@@ -19,9 +19,9 @@ import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
 import { ItemGroup } from "../components/ItemGroup"
-import { usePasscodeState } from '../engine/hooks/usePasscodeState'
-import { useBiometricsState } from '../engine/hooks/useBiometricsState'
-import { useSetBiometricsState } from "../engine/effects/useSetBiometricsState"
+import { usePasscodeState } from '../engine/hooks/appstate/usePasscodeState'
+import { useBiometricsState } from '../engine/hooks/appstate/useBiometricsState'
+import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometricsState"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

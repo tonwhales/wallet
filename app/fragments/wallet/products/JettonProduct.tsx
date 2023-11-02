@@ -5,11 +5,11 @@ import { Address } from '@ton/core';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { AnimatedProductButton } from './AnimatedProductButton';
-import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
+// import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
 import { Alert } from 'react-native';
 import { t } from '../../../i18n/t';
-import { Jetton } from '../../../engine/hooks/useJettons';
+import { Jetton } from '../../../engine/hooks/jettons/useJettons';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -47,7 +47,7 @@ export const JettonProduct = React.memo((props: {
     const promptDisable = React.useCallback(
         async () => {
             const c = await confirmJettonAction(true, props.jetton.symbol);
-            if (c) markJettonDisabled(props.jetton.master);
+            // TODO: if (c) markJettonDisabled(props.jetton.master);
         },
         [],
     );
@@ -72,7 +72,7 @@ export const JettonProduct = React.memo((props: {
                     amount: null,
                     target: null,
                     comment: null,
-                    jetton: props.jetton.wallet,
+                    jetton: props.jetton.wallet.toString({ testOnly: isTestnet }),
                     stateInit: null,
                     job: null,
                     callback: null

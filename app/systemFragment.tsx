@@ -3,7 +3,7 @@ import { GlobalLoaderProvider } from './components/useGlobalLoader';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useRoute } from '@react-navigation/native';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
-import { useNetwork } from './engine/hooks/useNetwork';
+import { useNetwork } from './engine/hooks/network/useNetwork';
 
 export function systemFragment<T>(
     Component: React.ComponentType<T>, 

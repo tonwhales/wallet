@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, StyleProp, Text, View, ViewStyle } from 'react-native';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 export const ItemHeader = React.memo((props: { title: string, loading?: boolean, style?: StyleProp<ViewStyle> }) => {
     const theme = useTheme();

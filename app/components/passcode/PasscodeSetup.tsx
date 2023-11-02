@@ -8,7 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { ThemeType } from '../../engine/state/theme';
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };

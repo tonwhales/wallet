@@ -20,9 +20,9 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
-import { usePrimaryCurrency } from '../../engine/hooks/usePrimaryCurrency';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useHoldersEnroll } from '../../engine/effects/holders/useHoldersEnroll';
+import { usePrimaryCurrency } from '../../engine/hooks/currency/usePrimaryCurrency';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useHoldersEnroll } from '../../engine/hooks/holders/useHoldersEnroll';
 import { getCurrentAddress } from '../../storage/appState';
 import { getAppData } from '../../engine/getters/getAppData';
 

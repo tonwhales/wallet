@@ -24,12 +24,12 @@ import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBan
 import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
 import { CalculatorButton } from "../../components/staking/CalculatorButton";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { StakingPoolType } from "./StakingPoolsFragment";
 import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 import { useStaking } from '../../engine/hooks/staking/useStaking';
 import { useStakingChart } from '../../engine/hooks/staking/useStakingChart';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { getCurrentAddress } from "../../storage/appState";
 
 export const StakingFragment = fragment(() => {

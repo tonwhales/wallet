@@ -15,12 +15,12 @@ import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useAccountBalanceChart } from '../../engine/hooks/useAccountBalanceChart';
-import { useAccountLite } from '../../engine/hooks/useAccountLite';
-import { usePrice } from '../../engine/hooks/usePrice';
-import { useNetwork } from '../../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../../engine/hooks/useSelectedAccount';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useAccountBalanceChart } from '../../engine/hooks/accounts/useAccountBalanceChart';
+import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
+import { usePrice } from '../../engine/hooks/currency/usePrice';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 

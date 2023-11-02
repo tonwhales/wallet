@@ -3,7 +3,7 @@ import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { t } from "../../i18n/t"
 import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
-import { useTheme } from '../../engine/hooks/useTheme'
+import { useTheme } from '../../engine/hooks/theme/useTheme'
 
 export const StakingCycle = React.memo((
     {

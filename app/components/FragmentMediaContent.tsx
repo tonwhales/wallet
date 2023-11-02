@@ -1,7 +1,7 @@
 import React from "react"
 import { ImageSourcePropType, StyleProp, View, ViewStyle, Text, useWindowDimensions, Image } from "react-native";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 interface AnimationObject {
     v: string;

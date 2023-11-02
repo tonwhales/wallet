@@ -12,17 +12,17 @@ import { shortAddress } from '../../../utils/shortAddress';
 import { t } from '../../../i18n/t';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
-import { TransactionDescription } from '../../../engine/hooks/useAccountTransactions';
+import { TransactionDescription } from '../../../engine/hooks/transactions/useAccountTransactions';
 import { ThemeType } from '../../../engine/state/theme';
 import { memo, useCallback, useMemo } from 'react';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
 import { useSpamMinAmount } from '../../../engine/hooks/spam/useSpamMinAmount';
 import { useDenyAddress } from '../../../engine/hooks/contacts/useDenyAddress';
 import { useIsSpamWallet } from '../../../engine/hooks/spam/useIsSpamWallet';
-import { useSelectedAccount } from '../../../engine/hooks/useSelectedAccount';
+import { useSelectedAccount } from '../../../engine/hooks/appstate/useSelectedAccount';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useAddToDenyList } from '../../../engine/effects/spam/useAddToDenyList';
+import { useAddToDenyList } from '../../../engine/hooks/spam/useAddToDenyList';
 import { useContact } from '../../../engine/hooks/contacts/useContact';
 
 export function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {

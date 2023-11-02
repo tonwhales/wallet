@@ -1,4 +1,4 @@
-import { useCloudValue } from "../basic/useCloudValue";
+import { useCloudValue } from "../cloud/useCloudValue";
 
 const version = 1;
 

@@ -1,5 +1,5 @@
-import { usePrefetchHints } from '../engine/hooks/usePrefetchHints';
-import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
+import { usePrefetchHints } from '../engine/hooks/jettons/usePrefetchHints';
+import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount';
 
 export function HintsPrefetcher() {
     let selected = useSelectedAccount();

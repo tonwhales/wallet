@@ -20,13 +20,13 @@ import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
-import { useClient4 } from '../engine/hooks/useClient4';
+import { useClient4 } from '../engine/hooks/network/useClient4';
 import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
-import { useNetwork } from '../engine/hooks/useNetwork';
-import { useSelectedAccount } from '../engine/hooks/useSelectedAccount';
-import { useAccountLite } from '../engine/hooks/useAccountLite';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount';
+import { useAccountLite } from '../engine/hooks/accounts/useAccountLite';
 import { fetchSeqno } from '../engine/api/fetchSeqno';
 import { getLastBlock } from '../engine/accountWatcher';
 

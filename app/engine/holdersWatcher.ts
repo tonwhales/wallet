@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
-import { useSelectedAccount } from "./hooks/useSelectedAccount";
+import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersAccountState } from "./api/holders/fetchAccountState";
 import { useHoldersCards } from "./hooks/holders/useHoldersCards";
-import { useNetwork } from "./hooks/useNetwork";
+import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 
 export function useHoldersWatcher() {

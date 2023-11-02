@@ -3,7 +3,7 @@ import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from
 import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
-import { useTheme } from "../engine/hooks/useTheme";
+import { useTheme } from "../engine/hooks/theme/useTheme";
 
 import CopyIcon from '../../assets/ic_copy_address.svg';
 import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';

@@ -18,10 +18,10 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useTheme } from '../engine/hooks/useTheme';
-import { useNetwork } from '../engine/hooks/useNetwork';
-import { useSetContact } from "../engine/effects/useSetContact";
-import { useRemoveContact } from "../engine/effects/useRemoveContact";
+import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useSetContact } from "../engine/hooks/contacts/useSetContact";
+import { useRemoveContact } from "../engine/hooks/contacts/useRemoveContact";
 import { useContact } from '../engine/hooks/contacts/useContact';
 
 const requiredFields = [

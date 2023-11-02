@@ -5,9 +5,9 @@ import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
 import { queryClient } from './engine/clients';
 import { Queries } from './engine/queries';
-import { jettonWalletAddressQueryFn } from './engine/hooks/useJettonWalletAddress';
-import { useClient4 } from './engine/hooks/useClient4';
-import { useSelectedAccount } from './engine/hooks/useSelectedAccount';
+import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
+import { useClient4 } from './engine/hooks/network/useClient4';
+import { useSelectedAccount } from './engine/hooks/appstate/useSelectedAccount';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
@@ -47,12 +47,13 @@ export function useLinkNavigator(isTestnet: boolean) {
             if (!selected) {
                 return;
             }
+
+            // TODO: replace with getter
             const jettonWallet = await queryClient.fetchQuery({
                 queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
                 queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
             });
 
-            // TODO: try fetching jetton master on SimpleTransferFragment
             if (!jettonWallet) {
                 Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
                 return;

@@ -14,8 +14,8 @@ import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton"
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { Jetton, useJettons } from '../../engine/hooks/useJettons';
-import { useAccountLite } from '../../engine/hooks/useAccountLite';
+import { Jetton, useJettons } from '../../engine/hooks/jettons/useJettons';
+import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { useNetwork } from "../useNetwork";
+import { useNetwork } from "../network/useNetwork";
 import { fetchApy } from "../../api/fetchApy";
 
 export function useStakingApy() {

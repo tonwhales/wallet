@@ -1,4 +1,4 @@
-import { extensionKey } from "../../effects/dapps/useAddExtension";
+import { extensionKey } from "./useAddExtension";
 import { ConnectedApp, useTonConnectExtensions } from "./useTonConnectExtenstions";
 import { useAppConnections } from "./useAppConnections";
 import { ConnectedAppConnectionRemote, TonConnectBridgeType } from '../../tonconnect/types';

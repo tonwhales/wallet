@@ -9,8 +9,8 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import CheckMark from '../../assets/ic_check_mark.svg';
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
-import { useTheme } from '../engine/hooks/useTheme';
-import { usePrimaryCurrency } from '../engine/hooks/usePrimaryCurrency';
+import { useTheme } from '../engine/hooks/theme/useTheme';
+import { usePrimaryCurrency } from '../engine/hooks/currency/usePrimaryCurrency';
 import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
 
 export const CurrencyFragment = fragment(() => {

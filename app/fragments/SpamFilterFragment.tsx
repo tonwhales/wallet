@@ -14,11 +14,11 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { ProductButton } from "./wallet/products/ProductButton";
 import SpamIcon from '../../assets/known/spam_icon.svg';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import { useDontShowComments } from '../engine/hooks/spam/useDontShowComments';
 import { useSpamMinAmount } from '../engine/hooks/spam/useSpamMinAmount';
 import { useDenyList } from '../engine/hooks/contacts/useDenyList';
-import { useRemoveFromDenyList } from "../engine/effects/spam/useRemoveFromDenyList";
+import { useRemoveFromDenyList } from "../engine/hooks/spam/useRemoveFromDenyList";
 
 export type SpamFilterConfig = {
     minAmount: bigint | null,

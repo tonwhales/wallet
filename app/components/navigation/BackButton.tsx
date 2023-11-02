@@ -1,7 +1,7 @@
 import React from "react";
 import { Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from "../../engine/hooks/useTheme";
+import { useTheme } from "../../engine/hooks/theme/useTheme";
 
 export const BackButton = React.memo((props: {
     onPress?: () => void,

@@ -9,21 +9,21 @@ import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import { HoldersProductButton } from "./HoldersProductButton"
 import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
-import { useJettons } from '../../../engine/hooks/useJettons';
+import { useJettons } from '../../../engine/hooks/jettons/useJettons';
 import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
-import { useLedgerEnabled } from '../../../engine/hooks/useLedgerEnabled';
+import { useLedgerEnabled } from '../../../engine/hooks/ledger/useLedgerEnabled';
 import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
 import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
 import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
-import { usePrepareConnectRequest } from "../../../engine/effects/dapps/usePrepareConnectRequest";
-import { useConnectCallback } from "../../../engine/effects/dapps/useConnectCallback";
+import { usePrepareConnectRequest } from "../../../engine/hooks/dapps/usePrepareConnectRequest";
+import { useConnectCallback } from "../../../engine/hooks/dapps/useConnectCallback";
 import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
-import { useOldWalletsBalances } from "../../../engine/hooks/useOldWalletsBalances";
+import { useOldWalletsBalances } from "../../../engine/hooks/accounts/useOldWalletsBalances";
 
 import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
 import SignIcon from '../../../../assets/ic_sign.svg';

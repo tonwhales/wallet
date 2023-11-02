@@ -1,6 +1,6 @@
 import React from 'react';
 import { WordsListTrie } from '../utils/wordsListTrie';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Alert, TextInput, View, Text, Platform, TouchableOpacity } from 'react-native';

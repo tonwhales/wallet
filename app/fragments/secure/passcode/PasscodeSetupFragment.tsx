@@ -14,8 +14,8 @@ import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
 import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
-import { useSetBiometricsState } from "../../../engine/effects/useSetBiometricsState";
-import { useSetPasscodeState } from "../../../engine/effects/useSetPasscodeState";
+import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
+import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();

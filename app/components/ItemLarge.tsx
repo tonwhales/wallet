@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Text, View } from 'react-native';
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 
 export const ItemLarge = React.memo((props: {
     title: string,

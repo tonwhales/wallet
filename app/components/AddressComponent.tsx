@@ -1,6 +1,6 @@
 import { Text } from "react-native";
 import { Address } from "@ton/core";
-import { useNetwork } from '../engine/hooks/useNetwork';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
 
 export function AddressComponent(props: { address: Address | string, start?: number, end?: number }) {
     const { isTestnet } = useNetwork();

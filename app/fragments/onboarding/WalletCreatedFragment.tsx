@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 
 export const WalletCreatedFragment = systemFragment(() => {
     const theme = useTheme();

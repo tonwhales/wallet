@@ -6,13 +6,13 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../../storage/appState";
 import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { HoldersCard } from "../../../engine/api/holders/fetchCards";
-import { useNetwork } from "../../../engine/hooks/useNetwork";
+import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],

@@ -1,14 +1,14 @@
 import { memo } from "react";
 import { TouchableHighlight, View, Text, Image, Platform } from "react-native";
-import { usePendingTransactions } from "../../../engine/hooks/usePendingTransactions";
+import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
-import { useTheme } from "../../../engine/hooks/useTheme";
+import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/PendingTransactionAvatar";
-import { useNetwork } from "../../../engine/hooks/useNetwork";
+import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { t } from "../../../i18n/t";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { useJettonContent } from "../../../engine/hooks/basic/useJettonContent";
+import { useJettonContent } from "../../../engine/hooks/jettons/useJettonContent";
 import { knownAddressLabel } from "./TransactionView";
 import { AddressComponent } from "../../../components/AddressComponent";
 import { formatTime } from "../../../utils/dates";

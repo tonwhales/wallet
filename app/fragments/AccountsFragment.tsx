@@ -10,11 +10,9 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct, confirmJettonAction } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/useTheme';
-import { useJettons } from '../engine/hooks/useJettons';
-import { markJettonDisabled } from '../engine/effects/markJettonDisabled';
-import { markJettonActive } from '../engine/effects/markJettonActive';
-import { useSelectedAccount } from "../engine/hooks/useSelectedAccount";
+import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useJettons } from '../engine/hooks/jettons/useJettons';
+import { useSelectedAccount } from "../engine/hooks/appstate/useSelectedAccount";
 
 export const AccountsFragment = fragment(() => {
     const theme = useTheme();
@@ -29,14 +27,14 @@ export const AccountsFragment = fragment(() => {
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(true, symbol);
-            if (c) markJettonDisabled(master);
+           // TODO: if (c) markJettonDisabled(master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(false, symbol);
-            if (c) markJettonActive(master);
+            // TODO: if (c) markJettonActive(master);
         },
         [],
     );

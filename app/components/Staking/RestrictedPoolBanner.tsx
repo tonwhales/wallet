@@ -3,8 +3,8 @@ import { View, Text, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { WImage } from "../WImage";
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 
 export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team' }) => {
     const theme = useTheme();

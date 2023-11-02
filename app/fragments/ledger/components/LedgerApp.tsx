@@ -7,12 +7,12 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { WalletAddress } from "../../../components/WalletAddress";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useTheme } from '../../../engine/hooks/useTheme';
+import { useTheme } from '../../../engine/hooks/theme/useTheme';
 import { TonTransport } from '@ton-community/ton-ledger';
-import { useNetwork } from '../../../engine/hooks/useNetwork';
-import { useAccountTransactions } from '../../../engine/hooks/useAccountTransactions';
-import { useClient4 } from '../../../engine/hooks/useClient4';
-import { useAccountLite } from '../../../engine/hooks/useAccountLite';
+import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useAccountTransactions } from '../../../engine/hooks/transactions/useAccountTransactions';
+import { useClient4 } from '../../../engine/hooks/network/useClient4';
+import { useAccountLite } from '../../../engine/hooks/accounts/useAccountLite';
 import { WalletTransactions } from "../../wallet/views/WalletTransactions";
 
 export const LedgerApp = memo((props: {

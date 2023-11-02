@@ -15,7 +15,7 @@ import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
 
 export const StakingCalculatorFragment = fragment(() => {

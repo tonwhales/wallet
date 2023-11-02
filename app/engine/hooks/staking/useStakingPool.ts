@@ -1,8 +1,8 @@
 import { Address } from '@ton/core';
 import { StakingPoolParams, useStakingPoolParams } from './useStakingPoolParams';
-import { useSelectedAccount } from '../useSelectedAccount';
-import { useNetwork } from '../useNetwork';
-import { useClient4 } from '../useClient4';
+import { useSelectedAccount } from '../appstate/useSelectedAccount';
+import { useNetwork } from '../network/useNetwork';
+import { useClient4 } from '../network/useClient4';
 import { StakingPoolStatus, useStakingPoolStatus } from './useStakingPoolStatus';
 import { StakingPoolMember, useStakingPoolMember } from './useStakingPoolMember';
 

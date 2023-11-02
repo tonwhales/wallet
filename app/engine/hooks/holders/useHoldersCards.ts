@@ -1,5 +1,5 @@
 import { Address } from "@ton/core";
-import { useNetwork } from "../useNetwork";
+import { useNetwork } from "../network/useNetwork";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";

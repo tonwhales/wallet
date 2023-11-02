@@ -29,11 +29,11 @@ import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../engine/api/connectAnswer';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useTheme } from '../../engine/hooks/useTheme';
-import { useNetwork } from '../../engine/hooks/useNetwork';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../engine/hooks/network/useNetwork';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useCreateDomainKeyIfNeeded } from '../../engine/effects/dapps/useCreateDomainKeyIfNeeded';
-import { useAddExtension } from '../../engine/effects/dapps/useAddExtension';
+import { useCreateDomainKeyIfNeeded } from '../../engine/hooks/dapps/useCreateDomainKeyIfNeeded';
+import { useAddExtension } from '../../engine/hooks/dapps/useAddExtension';
 import { ConfigStore } from '../../utils/ConfigStore';
 import { getAppData } from '../../engine/getters/getAppData';
 

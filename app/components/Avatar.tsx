@@ -130,7 +130,7 @@ import Verified from '../../assets/ic_verified.svg';
 import ContactIcon from '../../assets/ic_contacts.svg';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
-import { useNetwork } from '../engine/hooks/useNetwork';
+import { useNetwork } from '../engine/hooks/network/useNetwork';
 
 export const avatarImages = [
     Img_ant,

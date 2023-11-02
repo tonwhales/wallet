@@ -2,14 +2,14 @@ import React, { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { t } from "../i18n/t";
 import { WImage } from "./WImage";
-import { useTheme } from '../engine/hooks/useTheme';
+import { useTheme } from '../engine/hooks/theme/useTheme';
 import { AppData } from '../engine/api/fetchAppData';
 import { AppManifest } from '../engine/api/fetchManifest';
 import { useAppData } from '../engine/hooks/dapps/useAppData';
 import { useAppManifest } from '../engine/hooks/dapps/useAppManifest';
 import { extractDomain } from '../engine/utils/extractDomain';
 import { useTonConnectExtensions } from "../engine/hooks/dapps/useTonConnectExtenstions";
-import { extensionKey } from "../engine/effects/dapps/useAddExtension";
+import { extensionKey } from "../engine/hooks/dapps/useAddExtension";
 
 export type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 import { t } from "../../i18n/t";
 import { ATextInput, ATextInputRef } from "../ATextInput";
-import { useTheme } from '../../engine/hooks/useTheme';
+import { useTheme } from '../../engine/hooks/theme/useTheme';
 import { useContactField } from '../../engine/hooks/contacts/useContactField';
 
 export const ContactField = React.memo((props: {

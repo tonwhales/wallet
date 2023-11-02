@@ -22,7 +22,7 @@ import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
@@ -202,7 +202,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
     );
 }
 
-export const HoldersAppComponent = React.memo((
+export const HoldersAppComponent = memo((
     props: {
         variant: HoldersAppParams,
         token: string,

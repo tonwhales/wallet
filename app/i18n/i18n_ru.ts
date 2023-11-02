@@ -723,8 +723,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     webView: {
+        noInternet: 'Нет интернет соединения',
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
+        checkInternetAndReload: 'Пожалуйста, проверьте интернет соединение и попробуйте перезагрузить страницу',
     }
 };
 

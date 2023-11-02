@@ -722,8 +722,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         holdersOfflineApp: 'Holders Offline App',
     },
     webView: {
+        noInternet: 'No internet connection',
         contactSupportOrTryToReload: 'Contact support or try to reload the page',
         contactSupport: 'Contact support',
+        checkInternetAndReload: 'Check your internet connection and reload the page',
     }
 };
 

@@ -148,22 +148,6 @@ export const NeocryptoFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
 
-    if (isTestnet) {
-        return (
-            <View style={{
-                flexGrow: 1,
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    color: theme.textColor
-                }}>
-                    {'Neocrypto service availible only on mainnet'}
-                </Text>
-            </View>
-        );
-    }
-
     const params = useParams<{
         amount?: string,
         fix_amount?: 'true' | 'false'
@@ -191,6 +175,22 @@ export const NeocryptoFragment = fragment(() => {
     const onOpenBuy = useCallback(() => {
         setAccepted(true);
     }, []);
+
+    if (isTestnet) {
+        return (
+            <View style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    color: theme.textColor
+                }}>
+                    {'Neocrypto service availible only on mainnet'}
+                </Text>
+            </View>
+        );
+    }
 
     return (
         <View style={{

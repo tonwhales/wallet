@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Image, Text, Platform } from "react-native";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

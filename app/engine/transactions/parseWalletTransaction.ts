@@ -1,5 +1,5 @@
 import { Cell } from "@ton/core";
-import { TxBody } from '../hooks/transactions/useAccountTransactions';
+import { TxBody } from '../types';
 
 export function parseBody(cell: Cell): TxBody | null {
     let slice = cell.beginParse();

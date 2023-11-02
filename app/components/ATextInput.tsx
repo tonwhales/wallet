@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export type ATextInputRef = {
     focus: () => void;

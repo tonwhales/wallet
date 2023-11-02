@@ -28,18 +28,19 @@ import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
-import { usePrimaryCurrency } from '../../../engine/hooks/currency/usePrimaryCurrency';
-import { useHoldersStatus } from '../../../engine/hooks/holders/useHoldersStatus';
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
-import { useSelectedAccount } from '../../../engine/hooks/appstate/useSelectedAccount';
+import { usePrimaryCurrency } from '../../../engine/hooks';
+import { useHoldersStatus } from '../../../engine/hooks';
+import { useTheme } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { useSelectedAccount } from '../../../engine/hooks';
 import { ConfigStore } from '../../../utils/ConfigStore';
 import { getCurrentAddress } from '../../../storage/appState';
-import { getHoldersToken, useHoldersAccountStatus } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
-import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
-import { useHoldersCards } from '../../../engine/hooks/holders/useHoldersCards';
+import { useDomainKey } from '../../../engine/hooks';
+import { useHoldersCards } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
+import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);

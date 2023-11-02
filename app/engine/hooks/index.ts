@@ -13,3 +13,5 @@ export * from './contacts';
 export * from './cloud';
 export * from './appstate';
 export * from './accounts';
+export { useServerConfig } from './useServerConfig';
+export { useSyncState } from './useSyncState';

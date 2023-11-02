@@ -5,10 +5,10 @@ import StakingIcon from '../../../assets/ic_staking.svg';
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
-import { useStaking } from '../../engine/hooks/staking/useStaking';
-import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useStaking } from '../../engine/hooks';
+import { useStakingApy } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
 
 export const StakingProductComponent = memo(() => {
     const theme = useTheme();

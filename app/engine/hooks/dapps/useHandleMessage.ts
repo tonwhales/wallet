@@ -2,9 +2,9 @@ import { AppRequest, Base64, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCry
 import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
-import { useConnectAppByClientSessionId } from '../../hooks/dapps/useConnectApp';
+import { useConnectAppByClientSessionId } from '../../hooks';
 import { getTimeSec } from '../../../utils/getTimeSec';
-import { useConnectPendingRequests } from '../../hooks/dapps/useConnectPendingRequests';
+import { useConnectPendingRequests } from '../../hooks';
 import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
 import { ConnectedAppConnectionRemote, SignRawParams } from '../../tonconnect/types';
 import { setLastEventId } from '../../tonconnect/utils';

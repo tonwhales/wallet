@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Pressable, View } from 'react-native';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export function ModalHeader() {
     const theme = useTheme();

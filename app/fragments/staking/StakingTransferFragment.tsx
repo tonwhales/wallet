@@ -19,11 +19,11 @@ import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../.
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
-import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
-import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
+import { useStakingPool } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
 import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
 import { UnstakeBanner } from '../../components/staking/UnstakeBanner';
 import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';

@@ -5,7 +5,7 @@ import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 import { useTransport } from "./TransportContext";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 
 export const LedgerHID = React.memo(() => {
     const theme = useTheme();

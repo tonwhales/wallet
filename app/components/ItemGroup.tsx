@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { StyleProp, View, ViewStyle } from 'react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<ViewStyle> }) => {
     const theme = useTheme();

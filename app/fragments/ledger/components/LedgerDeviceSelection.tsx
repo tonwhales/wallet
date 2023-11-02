@@ -8,7 +8,7 @@ import { BleDevice } from "./BleDevice";
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../../components/RoundButton";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
 

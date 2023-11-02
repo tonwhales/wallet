@@ -5,9 +5,9 @@ import { fromNano, toNano } from "@ton/core";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { usePrice } from '../../engine/hooks/currency/usePrice';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { usePrice } from '../../engine/hooks';
 
 export const UnstakeBanner = React.memo((
     {

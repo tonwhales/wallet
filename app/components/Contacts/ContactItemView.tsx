@@ -4,7 +4,7 @@ import { Address } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 
 export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {

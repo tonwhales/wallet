@@ -2,7 +2,7 @@ import { useNavigation } from "@react-navigation/native";
 import React from "react"
 import { View, Text, Platform, StyleProp, ViewStyle, TouchableNativeFeedback } from "react-native"
 import { Ionicons } from '@expo/vector-icons';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>, pageTitle?: string, onBack?: () => void, accentColor?: string }) => {
     if (Platform.OS === 'ios') {

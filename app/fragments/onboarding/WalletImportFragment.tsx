@@ -8,7 +8,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { systemFragment } from '../../systemFragment';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 
 export const WalletImportFragment = systemFragment(() => {

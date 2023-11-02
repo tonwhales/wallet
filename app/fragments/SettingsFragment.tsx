@@ -7,11 +7,11 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
 import * as Application from 'expo-application';
-import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount';
-import { useOldWalletsBalances } from '../engine/hooks/accounts/useOldWalletsBalances';
+import { useSelectedAccount } from '../engine/hooks';
+import { useOldWalletsBalances } from '../engine/hooks';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();

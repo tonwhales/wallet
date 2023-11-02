@@ -1,8 +1,8 @@
 import { Address } from '@ton/core';
 import { queryClient } from '../clients';
 import { Queries } from '../queries';
-import { jettonMasterContentQueryFn } from '../hooks/jettons/usePrefetchHints';
 import { JettonMasterState } from '../metadata/fetchJettonMasterContent';
+import { jettonMasterContentQueryFn } from '../hooks/jettons/usePrefetchHints';
 
 export function fetchJettonMaster(master: Address, testOnly: boolean) {
     let addressString = master.toString({ testOnly: testOnly });

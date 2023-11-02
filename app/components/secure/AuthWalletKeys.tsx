@@ -8,7 +8,7 @@ import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState } 
 import { getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 export type AuthParams = {
     backgroundColor?: string,

@@ -7,8 +7,8 @@ import { SvgProps } from 'react-native-svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useNetwork } from '../../../engine/hooks';
+import { useTheme } from '../../../engine/hooks';
 
 export type ProductButtonProps = {
     name: string,

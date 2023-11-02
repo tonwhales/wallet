@@ -5,9 +5,9 @@ import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
 import { queryClient } from './engine/clients';
 import { Queries } from './engine/queries';
+import { useClient4 } from './engine/hooks';
+import { useSelectedAccount } from './engine/hooks';
 import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
-import { useClient4 } from './engine/hooks/network/useClient4';
-import { useSelectedAccount } from './engine/hooks/appstate/useSelectedAccount';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();

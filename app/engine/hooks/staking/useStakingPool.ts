@@ -1,16 +1,11 @@
 import { Address } from '@ton/core';
-import { StakingPoolParams, useStakingPoolParams } from './useStakingPoolParams';
+import { useStakingPoolParams } from './useStakingPoolParams';
 import { useSelectedAccount } from '../appstate/useSelectedAccount';
 import { useNetwork } from '../network/useNetwork';
 import { useClient4 } from '../network/useClient4';
-import { StakingPoolStatus, useStakingPoolStatus } from './useStakingPoolStatus';
-import { StakingPoolMember, useStakingPoolMember } from './useStakingPoolMember';
-
-export type StakingPoolState = {
-    params: StakingPoolParams;
-    status: StakingPoolStatus;
-    member: StakingPoolMember | null;
-}
+import { useStakingPoolStatus } from './useStakingPoolStatus';
+import { useStakingPoolMember } from './useStakingPoolMember';
+import { StakingPoolState } from '../../types';
 
 export function useStakingPool(address: Address): StakingPoolState | null {
     let { isTestnet } = useNetwork();

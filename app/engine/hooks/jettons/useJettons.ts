@@ -2,17 +2,7 @@ import { Address } from '@ton/core';
 import { useFilteredHints } from './useFilteredHints';
 import { useJettonContents } from './useJettonContents';
 import { useJettonWallets } from './useJettonWallets';
-
-export type Jetton = {
-    master: Address;
-    wallet: Address;
-    name: string;
-    description: string;
-    symbol: string;
-    balance: bigint;
-    icon: string | null;
-    decimals: number | null;
-};
+import { Jetton } from '../../types';
 
 export function useJettons(owner: string): Jetton[] {
     let hints = useFilteredHints(owner, (a) => !!a.jettonWallet && a.jettonWallet?.owner === owner && !!a.jettonWallet.master);

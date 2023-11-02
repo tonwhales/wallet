@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { Ionicons } from '@expo/vector-icons';
 
 export const TopBar = React.memo(({ title, showBack }: { title?: string, showBack?: boolean }) => {

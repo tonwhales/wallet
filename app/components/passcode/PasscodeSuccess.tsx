@@ -2,7 +2,7 @@ import React from "react";
 import { Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string, onSuccess: () => void }) => {
     const theme = useTheme();

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const theme = useTheme();

@@ -6,7 +6,7 @@ import CopyIcon from '../../assets/ic_copy.svg';
 import { t } from '../i18n/t';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export const ItemAddress = React.memo((props: {
     title: string,

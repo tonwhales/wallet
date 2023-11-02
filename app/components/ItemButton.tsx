@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Pressable, View, Text, Image, ImageSourcePropType } from 'react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export const ItemButton = React.memo((props: {
     title?: string,

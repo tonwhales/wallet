@@ -5,11 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
-import { useAppManifest } from '../../engine/hooks/dapps/useAppManifest';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { extensionKey } from '../../engine/hooks/dapps/useAddExtension';
+import { useAppManifest } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
 import { useMemo } from 'react';
-import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
+import { useTonConnectExtensions } from '../../engine/hooks';
+import { extensionKey } from '../../engine/hooks/dapps/useAddExtension';
 
 export const ConnectAppFragment = fragment(() => {
     const theme = useTheme();

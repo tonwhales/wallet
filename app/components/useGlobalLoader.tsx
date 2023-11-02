@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, Animated, Keyboard, Platform, View } from 'react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 const GlobalLoaderContext = React.createContext<{ show: () => () => void } | null>(null);
 

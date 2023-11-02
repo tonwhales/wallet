@@ -1,6 +1,6 @@
 import React, { RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
 import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";

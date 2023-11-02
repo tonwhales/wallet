@@ -24,16 +24,16 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useSpamMinAmount } from '../../engine/hooks/spam/useSpamMinAmount';
-import { useDontShowComments } from '../../engine/hooks/spam/useDontShowComments';
-import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { TransactionDescription, TxBody } from '../../engine/hooks/transactions/useAccountTransactions';
-import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
+import { useTheme } from '../../engine/hooks';
+import { useSpamMinAmount } from '../../engine/hooks';
+import { useDontShowComments } from '../../engine/hooks';
+import { useDenyAddress } from '../../engine/hooks';
+import { useIsSpamWallet } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
-import { useContact } from '../../engine/hooks/contacts/useContact';
+import { useContact } from '../../engine/hooks';
+import { TransactionDescription, TxBody } from '../../engine/types';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();

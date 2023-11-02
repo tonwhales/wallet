@@ -10,8 +10,8 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { JettonProduct, confirmJettonAction } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { useJettons } from '../engine/hooks/jettons/useJettons';
+import { useTheme } from '../engine/hooks';
+import { useJettons } from '../engine/hooks';
 import { useSelectedAccount } from "../engine/hooks/appstate/useSelectedAccount";
 
 export const AccountsFragment = fragment(() => {

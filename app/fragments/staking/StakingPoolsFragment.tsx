@@ -14,12 +14,12 @@ import { Address, fromNano, toNano } from "@ton/core";
 import BN from "bn.js";
 import { ItemHeader } from "../../components/ItemHeader";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { TopBar } from "../../components/topbar/TopBar";
-import { useStaking } from '../../engine/hooks/staking/useStaking';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { useStakingPool } from '../../engine/hooks/staking/useStakingPool';
-import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
+import { useStaking } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useStakingPool } from '../../engine/hooks';
+import { useStakingApy } from '../../engine/hooks';
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 

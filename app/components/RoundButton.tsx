@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp, Text, View, ViewStyle, Image } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';

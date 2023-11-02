@@ -3,8 +3,8 @@ import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { fromNano } from "@ton/core";
 import { formatCurrency } from "../utils/formatCurrency"
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { usePrice } from '../engine/hooks/currency/usePrice'
+import { useTheme } from '../engine/hooks';
+import { usePrice } from '../engine/hooks'
 
 export const PriceComponent = React.memo((
     {

@@ -16,12 +16,13 @@ import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { useSelectedAccount } from '../engine/hooks/appstate/useSelectedAccount';
-import { TransactionDescription, useAccountTransactions } from '../engine/hooks/transactions/useAccountTransactions';
-import { useClient4 } from '../engine/hooks/network/useClient4';
-import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useTheme } from '../engine/hooks';
+import { useSelectedAccount } from '../engine/hooks';
+import { useAccountTransactions } from '../engine/hooks';
+import { useClient4 } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
 import { useContacts } from "../engine/hooks/contacts/useContacts";
+import { TransactionDescription } from '../engine/types';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();

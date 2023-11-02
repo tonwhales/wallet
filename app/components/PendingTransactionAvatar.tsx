@@ -5,8 +5,8 @@ import { avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
 import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
-import { useNetwork } from '../engine/hooks/network/useNetwork';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useNetwork } from '../engine/hooks';
+import { useTheme } from '../engine/hooks';
 
 const Color = require('color');
 

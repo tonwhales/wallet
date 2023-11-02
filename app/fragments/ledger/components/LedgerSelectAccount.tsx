@@ -11,9 +11,9 @@ import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
-import { useClient4 } from '../../../engine/hooks/network/useClient4';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../../engine/hooks';
+import { useClient4 } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 

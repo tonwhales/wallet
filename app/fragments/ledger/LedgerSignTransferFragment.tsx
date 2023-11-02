@@ -46,16 +46,16 @@ import { useTransport } from './components/TransportContext';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useLedgerAccount } from '../../engine/hooks/ledger/useLedgerAccount';
-import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
-import { useIsSpamWallet } from '../../engine/hooks/spam/useIsSpamWallet';
-import { useClient4 } from '../../engine/hooks/network/useClient4';
-import { useConfig } from '../../engine/hooks/network/useConfig';
+import { useLedgerAccount } from '../../engine/hooks';
+import { useDenyAddress } from '../../engine/hooks';
+import { useIsSpamWallet } from '../../engine/hooks';
+import { useClient4 } from '../../engine/hooks';
+import { useConfig } from '../../engine/hooks';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
+import { useNetwork } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
@@ -63,7 +63,7 @@ import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { Address, Cell, SendMode, beginCell, external, fromNano, internal, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { WalletContractV4 } from '@ton/ton';
 import { estimateFees } from '../../utils/estimateFees';
-import { useContact } from '../../engine/hooks/contacts/useContact';
+import { useContact } from '../../engine/hooks';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,

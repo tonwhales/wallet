@@ -2,16 +2,7 @@ import { Address, TonClient4, TupleReader } from '@ton/ton';
 import { getLastBlock } from '../../accountWatcher';
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-
-export type StakingPoolStatus = {
-    proxyStakeAt: number,
-    proxyStakeUntil: number,
-    proxyStakeSent: bigint,
-    querySent: boolean,
-    canUnlock: boolean,
-    locked: boolean,
-    proxyStakeLockFinal: boolean,
-};
+import { StakingPoolStatus } from '../../types';
 
 function fetchStakingStatusQueryFn(client: TonClient4, pool: Address) {
     return async () => {

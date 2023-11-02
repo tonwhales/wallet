@@ -5,7 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useCallback, useState } from "react";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { t } from "../../i18n/t";
 import { PasscodeState, getPasscodeState, migrateAndroidKeyStore } from "../../storage/secureStorage";
 import { useKeysAuth } from "../../components/secure/AuthWalletKeys";

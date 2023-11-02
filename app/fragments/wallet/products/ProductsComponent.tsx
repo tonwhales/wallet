@@ -9,14 +9,14 @@ import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 import { HoldersProductButton } from "./HoldersProductButton"
-import { useCurrentJob } from '../../../engine/hooks/dapps/useCurrentJob';
-import { useJettons } from '../../../engine/hooks/jettons/useJettons';
-import { useExtensions } from '../../../engine/hooks/dapps/useExtensions';
-import { useLedgerEnabled } from '../../../engine/hooks/ledger/useLedgerEnabled';
-import { useTonConnectExtensions } from '../../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useCurrentJob } from '../../../engine/hooks';
+import { useJettons } from '../../../engine/hooks';
+import { useExtensions } from '../../../engine/hooks';
+import { useLedgerEnabled } from '../../../engine/hooks';
+import { useTonConnectExtensions } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
 import { DappButton } from "./DappButton";
 import { Address } from "@ton/core";
 import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";

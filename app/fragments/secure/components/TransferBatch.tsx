@@ -23,13 +23,13 @@ import { TransferComponent } from "../../../components/transactions/TransferComp
 import { WImage } from "../../../components/WImage";
 import { formatCurrency } from "../../../utils/formatCurrency";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { fetchJettonMaster, getJettonMaster } from '../../../engine/getters/getJettonMaster';
-import { useClient4 } from '../../../engine/hooks/network/useClient4';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
-import { usePrice } from '../../../engine/hooks/currency/usePrice';
-import { useSelectedAccount } from '../../../engine/hooks/appstate/useSelectedAccount';
+import { useClient4 } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { usePrice } from '../../../engine/hooks';
+import { useSelectedAccount } from '../../../engine/hooks';
 import { fetchSeqno } from '../../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../../engine/accountWatcher';
 import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';

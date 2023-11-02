@@ -16,12 +16,12 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
-import { useExtensions } from '../../engine/hooks/dapps/useExtensions';
-import { useTonConnectExtensions } from '../../engine/hooks/dapps/useTonConnectExtenstions';
-import { useLedgerEnabled } from '../../engine/hooks/ledger/useLedgerEnabled';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useRemoveExtension } from '../../engine/hooks/dapps/useRemoveExtension';
-import { useDisconnectApp } from '../../engine/hooks/dapps/useDisconnect';
+import { useExtensions } from '../../engine/hooks';
+import { useTonConnectExtensions } from '../../engine/hooks';
+import { useLedgerEnabled } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useRemoveExtension } from '../../engine/hooks';
+import { useDisconnectApp } from '../../engine/hooks';
 
 type Item = {
     key: string;

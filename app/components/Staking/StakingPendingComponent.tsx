@@ -8,7 +8,7 @@ import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstak
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { TransferAction } from "../../fragments/staking/StakingTransferFragment";
 import { t } from "../../i18n/t";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 export const StakingPendingComponent = React.memo((
     {

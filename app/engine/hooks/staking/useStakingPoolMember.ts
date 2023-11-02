@@ -2,15 +2,8 @@ import { Address, TonClient4, TupleReader, beginCell } from '@ton/ton';
 import { getLastBlock } from '../../accountWatcher';
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
+import { StakingPoolMember } from '../../types';
 
-
-export type StakingPoolMember = {
-    balance: bigint;
-    pendingWithdraw: bigint;
-    pendingDeposit: bigint;
-    withdraw: bigint;
-    pool: string;
-};
 
 function fetchStakingMemberQueryFn(client: TonClient4, isTestnet: boolean, pool: Address, member?: Address) {
     if (!member) {

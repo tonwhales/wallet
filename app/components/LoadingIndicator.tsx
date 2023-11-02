@@ -1,6 +1,6 @@
 import { ActivityIndicator, StyleProp, View, ViewStyle } from "react-native";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export function LoadingIndicator(props: { simple?: boolean, style?: StyleProp<ViewStyle> | undefined; }) {
     const theme = useTheme();

@@ -19,11 +19,11 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useDomainKey } from '../../../engine/hooks/dapps/useDomainKey';
+import { useDomainKey } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { DomainSubkey } from '../../../engine/state/domainKeys';
 

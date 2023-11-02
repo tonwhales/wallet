@@ -3,7 +3,7 @@ import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { onAccountTouched } from './effects/onAccountTouched';
 import { storage } from '../storage/storage';
 import { onBlockMissed } from './effects/onBlockMissed';
-import { useNetwork } from './hooks/network/useNetwork';
+import { useNetwork } from './hooks';
 import { clients } from './clients';
 import { useSetRecoilState } from 'recoil';
 import { blockWatcherAtom } from './state/blockWatcherState';

@@ -6,9 +6,9 @@ import { bnIsLess } from "../../utils/bnComparison";
 import { parseAmountToNumber, toFixedBN } from "../../utils/parseAmount";
 import { PriceComponent } from "../PriceComponent";
 import { ValueComponent } from "../ValueComponent";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
-import { StakingPoolState } from "../../engine/hooks/staking/useStakingPool";
+import { useTheme } from '../../engine/hooks';
+import { useStakingApy } from '../../engine/hooks';
+import { StakingPoolState } from '../../engine/types';
 
 export const StakingCalcComponent = memo((
     {

@@ -9,7 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import LedgerIcon from '../../../assets/ic_ledger.svg';
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 
 export const HardwareWalletFragment = fragment(() => {

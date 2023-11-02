@@ -3,7 +3,7 @@ import { Image, ImageRequireSource, StyleProp, View, ViewStyle } from 'react-nat
 import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export const WImage = React.memo((props: {
     src?: string | null | undefined,

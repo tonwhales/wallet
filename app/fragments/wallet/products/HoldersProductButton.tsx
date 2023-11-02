@@ -6,7 +6,7 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useTheme } from '../../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../../engine/hooks';
 import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../../storage/appState";

@@ -9,7 +9,7 @@ import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { Operation } from '../../engine/transactions/types';

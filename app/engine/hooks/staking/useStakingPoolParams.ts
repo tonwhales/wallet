@@ -2,16 +2,7 @@ import { Address, TonClient4, TupleReader } from '@ton/ton';
 import { getLastBlock } from '../../accountWatcher';
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-
-export type StakingPoolParams = {
-    enabled: boolean,
-    udpatesEnabled: boolean,
-    minStake: bigint,
-    depositFee: bigint,
-    withdrawFee: bigint,
-    poolFee: bigint,
-    receiptPrice: bigint
-}
+import { StakingPoolParams } from '../../types';
 
 function fetchStakingParamsQueryFn(client: TonClient4, pool: Address) {
     return async (): Promise<StakingPoolParams> => {

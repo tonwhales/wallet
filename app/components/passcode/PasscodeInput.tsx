@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
 import { t } from "../../i18n/t";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
 import { Ionicons } from '@expo/vector-icons';
 import TouchIos from '../../../assets/ic_touch_ios.svg';

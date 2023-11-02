@@ -6,10 +6,10 @@ import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { AnimatedProductButton } from './AnimatedProductButton';
 // import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
-import { useNetwork } from '../../../engine/hooks/network/useNetwork';
+import { useNetwork } from '../../../engine/hooks';
 import { Alert } from 'react-native';
 import { t } from '../../../i18n/t';
-import { Jetton } from '../../../engine/hooks/jettons/useJettons';
+import { Jetton } from '../../../engine/types';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {

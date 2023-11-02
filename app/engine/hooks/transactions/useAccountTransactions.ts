@@ -1,6 +1,5 @@
-import { Address, Cell } from '@ton/core';
-import { StoredTransaction, useRawAccountTransactions } from './useRawAccountTransactions';
-import BN from 'bn.js';
+import { Address } from '@ton/core';
+import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { ContractMetadata } from '../../metadata/Metadata';
 import { useContractMetadatas } from '../metadata/useContractMetadatas';
 import { useJettonContents } from '../jettons/useJettonContents';
@@ -8,60 +7,7 @@ import { StoredContractMetadata, StoredJettonMaster } from '../../metadata/Store
 import { useMemo } from 'react';
 import { JettonMasterState } from '../../metadata/fetchJettonMasterContent';
 import { TonClient4 } from '@ton/ton';
-
-
-export type TxBody = { type: 'comment', comment: string } | { type: 'payload', cell: Cell };
-
-export type Transaction = {
-    lt: string | null;
-    fees: bigint;
-    amount: bigint;
-    address: Address | null;
-    seqno: number | null;
-    kind: 'out' | 'in';
-    body: TxBody | null;
-    status: 'success' | 'failed' | 'pending';
-    time: number;
-    bounced: boolean;
-    prev: { lt: string, hash: string } | null;
-    mentioned: string[];
-    hash: Buffer;
-}
-
-export type Operation = {
-
-    // Operation
-    address: Address;
-    op?: string;
-    items: OperationItem[];
-
-    // Address
-    title?: string;
-    image?: string;
-    comment?: string;
-};
-
-export type OperationItem = {
-    kind: 'ton'
-    amount: bigint;
-} | {
-    kind: 'token',
-    amount: bigint;
-    symbol: string,
-    decimals: number | null
-};
-
-
-export type TransactionDescription = {
-    id: string;
-    base: StoredTransaction;
-    metadata: ContractMetadata | null;
-    masterMetadata: JettonMasterState | null;
-    icon: string | null;
-    op: string | null;
-    title: string | null;
-    verified: boolean | null;
-};
+import { TransactionDescription } from '../../types';
 
 export function getJettonMasterAddressFromMetadata(metadata: StoredContractMetadata | null) {
     if (metadata?.jettonMaster) {

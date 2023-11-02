@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 
 export function GhostButton(props: { onClick: () => void, icon?: any, text: string, loading?: boolean }) {

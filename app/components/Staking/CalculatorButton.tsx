@@ -5,7 +5,7 @@ import Arrow from '../../../assets/ic_ios_forward_grey.svg';
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 export const CalculatorButton = React.memo(({ style, target }: { style: StyleProp<ViewStyle>, target: Address }) => {
     const navigation = useTypedNavigation();

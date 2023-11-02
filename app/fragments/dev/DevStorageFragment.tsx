@@ -6,8 +6,8 @@ import { getApplicationKey, getBiometricsState, getPasscodeState, loadKeyStorage
 import { ItemButton } from '../../components/ItemButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
 
 function loadStorageState() {
     const biometricsState = getBiometricsState();

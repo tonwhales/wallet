@@ -1,108 +1,13 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-import { AccountStatus, Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, loadMessageRelaxed } from '@ton/core';
+import { Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, loadMessageRelaxed } from '@ton/core';
 import { getLastBlock } from '../../accountWatcher';
 import { useNetwork } from '../network/useNetwork';
 import { log } from '../../../utils/log';
 import { parseBody } from '../../transactions/parseWalletTransaction';
 import { resolveOperation } from '../../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
-import { LocalizedResources } from '../../../i18n/schema';
-import { TxBody } from './useAccountTransactions';
-
-type StoredAddressExternal = {
-    bits: number;
-    data: string;
-};
-
-type StoredMessageInfo = {
-    type: 'internal';
-    value: string;
-    dest: string;
-    src: string;
-    bounced: boolean;
-    bounce: boolean;
-    ihrDisabled: boolean;
-    createdAt: number;
-    createdLt: string;
-    fwdFee: string;
-    ihrFee: string;
-} | {
-    type: 'external-in';
-    dest: string;
-    src: StoredAddressExternal | null;
-    importFee: string;
-} | {
-    type: 'external-out';
-    dest: StoredAddressExternal | null;
-};
-
-type StoredStateInit = {
-    splitDepth?: number | null;
-    code: string | null;
-    data: string | null;
-    special?: { tick: boolean, tock: boolean } | null;
-};
-
-type StoredMessage = {
-    body: string,
-    info: StoredMessageInfo,
-    init: StoredStateInit | null,
-};
-
-export type StoredOperation = {
-    address: string;
-    comment?: string;
-    items: StoredOperationItem[];
-
-    // Address
-    op?: { res: LocalizedResources, options?: any };
-    // title?: string;
-    // image?: string;
-
-};
-
-export type StoredOperationItem = {
-    kind: 'ton'
-    amount: string;
-} | {
-    kind: 'token',
-    amount: string;
-};
-
-export type StoredTransaction = {
-    address: string;
-    lt: string;
-    hash: string
-    prevTransaction: {
-        lt: string;
-        hash: string;
-    };
-    time: number;
-    outMessagesCount: number;
-    oldStatus: AccountStatus;
-    newStatus: AccountStatus;
-    fees: string;
-    update: {
-        oldHash: string;
-        newHash: string;
-    };
-    inMessage: StoredMessage | null;
-    outMessages: StoredMessage[];
-    parsed: {
-        seqno: number | null;
-        body: TxBody | null;
-        status: 'success' | 'failed' | 'pending';
-        dest: string | null;
-        kind: 'out' | 'in';
-        amount: string;
-        resolvedAddress: string;
-        bounced: boolean;
-        mentioned: string[];
-    },
-    operation: StoredOperation;
-}
-
+import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, TxBody } from '../../types';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {

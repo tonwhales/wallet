@@ -6,8 +6,8 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { Address } from "@ton/core";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 6)

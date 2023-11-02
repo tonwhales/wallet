@@ -4,10 +4,10 @@ import { View, Text } from "react-native"
 import { fromNano, toNano } from "@ton/core";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
-import { useStakingApy } from '../../engine/hooks/staking/useStakingApy';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { StakingPoolState } from '../../engine/hooks/staking/useStakingPool';
+import { useStakingApy } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { StakingPoolState } from '../../engine/types';
 
 export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
     if (!pool) return null;

@@ -18,11 +18,11 @@ import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useTheme } from '../engine/hooks/theme/useTheme';
-import { useNetwork } from '../engine/hooks/network/useNetwork';
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
 import { useSetContact } from "../engine/hooks/contacts/useSetContact";
 import { useRemoveContact } from "../engine/hooks/contacts/useRemoveContact";
-import { useContact } from '../engine/hooks/contacts/useContact';
+import { useContact } from '../engine/hooks';
 
 const requiredFields = [
     { key: 'lastName', value: '' },

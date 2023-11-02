@@ -12,10 +12,11 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg'; 
-import { Jetton, useJettons } from '../../engine/hooks/jettons/useJettons';
-import { useAccountLite } from '../../engine/hooks/accounts/useAccountLite';
-import { useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useJettons } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { Jetton } from '../../engine/types';
 
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: string) => void }>();

@@ -25,16 +25,16 @@ import { openWithInApp } from "../../utils/openWithInApp";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useSpamMinAmount } from '../../engine/hooks';
 import { useDontShowComments } from '../../engine/hooks';
-import { useDenyAddress } from '../../engine/hooks/contacts/useDenyAddress';
+import { useDenyAddress } from '../../engine/hooks';
 import { useIsSpamWallet } from '../../engine/hooks';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
-import { TransactionDescription, TxBody } from '../../engine/hooks/transactions/useAccountTransactions';
+import { useNetwork } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
-import { useContact } from '../../engine/hooks/contacts/useContact';
+import { useContact } from '../../engine/hooks';
+import { TransactionDescription, TxBody } from '../../engine/types';
 
 const LoadedTransaction = memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
     const theme = useTheme();

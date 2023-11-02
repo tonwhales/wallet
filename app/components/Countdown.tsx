@@ -2,7 +2,7 @@ import { formatDuration } from "date-fns";
 import React, { useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
 import { t } from "../i18n/t";
-import { useTheme } from '../engine/hooks/theme/useTheme';
+import { useTheme } from '../engine/hooks';
 
 export function getDuration(seconds: number) {
     let left = seconds;

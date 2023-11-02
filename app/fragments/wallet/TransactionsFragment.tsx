@@ -8,14 +8,15 @@ import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
-import { SelectedAccount, useSelectedAccount } from '../../engine/hooks/appstate/useSelectedAccount';
-import { useAccountTransactions } from '../../engine/hooks/transactions/useAccountTransactions';
-import { useClient4 } from '../../engine/hooks/network/useClient4';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useTheme } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
+import { useAccountTransactions } from '../../engine/hooks';
+import { useClient4 } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
 import { usePendingTransactions } from "../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransactions } from "./views/PendingTransactions";
+import { SelectedAccount } from '../../engine/types';
 
 function TransactionsComponent(props: { account: SelectedAccount }) {
     const theme = useTheme();

@@ -8,7 +8,7 @@ import { RoundButton } from '../RoundButton';
 import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { memo, useCallback, useState } from 'react';
 
 export const WalletSecureComponent = memo((props: {

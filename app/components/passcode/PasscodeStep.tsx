@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import { Text, View } from "react-native";
 import Animated, { BounceIn, BounceOut } from "react-native-reanimated";
 import { emojis } from "../../utils/emojis";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 
 const getRandomEmoji = () => {
     const randomIndex = Math.floor(Math.random() * emojis.length);

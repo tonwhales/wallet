@@ -2,9 +2,8 @@ import { Address } from "@ton/core";
 import { formatSupportedBody } from "./formatSupportedBody";
 import { parseMessageBody } from "./parseMessageBody";
 import { parseBody } from './parseWalletTransaction';
-import { StoredOperation, StoredOperationItem } from '../hooks/transactions/useRawAccountTransactions';
 import { LocalizedResources } from "../../i18n/schema";
-import { TxBody } from '../hooks/transactions/useAccountTransactions';
+import { StoredOperation, StoredOperationItem, TxBody } from '../types';
 
 export function resolveOperation(args: {
     account: Address,

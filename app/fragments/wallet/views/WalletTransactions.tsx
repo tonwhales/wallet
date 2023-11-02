@@ -1,5 +1,4 @@
 import React, { memo, useCallback, useMemo } from "react";
-import { TransactionDescription } from "../../../engine/hooks/transactions/useAccountTransactions";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets, Rect } from "react-native-safe-area-context";
@@ -9,6 +8,7 @@ import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
+import { TransactionDescription } from '../../../engine/types';
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (

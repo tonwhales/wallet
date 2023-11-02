@@ -23,17 +23,17 @@ import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
 import { fromBnWithDecimals } from "../../utils/withDecimals";
-import { useTheme } from '../../engine/hooks/theme/useTheme';
+import { useTheme } from '../../engine/hooks';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useLedgerWallet } from '../../engine/hooks/ledger/useLedgerWallet';
-import { useConfig } from '../../engine/hooks/network/useConfig';
-import { useJettonWallet } from '../../engine/hooks/jettons/useJettonWallet';
-import { useJettonMaster } from '../../engine/hooks/jettons/useJettonMaster';
-import { useClient4 } from '../../engine/hooks/network/useClient4';
+import { useLedgerWallet } from '../../engine/hooks';
+import { useConfig } from '../../engine/hooks';
+import { useJettonWallet } from '../../engine/hooks';
+import { useJettonMaster } from '../../engine/hooks';
+import { useClient4 } from '../../engine/hooks';
 import { Address, WalletContractV4, internal, toNano, comment as commentCell, fromNano, SendMode, beginCell, external, storeMessage, storeMessageRelaxed, Cell } from '@ton/ton';
-import { useNetwork } from '../../engine/hooks/network/useNetwork';
+import { useNetwork } from '../../engine/hooks';
 import { estimateFees } from '../../utils/estimateFees';
-import { useContact } from '../../engine/hooks/contacts/useContact';
+import { useContact } from '../../engine/hooks';
 
 export const LedgerTransferFragment = fragment(() => {
     const { addr } = useTransport();

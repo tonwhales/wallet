@@ -4,37 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
 import { useClient4 } from './useClient4';
 import { useNetwork } from './useNetwork';
-
-export type ConfigState = {
-    storage: StoragePrices[],
-    masterchain: {
-        gas: {
-            flatLimit: bigint,
-            flatGasPrice: bigint,
-            price: bigint
-        },
-        message: {
-            lumpPrice: bigint;
-            bitPrice: bigint;
-            cellPrice: bigint;
-            firstFrac: number;
-        }
-    },
-    rootDnsAddress: string,
-    workchain: {
-        gas: {
-            flatLimit: bigint,
-            flatGasPrice: bigint,
-            price: bigint
-        },
-        message: {
-            lumpPrice: bigint;
-            bitPrice: bigint;
-            cellPrice: bigint;
-            firstFrac: number;
-        }
-    }
-};
+import { ConfigState } from '../../types';
 
 function fetchConfigQueryFn(client: TonClient4, isTestnet: boolean) {
     return async () => {

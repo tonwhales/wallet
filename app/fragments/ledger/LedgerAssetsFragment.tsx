@@ -22,9 +22,10 @@ export const LedgerAssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { addr } = useTransport();
-    const address = useMemo(() => Address.parse(addr!.address).toString({ testOnly: false }), [addr]);
+    const addressParsed = useMemo(() => Address.parse(addr!.address), [addr]);
+    const address = useMemo(() => addressParsed.toString({ testOnly: false }), [addressParsed]);
     const jettons = useJettons(address);
-    const account = useAccountLite(addr!.address);
+    const account = useAccountLite(addressParsed);
 
     const navigateToJettonTransfer = useCallback((jetton: Jetton) => {
         navigation.replace('LedgerTransfer', {

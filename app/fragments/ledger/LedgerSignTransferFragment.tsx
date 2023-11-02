@@ -930,7 +930,6 @@ export const LedgerSignTransferFragment = fragment(() => {
     } = useRoute().params! as any;
 
     const { ledgerConnection, tonTransport, addr } = useTransport();
-    const account = useAccountLite(addr!.address);
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

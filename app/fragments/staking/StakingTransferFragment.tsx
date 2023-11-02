@@ -71,7 +71,7 @@ export const StakingTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.addressString);
+    const account = useAccountLite(selected!.address);
     const safeArea = useSafeAreaInsets();
     const pool = useStakingPool(params.target!);
     const member = pool?.member

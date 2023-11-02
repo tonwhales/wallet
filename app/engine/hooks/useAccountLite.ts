@@ -11,7 +11,7 @@ export type AccountLite = {
     balance: bigint,
 }
 
-export function useAccountLite(address?: string | Address | null): AccountLite | null {
+export function useAccountLite(address?: Address | null): AccountLite | null {
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
 
@@ -19,12 +19,12 @@ export function useAccountLite(address?: string | Address | null): AccountLite |
         if (!address) {
             return '';
         }
-
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
-        return address;
+        return '';
     }, [address, isTestnet]);
+
     
 
     let query = useQuery({

@@ -81,7 +81,7 @@ export const TransferSingle = memo((props: Props) => {
     const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.addressString);
+    const account = useAccountLite(selected!.address);
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
 

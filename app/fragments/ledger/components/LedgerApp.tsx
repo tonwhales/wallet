@@ -29,7 +29,7 @@ export const LedgerApp = memo((props: {
     const client4 = useClient4(isTestnet);
 
     const address = useMemo(() => Address.parse(props.address.address), [props.address.address]);
-    const account = useAccountLite(props.address.address);
+    const account = useAccountLite(address);
     const transactions = useAccountTransactions(client4, props.address.address);
 
     const cardHeight = Math.floor((window.width / (358 + 32)) * 196);

@@ -9,6 +9,6 @@ export function useJettonContent(master: string | null) {
     return useQuery({
         queryKey: Queries.Jettons().MasterContent(master!),
         queryFn: jettonMasterContentQueryFn(master!, isTestnet),
-        enabled: master !== null,
+        enabled: master !== null && master !== undefined,
     }).data ?? null;
 }

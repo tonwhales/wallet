@@ -67,7 +67,7 @@ const PendingTxs = memo((props: {
 });
 
 function WalletComponent(props: { selected: SelectedAccount }) {
-    const account = useAccountLite(props.selected.addressString);
+    const account = useAccountLite(props.selected.address);
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();

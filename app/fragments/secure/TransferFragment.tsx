@@ -98,11 +98,13 @@ const TransferLoaded = memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
         return <TransferSingle {...props} />
     }
-    return <View>
-        <Text>
-            {fromNano(props.fees)}
-        </Text>
-    </View>;
+    return (
+        <View>
+            <Text>
+                {fromNano(props.fees)}
+            </Text>
+        </View>
+    );
 
     // return <TransferBatch {...props} />;
 });

@@ -23,7 +23,7 @@ export const AssetsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const jettons = useJettons(selected!.addressString);
-    const account = useAccountLite(selected!.addressString);
+    const account = useAccountLite(selected!.address);
     const { isTestnet } = useNetwork();
 
     const navigateToJettonTransfer = useCallback((jetton: Jetton) => {

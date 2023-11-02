@@ -43,7 +43,7 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const reboot = useReboot();
     const addr = useSelectedAccount();
-    const account = useAccountLite(addr!.addressString);
+    const account = useAccountLite(addr?.address);
     const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));

@@ -66,7 +66,7 @@ export const SimpleTransferFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.addressString)!;
+    const account = useAccountLite(selected!.address)!;
     const tonClient4 = useClient4(isTestnet);
     const safeArea = useSafeAreaInsets();
 

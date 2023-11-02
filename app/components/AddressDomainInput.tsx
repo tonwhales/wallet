@@ -46,7 +46,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
     onDomainChange: (domain: string | undefined) => void,
     isKnown?: boolean,
     index: number,
-    contact?: AddressContact,
+    contact?: AddressContact | null,
     labelText?: string,
     showToMainAddress?: boolean,
 }, ref: ForwardedRef<ATextInputRef>) => {

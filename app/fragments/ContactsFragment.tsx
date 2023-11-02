@@ -105,7 +105,7 @@ export const ContactsFragment = fragment(() => {
                             own={account.address}
                             tx={t}
                             separator={i < s.items.length - 1}
-                            key={'tx-' + t}
+                            key={'tx-' + t.id}
                             onPress={() => { }}
                             theme={theme}
                             fontScaleNormal={true}

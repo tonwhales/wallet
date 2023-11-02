@@ -13,14 +13,19 @@ import { ThemeType } from "../../../engine/state/theme";
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View
-            style={{ backgroundColor: theme.background, minHeight: 62, maxHeight: 62, justifyContent: 'flex-end', paddingBottom: 4 }}
+            style={{
+                backgroundColor: theme.background,
+                justifyContent: 'flex-end',
+                paddingBottom: 2,
+                paddingTop: 12,
+                marginHorizontal: 16,
+                marginVertical: 8,
+            }}
         >
             <Text
                 style={{
                     fontSize: 18,
                     fontWeight: '700',
-                    marginHorizontal: 16,
-                    marginVertical: 8,
                     color: theme.textColor
                 }}
             >
@@ -81,14 +86,23 @@ export const WalletTransactions = memo((props: {
 
     const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
         return (
-            <TransactionView
-                own={props.address}
-                tx={item}
-                separator={section.data[index + 1] !== undefined}
-                onPress={() => navigateToPreview(item)}
-                theme={theme}
-                fontScaleNormal={fontScaleNormal}
-            />
+            <View style={[
+                {
+                    marginHorizontal: 16,
+                    overflow: 'hidden',
+                },
+                index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
+                section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
+            ]}>
+                <TransactionView
+                    own={props.address}
+                    tx={item}
+                    separator={section.data[index + 1] !== undefined}
+                    onPress={() => navigateToPreview(item)}
+                    theme={theme}
+                    fontScaleNormal={fontScaleNormal}
+                />
+            </View>
         );
     }, [props.address.hash, theme, fontScaleNormal]);
 

@@ -66,7 +66,8 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
         // ton url
         if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'transfer' && url.pathname.startsWith('/')) {
-            let address = Address.parseFriendly(url.pathname.slice(1)).address;
+            let rawAddress = url.pathname.slice(1).endsWith('/') ? url.pathname.slice(1, -1) : url.pathname.slice(1);
+            let address = Address.parseFriendly(rawAddress).address;
             let comment: string | null = null;
             let amount: bigint | null = null;
             let payload: Cell | null = null;

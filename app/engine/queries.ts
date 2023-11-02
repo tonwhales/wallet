@@ -29,6 +29,10 @@ export const Queries = {
     }),
     Jettons: () => ({
         MasterContent: (masterAddress: string) => ['jettons', 'master', masterAddress, 'content'],
+        Address: (address: string) => ({
+            AllWallets: () => ['jettons', 'address', address, 'master'],
+            Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
+        }),
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({

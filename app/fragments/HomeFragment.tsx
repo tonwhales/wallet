@@ -20,6 +20,7 @@ import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { useTheme } from '../engine/hooks/useTheme';
 import { useNetwork } from '../engine/hooks/useNetwork';
 import { useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
+import { warn } from '../utils/log';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -104,7 +105,7 @@ export const HomeFragment = fragment(() => {
                     } catch (e) {
                         // Ignore
                     }
-                    linkNavigator(resolved);
+                    linkNavigator(resolved).catch((e) => warn('Failed to navigate: ' + e));
                 }
             }
         });

@@ -51,7 +51,7 @@ export type SimpleTransferParams = {
     amount?: bigint | null,
     stateInit?: Cell | null,
     job?: string | null,
-    jetton?: Address | null,
+    jetton?: string | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     app?: {
@@ -78,7 +78,7 @@ export const SimpleTransferFragment = fragment(() => {
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = useState<bigint | null>(null);
     const acc = useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = useJettonWallet(params.jetton!);
+    const jettonWallet = useJettonWallet(params.jetton, true);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
     const balance: bigint = useMemo(() => {
@@ -135,7 +135,7 @@ export const SimpleTransferFragment = fragment(() => {
         // Resolve jetton order
         if (jettonWallet) {
             return createJettonOrder({
-                wallet: params!.jetton!,
+                wallet: Address.parse(params!.jetton!),
                 target: target,
                 domain: domain,
                 responseTarget: acc.address,

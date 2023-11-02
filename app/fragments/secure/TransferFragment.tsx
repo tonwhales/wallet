@@ -271,7 +271,7 @@ export const TransferFragment = fragment(() => {
                                 let op = sc.loadUint(32);
                                 // Jetton transfer op
                                 if (op === OperationType.JettonTransfer) {
-                                    jettonMaster = getJettonMaster(metadata.jettonWallet!.master);
+                                    jettonMaster = await getJettonMaster(metadata.jettonWallet!.master, isTestnet);
                                 }
                             }
                         }

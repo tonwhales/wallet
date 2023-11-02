@@ -43,7 +43,6 @@ export const ConnectAppComponent = React.memo((props: {
 
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.useRef<WebView>(null);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -96,13 +95,20 @@ export const ConnectAppComponent = React.memo((props: {
         navigation
     );
 
+    const endpoint = React.useMemo(() => {
+        const url = new URL(props.endpoint);
+        url.searchParams.set('utm_source', 'tonhub');
+        url.searchParams.set('utm_content', 'extension');
+        return url.toString();
+    }, [props.endpoint]);
+
     return (
         <>
             <View style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <View style={{ height: safeArea.top }} />
                 <WebView
                     ref={ref}
-                    source={{ uri: props.endpoint }}
+                    source={{ uri: endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {

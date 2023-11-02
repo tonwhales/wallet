@@ -5,7 +5,7 @@ import { holdersEndpoint } from "./fetchAccountState";
 
 const publicCardSchema = z.object({
   id: z.string(),
-  address: z.string(),
+  address: z.nullable(z.string()),
   state: z.string(),
   balance: z.string(),
   card: z.object({

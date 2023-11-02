@@ -234,7 +234,7 @@ export const SettingsFragment = fragment(() => {
                     color: theme.textSecondary,
                     alignSelf: 'center',
                 }}>
-                    Tonhub v{Application.nativeApplicationVersion}
+                    Tonhub v{Application.nativeApplicationVersion} ({Application.nativeBuildVersion})
                 </Text>
             </Pressable>
         </View>

@@ -72,6 +72,7 @@ import { usePendingWatcher } from './engine/hooks/usePendingWatcher';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
  import * as Notifications from 'expo-notifications';
  import { PermissionStatus } from 'expo-modules-core';
+import { warn } from './utils/log';
 
 const Stack = createNativeStackNavigator();
 
@@ -241,7 +242,17 @@ export const Navigation = React.memo(() => {
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
-                const token = await backoff('navigation', () => registerForPushNotificationsAsync());
+                const token = await backoff('navigation', async () => {
+                    try {
+                        await registerForPushNotificationsAsync();
+                    } catch (e) {
+                        if (e instanceof Error && e.message.includes(`Notification registration failed: "Push Notifications" capability hasn't been added`)) {
+                            warn('[push-notifications] Push notifications are not enabled in this build');
+                            return null;
+                        }
+                        throw e;
+                    }
+                });
                 if (token) {
                     if (ended) {
                         return;

@@ -3,11 +3,18 @@ import { Alert } from 'react-native';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
+import { queryClient } from './engine/clients';
+import { Queries } from './engine/queries';
+import { jettonWalletAddressQueryFn } from './engine/hooks/useJettonWalletAddress';
+import { useClient4 } from './engine/hooks/useClient4';
+import { useSelectedAccount } from './engine/hooks/useSelectedAccount';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
+    const client = useClient4(isTestnet);
+    const selected = useSelectedAccount();
 
-    const handler = React.useCallback((resolved: ResolvedUrl) => {
+    const handler = React.useCallback(async (resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
                 navigation.navigateTransfer({
@@ -37,15 +44,16 @@ export function useLinkNavigator(isTestnet: boolean) {
             }
         }
         if (resolved.type === 'jetton-transaction') {
-            // TODO:
-            // const jettons = engine.products.main.getJettons().jettons;
-            // const jetton = jettons.find((j) => {
-            //     return j.master.equals(resolved.jettonMaster);
-            // });
-            const jetton: any = null;
+            if (!selected) {
+                return;
+            }
+            const jettonWallet = await queryClient.fetchQuery({
+                queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
+                queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
+            });
 
             // TODO: try fetching jetton master on SimpleTransferFragment
-            if (!jetton) {
+            if (!jettonWallet) {
                 Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
                 return;
             }
@@ -56,7 +64,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                 amount: resolved.amount,
                 stateInit: null,
                 job: null,
-                jetton: jetton.wallet,
+                jetton: jettonWallet,
                 callback: null
             });
         }

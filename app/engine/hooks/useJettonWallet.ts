@@ -5,16 +5,15 @@ import { jettonWalletQueryFn } from './usePrefetchHints';
 import { useNetwork } from './useNetwork';
 import { useClient4 } from './useClient4';
 
-export function useJettonWallet(wallet: Address | null | undefined) {
+export function useJettonWallet(wallet: string | null | undefined, suspense: boolean = false) {
     const { isTestnet } = useNetwork();
     const client4 = useClient4(isTestnet);
-
-    const accountKey = wallet ? wallet.toString({ testOnly: isTestnet }) : '';
     
     let query = useQuery({
-        queryKey: Queries.Account(accountKey).JettonWallet(),
-        queryFn: jettonWalletQueryFn(client4, accountKey, isTestnet),
+        queryKey: Queries.Account(wallet!).JettonWallet(),
+        queryFn: jettonWalletQueryFn(client4, wallet!, isTestnet),
         enabled: !!wallet,
+        suspense,
     });
 
     return query.data;

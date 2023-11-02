@@ -46,12 +46,12 @@ const PendingTxs = memo((props: {
             {props.txs.map((t, i) => {
                 return (
                     <View
-                        key={'tx-view' + t}
+                        key={'tx-view' + t.id}
                         style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.item, overflow: 'hidden' }}
                         collapsable={false}
                     >
                         <TransactionView
-                            key={'tx-' + t}
+                            key={'tx-' + t.id}
                             own={props.address}
                             tx={t}
                             separator={i < props.txs.length - 1}

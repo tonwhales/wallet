@@ -101,7 +101,7 @@ export const LedgerTransferFragment = fragment(() => {
         // Resolve jetton order
         if (jettonWallet) {
             return createLedgerJettonOrder({
-                wallet: params!.jetton!,
+                wallet: Address.parse(params!.jetton!),
                 target: target,
                 domain: domain,
                 responseTarget: address,

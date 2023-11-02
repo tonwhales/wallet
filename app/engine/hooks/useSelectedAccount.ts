@@ -1,5 +1,5 @@
 import { useRecoilValue } from 'recoil';
-import { appStateAtom } from '../state/appState';
+import { selectedAccountSelector } from '../state/appState';
 import { Address } from '@ton/core';
 
 export type SelectedAccount = {
@@ -11,9 +11,5 @@ export type SelectedAccount = {
 }
 
 export function useSelectedAccount() {
-    let state = useRecoilValue(appStateAtom);
-
-    return (state.selected === -1 || state.selected >= state.addresses.length)
-        ? null
-        : state.addresses[state.selected];
+    return useRecoilValue(selectedAccountSelector);
 }

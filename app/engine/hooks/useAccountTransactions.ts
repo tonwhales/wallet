@@ -160,7 +160,6 @@ export function useAccountTransactions(client: TonClient4, account: string): {
     return {
         data: txs,
         next: () => {
-            console.log('next called');
             raw!.fetchNextPage();
         },
         hasNext: !!raw.hasNextPage,

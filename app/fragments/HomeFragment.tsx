@@ -21,6 +21,7 @@ import { useTheme } from '../engine/hooks';
 import { useNetwork } from '../engine/hooks';
 import { useCurrentJob } from '../engine/hooks';
 import { warn } from '../utils/log';
+import { ThemeStyle } from '../engine/state/theme';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -122,7 +123,7 @@ export const HomeFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ flexGrow: 1 }} />
-            <StatusBar style={'dark'} />
+            <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
                 <WalletFragment />
             </View>

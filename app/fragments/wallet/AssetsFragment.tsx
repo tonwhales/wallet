@@ -5,39 +5,41 @@ import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
-import { useEngine } from "../../engine/Engine";
-import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import BN from "bn.js";
-import { Address } from "ton";
+import TonIcon from '../../../assets/ic_ton_account.svg'; 
+import { useJettons } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { Jetton } from '../../engine/types';
 
 export const AssetsFragment = fragment(() => {
-    const { target, callback } = useParams<{ target: string, callback?: (address?: Address) => void }>();
+    const { target, callback } = useParams<{ target: string, callback?: (address?: string) => void }>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const jettons = engine.products.main.useJettons();
-    const account = engine.products.main.useAccount();
+    const selected = useSelectedAccount();
+    const jettons = useJettons(selected!.addressString);
+    const account = useAccountLite(selected!.address);
+    const { isTestnet } = useNetwork();
 
-    const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
+    const navigateToJettonTransfer = useCallback((jetton: Jetton) => {
         navigation.navigateSimpleTransfer({
             amount: null,
             target: target,
             comment: null,
-            jetton: jetton.wallet,
+            jetton: jetton.wallet.toString({ testOnly: isTestnet }),
             stateInit: null,
             job: null,
             callback: null
         });
     }, []);
 
-    const onCallback = useCallback((address?: Address) => {
+    const onCallback = useCallback((address?: string) => {
         if (callback) {
             setTimeout(() => {
                 navigation.goBack();
@@ -79,7 +81,7 @@ export const AssetsFragment = fragment(() => {
                         name={'TON'}
                         subtitle={t('common.balance')}
                         icon={TonIcon}
-                        value={account?.balance ?? new BN(0)}
+                        value={account?.balance ?? BigInt(0)}
                         onPress={() => {
                             if (callback) {
                                 onCallback();
@@ -101,13 +103,12 @@ export const AssetsFragment = fragment(() => {
                     {jettons.map((j) => {
                         return (
                             <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
+                                key={'jt' + j.wallet.toString()}
                                 jetton={j}
                                 navigation={navigation}
-                                engine={engine}
                                 onPress={() => {
                                     if (callback) {
-                                        onCallback(j.master);
+                                        onCallback(j.master.toString({ testOnly: isTestnet }));
                                         return;
                                     }
                                     navigateToJettonTransfer(j)

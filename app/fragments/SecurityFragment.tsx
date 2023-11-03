@@ -7,8 +7,7 @@ import { fragment } from "../fragment"
 import { t } from "../i18n/t"
 import { BiometricsState, PasscodeState } from "../storage/secureStorage"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-import { useAppConfig } from "../utils/AppConfigContext"
-import { useEngine } from "../engine/Engine"
+import { useTheme } from '../engine/hooks';
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar"
 import { useEffect, useMemo, useState } from "react"
 import { DeviceEncryption, getDeviceEncryption } from "../storage/getDeviceEncryption"
@@ -20,17 +19,19 @@ import { ItemSwitch } from "../components/Item"
 import { useKeysAuth } from "../components/secure/AuthWalletKeys"
 import { warn } from "../utils/log"
 import { ItemGroup } from "../components/ItemGroup"
+import { usePasscodeState } from '../engine/hooks'
+import { useBiometricsState } from '../engine/hooks'
+import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometricsState"
 
 export const SecurityFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const settings = engine.products.settings;
     const authContext = useKeysAuth();
-    const { Theme } = useAppConfig();
-    const passcodeState = settings.usePasscodeState();
-    const biometricsState = settings.useBiometricsState();
+    const theme = useTheme();
+    const passcodeState = usePasscodeState();
+    const biometricsState = useBiometricsState();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
+    const setBiometricsState = useSetBiometricsState();
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {
@@ -113,7 +114,7 @@ export const SecurityFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    backgroundColor: Theme.background,
+                    backgroundColor: theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
                     marginBottom: 52 + safeArea.bottom
@@ -121,7 +122,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -146,7 +147,7 @@ export const SecurityFragment = fragment(() => {
                     )}
                     {biometricsProps && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 + 24 }} />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
                                 <ItemGroup>
                                     {!!biometricsProps.state && biometricsProps.state !== BiometricsState.NotSet && (
@@ -160,7 +161,7 @@ export const SecurityFragment = fragment(() => {
                                                     } else {
                                                         await authContext.authenticate({ cancelable: true });
                                                     }
-                                                    settings.setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
+                                                    setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                                 } catch (e) {
                                                     warn('Failed to authenticate with passcode');
                                                 }

@@ -1,14 +1,13 @@
 import axios from 'axios';
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { useLayoutEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Platform, Text, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { CloseButton } from '../../components/CloseButton';
 import { ConnectedAppButton } from '../../components/ConnectedAppButton';
-import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
@@ -17,7 +16,12 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import LottieView from 'lottie-react-native';
 import { ProductButton } from '../wallet/products/ProductButton';
 import HardwareWalletIcon from '../../../assets/ic_ledger.svg';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useExtensions } from '../../engine/hooks';
+import { useTonConnectExtensions } from '../../engine/hooks';
+import { useLedgerEnabled } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useRemoveExtension } from '../../engine/hooks';
+import { useDisconnectApp } from '../../engine/hooks';
 
 type Item = {
     key: string;
@@ -50,16 +54,22 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const extensions = engine.products.extensions.useExtensions();
-    const tonconnectApps = engine.products.tonConnect.useExtensions();
-    const ledger = engine.products.settings.useLedger();
-    let [apps, setApps] = React.useState(groupItems(getConnectionReferences()));
+    const [installedExtensions,] = useExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();
 
-    let disconnectApp = React.useCallback((url: string) => {
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
+    let [apps, setApps] = useState(groupItems(getConnectionReferences()));
+
+    const removeExtension = useRemoveExtension();
+    const disconnectConnect = useDisconnectApp();
+
+    let disconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
         if (toRemove.length === 0) {
@@ -83,28 +93,26 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    let removeExtension = React.useCallback((key: string) => {
+    let onRemoveExtension = useCallback((key: string) => {
+        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
+            text: t('auth.revoke.action'),
+            style: 'destructive',
+            onPress: () => removeExtension(key)
+        }]);
+    }, []);
+
+    let disconnectConnectApp = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.extensions.removeExtension(key);
+                disconnectConnect(key);
             }
         }]);
     }, []);
 
-    let disconnectConnectApp = React.useCallback((key: string) => {
-        Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
-            text: t('auth.revoke.action'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.tonConnect.disconnect(key);
-            }
-        }]);
-    }, []);
-
-    const toggleLedger = React.useCallback(() => {
-        if (!ledger) {
+    const toggleLedger = useCallback(() => {
+        if (!ledgerEnabled) {
             Alert.alert(
                 t('hardwareWallet.ledger'),
                 t('hardwareWallet.confirm.add'),
@@ -113,7 +121,7 @@ export const ConnectionsFragment = fragment(() => {
                         text: t('common.cancel')
                     }, {
                         text: t('common.add'),
-                        onPress: () => engine.products.settings.setLedger(true)
+                        onPress: () => setLedgerEnabled(true), 
                     }
                 ]
             );
@@ -128,11 +136,11 @@ export const ConnectionsFragment = fragment(() => {
                 }, {
                     text: t('common.delete'),
                     style: 'destructive',
-                    onPress: () => engine.products.settings.setLedger(false)
+                    onPress: () => setLedgerEnabled(false),
                 }
             ]
         );
-    }, [ledger]);
+    }, [ledgerEnabled]);
 
     // 
     // Lottie animation
@@ -171,7 +179,7 @@ export const ConnectionsFragment = fragment(() => {
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
+                && !ledgerEnabled
             ) && (
                     <View style={{
                         alignItems: 'center',
@@ -192,14 +200,14 @@ export const ConnectionsFragment = fragment(() => {
                             marginHorizontal: 8,
                             marginBottom: 8,
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                         }}
                         >
                             {t('auth.noApps')}
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.priceSecondary,
+                            color: theme.priceSecondary,
                         }}>
                             {t('auth.apps.description')}
                         </Text>
@@ -207,7 +215,7 @@ export const ConnectionsFragment = fragment(() => {
                             position: 'absolute',
                             bottom: safeArea.bottom + 16, left: 0, right: 0
                         }}>
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
                                     {t('settings.experimental')}
                                 </Text>
@@ -230,7 +238,7 @@ export const ConnectionsFragment = fragment(() => {
                 apps.length === 0
                 && extensions.length === 0
                 && tonconnectApps.length === 0
-                && !ledger
+                && !ledgerEnabled
             ) && (
                     <ScrollView style={{ flexGrow: 1 }}>
                         <View style={{
@@ -243,26 +251,26 @@ export const ConnectionsFragment = fragment(() => {
                         }}>
                             <Text style={{
                                 fontSize: 16,
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                             }}>
                                 {t('auth.apps.description')}
                             </Text>
                             {extensions.length > 0 && (
-                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, backgroundColor: theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.extensions')}</Text>
                                 </View>
                             )}
                             {extensions.map((app) => (
                                 <View key={`app-${app.url}`} style={{ marginHorizontal: 16, width: '100%', marginBottom: 8 }}>
                                     <ConnectedAppButton
-                                        onRevoke={() => removeExtension(app.key)}
+                                        onRevoke={() => onRemoveExtension(app.key)}
                                         url={app.url}
-                                        name={app.name}
+                                        name={app.title}
                                     />
                                 </View>
                             ))}
                             {(apps.length > 0 || tonconnectApps.length > 0) && (
-                                <View style={{ marginTop: 8, backgroundColor: Theme.background, alignSelf: 'flex-start' }} collapsable={false}>
+                                <View style={{ marginTop: 8, backgroundColor: theme.background, alignSelf: 'flex-start' }} collapsable={false}>
                                     <Text style={{ fontSize: 18, fontWeight: '700', marginVertical: 8 }}>{t('connections.connections')}</Text>
                                 </View>
                             )}
@@ -287,7 +295,7 @@ export const ConnectionsFragment = fragment(() => {
                             ))}
                         </View>
                         <View style={{ width: '100%' }}>
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16 }}>
                                     {t('settings.experimental')}
                                 </Text>
@@ -302,7 +310,7 @@ export const ConnectionsFragment = fragment(() => {
                                 }}
                                 value={null}
                                 onPress={() => {
-                                    if (!ledger) {
+                                    if (!ledgerEnabled) {
                                         toggleLedger();
                                         return;
                                     }

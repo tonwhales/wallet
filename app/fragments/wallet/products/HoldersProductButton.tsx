@@ -1,14 +1,18 @@
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
-import React, { useCallback } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { TouchableHighlight, View, Text, useWindowDimensions, Image } from "react-native";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { Engine } from "../../../engine/Engine";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useAppConfig } from "../../../utils/AppConfigContext";
-import { HoldersCard, holdersUrl } from "../../../engine/holders/HoldersProduct";
+import { useTheme } from '../../../engine/hooks';
+import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
+import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
+import { getCurrentAddress } from "../../../storage/appState";
+import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { HoldersCard } from "../../../engine/api/holders/fetchCards";
+import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -19,35 +23,35 @@ const colorsMap: { [key: string]: string[] } = {
     'default-2': ['#792AF6', "#954CF9"], // Default
 }
 
-export const HoldersProductButton = React.memo(({ account, engine }: { account?: HoldersCard, engine: Engine }) => {
-    const { Theme } = useAppConfig();
+export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
-    const fontScaleNormal = dimentions.fontScale <= 1;
-    const status = engine.products.holders.useStatus();
 
-    const needsEnrolment = React.useMemo(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
+    const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
+
+    const domain = extractDomain(holdersUrl);
+    const domainKey = useDomainKey(domain);
+
+    const needsenrollment = useMemo(() => {
         try {
-            let domain = extractDomain(holdersUrl);
-            if (!domain) {
-                return; // Shouldn't happen
-            }
-            let domainKey = engine.products.keys.getDomainKey(domain);
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrolment') {
+            if (!!status && status.state === HoldersAccountState.NeedEnrollment) {
                 return true;
             }
         } catch (error) {
             return true;
         }
         return false;
-    }, [status]);
+    }, [status, domainKey]);
 
     const onPress = useCallback(
         () => {
-            if (needsEnrolment) {
+            if (needsenrollment) {
                 navigation.navigate(
                     'HoldersLanding',
                     {
@@ -59,22 +63,23 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
             }
             navigation.navigate('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
         },
-        [account, needsEnrolment],
+        [account, needsenrollment],
     );
 
     const colors = account ? (colorsMap[account.card.personalizationCode] ?? colorsMap['default-2']) : ['#333A5A', "#A7AFD3"];
+    const cardKind = account?.card.kind === 'virtual' ? 'virtual' : 'physical';
 
     return (
         <TouchableHighlight
             onPress={onPress}
-            underlayColor={Theme.selector}
+            underlayColor={theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
+            <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                 <View style={{ width: 34, height: 46, borderRadius: 6, borderWidth: 0, marginVertical: 8, marginLeft: 14, marginRight: 14, overflow: 'hidden' }}>
                     <Canvas style={{ width: 34, height: 46, position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                         <Rect x={0} y={0} width={34} height={46}>
@@ -93,21 +98,20 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                     {!account && (
                         <Image source={require('../../../../assets/ic_eu.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
-                    {account && account.type === 'virtual' && (
+                    {account && cardKind === 'virtual' ? (
                         <Image source={require('../../../../assets/ic_virtual_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
-                    )}
-                    {account && account.type === 'physical' && (
+                    ) : (
                         <Image source={require('../../../../assets/ic_visa_card.png')} style={{ position: 'absolute', bottom: 4, right: 4 }} />
                     )}
                 </View>
                 {!!account && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                            <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
-                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' :''}`}
+                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
+                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                             </Text>
-                            {!!account && account.balance && (
-                                <Text style={{ color: Theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                            {!!account && (
+                                <Text style={{ color: theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                     <ValueComponent value={account.balance} precision={2} />{' TON'}
                                 </Text>
                             )}
@@ -120,7 +124,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                             >
                                 {!!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t(`products.zenPay.card.type.${account.type}`)}
+                                        {t(`products.zenPay.card.type.${cardKind}` as any)}
                                     </Text>
                                 )}
                                 {!account && (
@@ -132,7 +136,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                             {!!account &&
                                 (
                                     <PriceComponent
-                                        amount={account.balance}
+                                        amount={BigInt(account.balance)}
                                         style={{
                                             backgroundColor: 'transparent',
                                             paddingHorizontal: 0, paddingVertical: 0,
@@ -151,7 +155,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                                <Text style={{ color: Theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={fontScaleNormal ? 1 : 2}>
+                                <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
                                     {t('products.zenPay.card.defaultTitle')}
                                 </Text>
                             </View>
@@ -168,7 +172,7 @@ export const HoldersProductButton = React.memo(({ account, engine }: { account?:
                             </View>
                         </View>
                         <View style={{
-                            backgroundColor: Theme.accent,
+                            backgroundColor: theme.accent,
                             borderRadius: 70,
                             minWidth: 50, height: 30, paddingHorizontal: 8,
                             justifyContent: 'center',

@@ -1,7 +1,7 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { View, Text, Platform, Pressable } from "react-native";
 import { t } from "../../../i18n/t";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 import * as Network from 'expo-network';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
@@ -23,9 +23,9 @@ export const WebViewErrorComponent = memo(({
     onReload: () => void
 }) => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
-    const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const [networkState, setNetworkState] = useState<Network.NetworkState | undefined>();
+    const safeArea = useSafeAreaInsets();
 
     const animRef = useRef<LottieView>(null);
 
@@ -56,7 +56,7 @@ export const WebViewErrorComponent = memo(({
                 }}>
                     {networkState.isInternetReachable && (
                         <Text style={{
-                            color: Theme.textSecondary,
+                            color: theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '400',
                             textAlign: 'center'
@@ -65,19 +65,26 @@ export const WebViewErrorComponent = memo(({
                         </Text>
                     )}
                     <Text style={{
-                        marginTop: networkState.isInternetReachable ? 4 : 16,
-                        fontSize: 32, lineHeight: 38,
-                        color: Theme.textColor,
+                        fontSize: 32, lineHeight: 40,
+                        color: theme.textColor,
                         fontWeight: '600',
                         textAlign: 'center'
                     }}>
-                        {!networkState.isInternetReachable ?
-                            t('webView.noInternet') :
-                            t('common.somethingWentWrong')
+                        {t('common.somethingWentWrong')}
+                    </Text>
+                    <Text style={{
+                        color: theme.textSecondary,
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '500',
+                        marginBottom: 8
+                    }}>
+                        {networkState.isInternetReachable ?
+                            t('common.errorOccurred', { error: errorDesc, code: errorCode }) :
+                            t('common.checkInternetConnection')
                         }
                     </Text>
                     <Text style={{
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '400',
                         textAlign: 'center', marginHorizontal: 48
@@ -132,8 +139,8 @@ export const WebViewErrorComponent = memo(({
                     style={{ position: 'absolute', top: 22, right: 16 }}
                     onPress={() => {
                         navigation.goBack();
-                    }}>
-                    <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
+                    }} >
+                    <Text style={{ color: theme.accent, fontWeight: '500', fontSize: 17 }}>
                         {t('common.close')}
                     </Text>
                 </Pressable>

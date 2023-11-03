@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address, Cell } from "ton";
+import { Address, Cell } from "@ton/core";
 import Url from 'url-parse';
 import { warn } from "./log";
 import { SupportedDomains } from "./SupportedDomains";
@@ -10,7 +10,7 @@ export type ResolvedUrl = {
     type: 'transaction',
     address: Address,
     comment: string | null,
-    amount: BN | null,
+    amount: bigint | null,
     payload: Cell | null,
     stateInit: Cell | null,
 } | {
@@ -18,7 +18,7 @@ export type ResolvedUrl = {
     address: Address,
     jettonMaster: Address,
     comment: string | null,
-    amount: BN | null
+    amount: bigint | null
 } | {
     type: 'connect',
     session: string,
@@ -66,9 +66,10 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
 
         // ton url
         if ((url.protocol.toLowerCase() === 'ton:' || url.protocol.toLowerCase() === 'ton-test:') && url.host.toLowerCase() === 'transfer' && url.pathname.startsWith('/')) {
-            let address = Address.parseFriendly(url.pathname.slice(1)).address;
+            let rawAddress = url.pathname.slice(1).endsWith('/') ? url.pathname.slice(1, -1) : url.pathname.slice(1);
+            let address = Address.parseFriendly(rawAddress).address;
             let comment: string | null = null;
-            let amount: BN | null = null;
+            let amount: bigint | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
             let jettonMaster: Address | null = null;
@@ -78,7 +79,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         comment = url.query[key]!;
                     }
                     if (key.toLowerCase() === 'amount') {
-                        amount = new BN(url.query[key]!, 10);
+                        amount = BigInt(url.query[key]!);
                     }
                     if (key.toLowerCase() === 'bin') {
                         payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
@@ -138,7 +139,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
-            let amount: BN | null = null;
+            let amount: bigint | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
             let jettonMaster: Address | null = null;
@@ -148,7 +149,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         comment = url.query[key]!;
                     }
                     if (key.toLowerCase() === 'amount') {
-                        amount = new BN(url.query[key]!, 10);
+                        amount = BigInt(url.query[key]!);
                     }
                     if (key.toLowerCase() === 'bin') {
                         payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
@@ -189,7 +190,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             && (url.pathname.toLowerCase().startsWith('/transfer/'))) {
             let address = Address.parseFriendly(url.pathname.slice('/transfer/'.length)).address;
             let comment: string | null = null;
-            let amount: BN | null = null;
+            let amount: bigint | null = null;
             let payload: Cell | null = null;
             let stateInit: Cell | null = null;
             let jettonMaster: Address | null = null;
@@ -199,7 +200,7 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
                         comment = url.query[key]!;
                     }
                     if (key.toLowerCase() === 'amount') {
-                        amount = new BN(url.query[key]!, 10);
+                        amount = BigInt(url.query[key]!);
                     }
                     if (key.toLowerCase() === 'bin') {
                         payload = Cell.fromBoc(Buffer.from(url.query[key]!, 'base64'))[0];
@@ -268,32 +269,36 @@ export function resolveUrl(src: string, testOnly: boolean): ResolvedUrl | null {
             && (url.pathname.toLowerCase().startsWith('/app/'))) {
             let id = url.pathname.slice('/app/'.length);
             let slice = Cell.fromBoc(Buffer.from(id, 'base64'))[0].beginParse();
-            let endpoint = slice.readRef().readRemainingBytes().toString();
-            let extras = slice.readBit(); // For future compatibility
+            let endpointSlice = slice.loadRef().beginParse();
+            let endpoint = endpointSlice.loadBuffer(endpointSlice.remainingBits / 8).toString();
+            let extras = slice.loadBit(); // For future compatibility
             let customTitle: string | null = null;
             let customImage: { url: string, blurhash: string } | null = null;
             if (!extras) {
-                if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
                     throw Error('Invalid endpoint');
                 }
             } else {
-                if (slice.readBit()) {
-                    customTitle = slice.readRef().readRemainingBytes().toString()
+                if (slice.loadBit()) {
+                    let customTitleSlice = slice.loadRef().beginParse();
+                    customTitle = customTitleSlice.loadBuffer(customTitleSlice.remainingBits / 8).toString();
                     if (customTitle.trim().length === 0) {
                         customTitle = null;
                     }
                 }
-                if (slice.readBit()) {
-                    let imageUrl = slice.readRef().readRemainingBytes().toString();
-                    let imageBlurhash = slice.readRef().readRemainingBytes().toString();
+                if (slice.loadBit()) {
+                    let imageUrlSlice = slice.loadRef().beginParse();
+                    let imageUrl = imageUrlSlice.loadBuffer(imageUrlSlice.remainingBits / 8).toString();
+                    let imageBlurhashSlice = slice.loadRef().beginParse();
+                    let imageBlurhash = imageBlurhashSlice.loadBuffer(imageBlurhashSlice.remainingBits / 8).toString();
                     new Url(imageUrl, true); // Check url
                     customImage = { url: imageUrl, blurhash: imageBlurhash };
                 }
 
                 // Future compatibility
-                extras = slice.readBit(); // For future compatibility
+                extras = slice.loadBit(); // For future compatibility
                 if (!extras) {
-                    if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                    if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
                         throw Error('Invalid endpoint');
                     }
                 }

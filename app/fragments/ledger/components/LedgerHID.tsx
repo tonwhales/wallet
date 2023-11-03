@@ -5,10 +5,10 @@ import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
 import { useTransport } from "./TransportContext";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 
 export const LedgerHID = React.memo(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [started, setStarted] = React.useState(false);
     const { setLedgerConnection, tonTransport } = useTransport();
     const [screen, setScreen] = useState<'select-account' | null>(null);
@@ -52,7 +52,7 @@ export const LedgerHID = React.memo(() => {
                         source={require('../../../../assets/ic_ledger_s.png')}
                     />
                     <Text style={{
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '700',
                         fontSize: 20,
                         marginBottom: 32,
@@ -63,7 +63,7 @@ export const LedgerHID = React.memo(() => {
                     </Text>
                     <View style={{ justifyContent: 'center' }}>
                         <Text style={{
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             fontWeight: '400',
                             fontSize: 16,
                             marginBottom: 12,
@@ -71,7 +71,7 @@ export const LedgerHID = React.memo(() => {
                             {t('hardwareWallet.connectionHIDDescription_1')}
                         </Text>
                         <Text style={{
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             fontWeight: '400',
                             fontSize: 16,
                             marginBottom: 12,

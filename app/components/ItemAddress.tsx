@@ -6,7 +6,7 @@ import CopyIcon from '../../assets/ic_copy.svg';
 import { t } from '../i18n/t';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 export const ItemAddress = React.memo((props: {
     title: string,
@@ -16,7 +16,7 @@ export const ItemAddress = React.memo((props: {
     contact?: boolean,
     children?: any
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
             Clipboard.setString(body);
@@ -30,11 +30,11 @@ export const ItemAddress = React.memo((props: {
     return (
         <View style={{ flexDirection: 'column', paddingHorizontal: 16, alignItems: 'flex-start' }}>
             <View style={{ height: 30, flexDirection: 'row' }}>
-                <Text style={{ fontSize: 14, fontWeight: '500', color: Theme.textSecondary, alignSelf: 'center', flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
+                <Text style={{ fontSize: 14, fontWeight: '500', color: theme.textSecondary, alignSelf: 'center', flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
                 <View style={{ alignItems: 'center', height: 30, flexDirection: 'row' }}>
                     {props.verified && !props.contact && (<VerifiedIcon />)}
                     {!props.verified && props.contact && (<ContactIcon />)}
-                    {props.secondary && (<Text style={{ fontSize: 14, color: Theme.textSecondary }}>{props.secondary}</Text>)}
+                    {props.secondary && (<Text style={{ fontSize: 14, color: theme.textSecondary }}>{props.secondary}</Text>)}
                 </View>
             </View>
             <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
@@ -47,7 +47,7 @@ export const ItemAddress = React.memo((props: {
                                         {
                                             fontSize: 16,
                                             fontWeight: '400',
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                         },
                                     ]}
                                     selectable={false}
@@ -61,7 +61,7 @@ export const ItemAddress = React.memo((props: {
                                         {
                                             fontSize: 16,
                                             fontWeight: '400',
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                         },
                                     ]}
                                     selectable={false}

@@ -1,8 +1,8 @@
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { storage } from './storage';
 import * as t from 'io-ts';
 import { isLeft } from 'fp-ts/lib/Either';
-import { getSecureRandomBytes, keyPairFromSeed } from 'ton-crypto';
+import { getSecureRandomBytes, keyPairFromSeed } from '@ton/crypto';
 import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
@@ -10,6 +10,7 @@ import { deriveUtilityKey } from './utilityKeys';
 export type AppState = {
     addresses: {
         address: Address,
+        addressString: string,
         publicKey: Buffer,
         secretKeyEnc: Buffer,
         utilityKey: Buffer
@@ -57,7 +58,7 @@ function serializeAppState(state: AppState, isTestnet: boolean): t.TypeOf<typeof
         version: 2,
         selected: state.selected,
         addresses: state.addresses.map((v) => ({
-            address: v.address.toFriendly({ testOnly: isTestnet }),
+            address: v.address.toString({ testOnly: isTestnet }),
             publicKey: v.publicKey.toString('base64'),
             secretKeyEnc: v.secretKeyEnc.toString('base64'),
             utilityKey: v.utilityKey.toString('base64')
@@ -128,6 +129,7 @@ export async function doUpgrade(isTestnet: boolean) {
                 let utilityKey = await deriveUtilityKey(wallet.mnemonics);
                 return {
                     address,
+                    addressString: a.address,
                     publicKey,
                     secretKeyEnc,
                     utilityKey
@@ -182,6 +184,7 @@ export function getAppState(): AppState {
         selected,
         addresses: parsed.addresses.map((v) => ({
             address: Address.parseFriendly(v.address).address,
+            addressString: v.address,
             publicKey: global.Buffer.from(v.publicKey, 'base64'),
             secretKeyEnc: global.Buffer.from(v.secretKeyEnc, 'base64'),
             utilityKey: global.Buffer.from(v.utilityKey, 'base64')
@@ -224,19 +227,11 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
 }
 
 export function markAddressSecured(src: Address, isTestnet: boolean) {
-    storage.set('backup_' + src.toFriendly({ testOnly: isTestnet }), true);
+    storage.set('backup_' + src.toString({ testOnly: isTestnet }), true);
 }
 
 export function isAddressSecured(src: Address, isTestnet: boolean) {
-    return storage.getBoolean('backup_' + src.toFriendly({ testOnly: isTestnet }));
-}
-
-export function markAsTermsAccepted() {
-    storage.set('terms_accepted', true);
-}
-
-export function isTermsAccepted() {
-    return storage.getBoolean('terms_accepted');
+    return storage.getBoolean('backup_' + src.toString({ testOnly: isTestnet }));
 }
 
 export async function getAppKey() {
@@ -341,4 +336,17 @@ export function removePendingRevoke(key: string) {
         return;
     }
     storage.set('app_references_revoke', JSON.stringify(pendingGrant.filter((v) => v !== key)));
+}
+
+//
+// Ledger
+//
+
+export function getLedgerEnabled() {
+    let ledgerEnabled = storage.getBoolean('app_ledger_enabled') || false;
+    return ledgerEnabled;
+}
+
+export function setLedgerEnabled(enabled: boolean) {
+    storage.set('app_ledger_enabled', enabled);
 }

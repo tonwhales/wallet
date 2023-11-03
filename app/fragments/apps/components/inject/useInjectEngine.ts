@@ -1,9 +1,9 @@
 import * as React from 'react';
 import * as t from 'io-ts';
 import { InjectEngine } from './InjectEngine';
-import * as c from '../../../../engine/utils/codecs';
+import * as c from './../../../../engine/utils/codecs';
 import { useTypedNavigation } from '../../../../utils/useTypedNavigation';
-import { Cell, Slice } from 'ton';
+import { Cell, Slice } from '@ton/core';
 
 const transCodec = (isTestnet: boolean) => t.type({
     network: t.union([t.literal('testnet'), t.literal('mainnet')]),
@@ -31,11 +31,11 @@ const signResponseCodec = t.type({
 });
 
 function parseString(slice: Slice) {
-    let res = slice.readBuffer(Math.floor(slice.remaining / 8)).toString();
+    let res = slice.loadBuffer(Math.floor(slice.remainingBits / 8)).toString();
     let rr = slice;
     if (rr.remainingRefs > 0) {
-        rr = rr.readRef();
-        res += rr.readBuffer(Math.floor(rr.remaining / 8)).toString();
+        rr = rr.loadRef().asSlice();
+        res += rr.loadBuffer(Math.floor(rr.remainingBits / 8)).toString();
     }
     return res;
 }
@@ -67,7 +67,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 navigation.navigateTransfer({
                     order: {
                         messages: [{
-                            target: src.to.toFriendly({ testOnly: isTestnet }),
+                            target: src.to.toString({ testOnly: isTestnet }),
                             amount: src.value,
                             amountAll: false,
                             payload: src.payload,
@@ -85,7 +85,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: src.to.toFriendly({ testOnly: isTestnet }),
+                    target: src.to.toString({ testOnly: isTestnet }),
                     amount: src.value,
                     stateInit: src.stateInit ? src.stateInit : null,
                     comment: src.text ? src.text : null,

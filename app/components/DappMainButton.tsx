@@ -2,10 +2,10 @@ import * as React from 'react';
 import { ActivityIndicator, Pressable, StyleProp, Text, View, ViewStyle, Platform } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
 import * as t from "io-ts";
-import { useAppConfig } from '../utils/AppConfigContext';
 import { warn } from '../utils/log';
 import WebView from "react-native-webview";
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
+import { useTheme } from '../engine/hooks';
 
 export function processMainButtonMessage(
     parsed: any,
@@ -135,14 +135,14 @@ export type MainButtonProps = {
 export const DappMainButton = React.memo((
     props: { style?: StyleProp<ViewStyle> } & Omit<MainButtonProps, 'isVisible'>
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     const bgColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? Theme.disabled : (props.isActive ? props.color : (props.disabledColor ?? Theme.disabled)));
+        return withTiming(props.isProgressVisible ? theme.disabled : (props.isActive ? props.color : (props.disabledColor ?? theme.disabled)));
     }, [props.color, props.disabledColor, props.isActive]);
 
     const textColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? Theme.disabled : props.textColor);
+        return withTiming(props.isProgressVisible ? theme.disabled : props.textColor);
     }, [props.textColor]);
 
     const animatedBgStyle = useAnimatedStyle(() => {

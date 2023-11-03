@@ -1,5 +1,5 @@
 import BN from "bn.js";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 
 export type Operation = {
     
@@ -16,10 +16,10 @@ export type Operation = {
 
 export type OperationItem = {
     kind: 'ton'
-    amount: BN;
+    amount: bigint;
 } | {
     kind: 'token',
-    amount: BN;
+    amount: bigint;
     symbol: string,
     decimals: number | null
 };

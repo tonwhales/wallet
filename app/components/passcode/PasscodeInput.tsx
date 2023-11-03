@@ -6,7 +6,7 @@ import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
 import { t } from "../../i18n/t";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
 import { Ionicons } from '@expo/vector-icons';
 import TouchIos from '../../../assets/ic_touch_ios.svg';
@@ -28,7 +28,7 @@ export const PasscodeInput = React.memo((
         onEntered: (passcode: string | null) => Promise<void> | void,
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = React.useState(false);
@@ -163,7 +163,7 @@ export const PasscodeInput = React.memo((
                         >
                             <Text style={{
                                 fontSize: 15,
-                                color: Theme.textSecondary, textAlign: 'center'
+                                color: theme.textSecondary, textAlign: 'center'
                             }}>
                                 {description}
                             </Text>
@@ -181,7 +181,7 @@ export const PasscodeInput = React.memo((
                         >
                             <Text style={{
                                 fontSize: 15,
-                                color: Theme.dangerZone
+                                color: theme.dangerZone
                             }}>
                                 {t('security.passcodeSettings.error')}
                             </Text>

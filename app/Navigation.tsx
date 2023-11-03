@@ -20,13 +20,9 @@ import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
-import { getAppState, getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
-import { EngineContext } from './engine/Engine';
+import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
-import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
-import * as Notifications from 'expo-notifications';
-import { PermissionStatus } from 'expo-modules-core';
 import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
 import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
@@ -36,8 +32,6 @@ import { StakingTransferFragment } from './fragments/staking/StakingTransferFrag
 import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
-import { createEngine } from './engine/createEngine';
-import { useRecoilCallback } from 'recoil';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
@@ -62,13 +56,23 @@ import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
 import { PasscodeSetupFragment } from './fragments/secure/passcode/PasscodeSetupFragment';
 import { SecurityFragment } from './fragments/SecurityFragment';
 import { PasscodeChangeFragment } from './fragments/secure/passcode/PasscodeChangeFragment';
-import { useAppConfig } from './utils/AppConfigContext';
 import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragment';
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
-import { mixpanelFlush, mixpanelIdentify } from './analytics/mixpanel';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { BinanceBuyFragment } from './fragments/integrations/BinanceBuyFragment';
+import { useNetwork } from './engine/hooks';
+import { useNavigationTheme } from './engine/hooks';
+import { useRecoilValue } from 'recoil';
+import { appStateAtom } from './engine/state/appState';
+import { useBlocksWatcher } from './engine/accountWatcher';
+import { HintsPrefetcher } from './components/HintsPrefetcher';
+import { useTonconnectWatcher } from './engine/tonconnectWatcher';
+import { useHoldersWatcher } from './engine/holdersWatcher';
+import { usePendingWatcher } from './engine/hooks';
+import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
+ import * as Notifications from 'expo-notifications';
+ import { PermissionStatus } from 'expo-modules-core';
+import { warn } from './utils/log';
 
 const Stack = createNativeStackNavigator();
 
@@ -157,7 +161,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
-    modalScreen('BinanceBuy', BinanceBuyFragment, safeArea),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingGraph', StakingGraphFragment, safeArea),
@@ -198,34 +201,12 @@ const navigation = (safeArea: EdgeInsets) => [
 
 export const Navigation = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const { AppConfig, NavigationTheme } = useAppConfig();
-
-    const recoilUpdater = useRecoilCallback<[any, any], any>(({ set }) => (node, value) => set(node, value));
-
-    const engine = React.useMemo(() => {
-        let state = getAppState();
-        if (0 <= state.selected && state.selected < state.addresses.length) {
-            const ex = state.addresses[state.selected];
-
-            // Identify user profile by address
-            mixpanelIdentify(ex.address.toFriendly({ testOnly: AppConfig.isTestnet }));
-            mixpanelFlush(AppConfig.isTestnet);
-
-            return createEngine({ address: ex.address, publicKey: ex.publicKey, utilityKey: ex.utilityKey, recoilUpdater, isTestnet: AppConfig.isTestnet });
-        } else {
-            return null;
-        }
-    }, []);
-    React.useEffect(() => {
-        return () => {
-            if (engine) {
-                engine.destroy();
-            }
-        }
-    }, []);
+    const navigationTheme = useNavigationTheme();
+    const appState = useRecoilValue(appStateAtom);
+    const { isTestnet } = useNetwork();
 
     const initial = React.useMemo(() => {
-        const onboarding = resolveOnboarding(engine, AppConfig.isTestnet);
+        const onboarding = resolveOnboarding(isTestnet);
 
         if (onboarding === 'backup') {
             return 'WalletCreated';
@@ -257,12 +238,21 @@ export const Navigation = React.memo(() => {
 
     // Register token
     React.useEffect(() => {
-        const state = getAppState();
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            if (existingStatus === PermissionStatus.GRANTED || state.addresses.length > 0) {
-                const token = await backoff('navigation', () => registerForPushNotificationsAsync());
+            if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
+                const token = await backoff('navigation', async () => {
+                    try {
+                        await registerForPushNotificationsAsync();
+                    } catch (e) {
+                        if (e instanceof Error && e.message.includes(`Notification registration failed: "Push Notifications" capability hasn't been added`)) {
+                            warn('[push-notifications] Push notifications are not enabled in this build');
+                            return null;
+                        }
+                        throw e;
+                    }
+                });
                 if (token) {
                     if (ended) {
                         return;
@@ -271,7 +261,7 @@ export const Navigation = React.memo(() => {
                         if (ended) {
                             return;
                         }
-                        await registerPushToken(token, state.addresses.map((v) => v.address), AppConfig.isTestnet);
+                        await registerPushToken(token, appState.addresses.map((v) => v.address), isTestnet);
                     });
                 }
             }
@@ -279,7 +269,7 @@ export const Navigation = React.memo(() => {
         return () => {
             ended = true;
         };
-    }, []);
+    }, [appState]);
 
     // Grant accesses
     React.useEffect(() => {
@@ -317,29 +307,40 @@ export const Navigation = React.memo(() => {
         };
     }, []);
 
+    // Watch blocks
+    useBlocksWatcher();
+
+    // Watch for TonConnect requests
+    useTonconnectWatcher();
+
+    // Watch for holders updates
+    useHoldersWatcher();
+
+    // clear pending txs on account change
+    usePendingWatcher();
+
     return (
-        <EngineContext.Provider value={engine}>
-            <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
-                <NavigationContainer
-                    theme={NavigationTheme}
-                    onReady={onMounted}
+        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+            <NavigationContainer
+                theme={navigationTheme}
+                onReady={onMounted}
+            >
+                <Stack.Navigator
+                    initialRouteName={initial}
+                    screenOptions={{
+                        headerBackTitle: t('common.back'),
+                        title: '',
+                        headerShadowVisible: false,
+                        headerTransparent: false,
+                        headerStyle: { backgroundColor: 'white' }
+                    }}
                 >
-                    <Stack.Navigator
-                        initialRouteName={initial}
-                        screenOptions={{
-                            headerBackTitle: t('common.back'),
-                            title: '',
-                            headerShadowVisible: false,
-                            headerTransparent: false,
-                            headerStyle: { backgroundColor: 'white' }
-                        }}
-                    >
-                        {navigation(safeArea)}
-                    </Stack.Navigator>
-                </NavigationContainer>
-                <Splash hide={hideSplash} />
-            </View>
-        </EngineContext.Provider>
+                    {navigation(safeArea)}
+                </Stack.Navigator>
+            </NavigationContainer>
+            <HintsPrefetcher />
+            <Splash hide={hideSplash} />
+        </View>
     );
 });
 

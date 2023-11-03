@@ -1,9 +1,8 @@
 import axios from "axios";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import * as t from 'io-ts';
-import { imagePreview } from "../api/fetchAppData";
+import { ImagePreview, imagePreview } from "../api/fetchAppData";
 import { isLeft } from "fp-ts/lib/Either";
-import { JettonMasterState } from "../sync/startJettonMasterSync";
 
 const contentCodec = t.type({
     name: t.union([t.string, t.null]),
@@ -14,9 +13,19 @@ const contentCodec = t.type({
     image: t.union([imagePreview, t.null])
 });
 
+export type JettonMasterState = {
+    version: number;
+    name: string | null;
+    symbol: string | null;
+    image: ImagePreview | null;
+    description: string | null;
+    originalImage: string | null | undefined;
+    decimals: number | null;
+}
+
 export async function fetchJettonMasterContent(address: Address, isTestnet: boolean) {
     const res = await axios.get(
-        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toFriendly({ testOnly: isTestnet })}`,
+        `https://connect.tonhubapi.com/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
         { timeout: 5000 }
     );
 

@@ -1,15 +1,8 @@
-import BN from "bn.js";
-import React from "react";
+import React, { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { Alert, View, Text, Pressable, ScrollView, Platform, Image } from "react-native";
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, Cell, comment, fromNano, internal, loadStateInit, SendMode, external, storeMessage, beginCell } from "@ton/core";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
-import { useItem } from "../../../engine/persistence/PersistedItem";
-import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
-import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
-import { resolveOperation } from "../../../engine/transactions/resolveOperation";
 import { Order } from "../../../fragments/secure/ops/Order";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
@@ -20,16 +13,6 @@ import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
-import Contact from '../../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../../assets/ic_verified.svg';
-import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../../assets/ic_sign_staking.svg';
-import Question from '../../../../assets/ic_question.svg';
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
@@ -41,24 +24,49 @@ import { ItemCollapsible } from "../../../components/ItemCollapsible";
 import { RoundButton } from "../../../components/RoundButton";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { ItemAddress } from "../../../components/ItemAddress";
-import { fromBNWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
-import { holdersUrl } from "../../../engine/holders/HoldersProduct";
+import { useDenyAddress } from '../../../engine/hooks';
+import { useIsSpamWallet } from '../../../engine/hooks';
+import { useAccountLite } from '../../../engine/hooks';
+import { useClient4 } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { useSelectedAccount } from '../../../engine/hooks';
+import { fetchSeqno } from '../../../engine/api/fetchSeqno';
+import { getLastBlock } from '../../../engine/accountWatcher';
+import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
+import { useCommitCommand } from "../../../engine/hooks/dapps/useCommitCommand";
+import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
+import TonSign from '../../../../assets/ic_ton_sign.svg';
+import TransferToArrow from '../../../../assets/ic_transfer_to.svg';
+import Contact from '../../../../assets/ic_transfer_contact.svg';
+import VerifiedIcon from '../../../../assets/ic_verified.svg';
+import TonSignGas from '../../../../assets/ic_transfer_gas.svg';
+import SignLock from '../../../../assets/ic_sign_lock.svg';
+import WithStateInit from '../../../../assets/ic_sign_contract.svg';
+import SmartContract from '../../../../assets/ic_sign_smart_contract.svg';
+import Staking from '../../../../assets/ic_sign_staking.svg';
+import Question from '../../../../assets/ic_question.svg';
+import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
+import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
+import { resolveOperation } from '../../../engine/transactions/resolveOperation';
+import { useContact } from '../../../engine/hooks';
+import { useRegisterPending } from "../../../engine/hooks/transactions/useRegisterPending";
 
 type Props = {
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
     },
     text: string | null,
     order: Order,
     job: string | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
@@ -66,12 +74,17 @@ type Props = {
     back?: number
 }
 
-export const TransferSingle = React.memo((props: Props) => {
+export const TransferSingle = memo((props: Props) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected!.address);
+    const commitCommand = useCommitCommand();
+    const registerPending = useRegisterPending();
+
     const {
         restricted,
         target,
@@ -87,18 +100,18 @@ export const TransferSingle = React.memo((props: Props) => {
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
-    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target), metadata, jettonMaster });
-    const jettonAmount = React.useMemo(() => {
+    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
+    let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target) }, isTestnet);
+    const jettonAmount = useMemo(() => {
         try {
             if (jettonMaster && order.messages[0].payload) {
                 const temp = order.messages[0].payload;
                 if (temp) {
                     const parsing = temp.beginParse();
-                    parsing.readUint(32);
-                    parsing.readUint(64);
-                    const unformatted = parsing.readCoins();
-                    return fromBNWithDecimals(unformatted, jettonMaster.decimals);
+                    parsing.skip(32);
+                    parsing.skip(64);
+                    const unformatted = parsing.loadCoins();
+                    return fromBnWithDecimals(unformatted, jettonMaster.decimals);
                 }
             }
         } catch (e) {
@@ -109,33 +122,33 @@ export const TransferSingle = React.memo((props: Props) => {
     }, [order]);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.TransferCancel, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
         }
     }, []);
 
-    const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = engine.products.settings.useContactAddress(operation.address);
+    const contact = useContact(operation.address);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
-    } else if (operation.title) {
-        known = { name: operation.title };
+    if (KnownWallets(isTestnet)[friendlyTarget]) {
+        known = KnownWallets(isTestnet)[friendlyTarget];
+    } else if (operation.op) {
+        known = { name: t(operation.op.res, operation.op.options) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const isSpam = engine.products.settings.useDenyAddress(operation.address);
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+    const isSpam = useDenyAddress(operation.address);
+    let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
+    const doSend = useCallback(async () => {
         async function confirm(title: LocalizedResources) {
             return await new Promise<boolean>(resolve => {
                 Alert.alert(t(title), t('transfer.confirm'), [{
@@ -165,17 +178,17 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Check amount
-        if (!order.messages[0].amountAll && account.balance.lt(order.messages[0].amount)) {
+        if (!order.messages[0].amountAll && account!.balance < order.messages[0].amount) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (!order.messages[0].amountAll && order.messages[0].amount.eq(new BN(0))) {
+        if (!order.messages[0].amountAll && order.messages[0].amount === BigInt(0)) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
 
         // Check if trying to send to testnet
-        if (!AppConfig.isTestnet && target.isTestOnly) {
+        if (!isTestnet && target.isTestOnly) {
             let cont = await confirm('transfer.error.addressIsForTestnet');
             if (!cont) {
                 return;
@@ -204,25 +217,34 @@ export const TransferSingle = React.memo((props: Props) => {
             return;
         }
 
+        let seqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), selected!.address));
+
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = await contract.createTransfer({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
+            const internalStateInit = !!order.messages[0].stateInit
+                ? loadStateInit(order.messages[0].stateInit.asSlice())
+                : null;
+
+            const body = !!order.messages[0].payload
+                ? order.messages[0].payload
+                : text ? comment(text) : null;
+
+            let intMessage = internal({
+                to: target.address,
+                value: order.messages[0].amount,
+                init: internalStateInit,
+                bounce,
+                body,
+            });
+
+            transfer = contract.createTransfer({
+                seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
                 sendMode: order.messages[0].amountAll
-                    ? SendMode.CARRRY_ALL_REMAINING_BALANCE
-                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                order: new InternalMessage({
-                    to: target.address,
-                    value: order.messages[0].amount,
-                    bounce,
-                    body: new CommonMessageInfo({
-                        stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                        body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
-                    })
-                })
+                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages: [intMessage],
             });
         } catch (e) {
             warn('Failed to create transfer');
@@ -230,22 +252,20 @@ export const TransferSingle = React.memo((props: Props) => {
         }
 
         // Create external message
-        let extMessage = new ExternalMessage({
+        const extMessage = external({
             to: contract.address,
-            body: new CommonMessageInfo({
-                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                body: new CellMessage(transfer)
-            })
+            body: transfer,
+            init: seqno === 0 ? contract.init : undefined
         });
-        let msg = new Cell();
-        extMessage.writeTo(msg);
+
+        let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
         // Sending transaction
-        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
         if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
+            await commitCommand(true, job, transfer);
         }
 
         // Notify callback
@@ -260,23 +280,17 @@ export const TransferSingle = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
 
         // Register pending
-        engine.products.main.registerPending({
-            id: 'pending-' + account.seqno,
-            lt: null,
+        registerPending({
+            id: 'pending-' + seqno,
             fees: fees,
-            amount: order.messages[0].amount.mul(new BN(-1)),
+            amount: order.messages[0].amount * (BigInt(-1)),
             address: target.address,
-            seqno: account.seqno,
-            kind: 'out',
+            seqno: seqno,
             body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
-            status: 'pending',
             time: Math.floor(Date.now() / 1000),
-            bounced: false,
-            prev: null,
-            mentioned: [],
             hash: msg.hash(),
         });
 
@@ -290,22 +304,19 @@ export const TransferSingle = React.memo((props: Props) => {
         }
     }, []);
 
-    const anim = React.useRef<LottieView>(null);
+    const anim = useRef<LottieView>(null);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         setTimeout(() => {
             anim.current?.play()
         }, 300);
     }, []);
 
-    const inactiveAlert = React.useCallback(
-        () => {
-            Alert.alert(t('transfer.error.addressIsNotActive'),
-                t('transfer.error.addressIsNotActiveDescription'),
-                [{ text: t('common.gotIt') }])
-        },
-        [],
-    );
+    const inactiveAlert = useCallback(() => {
+        Alert.alert(t('transfer.error.addressIsNotActive'),
+            t('transfer.error.addressIsNotActiveDescription'),
+            [{ text: t('common.gotIt') }])
+    }, []);
 
 
     return (
@@ -335,7 +346,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: Theme.labelSecondary
+                            color: theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -373,7 +384,7 @@ export const TransferSingle = React.memo((props: Props) => {
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: Theme.item,
+                            backgroundColor: theme.item,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -392,24 +403,24 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
-                                            {`${fromNano(order.messages[0].amountAll ? account.balance : order.messages[0].amount)} TON`}
+                                            {`${fromNano(order.messages[0].amountAll ? account!.balance : order.messages[0].amount)} TON`}
                                         </Text>
                                         <PriceComponent
                                             prefix={'~'}
-                                            amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
+                                            amount={order.messages[0].amountAll ? account!.balance : order.messages[0].amount}
                                             style={{
-                                                backgroundColor: Theme.transparent,
+                                                backgroundColor: theme.transparent,
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
-                                            textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                            textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
                                         />
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
-                                                backgroundColor: Theme.background,
+                                                backgroundColor: theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
                                                 marginTop: 8,
@@ -435,7 +446,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <View style={{
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -471,7 +482,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         left: 17,
                                         width: 2,
                                         borderRadius: 2,
-                                        backgroundColor: Theme.divider
+                                        backgroundColor: theme.divider
                                     }} />
                                     <View style={{
                                         marginLeft: 40 + 6,
@@ -481,14 +492,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2
                                         }}>
                                             {`${jettonAmount} ${jettonMaster.symbol}`}
                                         </Text>
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
-                                                backgroundColor: Theme.background,
+                                                backgroundColor: theme.background,
                                                 padding: 10,
                                                 borderRadius: 6,
                                                 marginTop: 8
@@ -501,7 +512,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <View style={{
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -523,25 +534,25 @@ export const TransferSingle = React.memo((props: Props) => {
                                         marginTop: 20, marginBottom: 30,
                                         justifyContent: 'center'
                                     }}>
-                                        {!AppConfig.isTestnet && (
+                                        {!isTestnet && (
                                             <PriceComponent
                                                 prefix={`${t('transfer.gasFee')} ${fromNano(order.messages[0].amount)} TON (`}
                                                 suffix={')'}
-                                                amount={order.messages[0].amountAll ? account.balance : order.messages[0].amount}
+                                                amount={order.messages[0].amountAll ? account!.balance : order.messages[0].amount}
                                                 style={{
-                                                    backgroundColor: Theme.transparent,
+                                                    backgroundColor: theme.transparent,
                                                     paddingHorizontal: 0,
                                                     marginLeft: 2
                                                 }}
                                                 textStyle={{
-                                                    color: Theme.labelSecondary,
+                                                    color: theme.labelSecondary,
                                                     fontWeight: '400', fontSize: 14
                                                 }}
                                             />
                                         )}
-                                        {AppConfig.isTestnet && (
+                                        {isTestnet && (
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -549,7 +560,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             </Text>
                                         )}
                                         <View style={{
-                                            backgroundColor: Theme.item,
+                                            backgroundColor: theme.item,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
                                             shadowOffset: {
                                                 height: 1,
@@ -578,7 +589,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             marginLeft: 2,
                                         }}>
                                             {`${contact?.name ?? known?.name}`}
@@ -594,7 +605,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 14,
-                                        color: Theme.labelSecondary,
+                                        color: theme.labelSecondary,
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
@@ -609,7 +620,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -620,7 +631,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -633,7 +644,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 position: 'absolute',
                                                 left: -48, top: 0, bottom: 0,
-                                                backgroundColor: Theme.contactIcon,
+                                                backgroundColor: theme.contactIcon,
                                                 height: 40, width: 40,
                                                 borderRadius: 40,
                                                 justifyContent: 'center',
@@ -645,7 +656,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: Theme.contactBorder,
+                                                borderColor: theme.contactBorder,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 4
                                             }}>
@@ -681,7 +692,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '700',
                                         fontSize: 20,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         marginLeft: 2
                                     }}>
                                         <AddressComponent address={operation.address} />
@@ -708,7 +719,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -719,7 +730,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -740,7 +751,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     left: 17,
                                     width: 2,
                                     borderRadius: 2,
-                                    backgroundColor: Theme.divider
+                                    backgroundColor: theme.divider
                                 }} />
                                 <View style={{
                                     marginLeft: 40 + 6,
@@ -749,14 +760,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!!operation.op && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: theme.item,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -777,14 +788,14 @@ export const TransferSingle = React.memo((props: Props) => {
                                     {!operation.comment && !operation.op && !!text && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: Theme.item,
+                                                backgroundColor: theme.item,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -812,9 +823,9 @@ export const TransferSingle = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 17,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                             }}>
-                                                {operation.op}
+                                                {t(operation.op.res, operation.op.options)}
                                             </Text>
                                         </View>
                                     )}
@@ -824,7 +835,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                                 flexShrink: 1,
                                                 fontWeight: '500',
                                                 fontSize: 14,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 opacity: 0.4
                                             }}>
                                                 {text}
@@ -833,7 +844,7 @@ export const TransferSingle = React.memo((props: Props) => {
                                     )}
                                     {order?.app?.domain !== extractDomain(holdersUrl) && (
                                         <View style={{
-                                            backgroundColor: Theme.operationIcon,
+                                            backgroundColor: theme.operationIcon,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',
@@ -841,10 +852,10 @@ export const TransferSingle = React.memo((props: Props) => {
                                             position: 'absolute',
                                             left: -48, top: 0, bottom: 0,
                                         }}>
-                                            {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            {(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                                 <Staking />
                                             )}
-                                            {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
+                                            {!(parsedBody?.type === 'whales-staking::deposit' || parsedBody?.type === 'withdraw') && (
                                                 <SmartContract />
                                             )}
                                         </View>
@@ -874,7 +885,7 @@ export const TransferSingle = React.memo((props: Props) => {
                         <ItemCollapsible title={t('transfer.moreDetails')}>
                             <ItemAddress
                                 title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                text={operation.address}
                                 verified={!!known}
                                 contact={!!contact}
                                 secondary={known ? known.name : contact?.name ?? undefined}
@@ -888,7 +899,7 @@ export const TransferSingle = React.memo((props: Props) => {
                             {!!operation.op && (
                                 <>
                                     <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
+                                    <ItemLarge title={t('transfer.purpose')} text={t(operation.op.res, operation.op.options)} />
                                 </>
                             )}
                             {!operation.comment && !operation.op && !!text && (

@@ -2,7 +2,6 @@ import EventEmitter from "events";
 import * as t from 'io-ts';
 import { exponentialBackoffDelay } from "teslabot";
 import { createLogger } from "../../utils/log";
-import { SyncStateManager } from "../SyncStateManager";
 
 const MESSAGE_TIMEOUT = 15000;
 const CONNECTION_TIMEOUT = 5000;
@@ -36,13 +35,11 @@ export class BlocksWatcher extends EventEmitter {
     #wsFailures = 0;
     #wsConnected = false;
     #stopped = false;
-    #syncState: SyncStateManager;
     #connectingLock: (() => void) | null = null;
 
-    constructor(endpoint: string, syncState: SyncStateManager) {
+    constructor(endpoint: string) {
         super();
         this.endpoint = endpoint;
-        this.#syncState = syncState;
         this.#start();
     }
 
@@ -57,14 +54,6 @@ export class BlocksWatcher extends EventEmitter {
 
         logger.log('Connecting');
 
-        // Get lock
-        let lock = this.#syncState.beginConnecting();
-        if (this.#connectingLock) {
-            this.#connectingLock();
-        }
-        this.#connectingLock = lock;
-
-        // Close existing
         this.#close();
 
         // Create websocket
@@ -160,14 +149,6 @@ export class BlocksWatcher extends EventEmitter {
     }
 
     #reconnectOnFailure() {
-
-        // New connection lock
-        let lock = this.#syncState.beginConnecting();
-        if (this.#connectingLock) {
-            this.#connectingLock();
-        }
-        this.#connectingLock = lock;
-
         // Retry delay
         this.#wsFailures = Math.max(this.#wsFailures + 1, 50);
         let delay = exponentialBackoffDelay(this.#wsFailures, 1000, 5000, 50);
@@ -196,7 +177,6 @@ export class BlocksWatcher extends EventEmitter {
     }
 
     #close() {
-
         // Reset reconnection timer
         if (this.#wsTimer) {
             clearTimeout(this.#wsTimer);

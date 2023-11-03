@@ -1,144 +1,51 @@
-import React, { useCallback } from "react";
-import { Platform, View, Text, Pressable, ScrollView, NativeSyntheticEvent, NativeScrollEvent } from "react-native";
-import { EdgeInsets, Rect, useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import React, { } from "react";
+import { Platform, View, Text, Pressable } from "react-native";
+import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { Engine, useEngine } from "../../engine/Engine";
-import { WalletState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
-import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
-import { getCurrentAddress } from "../../storage/appState";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { Address } from "ton";
-import { formatDate, getDateKey } from "../../utils/dates";
-import { TransactionsSection } from "./views/TransactionsSection";
 import { RoundButton } from "../../components/RoundButton";
 import LottieView from "lottie-react-native";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
+import { useAccountTransactions } from '../../engine/hooks';
+import { useClient4 } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { WalletTransactions } from "./views/WalletTransactions";
+import { usePendingTransactions } from "../../engine/hooks/transactions/usePendingTransactions";
+import { PendingTransactions } from "./views/PendingTransactions";
+import { SelectedAccount } from '../../engine/types';
 
-const WalletTransactions = React.memo((props: {
-    txs: { id: string, time: number }[],
-    next: { lt: string, hash: string } | null,
-    address: Address,
-    engine: Engine,
-    navigation: TypedNavigation,
-    safeArea: EdgeInsets,
-    frameArea: Rect,
-    onLoadMore: () => void,
-}) => {
-    const transactionsSectioned = React.useMemo(() => {
-        let sections: { title: string, items: string[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(props.txs[0].time);
-            sections.push({ title, items: lastSection });
-            for (let t of props.txs) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    sections.push({ title, items: lastSection });
-                }
-                lastSection.push(t.id);
-            }
-        }
-        return sections;
-    }, [props.txs]);
-
-    const components: any[] = [];
-    for (let s of transactionsSectioned) {
-        components.push(
-            <TransactionsSection
-                key={s.title}
-                section={s}
-                address={props.address}
-                engine={props.engine}
-                navigation={props.navigation}
-            />
-        );
-    }
-
-    // Last
-    if (props.next) {
-        components.push(
-            <View
-                key="prev-loader"
-                style={{
-                    height: 64,
-                    alignSelf: 'stretch',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-            >
-                <LoadingIndicator simple={true} />
-            </View>
-        );
-    } else {
-        components.push(
-            <View key="footer" style={{ height: 64 }} />
-        );
-    }
-
-    const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        if (!event) return;
-        const { layoutMeasurement, contentOffset, contentSize } = event.nativeEvent;
-        if (!layoutMeasurement || !contentOffset || !contentSize) return;
-
-        if (layoutMeasurement.height + contentOffset.y >= contentSize.height - 1000) {
-            props.onLoadMore();
-        }
-    }, [props.onLoadMore]);
-
-    return (
-        <ScrollView
-            contentContainerStyle={{
-                flexGrow: 1,
-                paddingTop: Platform.OS === 'android'
-                    ? props.safeArea.top + 44
-                    : undefined,
-            }}
-            contentInset={{ top: 44, bottom: 52 }}
-            contentOffset={{ y: -(44 + props.safeArea.top), x: 0 }}
-            onScroll={onScroll}
-            scrollEventThrottle={26}
-            removeClippedSubviews={true}
-        >
-            {Platform.OS === 'ios' && (<View style={{ height: props.safeArea.top }} />)}
-            {components}
-            {(Platform.OS !== 'ios' && props.next) && (<View style={{ height: 64 }} />)}
-        </ScrollView>
-    );
-});
-
-function TransactionsComponent(props: { wallet: WalletState }) {
-    const { Theme } = useAppConfig();
+function TransactionsComponent(props: { account: SelectedAccount }) {
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
-    const engine = useEngine();
-    const account = props.wallet;
     const animRef = React.useRef<LottieView>(null);
+    const client = useClient4(useNetwork().isTestnet);
+    const txs = useAccountTransactions(client, props.account.addressString);
+    const transactions = txs?.data;
+    const address = props.account.address;
 
-    const onReachedEnd = React.useMemo(() => {
-        let prev = account.next;
-        let called = false;
-        return () => {
-            if (called) {
-                return;
-            }
-            called = true;
-            if (prev) {
-                engine.products.main.loadMore(prev.lt, prev.hash);
-            }
+    const onReachedEnd = React.useCallback(() => {
+        if (txs?.hasNext) {
+            txs?.next();
         }
-    }, [account.next ? account.next.lt : null]);
+    }, [txs?.next, txs?.hasNext]);
+
+    if (!transactions) {
+        return (
+            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
+                <LoadingIndicator />
+            </View>
+        );
+    }
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            {account.transactions.length === 0 && (
+            {transactions.length === 0 && (
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                     <Pressable
                         onPress={() => {
@@ -153,7 +60,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             style={{ width: 192, height: 192 }}
                         />
                     </Pressable>
-                    <Text style={{ fontSize: 16, color: Theme.label }}>
+                    <Text style={{ fontSize: 16, color: theme.label }}>
                         {t('wallet.empty.message')}
                     </Text>
                     <RoundButton
@@ -164,16 +71,17 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                     />
                 </View>
             )}
-            {account.transactions.length > 0 && (
+            {transactions.length > 0 && (
                 <WalletTransactions
-                    txs={account.transactions}
-                    next={account.next}
+                    txs={transactions}
                     address={address}
-                    engine={engine}
                     navigation={navigation}
                     safeArea={safeArea}
                     onLoadMore={onReachedEnd}
+                    hasNext={txs.hasNext}
                     frameArea={frameArea}
+                    loading={txs.loading}
+                    header={<PendingTransactions />}
                 />
             )}
             {/* iOS Toolbar */}
@@ -184,7 +92,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                        <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
@@ -197,7 +105,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                                 <Text style={[
                                     {
                                         fontSize: 22,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         fontWeight: '700',
                                         position: 'relative'
                                     }
@@ -211,7 +119,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -224,7 +132,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
+                        backgroundColor: theme.background,
                         paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -233,7 +141,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             <Text style={[
                                 {
                                     fontSize: 22,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     fontWeight: '700',
                                     position: 'relative'
                                 },
@@ -246,7 +154,7 @@ function TransactionsComponent(props: { wallet: WalletState }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>
@@ -257,8 +165,8 @@ function TransactionsComponent(props: { wallet: WalletState }) {
 }
 
 export const TransactionsFragment = fragment(() => {
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
+    const account = useSelectedAccount();
+
     if (!account) {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
@@ -266,6 +174,8 @@ export const TransactionsFragment = fragment(() => {
             </View>
         );
     } else {
-        return <TransactionsComponent wallet={account} />
+        return (
+            <TransactionsComponent account={account} />
+        )
     }
 }, true);

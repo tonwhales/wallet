@@ -1,6 +1,5 @@
-import BN from "bn.js";
-import { fromNano } from "ton";
+import { fromNano } from "@ton/core";
 
-export function bnIsLess(a: BN, b: number) {
+export function bnIsLess(a: bigint, b: number) {
     return parseFloat(fromNano(a)) < b;
 }

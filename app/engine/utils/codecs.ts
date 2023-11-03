@@ -1,7 +1,6 @@
-import { failure, success, Type } from "io-ts"
+import { failure, success, Type } from "io-ts";
 import * as t from 'io-ts';
-import { Address, AddressExternal, BitString, Cell } from "ton"
-import BN from "bn.js";
+import { Address, ExternalAddress, Cell, BitBuilder } from "@ton/core";
 
 export class AddressType extends Type<Address, string, unknown> {
     readonly _tag: 'AddressType' = 'AddressType'
@@ -17,7 +16,7 @@ export class AddressType extends Type<Address, string, unknown> {
                 }
             },
             (u) => {
-                return u.toFriendly({ testOnly: isTestnet });
+                return u.toString({ testOnly: isTestnet });
             }
         )
     }
@@ -25,18 +24,18 @@ export class AddressType extends Type<Address, string, unknown> {
 
 export const address = (isTestnet: boolean) => new AddressType(isTestnet);
 
-export class BNType extends Type<BN, string, unknown> {
-    readonly _tag: 'BNType' = 'BNType'
+export class BNType extends Type<bigint, string, unknown> {
+    readonly _tag: 'BitIntType' = 'BitIntType'
     constructor() {
         super(
-            'BN',
-            (u): u is BN => BN.isBN(u),
+            'BigInt',
+            (u): u is bigint => typeof u === 'bigint',
             (u, c) => {
                 if (!t.string.validate(u, c)) {
                     return failure(u, c);
                 }
                 try {
-                    return success(new BN(u as string, 10));
+                    return success(BigInt(u as string));
                 } catch (e) {
                     return failure(u, c);
                 }
@@ -96,24 +95,24 @@ export class CellType extends Type<Cell, string, unknown> {
 
 export const cell = new CellType();
 
-class AddressExternalType extends t.Type<AddressExternal, string, unknown> {
+class AddressExternalType extends t.Type<ExternalAddress, string, unknown> {
     readonly _tag: 'AddressExternalType' = 'AddressExternalType';
 
     constructor() {
         super(
             'AddressExternal',
-            (u): u is AddressExternal => u instanceof AddressExternal,
+            (u): u is ExternalAddress => u instanceof ExternalAddress,
             (u, c) => {
                 if (!t.string.validate(u, c)) {
                     return failure(u, c);
                 }
                 try {
                     const s = u as string;
-                    const bitString = BitString.alloc(s.length);
+                    const bitString = new BitBuilder(s.length);
                     for (let i = 0; i < s.length; i++) {
                         bitString.writeBit(s[i] === '1');
                     }
-                    return success(new AddressExternal(bitString));
+                    return success(new ExternalAddress(BigInt('0b' + s), s.length));
                 } catch (error) {
                     return t.failure(u, c);
                 }

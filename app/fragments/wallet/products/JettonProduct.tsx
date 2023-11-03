@@ -1,38 +1,53 @@
 import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
-import { Address } from 'ton';
-import { Engine } from '../../../engine/Engine';
-import { markJettonDisabled } from '../../../engine/sync/ops';
+import { Address } from '@ton/core';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
-import { confirmJettonAction } from '../../AccountsFragment';
 import { AnimatedProductButton } from './AnimatedProductButton';
+// import { markJettonDisabled } from '../../../engine/effects/markJettonDisabled';
+import { useNetwork } from '../../../engine/hooks';
+import { Alert } from 'react-native';
+import { t } from '../../../i18n/t';
+import { Jetton } from '../../../engine/types';
+
+export async function confirmJettonAction(disable: boolean, symbol: string) {
+    return await new Promise<boolean>(resolve => {
+        Alert.alert(
+            disable
+                ? t('accounts.alertDisabled', { symbol })
+                : t('accounts.alertActive', { symbol }),
+            t('transfer.confirm'),
+            [{
+                text: t('common.yes'),
+                style: 'destructive',
+                onPress: () => {
+                    resolve(true)
+                }
+            }, {
+                text: t('common.no'),
+                onPress: () => {
+                    resolve(false);
+                }
+            }])
+    });
+}
 
 export const JettonProduct = React.memo((props: {
     navigation: TypedNavigation,
-    engine: Engine,
-    jetton: {
-        master: Address;
-        wallet: Address;
-        name: string;
-        description: string;
-        symbol: string;
-        balance: BN;
-        icon: string | null;
-        decimals: number | null;
-    },
+    jetton: Jetton,
     onPress?: () => void
-    onLongPress?: () => void
+    onLongPress?: () => void,
 }) => {
     let balance = props.jetton.balance;
+    const { isTestnet } = useNetwork();
 
-    const isKnown = !!KnownJettonMasters(props.engine.isTestnet)[props.jetton.master.toFriendly({ testOnly: props.engine.isTestnet })];
+    const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
 
     const promptDisable = React.useCallback(
         async () => {
             const c = await confirmJettonAction(true, props.jetton.symbol);
-            if (c) markJettonDisabled(props.engine, props.jetton.master);
+            // TODO: if (c) markJettonDisabled(props.jetton.master);
         },
         [],
     );
@@ -41,7 +56,7 @@ export const JettonProduct = React.memo((props: {
         <AnimatedProductButton
             entering={FadeInUp}
             exiting={FadeOutDown}
-            key={props.jetton.master.toFriendly()}
+            key={props.jetton.master.toString()}
             name={props.jetton.name}
             subtitle={props.jetton.description}
             image={props.jetton.icon ? props.jetton.icon : undefined}
@@ -57,7 +72,7 @@ export const JettonProduct = React.memo((props: {
                     amount: null,
                     target: null,
                     comment: null,
-                    jetton: props.jetton.wallet,
+                    jetton: props.jetton.wallet.toString({ testOnly: isTestnet }),
                     stateInit: null,
                     job: null,
                     callback: null

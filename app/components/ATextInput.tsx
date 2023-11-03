@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 export type ATextInputRef = {
     focus: () => void;
@@ -110,7 +110,7 @@ export interface ATextInputProps {
 }
 
 export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const onFocus = React.useCallback(() => {
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
@@ -170,7 +170,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                 fontSize: 17,
                                 fontWeight: '400',
                                 alignSelf: 'center',
-                                color: Theme.placeholder,
+                                color: theme.placeholder,
                             }}
                         >
                             {props.prefix}
@@ -195,7 +195,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         textAlign={props.textAlign}
                         autoFocus={props.autoFocus}
                         placeholder={props.placeholder}
-                        placeholderTextColor={Theme.placeholder}
+                        placeholderTextColor={theme.placeholder}
                         autoCapitalize={props.autoCapitalize}
                         autoCorrect={props.autoCorrect}
                         keyboardType={props.keyboardType}

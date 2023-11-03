@@ -1,4 +1,5 @@
-import { Address, beginCell, TonClient4 } from "ton";
+import { Address, beginCell } from "@ton/core";
+import { TonClient4 } from '@ton/ton';
 
 export async function tryGetJettonWallet(client: TonClient4, seqno: number, args: { address: Address, master: Address }) {
     let waletAddress = await client.runMethod(seqno, args.master, 'get_wallet_address', [{ type: 'slice', cell: beginCell().storeAddress(args.address).endCell() }]);
@@ -11,5 +12,5 @@ export async function tryGetJettonWallet(client: TonClient4, seqno: number, args
     if (waletAddress.result[0].type !== 'slice') {
         return null;
     }
-    return waletAddress.result[0].cell.beginParse().readAddress();
+    return waletAddress.result[0].cell.beginParse().loadAddress();
 }

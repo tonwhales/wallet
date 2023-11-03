@@ -4,22 +4,20 @@ import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
-import { useEngine } from "../engine/Engine";
-import { CurrencySymbols, PrimaryCurrency } from "../engine/products/PriceProduct";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import CheckMark from '../../assets/ic_check_mark.svg';
 import { confirmAlertWithTitle } from "../utils/confirmAlert";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
+import { usePrimaryCurrency } from '../engine/hooks';
+import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const priceProduct = engine.products.price;
-    const currency = priceProduct.usePrimaryCurrency();
-    const { Theme } = useAppConfig();
+    const [currency, setPrimaryCurrency] = usePrimaryCurrency();
+    const theme = useTheme();
 
     const onCurrency = useCallback(
         async (code: string) => {
@@ -28,7 +26,7 @@ export const CurrencyFragment = fragment(() => {
             }
             const c = await confirmAlertWithTitle(t('confirm.changeCurrency', { currency: code }));
             if (c) {
-                priceProduct.setPrimaryCurrency(code)
+                setPrimaryCurrency(code);
             }
         },
         [currency],
@@ -63,7 +61,7 @@ export const CurrencyFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         paddingVertical: 16,
@@ -92,15 +90,15 @@ export const CurrencyFragment = fragment(() => {
                                                     justifyContent: 'center',
                                                     alignItems: 'center',
                                                     height: 24, width: 24, borderRadius: 4,
-                                                    backgroundColor: Theme.accent,
+                                                    backgroundColor: theme.accent,
                                                     marginRight: 16
                                                 }}>
-                                                    <CheckMark color={Theme.accent} />
+                                                    <CheckMark color={theme.accent} />
                                                 </View>
                                             }
                                         </View>
                                     </Pressable>
-                                    {index !== Object.keys(PrimaryCurrency).length - 1 && (<View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 16 }} />)}
+                                    {index !== Object.keys(PrimaryCurrency).length - 1 && (<View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 }} />)}
                                 </View>
                             )
                         })}

@@ -6,7 +6,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
-import { useEngine } from '../../engine/Engine';
 import { warn } from '../../utils/log';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { StatusBar } from 'expo-status-bar';
@@ -16,29 +15,35 @@ import { HoldersAppParams } from './HoldersAppFragment';
 import { extractHoldersQueryParams } from './utils';
 import { getLocales } from 'react-native-localize';
 import { fragment } from '../../fragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
-import { useCallback, useRef, useState } from 'react';
-import { normalizePath } from '../../engine/holders/HoldersProduct';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
+import { usePrimaryCurrency } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useHoldersEnroll } from '../../engine/hooks';
+import { getCurrentAddress } from '../../storage/appState';
+import { getAppData } from '../../engine/getters/getAppData';
 
 export const HoldersLandingFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const acc = useMemo(() => getCurrentAddress(), []);
+    const theme = useTheme();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
+    const [currency,] = usePrimaryCurrency();
     const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
-    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
-    const lang = getLocales()[0].languageCode;
-    const currency = engine.products.price.usePrimaryCurrency();
 
-    // TODO: Uncomment when stable version with offline support will be available
+    const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
+
+    const domain = extractDomain(endpoint);
+    const enroll = useHoldersEnroll(acc, domain, authContext);
+    const lang = getLocales()[0].languageCode;
+
+    // TODO
     // const stableOfflineV = engine.products.holders.stableOfflineVersion;
-    const stableOfflineV = null;
-    const useOfflineApp = !!stableOfflineV;
+    const useOfflineApp = false;
 
     //
     // View
@@ -53,7 +58,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -69,7 +74,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -85,7 +90,7 @@ export const HoldersLandingFragment = fragment(() => {
         setAuth(true);
 
         try {
-            const data = await engine.products.extensions.getAppData(endpoint);
+            const data = await getAppData(endpoint);
             if (!data) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;
@@ -93,8 +98,7 @@ export const HoldersLandingFragment = fragment(() => {
                 return;
             }
 
-            const domain = extractDomain(endpoint);
-            const res = await engine.products.holders.enroll(domain, authContext);
+            const res = await enroll();
             if (!res) {
                 Alert.alert(t('auth.failed'));
                 authOpacity.value = 0;
@@ -107,14 +111,13 @@ export const HoldersLandingFragment = fragment(() => {
 
             authOpacity.value = 0;
             setAuth(false);
-
         } catch (error) {
             authOpacity.value = 0;
             setAuth(false);
             Alert.alert(t('auth.failed'));
             warn(error);
         }
-    }, [auth]);
+    }, [auth, enroll]);
 
     //
     // Navigation
@@ -186,18 +189,18 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.item
+            backgroundColor: theme.item
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ backgroundColor: Theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         flexGrow: 1,
                     }}
                 >
-                    {useOfflineApp && (
+                    {/* TODO: {useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <OfflineWebView
                                 key={`offline-rendered-${offlineRender}`}
@@ -206,7 +209,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
                                 initialRoute={`/about?lang=${lang}&currency=${currency}`}
                                 style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -246,7 +249,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 }}
                             />
                         </Animated.View>
-                    )}
+                    )} */}
                     {!useOfflineApp && (
                         <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
                             <WebView
@@ -254,7 +257,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                                 startInLoadingState={true}
                                 style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,

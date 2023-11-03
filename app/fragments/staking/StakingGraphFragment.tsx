@@ -5,12 +5,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano, toNano } from "ton";
+import { Address, fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { useEngine } from "../../engine/Engine";
-import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
@@ -19,21 +17,27 @@ import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { KnownPools } from "../../utils/KnownPools";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useStakingPool } from '../../engine/hooks';
+import { useStakingChart } from '../../engine/hooks';
+import { usePrice } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
 export const StakingGraphFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ pool: string }>();
     const target = Address.parse(params.pool);
-    const engine = useEngine();
-    const pool = engine.products.whalesStakingPools.usePool(target);
+    const pool = useStakingPool(target);
     const member = pool?.member;
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
-    const knownPool = KnownPools(AppConfig.isTestnet)[params.pool];
+    const account = useSelectedAccount()!;
+    const stakingChart = useStakingChart(target, account.address);
+    const knownPool = KnownPools(isTestnet)[params.pool];
 
     const points: GraphPoint[] = (stakingChart?.chart || []).map((p) => {
         return {
@@ -125,9 +129,9 @@ export const StakingGraphFragment = fragment(() => {
                         fontSize: 14, marginTop: 4
                     }]}>
                         {
-                            target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 6)
+                            target.toString({ testOnly: isTestnet }).slice(0, 6)
                             + '...'
-                            + target.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 8)
+                            + target.toString({ testOnly: isTestnet }).slice(t.length - 8)
                         }
                     </Text>
                     <Text style={[{
@@ -140,7 +144,7 @@ export const StakingGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,
@@ -148,9 +152,9 @@ export const StakingGraphFragment = fragment(() => {
                         }}
                         editable={false}
                     />
-                    {(price && !AppConfig.isTestnet) && (
+                    {(price && !isTestnet) && (
                         <View style={[{
-                            backgroundColor: Theme.accent,
+                            backgroundColor: theme.accent,
                             borderRadius: 9,
                             height: 24,
                             alignSelf: 'flex-start',
@@ -183,20 +187,20 @@ export const StakingGraphFragment = fragment(() => {
                                 width: '100%', aspectRatio: 1.2,
                                 paddingHorizontal: 8,
                             }]}
-                            selectionDotShadowColor={Theme.accent}
+                            selectionDotShadowColor={theme.accent}
                             verticalPadding={32}
                             lineThickness={5}
                             animated={true}
-                            color={Theme.accent}
+                            color={theme.accent}
                             points={points}
                             enablePanGesture={true}
                             enableFadeInMask={true}
                             gradientFillColors={[
-                                `${getSixDigitHex(Theme.accent)}00`,
-                                `${getSixDigitHex(Theme.accent)}ff`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}ff`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}00`,
                             ]}
                             horizontalPadding={2}
                             onPointSelected={onPointSelected}

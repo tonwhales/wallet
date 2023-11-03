@@ -1,16 +1,21 @@
 import * as React from 'react';
 import { Navigation } from './Navigation';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { RecoilRoot } from 'recoil';
 import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
-import { AppConfigContextProvider } from './utils/AppConfigContext';
+import { clientPersister } from './engine/queryClientPersister';
+import { queryClient } from './engine/clients';
+
+const PERSISTANCE_VERSION = '10';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);
     const reboot = React.useCallback(() => {
         setSessionId((s) => s + 1);
     }, [setSessionId]);
+
     return (
         <Animated.View
             key={'session-' + sessionId}
@@ -19,12 +24,12 @@ export const Root = React.memo(() => {
             entering={FadeIn}
         >
             <RebootContext.Provider value={reboot}>
-                <AppConfigContextProvider>
+                <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION }} client={queryClient}>
                     <RecoilRoot>
                         <Navigation />
                     </RecoilRoot>
-                </AppConfigContextProvider>
+                </PersistQueryClientProvider>
             </RebootContext.Provider>
-        </Animated.View>
+        </Animated.View >
     );
 });

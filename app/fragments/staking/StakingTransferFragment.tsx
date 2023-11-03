@@ -5,28 +5,29 @@ import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keybo
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, fromNano, toNano } from 'ton';
+import { Address, Cell, fromNano, toNano } from '@ton/core';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ATextInput } from '../../components/ATextInput';
 import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useEngine } from '../../engine/Engine';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
-import { StakingCycle } from "../../components/Staking/StakingCycle";
-import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
-import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
-import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
 import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
-import { LocalizedResources } from '../../i18n/schema';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useStakingPool } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
+import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
+import { UnstakeBanner } from '../../components/staking/UnstakeBanner';
+import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
+import { StakingCycle } from '../../components/staking/StakingCycle';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -42,7 +43,7 @@ export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready
 
 export type StakingTransferParams = {
     target?: Address,
-    amount?: BN | null,
+    amount?: bigint | null,
     lockAmount?: boolean,
     lockComment?: boolean,
     lockAddress?: boolean,
@@ -65,23 +66,24 @@ export function actionTitle(action?: TransferAction) {
 }
 
 export const StakingTransferFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected!.address);
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
+    const pool = useStakingPool(params.target!);
     const member = pool?.member
 
     const [title, setTitle] = React.useState('');
     const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
 
-    let balance = account.balance || new BN(0);
+    let balance = account!.balance || BigInt(0);
     if (params?.action === 'withdraw') {
         balance = member
-            ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
+            ? member!.balance + member!.withdraw + member!.pendingDeposit
             : toNano(0);
     }
 
@@ -96,12 +98,10 @@ export const StakingTransferFragment = fragment(() => {
         }, []);
 
     const doContinue = React.useCallback(async () => {
-        let value: BN;
+        let value: bigint;
         let minAmount = pool?.params.minStake
-            ? pool.params.minStake
-                .add(pool.params.receiptPrice)
-                .add(pool.params.depositFee)
-            : toNano(AppConfig.isTestnet ? '10.2' : '50');
+            ? pool.params.minStake + pool.params.receiptPrice + pool.params.depositFee
+            : toNano(isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
             Alert.alert(t('transfer.error.invalidAddress'));
@@ -118,7 +118,7 @@ export const StakingTransferFragment = fragment(() => {
         // Check min stake amount
         if (
             (params?.action === 'deposit' || params?.action === 'top_up')
-            && value.lt(minAmount)
+            && value < minAmount
         ) {
             setMinAmountWarn(
                 t('products.staking.minAmountWarning',
@@ -130,9 +130,9 @@ export const StakingTransferFragment = fragment(() => {
         // Check availible 
         if (params?.action === 'withdraw') {
             const availible = member
-                ? member.balance.add(member.withdraw).add(member.pendingDeposit)
+                ? member.balance + member.withdraw + member.pendingDeposit
                 : undefined;
-            if (!availible || availible.lt(value)) {
+            if (!availible || availible < value) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
                 return;
             }
@@ -143,11 +143,11 @@ export const StakingTransferFragment = fragment(() => {
         let transferAmount = value;
         if (params.action === 'withdraw_ready') {
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
         } else if (params?.action === 'withdraw') {
-            if (transferAmount.eq(balance)) transferAmount = new BN(0);
+            if (transferAmount === balance) transferAmount = BigInt(0);
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
         } else if (params.action === 'deposit' || params.action === 'top_up') {
             payload = createAddStakeCommand();
         } else {
@@ -155,16 +155,16 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
+        if ((transferAmount === account!.balance || account!.balance < transferAmount)) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
-                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
+                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee + pool.params.receiptPrice) : '0.2' })
                     : t('transfer.error.notEnoughCoins')
             );
             return;
         }
 
-        if (transferAmount.eq(new BN(0))) {
+        if (transferAmount === BigInt(0)) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -178,7 +178,7 @@ export const StakingTransferFragment = fragment(() => {
         navigation.navigateTransfer({
             order: {
                 messages: [{
-                    target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: params.target.toString({ testOnly: isTestnet }),
                     payload,
                     amount: transferAmount,
                     amountAll: false,
@@ -246,10 +246,10 @@ export const StakingTransferFragment = fragment(() => {
         if (params?.action === 'deposit' || params?.action === 'top_up') {
             // Account for withdraw fee need to unstake 
             addAmount = addAmount
-                .sub(pool?.params.withdrawFee || toNano('0.1'))
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
-                .sub(pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
+                - (pool?.params.withdrawFee || toNano('0.1'))
+                - (pool?.params.receiptPrice || toNano('0.1'))
+                - (pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
+                - (pool?.params.receiptPrice || toNano('0.1'))
         }
         onSetAmount(fromNano(addAmount));
     }, [balance, params, pool]);
@@ -262,7 +262,7 @@ export const StakingTransferFragment = fragment(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
-    const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+    const withdrawFee = pool ? pool.params.withdrawFee + pool.params.receiptPrice : toNano('0.2');
 
     return (
         <>
@@ -298,7 +298,7 @@ export const StakingTransferFragment = fragment(() => {
                     <>
                         <View style={{
                             marginBottom: 0,
-                            backgroundColor: Theme.item,
+                            backgroundColor: theme.item,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -312,14 +312,14 @@ export const StakingTransferFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
-                                    color: Theme.textSubtitle,
+                                    color: theme.textSubtitle,
                                 }}>
                                     {t('common.amount')}
                                 </Text>
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: Theme.priceSecondary,
+                                    color: theme.priceSecondary,
                                 }}>
                                     <ValueComponent value={balance} precision={3} />
                                     {' TON'}
@@ -340,8 +340,8 @@ export const StakingTransferFragment = fragment(() => {
                                         placeholder={'0'}
                                         keyboardType={'numeric'}
                                         textAlign={'left'}
-                                        style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
+                                        style={{ paddingHorizontal: 0, backgroundColor: theme.transparent, marginTop: 4, flexShrink: 1 }}
+                                        inputStyle={{ color: theme.accent, flexGrow: 1, paddingTop: 0 }}
                                         fontWeight={'800'}
                                         fontSize={30}
                                         editable={!params?.lockAmount}
@@ -355,7 +355,7 @@ export const StakingTransferFragment = fragment(() => {
                                         style={({ pressed }) => {
                                             return [
                                                 {
-                                                    backgroundColor: Theme.accent,
+                                                    backgroundColor: theme.accent,
                                                     height: 24,
                                                     borderRadius: 40,
                                                     alignItems: 'center',
@@ -371,7 +371,7 @@ export const StakingTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             fontSize: 16,
-                                            color: Theme.item
+                                            color: theme.item
                                         }}>
                                             {t('common.max')}
                                         </Text>
@@ -380,16 +380,16 @@ export const StakingTransferFragment = fragment(() => {
                                 <PriceComponent
                                     amount={parseAmountToValidBN(amount)}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0
                                     }}
-                                    textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                    textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                                 />
                             </View>
                         </View>
                         {!!minAmountWarn && (
                             <Text style={{
-                                color: Theme.dangerZone,
+                                color: theme.dangerZone,
                                 fontWeight: '400',
                                 fontSize: 14,
                                 marginTop: 10
@@ -399,11 +399,10 @@ export const StakingTransferFragment = fragment(() => {
                         )}
                         {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
-                                {!AppConfig.isTestnet && (
+                                {!isTestnet && (
                                     <StakingCalcComponent
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
-                                        member={member}
                                         pool={pool}
                                     />
                                 )}
@@ -413,7 +412,7 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -429,7 +428,7 @@ export const StakingTransferFragment = fragment(() => {
                                     }}>
                                         <Text style={{
                                             fontSize: 16,
-                                            color: Theme.label
+                                            color: theme.label
                                         }}>
                                             {t('products.staking.info.withdrawFee')}
                                         </Text>
@@ -437,26 +436,26 @@ export const StakingTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 16,
-                                                color: Theme.textColor
+                                                color: theme.textColor
                                             }}>
                                                 {`${fromNano(withdrawFee)} TON`}
                                             </Text>
                                             <PriceComponent
                                                 amount={withdrawFee}
                                                 style={{
-                                                    backgroundColor: Theme.transparent,
+                                                    backgroundColor: theme.transparent,
                                                     paddingHorizontal: 0, paddingVertical: 2,
                                                     alignSelf: 'flex-end'
                                                 }}
-                                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
                                             />
                                         </View>
                                     </View>
                                 </View>
                                 {!!pool && params.action !== 'withdraw_ready' && (
                                     <StakingCycle
-                                        stakeUntil={pool.params.stakeUntil}
-                                        locked={pool.params.locked}
+                                        stakeUntil={pool.status.proxyStakeUntil}
+                                        locked={pool.status.locked}
                                         style={{
                                             marginBottom: 15,
                                             marginHorizontal: 0

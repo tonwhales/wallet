@@ -1,15 +1,13 @@
 import * as React from 'react';
-import { Alert, Platform, ScrollView, ToastAndroid, View, Text } from "react-native";
+import { Alert, Platform, ScrollView, ToastAndroid, View } from "react-native";
 import { ItemButton } from "../../components/ItemButton";
 import { useReboot } from '../../utils/RebootContext';
 import { fragment } from '../../fragment';
-import { storagePersistence } from '../../storage/storage';
+import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useEngine } from '../../engine/Engine';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -17,63 +15,88 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { clearHolders } from '../LogoutFragment';
-import { useEffect, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+import { useOfflineApp } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useSetNetwork } from '../../engine/hooks';
+import { useCloudValue } from '../../engine/hooks';
+import { ThemeStyle } from '../../engine/state/theme';
+import { useThemeStyle } from '../../engine/hooks';
+import { useLanguage } from '../../engine/hooks';
+import i18n from 'i18next';
+import { onAccountTouched } from '../../engine/effects/onAccountTouched';
+import { getCurrentAddress } from '../../storage/appState';
+import { useClearHolders } from '../../engine/hooks';
+import { useHoldersCards } from '../../engine/hooks';
+import { useHoldersAccountStatus } from '../../engine/hooks';
 
 export const DeveloperToolsFragment = fragment(() => {
-    const { Theme, AppConfig, setNetwork } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const setNetwork = useSetNetwork();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const offlineApp = engine.products.holders.useOfflineApp();
+    const offlineApp = useOfflineApp();
+
+    const acc = useMemo(() => getCurrentAddress(), []);
+
+    const cards = useHoldersCards(acc.address);
+    const holdersStatus = useHoldersAccountStatus(acc.address);
+
+    const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
 
     const [offlineAppReady, setOfflineAppReady] = useState<{ version: string } | false>();
     const [prevOfflineVersion, setPrevOfflineVersion] = useState<{ version: string } | false>();
 
-    useEffect(() => {
-        (async () => {
-            const ready = await engine.products.holders.checkCurrentOfflineVersion();
-            setOfflineAppReady(ready ? { version: ready } : false);
-            const prev = await engine.products.holders.getPrevOfflineVersion();
-            if (prev) {
-                const prevReady = await engine.products.holders.isOfflineAppReady(prev);
-                setPrevOfflineVersion(prevReady ? prev : false);
-            }
-        })()
-    }, [offlineApp]);
+    const [themeStyle, setThemeStyle] = useThemeStyle();
+    const [lang, setLang] = useLanguage();
+
+    // useEffect(() => {
+    //     (async () => {
+    //         const ready = await checkCurrentOfflineVersion();
+    //         setOfflineAppReady(ready ? { version: ready } : false);
+    //         const prev = await engine.products.holders.getPrevOfflineVersion();
+    //         if (prev) {
+    //             const prevReady = await engine.products.holders.isOfflineAppReady(prev);
+    //             setPrevOfflineVersion(prevReady ? prev : false);
+    //         }
+    //     })()
+    // }, [offlineApp]);
 
     const reboot = useReboot();
-    const resetCache = React.useCallback(() => {
+    const clearHolders = useClearHolders(acc.address.toString({ testOnly: isTestnet }));
+
+    const resetCache = useCallback(async () => {
         storagePersistence.clearAll();
-        clearHolders(engine);
+        storageQuery.clearAll();
+        await clearHolders();
+        await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         reboot();
-    }, []);
+    }, [isTestnet, clearHolders]);
 
-    const switchNetwork = React.useCallback(
-        () => {
-            Alert.alert(
-                t('devTools.switchNetworkAlertTitle', { network: AppConfig.isTestnet ? 'Mainnet' : 'Testnet' }),
-                t('devTools.switchNetworkAlertMessage'),
-                [
-                    {
-                        text: t('common.cancel'),
-                        style: 'cancel',
-                    },
-                    {
-                        text: t('devTools.switchNetworkAlertAction'),
-                        onPress: () => setNetwork(!AppConfig.isTestnet),
-                    }
-                ]
-            );
-        },
-        [AppConfig.isTestnet],
-    );
+    const switchNetwork = useCallback(() => {
+        Alert.alert(
+            t('devTools.switchNetworkAlertTitle', { network: isTestnet ? 'Mainnet' : 'Testnet' }),
+            t('devTools.switchNetworkAlertMessage'),
+            [
+                {
+                    text: t('common.cancel'),
+                    style: 'cancel',
+                },
+                {
+                    text: t('devTools.switchNetworkAlertAction'),
+                    onPress: () => setNetwork(isTestnet ? 'mainnet' : 'testnet'),
+                }
+            ]
+        );
+    }, [isTestnet]);
 
-    const copySeed = React.useCallback(async () => {
+    const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: Theme.item });
+            walletKeys = await authContext.authenticate({ backgroundColor: theme.item });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {
@@ -90,7 +113,7 @@ export const DeveloperToolsFragment = fragment(() => {
         }
     }, [])
 
-    const onExportSeedAlert = React.useCallback(() => {
+    const onExportSeedAlert = useCallback(() => {
         Alert.alert(
             t('devTools.copySeedAlertTitle'),
             t('devTools.copySeedAlertMessage'),
@@ -114,12 +137,12 @@ export const DeveloperToolsFragment = fragment(() => {
         }}>
             <StatusBar style={'dark'} />
             <AndroidToolbar pageTitle={'Dev Tools'} />
-            <ScrollView style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+            <ScrollView style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
 
 
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -136,6 +159,9 @@ export const DeveloperToolsFragment = fragment(() => {
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
                     </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
+                    </View>
 
                     {!(
                         Application.applicationId === 'com.tonhub.app.testnet' ||
@@ -144,13 +170,13 @@ export const DeveloperToolsFragment = fragment(() => {
                         Application.applicationId === 'com.tonhub.wallet.testnet.debug'
                     ) && (
                             <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={AppConfig.isTestnet ? 'Testnet' : 'Mainnet'} />
+                                <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
                             </View>
                         )}
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -169,7 +195,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
                     </View>
 
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                    {/* <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
                             const app = engine.persistence.holdersOfflineApp.item().value;
                             if (app) {
@@ -178,6 +204,84 @@ export const DeveloperToolsFragment = fragment(() => {
                             engine.persistence.holdersOfflineApp.item().update(() => null);
                             await engine.products.holders.forceSyncOfflineApp();
                         }} />
+                    </View> */}
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Theme'}
+                            hint={themeStyle}
+                            onPress={() => {
+                                if (theme.style === ThemeStyle.Light) {
+                                    setThemeStyle(ThemeStyle.Dark);
+                                    return;
+                                }
+
+                                setThemeStyle(ThemeStyle.Light);
+                                return;
+                            }}
+                        />
+                    </View>
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Language'}
+                            hint={i18n.language}
+                            onPress={async () => {
+                                if (i18n.language === 'en') {
+                                    await i18n.changeLanguage('ru');
+                                    setLang('ru');
+                                } else {
+                                    await i18n.changeLanguage('en');
+                                    setLang('en');
+                                }
+                                setTimeout(() => reboot(), 100);
+                            }}
+                        />
+                    </View>
+                </View>
+                <View style={{
+                    marginTop: 16,
+                    backgroundColor: theme.item,
+                    borderRadius: 14,
+                    overflow: 'hidden',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexShrink: 1,
+                }}>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Refetch cards'}
+                            onPress={() => {
+                                cards.refetch();
+                            }}
+                        />
+                    </View>
+                    <View style={{ marginHorizontal: 16, width: '100%' }}>
+                        <ItemButton
+                            title={'Refetch status'}
+                            hint={holdersStatus.data?.state}
+                            onPress={() => {
+                                holdersStatus.refetch();
+                            }}
+                        />
                     </View>
                 </View>
             </ScrollView>

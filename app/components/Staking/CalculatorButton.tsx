@@ -4,12 +4,12 @@ import CalcIcon from '../../../assets/ic_staking_calc.svg';
 import Arrow from '../../../assets/ic_ios_forward_grey.svg';
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Address } from "ton";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { Address } from "@ton/core";
+import { useTheme } from '../../engine/hooks';
 
 export const CalculatorButton = React.memo(({ style, target }: { style: StyleProp<ViewStyle>, target: Address }) => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     return (
         <Pressable style={({ pressed }) => {
@@ -22,7 +22,7 @@ export const CalculatorButton = React.memo(({ style, target }: { style: StylePro
         >
             <View style={{
                 borderRadius: 14,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 paddingLeft: 16, paddingVertical: 10,
                 flexDirection: 'row',
                 alignItems: 'center'

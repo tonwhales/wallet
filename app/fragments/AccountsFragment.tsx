@@ -1,62 +1,40 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useRef } from "react";
-import { Platform, View, Text, ScrollView, Alert } from "react-native";
+import { Platform, View, Text, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
-import { useEngine } from "../engine/Engine";
-import { markJettonActive, markJettonDisabled } from "../engine/sync/ops";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { JettonProduct } from "./wallet/products/JettonProduct";
+import { JettonProduct, confirmJettonAction } from "./wallet/products/JettonProduct";
 import LottieView from 'lottie-react-native';
-import { useAppConfig } from "../utils/AppConfigContext";
-
-export async function confirmJettonAction(disable: boolean, symbol: string) {
-    return await new Promise<boolean>(resolve => {
-        Alert.alert(
-            disable
-                ? t('accounts.alertDisabled', { symbol })
-                : t('accounts.alertActive', { symbol }),
-            t('transfer.confirm'),
-            [{
-                text: t('common.yes'),
-                style: 'destructive',
-                onPress: () => {
-                    resolve(true)
-                }
-            }, {
-                text: t('common.no'),
-                onPress: () => {
-                    resolve(false);
-                }
-            }])
-    });
-}
+import { useTheme } from '../engine/hooks';
+import { useJettons } from '../engine/hooks';
+import { useSelectedAccount } from "../engine/hooks/appstate/useSelectedAccount";
 
 export const AccountsFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
+    const selected = useSelectedAccount();
 
-    const jettons = engine.products.main.useJettons();
-    const active = jettons.filter((j) => !j.disabled);
-    const disabled = jettons.filter((j) => j.disabled);
+    const jettons = useJettons(selected!.addressString);
+    const active = jettons.filter((j: any) => !j.disabled);
+    const disabled = jettons.filter((j: any) => j.disabled);
 
     const promptDisable = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(true, symbol);
-            if (c) markJettonDisabled(engine, master);
+           // TODO: if (c) markJettonDisabled(master);
         },
         [],
     );
     const promptActive = useCallback(
         async (master: Address, symbol: string) => {
             const c = await confirmJettonAction(false, symbol);
-            if (c) markJettonActive(engine, master);
+            // TODO: if (c) markJettonActive(master);
         },
         [],
     );
@@ -111,14 +89,14 @@ export const AccountsFragment = fragment(() => {
                         fontWeight: '700',
                         marginBottom: 8,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                     }}
                     >
                         {t('accounts.noAccounts')}
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.priceSecondary
+                        color: theme.priceSecondary
                     }}
                     >
                         {t('accounts.description')}
@@ -133,12 +111,12 @@ export const AccountsFragment = fragment(() => {
                         borderRadius: 14,
                         flexShrink: 1,
                     }}>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                             {disabled.length === 0 && (
                                 <Text style={{
                                     marginHorizontal: 16,
                                     fontSize: 16,
-                                    color: Theme.priceSecondary
+                                    color: theme.priceSecondary
                                 }}
                                 >
                                     {t('accounts.description')}
@@ -150,26 +128,25 @@ export const AccountsFragment = fragment(() => {
                                     fontWeight: '700',
                                     marginHorizontal: 16,
                                     marginVertical: 8,
-                                    color: active.length > 0 ? Theme.textColor : Theme.textSecondary
+                                    color: active.length > 0 ? theme.textColor : theme.textSecondary
                                 }}
                                 >
                                     {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}
                                 </Text>
                             )}
                         </View>
-                        {active.map((j) => {
+                        {active.map((j: any) => {
                             return (
                                 <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
+                                    key={'jt' + j.wallet.toString()}
                                     jetton={j}
                                     navigation={navigation}
-                                    engine={engine}
                                     onPress={() => promptDisable(j.master, j.symbol)}
                                 />
                             );
                         })}
                         {disabled.length > 0 && (
-                            <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',
@@ -181,13 +158,12 @@ export const AccountsFragment = fragment(() => {
                                 </Text>
                             </View>
                         )}
-                        {disabled.map((j) => {
+                        {disabled.map((j: any) => {
                             return (
                                 <JettonProduct
-                                    key={'jt' + j.wallet.toFriendly()}
+                                    key={'jt' + j.wallet.toString()}
                                     jetton={j}
                                     navigation={navigation}
-                                    engine={engine}
                                     onPress={() => promptActive(j.master, j.symbol)}
                                     onLongPress={() => { }}
                                 />

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { View, Text } from "react-native";
-import { useEngine } from "../../engine/Engine";
 import { t } from "../../i18n/t";
 import { ATextInput, ATextInputRef } from "../ATextInput";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useContactField } from '../../engine/hooks';
 
 export const ContactField = React.memo((props: {
     input: {
@@ -19,10 +19,9 @@ export const ContactField = React.memo((props: {
     refs: React.RefObject<ATextInputRef>[],
     onFieldChange: (index: number, value: string) => void,
 }) => {
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
+    const theme = useTheme();
     const [value, setValue] = useState(props.input.value || '');
-    let label = engine.products.settings.useContactField(props.fieldKey);
+    let label = useContactField(props.fieldKey);
 
     if (props.fieldKey === 'lastName') {
         label = t('contacts.lastName');
@@ -63,7 +62,7 @@ export const ContactField = React.memo((props: {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: Theme.label,
+                            color: theme.label,
                             alignSelf: 'flex-start',
                         }}>
                             {label}
@@ -74,13 +73,13 @@ export const ContactField = React.memo((props: {
                 autoCorrect={false}
                 autoComplete={'off'}
                 style={{
-                    backgroundColor: Theme.transparent,
+                    backgroundColor: theme.transparent,
                     paddingHorizontal: 0,
                     marginHorizontal: 16,
                 }}
             />
             {(props.index + 1 < props.refs.length) && (
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
             )}
         </>
     )

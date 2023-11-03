@@ -3,10 +3,10 @@ import { Pressable, View, Text, ActivityIndicator } from "react-native";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { t } from "../../../i18n/t";
 import { LedgerAccount } from "./LedgerSelectAccount";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 
 export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [loading, setLoading] = React.useState(false);
     const doAction = React.useCallback(() => {
         if (!!loadingAcc && loadingAcc !== acc.i) {
@@ -34,7 +34,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 alignItems: 'center',
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.item,
                 marginVertical: 5,
                 borderRadius: 14,
             }}>
@@ -42,7 +42,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                     <Text style={{
                         fontWeight: '700',
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         marginBottom: 8
                     }}>
                         <ValueComponent
@@ -54,7 +54,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: theme.textColor,
                     }}>
                         {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
                     </Text>
@@ -62,7 +62,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 <Text style={{
                     fontWeight: '400',
                     fontSize: 16,
-                    color: Theme.accent,
+                    color: theme.accent,
                 }}>
                     {t('common.connect')}
                 </Text>
@@ -71,17 +71,17 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                         alignItems: 'center', justifyContent: 'center',
                         flexDirection: 'row',
-                        backgroundColor: Theme.item, borderRadius: 14
+                        backgroundColor: theme.item, borderRadius: 14
                     }}>
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 16,
-                            color: Theme.accent,
+                            color: theme.accent,
                             marginRight: 8
                         }}>
                             {t('hardwareWallet.actions.confirmOnLedger')}
                         </Text>
-                        <ActivityIndicator color={Theme.accent} size='small' />
+                        <ActivityIndicator color={theme.accent} size='small' />
                     </View>
                 )}
             </View>

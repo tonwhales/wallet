@@ -8,7 +8,8 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../CloseButton";
-import { ThemeType, useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { ThemeType } from '../../engine/state/theme';
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -90,7 +91,7 @@ export const PasscodeSetup = React.memo((
         style?: StyleProp<ViewStyle>,
     }) => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '' });
 
@@ -119,7 +120,7 @@ export const PasscodeSetup = React.memo((
                             onPress={onLater}
                         >
                             <Text style={{
-                                color: Theme.accent,
+                                color: theme.accent,
                                 fontSize: 17,
                                 fontWeight: '500',
                             }}>
@@ -154,7 +155,7 @@ export const PasscodeSetup = React.memo((
                             }}
                         >
                             <Text style={{
-                                color: Theme.accent,
+                                color: theme.accent,
                                 fontSize: 17,
                                 fontWeight: '500',
                             }}>
@@ -183,7 +184,7 @@ export const PasscodeSetup = React.memo((
                     onLoadEnd={dispatch}
                     load={async (pass) => { await onReady?.(pass) }}
                     input={state.input}
-                    theme={Theme}
+                    theme={theme}
                 />
             )}
         </View>

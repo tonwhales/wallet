@@ -1,7 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { getCurrentAddress } from "../../storage/appState";
 import { View, Platform, Text, Pressable } from "react-native";
 import { CloseButton } from "../../components/CloseButton";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
@@ -12,62 +11,62 @@ import { useParams } from "../../utils/useParams";
 import TonIcon from '../../../assets/ic_ton_account.svg';
 import { CopyButton } from "../../components/CopyButton";
 import { ShareButton } from "../../components/ShareButton";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { Address } from "ton";
 import Chevron from '../../../assets/ic_chevron_forward.svg';
-import { useEngine } from "../../engine/Engine";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { queryClient } from '../../engine/clients';
+import { Queries } from '../../engine/queries';
+import { useSelectedAccount } from '../../engine/hooks';
 
 export const ReceiveFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const params = useParams<{ addr?: string, ledger?: boolean }>();
-    const address = React.useMemo(() => {
-        if (params.addr) {
-            return Address.parse(params.addr);
-        }
-        return getCurrentAddress().address;
-    }, [params]);
-    const friendly = address.toFriendly({ testOnly: AppConfig.isTestnet });
-    const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
+    const address = useSelectedAccount()!;
+    const [jetton, setJetton] = useState<{ master: string, data: JettonMasterState } | null>(null);
 
-    const onAssetSelected = useCallback((address?: Address) => {
+    const onAssetSelected = useCallback((address?: string) => {
         if (address) {
-            const data = engine.persistence.jettonMasters.item(address).value;
-            if (data) {
-                setJetton({ master: address, data });
+            let content = queryClient.getQueryData<JettonMasterState>(Queries.Jettons().MasterContent(address));
+            if (!content) {
+                console.warn('no content: ' + address);
                 return;
             }
+
+            setJetton({
+                master: address,
+                data: content,
+            });
         }
-        setJetton(null);
-    }, []);
+    }, [isTestnet]);
 
     const link = useMemo(() => {
         if (jetton) {
-            return `https://${AppConfig.isTestnet ? 'test.' : ''}tonhub.com/transfer`
-                + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
-                + `?jetton=${jetton.master.toFriendly({ testOnly: AppConfig.isTestnet })}`
+            return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
+                + `/${address.addressString}`
+                + `?jetton=${jetton.master}`
         }
-        return `https://${AppConfig.isTestnet ? 'test.' : ''}tonhub.com/transfer`
-            + `/${address.toFriendly({ testOnly: AppConfig.isTestnet })}`
+        return `https://${isTestnet ? 'test.' : ''}tonhub.com/transfer`
+            + `/${address.addressString}`
     }, [jetton]);
 
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             justifyContent: 'space-between', alignItems: 'center',
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t('receive.title')} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17 }}>
+                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17 }}>
                         {t('receive.title')}
                     </Text>
                 )}
@@ -76,7 +75,7 @@ export const ReceiveFragment = fragment(() => {
             <View style={{ padding: 16, width: '100%' }}>
                 <View style={{
                     justifyContent: 'center',
-                    backgroundColor: Theme.item, borderRadius: 20,
+                    backgroundColor: theme.item, borderRadius: 20,
                     marginHorizontal: 16, padding: 14,
                     minHeight: 358
                 }}>
@@ -120,7 +119,7 @@ export const ReceiveFragment = fragment(() => {
                                 <View style={{ justifyContent: 'space-between' }}>
                                     <Text style={{
                                         fontSize: 16,
-                                        color: Theme.textColor, fontWeight: '600',
+                                        color: theme.textColor, fontWeight: '600',
                                     }}>
                                         {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
                                     </Text>
@@ -128,15 +127,15 @@ export const ReceiveFragment = fragment(() => {
                                         style={{
                                             fontSize: 14,
                                             fontWeight: '400',
-                                            color: Theme.price,
+                                            color: theme.price,
                                         }}
                                         selectable={false}
                                         ellipsizeMode={'middle'}
                                     >
                                         {
-                                            friendly.slice(0, 6)
+                                            address.addressString.slice(0, 6)
                                             + '...'
-                                            + friendly.slice(friendly.length - 6)
+                                            + address.addressString.slice(address.addressString.length - 6)
                                         }
                                     </Text>
                                 </View>
@@ -152,11 +151,10 @@ export const ReceiveFragment = fragment(() => {
                         />
                     </View>
 
-                    <View style={{
-                        justifyContent: 'center'
-                    }}>
+                    <View style={{ justifyContent: 'center' }}>
                         <CopyButton
-                            body={address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                            showIcon
+                            body={address.addressString}
                             style={{ marginBottom: 8 }}
                         />
                         <ShareButton body={link} />

@@ -3,7 +3,6 @@ import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { DomainSubkey } from '../../../engine/products/ExtensionsProduct';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
@@ -11,8 +10,7 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { warn } from '../../../utils/log';
 import { createInjectSource, dispatchResponse } from './inject/createInjectSource';
 import { useInjectEngine } from './inject/useInjectEngine';
-import { useEngine } from '../../../engine/Engine';
-import { contractFromPublicKey } from '../../../engine/contractFromPublicKey';
+import { contractFromPublicKey, walletConfigFromContract } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
@@ -21,8 +19,13 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useTheme } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { getCurrentAddress } from '../../../storage/appState';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
+import { useDomainKey } from '../../../engine/hooks';
+import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
+import { DomainSubkey } from '../../../engine/state/domainKeys';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -32,27 +35,30 @@ export const AppComponent = memo((props: {
     title: string,
     domainKey: DomainSubkey
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
-    // 
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const domain = useMemo(() => extractDomain(props.endpoint), []);
+
+    const domainKey = useDomainKey(domain);
+    //
     // Track events
-    // 
-    const domain = extractDomain(props.endpoint);
+    //
     const navigation = useTypedNavigation();
     const start = useMemo(() => {
         return Date.now();
     }, []);
     const close = useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'ton-x' }, isTestnet);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' }, AppConfig.isTestnet);
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'ton-x' }, isTestnet);
 
     // 
     // Actions menu
     // 
 
     const onShare = useCallback(() => {
-        const link = generateAppLink(props.endpoint, props.title, AppConfig.isTestnet);
+        const link = generateAppLink(props.endpoint, props.title, isTestnet);
         if (Platform.OS === 'ios') {
             Share.share({ title: t('receive.share.title'), url: link });
         } else {
@@ -94,14 +100,14 @@ export const AppComponent = memo((props: {
     // Navigation
     //
 
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
+        const resolved = resolveUrl(event.url, isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;
@@ -122,22 +128,27 @@ export const AppComponent = memo((props: {
     // Injection
     //
 
-    const engine = useEngine();
     const injectSource = useMemo(() => {
-        const contract = contractFromPublicKey(engine.publicKey);
-        const walletConfig = contract.source.backup();
-        const walletType = contract.source.type;
-        const domain = extractDomain(props.endpoint);
+        const currentAccount = getCurrentAddress();
+        const contract = contractFromPublicKey(currentAccount.publicKey);
+        const config = walletConfigFromContract(contract);
 
-        let domainSign = engine.products.keys.createDomainSignature(domain);
+        const walletConfig = config.walletConfig;
+        const walletType = config.type;
+
+        if (!domainKey) {
+            return '';
+        }
+
+        let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource({
             version: 1,
             platform: Platform.OS,
             platformVersion: Platform.Version,
-            network: AppConfig.isTestnet ? 'testnet' : 'mainnet',
-            address: engine.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-            publicKey: engine.publicKey.toString('base64'),
+            network: isTestnet ? 'testnet' : 'mainnet',
+            address: currentAccount.address.toString({ testOnly: isTestnet }),
+            publicKey: currentAccount.publicKey.toString('base64'),
             walletConfig,
             walletType,
             signature: domainSign.signature,
@@ -149,8 +160,8 @@ export const AppComponent = memo((props: {
                 signature: domainSign.subkey.signature
             }
         });
-    }, []);
-    const injectionEngine = useInjectEngine(domain, props.title, AppConfig.isTestnet);
+    }, [domainKey]);
+    const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -189,20 +200,13 @@ export const AppComponent = memo((props: {
         if (e.nativeEvent.name === t('report.title')) onReport();
     }, [onShare, onReview, onReport]);
 
-    const endpoint = useMemo(() => {
-        const url = new URL(props.endpoint);
-        url.searchParams.set('utm_source', 'tonhub');
-        url.searchParams.set('utm_content', 'extension');
-        return url.toString();
-    }, [props.endpoint]);
-
     return (
         <>
             <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <View style={{ height: safeArea.top }} />
                 <WebView
                     ref={webRef}
-                    source={{ uri: endpoint }}
+                    source={{ uri: props.endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
@@ -257,7 +261,7 @@ export const AppComponent = memo((props: {
                     top: 0.5, left: 0, right: 0,
                     height: 0.5,
                     width: '100%',
-                    backgroundColor: Theme.headerDivider,
+                    backgroundColor: theme.headerDivider,
                     opacity: 0.08
                 }} />
             </View>

@@ -1,0 +1,13 @@
+diff --git a/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js b/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
+index 40f1723..b769fd9 100644
+--- a/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
++++ b/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
+@@ -8,7 +8,7 @@
+  */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getSecureRandomWords = exports.getSecureRandomBytes = void 0;
+-const getRandomBytes = require('expo-random').getRandomBytes;
++const getRandomBytes = require('expo-crypto').getRandomBytes;
+ function getSecureRandomBytes(size) {
+     return Buffer.from(getRandomBytes(size));
+ }

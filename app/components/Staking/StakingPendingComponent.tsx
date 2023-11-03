@@ -1,14 +1,14 @@
 import BN from "bn.js";
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
-import { Address, fromNano } from "ton";
+import { Address, fromNano } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
 import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
 import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { TransferAction } from "../../fragments/staking/StakingTransferFragment";
 import { t } from "../../i18n/t";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
 
 export const StakingPendingComponent = React.memo((
     {
@@ -18,43 +18,43 @@ export const StakingPendingComponent = React.memo((
         style
     }: {
         member?: {
-            balance: BN,
-            pendingDeposit: BN,
-            pendingWithdraw: BN,
-            withdraw: BN
+            balance: bigint,
+            pendingDeposit: bigint,
+            pendingWithdraw: bigint,
+            withdraw: bigint
         } | null,
         target: Address,
         params?: {
-            minStake: BN,
-            depositFee: BN,
-            withdrawFee: BN,
-            receiptPrice: BN,
+            minStake: bigint,
+            depositFee: bigint,
+            withdrawFee: bigint,
+            receiptPrice: bigint,
             stakeUntil: number,
         } | null,
         style?: StyleProp<ViewStyle>
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
 
     if (!member) return null;
     if (
-        member.pendingDeposit.eqn(0)
-        && member.pendingWithdraw.eqn(0)
-        && member.withdraw.eqn(0)
+        member.pendingDeposit === 0n
+        && member.pendingWithdraw === 0n
+        && member.withdraw === 0n
     ) return null;
 
 
     return (
         <View style={[{
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
             paddingLeft: 16,
             marginBottom: 14
         }, style]}>
-            {member.pendingDeposit.gtn(0) && (
+            {member.pendingDeposit > 0n && (
                 <View style={{
                     flexDirection: 'row', width: '100%',
                     justifyContent: 'space-between', alignItems: 'center',
@@ -63,7 +63,7 @@ export const StakingPendingComponent = React.memo((
                 }}>
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.label
+                        color: theme.label
                     }}>
                         {t('products.staking.pending.deposit')}
                     </Text>
@@ -71,26 +71,26 @@ export const StakingPendingComponent = React.memo((
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 16,
-                            color: Theme.textColor
+                            color: theme.textColor
                         }}>
                             {parseFloat(parseFloat(fromNano(member.pendingDeposit)).toFixed(3)) + ' ' + 'TON'}
                         </Text>
                         <PriceComponent
                             amount={member.pendingDeposit}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 alignSelf: 'flex-end'
                             }}
-                            textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
+                            textStyle={{ color: theme.priceSecondary, fontWeight: '400' }} />
                     </View>
                 </View>)}
-            {member.pendingWithdraw.gtn(0) && (
+            {member.pendingWithdraw > 0n && (
                 <>
-                    {member.pendingDeposit.gtn(0) && (
+                    {member.pendingDeposit >= 0n && (
                         <View style={{
                             height: 1, width: '100%',
-                            backgroundColor: Theme.divider,
+                            backgroundColor: theme.divider,
                         }} />
                     )}
                     <View style={{
@@ -101,7 +101,7 @@ export const StakingPendingComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.label
+                            color: theme.label
                         }}>
                             {t('products.staking.pending.withdraw')}
                         </Text>
@@ -109,29 +109,29 @@ export const StakingPendingComponent = React.memo((
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: Theme.textColor
+                                color: theme.textColor
                             }}>
                                 {parseFloat(parseFloat(fromNano(member.pendingWithdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
                                 amount={member.pendingWithdraw}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
                                     alignSelf: 'flex-end'
                                 }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
+                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }} />
                         </View>
                     </View>
                 </>
             )}
 
-            {member.withdraw.gtn(0) && (
+            {member.withdraw > 0n && (
                 <>
-                    {(member.pendingWithdraw.gtn(0) || member.pendingDeposit.gtn(0)) && (
+                    {(member.pendingWithdraw > 0n || member.pendingDeposit > 0n) && (
                         <View style={{
                             height: 1, width: '100%',
-                            backgroundColor: Theme.divider,
+                            backgroundColor: theme.divider,
                         }} />
                     )}
                     <View style={{
@@ -142,7 +142,7 @@ export const StakingPendingComponent = React.memo((
                     }}>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.label
+                            color: theme.label
                         }}>
                             {t('products.staking.withdrawStatus.ready')}
                         </Text>
@@ -150,23 +150,23 @@ export const StakingPendingComponent = React.memo((
                             <Text style={{
                                 fontWeight: '600',
                                 fontSize: 16,
-                                color: Theme.pricePositive
+                                color: theme.pricePositive
                             }}>
                                 {parseFloat(parseFloat(fromNano(member.withdraw)).toFixed(3)) + ' ' + 'TON'}
                             </Text>
                             <PriceComponent
                                 amount={member.withdraw}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
                                     alignSelf: 'flex-end'
                                 }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }} />
+                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }} />
                         </View>
                     </View>
                     <View style={{
                         height: 1, width: '100%',
-                        backgroundColor: Theme.divider,
+                        backgroundColor: theme.divider,
                     }} />
                     <View style={{ marginHorizontal: 16, width: '100%' }}>
                         <Pressable
@@ -194,7 +194,7 @@ export const StakingPendingComponent = React.memo((
                                         <Text
                                             style={{
                                                 fontSize: 16,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 fontWeight: '500',
                                                 textAlignVertical: 'center',
                                                 marginLeft: 10,

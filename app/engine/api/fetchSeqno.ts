@@ -1,4 +1,5 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
+import { TonClient4 } from '@ton/ton';
 
 export async function fetchSeqno(client: TonClient4, block: number, address: Address) {
     let seqnoRes = await client.runMethod(block, address, 'seqno');
@@ -7,7 +8,7 @@ export async function fetchSeqno(client: TonClient4, block: number, address: Add
         if (seqnoRes.result[0].type !== 'int') {
             throw Error('Invalid response');
         }
-        seqno = seqnoRes.result[0].value.toNumber();
+        seqno = Number(seqnoRes.result[0].value);
     }
     return seqno;
 }

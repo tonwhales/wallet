@@ -3,44 +3,44 @@ import { fragment } from '../../fragment';
 import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useEngine } from '../../engine/Engine';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useAppConfig } from '../../utils/AppConfigContext';
-import { holdersUrl } from '../../engine/holders/HoldersProduct';
+import { useHoldersStatus } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useDomainKey } from '../../engine/hooks';
+import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
 export const HoldersAppFragment = fragment(() => {
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
+    const theme = useTheme();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const status = engine.products.holders.useStatus();
+    const status = useHoldersStatus();
+    const domain = extractDomain(holdersUrl);
+    const domainKey = useDomainKey(domain);
 
     const needsEnrollment = useMemo(() => {
         try {
-            let domain = extractDomain(holdersUrl);
             if (!domain) {
                 return; // Shouldn't happen
             }
-            let domainKey = engine.products.keys.getDomainKey(domain);
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrolment') {
+            if (status.state === 'need-enrollment') {
                 return true;
             }
         } catch (error) {
             return true;
         }
         return false;
-    }, [status]);
+    }, [status, domainKey]);
 
     useEffect(() => {
         if (needsEnrollment) {
@@ -52,7 +52,7 @@ export const HoldersAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.item
+            backgroundColor: theme.item
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 

@@ -5,49 +5,54 @@ import { Platform, TextInput, View, Text, TextInputProps, ScrollView } from "rea
 import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { fromNano, toNano } from "ton";
+import { fromNano, toNano } from "@ton/core";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";
-import { useEngine } from "../../engine/Engine";
-import { usePrice } from "../../engine/PriceContext";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { formatDate } from "../../utils/dates";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { getSixDigitHex } from "../../utils/getSixDigitHex";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useAccountBalanceChart } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { usePrice } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useSelectedAccount } from '../../engine/hooks';
 
 const AnimatedText = Animated.createAnimatedComponent(TextInput);
 
 export const AccountBalanceGraphFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    const balanceChart = engine.products.main.useAccountBalanceChart();
-    const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
+    const selected = useSelectedAccount();
+    const account = useAccountLite(selected!.address);
+    const balanceChart = useAccountBalanceChart();
+    // const last = engine.persistence.fullAccounts.item(engine.address).value?.last;
 
     const points: GraphPoint[] = useMemo(() => {
-        const temp = (balanceChart?.chart || []).map((p) => {
+        const temp = (balanceChart?.chart || []).map((p: any) => {
             return {
                 value: parseFloat(fromNano(p.balance)),
                 date: new Date(p.ts)
             }
         });
 
-        if (account && last) {
-            const latest = engine.transactions.get(engine.address, last.lt.toString(10));
+        // TODO
+        // if (account && last) {
+        //     const latest = engine.transactions.get(engine.address, last.lt.toString(10));
 
-            if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
-                temp.push({
-                    value: parseFloat(fromNano(account.balance)),
-                    date: new Date(account.transactions[0].time * 1000)
-                });
-            }
-        }
+        //     if (latest && (latest.time * 1000 > temp[temp.length - 1].date.getTime())) {
+        //         temp.push({
+        //             value: parseFloat(fromNano(account.balance)),
+        //             date: new Date(account.transactions[0].time * 1000)
+        //         });
+        //     }
+        // }
 
         return temp;
     }, [balanceChart, account]);
@@ -142,7 +147,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,
@@ -150,9 +155,9 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         }}
                         editable={false}
                     />
-                    {(price && !AppConfig.isTestnet) && (
+                    {(price && !isTestnet) && (
                         <View style={[{
-                            backgroundColor: Theme.accent,
+                            backgroundColor: theme.accent,
                             borderRadius: 9,
                             height: 24,
                             alignSelf: 'flex-start',
@@ -185,20 +190,20 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 width: '100%', aspectRatio: 1.2,
                                 paddingHorizontal: 8,
                             }]}
-                            selectionDotShadowColor={Theme.accent}
+                            selectionDotShadowColor={theme.accent}
                             verticalPadding={32}
                             lineThickness={5}
                             animated={true}
-                            color={Theme.accent}
+                            color={theme.accent}
                             points={points}
                             enablePanGesture={true}
                             enableFadeInMask={true}
                             gradientFillColors={[
-                                `${getSixDigitHex(Theme.accent)}00`,
-                                `${getSixDigitHex(Theme.accent)}ff`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}33`,
-                                `${getSixDigitHex(Theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}00`,
+                                `${getSixDigitHex(theme.accent)}ff`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}33`,
+                                `${getSixDigitHex(theme.accent)}00`,
                             ]}
                             horizontalPadding={2}
                             onPointSelected={onPointSelected}
@@ -209,7 +214,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 style={{
                                     height: 40,
                                     marginTop: 2,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     fontSize: 14,
                                     fontWeight: '600',
                                     textAlign: "center",

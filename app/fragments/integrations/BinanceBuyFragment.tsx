@@ -9,13 +9,14 @@ import { t } from "../../i18n/t";
 import { getCurrentAddress } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import Animated, { FadeOut } from "react-native-reanimated";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
+import { useNetwork, useTheme } from '../../engine/hooks';
 
 export const BinanceBuyFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     const params = useParams<{
         amount?: string,
@@ -29,7 +30,7 @@ export const BinanceBuyFragment = fragment(() => {
     const wref = React.useRef<WebView>(null);
 
     const queryParams = useMemo(() => new URLSearchParams({
-        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        address: address.address.toString({ testOnly: isTestnet }),
         // reverse: 'true',
         // amount: '100',
         ...params
@@ -47,7 +48,7 @@ export const BinanceBuyFragment = fragment(() => {
         return false;
     }, [main]);
 
-    if (!AppConfig.isTestnet) {
+    if (!isTestnet) {
         return (
             <View style={{
                 flexGrow: 1,
@@ -55,7 +56,7 @@ export const BinanceBuyFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: Theme.textColor
+                    color: theme.textColor
                 }}>
                     {'Binance Pay service availible only on testnet'}
                 </Text>
@@ -83,7 +84,7 @@ export const BinanceBuyFragment = fragment(() => {
                         marginRight: 16
                     }}
                 >
-                    <Text style={{ color: Theme.accent, fontWeight: '500', fontSize: 17 }}>
+                    <Text style={{ color: theme.accent, fontWeight: '500', fontSize: 17 }}>
                         {t('common.close')}
                     </Text>
                 </Pressable>

@@ -4,17 +4,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { postExtensionReport } from "../../../../engine/api/reviews";
-import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { Picker } from '@react-native-picker/picker';
-import { useAppConfig } from "../../../../utils/AppConfigContext";
+import { useTheme } from '../../../../engine/hooks';
+import { useAppData } from '../../../../engine/hooks';
+import { useNetwork } from "../../../../engine/hooks/network/useNetwork";
 
 export const ReportComponent = React.memo(({ url }: { url: string }) => {
-    const engine = useEngine();
-    const { Theme, AppConfig } = useAppConfig();
-    const appData = engine.products.extensions.useAppData(url);
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const appData = useAppData(url);
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const navigation = useTypedNavigation();
@@ -28,7 +29,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
             try {
                 await postExtensionReport(url, {
                     type,
-                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    address: address.toString({ testOnly: isTestnet }),
                     comment: {
                         text: report,
                         images: []
@@ -61,7 +62,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         fontSize: 24,
                         marginHorizontal: 16,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '600',
                         marginTop: 10
                     }}
@@ -71,7 +72,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     marginHorizontal: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -81,7 +82,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         onValueChange={setReport}
                         keyboardType="default"
                         autoCapitalize="sentences"
-                        style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
+                        style={{ backgroundColor: theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
                         preventDefaultHeight
                         multiline
                         label={
@@ -95,7 +96,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: Theme.label,
+                                    color: theme.label,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('report.message')}
@@ -107,7 +108,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 2,
                     marginHorizontal: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -124,7 +125,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: Theme.label,
+                            color: theme.label,
                             alignSelf: 'flex-start',
                         }}>
                             {t('report.reason')}

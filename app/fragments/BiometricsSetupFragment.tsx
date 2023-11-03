@@ -2,12 +2,9 @@ import * as React from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { systemFragment } from '../systemFragment';
-import { useAppConfig } from '../utils/AppConfigContext';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { DeviceEncryption, getDeviceEncryption } from '../storage/getDeviceEncryption';
-import { useEngine } from '../engine/Engine';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../storage/secureStorage';
-import { getCurrentAddress } from '../storage/appState';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,15 +17,17 @@ import { RoundButton } from '../components/RoundButton';
 import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { CloseButton } from '../components/CloseButton';
+import { useBiometricsState } from '../engine/hooks';
+import { useTheme } from '../engine/hooks';
+import { useSetBiometricsState } from '../engine/hooks';
 
 export const BiometricsSetupFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
     const authContext = useKeysAuth();
-    const settings = engine.products.settings;
-    const biometricsState = settings.useBiometricsState();
+    const biometricsState = useBiometricsState();
+    const setBiometricsState = useSetBiometricsState();
 
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
 
@@ -92,7 +91,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
 
     // Action
     const [loading, setLoading] = React.useState(false);
-    const onClick = React.useCallback((bypassEncryption?: boolean) => {
+    const onClick = useCallback((bypassEncryption?: boolean) => {
         (async () => {
             setLoading(true);
             try {
@@ -100,7 +99,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
                     const authRes = await authContext.authenticateWithPasscode();
                     await encryptAndStoreAppKeyWithBiometrics(authRes.passcode);
 
-                    settings.setBiometricsState(BiometricsState.InUse);
+                    setBiometricsState(BiometricsState.InUse);
                 } catch (e) {
                     // Ignore
                     warn('Failed to generate new key');
@@ -123,7 +122,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             justifyContent: 'center',
             alignContent: 'center'
         }}>

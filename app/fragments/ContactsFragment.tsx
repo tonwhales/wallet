@@ -1,39 +1,43 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import React, { RefObject, createRef, useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
 import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AddressDomainInput } from "../components/AddressDomainInput";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
+import { useSelectedAccount } from '../engine/hooks';
+import { useAccountTransactions } from '../engine/hooks';
+import { useClient4 } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
+import { useContacts } from "../engine/hooks/contacts/useContacts";
+import { TransactionDescription } from '../engine/types';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    const transactions = account?.transactions ?? [];
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const settings = engine.products.settings;
-    const contacts = settings.useContacts();
+    const contacts = useContacts();
+    const account = useSelectedAccount();
+    let client = useClient4(useNetwork().isTestnet);
+    const transactions = useAccountTransactions(client, account?.addressString ?? '');
 
     const [addingAddress, setAddingAddress] = useState(false);
-    const [domain, setDomain] = React.useState<string>();
-    const [target, setTarget] = React.useState('');
-    const [addressDomainInput, setAddressDomainInput] = React.useState('');
-    const inputRef: React.RefObject<ATextInputRef> = React.createRef();
+    const [domain, setDomain] = useState<string>();
+    const [target, setTarget] = useState('');
+    const [addressDomainInput, setAddressDomainInput] = useState('');
+    const inputRef: RefObject<ATextInputRef> = createRef();
     const validAddress = useMemo(() => {
         try {
             const valid = target.trim();
@@ -44,15 +48,12 @@ export const ContactsFragment = fragment(() => {
         }
     }, [target]);
 
-    const onAddContact = useCallback(
-        () => {
-            if (validAddress) {
-                setAddingAddress(false);
-                navigation.navigate('Contact', { address: validAddress });
-            }
-        },
-        [validAddress],
-    );
+    const onAddContact = useCallback(() => {
+        if (validAddress) {
+            setAddingAddress(false);
+            navigation.navigate('Contact', { address: validAddress });
+        }
+    }, [validAddress]);
 
     const contactsList = useMemo(() => {
         return Object.entries(contacts);
@@ -64,46 +65,53 @@ export const ContactsFragment = fragment(() => {
         });
     }, [contactsList, target]);
 
-    const transactionsComponents: any[] = React.useMemo(() => {
-        let transactionsSectioned: { title: string, items: string[] }[] = [];
-        if (transactions.length > 0) {
-            let lastTime: string = getDateKey(transactions[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(transactions[0].time);
+    const transactionsComponents: any[] = useMemo(() => {
+        if (!transactions || !account) {
+            return [];
+        }
+
+        let transactionsSectioned: { title: string, items: TransactionDescription[] }[] = [];
+        if (transactions.data.length > 0) {
+            let lastTime: string = getDateKey(transactions.data[0].base.time);
+            let lastSection: TransactionDescription[] = [];
+            let title = formatDate(transactions.data[0].base.time);
             transactionsSectioned.push({ title, items: lastSection });
-            for (let t of transactions.length >= 3 ? transactions.slice(0, 3) : transactions) {
-                let time = getDateKey(t.time);
+            for (let t of transactions.data.length >= 3 ? transactions.data.slice(0, 3) : transactions.data) {
+                let time = getDateKey(t.base.time);
                 if (lastTime !== time) {
                     lastSection = [];
                     lastTime = time;
-                    title = formatDate(t.time);
+                    title = formatDate(t.base.time);
                     transactionsSectioned.push({ title, items: lastSection });
                 }
-                lastSection.push(t.id);
+                lastSection.push(t);
             }
         }
 
         const views = [];
         for (let s of transactionsSectioned) {
             views.push(
-                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                     <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
                 </View>
             );
             views.push(
                 <View
                     key={'s-' + s.title}
-                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
+                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.item, overflow: 'hidden' }}
                     collapsable={false}
                 >
-                    {s.items.map((t, i) => <TransactionView
-                        own={engine.address}
-                        engine={engine}
-                        tx={t}
-                        separator={i < s.items.length - 1}
-                        key={'tx-' + t}
-                        onPress={() => { }}
-                    />)}
+                    {s.items.map((t, i) => (
+                        <TransactionView
+                            own={account.address}
+                            tx={t}
+                            separator={i < s.items.length - 1}
+                            key={'tx-' + t.id}
+                            onPress={() => { }}
+                            theme={theme}
+                            fontScaleNormal={true}
+                        />
+                    ))}
                 </View >
             );
         }
@@ -165,14 +173,14 @@ export const ContactsFragment = fragment(() => {
                             marginHorizontal: 8,
                             marginBottom: 8,
                             textAlign: 'center',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                         }}
                         >
                             {t('contacts.empty')}
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: Theme.priceSecondary
+                            color: theme.priceSecondary
                         }}>
                             {t('contacts.description')}
                         </Text>
@@ -217,7 +225,7 @@ export const ContactsFragment = fragment(() => {
                             <Animated.View entering={FadeInDown}>
                                 <View style={{
                                     marginBottom: 16, marginTop: 17,
-                                    backgroundColor: Theme.item,
+                                    backgroundColor: theme.item,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -231,7 +239,7 @@ export const ContactsFragment = fragment(() => {
                                         onTargetChange={setTarget}
                                         onDomainChange={setDomain}
                                         style={{
-                                            backgroundColor: Theme.transparent,
+                                            backgroundColor: theme.transparent,
                                             paddingHorizontal: 0,
                                             marginHorizontal: 16,
                                         }}
@@ -244,7 +252,7 @@ export const ContactsFragment = fragment(() => {
                         {Platform.OS !== 'android' && (
                             <View style={{
                                 marginBottom: 16, marginTop: 17,
-                                backgroundColor: Theme.item,
+                                backgroundColor: theme.item,
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -258,7 +266,7 @@ export const ContactsFragment = fragment(() => {
                                     onTargetChange={setTarget}
                                     onDomainChange={setDomain}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
                                         marginHorizontal: 16,
                                     }}

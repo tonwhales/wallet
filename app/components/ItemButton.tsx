@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Pressable, View, Text, Image, ImageSourcePropType } from 'react-native';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 export const ItemButton = React.memo((props: {
     title?: string,
@@ -10,7 +10,7 @@ export const ItemButton = React.memo((props: {
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     return (
         <Pressable style={(props) => ({ opacity: props.pressed ? 0.3 : 1, flexDirection: 'row', alignItems: 'center' })} onPress={props.onPress}>
             <View style={{
@@ -21,7 +21,7 @@ export const ItemButton = React.memo((props: {
                 flexDirection: 'row', flexGrow: 1, flexBasis: 0
             }}>
                 <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    {props.leftIcon && (<Image style={{ height: 24, width: 24 }} source={props.leftIcon} />)}
+                    {props.leftIcon && (<Image style={{ height: 24, width: 24, tintColor: props.dangerZone ? theme.dangerZone : theme.textColor }} source={props.leftIcon} />)}
                     {!!props.leftIconComponent && (
                         <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }}>
                             {props.leftIconComponent}
@@ -31,7 +31,7 @@ export const ItemButton = React.memo((props: {
                         style={{
                             fontSize: 17,
                             textAlignVertical: 'center',
-                            color: props.dangerZone ? "#FF0000" : Theme.textColor,
+                            color: props.dangerZone ? theme.dangerZone : theme.textColor,
                             marginLeft: 13,
                             lineHeight: 24,
                         }}
@@ -43,7 +43,7 @@ export const ItemButton = React.memo((props: {
                 </View>
                 {props.hint && (
                     <View style={{ flexGrow: 0, flexShrink: 0, paddingLeft: 8 }}>
-                        <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: Theme.textSecondary }}>
+                        <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: theme.textSecondary }}>
                             {props.hint}
                         </Text>
                     </View>

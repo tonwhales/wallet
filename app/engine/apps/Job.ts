@@ -1,10 +1,9 @@
-import BN from "bn.js"
-import { Address, Cell } from "ton"
+import { Address, Cell } from "@ton/core"
 
 export type Job = {
     type: 'transaction',
     target: Address,
-    amount: BN,
+    amount: bigint,
     text: string,
     payload: Cell | null,
     stateInit: Cell | null,

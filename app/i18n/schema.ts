@@ -52,6 +52,7 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
+        airdrop: string
     },
     syncStatus: {
         connecting: string,
@@ -99,7 +100,8 @@ export type LocalizationSchema = {
         bounced: string,
         tokenTransfer: string,
         airdrop: string,
-        failed: string
+        failed: string,
+        batch: string
     },
     txPreview: {
         sendAgain: string,
@@ -224,7 +226,8 @@ export type LocalizationSchema = {
         title: string,
         requestingPermission: string,
         noPermission: string,
-        requestPermission: string
+        requestPermission: string,
+        failedToReadFromImage: string
     },
     products: {
         tonConnect: {

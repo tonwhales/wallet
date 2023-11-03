@@ -6,13 +6,13 @@ import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
-import { markAsTermsAccepted } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { markAsTermsAccepted } from '../../storage/terms';
 
 export const LegalFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -40,7 +40,7 @@ export const LegalFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: Theme.textSubtitle,
+                    color: theme.textSubtitle,
                     fontSize: 14,
                     marginTop: 14,
                 }}>
@@ -52,14 +52,14 @@ export const LegalFragment = systemFragment(() => {
                     <Text
                         style={{
                             textAlign: 'center',
-                            fontSize: 14, color: Theme.accentText
+                            fontSize: 14, color: theme.accentText
                         }}
                         onPress={() => navigation.navigate('Privacy')}>
                         {t('legal.privacyPolicy')}
                     </Text>
                     <Text style={{
                         textAlign: 'center',
-                        color: Theme.textSubtitle,
+                        color: theme.textSubtitle,
                         fontSize: 14,
                     }}>
                         {' ' + t('common.and') + ' '}
@@ -67,7 +67,7 @@ export const LegalFragment = systemFragment(() => {
                     <Text style={{
                         textAlign: 'center',
                         fontSize: 14,
-                        color: Theme.accentText
+                        color: theme.accentText
                     }}
                         onPress={() => navigation.navigate('Terms')}>
                         {t('legal.termsOfService')}

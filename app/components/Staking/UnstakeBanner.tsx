@@ -1,13 +1,13 @@
 import React, { useLayoutEffect, useRef } from "react"
 import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
-import BN from "bn.js";
-import { fromNano, toNano } from "ton";
-import { useEngine } from "../../engine/Engine";
+import { fromNano, toNano } from "@ton/core";
 import { formatNum } from "../../utils/numbers";
 import { t } from "../../i18n/t";
 import { formatCurrency } from "../../utils/formatCurrency";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { usePrice } from '../../engine/hooks';
 
 export const UnstakeBanner = React.memo((
     {
@@ -16,19 +16,19 @@ export const UnstakeBanner = React.memo((
         amount
     }: {
         member: {
-            balance: BN,
-            pendingDeposit: BN,
-            pendingWithdraw: BN,
-            withdraw: BN
+            balance: bigint,
+            pendingDeposit: bigint,
+            pendingWithdraw: bigint,
+            withdraw: bigint
         },
         style?: StyleProp<ViewStyle>,
         amount?: string
     }
 ) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const price = engine.products.price.useState();
-    const currency = engine.products.price.usePrimaryCurrency();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    
+    const [price, currency] = usePrice();
     const anim = useRef<LottieView>(null);
 
     useLayoutEffect(() => {
@@ -44,7 +44,7 @@ export const UnstakeBanner = React.memo((
         try {
             return toNano(validAmount);
         } catch (error) {
-            return new BN(0);
+            return BigInt(0);
         }
     }, [validAmount]);
     const estInc = parseFloat(fromNano(value)) * 0.1;
@@ -54,7 +54,7 @@ export const UnstakeBanner = React.memo((
 
     return (
         <View style={{
-            backgroundColor: Theme.item,
+            backgroundColor: theme.item,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -68,14 +68,14 @@ export const UnstakeBanner = React.memo((
                 style={{ width: 94, height: 94, marginBottom: 16, maxWidth: 140, maxHeight: 140 }}
             />
             <Text style={{
-                color: Theme.textColor,
+                color: theme.textColor,
                 fontSize: 16,
                 fontWeight: '600',
                 textAlign: 'center',
                 maxWidth: 240,
                 marginBottom: 10
             }}>
-                {AppConfig.isTestnet
+                {isTestnet
                     ? t('products.staking.banner.estimatedEarningsDev')
                     : t('products.staking.banner.estimatedEarnings',
                         {
@@ -85,7 +85,7 @@ export const UnstakeBanner = React.memo((
                     )}
             </Text>
             <Text style={{
-                color: Theme.label,
+                color: theme.label,
                 fontSize: 16,
                 fontWeight: '400'
             }}>

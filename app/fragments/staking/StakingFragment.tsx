@@ -5,64 +5,69 @@ import { Ionicons } from '@expo/vector-icons';
 import { View, Text, Platform, useWindowDimensions, Image, Pressable, TouchableNativeFeedback } from "react-native";
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, toNano } from "ton";
+import { Address, toNano } from "@ton/core";
 import { AddressComponent } from "../../components/AddressComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
-import { getCurrentAddress } from "../../storage/appState";
-import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
-import { StakingCycle } from "../../components/Staking/StakingCycle";
-import { StakingPendingComponent } from "../../components/Staking/StakingPendingComponent";
+import { StakingCycle } from "../../components/staking/StakingCycle";
+import { StakingPendingComponent } from "../../components/staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { RestrictedPoolBanner } from "../../components/Staking/RestrictedPoolBanner";
+import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
 import GraphIcon from '../../../assets/ic_graph.svg';
-import { CalculatorButton } from "../../components/Staking/CalculatorButton";
-import { BN } from "bn.js";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { CalculatorButton } from "../../components/staking/CalculatorButton";
+import { useTheme } from '../../engine/hooks';
 import { StakingPoolType } from "./StakingPoolsFragment";
+import { useStakingPool } from '../../engine/hooks';
+import { useStaking } from '../../engine/hooks';
+import { useStakingChart } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { getCurrentAddress } from "../../storage/appState";
 
 export const StakingFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const params = useParams<{ backToHome?: boolean, pool: string }>();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const acc = useMemo(() => getCurrentAddress(), []);
     const target = Address.parse(params.pool);
-    const pool = engine.products.whalesStakingPools.usePool(target);
+    const pool = useStakingPool(target);
     const poolParams = pool?.params;
     const member = pool?.member;
-    const staking = engine.products.whalesStakingPools.useStaking();
-    const stakingChart = engine.products.whalesStakingPools.useStakingChart(target);
+    const staking = useStaking();
+    const stakingChart = useStakingChart(target, acc.address);
 
     let type: StakingPoolType = useMemo(() => {
-        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
+        if (KnownPools(isTestnet)[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
         }
-        if (KnownPools(AppConfig.isTestnet)[params.pool].name.toLowerCase().includes('team')) {
+        if (KnownPools(isTestnet)[params.pool].name.toLowerCase().includes('team')) {
             return 'team';
         }
         return 'nominators'
     }, [staking]);
 
     let available = useMemo(() => {
-        if (AppConfig.isTestnet) {
+        if (isTestnet) {
             return true;
         }
         return !!staking.config!.pools.find((v2) => Address.parse(v2).equals(target))
     }, [staking, target]);
 
     let canWithdraw = useMemo(() => {
-        return member?.balance.add(member.withdraw).gt(new BN(0));
+        if (!member) {
+            return false;
+        }
+        return member.balance + member.withdraw > 0n;
     }, [member]);
 
     const window = useWindowDimensions();
@@ -139,9 +144,12 @@ export const StakingFragment = fragment(() => {
     }, []);
 
     const onTopUp = useCallback(() => {
+        if (!pool) {
+            return;
+        }
         navigation.navigateStaking({
             target: target,
-            amount: pool?.params.minStake.add(pool.params.receiptPrice).add(pool.params.depositFee),
+            amount: pool?.params.minStake + pool.params.receiptPrice + pool.params.depositFee,
             lockAddress: true,
             lockComment: true,
             action: 'top_up' as TransferAction,
@@ -159,16 +167,16 @@ export const StakingFragment = fragment(() => {
 
     const openMoreInfo = useCallback(
         () => {
-            openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
+            openWithInApp(isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking');
         },
         [],
     );
 
     const openGraph = useCallback(() => {
         if (!!stakingChart) {
-            navigation.navigate('StakingGraph', { pool: target.toFriendly({ testOnly: AppConfig.isTestnet }) });
+            navigation.navigate('StakingGraph', { pool: target.toString({ testOnly: isTestnet }) });
         }
-    }, [member]);
+    }, [member, stakingChart]);
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
@@ -238,7 +246,7 @@ export const StakingFragment = fragment(() => {
                     <PriceComponent amount={member?.balance || toNano('0')} style={{ marginHorizontal: 22, marginTop: 6 }} />
                     <View style={{ flexGrow: 1 }} />
                     <WalletAddress
-                        value={target.toFriendly({ testOnly: AppConfig.isTestnet })}
+                        value={target.toString({ testOnly: isTestnet })}
                         address={target}
                         elipsise
                         style={{
@@ -258,20 +266,26 @@ export const StakingFragment = fragment(() => {
                 <StakingPendingComponent
                     target={target}
                     style={{ marginHorizontal: 16 }}
-                    params={poolParams}
+                    params={{
+                        depositFee: poolParams?.depositFee || toNano('0.1'),
+                        withdrawFee: poolParams?.withdrawFee || toNano('0.1'),
+                        minStake: poolParams?.minStake || toNano('49.8'),
+                        receiptPrice: poolParams?.receiptPrice || toNano('0.1'),
+                        stakeUntil: pool?.status.proxyStakeUntil || 0,
+                    }}
                     member={member}
                 />
                 {pool && (
                     <StakingCycle
-                        stakeUntil={pool.params.stakeUntil}
-                        locked={pool.params.locked}
+                        stakeUntil={pool.status.proxyStakeUntil}
+                        locked={pool.status.locked}
                         style={{
                             marginHorizontal: 16,
                             marginBottom: 14
                         }}
                     />
                 )}
-                {!AppConfig.isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
+                {!isTestnet && <CalculatorButton target={target} style={{ marginHorizontal: 16 }} />}
                 {type !== 'nominators' && !available && (
                     <RestrictedPoolBanner type={type} />
                 )}
@@ -284,7 +298,7 @@ export const StakingFragment = fragment(() => {
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
                     }}>
-                        <View style={{ backgroundColor: Theme.background, opacity: 0.9, flexGrow: 1 }} />
+                        <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
                         <BlurView style={{
                             position: 'absolute',
                             top: 0, left: 0, right: 0, bottom: 0,
@@ -311,11 +325,11 @@ export const StakingFragment = fragment(() => {
                                         }
                                         navigation.goBack();
                                     }}
-                                    tintColor={Theme.accent}
+                                    tintColor={theme.accent}
                                 />
                                 <Animated.Text
                                     style={[
-                                        { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                        { fontSize: 17, color: theme.textColor, fontWeight: '600' },
                                         { position: 'relative', ...titleOpacityStyle },
                                     ]}
                                 >
@@ -386,7 +400,7 @@ export const StakingFragment = fragment(() => {
                                 >
                                     <Text
                                         style={{
-                                            color: Theme.accent,
+                                            color: theme.accent,
                                             fontSize: 17, fontWeight: '600'
                                         }}
                                     >
@@ -400,7 +414,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View >
@@ -413,7 +427,7 @@ export const StakingFragment = fragment(() => {
                         position: 'absolute',
                         top: 0, left: 0, right: 0,
                         height: safeArea.top + 44,
-                        backgroundColor: Theme.background,
+                        backgroundColor: theme.background,
                         paddingTop: safeArea.top,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -434,15 +448,15 @@ export const StakingFragment = fragment(() => {
                                         }
                                         navigation.goBack();
                                     }}
-                                    background={TouchableNativeFeedback.Ripple(Theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
+                                    background={TouchableNativeFeedback.Ripple(theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                                 >
                                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Ionicons name="arrow-back-outline" size={28} color={Theme.accent} />
+                                        <Ionicons name="arrow-back-outline" size={28} color={theme.accent} />
                                     </View>
                                 </TouchableNativeFeedback>
                             </View>
                             <Animated.Text style={[
-                                { fontSize: 17, color: Theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
                                 {t('products.staking.title')}
@@ -513,7 +527,7 @@ export const StakingFragment = fragment(() => {
                             }}>
                                 <Text
                                     style={{
-                                        color: Theme.accent,
+                                        color: theme.accent,
                                         fontSize: 17, fontWeight: '600'
                                     }}
                                 >
@@ -526,7 +540,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: Theme.headerDivider,
+                            backgroundColor: theme.headerDivider,
                             opacity: 0.08
                         }} />
                     </View>

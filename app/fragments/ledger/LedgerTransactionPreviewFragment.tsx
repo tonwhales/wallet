@@ -1,11 +1,10 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Platform, Text, Pressable, ToastAndroid, ScrollView, NativeSyntheticEvent } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { CloseButton } from "../../components/CloseButton";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "ton";
-import BN from "bn.js";
+import { Address, fromNano } from "@ton/core";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -13,7 +12,6 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
-import { Engine, useEngine } from "../../engine/Engine";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import VerifiedIcon from '../../../assets/ic_verified.svg';
 import ContactIcon from '../../../assets/ic_contacts.svg';
@@ -24,37 +22,41 @@ import { PriceComponent } from "../../components/PriceComponent";
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
-import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { Body } from "../../engine/Transaction";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { TransactionDescription } from "../../engine/products/WalletProduct";
 import { useTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useSpamMinAmount } from '../../engine/hooks';
+import { useDontShowComments } from '../../engine/hooks';
+import { useDenyAddress } from '../../engine/hooks';
+import { useIsSpamWallet } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { BigMath } from '../../utils/BigMath';
+import { useContact } from '../../engine/hooks';
+import { TransactionDescription, TxBody } from '../../engine/types';
 
-const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, address }: { transaction: TransactionDescription, transactionHash: string, engine: Engine, address: Address }) => {
-    const { Theme, AppConfig } = useAppConfig();
+const LoadedTransaction = memo(({ transaction, transactionHash, address }: { transaction: TransactionDescription, transactionHash: string, address: Address }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    let operation = transaction.operation;
-    let friendlyAddress = operation.address.toFriendly({ testOnly: AppConfig.isTestnet });
-    let item = transaction.operation.items[0];
+
+    let operation = transaction.base.operation;
+    let friendlyAddress = operation.address;
+    let item = operation.items[0];
     let op: string;
     if (operation.op) {
-        op = operation.op;
-        if (op === 'airdrop') {
-            op = t('tx.airdrop');
-        }
+        op = t(operation.op.res, operation.op.options);
     } else {
-        if (transaction.base.kind === 'out') {
-            if (transaction.base.status === 'pending') {
+        if (transaction.base.parsed.kind === 'out') {
+            if (transaction.base.parsed.status === 'pending') {
                 op = t('tx.sending');
             } else {
                 op = t('tx.sent');
             }
-        } else if (transaction.base.kind === 'in') {
-            if (transaction.base.bounced) {
+        } else if (transaction.base.parsed.kind === 'in') {
+            if (transaction.base.parsed.bounced) {
                 op = '⚠️ ' + t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -64,13 +66,18 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
         }
     }
 
-    const verified = !!transaction.verified
-        || !!KnownJettonMasters(AppConfig.isTestnet)[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
+    const opAddress = useMemo(() => {
+        try {
+            return Address.parse(friendlyAddress);
+        } catch {
+            return null;
+        }
+    }, [friendlyAddress]);
 
-    let body: Body | null = null;
-    if (transaction.base.body?.type === 'payload') {
-        body = parseBody(transaction.base.body.cell);
-    }
+    const verified = !!transaction.verified
+        || !!KnownJettonMasters(isTestnet)[friendlyAddress];
+
+    let body: TxBody | null = transaction.base.parsed.body;
 
     const txId = useMemo(() => {
         if (!transaction.base.lt) {
@@ -91,36 +98,36 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
         if (!transactionHash) {
             return null;
         }
-        return (AppConfig.isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
+        return (isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com')
             + '/explorer/address/' +
-            address.toFriendly() +
+            address.toString() +
             '/' + txId
     }, [txId]);
 
-    const contact = engine.products.settings.useContactAddress(operation.address);
+    const contact = useContact(friendlyAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyAddress]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyAddress];
-    } else if (operation.title) {
-        known = { name: operation.title };
+    if (KnownWallets(isTestnet)[friendlyAddress]) {
+        known = KnownWallets(isTestnet)[friendlyAddress];
+    } else if (operation.op) {
+        known = { name: t(operation.op.res, operation.op.options) };
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const spamMinAmount = engine.products.settings.useSpamMinAmount();
-    const dontShowComments = engine.products.settings.useDontShowComments();
-    const isSpam = engine.products.settings.useDenyAddress(operation.address);
+    const [spamMinAmount, ] = useSpamMinAmount();
+    const [dontShowComments,] = useDontShowComments();
+    const isSpam = useDenyAddress(friendlyAddress);
 
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(friendlyAddress)
         || isSpam
         || (
-            transaction.base.amount.abs().lt(spamMinAmount)
-            && transaction.base.body?.type === 'comment'
-            && !KnownWallets(AppConfig.isTestnet)[friendlyAddress]
-            && !AppConfig.isTestnet
-        ) && transaction.base.kind !== 'out';
+            BigMath.abs(BigInt(transaction.base.parsed.amount)) < spamMinAmount
+            && transaction.base.parsed.body?.type === 'comment'
+            && !KnownWallets(isTestnet)[friendlyAddress]
+            && !isTestnet
+        ) && transaction.base.parsed.kind !== 'out';
 
     const onCopy = React.useCallback((body: string) => {
         if (Platform.OS === 'android') {
@@ -152,12 +159,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
             </View>
-            <Text style={{ color: Theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
+            <Text style={{ color: theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
                 {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
             </Text>
             {spam && (
@@ -171,7 +178,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                     paddingHorizontal: 4,
                     marginBottom: 8
                 }}>
-                    <Text style={{ color: Theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
+                    <Text style={{ color: theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
                 </View>
             )}
             <ScrollView
@@ -181,7 +188,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -189,7 +196,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: Theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -202,7 +209,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             verified={verified}
                         />
                     </View>
-                    {transaction.base.status === 'failed' ? (
+                    {transaction.base.parsed.status === 'failed' ? (
                         <Text style={{ color: 'orange', fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
@@ -210,9 +217,9 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                         <>
                             <Text
                                 style={{
-                                    color: item.amount.gte(new BN(0))
+                                    color: BigInt(item.amount) >= BigInt(0)
                                         ? spam
-                                            ? Theme.textColor
+                                            ? theme.textColor
                                             : '#4FAE42'
                                         : '#000000',
                                     fontWeight: '800',
@@ -223,11 +230,11 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             >
                                 <ValueComponent
                                     value={item.amount}
-                                    decimals={item.kind === 'token' ? item.decimals : undefined}
+                                    decimals={item.kind === 'token' ? transaction.masterMetadata?.decimals : undefined}
                                     precision={5}
                                 />
-                                {item.kind === 'token' ? ' ' + item.symbol : ''}
-                                {(item.kind === 'ton' && !AppConfig.isTestnet) ? ' ' + 'TON' : ''}
+                                {item.kind === 'token' ? ' ' + transaction.masterMetadata?.symbol : ''}
+                                {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
@@ -236,8 +243,8 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: Theme.price, fontWeight: '400', fontSize: 16 }}
-                                    amount={item.amount}
+                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
+                                    amount={BigInt(item.amount)}
                                 />
                             )}
                         </>
@@ -246,7 +253,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -256,7 +263,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -277,7 +284,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -287,7 +294,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: Theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -307,7 +314,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -322,7 +329,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: Theme.textSubtitle,
+                                color: theme.textSubtitle,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -339,7 +346,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                         if (contact) {
                                             navigation.navigate(
                                                 'Contact',
-                                                { address: operation.address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { address: friendlyAddress }
                                             );
                                         }
                                     }}
@@ -371,7 +378,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.textSubtitle,
+                                                color: theme.textSubtitle,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -385,7 +392,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                         </View>
                         <View style={{ flexDirection: 'row', alignItems: 'center', }}>
                             <WalletAddress
-                                address={operation.address || address}
+                                address={opAddress || address}
                                 textProps={{ numberOfLines: undefined }}
                                 textStyle={{
                                     textAlign: 'left',
@@ -399,12 +406,12 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={Theme.item}
+                                previewBackgroundColor={theme.item}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
                                 style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy((operation.address || address).toFriendly({ testOnly: AppConfig.isTestnet }))}
+                                onPress={() => onCopy((opAddress || address).toString({ testOnly: isTestnet }))}
                             >
                                 <CopyIcon />
                             </Pressable>
@@ -412,14 +419,14 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                     </View>
                     {txId && explorerLink && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                             <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16 }}>
                                 <View>
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: Theme.textSubtitle
+                                        color: theme.textSubtitle
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -428,7 +435,7 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: Theme.textColor,
+                                        color: theme.textColor,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -452,13 +459,13 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                             </View>
                         </>
                     )}
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                     <View style={{ width: '100%', paddingVertical: 10, paddingHorizontal: 16 }}>
                         <Text style={{
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: Theme.textSubtitle
+                            color: theme.textSubtitle
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
@@ -471,15 +478,15 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
                                 {fromNano(transaction.base.fees)}
-                                {!AppConfig.isTestnet && (' TON (')}
+                                {!isTestnet && (' TON (')}
                             </Text>
                             <PriceComponent
-                                amount={transaction.base.fees}
+                                amount={BigInt(transaction.base.fees)}
                                 style={{
                                     backgroundColor: 'transparent',
                                     paddingHorizontal: 0,
@@ -487,14 +494,14 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: Theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
-                            {!AppConfig.isTestnet && (
+                            {!isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>
@@ -521,17 +528,15 @@ const LoadedTransaction = React.memo(({ transaction, transactionHash, engine, ad
 
 export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const params = useParams<{ transaction: string }>();
+    const theme = useTheme();
+    const params = useParams<{ transaction: TransactionDescription }>();
     const { addr } = useTransport();
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);
-    const transaction = engine.products.ledger.useTransaction(params.transaction);
     const navigation = useTypedNavigation();
 
-    if (!transaction) {
+    if (!params.transaction) {
         navigation.goBack();
     }
 
@@ -539,22 +544,21 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
-            {!transaction && (
+            {!params.transaction && (
                 <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} />
             )}
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {transaction && address && (
+            {params.transaction && address && (
                 <LoadedTransaction
-                    transaction={transaction}
-                    transactionHash={transaction.base?.hash.toString('base64')}
-                    engine={engine}
+                    transaction={params.transaction}
+                    transactionHash={params.transaction.base?.hash}
                     address={address}
                 />
             )}
-            {!transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
+            {!params.transaction && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
             {Platform.OS === 'ios' && (
                 <CloseButton
                     style={{ position: 'absolute', top: 12, right: 10 }}

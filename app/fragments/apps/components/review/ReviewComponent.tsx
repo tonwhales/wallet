@@ -5,17 +5,18 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { fetchExtensionReview, postExtensionReview } from "../../../../engine/api/reviews";
-import { useEngine } from "../../../../engine/Engine";
 import { t } from "../../../../i18n/t";
 import { getCurrentAddress } from "../../../../storage/appState";
 import { useTypedNavigation } from "../../../../utils/useTypedNavigation";
 import { StarRating } from "./StarRating";
-import { useAppConfig } from "../../../../utils/AppConfigContext";
+import { useTheme } from '../../../../engine/hooks';
+import { useAppData } from '../../../../engine/hooks';
+import { useNetwork } from "../../../../engine/hooks/network/useNetwork";
 
 export const ReviewComponent = React.memo(({ url }: { url: string }) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const appData = engine.products.extensions.useAppData(url);
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const appData = useAppData(url);
     const safeArea = useSafeAreaInsets();
     const address = React.useMemo(() => getCurrentAddress().address, []);
     const navigation = useTypedNavigation();
@@ -32,7 +33,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -45,7 +46,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
             try {
                 await postExtensionReview(url, {
                     rating,
-                    address: address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    address: address.toString({ testOnly: isTestnet }),
                     comment: review.length > 0 ? {
                         text: review,
                         images: []
@@ -69,7 +70,8 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
         (async () => {
             setLoading(true);
             try {
-                const reviewRes = await fetchExtensionReview(engine.address, url, engine.isTestnet);
+                const selectedAddress = getCurrentAddress();
+                const reviewRes = await fetchExtensionReview(selectedAddress.address, url, isTestnet);
                 if (reviewRes) {
                     setRating(reviewRes.rating);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);
@@ -101,7 +103,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                         fontSize: 24,
                         marginHorizontal: 16,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '600',
                         marginTop: 10
                     }}
@@ -118,7 +120,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 2,
                     marginHorizontal: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.item,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -128,7 +130,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                         onValueChange={setReview}
                         keyboardType="default"
                         autoCapitalize="sentences"
-                        style={{ backgroundColor: Theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
+                        style={{ backgroundColor: theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
                         preventDefaultHeight
                         multiline
                         label={
@@ -142,7 +144,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: Theme.label,
+                                    color: theme.label,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('review.review')}
@@ -160,7 +162,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                 style={animatedStyles}
                 pointerEvents={loading ? 'box-none' : 'none'}
             >
-                <ActivityIndicator size="large" color={Theme.accent} />
+                <ActivityIndicator size="large" color={theme.accent} />
             </Animated.View>
         </>
     );

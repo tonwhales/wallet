@@ -3,7 +3,7 @@ import { Pressable, StyleProp, View, ViewStyle, Text, Platform, Share } from "re
 import ShareIcon from '../../assets/ic_share_address.svg';
 import { t } from "../i18n/t";
 import { iOSUIKit } from 'react-native-typography';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
 
 const size = {
     height: 56,
@@ -21,15 +21,15 @@ export const ShareButton = React.memo(({
     style?: StyleProp<ViewStyle>,
     disabled?: boolean
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const display = {
-        backgroundColor: Theme.secondaryButton,
-        borderColor: Theme.secondaryButton,
-        textColor: Theme.textColor,
+        backgroundColor: theme.secondaryButton,
+        borderColor: theme.secondaryButton,
+        textColor: theme.textColor,
 
-        backgroundPressedColor: Theme.selector,
-        borderPressedColor: Theme.selector,
-        textPressed: Theme.secondaryButtonText
+        backgroundPressedColor: theme.selector,
+        borderPressedColor: theme.selector,
+        textPressed: theme.secondaryButtonText
     }
     const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {

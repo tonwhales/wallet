@@ -13,21 +13,24 @@ import { t } from '../i18n/t';
 import * as SplashScreen from 'expo-splash-screen';
 import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
-import { useEngine } from '../engine/Engine';
 import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
+import { useCurrentJob } from '../engine/hooks';
+import { warn } from '../utils/log';
 
 export const HomeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
-    const engine = useEngine();
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const linkNavigator = useLinkNavigator(isTestnet);
+    let [currentJob, _] = useCurrentJob();
 
     // Subscribe for links
     React.useEffect(() => {
@@ -37,54 +40,54 @@ export const HomeFragment = fragment(() => {
                 (async () => {
                     try {
                         await backoff('home', async () => {
-                            let existing = await engine.products.apps.fetchJob();
+                            let existing = currentJob;
                             if (!existing) {
                                 return;
                             }
 
-                            if (existing.job.job.type === 'transaction') {
+                            if (existing.job.type === 'transaction') {
                                 try {
                                     SplashScreen.hideAsync();
                                 } catch (e) {
                                     // Ignore
                                 }
-                                if (existing.job.job.payload) {
+                                if (existing.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {
                                             messages: [{
-                                                target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                                amount: existing.job.job.amount,
+                                                target: existing.job.target.toString({ testOnly: isTestnet }),
+                                                amount: existing.job.amount,
                                                 amountAll: false,
-                                                payload: existing.job.job.payload,
-                                                stateInit: existing.job.job.stateInit,
+                                                payload: existing.job.payload,
+                                                stateInit: existing.job.stateInit,
                                             }]
                                         },
-                                        text: existing.job.job.text,
-                                        job: existing.raw,
+                                        text: existing.job.text,
+                                        job: existing.jobRaw,
                                         callback: null
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
-                                        target: existing.job.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                        comment: existing.job.job.text,
-                                        amount: existing.job.job.amount,
-                                        stateInit: existing.job.job.stateInit,
-                                        job: existing.raw,
+                                        target: existing.job.target.toString({ testOnly: isTestnet }),
+                                        comment: existing.job.text,
+                                        amount: existing.job.amount,
+                                        stateInit: existing.job.stateInit,
+                                        job: existing.jobRaw,
                                         jetton: null,
                                         callback: null
                                     })
                                 }
                             }
-                            if (existing.job.job.type === 'sign') {
-                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.job.key));
+                            if (existing.job.type === 'sign') {
+                                const connection = getConnectionReferences().find((v) => Buffer.from(v.key, 'base64').equals(existing!.key));
                                 if (!connection) {
                                     return; // Just in case
                                 }
                                 navigation.navigateSign({
-                                    text: existing.job.job.text,
-                                    textCell: existing.job.job.textCell,
-                                    payloadCell: existing.job.job.payloadCell,
-                                    job: existing.raw,
+                                    text: existing.job.text,
+                                    textCell: existing.job.textCell,
+                                    payloadCell: existing.job.payloadCell,
+                                    job: existing.jobRaw,
                                     callback: null,
                                     name: connection.name
                                 });
@@ -95,25 +98,25 @@ export const HomeFragment = fragment(() => {
                     }
                 })()
             } else {
-                let resolved = resolveUrl(link, AppConfig.isTestnet);
+                let resolved = resolveUrl(link, isTestnet);
                 if (resolved) {
                     try {
                         SplashScreen.hideAsync();
                     } catch (e) {
                         // Ignore
                     }
-                    linkNavigator(resolved);
+                    linkNavigator(resolved).catch((e) => warn('Failed to navigate: ' + e));
                 }
             }
         });
-    }, []);
+    }, [currentJob]);
 
     if (tab === 0) {
-        useTrackScreen('Wallet', AppConfig.isTestnet);
+        useTrackScreen('Wallet', isTestnet);
     } else if (tab === 1) {
-        useTrackScreen('Transactions', AppConfig.isTestnet);
+        useTrackScreen('Transactions', isTestnet);
     } else if (tab === 2) {
-        useTrackScreen('Settings', AppConfig.isTestnet);
+        useTrackScreen('Settings', isTestnet);
     }
 
     return (
@@ -141,17 +144,17 @@ export const HomeFragment = fragment(() => {
                         <View
                             style={{
                                 position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                                backgroundColor: Theme.background,
+                                backgroundColor: theme.background,
                                 opacity: 0.9
                             }}
                         />
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
                                 source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
-                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 0 ? theme.accent : theme.textSecondary }}
                             />
                             <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? theme.accent : theme.textSecondary }}
                             >
                                 {t('home.wallet')}
                             </Text>
@@ -159,10 +162,10 @@ export const HomeFragment = fragment(() => {
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
                                 source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 1 ? theme.accent : theme.textSecondary }}
                             />
                             <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? theme.accent : theme.textSecondary }}
                             >
                                 {t('transactions.history')}
                             </Text>
@@ -170,10 +173,10 @@ export const HomeFragment = fragment(() => {
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
                             <Image
                                 source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 2 ? theme.accent : theme.textSecondary }}
                             />
                             <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? theme.accent : theme.textSecondary }}
                             >
                                 {t('home.settings')}
                             </Text>
@@ -185,15 +188,15 @@ export const HomeFragment = fragment(() => {
                         height: 52 + safeArea.bottom,
                         paddingBottom: safeArea.bottom, paddingHorizontal: 16,
                         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: Theme.item
+                        backgroundColor: theme.item
                     }}>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
                                 source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
-                                style={{ tintColor: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 0 ? theme.accent : theme.textSecondary }}
                             />
                             <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? Theme.accent : Theme.textSecondary }}
+                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? theme.accent : theme.textSecondary }}
                             >
                                 {t('home.wallet')}
                             </Text>
@@ -201,18 +204,18 @@ export const HomeFragment = fragment(() => {
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
                             <Image
                                 source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 1 ? theme.accent : theme.textSecondary }}
                             />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? Theme.accent : Theme.textSecondary }}>
+                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? theme.accent : theme.textSecondary }}>
                                 {t('transactions.history')}
                             </Text>
                         </Pressable>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
                             <Image
                                 source={tab === 2 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? Theme.accent : Theme.textSecondary }}
+                                style={{ tintColor: tab === 2 ? theme.accent : theme.textSecondary }}
                             />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? Theme.accent : Theme.textSecondary }}>
+                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? theme.accent : theme.textSecondary }}>
                                 {t('home.settings')}
                             </Text>
                         </Pressable>
@@ -224,7 +227,7 @@ export const HomeFragment = fragment(() => {
                         top: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: Theme.headerDivider,
+                        backgroundColor: theme.headerDivider,
                         opacity: 0.08
                     }}
                 />

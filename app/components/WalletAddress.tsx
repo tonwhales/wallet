@@ -2,12 +2,12 @@ import React, { useCallback, useMemo } from "react";
 import { NativeSyntheticEvent, Platform, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { t } from "../i18n/t";
-import { useEngine } from "../engine/Engine";
 import { confirmAlert } from "../utils/confirmAlert";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { copyText } from "../utils/copyText";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 6)
@@ -27,26 +27,27 @@ export const WalletAddress = React.memo((props: {
     lockActions?: boolean,
     previewBackgroundColor?: string
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const settings = engine.products.settings;
-    const friendlyAddress = props.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    // TODO: fix
+    // const settings = engine.products.settings;
+    const friendlyAddress = props.address.toString({ testOnly: isTestnet });
 
     const onMarkAddressSpam = React.useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
         if (confirmed) {
-            settings.addToDenyList(addr);
+            // settings.addToDenyList(addr);
         }
     }, []);
 
     const onAddressContact = React.useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toFriendly({ testOnly: AppConfig.isTestnet }) });
+        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
     const addressLink = useMemo(() => {
-        return (AppConfig.isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
-            + (props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet }));
+        return (isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')
+            + (props.value ? props.value : props.address.toString({ testOnly: isTestnet }));
     }, [props.value, props.address]);
 
     const onShare = React.useCallback(() => {
@@ -58,7 +59,7 @@ export const WalletAddress = React.memo((props: {
     }, [addressLink]);
 
     const onCopy = React.useCallback(() => {
-        const text = props.value ? props.value : props.address.toFriendly({ testOnly: AppConfig.isTestnet });
+        const text = props.value ? props.value : props.address.toString({ testOnly: isTestnet });
         copyText(text);
     }, [props.value, props.address]);
 
@@ -114,7 +115,7 @@ export const WalletAddress = React.memo((props: {
             ]}
             onPress={handleAction}
             style={props.style}
-            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : Theme.transparent}
+            previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : theme.transparent}
         >
             <View>
                 {props.elipsise && (
@@ -124,7 +125,7 @@ export const WalletAddress = React.memo((props: {
                                 fontSize: 16,
                                 fontWeight: '700',
                                 textAlign: 'center',
-                                color: Theme.textColor,
+                                color: theme.textColor,
                                 fontVariant: ['tabular-nums'],
                             },
                             props.textStyle
@@ -144,7 +145,7 @@ export const WalletAddress = React.memo((props: {
                                     fontSize: 16,
                                     fontWeight: '400',
                                     textAlign: 'center',
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                 },
                                 props.textStyle
                             ]}
@@ -161,7 +162,7 @@ export const WalletAddress = React.memo((props: {
                                     fontSize: 16,
                                     fontWeight: '400',
                                     textAlign: 'center',
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                 },
                                 props.textStyle
                             ]}

@@ -50,6 +50,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         checkInternetConnection: 'Check your internet connection',
         reload: 'Reload',
         errorOccurred: 'Error occurred: {{error}}',
+        airdrop: 'Airdrop',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -98,6 +99,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenTransfer: 'Token transfer',
         airdrop: 'Airdrop',
         failed: 'Failed',
+        batch: 'Batch transfer',
     },
     txPreview: {
         sendAgain: 'Send again',
@@ -219,10 +221,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failed: 'Migration failed',
     },
     qr: {
-        title: 'Scan QR code',
-        requestingPermission: 'Requesting for camera permission...',
-        noPermission: 'No access to camera',
+        title: 'Point camera at QR code',
+        requestingPermission: 'Requesting camera permissions...',
+        noPermission: 'Allow camera access to scan QR codes',
         requestPermission: 'Open settings',
+        failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
         tonConnect: {

@@ -11,8 +11,8 @@ import axios from 'axios';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../storage/appState';
-import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { beginCell, Cell, safeSign } from 'ton';
+import { contractFromPublicKey, walletConfigFromContract, walletContactType } from '../../engine/contractFromPublicKey';
+import { beginCell, Cell, safeSign } from '@ton/core';
 import { WalletKeys } from '../../storage/walletKeys';
 import { fragment } from '../../fragment';
 import { warn } from '../../utils/log';
@@ -21,7 +21,6 @@ import ChainIcon from '../../../assets/ic_chain.svg';
 import ProtectedIcon from '../../../assets/ic_protected.svg';
 import { CloseButton } from '../../components/CloseButton';
 import { AppData } from '../../engine/api/fetchAppData';
-import { useEngine } from '../../engine/Engine';
 import { WImage } from '../../components/WImage';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { CheckBox } from '../../components/CheckBox';
@@ -29,8 +28,14 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../engine/api/connectAnswer';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCreateDomainKeyIfNeeded } from '../../engine/hooks';
+import { useAddExtension } from '../../engine/hooks';
+import { ConfigStore } from '../../utils/ConfigStore';
+import { getAppData } from '../../engine/getters/getAppData';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -45,15 +50,18 @@ type SignState = { type: 'loading' }
     | { type: 'authorized' }
     | { type: 'failed' }
 
-const SignStateLoader = React.memo((props: { session: string, endpoint: string }) => {
-    const { Theme, AppConfig } = useAppConfig();
+const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const [state, setState] = React.useState<SignState>({ type: 'loading' });
-    const [addExtension, setAddExtension] = React.useState(false);
-    const engine = useEngine();
-    React.useEffect(() => {
+    const [state, setState] = useState<SignState>({ type: 'loading' });
+    const [addExt, setAddExt] = useState(false);
+    const addExtension = useAddExtension();
+    const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
+
+    useEffect(() => {
         let ended = false;
         backoff('authenticate', async () => {
             if (ended) {
@@ -68,7 +76,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 return;
             }
             if (currentState.data.state === 'initing') {
-                const appData = await engine.products.extensions.getAppData(currentState.data.url);
+                const appData = await getAppData(currentState.data.url);
                 if (appData) {
                     setState({ type: 'initing', name: currentState.data.name, url: currentState.data.url, app: appData });
                     return;
@@ -88,12 +96,12 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     }, []);
 
     // Approve
-    const acc = React.useMemo(() => getCurrentAddress(), []);
-    let active = React.useRef(true);
-    React.useEffect(() => {
+    const acc = useMemo(() => getCurrentAddress(), []);
+    let active = useRef(true);
+    useEffect(() => {
         return () => { active.current = false; };
     }, []);
-    const approve = React.useCallback(async () => {
+    const approve = useCallback(async () => {
 
         if (state.type !== 'initing') {
             return;
@@ -101,11 +109,16 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
         // Load data
         const contract = contractFromPublicKey(acc.publicKey);
-        let walletConfig = contract.source.backup();
-        let walletType = contract.source.type;
-        let address = contract.address.toFriendly({ testOnly: AppConfig.isTestnet });
+        const config = walletConfigFromContract(contract);
+
+        const walletConfig = config.walletConfig;
+        const walletType = config.type;
+
+        let address = contract.address.toString({ testOnly: isTestnet });
         let appInstanceKeyPair = await getAppInstanceKeyPair();
+
         let endpoint = 'https://connect.tonhubapi.com/connect/command';
+
         let name = state.name;
         let url = state.url;
         let title = state.app ? state.app.title : name;
@@ -126,7 +139,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             .storeCoins(0)
             .storeBuffer(Buffer.from(props.session, 'base64'))
             .storeAddress(contract.address)
-            .storeRefMaybe(beginCell()
+            .storeMaybeRef(beginCell()
                 .storeBuffer(Buffer.from(endpoint))
                 .endCell())
             .storeRef(beginCell()
@@ -152,7 +165,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                 walletSig: signature.toString('base64'),
                 endpoint,
                 kind: 'ton-x',
-                testnet: AppConfig.isTestnet
+                testnet: isTestnet
             });
 
             // Persist reference
@@ -166,7 +179,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             });
 
             // Track
-            trackEvent(MixpanelEvent.Connect, { url, name }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.Connect, { url, name }, isTestnet);
 
             // Exit if already exited screen
             if (!active.current) {
@@ -178,38 +191,38 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
         // Add extension if AppData has extension field
         // and option is checked
-        if (addExtension && state.app?.extension) {
+        if (addExt && state.app?.extension) {
             // Read cell from extension field
             let slice = Cell.fromBoc(Buffer.from(state.app?.extension, 'base64'))[0].beginParse();
-            let endpoint = slice.readRef().readRemainingBytes().toString();
-            let extras = slice.readBit();
+            let endpoint = slice.loadRef().toString();
+            let extras = slice.loadBit();
             let customTitle: string | null = null;
             let customImage: { url: string, blurhash: string } | null = null;
             if (!extras) {
-                if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
                     warn('Invalid endpoint');
                     return;
                 }
             } else {
                 // Read custom title
-                if (slice.readBit()) {
-                    customTitle = slice.readRef().readRemainingBytes().toString()
+                if (slice.loadBit()) {
+                    customTitle = slice.loadRef().toString()
                     if (customTitle.trim().length === 0) {
                         customTitle = null;
                     }
                 }
                 // Read custom image
-                if (slice.readBit()) {
-                    let imageUrl = slice.readRef().readRemainingBytes().toString();
-                    let imageBlurhash = slice.readRef().readRemainingBytes().toString();
+                if (slice.loadBit()) {
+                    let imageUrl = slice.loadRef().toString();
+                    let imageBlurhash = slice.loadRef().toString();
                     new Url(imageUrl, true);
                     customImage = { url: imageUrl, blurhash: imageBlurhash };
                 }
 
                 // Future compatibility
-                extras = slice.readBit();
+                extras = slice.loadBit();
                 if (!extras) {
-                    if (slice.remaining !== 0 || slice.remainingRefs !== 0) {
+                    if (slice.remainingBits !== 0 || slice.remainingRefs !== 0) {
                         warn('Invalid endpoint');
                         return;
                     }
@@ -230,23 +243,22 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
 
             // Create domain key if needed
             let domain = extractDomain(endpoint);
-            await engine.products.keys.createDomainKeyIfNeeded(domain, authContext, walletKeys); // Always succeeds
+            await createDomainKeyIfNeeded(domain, authContext, walletKeys);
 
             // Add extension
-            engine.products.extensions.addExtension(
+            addExtension(
                 endpoint,
                 customTitle ? customTitle : title,
                 customImage ? customImage : image
             );
 
             // Track installation
-            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.AppInstall, { url: endpoint, domain: domain }, isTestnet);
 
             // Navigate
-            navigation.goBack();
-            navigation.navigate('App', { url });
+            navigation.replace('App', { url });
         }
-    }, [state, addExtension]);
+    }, [state, addExt, useCreateDomainKeyIfNeeded]);
 
     // When loading
     if (state.type === 'loading') {
@@ -261,7 +273,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'expired') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -271,7 +283,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'failed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -281,7 +293,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
     if (state.type === 'completed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: Theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -303,13 +315,13 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         fontSize: 24,
                         marginHorizontal: 32,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                     }}
                 >
                     {t('auth.authorized')}
                 </Text>
                 <Text style={{
-                    color: Theme.textSecondary,
+                    color: theme.textSecondary,
                     fontWeight: '400',
                     fontSize: 16,
                     marginTop: 10,
@@ -349,14 +361,14 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     justifyContent: 'center',
                 }}>
                     <View style={{
-                        backgroundColor: Theme.divider,
+                        backgroundColor: theme.divider,
                         position: 'absolute',
                         left: 88, right: 88,
                         height: 1, top: 32
                     }} />
                     <View style={{
                         alignSelf: 'center',
-                        backgroundColor: Theme.accent,
+                        backgroundColor: theme.accent,
                         height: 30, width: 30,
                         borderRadius: 15
                     }}>
@@ -381,7 +393,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -394,7 +406,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '400',
-                            color: Theme.textSecondary
+                            color: theme.textSecondary
                         }}
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
@@ -417,7 +429,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: Theme.item
+                        backgroundColor: theme.item
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -428,7 +440,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             borderRadius: 10,
                             borderWidth: 0.5,
                             borderColor: 'black',
-                            backgroundColor: Theme.transparent,
+                            backgroundColor: theme.transparent,
                             position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                             opacity: 0.06
                         }} />
@@ -438,7 +450,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginBottom: 4
                         }}
                     >
@@ -448,13 +460,13 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                         textAlign: 'center',
                         fontSize: 16,
                         fontWeight: '400',
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                     }}>
                         <Text>
                             {
-                                acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(0, 4)
+                                acc.address.toString({ testOnly: isTestnet }).slice(0, 4)
                                 + '...'
-                                + acc.address.toFriendly({ testOnly: AppConfig.isTestnet }).slice(t.length - 6)
+                                + acc.address.toString({ testOnly: isTestnet }).slice(t.length - 6)
                             }
                         </Text>
                     </Text>
@@ -465,7 +477,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: Theme.textColor,
+                    color: theme.textColor,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -480,7 +492,7 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         marginBottom: state.app?.extension ? 16 : 32,
                         opacity: 0.6
                     }}
@@ -490,8 +502,8 @@ const SignStateLoader = React.memo((props: { session: string, endpoint: string }
             </View>
             {!!state.app?.extension && (
                 <CheckBox
-                    checked={addExtension}
-                    onToggle={setAddExtension}
+                    checked={addExt}
+                    onToggle={setAddExt}
                     text={t('auth.apps.installExtension')}
                     style={{
                         paddingHorizontal: 24,
@@ -538,6 +550,9 @@ export const AuthenticateFragment = fragment(() => {
         session: string,
         endpoint: string | null
     } = useRoute().params as any;
+
+    const [state, setState] = useState<SignState>({ type: 'loading' });
+
     return (
         <>
             <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />

@@ -1,39 +1,40 @@
-import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, InternalMessage, SendMode, StateInit, toNano } from "ton";
-import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
+import { Address, Cell, SendMode, beginCell, external, internal, storeMessage, toNano } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
 import { LoadingIndicator } from "../components/LoadingIndicator";
 import { RoundButton } from "../components/RoundButton";
 import { contractFromPublicKey } from "../engine/contractFromPublicKey";
-import { useEngine } from "../engine/Engine";
-import { useItem } from "../engine/persistence/PersistedItem";
 import { fragment } from "../fragment";
 import { LocalizedResources } from "../i18n/schema";
 import { t } from "../i18n/t";
 import { KnownWallets } from "../secure/KnownWallets";
-import { getCurrentAddress } from "../storage/appState";
-import { storage } from "../storage/storage";
 import { WalletKeys } from "../storage/walletKeys";
 import { useReboot } from "../utils/RebootContext";
 import { backoff } from "../utils/time";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import VerifiedIcon from '../../assets/ic_verified.svg';
 import { fetchNfts } from "../engine/api/fetchNfts";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
-import { clearHolders } from "./LogoutFragment";
+import { useClient4 } from '../engine/hooks';
+import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
+import { useNetwork } from '../engine/hooks';
+import { useSelectedAccount } from '../engine/hooks';
+import { useAccountLite } from '../engine/hooks';
+import { fetchSeqno } from '../engine/api/fetchSeqno';
+import { getLastBlock } from '../engine/accountWatcher';
 
 export const DeleteAccountFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const tresuresAddress = Address.parse(
-        AppConfig.isTestnet
+        isTestnet
             ? 'kQBicYUqh1j9Lnqv9ZhECm0XNPaB7_HcwoBb3AJnYYfqB8S1'
             : 'EQCt2mgAsbnGFKRhlLjiJvScCYbe4lqEHRMvIs-IR7T-1J6p'
     );
@@ -41,12 +42,12 @@ export const DeleteAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const reboot = useReboot();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
-    const addr = useMemo(() => getCurrentAddress(), []);
+    const addr = useSelectedAccount();
+    const account = useAccountLite(addr?.address);
+    const client = useClient4(isTestnet);
     const [status, setStatus] = useState<'loading' | 'deleted'>();
-    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
-    const isKnown: boolean = !!KnownWallets(AppConfig.isTestnet)[targetAddressInput];
+    const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));
+    const isKnown: boolean = !!KnownWallets(isTestnet)[targetAddressInput];
 
     const onDeleteAccount = React.useCallback(() => {
         let ended = false;
@@ -77,7 +78,7 @@ export const DeleteAccountFragment = fragment(() => {
 
             // Check if has nfts
             try {
-                const nftsConnection = await fetchNfts(addr.address.toFriendly({ testOnly: AppConfig.isTestnet }), AppConfig.isTestnet);
+                const nftsConnection = await fetchNfts(addr!.address.toString({ testOnly: isTestnet }), isTestnet);
                 if (nftsConnection.items && nftsConnection.items.length > 0) {
                     Alert.alert(t('deleteAccount.error.hasNfts'));
                     ended = true;
@@ -102,23 +103,23 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
 
-            const targetParsed = Address.parseFriendly(targetAddress.toFriendly({ testOnly: AppConfig.isTestnet }));
+            const targetParsed = Address.parseFriendly(targetAddress.toString({ testOnly: isTestnet }));
 
             // Check target
             const targetState = await backoff('transfer', async () => {
-                let block = await backoff('transfer', () => engine.client4.getLastBlock());
-                return backoff('transfer', () => engine.client4.getAccount(block.last.seqno, targetParsed.address))
+                let block = await backoff('transfer', () => client.getLastBlock());
+                return backoff('transfer', () => client.getAccount(block.last.seqno, targetParsed.address))
             });
 
             const target = {
                 isTestOnly: targetParsed.isTestOnly,
                 address: targetParsed.address,
-                balance: new BN(targetState.account.balance.coins, 10),
+                balance: BigInt(targetState.account.balance.coins),
                 active: targetState.account.state.type === 'active'
             };
 
             // Check if trying to send to testnet
-            if (!AppConfig.isTestnet && target.isTestOnly) {
+            if (!isTestnet && target.isTestOnly) {
                 let cont = await confirm('transfer.error.addressIsForTestnet');
                 if (!cont) {
                     ended = true;
@@ -128,7 +129,7 @@ export const DeleteAccountFragment = fragment(() => {
             }
 
             // Check if target is not active
-            if (target.balance.lte(new BN(0))) {
+            if (target.balance <= BigInt(0)) {
                 let cont = await confirm('transfer.error.addressIsNotActive');
                 if (!cont) {
                     ended = true;
@@ -153,8 +154,8 @@ export const DeleteAccountFragment = fragment(() => {
             }
 
             // Check if has at least 0.1 TON 
-            if (account.balance.gt(toNano('0.1'))) {
-                const contract = await contractFromPublicKey(addr.publicKey);
+            if (account && account.balance || BigInt(0) > toNano('0.1')) {
+                const contract = await contractFromPublicKey(addr!.publicKey);
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {
@@ -163,50 +164,40 @@ export const DeleteAccountFragment = fragment(() => {
                     return;
                 }
 
+                let seqno = await fetchSeqno(client, await getLastBlock(), addr!.address);
+
                 // Create transfer all & dstr transfer
-                let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
-                    walletId: contract.source.walletId,
+                let transfer = contract.createTransfer({
+                    seqno: seqno,
                     secretKey: key.keyPair.secretKey,
-                    sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
-                    order: new InternalMessage({
+                    sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE + SendMode.DESTROY_ACCOUNT_IF_ZERO, // Transfer full balance & dstr
+                    messages: [internal({
                         to: target.address,
-                        value: new BN(0),
+                        value: 0n,
                         bounce: false,
-                        body: new CommonMessageInfo({
-                            stateInit: null,
-                            body: null
-                        })
-                    })
+                    })]
                 });
 
                 // Create external message
-                let extMessage = new ExternalMessage({
+                let extMessage = external({
                     to: contract.address,
-                    body: new CommonMessageInfo({
-                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                        body: new CellMessage(transfer)
-                    })
+                    body: transfer,
+                    init: seqno === 0 ? contract.init : undefined,
                 });
-                let msg = new Cell();
-                extMessage.writeTo(msg);
+
+                let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
                 // Sending transaction
-                await backoff('delete_account', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+                await backoff('delete_account', () => client.sendMessage(msg.toBoc({ idx: false })));
 
                 while (!ended) {
-                    let s = await backoff('seqno', () => contract.getSeqNo(engine.connector.client));
+                    let s = await backoff('seqno', async () => fetchSeqno(client, await getLastBlock(), addr!.address));
                     // Check if wallet has been cleared
                     if (s === 0) {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(() => {
-                            storage.clearAll();
-                            clearHolders(engine);
-                            mixpanelReset(AppConfig.isTestnet); // Clear super properties and generates a new random distinctId
-                            trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                            mixpanelFlush(AppConfig.isTestnet);
-                            reboot();
+                           onAccountDeleted(isTestnet);
                         }, 2000);
                         break;
                     }
@@ -269,14 +260,14 @@ export const DeleteAccountFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
                             {t('deleteAccount.description', { amount: '0.1' })}
                         </Text>
                     </View>
 
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -298,7 +289,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -321,10 +312,10 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: Theme.labelSecondary,
+                                                color: theme.labelSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
-                                                {KnownWallets(AppConfig.isTestnet)[targetAddressInput].name}
+                                                {KnownWallets(isTestnet)[targetAddressInput].name}
                                             </Text>
                                         </Animated.View>
                                     )}
@@ -334,7 +325,7 @@ export const DeleteAccountFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
@@ -361,10 +352,10 @@ export const DeleteAccountFragment = fragment(() => {
             )}
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <View style={{ backgroundColor: Theme.item, padding: 16, borderRadius: 16 }}>
+                    <View style={{ backgroundColor: theme.item, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
-                            <Text style={{ color: Theme.textColor }}>
+                            <Text style={{ color: theme.textColor }}>
                                 {t('deleteAccount.complete')}
                             </Text>
                         )}

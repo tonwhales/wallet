@@ -1,13 +1,7 @@
-import BN from "bn.js"
-import React, { useLayoutEffect } from "react"
+import React, { ReactElement, memo, useCallback, useLayoutEffect } from "react"
 import { Alert, LayoutAnimation, Text, View } from "react-native"
-import { ProductButton } from "./ProductButton"
-import { useEngine } from "../../../engine/Engine"
-import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
-import SignIcon from '../../../../assets/ic_sign.svg';
-import TransactionIcon from '../../../../assets/ic_transaction.svg';
 import { useTypedNavigation } from "../../../utils/useTypedNavigation"
-import { StakingProductComponent } from "../../../components/Staking/StakingProductComponent"
+import { StakingProductComponent } from "../../../components/staking/StakingProductComponent"
 import { t } from "../../../i18n/t"
 import { JettonProduct } from "./JettonProduct"
 import { getConnectionReferences } from "../../../storage/appState"
@@ -15,38 +9,58 @@ import { extractDomain } from "../../../engine/utils/extractDomain"
 import HardwareWalletIcon from '../../../../assets/ic_ledger.svg';
 import { AnimatedProductButton } from "./AnimatedProductButton"
 import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 import { HoldersProductButton } from "./HoldersProductButton"
+import { useCurrentJob } from '../../../engine/hooks';
+import { useJettons } from '../../../engine/hooks';
+import { useExtensions } from '../../../engine/hooks';
+import { useLedgerEnabled } from '../../../engine/hooks';
+import { useTonConnectExtensions } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { DappButton } from "./DappButton";
+import { Address } from "@ton/core";
+import { useConnectPendingRequests } from "../../../engine/hooks/dapps/useConnectPendingRequests";
+import { usePrepareConnectRequest } from "../../../engine/hooks/dapps/usePrepareConnectRequest";
+import { useConnectCallback } from "../../../engine/hooks/dapps/useConnectCallback";
+import { useHoldersCards } from "../../../engine/hooks/holders/useHoldersCards";
+import { useOldWalletsBalances } from "../../../engine/hooks/accounts/useOldWalletsBalances";
 
-export const ProductsComponent = React.memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
+import OldWalletIcon from '../../../../assets/ic_old_wallet.svg';
+import SignIcon from '../../../../assets/ic_sign.svg';
+import TransactionIcon from '../../../../assets/ic_transaction.svg';
+
+export const ProductsComponent = memo(({ selected }: {
+    selected: {
+        address: Address;
+        addressString: string;
+        publicKey: Buffer;
+        secretKeyEnc: Buffer;
+        utilityKey: Buffer;
+    }
+}) => {
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const oldWalletsBalance = engine.products.legacy.useState();
-    const currentJob = engine.products.apps.useState();
-    const jettons = engine.products.main.useJettons().filter((j) => !j.disabled);
-    const extensions = engine.products.extensions.useExtensions();
-    const ledger = engine.products.settings.useLedger();
-    const cards = engine.products.holders.useCards();
-    const tonconnectExtensions = engine.products.tonConnect.useExtensions();
-    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
-    const openExtension = React.useCallback((url: string) => {
-        let domain = extractDomain(url);
-        if (!domain) {
-            return; // Shouldn't happen
-        }
-        let k = engine.persistence.domainKeys.getValue(domain);
-        if (!k) {
-            navigation.navigate('Install', { url });
-        } else {
-            navigation.navigate('App', { url });
-        }
-    }, []);
+    const oldWalletsBalance = useOldWalletsBalances().total;
+
+    const [currentJob,] = useCurrentJob();
+    const jettons = useJettons(selected.addressString);
+    const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();
+    const cards = useHoldersCards(selected.address).data ?? [];
+
+    const [installedExtensions,] = useExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => ({ ...ext, key }));
+    const tonconnectExtensions = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
+    const [tonconnectRequests,] = useConnectPendingRequests();
+    const prepareTonConnectRequest = usePrepareConnectRequest();
+    const connectCallback = useConnectCallback();
 
     // Resolve accounts
-    let accounts: React.ReactElement[] = [];
-    if (oldWalletsBalance.gt(new BN(0))) {
+    let accounts: ReactElement[] = [];
+    if (oldWalletsBalance > 0n) {
         accounts.push(
             <AnimatedProductButton
                 entering={FadeInUp}
@@ -63,87 +77,62 @@ export const ProductsComponent = React.memo(() => {
     }
 
     for (let j of jettons) {
-        if (j.balance.gt(new BN(0))) {
+        if (j.balance > 0n) {
             accounts.push(
                 <JettonProduct
-                    key={'jt' + j.wallet.toFriendly()}
+                    key={'jt' + j.wallet.toString()}
                     jetton={j}
                     navigation={navigation}
-                    engine={engine}
                 />
             );
         }
     }
 
-    let removeExtension = React.useCallback((key: string) => {
-        Alert.alert(t('auth.apps.delete.title'), t('auth.apps.delete.message'), [{ text: t('common.cancel') }, {
-            text: t('common.delete'),
-            style: 'destructive',
-            onPress: () => {
-                engine.products.extensions.removeExtension(key);
-            }
-        }]);
-    }, []);
-
-    const removeLedger = React.useCallback(() => {
+    const removeLedger = useCallback(() => {
         Alert.alert(t('hardwareWallet.ledger'), t('hardwareWallet.confirm.remove'), [{ text: t('common.cancel') }, {
             text: t('common.continue'),
             style: 'destructive',
             onPress: () => {
-                engine.products.settings.setLedger(false);
+                setLedgerEnabled(false);
             }
         }]);
     }, []);
 
     // Resolve apps
-    let apps: React.ReactElement[] = [];
+    let apps: ReactElement[] = [];
 
-    if (AppConfig.isTestnet) {
+    if (isTestnet) {
         cards.map((c) => {
-            apps.push(<HoldersProductButton engine={engine} key={c.id} account={c} />)
+            apps.push(<HoldersProductButton key={c.id} account={c} />)
         });
-        apps.push(<HoldersProductButton engine={engine} key={'zenpay-add'} />)
+        apps.push(<HoldersProductButton key={'zenpay-add'} />)
     }
 
     for (let e of extensions) {
         apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
+            <DappButton
                 key={e.key}
-                name={e.name}
-                subtitle={e.description ? e.description : e.url}
-                image={e.image?.url}
-                blurhash={e.image?.blurhash}
-                value={null}
-                onLongPress={() => removeExtension(e.key)}
-                onPress={() => openExtension(e.url)}
-                extension={true}
-                style={{ marginVertical: 4 }}
+                appKey={e.key}
+                url={e.url}
+                name={e.title}
+                tonconnect={false}
             />
         );
     }
 
     for (let e of tonconnectExtensions) {
         apps.push(
-            <AnimatedProductButton
-                entering={FadeInUp}
-                exiting={FadeOutDown}
+            <DappButton
                 key={e.key}
+                appKey={e.key}
+                url={e.url}
                 name={e.name}
-                subtitle={e.url}
-                image={e.image ?? undefined}
-                value={null}
-                onPress={() => {
-                    navigation.navigate('ConnectApp', { url: e.url });
-                }}
-                extension={true}
-                style={{ marginVertical: 4 }}
+                tonconnect={true}
             />
         );
     }
 
-    if (ledger) {
+    if (ledgerEnabled) {
         apps.push(
             <AnimatedProductButton
                 key={'ledger'}
@@ -169,7 +158,7 @@ export const ProductsComponent = React.memo(() => {
     // Resolve tonconnect requests
     let tonconnect: React.ReactElement[] = [];
     for (let r of tonconnectRequests) {
-        const prepared = prepareTonConnectRequest(r, engine);
+        const prepared = prepareTonConnectRequest(r);
         if (r.method === 'sendTransaction' && prepared) {
             tonconnect.push(
                 <AnimatedProductButton
@@ -185,13 +174,13 @@ export const ProductsComponent = React.memo(() => {
                             text: null,
                             order: {
                                 messages: prepared.messages,
-                                app: (prepared.app && prepared.app.connectedApp) ? {
-                                    title: prepared.app.connectedApp.name,
-                                    domain: extractDomain(prepared.app.connectedApp.url),
+                                app: (prepared.app && prepared.app) ? {
+                                    title: prepared.app.name,
+                                    domain: extractDomain(prepared.app.url),
                                 } : undefined
                             },
                             job: null,
-                            callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                            callback: (ok, result) => connectCallback(ok, result, prepared.request, prepared.sessionCrypto)
                         })
                     }}
                 />
@@ -206,7 +195,7 @@ export const ProductsComponent = React.memo(() => {
     return (
         <View style={{ paddingTop: 8 }}>
             {tonconnect}
-            {currentJob && currentJob.job.type === 'transaction' && (
+            {!!currentJob && currentJob.job.type === 'transaction' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}
@@ -219,7 +208,7 @@ export const ProductsComponent = React.memo(() => {
                             navigation.navigateTransfer({
                                 order: {
                                     messages: [{
-                                        target: currentJob.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                                        target: currentJob.job.target.toString({ testOnly: isTestnet }),
                                         amount: currentJob.job.amount,
                                         payload: currentJob.job.payload,
                                         stateInit: currentJob.job.stateInit,
@@ -234,7 +223,7 @@ export const ProductsComponent = React.memo(() => {
                     }}
                 />
             )}
-            {currentJob && currentJob.job.type === 'sign' && (
+            {!!currentJob && currentJob.job.type === 'sign' && (
                 <AnimatedProductButton
                     entering={FadeInUp}
                     exiting={FadeOutDown}
@@ -267,8 +256,8 @@ export const ProductsComponent = React.memo(() => {
 
             {(apps.length > 0) && (
                 <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.services')}</Text>
+                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textColor }}>{t('products.services')}</Text>
                     </View>
                     {apps}
                 </>
@@ -276,8 +265,8 @@ export const ProductsComponent = React.memo(() => {
 
             {accounts.length > 0 && (
                 <>
-                    <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('products.accounts')}</Text>
+                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textColor }}>{t('products.accounts')}</Text>
                     </View>
                     {accounts}
                 </>

@@ -14,7 +14,8 @@ import { storage } from "../../storage/storage";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from "../../engine/hooks/network/useNetwork";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
@@ -26,7 +27,7 @@ export const ConfirmLegal = React.memo((
         onOpenBuy: () => void
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
@@ -79,7 +80,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '800',
                         fontSize: 24,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         marginTop: 16,
                         marginHorizontal: 24
                     }}>
@@ -106,14 +107,14 @@ export const ConfirmLegal = React.memo((
                                     {t('neocrypto.termsAndPrivacy')}
 
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: theme.linkText }}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: theme.linkText }}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}
@@ -144,7 +145,8 @@ export const ConfirmLegal = React.memo((
 });
 
 export const NeocryptoFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     const params = useParams<{
         amount?: string,
@@ -160,7 +162,7 @@ export const NeocryptoFragment = fragment(() => {
 
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
-        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        address: address.address.toString({ testOnly: isTestnet }),
         cur_from: 'USD',
         cur_to: 'TON',
         fix_cur_to: 'true',
@@ -174,7 +176,7 @@ export const NeocryptoFragment = fragment(() => {
         setAccepted(true);
     }, []);
 
-    if (AppConfig.isTestnet) {
+    if (isTestnet) {
         return (
             <View style={{
                 flexGrow: 1,
@@ -182,7 +184,7 @@ export const NeocryptoFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: Theme.textColor
+                    color: theme.textColor
                 }}>
                     {'Neocrypto service availible only on mainnet'}
                 </Text>
@@ -193,7 +195,7 @@ export const NeocryptoFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
@@ -203,7 +205,7 @@ export const NeocryptoFragment = fragment(() => {
                     <AndroidToolbar />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (
-                            <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
+                            <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
                                 {'Neorcypto'}
                             </Text>
                         )}

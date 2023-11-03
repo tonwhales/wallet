@@ -1,15 +1,14 @@
 import * as React from 'react';
 import { Alert, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { getAppState, getBackup, getCurrentAddress, markAddressSecured, setAppState } from '../../storage/appState';
-import { mnemonicToWalletKey } from 'ton-crypto';
+import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
+import { mnemonicToWalletKey } from '@ton/crypto';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
 import { deriveUtilityKey } from '../../storage/utilityKeys';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { StatusBar } from 'expo-status-bar';
 import { PasscodeSetup } from '../passcode/PasscodeSetup';
@@ -19,30 +18,36 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passcodeStateKey } from '../../storage/secureStorage';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useSetAppState } from '../../engine/hooks';
+import { useCallback, useState } from 'react';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean
 }) => {
-    const { AppConfig, Theme } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const reboot = useReboot();
+    const setAppState = useSetAppState();
 
-    const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
-    const [loading, setLoading] = React.useState(false);
+    const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
+    const [loading, setLoading] = useState(false);
 
-    const onAfterImport = React.useCallback(() => {
+    const onAfterImport = useCallback(() => {
         const address = getBackup();
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, AppConfig.isTestnet);
-        reboot();
+        markAddressSecured(address.address, isTestnet);
+        navigation.navigateAndReplaceAll('Home');
     }, []);
 
-    const onConfirmed = React.useCallback(async (passcode: string) => {
+    const onConfirmed = useCallback(async (passcode: string) => {
         setLoading(true);
         try {
 
@@ -90,10 +95,11 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         publicKey: key.publicKey,
                         secretKeyEnc, // With passcode
                         utilityKey,
+                        addressString: contract.address.toString({ testOnly: isTestnet })
                     }
                 ],
                 selected: state.addresses.length
-            }, AppConfig.isTestnet);
+            }, isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
 
@@ -111,7 +117,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         throw Error('Invalid state');
                     }
                     const account = getCurrentAddress();
-                    markAddressSecured(account.address, AppConfig.isTestnet);
+                    markAddressSecured(account.address, isTestnet);
                     reboot();
                 }
                 navigation.navigate('WalletBackupInit');
@@ -138,7 +144,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     exiting={FadeOutDown}
                 >
                     <StatusBar style={'dark'} />
-                    <PasscodeSetup style={props.import ? { backgroundColor: Theme.item } : undefined} onReady={onConfirmed} />
+                    <PasscodeSetup style={props.import ? { backgroundColor: theme.item } : undefined} onReady={onConfirmed} />
                 </Animated.View>
             )}
 

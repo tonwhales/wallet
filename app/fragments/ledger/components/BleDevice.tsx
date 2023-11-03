@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, Text } from "react-native";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
 
 export type LedgerDevice = {
     id: string,
@@ -11,7 +11,7 @@ export type LedgerDevice = {
 }
 
 export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: any) => Promise<void>, device: any }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [pending, setPending] = useState(false);
 
     const onPress = useCallback(async () => {
@@ -37,7 +37,7 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    backgroundColor: Theme.item
+                    backgroundColor: theme.item
                 }
             }}
         >

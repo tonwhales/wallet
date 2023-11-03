@@ -6,34 +6,35 @@ import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../anal
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { Engine, useEngine } from "../engine/Engine";
 import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { storage } from "../storage/storage";
 import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useAppConfig } from "../utils/AppConfigContext";
-import { Address } from "ton";
-import { holdersUrl } from "../engine/holders/HoldersProduct";
+import { useTheme } from '../engine/hooks';
+import { Address } from "@ton/core";
+import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
+import { useNetwork } from '../engine/hooks';
 
-export function clearHolders(engine: Engine, address?: Address) {
-    const holdersDomain = extractDomain(holdersUrl);
-    engine.products.holders.stopWatching();
-    engine.persistence.domainKeys.setValue(
-        `${(address ?? engine.address).toFriendly({ testOnly: engine.isTestnet })}/${holdersDomain}`,
-        null
-    );
-    engine.persistence.holdersState.setValue(address ?? engine.address, null);
-    engine.products.holders.deleteToken();
+export function clearHolders(isTestnet: boolean, address?: Address) {
+    // TODO
+    // const holdersDomain = extractDomain(holdersUrl);
+    // engine.products.holders.stopWatching();
+    // engine.persistence.domainKeys.setValue(
+    //     `${(address ?? engine.address).toString({ testOnly: isTestnet })}/${holdersDomain}`,
+    //     null
+    // );
+    // engine.persistence.holdersState.setValue(address ?? engine.address, null);
+    // engine.products.holders.deleteToken();
 }
 
 export const LogoutFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const reboot = useReboot();
-    const engine = useEngine();
 
     const onDeletetAccount = React.useCallback(() => {
         if (Platform.OS === 'ios') {
@@ -47,11 +48,7 @@ export const LogoutFragment = fragment(() => {
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
-                        storage.clearAll();
-                        clearHolders(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
+                        onAccountDeleted(isTestnet);
                         reboot();
                     }
                 }
@@ -62,16 +59,11 @@ export const LogoutFragment = fragment(() => {
                 t('confirm.logout.message'),
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        storage.clearAll();
-                        clearHolders(engine);
-                        mixpanelReset(AppConfig.isTestnet) // Clear super properties and generates a new random distinctId
-                        trackEvent(MixpanelEvent.Reset, undefined, AppConfig.isTestnet);
-                        mixpanelFlush(AppConfig.isTestnet);
-                        reboot();
+                        onAccountDeleted(isTestnet);
                     }
                 }, { text: t('common.cancel') }])
         }
-    }, []);
+    }, [isTestnet]);
 
     return (
         <View style={{
@@ -100,7 +92,7 @@ export const LogoutFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: Theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
                             {t('settings.logoutDescription')}
                         </Text>
                     </View>

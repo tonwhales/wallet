@@ -3,10 +3,10 @@ import { Pressable, View, Text } from 'react-native';
 import Collapsible from 'react-native-collapsible';
 import Chevron from '../../assets/ic_chevron_down.svg'
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { title?: string, children?: any, hideDivider?: boolean }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [collapsed, setCollapsed] = useState(true);
 
     const rotation = useSharedValue(0);
@@ -41,7 +41,7 @@ export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { t
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: theme.textColor,
                     }}>
                         {title}
                     </Text>
@@ -59,7 +59,7 @@ export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { t
                 </Animated.View>
             </Pressable>
             <Collapsible collapsed={collapsed}>
-                {!hideDivider && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider }} />)}
+                {!hideDivider && (<View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider }} />)}
                 {children}
             </Collapsible>
         </View>

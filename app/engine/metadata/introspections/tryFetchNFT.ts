@@ -1,4 +1,5 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
+import { TonClient4 } from "@ton/ton";
 
 export async function tryFetchNFT(client: TonClient4, seqno: number, address: Address) {
     let nftData = await client.runMethod(seqno, address, 'get_nft_data');
@@ -24,10 +25,10 @@ export async function tryFetchNFT(client: TonClient4, seqno: number, address: Ad
         return null;
     }
 
-    let inited = !nftData.result[0].value.eqn(0);
-    let index = nftData.result[1].value.toNumber();
-    let collection = nftData.result[2].cell.beginParse().readAddress();
-    let owner = nftData.result[3].cell.beginParse().readAddress();
+    let inited = nftData.result[0].value !== BigInt(0);
+    let index = Number(nftData.result[1].value);
+    let collection = nftData.result[2].cell.beginParse().loadAddress();
+    let owner = nftData.result[3].cell.beginParse().loadAddress();
     let content = nftData.result[4].cell;
     
     return {

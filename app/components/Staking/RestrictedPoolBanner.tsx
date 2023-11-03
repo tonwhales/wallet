@@ -3,14 +3,16 @@ import { View, Text, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { WImage } from "../WImage";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
 
 export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team' }) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const onLearMore = useCallback(
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+     const onLearMore = useCallback(
         () => {
             if (type === 'club') {
-                openWithInApp(AppConfig.isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
+                openWithInApp(isTestnet ? 'https://test.tonwhales.com/club' : 'https://tonwhales.com/club');
                 return;
             }
             openWithInApp('https://whalescorp.notion.site/TonWhales-job-offers-235c45dc85af44718b28e79fb334eff1');
@@ -22,7 +24,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
     return (
         <>
             <View style={{
-                alignItems: 'center', borderRadius: 16, borderColor: Theme.accent, borderWidth: 1,
+                alignItems: 'center', borderRadius: 16, borderColor: theme.accent, borderWidth: 1,
                 marginHorizontal: 16, padding: 16, marginTop: 24
             }}>
                 <WImage
@@ -34,7 +36,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 <Text style={{
                     fontSize: 16,
                     textAlignVertical: 'center',
-                    color: Theme.textColor,
+                    color: theme.textColor,
                     marginTop: 20,
                     fontWeight: '600',
                     flexGrow: 1,
@@ -46,7 +48,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 <Text style={{
                     fontSize: 14,
                     textAlign: 'center',
-                    color: Theme.textSecondary,
+                    color: theme.textSecondary,
                     fontWeight: '500',
                     marginTop: 12,
                     flexGrow: 1,
@@ -58,7 +60,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 <Pressable
                     style={({ pressed }) => {
                         return ({
-                            backgroundColor: Theme.secondaryButton,
+                            backgroundColor: theme.secondaryButton,
                             margin: 24,
                             paddingHorizontal: 16,
                             paddingVertical: 11,
@@ -71,7 +73,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                     <Text style={{
                         fontSize: 14,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textColor,
                         fontWeight: '600',
                     }}>
                         {type === 'club' && t('products.staking.pools.clubBannerLearnMore')}

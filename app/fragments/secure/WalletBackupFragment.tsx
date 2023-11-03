@@ -8,17 +8,17 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useReboot } from '../../utils/RebootContext';
-import { warn } from '../../utils/log';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const { height } = useWindowDimensions();
     const navigation = useTypedNavigation();
     const route = useRoute();
@@ -27,14 +27,13 @@ export const WalletBackupFragment = systemFragment(() => {
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
     const address = React.useMemo(() => getBackup(), []);
-    const engine = useEngine();
     const authContext = useKeysAuth();
     const onComplete = React.useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, AppConfig.isTestnet);
+        markAddressSecured(address.address, isTestnet);
         if (back) {
             navigation.goBack();
         } else {
@@ -43,11 +42,11 @@ export const WalletBackupFragment = systemFragment(() => {
             }
             navigation.navigateAndReplaceAll('Home');
         }
-    }, [engine]);
+    }, []);
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
+                let keys = await authContext.authenticate({ backgroundColor: theme.item });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -64,11 +63,11 @@ export const WalletBackupFragment = systemFragment(() => {
     if (!mnemonics) {
         return (
             <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item }}
+                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: theme.item }}
                 exiting={FadeOutDown}
                 key={"loader"}
             >
-                <ActivityIndicator color={Theme.loader} />
+                <ActivityIndicator color={theme.loader} />
             </Animated.View>
         )
     }
@@ -78,8 +77,8 @@ export const WalletBackupFragment = systemFragment(() => {
     for (let i = 0; i < 24; i++) {
         const component = (
             <View key={'mn-' + i} style={{ flexDirection: 'row', marginBottom: height > 800 ? 16 : 12 }}>
-                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 23, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
-                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
+                <Text style={{ textAlign: 'right', color: theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 23, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
+                <Text style={{ color: theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
             </View>
         );
         if (i < 12) {
@@ -94,7 +93,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+                backgroundColor: theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
             }}
             exiting={FadeIn}
             key={"content"}
@@ -102,7 +101,7 @@ export const WalletBackupFragment = systemFragment(() => {
             <AndroidToolbar />
             <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
                 <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: Theme.priceSecondary }}>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: theme.priceSecondary }}>
                     {t('backup.subtitle')}
                 </Text>
                 <View style={{

@@ -1,40 +1,39 @@
-import React from "react"
+import React, { memo } from "react"
 import { View, Text, Pressable, Alert } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
-import { Address, Cell, fromNano, SupportedMessage, toNano } from "ton";
+import { Address, Cell, fromNano } from "@ton/core";
 import { AddressComponent } from "../AddressComponent";
-import BN from "bn.js";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
-import { Operation } from "../../engine/transactions/types";
 import { KnownWallet } from "../../secure/KnownWallets";
-import { AddressContact } from "../../engine/products/SettingsProduct";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
 import { t } from "../../i18n/t";
-import { fromBNWithDecimals } from "../../utils/withDecimals";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { fromBnWithDecimals } from "../../utils/withDecimals";
+import { useTheme } from '../../engine/hooks';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
+import { Operation } from '../../engine/transactions/types';
 
-export const TransferComponent = React.memo(({ transfer, last, first, index }: {
+export const TransferComponent = memo(({ transfer, last, first, index }: {
     transfer: {
         message: {
             addr: {
                 address: Address,
-                balance: BN,
+                balance: bigint,
                 active: boolean,
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
         },
         operation: Operation,
-        parsedBody: SupportedMessage | null,
+        parsedBody: any | null,
         known?: KnownWallet,
         spam: boolean,
-        jettonAmount: BN | null,
+        jettonAmount: bigint | null,
         contact?: AddressContact,
         jettonMaster: JettonMasterState | null
     },
@@ -42,7 +41,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
     last?: boolean,
     index: number,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const amount = transfer.message.amount;
     const inactiveAlert = React.useCallback(() => {
         Alert.alert(t('transfer.error.addressIsNotActive'),
@@ -62,7 +61,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                 }}
             >
                 <Text style={{
-                    color: Theme.textSubtitle,
+                    color: theme.textSubtitle,
                     fontSize: 14,
                     marginRight: 14,
                     marginTop: 2,
@@ -77,7 +76,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 17,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     includeFontPadding: false,
                                 }}>
                                     {`${fromNano(amount)} TON`}
@@ -85,11 +84,11 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                 <PriceComponent
                                     amount={amount}
                                     style={{
-                                        backgroundColor: Theme.transparent,
+                                        backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
                                         marginTop: 4
                                     }}
-                                    textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                    textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
                                 />
                             </View>
                         )}
@@ -98,10 +97,10 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 17,
-                                    color: Theme.textColor,
+                                    color: theme.textColor,
                                     includeFontPadding: false,
                                 }}>
-                                    {`${fromBNWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
+                                    {`${fromBnWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
                                 </Text>
                             </View>
                         )}
@@ -123,7 +122,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 17,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 includeFontPadding: false,
                                             }}
                                                 numberOfLines={1}
@@ -134,7 +133,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                         <Text style={{
                                             fontWeight: '400',
                                             fontSize: 14,
-                                            color: Theme.labelSecondary,
+                                            color: theme.labelSecondary,
                                             marginTop: 4,
                                             includeFontPadding: false,
                                         }}>
@@ -153,7 +152,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                             alignSelf: 'flex-start',
                                                             flexDirection: 'row',
                                                             borderRadius: 6, borderWidth: 1,
-                                                            borderColor: Theme.warningSecondaryBorder,
+                                                            borderColor: theme.warningSecondaryBorder,
                                                             paddingHorizontal: 8, paddingVertical: 4,
                                                             marginTop: 4,
                                                             justifyContent: 'center', alignItems: 'center',
@@ -164,7 +163,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                     <Text style={{
                                                         fontSize: 14,
                                                         fontWeight: '400',
-                                                        color: Theme.warningSecondary
+                                                        color: theme.warningSecondary
                                                     }}>
                                                         {t('transfer.addressNotActive')}
                                                     </Text>
@@ -176,7 +175,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: Theme.contactBorder,
+                                                borderColor: theme.contactBorder,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 8
                                             }}>
@@ -192,7 +191,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 17,
-                                            color: Theme.textColor,
+                                            color: theme.textColor,
                                             includeFontPadding: false,
                                         }}>
                                             <AddressComponent
@@ -210,7 +209,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                             alignSelf: 'flex-start',
                                                             flexDirection: 'row',
                                                             borderRadius: 6, borderWidth: 1,
-                                                            borderColor: Theme.warningSecondaryBorder,
+                                                            borderColor: theme.warningSecondaryBorder,
                                                             paddingHorizontal: 8, paddingVertical: 4,
                                                             marginTop: 6,
                                                             justifyContent: 'center', alignItems: 'center',
@@ -221,7 +220,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                                                     <Text style={{
                                                         fontSize: 14,
                                                         fontWeight: '400',
-                                                        color: Theme.warningSecondary
+                                                        color: theme.warningSecondary
                                                     }}>
                                                         {t('transfer.addressNotActive')}
                                                     </Text>
@@ -237,7 +236,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                     {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
                         <View style={{ alignItems: 'baseline' }}>
                             <View style={{
-                                backgroundColor: Theme.background,
+                                backgroundColor: theme.background,
                                 padding: 10,
                                 borderRadius: 6,
                                 marginTop: 8,
@@ -256,7 +255,7 @@ export const TransferComponent = React.memo(({ transfer, last, first, index }: {
                     style={{
                         height: 1,
                         alignSelf: 'stretch',
-                        backgroundColor: Theme.divider,
+                        backgroundColor: theme.divider,
                         marginBottom: 16
                     }}
                 />

@@ -6,6 +6,8 @@ export const CURRENT_PROTOCOL_VERSION = 2;
 
 export const MIN_PROTOCOL_VERSION = 2;
 
+export const bridgeUrl = 'https://connect.tonhubapi.com/tonconnect';
+
 const getPlatform = (): DeviceInfo['platform'] => {
   if (Platform.OS === 'ios') {
     return 'iphone';

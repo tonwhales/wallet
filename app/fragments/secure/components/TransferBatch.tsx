@@ -1,18 +1,9 @@
-import BN from "bn.js";
 import React from "react";
 import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import { Address, beginCell, Cell, fromNano, external, SendMode, storeMessage, toNano, MessageRelaxed, internal, loadStateInit, comment } from "@ton/core";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { useEngine } from "../../../engine/Engine";
 import { ContractMetadata } from "../../../engine/metadata/Metadata";
-import { useItem } from "../../../engine/persistence/PersistedItem";
-import { usePrice } from "../../../engine/PriceContext";
-import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
-import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
-import { resolveOperation } from "../../../engine/transactions/resolveOperation";
-import { createWalletTransferV4, internalFromSignRawMessage } from "../../../engine/utils/createWalletTransferV4";
 import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
@@ -30,14 +21,30 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { RoundButton } from "../../../components/RoundButton";
 import { TransferComponent } from "../../../components/transactions/TransferComponent";
 import { WImage } from "../../../components/WImage";
+import { formatCurrency } from "../../../utils/formatCurrency";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { useTheme } from '../../../engine/hooks';
+import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { fetchJettonMaster, getJettonMaster } from '../../../engine/getters/getJettonMaster';
+import { useClient4 } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { usePrice } from '../../../engine/hooks';
+import { useSelectedAccount } from '../../../engine/hooks';
+import { fetchSeqno } from '../../../engine/api/fetchSeqno';
+import { getLastBlock } from '../../../engine/accountWatcher';
+import { JettonMasterState } from '../../../engine/metadata/fetchJettonMasterContent';
+import { getAccountLite } from "../../../engine/getters/getAccountLite";
+import { useCommitCommand } from "../../../engine/hooks/dapps/useCommitCommand";
+
 import Question from '../../../../assets/ic_question.svg';
 import TonSign from '../../../../assets/ic_ton_sign.svg';
 import LottieView from 'lottie-react-native';
 import SignLock from '../../../../assets/ic_sign_lock.svg';
-import { formatCurrency } from "../../../utils/formatCurrency";
-import { fromBNWithDecimals } from "../../../utils/withDecimals";
-import { useAppConfig } from "../../../utils/AppConfigContext";
-import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { parseMessageBody } from '../../../engine/transactions/parseMessageBody';
+import { parseBody } from '../../../engine/transactions/parseWalletTransaction';
+import { resolveOperation } from '../../../engine/transactions/resolveOperation';
+import { BigMath } from '../../../utils/BigMath';
+import { useRegisterPending } from "../../../engine/hooks/transactions/useRegisterPending";
 
 type Props = {
     text: string | null,
@@ -46,12 +53,12 @@ type Props = {
         messages: {
             addr: {
                 address: Address;
-                balance: BN,
+                balance: bigint,
                 active: boolean
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
@@ -61,18 +68,22 @@ type Props = {
             title: string
         }
     },
-    fees: BN,
+    fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
-    totalAmount: BN
+    totalAmount: bigint
 }
 
 export const TransferBatch = React.memo((props: Props) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const client = useClient4(isTestnet);
+    const selected = useSelectedAccount();
+    const commitCommand = useCommitCommand();
+    const registerPending = useRegisterPending();
+
     const [price, currency] = usePrice();
     const {
         text,
@@ -86,30 +97,30 @@ export const TransferBatch = React.memo((props: Props) => {
 
     const { internals, totalJettons, gas } = React.useMemo(() => {
         const temp = [];
-        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: BN, gas: BN }>();
+        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: bigint, gas: bigint }>();
         let gas = {
-            total: new BN(0),
+            total: BigInt(0),
             unusual: false
         };
         for (const message of order.messages) {
             let body = message.payload ? parseBody(message.payload) : null;
-            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
+            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
 
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (message.metadata.jettonWallet) {
-                jettonMaster = engine.persistence.jettonMasters.item(message.metadata.jettonWallet!.master).value;
+                jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master, isTestnet) || null;
             }
 
-            let jettonAmount: BN | null = null;
+            let jettonAmount: bigint | null = null;
             try {
                 if (jettonMaster && message.payload) {
                     const temp = message.payload;
                     if (temp) {
                         const parsing = temp.beginParse();
-                        parsing.readUint(32);
-                        parsing.readUint(64);
-                        jettonAmount = parsing.readCoins();
+                        parsing.loadUint(32);
+                        parsing.loadUint(64);
+                        jettonAmount = parsing.loadCoins();
                     }
                 }
             } catch (e) {
@@ -117,10 +128,10 @@ export const TransferBatch = React.memo((props: Props) => {
             }
 
             if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
-                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: AppConfig.isTestnet });
+                const addr = message.metadata.jettonWallet?.master.toString({ testOnly: isTestnet });
                 const value = totalJettons.get(addr);
                 if (!!value) {
-                    value.jettonAmount = value.jettonAmount.add(jettonAmount);
+                    value.jettonAmount = value.jettonAmount + jettonAmount;
                     totalJettons.set(addr, value);
                 } else {
                     totalJettons.set(addr, {
@@ -130,9 +141,9 @@ export const TransferBatch = React.memo((props: Props) => {
                     });
                 }
 
-                gas.total = gas.total.add(message.amount);
+                gas.total = gas.total + message.amount;
 
-                if (message.amount.gt(toNano('0.2'))) {
+                if (message.amount > toNano('0.2')) {
                     gas.unusual = true;
                 }
             }
@@ -142,22 +153,22 @@ export const TransferBatch = React.memo((props: Props) => {
                 body: body,
                 amount: message.amount,
                 account: message.addr.address,
-                metadata: message.metadata,
-                jettonMaster
-            });
+            }, isTestnet);
 
-            const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
+            // const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toString({ testOnly: isTestnet })];
+            const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
             let known: KnownWallet | undefined = undefined;
-            if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-                known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
-            } else if (operation.title) {
-                known = { name: operation.title };
-            } else if (!!contact) { // Resolve contact known wallet
-                known = { name: contact.name }
+            if (KnownWallets(isTestnet)[friendlyTarget]) {
+                known = KnownWallets(isTestnet)[friendlyTarget];
+            } else if (operation.op) {
+                known = { name: t(operation.op.res, operation.op.options) };
             }
-            const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
+            // } else if (!!contact) { // Resolve contact known wallet
+            //     known = { name: contact.name }
+            // }
+            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toString({ testOnly: isTestnet })];
+            // const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
+            const spam = false;
 
             temp.push({
                 message,
@@ -166,7 +177,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 known,
                 spam,
                 jettonAmount,
-                contact,
+                contact: null,
                 jettonMaster
             });
         }
@@ -184,7 +195,7 @@ export const TransferBatch = React.memo((props: Props) => {
     const success = React.useRef(false);
     React.useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { order }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.TransferCancel, { order }, isTestnet);
         }
     }, []);
 
@@ -212,7 +223,11 @@ export const TransferBatch = React.memo((props: Props) => {
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        const messages: InternalMessage[] = [];
+        if (!selected) {
+            return;
+        }
+
+        const messages: MessageRelaxed[] = [];
         for (const i of internals) {
             const target = i.message.addr.address;
             const restricted = i.message.restricted;
@@ -245,27 +260,36 @@ export const TransferBatch = React.memo((props: Props) => {
                 bounce = false;
             }
 
+            const internalStateInit = !!i.message.stateInit
+                ? loadStateInit(i.message.stateInit.asSlice())
+                : null;
+
+            const body = !!order.messages[0].payload
+                ? order.messages[0].payload
+                : text ? comment(text) : null;
+
             // Create message
-            const msg = internalFromSignRawMessage({
-                target: i.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                amount: i.message.amount,
-                payload: i.message.payload,
-                amountAll: i.message.amountAll,
-                stateInit: i.message.stateInit
-            }, bounce);
+            const msg = internal({
+                to: i.message.addr.address,
+                value: i.message.amount,
+                init: internalStateInit,
+                bounce,
+                body,
+            });
 
             if (msg) {
                 messages.push(msg);
             }
-
         }
 
+        const account = getAccountLite(selected.addressString);
+
         // Check amount
-        if (account.balance.lt(totalAmount)) {
+        if (account!.balance < totalAmount) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (totalAmount.eq(new BN(0))) {
+        if (totalAmount === 0n) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -279,15 +303,19 @@ export const TransferBatch = React.memo((props: Props) => {
             return;
         }
 
+
+        let seqno = await fetchSeqno(client, await getLastBlock(), selected.address);
+
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = createWalletTransferV4({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
+            transfer = contract.createTransfer({
+                seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                messages
+                sendMode: order.messages[0].amountAll
+                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages,
             });
         } catch (e) {
             warn('Failed to create transfer');
@@ -295,22 +323,20 @@ export const TransferBatch = React.memo((props: Props) => {
         }
 
         // Create external message
-        let extMessage = new ExternalMessage({
+        const extMessage = external({
             to: contract.address,
-            body: new CommonMessageInfo({
-                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                body: new CellMessage(transfer)
-            })
+            body: transfer,
+            init: seqno === 0 ? contract.init : undefined
         });
-        let msg = new Cell();
-        extMessage.writeTo(msg);
+
+        let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
         // Sending transaction
-        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
         if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
+            await commitCommand(true, job, transfer);
         }
 
         // Notify callback
@@ -325,25 +351,36 @@ export const TransferBatch = React.memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { order }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { order }, isTestnet);
 
         // Register pending
-        engine.products.main.registerPending({
-            id: 'pending-' + account.seqno,
-            lt: null,
+        registerPending({
+            id: 'pending-' + seqno,
             fees: fees,
-            amount: totalAmount.mul(new BN(-1)),
+            amount: totalAmount * (BigInt(-1)),
             address: null,
-            seqno: account.seqno,
-            kind: 'out',
-            body: null,
-            status: 'pending',
+            seqno: seqno,
+            body: { type: 'batch' },
             time: Math.floor(Date.now() / 1000),
-            bounced: false,
-            prev: null,
-            mentioned: [],
             hash: msg.hash(),
         });
+        // TODO
+        // engine.products.main.registerPending({
+        //     id: 'pending-' + account.seqno,
+        //     lt: null,
+        //     fees: fees,
+        //     amount: totalAmount.mul(BigInt(-1)),
+        //     address: null,
+        //     seqno: account.seqno,
+        //     kind: 'out',
+        //     body: null,
+        //     status: 'pending',
+        //     time: Math.floor(Date.now() / 1000),
+        //     bounced: false,
+        //     prev: null,
+        //     mentioned: [],
+        //     hash: msg.hash(),
+        // });
 
         // Reset stack to root
         if (back && back > 0) {
@@ -390,7 +427,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: Theme.labelSecondary
+                            color: theme.labelSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -429,7 +466,7 @@ export const TransferBatch = React.memo((props: Props) => {
                         <Text style={{
                             fontWeight: '700',
                             fontSize: 20,
-                            color: Theme.textColor,
+                            color: theme.textColor,
                             marginHorizontal: 16,
                             marginVertical: 16,
                         }}>
@@ -442,7 +479,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 alignItems: 'center'
                             }}>
                                 <View style={{
-                                    backgroundColor: Theme.accent,
+                                    backgroundColor: theme.accent,
                                     height: 20, width: 20,
                                     borderRadius: 20,
                                     justifyContent: 'center',
@@ -454,7 +491,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 20,
-                                    color: Theme.textColor
+                                    color: theme.textColor
                                 }}>
                                     {fromNano(totalAmount) + ' TON'}
                                 </Text>
@@ -462,11 +499,11 @@ export const TransferBatch = React.memo((props: Props) => {
                             <PriceComponent
                                 amount={totalAmount}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0,
                                     marginLeft: 48, marginTop: 4
                                 }}
-                                textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
                             />
                         </View>
                         {totalJettons.size > 0 && (
@@ -482,7 +519,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             alignItems: 'center'
                                         }}>
                                         <View style={{
-                                            backgroundColor: Theme.accent,
+                                            backgroundColor: theme.accent,
                                             height: 20, width: 20,
                                             borderRadius: 20,
                                             justifyContent: 'center',
@@ -500,17 +537,17 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 20,
-                                                color: Theme.textColor,
+                                                color: theme.textColor,
                                                 marginLeft: 2
                                             }}>
-                                                {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
+                                                {`${fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
                                             </Text>
                                         </View>
                                     </View>
                                 )
                             })
                         )}
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
                         <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
                             {totalJettons.size > 0 && (
                                 <>
@@ -519,7 +556,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontSize: 14,
                                                 fontWeight: '500',
-                                                color: Theme.textSecondary,
+                                                color: theme.textSecondary,
                                                 alignSelf: 'center',
                                                 flexGrow: 1, flexBasis: 0
                                             }}>
@@ -530,11 +567,11 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
                                                 <Text style={{
                                                     fontSize: 16,
-                                                    color: gas.unusual ? Theme.warningSecondary : Theme.textColor,
+                                                    color: gas.unusual ? theme.warningSecondary : theme.textColor,
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
-                                                    {(!AppConfig.isTestnet && price)
-                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
+                                                    {(!isTestnet && price)
+                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(BigMath.abs(gas.total))) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
                                                         : fromNano(gas.total) + ' TON'
                                                     }
                                                 </Text>
@@ -548,7 +585,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
+                                                        borderColor: theme.warningSecondaryBorder,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginBottom: 16,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -559,7 +596,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.warningSecondary
                                                 }}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>
@@ -567,7 +604,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             </Pressable>
                                         )}
                                     </View>
-                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 6 }} />
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginBottom: 6 }} />
                                 </>
                             )}
                             <ItemLarge
@@ -581,7 +618,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             return (
                                 <TransferComponent
                                     key={'transfer' + index}
-                                    transfer={i}
+                                    transfer={i as any}
                                     first={index === 0}
                                     last={index >= internals.length - 1}
                                     index={index}
@@ -599,7 +636,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                         <ItemAddress
                                             key={'address' + index}
                                             title={`#${index + 1} ` + t('common.walletAddress')}
-                                            text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
+                                            text={i.operation.address}
                                         />
                                         {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
                                     </>

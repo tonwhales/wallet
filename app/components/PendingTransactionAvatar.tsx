@@ -5,7 +5,8 @@ import { avatarColors, avatarImages } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
 import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useNetwork } from '../engine/hooks';
+import { useTheme } from '../engine/hooks';
 
 const Color = require('color');
 
@@ -18,13 +19,15 @@ export const PendingTransactionAvatar = React.memo(({
     avatarId: string,
     address?: string
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const { isTestnet } = useNetwork();
+    const theme = useTheme();
+    
     const ref = useRef<CircularProgress>(null);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
     let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
 
     let size = Math.floor(42 * 0.6);
-    let known = address ? KnownWallets(AppConfig.isTestnet)[address] : undefined;
+    let known = address ? KnownWallets(isTestnet)[address] : undefined;
     let lighter = Color(color).lighten(0.4).hex();
     let darker = Color(color).lighten(0.2).hex();
 
@@ -94,7 +97,7 @@ export const PendingTransactionAvatar = React.memo(({
                 backgroundColor={progressParams.backgroundColor}
                 fullColor={null}
                 loop={true}
-                containerColor={Theme.transparent}
+                containerColor={theme.transparent}
             />
         </View>
     )

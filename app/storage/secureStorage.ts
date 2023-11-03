@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypto';
+import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from '@ton/crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
@@ -282,6 +282,10 @@ export async function updatePasscode(prevPasscode: string, newPasscode: string) 
 
 export function getPasscodeState() {
     return (storage.getString(passcodeStateKey) ?? null) as PasscodeState | null;
+}
+
+export function storePasscodeState(state: PasscodeState) {
+    storage.set(passcodeStateKey, state);
 }
 
 export function getBiometricsState() {

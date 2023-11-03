@@ -1,10 +1,10 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import React, { RefObject, createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { Platform, View, Text, Image, Alert, KeyboardAvoidingView, Keyboard, TouchableHighlight, LayoutAnimation } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput, ATextInputRef } from "../components/ATextInput";
 import { Avatar } from "../components/Avatar";
@@ -12,14 +12,17 @@ import { CloseButton } from "../components/CloseButton";
 import { ContactField } from "../components/Contacts/ContactField";
 import { Item } from "../components/Item";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { confirmAlert } from "../utils/confirmAlert";
 import { warn } from "../utils/log";
 import { useParams } from "../utils/useParams";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
+import { useNetwork } from '../engine/hooks';
+import { useSetContact } from "../engine/hooks/contacts/useSetContact";
+import { useRemoveContact } from "../engine/hooks/contacts/useRemoveContact";
+import { useContact } from '../engine/hooks';
 
 const requiredFields = [
     { key: 'lastName', value: '' },
@@ -29,19 +32,22 @@ const requiredFields = [
 export const ContactFragment = fragment(() => {
     const params = useParams<{ address: string }>();
     const navigation = useTypedNavigation();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
+    let address!: Address;
     try {
-        Address.parse(params.address);
+        address = Address.parse(params.address);
     } catch (e) {
         warn(e);
         navigation.goBack();
+        return null;
     }
-    const address = useMemo(() => Address.parse(params.address), []);
+    
+    const setContact = useSetContact();
+    const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
-    const settings = engine.products.settings;
-    const contact = settings.useContactAddress(Address.parse(params.address));
+    const contact = useContact(params.address);
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);
@@ -59,62 +65,45 @@ export const ContactFragment = fragment(() => {
         return false
     }, [fields, name, contact]);
 
-    useEffect(() => {
-        if (contact) {
-            setName(contact.name);
-            setFields(contact.fields || requiredFields);
+    const onSave = useCallback(async () => {
+        if (!editing) {
+            setEditing(true);
+            return;
         }
-    }, [contact]);
+        if (!name || name.length > 126) {
+            Alert.alert(t('contacts.alert.name'), t('contacts.alert.nameDescription'))
+            return;
+        }
 
-
-    const onCancel = useCallback(
-        () => {
-            setEditing(false);
-        },
-        [],
-    );
-
-    const onAction = useCallback(
-        () => {
-            // Dismiss keyboard for iOS
-            if (Platform.OS === 'ios') {
-                Keyboard.dismiss();
-            }
-            if (!editing) {
-                setEditing(true);
+        for (let field of fields) {
+            if (field.value && field.value.length > 280) {
+                Alert.alert(
+                    t('contacts.alert.notes'),
+                    t('contacts.alert.notesDescription')
+                );
                 return;
             }
-            if (!name || name.length > 126) {
-                Alert.alert(t('contacts.alert.name'), t('contacts.alert.nameDescription'))
-                return;
-            }
+        }
 
-            for (let field of fields) {
-                if (field.value && field.value.length > 280) {
-                    Alert.alert(
-                        t('contacts.alert.notes'),
-                        t('contacts.alert.notesDescription')
-                    );
-                    return;
-                }
-            }
+        try {
+            await setContact(address.toString({ testOnly: isTestnet }), { name, fields });
+        } catch {
+            Alert.alert(t('errors.title'), t('errors.unknown'));
+        }
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
+        }
+        setEditing(false);
+    }, [editing, fields, name, address, isTestnet]);
 
-            settings.setContact(address, { name, fields });
-            setEditing(false);
-        },
-        [editing, fields, name, address],
-    );
-
-    const onDelete = useCallback(
-        async () => {
-            const confirmed = await confirmAlert('contacts.delete');
-            if (confirmed) {
-                settings.removeContact(address);
-                navigation.goBack();
-            }
-        },
-        [address],
-    );
+    const onDelete = useCallback(async () => {
+        const confirmed = await confirmAlert('contacts.delete');
+        if (confirmed) {
+            removeContact(address.toString({ testOnly: isTestnet }));
+            navigation.goBack();
+        }
+    }, [address, isTestnet]);
 
     const onFieldChange = useCallback((index: number, value: string) => {
         setFields((prev) => {
@@ -125,20 +114,20 @@ export const ContactFragment = fragment(() => {
     }, [fields, setFields]);
 
     // Scroll with Keyboard
-    const [selectedInput, setSelectedInput] = React.useState(0);
+    const [selectedInput, setSelectedInput] = useState(0);
 
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
-        r.push(React.createRef()); // name input ref
+    const refs = useMemo(() => {
+        let r: RefObject<ATextInputRef>[] = [];
+        r.push(createRef()); // name input ref
         for (let i = 0; i < fields.length; i++) {
-            r.push(React.createRef());
+            r.push(createRef());
         }
         return r;
     }, [fields]);
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -159,19 +148,19 @@ export const ContactFragment = fragment(() => {
 
     const keyboard = useKeyboard();
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
-    const onSubmit = React.useCallback((index: number) => {
+    const onSubmit = useCallback((index: number) => {
         let next = refs[index + 1]?.current;
         if (next) {
             next.focus();
@@ -181,7 +170,6 @@ export const ContactFragment = fragment(() => {
     useLayoutEffect(() => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
     }, [editing]);
-
 
     return (
         <View style={{
@@ -226,34 +214,34 @@ export const ContactFragment = fragment(() => {
                         <View style={{ width: 84, height: 84, borderRadius: 42, borderWidth: 0, alignItems: 'center', justifyContent: 'center' }}>
                             <Avatar address={params.address} id={params.address} size={84} image={undefined} />
                         </View>
-                        <View style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
                             <Text style={{
                                 fontSize: 18,
                                 fontWeight: '700',
                                 marginVertical: 8,
-                                color: Theme.textColor
+                                color: theme.textColor
                             }}>
                                 {`${params.address.slice(0, 6) + '...' + params.address.slice(params.address.length - 6)}`}
                             </Text>
                         </View>
                         {!editing && (
                             <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: Theme.item, borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.item, borderRadius: 14 }}>
                                     <TouchableHighlight
                                         onPress={() => {
                                             navigation.navigate(
                                                 'Assets',
-                                                { target: address.toFriendly({ testOnly: AppConfig.isTestnet }) }
+                                                { target: address.toString({ testOnly: isTestnet }) }
                                             );
                                         }}
-                                        underlayColor={Theme.selector}
+                                        underlayColor={theme.selector}
                                         style={{ borderRadius: 14 }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                            <View style={{ backgroundColor: Theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
+                                            <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../assets/ic_send.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: Theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                            <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -262,7 +250,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -293,7 +281,7 @@ export const ContactFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: Theme.label,
+                                        color: theme.label,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('contacts.name')}
@@ -304,12 +292,12 @@ export const ContactFragment = fragment(() => {
                             autoCorrect={false}
                             autoComplete={'off'}
                             style={{
-                                backgroundColor: Theme.transparent,
+                                backgroundColor: theme.transparent,
                                 paddingHorizontal: 0,
                                 marginHorizontal: 16,
                             }}
                         />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
+                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
                         {fields.map((field, index) => {
                             return (
                                 <ContactField
@@ -331,8 +319,8 @@ export const ContactFragment = fragment(() => {
                     </View>
                     {editing && !!contact && (
                         <Item
-                            textColor={Theme.dangerZone}
-                            backgroundColor={Theme.background}
+                            textColor={theme.dangerZone}
+                            backgroundColor={theme.background}
                             title={t('contacts.delete')}
                             onPress={onDelete}
                         />
@@ -352,7 +340,7 @@ export const ContactFragment = fragment(() => {
                         <RoundButton
                             title={t('common.cancel')}
                             disabled={!editing}
-                            onPress={onAction}
+                            action={onSave}
                             display={'secondary'}
                             style={{ flexGrow: 1, marginRight: 8 }}
                         />
@@ -367,7 +355,7 @@ export const ContactFragment = fragment(() => {
                         )}
                         style={{ flexGrow: 1 }}
                         disabled={editing && !hasChanges}
-                        onPress={onAction}
+                        action={onSave}
                         display={editing && !hasChanges ? 'secondary' : 'default'}
                     />
                 </View>

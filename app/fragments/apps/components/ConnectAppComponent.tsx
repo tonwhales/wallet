@@ -7,21 +7,21 @@ import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useEngine } from '../../../engine/Engine';
 import { protectNavigation } from './protect/protectNavigation';
 import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useDAppBridge } from '../../../engine/tonconnect/useInjectConnectEngine';
-import { useAppConfig } from '../../../utils/AppConfigContext';
-import { memo, useMemo, useState } from 'react';
+import { useDAppBridge } from '../../../engine/hooks';
+import { useTheme } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
 
-export const ConnectAppComponent = memo((props: {
+export const ConnectAppComponent = React.memo((props: {
     endpoint: string,
     title: string,
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     // 
     // Track events
@@ -33,16 +33,16 @@ export const ConnectAppComponent = memo((props: {
     }, []);
     const close = React.useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' }, isTestnet);
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, AppConfig.isTestnet);
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, isTestnet);
 
     //
     // View
     //
 
     const safeArea = useSafeAreaInsets();
-    let [loaded, setLoaded] = useState(false);
+    let [loaded, setLoaded] = React.useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -51,7 +51,7 @@ export const ConnectAppComponent = memo((props: {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: theme.background,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -62,14 +62,14 @@ export const ConnectAppComponent = memo((props: {
     // Navigation
     //
 
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+    const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
+        const resolved = resolveUrl(event.url, isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;
@@ -90,14 +90,12 @@ export const ConnectAppComponent = memo((props: {
     // Injection
     //
 
-    const engine = useEngine();
     const { ref, isConnected, disconnect, ...webViewProps } = useDAppBridge(
         props.endpoint,
-        engine,
         navigation
     );
 
-    const endpoint = useMemo(() => {
+    const endpoint = React.useMemo(() => {
         const url = new URL(props.endpoint);
         url.searchParams.set('utm_source', 'tonhub');
         url.searchParams.set('utm_content', 'extension');
@@ -106,13 +104,13 @@ export const ConnectAppComponent = memo((props: {
 
     return (
         <>
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <View style={{ height: safeArea.top }} />
                 <WebView
                     ref={ref}
                     source={{ uri: endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;
@@ -131,11 +129,11 @@ export const ConnectAppComponent = memo((props: {
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
-                    <ActivityIndicator size="large" color={Theme.accent} />
+                    <ActivityIndicator size="large" color={theme.accent} />
                 </Animated.View>
 
             </View>
-            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom, backgroundColor: Theme.background }}>
+            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom, backgroundColor: theme.background }}>
                 <RoundButton
                     title={t('common.close')}
                     display="secondary"
@@ -148,7 +146,7 @@ export const ConnectAppComponent = memo((props: {
                     top: 0.5, left: 0, right: 0,
                     height: 0.5,
                     width: '100%',
-                    backgroundColor: Theme.headerDivider,
+                    backgroundColor: theme.headerDivider,
                     opacity: 0.08
                 }} />
             </View>

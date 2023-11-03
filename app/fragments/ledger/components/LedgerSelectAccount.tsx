@@ -3,28 +3,30 @@ import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
+import { Address } from "@ton/core";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useEngine } from "../../../engine/Engine";
 import { t } from "../../../i18n/t";
 import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
 import { useTransport } from "./TransportContext";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { useTheme } from '../../../engine/hooks';
+import { useClient4 } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
 
-export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: BN };
+export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 
 export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => void }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const safeArea = useSafeAreaInsets();
     const { tonTransport, setAddr, addr } = useTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
+    const client = useClient4(isTestnet);
 
     useEffect(() => {
         (async () => {
@@ -32,17 +34,17 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                 return;
             }
             const proms: Promise<LedgerAccount>[] = [];
-            const seqno = (await engine.client4.getLastBlock()).last.seqno;
+            const seqno = (await client.getLastBlock()).last.seqno;
             for (let i = 0; i < 10; i++) {
                 proms.push((async () => {
-                    const path = pathFromAccountNumber(i, AppConfig.isTestnet);
-                    const addr = await tonTransport.getAddress(path, { testOnly: AppConfig.isTestnet });
+                    const path = pathFromAccountNumber(i, isTestnet);
+                    const addr = await tonTransport.getAddress(path, { testOnly: isTestnet });
                     try {
                         const address = Address.parse(addr.address);
-                        const liteAcc = await engine.client4.getAccountLite(seqno, address);
-                        return { i, addr, balance: new BN(liteAcc.account.balance.coins, 10) };
+                        const liteAcc = await client.getAccountLite(seqno, address);
+                        return { i, addr, balance: BigInt(liteAcc.account.balance.coins) };
                     } catch (error) {
-                        return { i, addr, balance: new BN(0) };
+                        return { i, addr, balance: BigInt(0) };
                     }
                 })());
             }
@@ -60,9 +62,9 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
                 return;
             }
             setSelected(acc.i);
-            let path = pathFromAccountNumber(acc.i, AppConfig.isTestnet);
+            let path = pathFromAccountNumber(acc.i, isTestnet);
             try {
-                await tonTransport.validateAddress(path, { testOnly: AppConfig.isTestnet });
+                await tonTransport.validateAddress(path, { testOnly: isTestnet });
                 setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
             } catch (e) {
@@ -88,7 +90,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
             <Text style={{
                 fontWeight: '600',
                 fontSize: 18,
-                color: Theme.textColor,
+                color: theme.textColor,
                 marginBottom: 16,
                 textAlign: 'center',
                 marginHorizontal: 16

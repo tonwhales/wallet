@@ -1,10 +1,10 @@
 import BN from "bn.js"
 import React from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
-import { fromNano } from "ton"
-import { usePrice } from "../engine/PriceContext"
+import { fromNano } from "@ton/core";
 import { formatCurrency } from "../utils/formatCurrency"
-import { useAppConfig } from "../utils/AppConfigContext"
+import { useTheme } from '../engine/hooks';
+import { usePrice } from '../engine/hooks'
 
 export const PriceComponent = React.memo((
     {
@@ -14,14 +14,14 @@ export const PriceComponent = React.memo((
         prefix,
         suffix
     }: {
-        amount: BN,
+        amount: bigint,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
         prefix?: string,
         suffix?: string
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [price, currency] = usePrice();
 
     if (!price) {
@@ -30,7 +30,7 @@ export const PriceComponent = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: Theme.accent,
+            backgroundColor: theme.accent,
             borderRadius: 9,
             height: 24,
             justifyContent: 'center',
@@ -39,12 +39,12 @@ export const PriceComponent = React.memo((
             paddingVertical: 4, paddingHorizontal: 8
         }, style]}>
             <Text style={[{
-                color: Theme.item,
+                color: theme.item,
                 fontSize: 14, fontWeight: '600',
                 textAlign: "center",
                 lineHeight: 16
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}${suffix ?? ''}`}
+                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano((amount < 0n) ? -amount : amount)) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount < 0n)}${suffix ?? ''}`}
             </Text>
         </View>
     )

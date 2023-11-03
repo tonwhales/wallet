@@ -1,35 +1,35 @@
-import React from "react";
+import React, { RefObject, memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
-import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
+import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
-import { WordInput, WordInputRef, normalize, wordsTrie } from "../../fragments/onboarding/WalletImportFragment";
-import { mnemonicValidate } from "ton-crypto";
+import { mnemonicValidate } from "@ton/crypto";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";
 import { StatusBar } from "expo-status-bar";
 import { AutocompleteView } from "../AutocompleteView";
+import { WordInput, WordInputRef, normalize, wordsTrie } from '../MnemonicWordInput';
 
-export const WalletWordsComponent = React.memo((props: {
+export const WalletWordsComponent = memo((props: {
     onComplete: (v: {
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     }) => void,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
     // References to all fields
-    const animatedRefs: React.RefObject<View>[] = [];
+    const animatedRefs: AnimatedRef<View>[] = [];
     for (let i = 0; i < 24; i++) {
-        animatedRefs.push(useAnimatedRef());
+        animatedRefs.push(useAnimatedRef<View>());
     }
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<WordInputRef>[] = [];
+    const refs = useMemo(() => {
+        let r: RefObject<WordInputRef>[] = [];
         for (let i = 0; i < 24; i++) {
             r.push(React.createRef());
         }
@@ -37,13 +37,13 @@ export const WalletWordsComponent = React.memo((props: {
     }, []);
 
     // Words and suggestions
-    const [words, setWords] = React.useState<string[]>([
+    const [words, setWords] = useState<string[]>([
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', '',
         '', '', '', '', '', '', '', ''
     ]);
-    const [selectedWord, setSelectedWord] = React.useState(0);
-    const suggestions = React.useMemo(() => {
+    const [selectedWord, setSelectedWord] = useState(0);
+    const suggestions = useMemo(() => {
         let w = normalize(words[selectedWord]);
         return (w.length > 0)
             ? wordsTrie.find(w)
@@ -51,11 +51,8 @@ export const WalletWordsComponent = React.memo((props: {
     }, [words[selectedWord]]);
 
     // Submit Callback (does not re-create during re-render)
-    const wordsRef = React.useRef(words);
-    // React.useEffect(() => {
-    //     wordsRef.current = words;
-    // }, [words]);
-    const onSubmitEnd = React.useCallback(async () => {
+    const wordsRef = useRef(words);
+    const onSubmitEnd = useCallback(async () => {
         let wordsLocal = wordsRef.current;
         let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
         let isValid = await mnemonicValidate(normalized);
@@ -67,10 +64,7 @@ export const WalletWordsComponent = React.memo((props: {
         props.onComplete({ mnemonics: normalized.join(' '), deviceEncryption });
     }, []);
 
-    //
     // Scroll state tracking
-    //
-
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
     const translationY = useSharedValue(0);
@@ -82,18 +76,15 @@ export const WalletWordsComponent = React.memo((props: {
 
     // Keyboard height tracking
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedWord);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedWord]);
 
-    //
     // Scrolling to active input
-    //
-
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         let ref = animatedRefs[index];
@@ -129,23 +120,20 @@ export const WalletWordsComponent = React.memo((props: {
 
     }, []);
 
-    //
     // Callbacks
-    //
-
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedWord(index);
     }, []);
 
-    const onSetValue = React.useCallback((index: number, value: string) => {
+    const onSetValue = useCallback((index: number, value: string) => {
         let r = [...wordsRef.current];
         r[index] = value;
         wordsRef.current = r;
         setWords(r);
     }, []);
 
-    const onSubmit = React.useCallback(async (index: number, value: string) => {
+    const onSubmit = useCallback(async (index: number, value: string) => {
         try {
             if (index === 0 && (value.split(' ').length === 24)) {
                 const fullSeedWords = value.split(' ').map((v) => normalize(v));
@@ -177,28 +165,27 @@ export const WalletWordsComponent = React.memo((props: {
         }
     }, []);
 
-    const onSubmitSuggestion = React.useCallback((value: string) => {
+    const onSubmitSuggestion = useCallback((value: string) => {
         onSubmit(selectedWord, value);
     }, [selectedWord]);
 
-    //
     // Components
-    //
-
     let wordComponents: any[] = [];
     for (let i = 0; i < 24; i++) {
-        wordComponents.push(<WordInput
-            key={"word-" + i}
-            index={i}
-            innerRef={animatedRefs[i]}
-            ref={refs[i]}
-            value={words[i]}
-            setValue={onSetValue}
-            onFocus={onFocus}
-            onSubmit={onSubmit}
-        />);
+        wordComponents.push(
+            <WordInput
+                key={"word-" + i}
+                index={i}
+                innerRef={animatedRefs[i]}
+                ref={refs[i]}
+                value={words[i]}
+                setValue={onSetValue}
+                onFocus={onFocus}
+                onSubmit={onSubmit}
+            />
+        );
         if (i < 23) {
-            wordComponents.push(<View key={'sep-' + i} style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />);
+            wordComponents.push(<View key={'sep-' + i} style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 17 }} />);
         }
     }
 
@@ -232,7 +219,7 @@ export const WalletWordsComponent = React.memo((props: {
                         {t('import.subtitle')}
                     </Text>
                     <View style={{
-                        backgroundColor: Theme.item,
+                        backgroundColor: theme.item,
                         borderRadius: 14,
                         width: '100%',
                     }}>

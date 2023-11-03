@@ -1,12 +1,14 @@
 import BN from "bn.js";
-import { Address, beginCell, Cell, CellMessage, CommentMessage } from "ton";
-import { TonPayloadFormat } from "ton-ledger";
+import { Address, beginCell, Cell, comment } from "@ton/core";
+import { OperationType } from "../../../engine/transactions/parseMessageBody";
+import { TonPayloadFormat } from '@ton-community/ton-ledger';
+/// mport { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
     domain?: string;
     messages: {
         target: string;
-        amount: BN;
+        amount: bigint;
         amountAll: boolean;
         payload: Cell | null;
         stateInit: Cell | null;
@@ -20,7 +22,7 @@ export type Order = {
 export type LedgerOrder = {
     target: string;
     domain?: string;
-    amount: BN;
+    amount: bigint;
     amountAll: boolean;
     payload: TonPayloadFormat | null;
     stateInit: Cell | null;
@@ -37,9 +39,9 @@ export function createLedgerJettonOrder(args: {
     domain?: string,
     responseTarget: Address,
     text: string | null,
-    amount: BN,
-    tonAmount: BN,
-    txAmount: BN,
+    amount: bigint,
+    tonAmount: bigint,
+    txAmount: bigint,
     payload: Cell | null
 }, isTestnet: boolean): LedgerOrder {
 
@@ -48,8 +50,7 @@ export function createLedgerJettonOrder(args: {
     if (args.payload) {
         payload = args.payload;
     } else if (args.text) {
-        let c = new Cell();
-        new CommentMessage(args.text).writeTo(c);
+        let c = comment(args.text);
         payload = c;
     }
 
@@ -59,21 +60,21 @@ export function createLedgerJettonOrder(args: {
     //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
     //              = InternalMsgBody;
     const msg = beginCell()
-        .storeUint(0xf8a7ea5, 32)
+        .storeUint(OperationType.JettonTransfer, 32)
         .storeUint(0, 64)
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))
         .storeAddress(args.responseTarget)
-        .storeRefMaybe(null)
+        .storeMaybeRef(null)
         .storeCoins(args.tonAmount)
-        .storeRefMaybe(payload)
+        .storeMaybeRef(payload)
         .endCell();
 
     return {
-        target: args.wallet.toFriendly({ testOnly: isTestnet }),
+        target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
-        payload: { type: 'unsafe', message: new CellMessage(msg) },
+        payload: { type: 'comment', text: args.text || '' }, // TODO: upgrade to new ton-ledger
         amountAll: false,
         stateInit: null,
     }
@@ -83,7 +84,7 @@ export function createSimpleLedgerOrder(args: {
     target: string,
     domain?: string,
     text: string | null,
-    amount: BN,
+    amount: bigint,
     amountAll: boolean,
     payload: Cell | null,
     stateInit: Cell | null,
@@ -96,7 +97,9 @@ export function createSimpleLedgerOrder(args: {
     // Resolve payload
     let payload: TonPayloadFormat | null = null;
     if (args.payload) {
-        payload = { type: 'unsafe', message: new CellMessage(args.payload) };
+        // payload = { type: 'unsafe', message: new CellMessage(args.payload) };
+        // TODO
+        throw new Error('Not implemented');
     } else if (args.text) {
         payload = { type: 'comment', text: args.text };
     }
@@ -115,7 +118,7 @@ export function createSimpleLedgerOrder(args: {
 export function createOrder(args: {
     target: string,
     domain?: string,
-    amount: BN,
+    amount: bigint,
     amountAll: boolean,
     payload: Cell | null,
     stateInit: Cell | null,
@@ -142,7 +145,7 @@ export function createSimpleOrder(args: {
     target: string,
     domain?: string,
     text: string | null,
-    amount: BN,
+    amount: bigint,
     amountAll: boolean,
     payload: Cell | null,
     stateInit: Cell | null,
@@ -157,8 +160,7 @@ export function createSimpleOrder(args: {
     if (args.payload) {
         payload = args.payload;
     } else if (args.text) {
-        let c = new Cell();
-        new CommentMessage(args.text).writeTo(c);
+        let c = comment(args.text);
         payload = c;
     }
 
@@ -179,9 +181,9 @@ export function createJettonOrder(args: {
     domain?: string,
     responseTarget: Address,
     text: string | null,
-    amount: BN,
-    tonAmount: BN,
-    txAmount: BN,
+    amount: bigint,
+    tonAmount: bigint,
+    txAmount: bigint,
     payload: Cell | null
 }, isTestnet: boolean): Order {
 
@@ -190,8 +192,7 @@ export function createJettonOrder(args: {
     if (args.payload) {
         payload = args.payload;
     } else if (args.text) {
-        let c = new Cell();
-        new CommentMessage(args.text).writeTo(c);
+        let c = comment(args.text);
         payload = c;
     }
 
@@ -201,19 +202,19 @@ export function createJettonOrder(args: {
     //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
     //              = InternalMsgBody;
     const msg = beginCell()
-        .storeUint(0xf8a7ea5, 32)
+        .storeUint(OperationType.JettonTransfer, 32)
         .storeUint(0, 64)
         .storeCoins(args.amount)
         .storeAddress(Address.parse(args.target))
         .storeAddress(args.responseTarget)
-        .storeRefMaybe(null)
+        .storeMaybeRef(null)
         .storeCoins(args.tonAmount)
-        .storeRefMaybe(payload)
+        .storeMaybeRef(payload)
         .endCell();
 
 
     return createOrder({
-        target: args.wallet.toFriendly({ testOnly: isTestnet }),
+        target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         payload: msg,
         amount: args.txAmount,

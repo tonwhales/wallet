@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Platform, View } from 'react-native';
-import { mnemonicNew } from 'ton-crypto';
+import { mnemonicNew } from '@ton/crypto';
 import { minimumDelay } from 'teslabot';
 import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,11 +8,11 @@ import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useTheme } from '../../engine/hooks';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 
 export const WalletCreateFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [state, setState] = React.useState<{ mnemonics: string } | null>(null);
     React.useEffect(() => {
@@ -39,7 +39,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key="loading"
@@ -60,7 +60,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: Theme.item,
+                        flexGrow: 1, backgroundColor: theme.item,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0
                     }}
                     key="content"

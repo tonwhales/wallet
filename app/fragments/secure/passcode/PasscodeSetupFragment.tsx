@@ -6,7 +6,6 @@ import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useEngine } from "../../../engine/Engine";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
@@ -15,17 +14,19 @@ import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
 import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
+import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
+import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const engine = useEngine();
     const reboot = useReboot();
-    const settings = engine?.products?.settings;
     const route = useRoute();
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const storageType = loadKeyStorageType();
     const isLocalAuth = storageType === 'local-authentication';
+    const setBiometricsState = useSetBiometricsState();
+    const setPasscodeState = useSetPasscodeState();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
@@ -35,19 +36,16 @@ export const PasscodeSetupFragment = systemFragment(() => {
             throw Error('Failed to load wallet keys');
         }
         try {
-            if (!!settings) {
-                settings.setPasscodeState(PasscodeState.Set);
-    
-                if (isLocalAuth) {
-                    const ref = loadKeyStorageRef();
-                    let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
-    
-                    // Remove old unencrypted key
-                    storage.delete(key);
-                } else {
-                    // Set only if there are biometrics to use
-                    settings.setBiometricsState(BiometricsState.InUse);
-                }
+            setPasscodeState(PasscodeState.Set);
+            if (isLocalAuth) {
+                const ref = loadKeyStorageRef();
+                let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
+
+                // Remove old unencrypted key
+                storage.delete(key);
+            } else {
+                // Set only if there are biometrics to use
+                setBiometricsState(BiometricsState.InUse);
             }
         } catch {
             warn(`Failed to set passcode state on PasscodeSetup ${init ? 'init' : 'change'}`);

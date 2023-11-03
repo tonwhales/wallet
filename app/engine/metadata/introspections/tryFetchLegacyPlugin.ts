@@ -1,4 +1,5 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
+import { TonClient4 } from "@ton/ton";
 
 export async function tryFetchLegacyPlugin(client: TonClient4, seqno: number, address: Address) {
     let response = await client.runMethod(seqno, address, 'get_subscription_data');
@@ -52,20 +53,20 @@ export async function tryFetchLegacyPlugin(client: TonClient4, seqno: number, ad
     }
 
     let wallet = new Address(
-        response.result[0].items[0].value.toNumber(),
-        Buffer.from(response.result[0].items[1].value.toString('hex', 32), 'hex')
+        Number(response.result[0].items[0].value),
+        Buffer.from(response.result[0].items[1].value.toString(16).padStart(32, '0'), 'hex')
     );
     let beneficiary = new Address(
-        response.result[1].items[0].value.toNumber(),
-        Buffer.from(response.result[1].items[1].value.toString('hex', 32), 'hex')
+        Number(response.result[1].items[0].value),
+        Buffer.from(response.result[1].items[1].value.toString(16).padStart(32, '0'), 'hex')
     );
     let amount = response.result[2].value;
-    let period = response.result[3].value.toNumber();
-    let startAt = response.result[4].value.toNumber();
-    let timeout = response.result[5].value.toNumber();
-    let lastPayment = response.result[6].value.toNumber();
-    let lastRequest = response.result[7].value.toNumber();
-    let failedAttempts = response.result[8].value.toNumber();
+    let period = Number(response.result[3].value);
+    let startAt = Number(response.result[4].value);
+    let timeout = Number(response.result[5].value);
+    let lastPayment = Number(response.result[6].value);
+    let lastRequest = Number(response.result[7].value);
+    let failedAttempts = Number(response.result[8].value);
     let subscriptionId = response.result[9].value.toString(10);
 
     return {

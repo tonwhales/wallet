@@ -42,7 +42,7 @@
     "color": "^4.2.3",
     "date-fns": "^2.28.0",
     "events": "^3.3.0",
-    "expo": "^49.0.0",
+    "expo": "^49.0.16",
     "expo-app-loading": "~2.0.0",
     "expo-asset": "~8.10.1",
     "expo-barcode-scanner": "~12.5.3",

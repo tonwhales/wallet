@@ -362,27 +362,6 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                     </View>
                 </View>
 
-                {/* TODO: fix pending
-                {account.pending?.length > 0 && Platform.OS === 'android' && (
-                    <Animated.View entering={FadeInUp} exiting={FadeOutDown}>
-                        <PendingTxs
-                            txs={account.pending}
-                            next={account.next}
-                            address={address}
-                            onPress={openTransactionFragment}
-                        />
-                    </Animated.View>
-                )}
-
-                {account.pending?.length > 0 && Platform.OS !== 'android' && (
-                    <PendingTxs
-                        txs={account.pending}
-                        next={account.next}
-                        address={address}
-                        onPress={openTransactionFragment}
-                    />
-                )} */}
-
                 {/* Jettons, Extensions & other products */}
                 <ProductsComponent selected={props.selected} />
 
@@ -397,13 +376,15 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                         height: safeArea.top + 44,
                     }}>
                         <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
+                        <BlurView
+                            style={{
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                paddingTop: safeArea.top,
+                                flexDirection: 'row',
+                                overflow: 'hidden'
+                            }}
+                            tint={theme.style}
                         >
                             <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                                 <Animated.Text style={[

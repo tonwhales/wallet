@@ -22,7 +22,7 @@ export function useTheme(): ThemeType {
         return {
             ...theme,
             style: theme.style as Exclude<ThemeStyle, ThemeStyle.System>,
-            accent: isTestnet ? '#F3A203' : '#47A9F1',
+            ...(isTestnet ? { accent: '#F3A203' } : {}),
         };
     }, [isTestnet, themeStyle]);
 

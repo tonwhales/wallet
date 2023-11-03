@@ -93,13 +93,15 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                         height: safeArea.top + 44,
                     }}>
                         <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
+                        <BlurView
+                            style={{
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                paddingTop: safeArea.top,
+                                flexDirection: 'row',
+                                overflow: 'hidden'
+                            }}
+                            tint={theme.style}
                         >
                             <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                                 <Text style={[

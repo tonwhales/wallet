@@ -44,12 +44,15 @@ export const SettingsFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             {Platform.OS === 'ios' && (
-                <BlurView style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
+                <BlurView
+                    style={{
+                        height: safeArea.top + 44,
+                        paddingTop: safeArea.top,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                    tint={theme.style}
+                >
                     <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={[
                             { fontSize: 22, color: theme.textPrimary, fontWeight: '700' },

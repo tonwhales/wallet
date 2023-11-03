@@ -9,6 +9,14 @@ module.exports = function (api) {
         globals: ['__scanCodes'],
       },
     ],
+    [
+      'module-resolver',
+      {
+        alias: {
+          '@assets': './assets',
+        },
+      },
+    ],
     ["@babel/plugin-proposal-private-methods", {
       "loose": true
     }]

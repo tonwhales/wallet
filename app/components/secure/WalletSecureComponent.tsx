@@ -37,7 +37,7 @@ export const WalletSecureComponent = memo((props: {
         } finally {
             setLoading(false);
         }
-    }), []);
+    }), [props.callback]);
 
     let iconImage: ImageSourcePropType | undefined;
     let icon: any | undefined;

@@ -21,6 +21,7 @@ import { PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, passc
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSetAppState } from '../../engine/hooks';
+import { useCallback, useState } from 'react';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -33,19 +34,20 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const reboot = useReboot();
     const setAppState = useSetAppState();
 
-    const [state, setState] = React.useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
-    const [loading, setLoading] = React.useState(false);
+    const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
+    const [loading, setLoading] = useState(false);
 
-    const onAfterImport = React.useCallback(() => {
+    const onAfterImport = useCallback(() => {
         const address = getBackup();
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
         markAddressSecured(address.address, isTestnet);
+        navigation.navigateAndReplaceAll('Home');
     }, []);
 
-    const onConfirmed = React.useCallback(async (passcode: string) => {
+    const onConfirmed = useCallback(async (passcode: string) => {
         setLoading(true);
         try {
 

@@ -185,7 +185,8 @@ export const ContactFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('contacts.contact')}
                     </Text>
@@ -219,14 +220,14 @@ export const ContactFragment = fragment(() => {
                                 fontSize: 18,
                                 fontWeight: '700',
                                 marginVertical: 8,
-                                color: theme.textColor
+                                color: theme.textPrimary
                             }}>
                                 {`${params.address.slice(0, 6) + '...' + params.address.slice(params.address.length - 6)}`}
                             </Text>
                         </View>
                         {!editing && (
                             <View style={{ flexDirection: 'row', marginTop: 17 }} collapsable={false}>
-                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.item, borderRadius: 14 }}>
+                                <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
                                     <TouchableHighlight
                                         onPress={() => {
                                             navigation.navigate(
@@ -234,14 +235,14 @@ export const ContactFragment = fragment(() => {
                                                 { target: address.toString({ testOnly: isTestnet }) }
                                             );
                                         }}
-                                        underlayColor={theme.selector}
+                                        underlayColor={theme.surfaceSecondary}
                                         style={{ borderRadius: 14 }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                             <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={require('../../assets/ic_send.png')} />
                                             </View>
-                                            <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                            <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                         </View>
                                     </TouchableHighlight>
                                 </View>
@@ -250,7 +251,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -281,7 +282,7 @@ export const ContactFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: theme.label,
+                                        color: theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('contacts.name')}
@@ -319,7 +320,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     {editing && !!contact && (
                         <Item
-                            textColor={theme.dangerZone}
+                            textColor={theme.accentRed}
                             backgroundColor={theme.background}
                             title={t('contacts.delete')}
                             onPress={onDelete}

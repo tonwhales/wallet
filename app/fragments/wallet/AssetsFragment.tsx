@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AnimatedProductButton } from "./products/AnimatedProductButton";
 import { JettonProduct } from "./products/JettonProduct";
 import TonIcon from '../../../assets/ic_ton_account.svg'; 
-import { useJettons } from '../../engine/hooks';
+import { useJettons, useTheme } from '../../engine/hooks';
 import { useAccountLite } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
@@ -21,6 +21,7 @@ import { Jetton } from '../../engine/types';
 export const AssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target: string, callback?: (address?: string) => void }>();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const jettons = useJettons(selected!.addressString);
@@ -62,7 +63,8 @@ export const AssetsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
                     </Text>

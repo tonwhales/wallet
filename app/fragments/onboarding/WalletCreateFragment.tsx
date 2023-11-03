@@ -39,7 +39,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: theme.item,
+                        flexGrow: 1, backgroundColor: theme.surfacePimary,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key="loading"
@@ -60,7 +60,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: theme.item,
+                        flexGrow: 1, backgroundColor: theme.surfacePimary,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0
                     }}
                     key="content"

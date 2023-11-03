@@ -66,7 +66,7 @@ export const ReceiveFragment = fragment(() => {
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top }} pageTitle={t('receive.title')} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17 }}>
+                    <Text style={{ color: theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 17 }}>
                         {t('receive.title')}
                     </Text>
                 )}
@@ -75,7 +75,7 @@ export const ReceiveFragment = fragment(() => {
             <View style={{ padding: 16, width: '100%' }}>
                 <View style={{
                     justifyContent: 'center',
-                    backgroundColor: theme.item, borderRadius: 20,
+                    backgroundColor: theme.surfacePimary, borderRadius: 20,
                     marginHorizontal: 16, padding: 14,
                     minHeight: 358
                 }}>
@@ -119,7 +119,7 @@ export const ReceiveFragment = fragment(() => {
                                 <View style={{ justifyContent: 'space-between' }}>
                                     <Text style={{
                                         fontSize: 16,
-                                        color: theme.textColor, fontWeight: '600',
+                                        color: theme.textPrimary, fontWeight: '600',
                                     }}>
                                         {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
                                     </Text>
@@ -127,7 +127,7 @@ export const ReceiveFragment = fragment(() => {
                                         style={{
                                             fontSize: 14,
                                             fontWeight: '400',
-                                            color: theme.price,
+                                            color: theme.textSecondary,
                                         }}
                                         selectable={false}
                                         ellipsizeMode={'middle'}

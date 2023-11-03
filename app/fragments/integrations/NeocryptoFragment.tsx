@@ -80,7 +80,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '800',
                         fontSize: 24,
                         textAlign: 'center',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         marginTop: 16,
                         marginHorizontal: 24
                     }}>
@@ -107,14 +107,14 @@ export const ConfirmLegal = React.memo((
                                     {t('neocrypto.termsAndPrivacy')}
 
                                     <Text
-                                        style={{ color: theme.linkText }}
+                                        style={{ color: theme.accent }}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: theme.linkText }}
+                                        style={{ color: theme.accent }}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}
@@ -184,7 +184,7 @@ export const NeocryptoFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: theme.textColor
+                    color: theme.textPrimary
                 }}>
                     {'Neocrypto service availible only on mainnet'}
                 </Text>
@@ -205,7 +205,7 @@ export const NeocryptoFragment = fragment(() => {
                     <AndroidToolbar />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (
-                            <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
+                            <Text style={{ color: theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
                                 {'Neorcypto'}
                             </Text>
                         )}

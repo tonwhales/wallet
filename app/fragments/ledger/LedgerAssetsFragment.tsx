@@ -14,13 +14,14 @@ import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton"
 import { JettonProduct } from "../wallet/products/JettonProduct";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useJettons } from '../../engine/hooks';
+import { useJettons, useTheme } from '../../engine/hooks';
 import { useAccountLite } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
     const { addr } = useTransport();
     const addressParsed = useMemo(() => Address.parse(addr!.address), [addr]);
@@ -61,7 +62,8 @@ export const LedgerAssetsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
                     </Text>

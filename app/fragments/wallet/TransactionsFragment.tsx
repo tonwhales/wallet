@@ -60,7 +60,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                             style={{ width: 192, height: 192 }}
                         />
                     </Pressable>
-                    <Text style={{ fontSize: 16, color: theme.label }}>
+                    <Text style={{ fontSize: 16, color: theme.textSecondary }}>
                         {t('wallet.empty.message')}
                     </Text>
                     <RoundButton
@@ -93,19 +93,21 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                         height: safeArea.top + 44,
                     }}>
                         <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
+                        <BlurView
+                            style={{
+                                position: 'absolute',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                paddingTop: safeArea.top,
+                                flexDirection: 'row',
+                                overflow: 'hidden'
+                            }}
+                            tint={theme.style}
                         >
                             <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                                 <Text style={[
                                     {
                                         fontSize: 22,
-                                        color: theme.textColor,
+                                        color: theme.textPrimary,
                                         fontWeight: '700',
                                         position: 'relative'
                                     }
@@ -119,7 +121,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: theme.headerDivider,
+                            backgroundColor: theme.black,
                             opacity: 0.08
                         }} />
                     </View >
@@ -141,7 +143,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                             <Text style={[
                                 {
                                     fontSize: 22,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     fontWeight: '700',
                                     position: 'relative'
                                 },
@@ -154,7 +156,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: theme.headerDivider,
+                            backgroundColor: theme.black,
                             opacity: 0.08
                         }} />
                     </View>

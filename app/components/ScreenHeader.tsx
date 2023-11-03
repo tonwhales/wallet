@@ -127,7 +127,7 @@ export const ScreenHeader = memo((
                 }}>
                     {!!title && !titleComponent && (
                         <Text style={{
-                            color: textColor ?? theme.textColor,
+                            color: textColor ?? theme.textPrimary,
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,

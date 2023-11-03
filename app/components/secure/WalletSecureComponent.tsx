@@ -92,7 +92,7 @@ export const WalletSecureComponent = memo((props: {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             justifyContent: 'center',
             alignContent: 'center'
         }}>
@@ -134,7 +134,7 @@ export const WalletSecureComponent = memo((props: {
                             <Text style={{
                                 fontSize: 17,
                                 fontWeight: '600',
-                                color: theme.accentText
+                                color: theme.accent
                             }}>
                                 {t('common.later')}
                             </Text>

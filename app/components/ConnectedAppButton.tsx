@@ -57,7 +57,7 @@ export const ConnectedAppButton = memo(({
     return (
         <View style={{
             height: 62, borderRadius: 14,
-            backgroundColor: theme.item, flexDirection: 'row',
+            backgroundColor: theme.surfaceSecondary, flexDirection: 'row',
             alignItems: 'center',
             padding: 10
         }}>
@@ -80,7 +80,7 @@ export const ConnectedAppButton = memo(({
                 {!!title && (
                     <Text style={{
                         fontSize: 16,
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         fontWeight: '600',
                         flex: 1,
                         marginBottom: 3
@@ -94,7 +94,7 @@ export const ConnectedAppButton = memo(({
                 {!!url && (
                     <Text style={{
                         fontSize: 16,
-                        color: theme.price,
+                        color: theme.textSecondary,
                         fontWeight: '400',
                     }}
                         numberOfLines={1}
@@ -119,7 +119,7 @@ export const ConnectedAppButton = memo(({
                 <Text
                     style={{
                         fontWeight: '500',
-                        color: theme.delete,
+                        color: theme.accentRed,
                         fontSize: 16
                     }}
                 >

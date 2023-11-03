@@ -122,7 +122,7 @@ export const BiometricsSetupFragment = systemFragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             justifyContent: 'center',
             alignContent: 'center'
         }}>

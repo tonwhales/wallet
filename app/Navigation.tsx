@@ -332,7 +332,7 @@ export const Navigation = React.memo(() => {
                         title: '',
                         headerShadowVisible: false,
                         headerTransparent: false,
-                        headerStyle: { backgroundColor: 'white' }
+                        headerStyle: { backgroundColor: navigationTheme.colors.background }
                     }}
                 >
                     {navigation(safeArea)}

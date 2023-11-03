@@ -9,6 +9,7 @@ import { systemFragment } from '../../systemFragment';
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { isTermsAccepted } from '../../storage/terms';
+import { ThemeStyle } from '../../engine/state/theme';
 
 export const WelcomeFragment = systemFragment(() => {
     const theme = useTheme();
@@ -34,9 +35,9 @@ export const WelcomeFragment = systemFragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
-            backgroundColor: theme.item
+            backgroundColor: theme.surfacePimary
         }}>
-            <StatusBar style='dark' />
+            <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
             <View style={{
                 height: 416,
                 alignItems: 'center',
@@ -55,6 +56,7 @@ export const WelcomeFragment = systemFragment(() => {
                     fontSize: 30, fontWeight: '700',
                     marginTop: -42,
                     textAlign: 'center',
+                    color: theme.textPrimary
                 }}>
                     {isTestnet ? t('welcome.titleDev') : t('welcome.title')}
                 </Text>
@@ -63,6 +65,7 @@ export const WelcomeFragment = systemFragment(() => {
                     fontSize: 18,
                     marginTop: 14,
                     flexShrink: 1,
+                    color: theme.textPrimary
                 }}>
                     {isTestnet ? t('welcome.subtitleDev') : t('welcome.subtitle')}
                 </Text>
@@ -84,7 +87,7 @@ export const WelcomeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: theme.accentText
+                        color: theme.accent
                     }}>
                         {t('welcome.importWallet')}
                     </Text>

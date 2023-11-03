@@ -104,7 +104,8 @@ export const SecurityFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('security.title')}
                     </Text>
@@ -122,7 +123,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

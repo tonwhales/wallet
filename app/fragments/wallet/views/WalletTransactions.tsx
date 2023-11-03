@@ -26,7 +26,7 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
                 style={{
                     fontSize: 18,
                     fontWeight: '700',
-                    color: theme.textColor
+                    color: theme.textPrimary
                 }}
             >
                 {title}

@@ -65,7 +65,8 @@ export const AccountsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
                     </Text>
@@ -89,14 +90,14 @@ export const AccountsFragment = fragment(() => {
                         fontWeight: '700',
                         marginBottom: 8,
                         textAlign: 'center',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                     }}
                     >
                         {t('accounts.noAccounts')}
                     </Text>
                     <Text style={{
                         fontSize: 16,
-                        color: theme.priceSecondary
+                        color: theme.textSecondary
                     }}
                     >
                         {t('accounts.description')}
@@ -116,7 +117,7 @@ export const AccountsFragment = fragment(() => {
                                 <Text style={{
                                     marginHorizontal: 16,
                                     fontSize: 16,
-                                    color: theme.priceSecondary
+                                    color: theme.textSecondary
                                 }}
                                 >
                                     {t('accounts.description')}
@@ -128,7 +129,7 @@ export const AccountsFragment = fragment(() => {
                                     fontWeight: '700',
                                     marginHorizontal: 16,
                                     marginVertical: 8,
-                                    color: active.length > 0 ? theme.textColor : theme.textSecondary
+                                    color: active.length > 0 ? theme.textPrimary : theme.textSecondary
                                 }}
                                 >
                                     {active.length > 0 ? t('accounts.active') : t('accounts.noActive')}

@@ -79,7 +79,8 @@ export const LogoutFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('common.logout')}
                     </Text>
@@ -92,7 +93,7 @@ export const LogoutFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textPrimary, fontSize: 14 }}>
                             {t('settings.logoutDescription')}
                         </Text>
                     </View>

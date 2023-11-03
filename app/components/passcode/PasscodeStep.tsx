@@ -41,7 +41,7 @@ export const PasscodeStep = React.memo((
             return theme.accent;
         }
 
-        return theme.dangerZone;
+        return theme.accentRed;
     }, [error, emoji]);
 
     return (

@@ -87,14 +87,14 @@ export const SignFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('sign.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('sign.title')}</Text>
                 </View>
             )}
 
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('sign.message')}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{params.text}</Text>
+                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('sign.message')}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{params.text}</Text>
                 <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textSecondary, marginBottom: 32 }}>{t('sign.hint')}</Text>
                 <RoundButton title={t('sign.action')} action={approve} size="large" style={{ width: 200 }} />
             </View>

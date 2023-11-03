@@ -62,7 +62,7 @@ export const ContactField = React.memo((props: {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: theme.label,
+                            color: theme.textSecondary,
                             alignSelf: 'flex-start',
                         }}>
                             {label}

@@ -125,27 +125,27 @@ export const LedgerApp = memo((props: {
                                             }
                                         );
                                     }}
-                                    underlayColor={theme.selector}
+                                    underlayColor={theme.surfaceSecondary}
                                     style={{ borderRadius: 14 }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../../assets/ic_receive.png')} />
                                         </View>
-                                        <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                                        <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </View>
                             <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                                 <TouchableHighlight
                                     onPress={() => navigation.navigate('LedgerAssets')}
-                                    underlayColor={theme.selector} style={{ borderRadius: 14 }}
+                                    underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../../assets/ic_send.png')} />
                                         </View>
-                                        <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                        <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </View>

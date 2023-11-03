@@ -273,7 +273,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     if (state.type === 'expired') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.expired')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -283,7 +283,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     if (state.type === 'failed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -293,7 +293,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     if (state.type === 'completed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.completed')}</Text>
                 <RoundButton title={t('common.back')} onPress={() => navigation.goBack()} size="large" style={{ width: 200 }} display="outline" />
             </View>
         );
@@ -315,7 +315,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                         fontSize: 24,
                         marginHorizontal: 32,
                         textAlign: 'center',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                     }}
                 >
                     {t('auth.authorized')}
@@ -393,7 +393,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -429,7 +429,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: theme.item
+                        backgroundColor: theme.surfacePimary
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -450,7 +450,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                     >
@@ -477,7 +477,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: theme.textColor,
+                    color: theme.textPrimary,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -492,7 +492,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         marginBottom: state.app?.extension ? 16 : 32,
                         opacity: 0.6
                     }}
@@ -546,6 +546,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const theme = useTheme();
     const params: {
         session: string,
         endpoint: string | null
@@ -562,7 +563,7 @@ export const AuthenticateFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('auth.title')}</Text>
                 </View>
             )}
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />

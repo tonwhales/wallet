@@ -195,11 +195,11 @@ export const TransactionView = memo((props: {
             onPress={handleAction}>
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}
-                underlayColor={theme.selector}
-                style={{ backgroundColor: theme.item }}
+                underlayColor={theme.surfacePimary}
+                style={{ backgroundColor: theme.surfaceSecondary }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
-                <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
                         {status !== 'pending' ? (
                             <Avatar
@@ -222,14 +222,14 @@ export const TransactionView = memo((props: {
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
                                 <Text
-                                    style={{ color: theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}>
                                     {op}
                                 </Text>
                                 {spam && (
                                     <View style={{
-                                        borderColor: theme.textSecondaryBorder,
+                                        borderColor: theme.textSecondary,
                                         borderWidth: 1,
                                         justifyContent: 'center',
                                         alignItems: 'center',
@@ -242,7 +242,7 @@ export const TransactionView = memo((props: {
                                 )}
                             </View>
                             {status === 'failed' ? (
-                                <Text style={{ color: theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                                <Text style={{ color: theme.accentRed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                                     {t('tx.failed')}
                                 </Text>
                             ) : (
@@ -250,9 +250,9 @@ export const TransactionView = memo((props: {
                                     style={{
                                         color: itemAmount > 0
                                             ? spam
-                                                ? theme.textColor
-                                                : theme.pricePositive
-                                            : theme.priceNegative,
+                                                ? theme.textPrimary
+                                                : theme.accentGreen
+                                            : theme.accentRed,
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,

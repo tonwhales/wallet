@@ -14,7 +14,7 @@ export const ProfileComponent = React.memo((props: { address: Address }) => {
         <View style={{
             marginBottom: 16,
             marginTop: 16,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',
@@ -22,8 +22,8 @@ export const ProfileComponent = React.memo((props: { address: Address }) => {
             <View style={{ paddingHorizontal: 16, paddingVertical: 16, width: '100%', flexDirection: 'row' }}>
                 <Avatar size={64} id={props.address.toString({ testOnly: isTestnet })} />
                 <View style={{ paddingLeft: 16, alignSelf: 'stretch', justifyContent: 'center' }}>
-                    <Text style={{ color: theme.textColor, fontSize: 18 }}>No name</Text>
-                    <Text style={{ color: theme.textColor, fontSize: 16, paddingTop: 4 }}><AddressComponent address={props.address} /></Text>
+                    <Text style={{ color: theme.textPrimary, fontSize: 18 }}>No name</Text>
+                    <Text style={{ color: theme.textPrimary, fontSize: 16, paddingTop: 4 }}><AddressComponent address={props.address} /></Text>
                 </View>
             </View>
             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />

@@ -151,7 +151,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -236,9 +236,9 @@ export const HoldersAppComponent = memo((
         reduceMainButton(),
         {
             text: '',
-            textColor: theme.item,
+            textColor: theme.surfacePimary,
             color: theme.accent,
-            disabledColor: theme.disabled,
+            disabledColor: theme.surfaceSecondary,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,
@@ -520,7 +520,7 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <View style={{ backgroundColor: theme.item, flex: 1 }}>
+            <View style={{ backgroundColor: theme.surfacePimary, flex: 1 }}>
                 {useOfflineApp ? ( // TODO
                     <>
                         {/* <OfflineWebView
@@ -581,7 +581,7 @@ export const HoldersAppComponent = memo((
                         source={{ uri: source.url }}
                         startInLoadingState={true}
                         style={{
-                            backgroundColor: theme.item,
+                            backgroundColor: theme.surfacePimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,

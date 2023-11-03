@@ -138,7 +138,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                     <Text style={{
                         fontWeight: '500',
                         fontSize: 12,
-                        color: theme.label,
+                        color: theme.textSecondary,
                         alignSelf: 'flex-start',
                     }}>
                         {labelText ? labelText : t('transfer.sendTo')}
@@ -161,7 +161,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: theme.labelSecondary,
+                                color: theme.textSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 {KnownWallets(isTestnet)[target].name}
@@ -186,7 +186,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: theme.labelSecondary,
+                                color: theme.textSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 {contact.name}
@@ -206,7 +206,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 12,
-                                color: theme.labelSecondary,
+                                color: theme.textSecondary,
                                 alignSelf: 'flex-start',
                             }}>
                                 <AddressComponent address={resolvedAddress} />
@@ -271,7 +271,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 12,
-                                    color: theme.item,
+                                    color: theme.surfacePimary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('hardwareWallet.actions.mainAddress')}

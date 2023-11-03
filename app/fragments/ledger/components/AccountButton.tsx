@@ -34,7 +34,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                 alignItems: 'center',
                 paddingHorizontal: 16,
                 paddingVertical: 12,
-                backgroundColor: theme.item,
+                backgroundColor: theme.surfacePimary,
                 marginVertical: 5,
                 borderRadius: 14,
             }}>
@@ -42,7 +42,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                     <Text style={{
                         fontWeight: '700',
                         fontSize: 16,
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         marginBottom: 8
                     }}>
                         <ValueComponent
@@ -54,7 +54,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                     }}>
                         {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
                     </Text>
@@ -71,7 +71,7 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
                         position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                         alignItems: 'center', justifyContent: 'center',
                         flexDirection: 'row',
-                        backgroundColor: theme.item, borderRadius: 14
+                        backgroundColor: theme.surfacePimary, borderRadius: 14
                     }}>
                         <Text style={{
                             fontWeight: '400',

@@ -41,7 +41,7 @@ export const ItemCollapsible = React.memo(({ title, children, hideDivider }: { t
                     <Text style={{
                         fontWeight: '400',
                         fontSize: 16,
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                     }}>
                         {title}
                     </Text>

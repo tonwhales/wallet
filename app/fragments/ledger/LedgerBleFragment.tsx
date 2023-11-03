@@ -7,10 +7,12 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerBle } from "./components/LedgerBle";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useTheme } from "../../engine/hooks";
 
 export const LedgerBleFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const theme = useTheme();
 
     return (
         <View style={{
@@ -26,7 +28,8 @@ export const LedgerBleFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('hardwareWallet.title')}
                     </Text>

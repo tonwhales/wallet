@@ -9,6 +9,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
 import { useTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useTheme } from "../../engine/hooks";
 
 export type LedgerAppParams = {
     address: { address: string, publicKey: Buffer },
@@ -17,6 +18,7 @@ export type LedgerAppParams = {
 export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const { tonTransport, addr, setAddr } = useTransport();
 
     useEffect(() => {
@@ -40,7 +42,8 @@ export const LedgerAppFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('hardwareWallet.title')}
                     </Text>

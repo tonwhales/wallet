@@ -21,7 +21,7 @@ export const ItemButton = React.memo((props: {
                 flexDirection: 'row', flexGrow: 1, flexBasis: 0
             }}>
                 <View style={{ flexGrow: 1, flexShrink: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    {props.leftIcon && (<Image style={{ height: 24, width: 24, tintColor: props.dangerZone ? theme.dangerZone : theme.textColor }} source={props.leftIcon} />)}
+                    {props.leftIcon && (<Image style={{ height: 24, width: 24, tintColor: props.dangerZone ? theme.accentRed : theme.textPrimary }} source={props.leftIcon} />)}
                     {!!props.leftIconComponent && (
                         <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center' }}>
                             {props.leftIconComponent}
@@ -31,7 +31,7 @@ export const ItemButton = React.memo((props: {
                         style={{
                             fontSize: 17,
                             textAlignVertical: 'center',
-                            color: props.dangerZone ? theme.dangerZone : theme.textColor,
+                            color: props.dangerZone ? theme.accentRed : theme.textPrimary,
                             marginLeft: 13,
                             lineHeight: 24,
                         }}

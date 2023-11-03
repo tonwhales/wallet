@@ -32,7 +32,7 @@ export const StakingCycle = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfaceSecondary,
             minHeight: 70,
             borderRadius: 14,
             marginHorizontal: 16,
@@ -49,7 +49,7 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
-                                color: theme.textColor,
+                                color: theme.textPrimary,
                                 fontWeight: '600',
                                 fontSize: 16
                             }}>
@@ -59,7 +59,7 @@ export const StakingCycle = React.memo((
                                 left={left}
                                 textStyle={{
                                     fontWeight: '400',
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     fontSize: 16
                                 }}
                             />
@@ -85,14 +85,14 @@ export const StakingCycle = React.memo((
                     }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
                             <Text style={{
-                                color: theme.textColor,
+                                color: theme.textPrimary,
                                 fontWeight: '600',
                                 fontSize: 16
                             }}>
                                 {t('products.staking.info.cooldownTitle')}
                             </Text>
                             <Text style={{
-                                color: theme.success,
+                                color: theme.accentGreen,
                                 fontSize: 16,
                                 fontVariant: ['tabular-nums']
                             }}

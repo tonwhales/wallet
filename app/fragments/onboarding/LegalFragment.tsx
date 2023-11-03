@@ -28,7 +28,7 @@ export const LegalFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: 'white',
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0,
         }}>
@@ -40,7 +40,7 @@ export const LegalFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: theme.textSubtitle,
+                    color: theme.textThird,
                     fontSize: 14,
                     marginTop: 14,
                 }}>
@@ -52,14 +52,14 @@ export const LegalFragment = systemFragment(() => {
                     <Text
                         style={{
                             textAlign: 'center',
-                            fontSize: 14, color: theme.accentText
+                            fontSize: 14, color: theme.accent
                         }}
                         onPress={() => navigation.navigate('Privacy')}>
                         {t('legal.privacyPolicy')}
                     </Text>
                     <Text style={{
                         textAlign: 'center',
-                        color: theme.textSubtitle,
+                        color: theme.textThird,
                         fontSize: 14,
                     }}>
                         {' ' + t('common.and') + ' '}
@@ -67,7 +67,7 @@ export const LegalFragment = systemFragment(() => {
                     <Text style={{
                         textAlign: 'center',
                         fontSize: 14,
-                        color: theme.accentText
+                        color: theme.accent
                     }}
                         onPress={() => navigation.navigate('Terms')}>
                         {t('legal.termsOfService')}

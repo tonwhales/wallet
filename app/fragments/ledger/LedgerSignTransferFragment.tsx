@@ -394,7 +394,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: theme.item,
+                            backgroundColor: theme.surfacePimary,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -413,7 +413,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${fromNano(order.amountAll ? (account?.balance ?? BigInt(0)) : order.amount)} TON`}
@@ -426,7 +426,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
-                                            textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                            textStyle={{ color: theme.textPrimary, fontWeight: '400', fontSize: 14 }}
                                         />
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
@@ -502,7 +502,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2
                                         }}>
                                             {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
@@ -570,7 +570,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             </Text>
                                         )}
                                         <View style={{
-                                            backgroundColor: theme.item,
+                                            backgroundColor: theme.surfacePimary,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
                                             shadowOffset: {
                                                 height: 1,
@@ -599,7 +599,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${contact?.name ?? known?.name}`}
@@ -702,7 +702,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                     <Text style={{
                                         fontWeight: '700',
                                         fontSize: 20,
-                                        color: theme.textColor,
+                                        color: theme.textPrimary,
                                         marginLeft: 2
                                     }}>
                                         <AddressComponent address={target.address} />
@@ -777,7 +777,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.item,
+                                                backgroundColor: theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -805,7 +805,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.item,
+                                                backgroundColor: theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -833,7 +833,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 17,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                             }}>
                                                 {t(operation.op.res, operation.op.options)}
                                             </Text>
@@ -845,7 +845,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                                                 flexShrink: 1,
                                                 fontWeight: '500',
                                                 fontSize: 14,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                                 opacity: 0.4
                                             }}>
                                                 {text}

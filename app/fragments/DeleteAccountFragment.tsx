@@ -247,7 +247,8 @@ export const DeleteAccountFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('deleteAccount.title')}
                     </Text>
@@ -260,14 +261,14 @@ export const DeleteAccountFragment = fragment(() => {
                     paddingHorizontal: 16
                 }}>
                     <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: theme.textColor, fontSize: 14 }}>
+                        <Text style={{ color: theme.textPrimary, fontSize: 14 }}>
                             {t('deleteAccount.description', { amount: '0.1' })}
                         </Text>
                     </View>
 
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -289,7 +290,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: theme.label,
+                                        color: theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -312,7 +313,7 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {KnownWallets(isTestnet)[targetAddressInput].name}
@@ -352,10 +353,10 @@ export const DeleteAccountFragment = fragment(() => {
             )}
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <View style={{ backgroundColor: theme.item, padding: 16, borderRadius: 16 }}>
+                    <View style={{ backgroundColor: theme.surfacePimary, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
-                            <Text style={{ color: theme.textColor }}>
+                            <Text style={{ color: theme.textPrimary }}>
                                 {t('deleteAccount.complete')}
                             </Text>
                         )}

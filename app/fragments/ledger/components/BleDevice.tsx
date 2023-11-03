@@ -37,7 +37,7 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                     flexDirection: "row",
                     alignItems: "center",
                     justifyContent: "space-between",
-                    backgroundColor: theme.item
+                    backgroundColor: theme.surfacePimary
                 }
             }}
         >

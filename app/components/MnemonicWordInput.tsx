@@ -137,7 +137,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         fontSize: 16, width: 40,
                         paddingVertical: 16,
                         textAlign: 'right',
-                        color: !isWrong ? theme.textSubtitle : '#FF274E',
+                        color: !isWrong ? theme.textThird : '#FF274E',
                     }}
                     onPress={() => {
                         tref.current?.focus();

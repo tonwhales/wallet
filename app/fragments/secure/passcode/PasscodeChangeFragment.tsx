@@ -7,9 +7,11 @@ import { CloseButton } from "../../../components/CloseButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { t } from "../../../i18n/t";
 import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { useTheme } from "../../../engine/hooks";
 
 export const PasscodeChangeFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
 
     return (
@@ -26,7 +28,8 @@ export const PasscodeChangeFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('security.passcodeSettings.changeTitle')}
                     </Text>

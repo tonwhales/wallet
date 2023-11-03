@@ -108,7 +108,8 @@ export const StakingGraphFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 0,
                         fontSize: 17,
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: theme.textPrimary
                     }}>
                         {t('products.staking.title')}
                     </Text>
@@ -144,7 +145,7 @@ export const StakingGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,

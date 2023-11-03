@@ -90,7 +90,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
             <Text style={{
                 fontWeight: '600',
                 fontSize: 18,
-                color: theme.textColor,
+                color: theme.textPrimary,
                 marginBottom: 16,
                 textAlign: 'center',
                 marginHorizontal: 16

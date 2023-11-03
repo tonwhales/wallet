@@ -62,7 +62,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         fontSize: 24,
                         marginHorizontal: 16,
                         textAlign: 'center',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         fontWeight: '600',
                         marginTop: 10
                     }}
@@ -72,7 +72,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 16,
                     marginHorizontal: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -96,7 +96,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: theme.label,
+                                    color: theme.textSecondary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('report.message')}
@@ -108,7 +108,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                 <View style={{
                     marginBottom: 16, marginTop: 2,
                     marginHorizontal: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -125,7 +125,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: theme.label,
+                            color: theme.textSecondary,
                             alignSelf: 'flex-start',
                         }}>
                             {t('report.reason')}

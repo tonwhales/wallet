@@ -98,7 +98,7 @@ export const ContactsFragment = fragment(() => {
             views.push(
                 <View
                     key={'s-' + s.title}
-                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.item, overflow: 'hidden' }}
+                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.surfacePimary, overflow: 'hidden' }}
                     collapsable={false}
                 >
                     {s.items.map((t, i) => (
@@ -148,7 +148,8 @@ export const ContactsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('contacts.title')}
                     </Text>
@@ -173,14 +174,14 @@ export const ContactsFragment = fragment(() => {
                             marginHorizontal: 8,
                             marginBottom: 8,
                             textAlign: 'center',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                         }}
                         >
                             {t('contacts.empty')}
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: theme.priceSecondary
+                            color: theme.textSecondary
                         }}>
                             {t('contacts.description')}
                         </Text>
@@ -225,7 +226,7 @@ export const ContactsFragment = fragment(() => {
                             <Animated.View entering={FadeInDown}>
                                 <View style={{
                                     marginBottom: 16, marginTop: 17,
-                                    backgroundColor: theme.item,
+                                    backgroundColor: theme.surfacePimary,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -252,7 +253,7 @@ export const ContactsFragment = fragment(() => {
                         {Platform.OS !== 'android' && (
                             <View style={{
                                 marginBottom: 16, marginTop: 17,
-                                backgroundColor: theme.item,
+                                backgroundColor: theme.surfacePimary,
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',

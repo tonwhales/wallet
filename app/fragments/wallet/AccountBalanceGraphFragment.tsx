@@ -127,7 +127,8 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 0,
                         fontSize: 17,
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: theme.textPrimary
                     }}>
                         {t('common.balance')}
                     </Text>
@@ -147,7 +148,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,
@@ -214,7 +215,7 @@ export const AccountBalanceGraphFragment = fragment(() => {
                                 style={{
                                     height: 40,
                                     marginTop: 2,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     fontSize: 14,
                                     fontWeight: '600',
                                     textAlign: "center",

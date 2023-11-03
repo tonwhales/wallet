@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp, Text, View, ViewStyle, Image } from 'react-native';
 import { iOSUIKit } from 'react-native-typography';
-import { useTheme } from '../engine/hooks';
 import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
+import { useTheme } from '../engine/hooks';
+import { useCallback, useState } from 'react';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
+
 const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hitSlop: number, pad: number } } = {
     large: { height: 56, fontSize: 17, hitSlop: 0, pad: Platform.OS == 'ios' ? 0 : -1 },
     normal: { height: 32, fontSize: 16, hitSlop: 8, pad: Platform.OS == 'ios' ? 1 : -2 },
@@ -27,9 +29,11 @@ export const RoundButton = React.memo((props: {
 }) => {
     const theme = useTheme();
 
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = useState(false);
+
     const doLoading = props.loading !== undefined ? props.loading : loading;
-    const doAction = React.useCallback(() => {
+
+    const doAction = useCallback(() => {
         if (props.onPress) {
             props.onPress();
             return;
@@ -58,9 +62,10 @@ export const RoundButton = React.memo((props: {
             style={(p) => ([
                 {
                     borderWidth: 1,
-                    borderRadius: 14,
+                    borderRadius: 16,
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
+                    opacity: props.disabled ? 0.5 : 1,
                 },
                 p.pressed && {
                     opacity: 0.55
@@ -107,7 +112,7 @@ export const RoundButton = React.memo((props: {
                         {!doLoading && props.icon && (<View style={{ marginRight: 10 }}>{props.icon}</View>)}
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text
-                                style={[iOSUIKit.title3, { marginTop: size.pad, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
+                                style={[iOSUIKit.title3, { marginTop: size.pad, opacity: doLoading ? 0 : 1, color: display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
                                 numberOfLines={1}
                                 ellipsizeMode='tail'
                             >
@@ -115,7 +120,7 @@ export const RoundButton = React.memo((props: {
                             </Text>
                             {!!props.subtitle && (
                                 <Text
-                                    style={[{ marginTop: 0, opacity: (doLoading ? 0 : 1) * (p.pressed ? 0.55 : 1), color: display.textColor, fontSize: 14, fontWeight: '400', includeFontPadding: false }]}
+                                    style={[{ marginTop: 0, opacity: doLoading ? 0 : 1, color: display.textColor, fontSize: 14, fontWeight: '400', includeFontPadding: false }]}
                                     numberOfLines={1}
                                     ellipsizeMode='tail'
                                 >

@@ -358,6 +358,7 @@ export const LedgerTransferFragment = fragment(() => {
                     <Text style={{
                         fontWeight: '600',
                         fontSize: 17,
+                        color: theme.textPrimary,
                         textAlign: 'center'
                     }}>{t('transfer.title', { symbol: 'TON' })}</Text>
                 </View>

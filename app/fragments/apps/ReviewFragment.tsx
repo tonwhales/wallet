@@ -10,12 +10,14 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ReportComponent } from "./components/review/ReportComponent";
 import { ReviewComponent } from "./components/review/ReviewComponent";
+import { useTheme } from "../../engine/hooks";
 
 export const ReviewFragment = fragment(() => {
     const params = (useRoute().params) as {
         url: string,
         type: 'review' | 'report'
     };
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -31,7 +33,8 @@ export const ReviewFragment = fragment(() => {
                     <Text style={[{
                         fontWeight: '600',
                         marginLeft: 17,
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {params.type === 'report' ? t('report.title') : t('review.title')}
                     </Text>

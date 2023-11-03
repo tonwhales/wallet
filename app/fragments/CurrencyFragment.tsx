@@ -47,7 +47,8 @@ export const CurrencyFragment = fragment(() => {
                     <Text style={[{
                         fontWeight: '600',
                         marginLeft: 17,
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('settings.primaryCurrency')}
                     </Text>

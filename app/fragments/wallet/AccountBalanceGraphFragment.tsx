@@ -127,7 +127,8 @@ export const AccountBalanceGraphFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 0,
                         fontSize: 17,
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: theme.textPrimary
                     }}>
                         {t('common.balance')}
                     </Text>

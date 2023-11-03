@@ -87,7 +87,7 @@ export const SignFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('sign.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('sign.title')}</Text>
                 </View>
             )}
 

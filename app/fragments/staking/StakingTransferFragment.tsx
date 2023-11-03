@@ -276,7 +276,7 @@ export const StakingTransferFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17,
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
+                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32, color: theme.textPrimary }]}>
                         {title}
                     </Text>
                 </View>

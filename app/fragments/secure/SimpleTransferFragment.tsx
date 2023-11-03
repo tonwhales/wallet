@@ -437,7 +437,7 @@ export const SimpleTransferFragment = fragment(() => {
                     paddingTop: 17,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title', { symbol })}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('transfer.title', { symbol })}</Text>
                 </View>
             )}
             <Animated.ScrollView

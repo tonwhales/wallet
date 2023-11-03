@@ -108,7 +108,8 @@ export const StakingGraphFragment = fragment(() => {
                         fontWeight: '600',
                         marginLeft: 0,
                         fontSize: 17,
-                        textAlign: 'center'
+                        textAlign: 'center',
+                        color: theme.textPrimary
                     }}>
                         {t('products.staking.title')}
                     </Text>

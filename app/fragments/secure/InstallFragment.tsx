@@ -269,6 +269,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
 
 export const InstallFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
     const params: { url: string, title: string | null, image: { url: string, blurhash: string } | null } = useRoute().params as any;
     return (
@@ -280,7 +281,7 @@ export const InstallFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('install.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('install.title')}</Text>
                 </View>
             )}
             <SignStateLoader url={params.url} image={params.image} title={params.title} />

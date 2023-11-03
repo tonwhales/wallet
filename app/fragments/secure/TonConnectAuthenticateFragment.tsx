@@ -617,6 +617,7 @@ export type TonConnectAuthProps = {
 export const TonConnectAuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const theme = useTheme();
     const props = useParams<TonConnectAuthProps>();
 
     React.useEffect(() => {
@@ -635,7 +636,7 @@ export const TonConnectAuthenticateFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('auth.title')}</Text>
                 </View>
             )}
             <SignStateLoader connectProps={props} />

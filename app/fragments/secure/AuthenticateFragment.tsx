@@ -546,6 +546,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 export const AuthenticateFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const theme = useTheme();
     const params: {
         session: string,
         endpoint: string | null
@@ -562,7 +563,7 @@ export const AuthenticateFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17
                 }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('auth.title')}</Text>
+                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('auth.title')}</Text>
                 </View>
             )}
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />

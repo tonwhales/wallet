@@ -72,7 +72,7 @@ export const StakingCalculatorFragment = fragment(() => {
                     paddingTop: 12,
                     paddingBottom: 17,
                 }}>
-                    <Text style={{ textAlign: 'center', lineHeight: 32, fontWeight: '600', fontSize: 17 }}>
+                    <Text style={{ textAlign: 'center', lineHeight: 32, fontWeight: '600', fontSize: 17, color: theme.textPrimary }}>
                         {t('products.staking.calc.text')}
                     </Text>
                 </View>

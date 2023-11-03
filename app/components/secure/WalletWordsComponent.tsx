@@ -3,7 +3,7 @@ import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEn
 import { useTheme } from '../../engine/hooks';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
-import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";
+import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
 import { mnemonicValidate } from "@ton/crypto";
 import { t } from "../../i18n/t";
@@ -24,7 +24,7 @@ export const WalletWordsComponent = memo((props: {
     const keyboard = useKeyboard();
 
     // References to all fields
-    const animatedRefs: AnimatedRef<View>[] = [];
+    const animatedRefs: RefObject<View>[] = [];
     for (let i = 0; i < 24; i++) {
         animatedRefs.push(useAnimatedRef<View>());
     }

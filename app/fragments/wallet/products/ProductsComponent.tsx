@@ -44,7 +44,7 @@ export const ProductsComponent = memo(({ selected }: {
     const oldWalletsBalance = useOldWalletsBalances().total;
 
     const [currentJob,] = useCurrentJob();
-    const jettons = useJettons(selected.addressString);
+    const jettons = useJettons(selected.addressString).filter((j) => !j.disabled);
     const [ledgerEnabled, setLedgerEnabled] = useLedgerEnabled();
     const cards = useHoldersCards(selected.address).data ?? [];
 

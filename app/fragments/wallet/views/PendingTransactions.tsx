@@ -35,7 +35,11 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         <Animated.View
             entering={FadeInDown}
             exiting={FadeOutUp}
-            style={{ backgroundColor: theme.surfacePimary }}
+            style={[
+                { backgroundColor: theme.surfacePimary, overflow: 'hidden' },
+                first ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
+                last ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
+            ]}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>

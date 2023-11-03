@@ -16,7 +16,7 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         disabled: {
             backgroundColor: theme.surfaceSecondary,
             borderColor: theme.surfaceSecondary,
-            textColor: theme.surfacePimary,
+            textColor: theme.textSecondary,
         },
         secondary: {
             backgroundColor: theme.surfaceSecondary,

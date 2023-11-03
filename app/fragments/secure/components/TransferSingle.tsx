@@ -384,7 +384,7 @@ export const TransferSingle = memo((props: Props) => {
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: theme.surfacePimary,
+                            backgroundColor: theme.surfaceSecondary,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -560,7 +560,7 @@ export const TransferSingle = memo((props: Props) => {
                                             </Text>
                                         )}
                                         <View style={{
-                                            backgroundColor: theme.surfacePimary,
+                                            backgroundColor: theme.surfaceSecondary,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
                                             shadowOffset: {
                                                 height: 1,
@@ -767,7 +767,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.surfacePimary,
+                                                backgroundColor: theme.surfaceSecondary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -795,7 +795,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.surfacePimary,
+                                                backgroundColor: theme.surfaceSecondary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,

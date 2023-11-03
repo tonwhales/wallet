@@ -108,7 +108,7 @@ export const SettingsFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -145,7 +145,7 @@ export const SettingsFragment = fragment(() => {
                 {!isTestnet && (
                     <View style={{
                         marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceSecondary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -157,7 +157,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -169,7 +169,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -186,7 +186,7 @@ export const SettingsFragment = fragment(() => {
                 {__DEV__ && (
                     <View style={{
                         marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceSecondary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -198,7 +198,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 4, marginTop: 8,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

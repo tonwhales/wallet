@@ -26,7 +26,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
 
     return (
         <View style={{
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceSecondary,
             borderRadius: 14,
             justifyContent: 'center',
             alignItems: 'center',

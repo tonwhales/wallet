@@ -32,7 +32,7 @@ export const StakingCycle = React.memo((
 
     return (
         <View style={[{
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceSecondary,
             minHeight: 70,
             borderRadius: 14,
             marginHorizontal: 16,

@@ -45,7 +45,7 @@ export const StakingCalcComponent = memo((
                     {t('products.staking.calc.topUpTitle')}
                 </Text>
                 <View style={{
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -169,7 +169,7 @@ export const StakingCalcComponent = memo((
     return (
         <>
             <View style={{
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceSecondary,
                 borderRadius: 14,
                 justifyContent: 'center',
                 alignItems: 'center',

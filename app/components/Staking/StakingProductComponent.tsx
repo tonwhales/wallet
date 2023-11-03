@@ -30,10 +30,10 @@ export const StakingProductComponent = memo(() => {
     if (!showJoin) return (
         <TouchableHighlight
             onPress={() => navigation.navigate('StakingPools')}
-            underlayColor={theme.surfaceSecondary}
+            underlayColor={theme.surfacePimary}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceSecondary,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >

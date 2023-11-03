@@ -458,7 +458,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16,
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceSecondary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -491,14 +491,14 @@ export const SimpleTransferFragment = fragment(() => {
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfaceSecondary, borderRadius: 14 }}>
                             <Pressable
                                 onPress={onAddAll}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.surfaceSecondary
-                                            : theme.surfacePimary,
+                                            ? theme.surfacePimary
+                                            : theme.surfaceSecondary,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -511,14 +511,14 @@ export const SimpleTransferFragment = fragment(() => {
                                 </View>
                             </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: theme.surfaceSecondary, borderRadius: 14 }}>
                             <Pressable
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.surfaceSecondary
-                                            : theme.surfacePimary,
+                                            ? theme.surfacePimary
+                                            : theme.surfaceSecondary,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -534,7 +534,7 @@ export const SimpleTransferFragment = fragment(() => {
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceSecondary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',

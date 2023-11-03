@@ -7,7 +7,7 @@ export const ItemGroup = React.memo((props: { children?: any, style?: StyleProp<
     return (
         <View
             style={[{
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceSecondary,
                 overflow: 'hidden',
                 borderRadius: 14,
                 alignItems: 'stretch',

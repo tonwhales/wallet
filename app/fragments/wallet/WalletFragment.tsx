@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { Image, LayoutAnimation, Platform, Pressable, Text, useWindowDimensions, View } from 'react-native';
-import { getCurrentAddress } from '../../storage/appState';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { TransactionView } from './views/TransactionView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import LottieView from 'lottie-react-native';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -10,7 +8,6 @@ import { BlurView } from 'expo-blur';
 import { AddressComponent } from '../../components/AddressComponent';
 import Animated, { Easing, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { resolveUrl } from '../../utils/resolveUrl';
-import { Address } from '@ton/core';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import { WalletAddress } from '../../components/WalletAddress';
 import { t } from '../../i18n/t';
@@ -28,43 +25,8 @@ import { useSyncState } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
-import { memo, useCallback, useLayoutEffect, useRef } from 'react';
+import { useCallback, useLayoutEffect, useRef } from 'react';
 import { SelectedAccount, TransactionDescription } from '../../engine/types';
-
-const PendingTxs = memo((props: {
-    txs: TransactionDescription[],
-    next: { lt: string, hash: string } | null,
-    address: Address,
-    onPress: (tx: TransactionDescription) => void
-}) => {
-    const theme = useTheme();
-    return (
-        <>
-            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
-                <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{t('wallet.pendingTransactions')}</Text>
-            </View>
-            {props.txs.map((t, i) => {
-                return (
-                    <View
-                        key={'tx-view' + t.id}
-                        style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: theme.surfacePimary, overflow: 'hidden' }}
-                        collapsable={false}
-                    >
-                        <TransactionView
-                            key={'tx-' + t.id}
-                            own={props.address}
-                            tx={t}
-                            separator={i < props.txs.length - 1}
-                            onPress={props.onPress}
-                            fontScaleNormal={true}
-                            theme={theme}
-                        />
-                    </View>
-                )
-            })}
-        </>
-    );
-});
 
 function WalletComponent(props: { selected: SelectedAccount }) {
     const account = useAccountLite(props.selected.address);
@@ -328,7 +290,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                 <View style={{ flexDirection: 'row', marginHorizontal: 16 }} collapsable={false}>
                     {
                         (!isTestnet && Platform.OS === 'android') && (
-                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
+                            <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfaceSecondary, borderRadius: 14 }}>
                                 <TouchableHighlight onPress={onOpenBuy} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
@@ -340,7 +302,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                             </View>
                         )
                     }
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfaceSecondary, borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
@@ -350,7 +312,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                             </View>
                         </TouchableHighlight>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.surfaceSecondary, borderRadius: 14 }}>
                         <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>

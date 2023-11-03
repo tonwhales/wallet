@@ -61,7 +61,7 @@ export const CurrencyFragment = fragment(() => {
                 }}>
                     <View style={{
                         marginTop: 16,
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceSecondary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         paddingVertical: 16,

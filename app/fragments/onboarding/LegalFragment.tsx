@@ -1,83 +1,166 @@
 import { useRoute } from "@react-navigation/native";
-import React from "react";
-import { Platform, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Platform, ScrollView, Text, View, Image, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { RoundButton } from "../../components/RoundButton";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { useTheme } from '../../engine/hooks';
-import { markAsTermsAccepted } from '../../storage/terms';
+import { isTermsAccepted, markAsTermsAccepted, markAsTermsNotAccepted } from '../../storage/terms';
+import { useDimensions } from "@react-native-community/hooks";
+import { mnemonicNew } from "@ton/crypto";
+import { ScreenHeader } from "../../components/ScreenHeader";
+
+import IcCheck from "@assets/ic-check.svg";
 
 export const LegalFragment = systemFragment(() => {
     const theme = useTheme();
+    const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const route = useRoute();
-    const onAccept = React.useCallback(() => {
-        markAsTermsAccepted()
-        if (route.name === 'LegalCreate') {
-            navigation.replace('WalletCreate');
-        } else {
-            navigation.replace('WalletImport');
+    const isCreate = route.name === 'LegalCreate';
+
+    const [state, setState] = useState<{ mnemonics: string } | null>(null);
+    const [accepted, setAccepted] = useState(isTermsAccepted() ? true : false);
+    const [ready, setReady] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const onContinue = useCallback(() => {
+        if (isCreate) {
+            setLoading(true);
+            if (state) {
+                navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+                return;
+            }
+            setReady(true);
+            return;
         }
+        navigation.replace('WalletImport');
+    }, [state]);
+
+    const onToggleAccept = useCallback(() => {
+        setAccepted(!accepted);
+        if (accepted) {
+            markAsTermsNotAccepted();
+        } else {
+            markAsTermsAccepted();
+        }
+    }, [accepted]);
+
+    useEffect(() => {
+        if (!isCreate) {
+            return;
+        }
+        (async () => {
+            const mnemonics = await mnemonicNew();
+            setState({ mnemonics: mnemonics.join(' ') });
+        })()
     }, []);
+
+    useEffect(() => {
+        if (ready && state) {
+            navigation.replace('WalletCreate', { mnemonics: state.mnemonics });
+            return;
+        }
+    }, [accepted, state]);
+
     return (
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
             backgroundColor: theme.background,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-            paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0,
+            paddingTop: Platform.OS === 'android' ? safeArea.top : 16,
         }}>
-            <AndroidToolbar pageTitle={t('legal.title')} />
-            <View style={{ flexGrow: 1 }} />
-            <FragmentMediaContent
-                animation={require('../../../assets/animations/paper.json')}
-                title={t('legal.title')}
-            >
-                <Text style={{
-                    textAlign: 'center',
-                    color: theme.textThird,
-                    fontSize: 14,
-                    marginTop: 14,
-                }}>
-                    <Text>
-                        {t('legal.subtitle') + ' '}
+            <ScreenHeader
+                style={[{ paddingLeft: 16 }, Platform.select({ ios: { paddingTop: 16 } })]}
+                onBackPressed={navigation.goBack}
+                statusBarStyle={Platform.select({ ios: theme.style === 'dark' ? 'light' : 'dark', android: 'light' })}
+            />
+            <ScrollView style={{ flexGrow: 1, width: '100%' }}>
+                <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+                    <Text style={{
+                        fontSize: 32, lineHeight: 38,
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        color: theme.textPrimary,
+                        marginBottom: 12, marginTop: 16
+                    }}>
+                        {isCreate ? t('legal.create') : t('legal.title')}
                     </Text>
-                </Text>
-                <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                        flexShrink: 1,
+                        color: theme.textSecondary,
+                        marginBottom: 24
+                    }}>
+                        {t('legal.createSubtitle')}
+                    </Text>
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        aspectRatio: 0.92,
+                        width: dimensions.screen.width - 32,
+                    }}>
+                        <Image
+                            resizeMode={'contain'}
+                            style={{ width: dimensions.screen.width - 32 }}
+                            source={require('@assets/banner_backup.webp')}
+                        />
+                    </View>
+                </View>
+            </ScrollView>
+            <View style={{ flexGrow: 1 }} />
+            <Pressable
+                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24 }}
+                onPress={onToggleAccept}
+            >
+                <View style={{
+                    height: 24, width: 24,
+                    backgroundColor: accepted ? theme.accent : theme.divider,
+                    borderRadius: 6,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginRight: 16
+                }}>
+                    {accepted && (<IcCheck color={theme.white} />)}
+                </View>
+                <Text
+                    style={{
+                        flexShrink: 1,
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '500',
+                        textAlign: 'left'
+                    }}
+                >
+                    <Text style={{
+                        color: theme.textSecondary,
+                    }}>
+                        {t('legal.subtitle')}
+                    </Text>
                     <Text
-                        style={{
-                            textAlign: 'center',
-                            fontSize: 14, color: theme.accent
-                        }}
+                        style={{ color: theme.accent }}
                         onPress={() => navigation.navigate('Privacy')}>
                         {t('legal.privacyPolicy')}
                     </Text>
-                    <Text style={{
-                        textAlign: 'center',
-                        color: theme.textThird,
-                        fontSize: 14,
-                    }}>
+                    <Text style={{ color: theme.textSecondary, }}>
                         {' ' + t('common.and') + ' '}
                     </Text>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 14,
-                        color: theme.accent
-                    }}
+                    <Text style={{ color: theme.accent }}
                         onPress={() => navigation.navigate('Terms')}>
                         {t('legal.termsOfService')}
                     </Text>
-                </View>
-            </FragmentMediaContent >
-            <View style={{ flexGrow: 1 }} />
-            <View style={{ height: 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                <RoundButton title={t('common.accept')} onPress={onAccept} />
+                </Text>
+            </Pressable>
+            <View style={[{ paddingHorizontal: 16, width: '100%' }, Platform.select({ android: { paddingBottom: 16 } })]}>
+                <RoundButton
+                    disabled={!accepted}
+                    loading={loading}
+                    title={t('common.continue')}
+                    onPress={onContinue}
+                />
             </View>
-        </View >
+        </View>
     );
 });

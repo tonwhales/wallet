@@ -459,6 +459,8 @@ export type LocalizationSchema = {
     legal: {
         title: string,
         subtitle: string,
+        create: string,
+        createSubtitle: string,
         privacyPolicy: string,
         termsOfService: string
     },

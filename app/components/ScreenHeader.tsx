@@ -5,11 +5,12 @@ import { CloseButton } from "./navigation/CloseButton";
 import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { BackButton } from "./navigation/BackButton";
-import { useTheme } from "../engine/hooks/theme/useTheme";
+import { ThemeType } from "../engine/state/theme";
+import { useTheme } from "../engine/hooks";
 
 export function useScreenHeader(
     navigation: TypedNavigation,
-    theme: any,
+    Theme: ThemeType,
     options: {
         title?: string,
         textColor?: string,
@@ -34,7 +35,7 @@ export function useScreenHeader(
             },
             title: options.title,
             headerTitleStyle: {
-                color: options.textColor ?? theme.textColor,
+                color: options.textColor ?? Theme.textPrimary,
                 fontWeight: '600',
                 fontSize: 17
             },
@@ -53,7 +54,7 @@ export function useScreenHeader(
                         <ScreenHeader
                             style={[
                                 {
-                                    backgroundColor: theme.background,
+                                    backgroundColor: Theme.background,
                                     borderTopLeftRadius: 16,
                                     borderTopRightRadius: 16,
                                     paddingHorizontal: 16,
@@ -73,7 +74,7 @@ export function useScreenHeader(
                     );
                 },
         });
-    }, [navigation, options, theme]);
+    }, [navigation, options, Theme]);
 }
 
 export const ScreenHeader = memo((

@@ -456,7 +456,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     legal: {
         title: 'Legal',
-        subtitle: 'Please review and accept our',
+        subtitle: 'I have read and accept ',
+        create: 'Create a backup',
+        createSubtitle: 'Keep your private key safe and don\'t share it with anyone. It\'s the only way to access your wallet if the device is lost.',
         privacyPolicy: 'Privacy Policy',
         termsOfService: 'Terms of Service'
     },

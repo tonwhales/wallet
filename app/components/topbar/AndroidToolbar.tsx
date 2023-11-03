@@ -43,7 +43,7 @@ export const AndroidToolbar = React.memo((props: { style?: StyleProp<ViewStyle>,
                 <Text
                     style={{
                         alignItems: 'center',
-                        fontSize: 22, color: theme.textColor, fontWeight: '700',
+                        fontSize: 22, color: theme.textPrimary, fontWeight: '700',
                         flexGrow: 1,
                         marginLeft: 32,
                         height: 56,

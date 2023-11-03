@@ -196,7 +196,7 @@ export const TransactionView = memo((props: {
             <TouchableHighlight
                 onPress={() => props.onPress(props.tx)}
                 underlayColor={theme.selector}
-                style={{ backgroundColor: theme.item }}
+                style={{ backgroundColor: theme.surfacePimary }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
@@ -222,7 +222,7 @@ export const TransactionView = memo((props: {
                                 flexGrow: 1, flexBasis: 0, marginRight: 16,
                             }}>
                                 <Text
-                                    style={{ color: theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                    style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}>
                                     {op}
@@ -250,9 +250,9 @@ export const TransactionView = memo((props: {
                                     style={{
                                         color: itemAmount > 0
                                             ? spam
-                                                ? theme.textColor
-                                                : theme.pricePositive
-                                            : theme.priceNegative,
+                                                ? theme.textPrimary
+                                                : theme.accentGreen
+                                            : theme.accentRed,
                                         fontWeight: '400',
                                         fontSize: 16,
                                         marginRight: 2,

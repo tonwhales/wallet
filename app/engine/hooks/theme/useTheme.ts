@@ -23,8 +23,6 @@ export function useTheme(): ThemeType {
             ...theme,
             style: theme.style as Exclude<ThemeStyle, ThemeStyle.System>,
             accent: isTestnet ? '#F3A203' : '#47A9F1',
-            accentDark: isTestnet ? '#F3A203' : '#288FD8',
-            accentText: isTestnet ? '#E99A02' : '#1C8FE3',
         };
     }, [isTestnet, themeStyle]);
 

@@ -34,7 +34,7 @@ export const WelcomeFragment = systemFragment(() => {
         <View style={{
             alignItems: 'center', justifyContent: 'center',
             flexGrow: 1,
-            backgroundColor: theme.item
+            backgroundColor: theme.surfacePimary
         }}>
             <StatusBar style='dark' />
             <View style={{
@@ -84,7 +84,7 @@ export const WelcomeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: theme.accentText
+                        color: theme.accent
                     }}>
                         {t('welcome.importWallet')}
                     </Text>

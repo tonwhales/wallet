@@ -458,7 +458,7 @@ export const SimpleTransferFragment = fragment(() => {
 
                     <View style={{
                         marginBottom: 16,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -491,14 +491,14 @@ export const SimpleTransferFragment = fragment(() => {
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }} collapsable={false}>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.item, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
                             <Pressable
                                 onPress={onAddAll}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? theme.selector
-                                            : theme.item,
+                                            : theme.surfacePimary,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -507,18 +507,18 @@ export const SimpleTransferFragment = fragment(() => {
                                     <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_all_coins.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
+                                    <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
                                 </View>
                             </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: theme.item, borderRadius: 14 }}>
+                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
                             <Pressable
                                 onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
                                             ? theme.selector
-                                            : theme.item,
+                                            : theme.surfacePimary,
                                     },
                                     { borderRadius: 14 }
                                 ]}
@@ -527,14 +527,14 @@ export const SimpleTransferFragment = fragment(() => {
                                     <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
                                         <Image source={require('../../../assets/ic_scan_qr.png')} />
                                     </View>
-                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
+                                    <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
                                 </View>
                             </Pressable>
                         </View>
                     </View>
                     <View style={{
                         marginBottom: 16, marginTop: 17,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',

@@ -150,7 +150,7 @@ function Header(props: {
                             onPress={props.action.onAction}
                         >
                             <Text style={{
-                                fontSize: 14, color: theme.textColor,
+                                fontSize: 14, color: theme.textPrimary,
                                 textDecorationLine: 'underline',
                                 textAlign: 'right'
                             }}>

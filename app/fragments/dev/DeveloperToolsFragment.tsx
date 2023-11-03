@@ -96,7 +96,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: theme.item });
+            walletKeys = await authContext.authenticate({ backgroundColor: theme.surfacePimary });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {
@@ -142,7 +142,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -176,7 +176,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -208,7 +208,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -233,7 +233,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',
@@ -259,7 +259,7 @@ export const DeveloperToolsFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     overflow: 'hidden',
                     justifyContent: 'center',

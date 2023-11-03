@@ -177,7 +177,7 @@ export const TransactionPreviewFragment = fragment(() => {
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
@@ -206,7 +206,7 @@ export const TransactionPreviewFragment = fragment(() => {
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -214,7 +214,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: theme.surfacePimary,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -237,8 +237,8 @@ export const TransactionPreviewFragment = fragment(() => {
                                 style={{
                                     color: BigInt(item.amount) >= BigInt(0)
                                         ? spam
-                                            ? theme.textColor
-                                            : theme.pricePositive
+                                            ? theme.textPrimary
+                                            : theme.accentGreen
                                         : '#000000',
                                     fontWeight: '800',
                                     fontSize: 36,
@@ -271,7 +271,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -281,7 +281,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textThird, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -302,7 +302,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -312,7 +312,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textThird, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -332,7 +332,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -347,7 +347,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: theme.textSubtitle,
+                                color: theme.textThird,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -396,7 +396,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: theme.textSubtitle,
+                                                color: theme.textThird,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -424,7 +424,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={theme.item}
+                                previewBackgroundColor={theme.surfacePimary}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
@@ -444,7 +444,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: theme.textSubtitle
+                                        color: theme.textThird
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -453,7 +453,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: theme.textColor,
+                                        color: theme.textPrimary,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -483,7 +483,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: theme.textSubtitle
+                            color: theme.textThird
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
@@ -496,7 +496,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: theme.textColor,
+                                color: theme.textPrimary,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
@@ -512,14 +512,14 @@ export const TransactionPreviewFragment = fragment(() => {
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: theme.textPrimary, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
                             {!isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>

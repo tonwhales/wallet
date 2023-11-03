@@ -58,7 +58,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -74,7 +74,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -189,14 +189,14 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: theme.item
+            backgroundColor: theme.surfacePimary
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ backgroundColor: theme.item, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <KeyboardAvoidingView
                     behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     style={{
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         flexGrow: 1,
                     }}
                 >
@@ -257,7 +257,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 source={{ uri: `${endpoint}/about?lang=${lang}&currency=${currency}` }}
                                 startInLoadingState={true}
                                 style={{
-                                    backgroundColor: theme.item,
+                                    backgroundColor: theme.surfacePimary,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,

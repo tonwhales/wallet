@@ -28,7 +28,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
         <TouchableHighlight
             onPress={onContact}
             underlayColor={theme.selector}
-            style={{ backgroundColor: theme.item, borderRadius: 14, marginVertical: 4 }}
+            style={{ backgroundColor: theme.surfacePimary, borderRadius: 14, marginVertical: 4 }}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
@@ -45,7 +45,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
                             flexGrow: 1, flexBasis: 0, marginRight: 16,
                         }}>
                             <Text
-                                style={{ color: theme.textColor, fontSize: 16, fontWeight: '600' }}
+                                style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '600' }}
                                 ellipsizeMode={'tail'}
                                 numberOfLines={1}
                             >

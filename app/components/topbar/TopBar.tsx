@@ -39,7 +39,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         )}
                         {!!title && (
                             <Text style={[
-                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>
@@ -51,7 +51,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -66,7 +66,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                     {!!title && (
                         <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={[
-                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>
@@ -96,7 +96,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </View>

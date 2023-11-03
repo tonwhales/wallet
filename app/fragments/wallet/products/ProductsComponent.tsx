@@ -257,7 +257,7 @@ export const ProductsComponent = memo(({ selected }: {
             {(apps.length > 0) && (
                 <>
                     <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textColor }}>{t('products.services')}</Text>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textPrimary }}>{t('products.services')}</Text>
                     </View>
                     {apps}
                 </>
@@ -266,7 +266,7 @@ export const ProductsComponent = memo(({ selected }: {
             {accounts.length > 0 && (
                 <>
                     <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
-                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textColor }}>{t('products.accounts')}</Text>
+                        <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8, color: theme.textPrimary }}>{t('products.accounts')}</Text>
                     </View>
                     {accounts}
                 </>

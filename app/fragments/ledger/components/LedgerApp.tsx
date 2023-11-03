@@ -132,7 +132,7 @@ export const LedgerApp = memo((props: {
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../../assets/ic_receive.png')} />
                                         </View>
-                                        <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
+                                        <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.receive')}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </View>
@@ -145,7 +145,7 @@ export const LedgerApp = memo((props: {
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../../assets/ic_send.png')} />
                                         </View>
-                                        <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
+                                        <Text style={{ fontSize: 13, color: theme.accent, marginTop: 4, fontWeight: '400' }}>{t('wallet.actions.send')}</Text>
                                     </View>
                                 </TouchableHighlight>
                             </View>

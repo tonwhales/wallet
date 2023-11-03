@@ -144,7 +144,7 @@ export const StakingGraphFragment = fragment(() => {
                         animatedProps={animatedTonProps as Partial<Animated.AnimateProps<TextInputProps>>}
                         style={{
                             fontSize: 30,
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginRight: 8,
                             fontWeight: '800',
                             height: 40,

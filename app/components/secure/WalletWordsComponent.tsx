@@ -219,7 +219,7 @@ export const WalletWordsComponent = memo((props: {
                         {t('import.subtitle')}
                     </Text>
                     <View style={{
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         width: '100%',
                     }}>

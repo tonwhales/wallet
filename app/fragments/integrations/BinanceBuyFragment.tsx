@@ -56,7 +56,7 @@ export const BinanceBuyFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: theme.textColor
+                    color: theme.textPrimary
                 }}>
                     {'Binance Pay service availible only on testnet'}
                 </Text>

@@ -75,7 +75,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
             underlayColor={theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: theme.item,
+                backgroundColor: theme.surfacePimary,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >
@@ -107,11 +107,11 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                 {!!account && (
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
+                            <Text style={{ color: theme.textPrimary, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
                                 {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                             </Text>
                             {!!account && (
-                                <Text style={{ color: theme.textColor, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
+                                <Text style={{ color: theme.textPrimary, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
                                     <ValueComponent value={account.balance} precision={2} />{' TON'}
                                 </Text>
                             )}
@@ -155,7 +155,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                     <View style={{ flexDirection: 'row', flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'space-between', paddingRight: 10 }}>
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
-                                <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
+                                <Text style={{ color: theme.textPrimary, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
                                     {t('products.zenPay.card.defaultTitle')}
                                 </Text>
                             </View>

@@ -102,7 +102,7 @@ export const CopyButton = React.memo(({
                         <Text
                             style={[
                                 {
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,
@@ -143,7 +143,7 @@ export const CopyButton = React.memo(({
                                 {
                                     marginTop: size.pad,
                                     opacity: 1,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     fontSize: size.fontSize,
                                     fontWeight: '600',
                                     includeFontPadding: false,

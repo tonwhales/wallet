@@ -466,7 +466,7 @@ export const TransferBatch = React.memo((props: Props) => {
                         <Text style={{
                             fontWeight: '700',
                             fontSize: 20,
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginHorizontal: 16,
                             marginVertical: 16,
                         }}>
@@ -491,7 +491,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 20,
-                                    color: theme.textColor
+                                    color: theme.textPrimary
                                 }}>
                                     {fromNano(totalAmount) + ' TON'}
                                 </Text>
@@ -503,7 +503,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                     paddingHorizontal: 0,
                                     marginLeft: 48, marginTop: 4
                                 }}
-                                textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                textStyle={{ color: theme.textPrimary, fontWeight: '400', fontSize: 14 }}
                             />
                         </View>
                         {totalJettons.size > 0 && (
@@ -537,7 +537,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 20,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                                 marginLeft: 2
                                             }}>
                                                 {`${fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
@@ -567,7 +567,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                             <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
                                                 <Text style={{
                                                     fontSize: 16,
-                                                    color: gas.unusual ? theme.warningSecondary : theme.textColor,
+                                                    color: gas.unusual ? theme.warning : theme.textPrimary,
                                                     fontWeight: gas.unusual ? '700' : '400'
                                                 }}>
                                                     {(!isTestnet && price)
@@ -585,7 +585,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: theme.warningSecondaryBorder,
+                                                        borderColor: theme.warning,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginBottom: 16,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -596,7 +596,7 @@ export const TransferBatch = React.memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: theme.warningSecondary
+                                                    color: theme.warning
                                                 }}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>

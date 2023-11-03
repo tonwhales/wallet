@@ -281,7 +281,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     if (state.type === 'expired') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.expired')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.expired')}</Text>
                 <RoundButton
                     title={t('common.back')}
                     onPress={() => {
@@ -310,7 +310,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     if (state.type === 'failed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.failed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.failed')}</Text>
                 <RoundButton
                     title={t('common.back')}
                     onPress={() => {
@@ -339,7 +339,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     if (state.type === 'completed') {
         return (
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('auth.completed')}</Text>
+                <Text style={{ fontSize: 24, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('auth.completed')}</Text>
                 <RoundButton
                     title={t('common.back')}
                     onPress={() => {
@@ -380,7 +380,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         fontSize: 24,
                         marginHorizontal: 32,
                         textAlign: 'center',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                     }}
                 >
                     {t('auth.authorized')}
@@ -469,7 +469,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -500,7 +500,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: theme.item
+                        backgroundColor: theme.surfacePimary
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -521,7 +521,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                     >
@@ -548,7 +548,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: theme.textColor,
+                    color: theme.textPrimary,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -563,7 +563,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         marginBottom: 32,
                         opacity: 0.6
                     }}

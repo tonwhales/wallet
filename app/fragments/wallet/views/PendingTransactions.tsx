@@ -35,7 +35,7 @@ const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, las
         <Animated.View
             entering={FadeInDown}
             exiting={FadeOutUp}
-            style={{ backgroundColor: theme.item }}
+            style={{ backgroundColor: theme.surfacePimary }}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
@@ -51,7 +51,7 @@ const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, las
                             flexGrow: 1, flexBasis: 0, marginRight: 16,
                         }}>
                             <Text
-                                style={{ color: theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
+                                style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
                                 ellipsizeMode="tail"
                                 numberOfLines={1}>
                                 {t('tx.sending')}
@@ -59,7 +59,7 @@ const PendingTransactionView = memo(({ tx, last }: { tx: PendingTransaction, las
                         </View>
                         <Text
                             style={{
-                                color: theme.priceNegative,
+                                color: theme.accentRed,
                                 fontWeight: '400',
                                 fontSize: 16,
                                 marginRight: 2,
@@ -126,7 +126,7 @@ export const PendingTransactions = memo(() => {
                             fontWeight: '700',
                             marginHorizontal: 16,
                             marginVertical: 8,
-                            color: theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('wallet.pendingTransactions')}

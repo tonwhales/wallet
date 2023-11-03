@@ -384,7 +384,7 @@ export const TransferSingle = memo((props: Props) => {
                     <View
                         style={{
                             marginTop: 30,
-                            backgroundColor: theme.item,
+                            backgroundColor: theme.surfacePimary,
                             borderRadius: 14,
                             justifyContent: 'center',
                             paddingHorizontal: 16,
@@ -403,7 +403,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${fromNano(order.messages[0].amountAll ? account!.balance : order.messages[0].amount)} TON`}
@@ -416,7 +416,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 paddingHorizontal: 0,
                                                 marginLeft: 2
                                             }}
-                                            textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                            textStyle={{ color: theme.textPrimary, fontWeight: '400', fontSize: 14 }}
                                         />
                                         {!!operation.comment && operation.comment.length > 0 && (
                                             <View style={{
@@ -492,7 +492,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2
                                         }}>
                                             {`${jettonAmount} ${jettonMaster.symbol}`}
@@ -560,7 +560,7 @@ export const TransferSingle = memo((props: Props) => {
                                             </Text>
                                         )}
                                         <View style={{
-                                            backgroundColor: theme.item,
+                                            backgroundColor: theme.surfacePimary,
                                             shadowColor: 'rgba(0, 0, 0, 0.25)',
                                             shadowOffset: {
                                                 height: 1,
@@ -589,7 +589,7 @@ export const TransferSingle = memo((props: Props) => {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 20,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             marginLeft: 2,
                                         }}>
                                             {`${contact?.name ?? known?.name}`}
@@ -620,7 +620,7 @@ export const TransferSingle = memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: theme.warningSecondaryBorder,
+                                                        borderColor: theme.warning,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -631,7 +631,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: theme.warningSecondary
+                                                    color: theme.warning
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -644,7 +644,7 @@ export const TransferSingle = memo((props: Props) => {
                                             <View style={{
                                                 position: 'absolute',
                                                 left: -48, top: 0, bottom: 0,
-                                                backgroundColor: theme.contactIcon,
+                                                backgroundColor: theme.warning,
                                                 height: 40, width: 40,
                                                 borderRadius: 40,
                                                 justifyContent: 'center',
@@ -692,7 +692,7 @@ export const TransferSingle = memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '700',
                                         fontSize: 20,
-                                        color: theme.textColor,
+                                        color: theme.textPrimary,
                                         marginLeft: 2
                                     }}>
                                         <AddressComponent address={operation.address} />
@@ -719,7 +719,7 @@ export const TransferSingle = memo((props: Props) => {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
                                                         borderRadius: 6, borderWidth: 1,
-                                                        borderColor: theme.warningSecondaryBorder,
+                                                        borderColor: theme.warning,
                                                         paddingHorizontal: 8, paddingVertical: 4,
                                                         marginTop: 4,
                                                         justifyContent: 'center', alignItems: 'center',
@@ -730,7 +730,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 <Text style={{
                                                     fontSize: 14,
                                                     fontWeight: '400',
-                                                    color: theme.warningSecondary
+                                                    color: theme.warning
                                                 }}>
                                                     {t('transfer.error.addressIsNotActive')}
                                                 </Text>
@@ -767,7 +767,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.item,
+                                                backgroundColor: theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -795,7 +795,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 {t('transfer.smartContract')}
                                             </Text>
                                             <View style={{
-                                                backgroundColor: theme.item,
+                                                backgroundColor: theme.surfacePimary,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -823,7 +823,7 @@ export const TransferSingle = memo((props: Props) => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 17,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                             }}>
                                                 {t(operation.op.res, operation.op.options)}
                                             </Text>
@@ -835,7 +835,7 @@ export const TransferSingle = memo((props: Props) => {
                                                 flexShrink: 1,
                                                 fontWeight: '500',
                                                 fontSize: 14,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                                 opacity: 0.4
                                             }}>
                                                 {text}
@@ -844,7 +844,7 @@ export const TransferSingle = memo((props: Props) => {
                                     )}
                                     {order?.app?.domain !== extractDomain(holdersUrl) && (
                                         <View style={{
-                                            backgroundColor: theme.operationIcon,
+                                            backgroundColor: theme.accentGreen,
                                             height: 40, width: 40,
                                             borderRadius: 40,
                                             justifyContent: 'center',

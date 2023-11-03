@@ -188,7 +188,7 @@ export const HomeFragment = fragment(() => {
                         height: 52 + safeArea.bottom,
                         paddingBottom: safeArea.bottom, paddingHorizontal: 16,
                         flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: theme.item
+                        backgroundColor: theme.surfacePimary
                     }}>
                         <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
                             <Image
@@ -227,7 +227,7 @@ export const HomeFragment = fragment(() => {
                         top: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }}
                 />

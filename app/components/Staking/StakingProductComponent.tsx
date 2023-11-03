@@ -33,7 +33,7 @@ export const StakingProductComponent = memo(() => {
             underlayColor={theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: theme.item,
+                backgroundColor: theme.surfacePimary,
                 marginHorizontal: 16, marginVertical: 4
             }}
         >
@@ -42,7 +42,7 @@ export const StakingProductComponent = memo(() => {
             }}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10 }}>
-                        <View style={{ backgroundColor: theme.success, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: theme.accentGreen, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
@@ -56,15 +56,15 @@ export const StakingProductComponent = memo(() => {
                             justifyContent: 'space-between',
                             marginBottom: 3
                         }}>
-                            <Text style={{ color: theme.textColor, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
+                            <Text style={{ color: theme.textPrimary, fontSize: 16, marginRight: 16, fontWeight: '600' }} ellipsizeMode="tail" numberOfLines={1}>
                                 {t('products.staking.title')}
                             </Text>
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
                                 color: staking.total && staking.total > BigInt(0)
-                                    ? theme.pricePositive
-                                    : theme.textColor
+                                    ? theme.accentGreen
+                                    : theme.textPrimary
                             }}>
                                 <ValueComponent
                                     value={staking.total}
@@ -88,7 +88,7 @@ export const StakingProductComponent = memo(() => {
                                     marginTop: 2, height: undefined,
                                     minHeight: fontScaleNormal ? 14 : undefined
                                 }}
-                                textStyle={{ color: theme.textSubtitle, fontWeight: '400', fontSize: 12 }}
+                                textStyle={{ color: theme.textThird, fontWeight: '400', fontSize: 12 }}
                             />
                         </View>
                     </View>
@@ -103,7 +103,7 @@ export const StakingProductComponent = memo(() => {
             underlayColor={theme.selector}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: theme.item,
+                backgroundColor: theme.surfacePimary,
                 marginHorizontal: 16, marginVertical: 4,
             }}
         >
@@ -112,7 +112,7 @@ export const StakingProductComponent = memo(() => {
             }}>
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginRight: 10, alignSelf: 'center' }}>
-                        <View style={{ backgroundColor: theme.success, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
+                        <View style={{ backgroundColor: theme.accentGreen, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' }}>
                             <StakingIcon width={42} height={42} color={'white'} />
                         </View>
                     </View>
@@ -124,7 +124,7 @@ export const StakingProductComponent = memo(() => {
                     }}>
                         <View>
                             <Text style={{
-                                color: theme.textColor, fontSize: 16,
+                                color: theme.textPrimary, fontSize: 16,
                                 marginRight: 16, fontWeight: '600',
                                 marginBottom: 3
                             }}

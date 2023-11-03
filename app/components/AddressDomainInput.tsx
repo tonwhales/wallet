@@ -271,7 +271,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 12,
-                                    color: theme.item,
+                                    color: theme.surfacePimary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('hardwareWallet.actions.mainAddress')}

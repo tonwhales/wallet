@@ -25,7 +25,7 @@ export const ShareButton = React.memo(({
     const display = {
         backgroundColor: theme.secondaryButton,
         borderColor: theme.secondaryButton,
-        textColor: theme.textColor,
+        textColor: theme.textPrimary,
 
         backgroundPressedColor: theme.selector,
         borderPressedColor: theme.selector,

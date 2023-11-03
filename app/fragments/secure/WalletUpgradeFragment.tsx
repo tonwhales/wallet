@@ -29,7 +29,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfacePimary,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
         }}>
@@ -41,7 +41,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: theme.textSubtitle,
+                    color: theme.textThird,
                     fontSize: 16,
                     marginTop: 14,
                 }}>
@@ -66,7 +66,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: theme.accentText
+                        color: theme.accent
                     }}>
                         {t('secure.backup')}
                     </Text>

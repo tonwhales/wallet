@@ -11,31 +11,47 @@ export enum ThemeStyle {
 
 export type ThemeType = {
     style: Exclude<ThemeStyle, ThemeStyle.System>,
-    textColor: string,
-    textSecondary: string,
-    textSubtitle: string,
-    loader: string,
+
     background: string,
-    item: string,
+    backgroundInverted: string,
+    backgroundUnchangeable: string,
+
+    surfacePimary: string,
+    surfaceSecondary: string,
 
     accent: string,
-    accentDark: string,
-    accentText: string,
+    accentPrimaryDisabledViolet: string,
+    accentRed: string,
+    accentGreen: string,
+    accentBlue: string,
 
-    warningText: string,
-    warningSecondary: string,
-    warningSecondaryBorder: string,
+    textPrimary: string,
+    textPrimaryInverted: string,
+    textSecondary: string,
+    textThird: string,
 
-    linkText: string,
-
+    iconPrimary: string,
+    iconSecondary: string,
+    
     divider: string,
-    headerDivider: string,
+    border: string,
+    overlay: string,
 
+    ton: string,
+    telegram: string,
+
+    transparent: string,
+    white: string,
+    black: string,
+
+    cardBackground: string,
+    warning: string,
+
+    // TODO: remove
     scoreGold: string,
     selector: string,
     secondaryButton: string,
     secondaryButtonText: string,
-    success: string,
     failed: string,
     dangerZone: string,
     delete: string,
@@ -43,50 +59,57 @@ export type ThemeType = {
     label: string,
     placeholder: string,
     labelSecondary: string,
-    transparent: string,
     contactBorder: string,
     textSecondaryBorder: string,
     disabled: string,
     pressedRoundButton: string,
-    telegram: string,
 
     price: string,
-    priceSecondary: string,
-    pricePositive: string,
-    priceNegative: string,
-
-    unchecked: string,
-    contactIcon: string,
-    operationIcon: string
+    priceSecondary: string
 };
 
-export const baseTheme = {
+export const baseTheme: ThemeType = {
     style: ThemeStyle.Light,
-    textColor: '#000',
-    textSecondary: '#8E8E92',
-    textSubtitle: '#8E979D',
-    loader: '#367CDE',
-    background: '#F2F2F6',
-    item: 'white',
 
-    accent: '#47A9F1',
-    accentDark: '#288FD8',
-    accentText: '#1C8FE3',
+    background: '#FFFFFF',
+    backgroundInverted: '#000000',
+    backgroundUnchangeable: '#000000',
 
-    warningText: '#DE641F',
-    warningSecondary: '#E19626',
-    warningSecondaryBorder: '#FFC165',
+    surfacePimary: 'white',
+    surfaceSecondary: '#F7F8F9',
 
-    linkText: '#42A3EB',
+    accent: '#564CE2',
+    accentPrimaryDisabledViolet: '#AAA5F0',
+    accentRed: '#FF415C',
+    accentGreen: '#00BE80',
+    accentBlue: '#61BDFF',
 
-    divider: '#E4E4E5',
-    headerDivider: '#000',
+    textPrimary: '#000',
+    textPrimaryInverted: '#FFFFFF',
+    textSecondary: '#838D99',
+    textThird: '#FFFFFF',
+
+    iconPrimary: '#AAB4BF',
+    iconSecondary: '#FFFFFF',
+
+    divider: '#E4E6EA',
+    border: '#F7F8F9',
+    overlay: 'rgba(0, 0, 0, 0.6)',
+
+    ton: '#0098EA',
+    telegram: '#59ADE7',
+
+    transparent: 'transparent',
+    white: 'white',
+    black: 'black',
+
+    cardBackground: '#181524',
+    warning: '#FF9A50',
 
     scoreGold: '#DAA520',
     selector: 'rgba(179, 179, 193, 0.3)',
     secondaryButton: '#E5E5E7',
     secondaryButtonText: '#798287',
-    success: '#4DC47D',
     failed: 'orange',
     dangerZone: '#FF0000',
     delete: '#CF3535',
@@ -94,31 +117,38 @@ export const baseTheme = {
     label: '#7D858A',
     placeholder: '#9D9FA3',
     labelSecondary: '#858B93',
-    transparent: 'transparent',
     contactBorder: '#DEDEDE',
     textSecondaryBorder: '#ADB6BE',
     disabled: '#9EA6AB',
     pressedRoundButton: 'rgba(0,0,0,0.3)',
-    telegram: '#59ADE7',
 
     price: '#787F83',
-    priceSecondary: '#6D6D71',
-    pricePositive: '#4FAE42',
-    priceNegative: '#FF0000',
-
-    unchecked: '#B6B6BF',
-    contactIcon: '#EDA652',
-    operationIcon: '#60C75E',
+    priceSecondary: '#6D6D71'
 }
 
 export const darkTheme: ThemeType = {
     ...baseTheme,
+
     style: ThemeStyle.Dark,
-    textColor: '#fff',
-    textSecondary: '#ccc',
-    textSubtitle: '#ddd',
-    background: '#222',
-    item: '#333',
+
+    background: '#000000',
+    backgroundInverted: '#FFFFFF',
+
+    surfacePimary: '#1C1C1E',
+    surfaceSecondary: '#2C2C2D',
+
+    accent: '#564CE2',
+    accentPrimaryDisabledViolet: '#7F7BBB',
+
+    textPrimary: '#FFFFFF',
+    textPrimaryInverted: '#000000',
+    textSecondary: '#9398A1',
+
+    iconPrimary: '#828B96',
+
+    divider: '#444446',
+
+    border: '#1C1C1E',
 }
 
 export const initialNavigationTheme: NavigationThemeType = {

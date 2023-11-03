@@ -122,7 +122,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

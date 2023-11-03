@@ -298,7 +298,7 @@ export const StakingTransferFragment = fragment(() => {
                     <>
                         <View style={{
                             marginBottom: 0,
-                            backgroundColor: theme.item,
+                            backgroundColor: theme.surfacePimary,
                             borderRadius: 14,
                             justifyContent: 'center',
                             alignItems: 'center',
@@ -312,7 +312,7 @@ export const StakingTransferFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
-                                    color: theme.textSubtitle,
+                                    color: theme.textThird,
                                 }}>
                                     {t('common.amount')}
                                 </Text>
@@ -371,7 +371,7 @@ export const StakingTransferFragment = fragment(() => {
                                         <Text style={{
                                             fontWeight: '600',
                                             fontSize: 16,
-                                            color: theme.item
+                                            color: theme.surfacePimary
                                         }}>
                                             {t('common.max')}
                                         </Text>
@@ -412,7 +412,7 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                             <>
                                 <View style={{
-                                    backgroundColor: theme.item,
+                                    backgroundColor: theme.surfacePimary,
                                     borderRadius: 14,
                                     justifyContent: 'center',
                                     alignItems: 'center',
@@ -436,7 +436,7 @@ export const StakingTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 16,
-                                                color: theme.textColor
+                                                color: theme.textPrimary
                                             }}>
                                                 {`${fromNano(withdrawFee)} TON`}
                                             </Text>

@@ -24,7 +24,7 @@ export const WalletImportFragment = systemFragment(() => {
         if (!state) {
             navigation.setOptions({ headerStyle: { backgroundColor: theme.background } });
         } else {
-            navigation.setOptions({ headerStyle: { backgroundColor: theme.item } });
+            navigation.setOptions({ headerStyle: { backgroundColor: theme.surfacePimary } });
         }
     }, [navigation, state]);
 

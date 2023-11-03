@@ -159,7 +159,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
             <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
             <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                 {Platform.OS === 'ios' && (
-                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
+                    <Text style={{ color: theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
                         {op}
                     </Text>
                 )}
@@ -188,7 +188,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
             >
                 <View style={{
                     marginTop: 44,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
@@ -196,7 +196,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                 }}>
                     <View style={{
                         width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
+                        borderRadius: 60, borderWidth: 4, borderColor: theme.surfacePimary,
                         alignItems: 'center', justifyContent: 'center',
                         position: 'absolute', top: -28,
                     }}>
@@ -219,7 +219,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                 style={{
                                     color: BigInt(item.amount) >= BigInt(0)
                                         ? spam
-                                            ? theme.textColor
+                                            ? theme.textPrimary
                                             : '#4FAE42'
                                         : '#000000',
                                     fontWeight: '800',
@@ -253,7 +253,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                 {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -263,7 +263,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textThird, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -284,7 +284,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                 {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         width: '100%'
@@ -294,7 +294,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                             onPress={handleCommentAction}
                         >
                             <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
+                                <Text style={{ fontWeight: '400', color: theme.textThird, fontSize: 12 }}>
                                     {t('common.comment')}
                                 </Text>
                                 <Text
@@ -314,7 +314,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 14,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     width: '100%'
@@ -329,7 +329,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                             <Text style={{
                                 marginTop: 5,
                                 fontWeight: '400',
-                                color: theme.textSubtitle,
+                                color: theme.textThird,
                                 marginRight: 16, flexGrow: 1,
                                 fontSize: 12
                             }}>
@@ -378,7 +378,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                             style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: theme.textSubtitle,
+                                                color: theme.textThird,
                                                 alignSelf: 'flex-start',
                                             }}
                                             numberOfLines={1}
@@ -406,7 +406,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                     width: undefined,
                                     marginTop: undefined,
                                 }}
-                                previewBackgroundColor={theme.item}
+                                previewBackgroundColor={theme.surfacePimary}
                             />
                             <View style={{ flexGrow: 1 }} />
                             <Pressable
@@ -426,7 +426,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                         fontWeight: '400',
                                         fontSize: 12,
                                         lineHeight: 14,
-                                        color: theme.textSubtitle
+                                        color: theme.textThird
                                     }}>
                                         {t('common.tx')}
                                     </Text>
@@ -435,7 +435,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                         fontSize: 16,
                                         lineHeight: 20,
                                         marginTop: 6,
-                                        color: theme.textColor,
+                                        color: theme.textPrimary,
                                         justifyContent: 'center',
                                         alignItems: 'center'
                                     }}>
@@ -465,7 +465,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                             fontWeight: '400',
                             fontSize: 12,
                             lineHeight: 14,
-                            color: theme.textSubtitle
+                            color: theme.textThird
                         }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
@@ -478,7 +478,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                 fontWeight: '400',
                                 fontSize: 16,
                                 lineHeight: 20,
-                                color: theme.textColor,
+                                color: theme.textPrimary,
                                 justifyContent: 'center',
                                 alignItems: 'center'
                             }}>
@@ -494,14 +494,14 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                     justifyContent: 'center',
                                     height: undefined
                                 }}
-                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
+                                textStyle={{ color: theme.textPrimary, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
                             />
                             {!isTestnet && (
                                 <Text style={{
                                     fontWeight: '400',
                                     fontSize: 16,
                                     lineHeight: 20,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     justifyContent: 'center',
                                     alignItems: 'center'
                                 }}>

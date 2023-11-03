@@ -52,7 +52,7 @@ export const LedgerHID = React.memo(() => {
                         source={require('../../../../assets/ic_ledger_s.png')}
                     />
                     <Text style={{
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         fontWeight: '700',
                         fontSize: 20,
                         marginBottom: 32,
@@ -63,7 +63,7 @@ export const LedgerHID = React.memo(() => {
                     </Text>
                     <View style={{ justifyContent: 'center' }}>
                         <Text style={{
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             fontWeight: '400',
                             fontSize: 16,
                             marginBottom: 12,
@@ -71,7 +71,7 @@ export const LedgerHID = React.memo(() => {
                             {t('hardwareWallet.connectionHIDDescription_1')}
                         </Text>
                         <Text style={{
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             fontWeight: '400',
                             fontSize: 16,
                             marginBottom: 12,

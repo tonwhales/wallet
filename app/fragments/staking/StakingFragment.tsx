@@ -329,7 +329,7 @@ export const StakingFragment = fragment(() => {
                                 />
                                 <Animated.Text
                                     style={[
-                                        { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                        { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                                         { position: 'relative', ...titleOpacityStyle },
                                     ]}
                                 >
@@ -414,7 +414,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: theme.headerDivider,
+                            backgroundColor: theme.black,
                             opacity: 0.08
                         }} />
                     </View >
@@ -456,7 +456,7 @@ export const StakingFragment = fragment(() => {
                                 </TouchableNativeFeedback>
                             </View>
                             <Animated.Text style={[
-                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                                 { position: 'relative', ...titleOpacityStyle },
                             ]}>
                                 {t('products.staking.title')}
@@ -540,7 +540,7 @@ export const StakingFragment = fragment(() => {
                             bottom: 0.5, left: 0, right: 0,
                             height: 0.5,
                             width: '100%',
-                            backgroundColor: theme.headerDivider,
+                            backgroundColor: theme.black,
                             opacity: 0.08
                         }} />
                     </View>

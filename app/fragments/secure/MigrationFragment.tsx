@@ -126,7 +126,7 @@ const MigrationProcessFragment = fragment(() => {
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
-                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textColor, textAlign: 'center' }}>{status}</Text>
+                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textPrimary, textAlign: 'center' }}>{status}</Text>
             </View>
         </>
     );
@@ -191,7 +191,7 @@ export const MigrationFragment = systemFragment(() => {
                             textAlign: 'center',
                             marginTop: 26,
                             marginBottom: 10,
-                            color: theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.title')}
@@ -202,7 +202,7 @@ export const MigrationFragment = systemFragment(() => {
                             fontSize: 16,
                             textAlign: 'center',
                             marginBottom: 10,
-                            color: theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.subtitle')}
@@ -210,7 +210,7 @@ export const MigrationFragment = systemFragment(() => {
 
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
-                        marginHorizontal: 16, backgroundColor: theme.item,
+                        marginHorizontal: 16, backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                     }}>
 

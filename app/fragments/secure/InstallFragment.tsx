@@ -134,7 +134,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                         numberOfLines={1}
@@ -165,7 +165,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                         borderRadius: 16,
                         overflow: 'hidden',
                         marginBottom: 8,
-                        backgroundColor: theme.item
+                        backgroundColor: theme.surfacePimary
                     }}>
                         <Image
                             source={require('../../../assets/ic_app_tonhub.png')}
@@ -186,7 +186,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                             textAlign: 'center',
                             fontSize: 16,
                             fontWeight: '700',
-                            color: theme.textColor,
+                            color: theme.textPrimary,
                             marginBottom: 4
                         }}
                     >
@@ -213,7 +213,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                     fontSize: 24,
                     marginHorizontal: 32,
                     textAlign: 'center',
-                    color: theme.textColor,
+                    color: theme.textPrimary,
                     marginBottom: 32,
                     fontWeight: '600',
                     marginTop: 24
@@ -228,7 +228,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                     style={{
                         fontSize: 14,
                         fontWeight: '400',
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         marginBottom: 32,
                         opacity: 0.6
                     }}

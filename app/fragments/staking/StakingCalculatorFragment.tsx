@@ -91,7 +91,7 @@ export const StakingCalculatorFragment = fragment(() => {
                 >
                     <View style={{
                         marginBottom: 0,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -105,7 +105,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             <Text style={{
                                 fontWeight: '400',
                                 fontSize: 16,
-                                color: theme.textSubtitle,
+                                color: theme.textThird,
                             }}>
                                 {t('common.amount')}
                             </Text>

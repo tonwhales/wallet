@@ -55,7 +55,7 @@ export const HardwareWalletFragment = fragment(() => {
                     }}
                 />
                 <Text style={{
-                    color: theme.textColor,
+                    color: theme.textPrimary,
                     fontWeight: '600',
                     fontSize: 18,
                     marginBottom: 16,
@@ -67,7 +67,7 @@ export const HardwareWalletFragment = fragment(() => {
                 </Text>
                 <View style={{ paddingHorizontal: 36, alignItems: 'center' }}>
                     <Text style={{
-                        color: theme.textColor,
+                        color: theme.textPrimary,
                         fontWeight: '400',
                         fontSize: 16,
                         textAlign: 'center'

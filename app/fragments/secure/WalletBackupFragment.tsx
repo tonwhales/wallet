@@ -46,7 +46,7 @@ export const WalletBackupFragment = systemFragment(() => {
     React.useEffect(() => {
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: theme.item });
+                let keys = await authContext.authenticate({ backgroundColor: theme.surfacePimary });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -63,11 +63,11 @@ export const WalletBackupFragment = systemFragment(() => {
     if (!mnemonics) {
         return (
             <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: theme.item }}
+                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: theme.surfacePimary }}
                 exiting={FadeOutDown}
                 key={"loader"}
             >
-                <ActivityIndicator color={theme.loader} />
+                <ActivityIndicator color={theme.accent} />
             </Animated.View>
         )
     }
@@ -78,7 +78,7 @@ export const WalletBackupFragment = systemFragment(() => {
         const component = (
             <View key={'mn-' + i} style={{ flexDirection: 'row', marginBottom: height > 800 ? 16 : 12 }}>
                 <Text style={{ textAlign: 'right', color: theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 23, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
-                <Text style={{ color: theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
+                <Text style={{ color: theme.textPrimary, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
             </View>
         );
         if (i < 12) {
@@ -93,7 +93,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+                backgroundColor: theme.surfacePimary, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
             }}
             exiting={FadeIn}
             key={"content"}

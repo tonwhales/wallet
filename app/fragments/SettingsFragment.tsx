@@ -52,7 +52,7 @@ export const SettingsFragment = fragment(() => {
                 }}>
                     <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={[
-                            { fontSize: 22, color: theme.textColor, fontWeight: '700' },
+                            { fontSize: 22, color: theme.textPrimary, fontWeight: '700' },
                         ]}>
                             {t('settings.title')}
                         </Text>
@@ -63,7 +63,7 @@ export const SettingsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -77,7 +77,7 @@ export const SettingsFragment = fragment(() => {
                 }}>
                     <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                         <Text style={[
-                            { fontSize: 22, color: theme.textColor, fontWeight: '700' },
+                            { fontSize: 22, color: theme.textPrimary, fontWeight: '700' },
                         ]}>
                             {t('settings.title')}
                         </Text>
@@ -88,7 +88,7 @@ export const SettingsFragment = fragment(() => {
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </View>
@@ -105,7 +105,7 @@ export const SettingsFragment = fragment(() => {
             >
                 <View style={{
                     marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -142,7 +142,7 @@ export const SettingsFragment = fragment(() => {
                 {!isTestnet && (
                     <View style={{
                         marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -154,7 +154,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -166,7 +166,7 @@ export const SettingsFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -183,7 +183,7 @@ export const SettingsFragment = fragment(() => {
                 {__DEV__ && (
                     <View style={{
                         marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.item,
+                        backgroundColor: theme.surfacePimary,
                         borderRadius: 14,
                         justifyContent: 'center',
                         alignItems: 'center',
@@ -195,7 +195,7 @@ export const SettingsFragment = fragment(() => {
                 )}
                 <View style={{
                     marginBottom: 4, marginTop: 8,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfacePimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

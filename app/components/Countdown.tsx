@@ -62,7 +62,7 @@ export const Countdown = React.memo(({ left, textStyle }: { left: number, textSt
 
     return (
         <Text style={[{
-            color: theme.textSubtitle,
+            color: theme.textThird,
             fontSize: 13,
             fontVariant: ['tabular-nums']
         }, textStyle]}

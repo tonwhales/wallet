@@ -28,7 +28,7 @@ export const LegalFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: 'white',
+            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0,
         }}>

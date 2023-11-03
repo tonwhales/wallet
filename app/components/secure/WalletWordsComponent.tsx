@@ -12,6 +12,7 @@ import { RoundButton } from "../RoundButton";
 import { StatusBar } from "expo-status-bar";
 import { AutocompleteView } from "../AutocompleteView";
 import { WordInput, WordInputRef, normalize, wordsTrie } from '../MnemonicWordInput';
+import { ThemeStyle } from "../../engine/state/theme";
 
 export const WalletWordsComponent = memo((props: {
     onComplete: (v: {
@@ -191,7 +192,7 @@ export const WalletWordsComponent = memo((props: {
 
     return (
         <>
-            <StatusBar style='dark' />
+            <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
             <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef} collapsable={false}>
                 <Animated.ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}

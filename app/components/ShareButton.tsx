@@ -23,13 +23,13 @@ export const ShareButton = React.memo(({
 }) => {
     const theme = useTheme();
     const display = {
-        backgroundColor: theme.secondaryButton,
-        borderColor: theme.secondaryButton,
+        backgroundColor: theme.surfaceSecondary,
+        borderColor: theme.surfaceSecondary,
         textColor: theme.textPrimary,
 
-        backgroundPressedColor: theme.selector,
-        borderPressedColor: theme.selector,
-        textPressed: theme.secondaryButtonText
+        backgroundPressedColor: theme.surfaceSecondary,
+        borderPressedColor: theme.surfaceSecondary,
+        textPressed: theme.textPrimary
     }
     const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {

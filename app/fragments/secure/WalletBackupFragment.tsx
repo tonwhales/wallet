@@ -101,7 +101,7 @@ export const WalletBackupFragment = systemFragment(() => {
             <AndroidToolbar />
             <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
                 <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: theme.priceSecondary }}>
+                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: theme.textSecondary }}>
                     {t('backup.subtitle')}
                 </Text>
                 <View style={{

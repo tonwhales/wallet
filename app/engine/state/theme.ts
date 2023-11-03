@@ -45,27 +45,7 @@ export type ThemeType = {
     black: string,
 
     cardBackground: string,
-    warning: string,
-
-    // TODO: remove
-    scoreGold: string,
-    selector: string,
-    secondaryButton: string,
-    secondaryButtonText: string,
-    failed: string,
-    dangerZone: string,
-    delete: string,
-    qrCode: string,
-    label: string,
-    placeholder: string,
-    labelSecondary: string,
-    contactBorder: string,
-    textSecondaryBorder: string,
-    disabled: string,
-    pressedRoundButton: string,
-
-    price: string,
-    priceSecondary: string
+    warning: string
 };
 
 export const baseTheme: ThemeType = {
@@ -104,26 +84,7 @@ export const baseTheme: ThemeType = {
     black: 'black',
 
     cardBackground: '#181524',
-    warning: '#FF9A50',
-
-    scoreGold: '#DAA520',
-    selector: 'rgba(179, 179, 193, 0.3)',
-    secondaryButton: '#E5E5E7',
-    secondaryButtonText: '#798287',
-    failed: 'orange',
-    dangerZone: '#FF0000',
-    delete: '#CF3535',
-    qrCode: '#303757',
-    label: '#7D858A',
-    placeholder: '#9D9FA3',
-    labelSecondary: '#858B93',
-    contactBorder: '#DEDEDE',
-    textSecondaryBorder: '#ADB6BE',
-    disabled: '#9EA6AB',
-    pressedRoundButton: 'rgba(0,0,0,0.3)',
-
-    price: '#787F83',
-    priceSecondary: '#6D6D71'
+    warning: '#FF9A50'
 }
 
 export const darkTheme: ThemeType = {

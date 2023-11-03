@@ -32,7 +32,7 @@ const StarView = React.memo(({
                 setRating(rate);
             }}
         >
-            {rating > rate - 1 ? <FilledStar color={theme.accent} width={54} height={54} /> : <Star color={theme.secondaryButtonText} width={54} height={54} />}
+            {rating > rate - 1 ? <FilledStar color={theme.accent} width={54} height={54} /> : <Star color={theme.textPrimary} width={54} height={54} />}
         </Pressable>
     )
 })

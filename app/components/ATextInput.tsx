@@ -170,7 +170,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                                 fontSize: 17,
                                 fontWeight: '400',
                                 alignSelf: 'center',
-                                color: theme.placeholder,
+                                color: theme.textSecondary,
                             }}
                         >
                             {props.prefix}
@@ -195,7 +195,7 @@ export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, r
                         textAlign={props.textAlign}
                         autoFocus={props.autoFocus}
                         placeholder={props.placeholder}
-                        placeholderTextColor={theme.placeholder}
+                        placeholderTextColor={theme.textSecondary}
                         autoCapitalize={props.autoCapitalize}
                         autoCorrect={props.autoCorrect}
                         keyboardType={props.keyboardType}

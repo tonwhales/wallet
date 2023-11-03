@@ -96,7 +96,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                                 <Text style={{
                                     fontWeight: '500',
                                     fontSize: 12,
-                                    color: theme.label,
+                                    color: theme.textSecondary,
                                     alignSelf: 'flex-start',
                                 }}>
                                     {t('report.message')}
@@ -125,7 +125,7 @@ export const ReportComponent = React.memo(({ url }: { url: string }) => {
                         <Text style={{
                             fontWeight: '500',
                             fontSize: 12,
-                            color: theme.label,
+                            color: theme.textSecondary,
                             alignSelf: 'flex-start',
                         }}>
                             {t('report.reason')}

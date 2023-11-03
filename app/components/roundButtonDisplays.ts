@@ -14,18 +14,18 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             textColor: theme.surfacePimary,
         },
         disabled: {
-            backgroundColor: theme.disabled,
-            borderColor: theme.disabled,
+            backgroundColor: theme.surfaceSecondary,
+            borderColor: theme.surfaceSecondary,
             textColor: theme.surfacePimary,
         },
         secondary: {
-            backgroundColor: theme.secondaryButton,
-            borderColor: theme.secondaryButton,
-            textColor: theme.secondaryButtonText,
+            backgroundColor: theme.surfaceSecondary,
+            borderColor: theme.surfaceSecondary,
+            textColor: theme.textPrimary,
         },
         secondary_contrast: {
-            backgroundColor: theme.secondaryButton,
-            borderColor: theme.secondaryButton,
+            backgroundColor: theme.surfaceSecondary,
+            borderColor: theme.surfaceSecondary,
             textColor: theme.textPrimary,
         },
         pro: {
@@ -56,7 +56,7 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         danger_zone: {
             backgroundColor: theme.surfacePimary,
             borderColor: theme.surfacePimary,
-            textColor: theme.dangerZone,
+            textColor: theme.accentRed,
         },
     }
 }

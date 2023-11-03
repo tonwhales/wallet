@@ -187,7 +187,7 @@ export const TransactionPreviewFragment = fragment(() => {
             </Text>
             {spam && (
                 <View style={{
-                    borderColor: theme.textSecondaryBorder,
+                    borderColor: theme.textSecondary,
                     borderWidth: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -228,7 +228,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         />
                     </View>
                     {transaction.base.parsed.status === 'failed' ? (
-                        <Text style={{ color: theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                        <Text style={{ color: theme.accentRed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
@@ -261,7 +261,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 16 }}
                                     amount={BigInt(item.amount)}
                                 />
                             )}

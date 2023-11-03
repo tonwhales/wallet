@@ -484,7 +484,7 @@ export const SimpleTransferFragment = fragment(() => {
                         <Text style={{
                             fontWeight: '600',
                             fontSize: 16,
-                            color: theme.priceSecondary,
+                            color: theme.textSecondary,
                             marginBottom: 5
                         }}>
                             {jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
@@ -497,7 +497,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.selector
+                                            ? theme.surfaceSecondary
                                             : theme.surfacePimary,
                                     },
                                     { borderRadius: 14 }
@@ -517,7 +517,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.selector
+                                            ? theme.surfaceSecondary
                                             : theme.surfacePimary,
                                     },
                                     { borderRadius: 14 }
@@ -581,7 +581,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: theme.label,
+                                        color: theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.commentLabel')}
@@ -604,7 +604,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {t('transfer.checkComment')}
@@ -615,7 +615,7 @@ export const SimpleTransferFragment = fragment(() => {
                             }
                         />
                     </View>
-                    <Text style={{ color: theme.priceSecondary, marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
+                    <Text style={{ color: theme.textSecondary, marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView

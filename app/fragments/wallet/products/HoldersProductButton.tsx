@@ -72,7 +72,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
     return (
         <TouchableHighlight
             onPress={onPress}
-            underlayColor={theme.selector}
+            underlayColor={theme.surfaceSecondary}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
                 backgroundColor: theme.surfacePimary,

@@ -427,7 +427,7 @@ export const TransferBatch = React.memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: theme.labelSecondary
+                            color: theme.textSecondary
                         }}>
                             {order.app.domain}
                         </Text>

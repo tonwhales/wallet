@@ -27,7 +27,7 @@ export const ContactItemView = React.memo(({ addr, contact }: { addr: string, co
     return (
         <TouchableHighlight
             onPress={onContact}
-            underlayColor={theme.selector}
+            underlayColor={theme.surfaceSecondary}
             style={{ backgroundColor: theme.surfacePimary, borderRadius: 14, marginVertical: 4 }}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>

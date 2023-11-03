@@ -419,7 +419,7 @@ export const LedgerTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.selector
+                                            ? theme.surfaceSecondary
                                             : 'white',
                                     },
                                     { borderRadius: 14 }
@@ -439,7 +439,7 @@ export const LedgerTransferFragment = fragment(() => {
                                 style={({ pressed }) => [
                                     {
                                         backgroundColor: pressed
-                                            ? theme.selector
+                                            ? theme.surfaceSecondary
                                             : 'white',
                                     },
                                     { borderRadius: 14 }

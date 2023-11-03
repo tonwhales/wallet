@@ -60,7 +60,7 @@ export const RestrictedPoolBanner = React.memo(({ type }: { type: 'club' | 'team
                 <Pressable
                     style={({ pressed }) => {
                         return ({
-                            backgroundColor: theme.secondaryButton,
+                            backgroundColor: theme.surfaceSecondary,
                             margin: 24,
                             paddingHorizontal: 16,
                             paddingVertical: 11,

@@ -238,7 +238,7 @@ export const HoldersAppComponent = memo((
             text: '',
             textColor: theme.surfacePimary,
             color: theme.accent,
-            disabledColor: theme.disabled,
+            disabledColor: theme.surfaceSecondary,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,

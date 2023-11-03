@@ -30,7 +30,7 @@ export const StakingProductComponent = memo(() => {
     if (!showJoin) return (
         <TouchableHighlight
             onPress={() => navigation.navigate('StakingPools')}
-            underlayColor={theme.selector}
+            underlayColor={theme.surfaceSecondary}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
                 backgroundColor: theme.surfacePimary,
@@ -76,7 +76,7 @@ export const StakingProductComponent = memo(() => {
                             flexDirection: 'row',
                             justifyContent: 'space-between',
                         }}>
-                            <Text style={{ color: theme.price, fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
+                            <Text style={{ color: theme.textSecondary, fontSize: 13, fontWeight: '400' }} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                             <PriceComponent
@@ -100,10 +100,10 @@ export const StakingProductComponent = memo(() => {
     return (
         <TouchableHighlight
             onPress={() => navigation.navigate('StakingPools')}
-            underlayColor={theme.selector}
+            underlayColor={theme.surfacePimary}
             style={{
                 alignSelf: 'stretch', borderRadius: 14,
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceSecondary,
                 marginHorizontal: 16, marginVertical: 4,
             }}
         >
@@ -134,7 +134,7 @@ export const StakingProductComponent = memo(() => {
                                 {t('products.staking.title')}
                             </Text>
                             <Text style={{
-                                color: theme.price, fontSize: 13,
+                                color: theme.textSecondary, fontSize: 13,
                                 fontWeight: '400',
                             }}
                                 ellipsizeMode="tail"

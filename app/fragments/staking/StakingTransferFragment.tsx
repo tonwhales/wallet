@@ -319,7 +319,7 @@ export const StakingTransferFragment = fragment(() => {
                                 <Text style={{
                                     fontWeight: '600',
                                     fontSize: 16,
-                                    color: theme.priceSecondary,
+                                    color: theme.textSecondary,
                                 }}>
                                     <ValueComponent value={balance} precision={3} />
                                     {' TON'}
@@ -383,13 +383,13 @@ export const StakingTransferFragment = fragment(() => {
                                         backgroundColor: theme.transparent,
                                         paddingHorizontal: 0
                                     }}
-                                    textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
                                 />
                             </View>
                         </View>
                         {!!minAmountWarn && (
                             <Text style={{
-                                color: theme.dangerZone,
+                                color: theme.accentRed,
                                 fontWeight: '400',
                                 fontSize: 14,
                                 marginTop: 10
@@ -428,7 +428,7 @@ export const StakingTransferFragment = fragment(() => {
                                     }}>
                                         <Text style={{
                                             fontSize: 16,
-                                            color: theme.label
+                                            color: theme.textSecondary
                                         }}>
                                             {t('products.staking.info.withdrawFee')}
                                         </Text>
@@ -447,7 +447,7 @@ export const StakingTransferFragment = fragment(() => {
                                                     paddingHorizontal: 0, paddingVertical: 2,
                                                     alignSelf: 'flex-end'
                                                 }}
-                                                textStyle={{ color: theme.priceSecondary, fontWeight: '400' }}
+                                                textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
                                             />
                                         </View>
                                     </View>

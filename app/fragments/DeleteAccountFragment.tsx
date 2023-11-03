@@ -289,7 +289,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: theme.label,
+                                        color: theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('transfer.sendTo')}
@@ -312,7 +312,7 @@ export const DeleteAccountFragment = fragment(() => {
                                             <Text style={{
                                                 fontWeight: '400',
                                                 fontSize: 12,
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 alignSelf: 'flex-start',
                                             }}>
                                                 {KnownWallets(isTestnet)[targetAddressInput].name}

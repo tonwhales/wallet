@@ -60,7 +60,7 @@ function TransactionsComponent(props: { account: SelectedAccount }) {
                             style={{ width: 192, height: 192 }}
                         />
                     </Pressable>
-                    <Text style={{ fontSize: 16, color: theme.label }}>
+                    <Text style={{ fontSize: 16, color: theme.textSecondary }}>
                         {t('wallet.empty.message')}
                     </Text>
                     <RoundButton

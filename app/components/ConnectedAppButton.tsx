@@ -94,7 +94,7 @@ export const ConnectedAppButton = memo(({
                 {!!url && (
                     <Text style={{
                         fontSize: 16,
-                        color: theme.price,
+                        color: theme.textSecondary,
                         fontWeight: '400',
                     }}
                         numberOfLines={1}
@@ -119,7 +119,7 @@ export const ConnectedAppButton = memo(({
                 <Text
                     style={{
                         fontWeight: '500',
-                        color: theme.delete,
+                        color: theme.accentRed,
                         fontSize: 16
                     }}
                 >

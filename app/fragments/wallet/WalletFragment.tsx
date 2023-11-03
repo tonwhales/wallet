@@ -329,7 +329,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                     {
                         (!isTestnet && Platform.OS === 'android') && (
                             <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
-                                <TouchableHighlight onPress={onOpenBuy} underlayColor={theme.selector} style={{ borderRadius: 14 }}>
+                                <TouchableHighlight onPress={onOpenBuy} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                             <Image source={require('../../../assets/ic_buy.png')} />
@@ -341,7 +341,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                         )
                     }
                     <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigate('Receive')} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_receive.png')} />
@@ -351,7 +351,7 @@ function WalletComponent(props: { selected: SelectedAccount }) {
                         </TouchableHighlight>
                     </View>
                     <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: theme.surfacePimary, borderRadius: 14 }}>
-                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={theme.selector} style={{ borderRadius: 14 }}>
+                        <TouchableHighlight onPress={() => navigation.navigateSimpleTransfer({ amount: null, target: null, stateInit: null, job: null, comment: null, jetton: null, callback: null })} underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}>
                             <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                 <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>
                                     <Image source={require('../../../assets/ic_send.png')} />

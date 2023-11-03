@@ -180,7 +180,7 @@ export const ContactsFragment = fragment(() => {
                         </Text>
                         <Text style={{
                             fontSize: 16,
-                            color: theme.priceSecondary
+                            color: theme.textSecondary
                         }}>
                             {t('contacts.description')}
                         </Text>

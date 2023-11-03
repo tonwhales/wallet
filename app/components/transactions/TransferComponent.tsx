@@ -133,7 +133,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                         <Text style={{
                                             fontWeight: '400',
                                             fontSize: 14,
-                                            color: theme.labelSecondary,
+                                            color: theme.textSecondary,
                                             marginTop: 4,
                                             includeFontPadding: false,
                                         }}>
@@ -175,7 +175,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: theme.contactBorder,
+                                                borderColor: theme.accentBlue,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 8
                                             }}>

@@ -125,7 +125,7 @@ export const LedgerApp = memo((props: {
                                             }
                                         );
                                     }}
-                                    underlayColor={theme.selector}
+                                    underlayColor={theme.surfaceSecondary}
                                     style={{ borderRadius: 14 }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
@@ -139,7 +139,7 @@ export const LedgerApp = memo((props: {
                             <View style={{ flexGrow: 1, flexBasis: 0, backgroundColor: 'white', borderRadius: 14 }}>
                                 <TouchableHighlight
                                     onPress={() => navigation.navigate('LedgerAssets')}
-                                    underlayColor={theme.selector} style={{ borderRadius: 14 }}
+                                    underlayColor={theme.surfaceSecondary} style={{ borderRadius: 14 }}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
                                         <View style={{ backgroundColor: theme.accent, width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center' }}>

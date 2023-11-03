@@ -127,7 +127,7 @@ export const ReceiveFragment = fragment(() => {
                                         style={{
                                             fontSize: 14,
                                             fontWeight: '400',
-                                            color: theme.price,
+                                            color: theme.textSecondary,
                                         }}
                                         selectable={false}
                                         ellipsizeMode={'middle'}

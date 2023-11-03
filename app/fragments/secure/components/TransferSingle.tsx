@@ -346,7 +346,7 @@ export const TransferSingle = memo((props: Props) => {
                             fontSize: 14,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: theme.labelSecondary
+                            color: theme.textSecondary
                         }}>
                             {order.app.domain}
                         </Text>
@@ -545,14 +545,14 @@ export const TransferSingle = memo((props: Props) => {
                                                     marginLeft: 2
                                                 }}
                                                 textStyle={{
-                                                    color: theme.labelSecondary,
+                                                    color: theme.textSecondary,
                                                     fontWeight: '400', fontSize: 14
                                                 }}
                                             />
                                         )}
                                         {isTestnet && (
                                             <Text style={{
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -605,7 +605,7 @@ export const TransferSingle = memo((props: Props) => {
                                     <Text style={{
                                         fontWeight: '400',
                                         fontSize: 14,
-                                        color: theme.labelSecondary,
+                                        color: theme.textSecondary,
                                         marginLeft: 2,
                                         marginTop: 4
                                     }}>
@@ -656,7 +656,7 @@ export const TransferSingle = memo((props: Props) => {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: theme.contactBorder,
+                                                borderColor: theme.accentBlue,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 4
                                             }}>
@@ -760,7 +760,7 @@ export const TransferSingle = memo((props: Props) => {
                                     {!!operation.op && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>
@@ -788,7 +788,7 @@ export const TransferSingle = memo((props: Props) => {
                                     {!operation.comment && !operation.op && !!text && (
                                         <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
                                             <Text style={{
-                                                color: theme.labelSecondary,
+                                                color: theme.textSecondary,
                                                 fontWeight: '400', fontSize: 14,
                                                 lineHeight: 16
                                             }}>

@@ -181,7 +181,7 @@ export const PasscodeInput = React.memo((
                         >
                             <Text style={{
                                 fontSize: 15,
-                                color: theme.dangerZone
+                                color: theme.accentRed
                             }}>
                                 {t('security.passcodeSettings.error')}
                             </Text>

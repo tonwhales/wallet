@@ -85,7 +85,7 @@ export const UnstakeBanner = React.memo((
                     )}
             </Text>
             <Text style={{
-                color: theme.label,
+                color: theme.textSecondary,
                 fontSize: 16,
                 fontWeight: '400'
             }}>

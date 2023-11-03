@@ -243,7 +243,7 @@ const LoadedTransaction = memo(({ transaction, transactionHash, address }: { tra
                                         paddingHorizontal: 0,
                                         alignSelf: 'center'
                                     }}
-                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 16 }}
                                     amount={BigInt(item.amount)}
                                 />
                             )}

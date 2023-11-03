@@ -234,7 +234,7 @@ export const ContactFragment = fragment(() => {
                                                 { target: address.toString({ testOnly: isTestnet }) }
                                             );
                                         }}
-                                        underlayColor={theme.selector}
+                                        underlayColor={theme.surfaceSecondary}
                                         style={{ borderRadius: 14 }}
                                     >
                                         <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
@@ -281,7 +281,7 @@ export const ContactFragment = fragment(() => {
                                     <Text style={{
                                         fontWeight: '500',
                                         fontSize: 12,
-                                        color: theme.label,
+                                        color: theme.textSecondary,
                                         alignSelf: 'flex-start',
                                     }}>
                                         {t('contacts.name')}
@@ -319,7 +319,7 @@ export const ContactFragment = fragment(() => {
                     </View>
                     {editing && !!contact && (
                         <Item
-                            textColor={theme.dangerZone}
+                            textColor={theme.accentRed}
                             backgroundColor={theme.background}
                             title={t('contacts.delete')}
                             onPress={onDelete}

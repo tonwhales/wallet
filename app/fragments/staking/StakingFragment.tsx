@@ -448,7 +448,7 @@ export const StakingFragment = fragment(() => {
                                         }
                                         navigation.goBack();
                                     }}
-                                    background={TouchableNativeFeedback.Ripple(theme.selector, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
+                                    background={TouchableNativeFeedback.Ripple(theme.surfaceSecondary, true, 24)} hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                                 >
                                     <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
                                         <Ionicons name="arrow-back-outline" size={28} color={theme.accent} />

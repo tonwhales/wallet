@@ -60,7 +60,7 @@ export const CopyButton = React.memo(({
             style={(p) => ([
                 {
                     borderRadius: 16,
-                    backgroundColor: theme.secondaryButton,
+                    backgroundColor: theme.surfaceSecondary,
                     overflow: 'hidden',
                 },
                 p.pressed && {

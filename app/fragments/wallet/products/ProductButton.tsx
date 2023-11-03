@@ -37,11 +37,11 @@ export function ProductButton(props: ProductButtonProps) {
         <TouchableHighlight
             onPress={props.onPress}
             onLongPress={props.onLongPress}
-            underlayColor={theme.selector}
+            underlayColor={theme.surfacePimary}
             style={[
                 {
                     alignSelf: 'stretch', borderRadius: 14,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceSecondary,
                     marginHorizontal: 16, marginVertical: 8
                 },
                 props.style

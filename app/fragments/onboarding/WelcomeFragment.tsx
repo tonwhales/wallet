@@ -25,11 +25,7 @@ export const WelcomeFragment = systemFragment(() => {
         }
     }, []);
     const onCreatePressed = useCallback(() => {
-        if (isTermsAccepted()) {
-            navigation.navigate('WalletCreate');
-        } else {
-            navigation.navigate('LegalCreate');
-        }
+        navigation.navigate('LegalCreate');
     }, []);
 
     return (

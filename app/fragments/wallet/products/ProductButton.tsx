@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import * as React from 'react';
 import { ImageRequireSource, StyleProp, Text, useWindowDimensions, View, ViewStyle } from 'react-native';
 import { TouchableHighlight } from 'react-native';
@@ -7,7 +6,6 @@ import { SvgProps } from 'react-native-svg';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { WImage } from '../../../components/WImage';
 import Verified from '../../../../assets/ic_verified.svg';
-import { useNetwork } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 
 export type ProductButtonProps = {
@@ -31,7 +29,6 @@ export type ProductButtonProps = {
 
 export function ProductButton(props: ProductButtonProps) {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
@@ -113,7 +110,7 @@ export function ProductButton(props: ProductButtonProps) {
                     </View>
                     <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
                         <Text
-                            style={{ color: theme.textThird, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
+                            style={{ color: theme.textSecondary, fontSize: 13, flexShrink: 1, paddingRight: 16, marginTop: 4 }}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
@@ -131,7 +128,7 @@ export function ProductButton(props: ProductButtonProps) {
                                         alignSelf: 'flex-end',
                                         marginTop: 2, height: 14
                                     }}
-                                    textStyle={{ color: theme.textThird, fontWeight: '400', fontSize: 12 }}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 12 }}
                                 />
                             )
                         }

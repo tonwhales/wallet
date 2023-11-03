@@ -88,7 +88,7 @@ export const StakingProductComponent = memo(() => {
                                     marginTop: 2, height: undefined,
                                     minHeight: fontScaleNormal ? 14 : undefined
                                 }}
-                                textStyle={{ color: theme.textThird, fontWeight: '400', fontSize: 12 }}
+                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 12 }}
                             />
                         </View>
                     </View>

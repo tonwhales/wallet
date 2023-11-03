@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { WordsListTrie } from '../utils/wordsListTrie';
 import { useTheme } from '../engine/hooks';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from 'react-native-reanimated';
@@ -18,23 +18,23 @@ export function normalize(src: string) {
     return src.trim().toLocaleLowerCase();
 }
 
-export const WordInput = React.memo(React.forwardRef((props: {
+export const WordInput = memo(forwardRef((props: {
     index: number,
     value: string,
     autoFocus?: boolean,
-    innerRef: React.RefObject<View>,
+    innerRef: RefObject<View>,
     setValue: (index: number, src: string) => void,
     onFocus: (index: number) => void,
     onSubmit: (index: number, value: string) => void,
-}, ref: React.ForwardedRef<WordInputRef>) => {
+}, ref: ForwardedRef<WordInputRef>) => {
     const theme = useTheme();
 
     //
     // Internal state
     //
 
-    const suggestions = React.useMemo(() => (props.value.length > 0) ? wordsTrie.find(normalize(props.value)) : [], [props.value]);
-    const [isWrong, setIsWrong] = React.useState(false);
+    const suggestions = useMemo(() => (props.value.length > 0) ? wordsTrie.find(normalize(props.value)) : [], [props.value]);
+    const [isWrong, setIsWrong] = useState(false);
 
     //
     // Shake
@@ -45,7 +45,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
             transform: [{ translateX: translate.value }],
         };
     }, []);
-    const doShake = React.useCallback(() => {
+    const doShake = useCallback(() => {
         translate.value = withSequence(
             withTiming(-10, { duration: 30 }),
             withRepeat(withTiming(10, { duration: 30 }), 2, true),
@@ -58,8 +58,8 @@ export const WordInput = React.memo(React.forwardRef((props: {
     // External imperative functions
     //
 
-    const tref = React.useRef<TextInput>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         }
@@ -70,18 +70,18 @@ export const WordInput = React.memo(React.forwardRef((props: {
     //
 
     // Forward focus event
-    const onFocus = React.useCallback(() => {
+    const onFocus = useCallback(() => {
         props.onFocus(props.index);
     }, [props.index]);
 
     // Update wrong state on blur (should we shake in case of failure?)
-    const onBlur = React.useCallback(() => {
+    const onBlur = useCallback(() => {
         const normalized = normalize(props.value);
         setIsWrong(normalized.length > 0 && !wordsTrie.contains(normalized));
     }, [props.value]);
 
     // Handle submit (enter press) action
-    const onSubmit = React.useCallback(async () => {
+    const onSubmit = useCallback(async () => {
 
         // Check if there are suggestions - replace them instead
         if (suggestions.length >= 1) {
@@ -123,7 +123,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
         props.onSubmit(props.index, normalized);
     }, [props.value, suggestions, props.onSubmit, props.index]);
 
-    const onTextChange = React.useCallback((value: string) => {
+    const onTextChange = useCallback((value: string) => {
         props.setValue(props.index, value);
         setIsWrong(false);
     }, [props.index, props.setValue]);
@@ -137,7 +137,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                         fontSize: 16, width: 40,
                         paddingVertical: 16,
                         textAlign: 'right',
-                        color: !isWrong ? theme.textThird : '#FF274E',
+                        color: !isWrong ? theme.textSecondary : theme.accentRed,
                     }}
                     onPress={() => {
                         tref.current?.focus();
@@ -156,7 +156,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                                 paddingRight: 48,
                                 flexGrow: 1,
                                 fontSize: 16,
-                                color: !isWrong ? '#000' : '#FF274E'
+                                color: !isWrong ? theme.textPrimary : theme.accentRed
                             }}
                             value={props.value}
                             onChangeText={onTextChange}
@@ -184,7 +184,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                             paddingRight: 48,
                             flexGrow: 1,
                             fontSize: 16,
-                            color: !isWrong ? '#000' : '#FF274E'
+                            color: !isWrong ? theme.textPrimary : theme.accentRed
                         }}
                         value={props.value}
                         onChangeText={onTextChange}

@@ -9,4 +9,5 @@ export type Jetton = {
     balance: bigint;
     icon: string | null;
     decimals: number | null;
+    disabled?: boolean;
 };

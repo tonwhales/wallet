@@ -14,7 +14,7 @@ import { WalletAddress } from "../../components/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import TopUpIcon from '../../../assets/ic_top_up.svg';
 import { StakingCycle } from "../../components/staking/StakingCycle";
-import { StakingPendingComponent } from "../../components/staking/StakingPendingComponent";
+import { StakingPendingComponent } from "../../components/staking/PendingStakingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { TransferAction } from "./StakingTransferFragment";

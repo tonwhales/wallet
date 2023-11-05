@@ -13,6 +13,8 @@ import LottieView from 'lottie-react-native';
 import { useTheme } from '../engine/hooks';
 import { useJettons } from '../engine/hooks';
 import { useSelectedAccount } from "../engine/hooks/appstate/useSelectedAccount";
+import { useMarkJettonDisabled } from "../engine/hooks/jettons/useMarkJettonDisabled";
+import { useMarkJettonActive } from "../engine/hooks/jettons/useMarkJettonActive";
 
 export const AccountsFragment = fragment(() => {
     const theme = useTheme();
@@ -24,20 +26,18 @@ export const AccountsFragment = fragment(() => {
     const active = jettons.filter((j: any) => !j.disabled);
     const disabled = jettons.filter((j: any) => j.disabled);
 
-    const promptDisable = useCallback(
-        async (master: Address, symbol: string) => {
-            const c = await confirmJettonAction(true, symbol);
-           // TODO: if (c) markJettonDisabled(master);
-        },
-        [],
-    );
-    const promptActive = useCallback(
-        async (master: Address, symbol: string) => {
-            const c = await confirmJettonAction(false, symbol);
-            // TODO: if (c) markJettonActive(master);
-        },
-        [],
-    );
+    const markJettonDisabled = useMarkJettonDisabled();
+    const markJettonActive = useMarkJettonActive();
+
+    const promptDisable = useCallback(async (master: Address, symbol: string) => {
+        const c = await confirmJettonAction(true, symbol);
+        if (c) markJettonDisabled(master);
+    }, [markJettonDisabled]);
+    
+    const promptActive = useCallback(async (master: Address, symbol: string) => {
+        const c = await confirmJettonAction(false, symbol);
+        if (c) markJettonActive(master);
+    }, [markJettonActive]);
 
     // 
     // Lottie animation

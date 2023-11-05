@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import React from "react";
 import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { Address, fromNano } from "@ton/core";

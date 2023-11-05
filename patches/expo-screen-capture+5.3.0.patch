@@ -1,8 +1,8 @@
 diff --git a/node_modules/expo-screen-capture/android/src/main/java/expo/modules/screencapture/ScreenShotEventEmitter.kt b/node_modules/expo-screen-capture/android/src/main/java/expo/modules/screencapture/ScreenShotEventEmitter.kt
-index 2c6a4ad..da21342 100644
+index 035bfb1..a7e4c73 100644
 --- a/node_modules/expo-screen-capture/android/src/main/java/expo/modules/screencapture/ScreenShotEventEmitter.kt
 +++ b/node_modules/expo-screen-capture/android/src/main/java/expo/modules/screencapture/ScreenShotEventEmitter.kt
-@@ -62,6 +62,9 @@ class ScreenshotEventEmitter(val context: Context, moduleRegistry: ModuleRegistr
+@@ -63,6 +63,9 @@ class ScreenshotEventEmitter(val context: Context, moduleRegistry: ModuleRegistr
    }
  
    private fun hasReadExternalStoragePermission(context: Context): Boolean {

@@ -52,7 +52,8 @@ export type LocalizationSchema = {
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        airdrop: string
+        airdrop: string,
+        ok: string,
     },
     syncStatus: {
         connecting: string,
@@ -598,6 +599,34 @@ export type LocalizationSchema = {
             enterCurrent: string,
             enterPrevious: string,
             enterNewDescription: string,
+            changeLength: string,
+            forgotPasscode: string,
+            logoutAndReset: string,
+        }
+        auth: {
+            biometricsPermissionCheck: {
+                title: string,
+                message: string,
+                openSettings: string,
+                authenticate: string,
+            },
+            biometricsSetupAgain: {
+                title: string,
+                message: string,
+                setup: string,
+                authenticate: string,
+            },
+            biometricsCooldown: {
+                title: string,
+                message: string,
+            },
+            biometricsCorrupted: {
+                title: string,
+                message: string,
+                messageLogout: string,
+                logout: string,
+                restore: string,
+            }
         }
     },
     report: {

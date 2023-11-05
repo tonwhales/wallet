@@ -51,6 +51,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         reload: 'Reload',
         errorOccurred: 'Error occurred: {{error}}',
         airdrop: 'Airdrop',
+        ok: 'Ok',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -591,11 +592,39 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             error: 'Incorrect PIN code',
             tryAgain: 'Try again',
             success: 'PIN code successfully set',
-            enterNew: 'Enter new PIN code',
+            enterNew: 'Create PIN code',
             confirmNew: 'Confirm new PIN code',
             enterCurrent: 'Enter your PIN code',
-            enterPrevious: 'Enter your previous PIN code',
-            enterNewDescription: 'Setting a password provides an additional layer of security when using the application'
+            enterPrevious: 'Enter current PIN code',
+            enterNewDescription: 'Setting a password provides an additional layer of security when using the application',
+            changeLength: 'Use {{length}}-digit PIN code',
+            forgotPasscode: 'Forgot PIN code?',
+            logoutAndReset: 'Log out and reset PIN code',
+        },
+        auth: {
+            biometricsPermissionCheck: {
+                title: 'Permission required',
+                message: 'Please, allow the app access to biometrics for authentication',
+                openSettings: 'Open settings',
+                authenticate: 'Authenticate with Passcode',
+            },
+            biometricsSetupAgain: {
+                title: 'Biometrics setup',
+                message: 'Please, setup biometrics again with passcode',
+                setup: 'Setup',
+                authenticate: 'Authenticate with Passcode',
+            },
+            biometricsCooldown: {
+                title: 'Biometrics cooldown',
+                message: 'Please, try again in later, or lock your device and unlock it again with devices passcode to enable biometrics',
+            },
+            biometricsCorrupted: {
+                title: 'Biometrics corrupted and no PIN code set',
+                message: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Restore\" (you will be logged out of you current wallet) and enter your 24 secret words',
+                messageLogout: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Logout\" (you will be logged out of you current wallet) and add your wallet again',
+                logout: 'Logout',
+                restore: 'Restore',
+            }
         }
     },
     report: {

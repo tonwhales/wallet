@@ -110,6 +110,11 @@ export class TypedNavigation {
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }
+
+    // TODO: implement ScreenCapture modal fragment
+    navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
+        this.navigate('ScreenCapture', params);
+    }
 }
 
 export function useTypedNavigation() {

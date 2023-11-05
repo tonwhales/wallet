@@ -466,7 +466,12 @@ export type LocalizationSchema = {
         termsOfService: string
     },
     create: {
-        inProgress: string
+        addNew: string,
+        inProgress: string,
+        backupTitle: string,
+        backupSubtitle: string,
+        okSaved: string,
+        copy: string
     },
     import: {
         title: string,
@@ -492,7 +497,10 @@ export type LocalizationSchema = {
         onLaterTitle: string,
         onLaterMessage: string,
         onLaterButton: string,
-        onBiometricsError: string
+        onBiometricsError: string,
+        lockAppWithAuth: string,
+        methodPasscode: string,
+        passcodeSetupDescription: string
     },
     backup: {
         title: string,

@@ -464,7 +464,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         termsOfService: 'Terms of Service'
     },
     create: {
-        inProgress: 'Creating...'
+        addNew: 'Add new wallet',
+        inProgress: 'Creating...',
+        backupTitle: 'Your Backup Key',
+        backupSubtitle: 'Write down this words in exactly the same order and save them in a secret place',
+        okSaved: 'OK, I saved it',
+        copy: 'Copy to clipboard',
     },
     import: {
         title: '24 Secret Words',
@@ -479,10 +484,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         subtitleUnprotected: 'It is highly recommend to enable passcode on your device to protect your assets.',
         subtitleNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets. We use biometrics to authenticate transactions to make sure no one except you can transfer your coins.',
         messageNoBiometrics: 'It is highly recommend to enable biometrics on your device to protect your assets.',
-        protectFaceID: 'Protect with Face ID',
-        protectTouchID: 'Protect with Touch ID',
-        protectBiometrics: 'Protect with biometrics',
-        protectPasscode: 'Protect with Passcode',
+        protectFaceID: 'Enable Face ID',
+        protectTouchID: 'Enable Touch ID',
+        protectBiometrics: 'Enable biometrics',
+        protectPasscode: 'Enable device passcode',
         upgradeTitle: 'Upgrade needed',
         upgradeMessage: 'Please, allow the app access to wallet keys for an upgrade. No funds would be transferred during this upgrade. Please, make sure that you backed up your keys.',
         allowUpgrade: 'Allow upgrade',
@@ -491,6 +496,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         onLaterMessage: 'You can setup protection later in settings',
         onLaterButton: 'Setup later',
         onBiometricsError: 'Error authenticating with biometrics',
+        lockAppWithAuth: 'Lock app with authentication',
+        methodPasscode: 'passcode',
+        passcodeSetupDescription: 'PIN code helps to protect your wallet from unauthorized access'
     },
     backup: {
         title: 'Your recovery phrase',

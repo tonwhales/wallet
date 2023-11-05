@@ -465,7 +465,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         termsOfService: 'Условиями использования'
     },
     create: {
-        inProgress: 'Создаем...'
+        addNew: 'Создать новый кошелек',
+        inProgress: 'Создаем...',
+        backupTitle: 'Ваш секретный ключ',
+        backupSubtitle: 'Запишите эти слова в том же порядке и сохраните их в надежном месте',
+        okSaved: 'Ок, всё записано',
+        copy: 'Скопировать в буфер обмена',
     },
     import: {
         title: '24 Секретных слова',
@@ -482,8 +487,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         messageNoBiometrics: 'Настоятельно рекомендуется включить биометрию на вашем устройстве для защиты ваших активов.',
         protectFaceID: 'Защитить с Face ID',
         protectTouchID: 'Защитить с Touch ID',
-        protectBiometrics: 'Защитить с биометрией',
-        protectPasscode: 'Защитить паролем',
+        protectBiometrics: 'Защитить биометрией',
+        protectPasscode: 'Защитить паролем устройства',
         upgradeTitle: 'Требуется обновление',
         upgradeMessage: 'Пожалуйста, разрешите приложению доступ к ключам для обновления. Никакие средства не будут переведены во время обновления. Пожалуйста, убедитесь что ваши секретные слова надежно сохранены.',
         allowUpgrade: 'Разрешить обновление',
@@ -492,6 +497,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         onLaterMessage: 'Вы можете настроить защиту позже в настройках приложения',
         onLaterButton: 'Настроить позже',
         onBiometricsError: 'Ошибка подтверждения биометрии',
+        lockAppWithAuth: 'Блокировать приложение подтверждением',
+        methodPasscode: 'паролем',
+        passcodeSetupDescription: 'Пароль помогает защитить ваш кошелек от несанкционированного доступа',
     },
     backup: {
         title: 'Фраза восстановления',

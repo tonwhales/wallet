@@ -26,7 +26,7 @@ import { useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
 import { UnstakeBanner } from '../../components/staking/UnstakeBanner';
-import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
+import { StakingCalculator } from '../../components/staking/StakingCalculator';
 import { StakingCycle } from '../../components/staking/StakingCycle';
 
 const labelStyle: StyleProp<TextStyle> = {
@@ -400,7 +400,7 @@ export const StakingTransferFragment = fragment(() => {
                         {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
                             <>
                                 {!isTestnet && (
-                                    <StakingCalcComponent
+                                    <StakingCalculator
                                         amount={amount}
                                         topUp={params?.action === 'top_up'}
                                         pool={pool}

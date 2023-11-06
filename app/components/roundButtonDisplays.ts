@@ -1,6 +1,17 @@
-import { ThemeType } from '../engine/state/theme';
+import { ThemeType } from "../engine/state/theme";
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
+export type RoundButtonDisplay =
+    | 'default'
+    | 'outline'
+    | 'inverted'
+    | 'pro'
+    | 'telegram'
+    | 'text'
+    | 'secondary'
+    | 'secondary_contrast'
+    | 'disabled'
+    | 'danger_zone'
+    | 'danger_zone_text';
 
 export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisplay]: {
     textColor: string,
@@ -11,17 +22,17 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         default: {
             backgroundColor: theme.accent,
             borderColor: theme.accent,
-            textColor: theme.surfacePimary,
+            textColor: theme.textThird,
         },
         disabled: {
-            backgroundColor: theme.surfaceSecondary,
-            borderColor: theme.surfaceSecondary,
-            textColor: theme.textSecondary,
+            backgroundColor: theme.accent,
+            borderColor: theme.accent,
+            textColor: theme.textThird,
         },
         secondary: {
-            backgroundColor: theme.surfaceSecondary,
-            borderColor: theme.surfaceSecondary,
-            textColor: theme.textPrimary,
+            backgroundColor: theme.border,
+            borderColor: theme.border,
+            textColor: theme.accent,
         },
         secondary_contrast: {
             backgroundColor: theme.surfaceSecondary,
@@ -52,6 +63,11 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
             textColor: theme.accent,
+        },
+        danger_zone_text: {
+            backgroundColor: theme.transparent,
+            borderColor: theme.transparent,
+            textColor: theme.accentRed,
         },
         danger_zone: {
             backgroundColor: theme.surfacePimary,

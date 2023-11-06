@@ -105,7 +105,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 setLoading(false);
             }
         })();
-    }, []);
+    }, [setAppState]);
 
     const onConfirmed = useCallback(async (passcode: string) => {
         setLoading(true);
@@ -131,6 +131,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 try {
                     secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), passcode);
                 } catch (e) {
+                    console.warn(e)
                     warn('Failed to encrypt with passcode');
                     return;
                 }
@@ -190,7 +191,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [setAppState]);
 
     const resetConfirmedAddressState = useCallback(() => {
         if (!state) {
@@ -215,7 +216,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             // Ignore
         }
 
-    }, [state]);
+    }, [state, setAppState]);
 
     const onBack = useCallback((e: any) => {
         if (props.onBack) {

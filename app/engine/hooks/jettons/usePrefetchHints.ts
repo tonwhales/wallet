@@ -19,6 +19,8 @@ export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, 
 
         let address = Address.parse(addressString);
         let metadata = await fetchMetadata(client, await getLastBlock(), address);
+
+        log('[contract-metadata] fetched ' + addressString);
         return {
             jettonMaster: metadata.jettonMaster ? {
                 content: metadata.jettonMaster.content,
@@ -43,6 +45,7 @@ export function jettonMasterContentQueryFn(master: string, isTestnet: boolean) {
         log('[jetton-master-content-query] fetching ' + master);
         let address = Address.parse(master);
         let masterContent = await fetchJettonMasterContent(address, isTestnet);
+        log('[jetton-master-content-query] fetched ' + master);
         if (!masterContent) {
             return null;
         }

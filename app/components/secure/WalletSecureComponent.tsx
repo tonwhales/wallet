@@ -8,6 +8,7 @@ import { warn } from '../../utils/log';
 import { useCallback, useState } from 'react';
 import { useDimensions } from '@react-native-community/hooks';
 import { useTheme } from '../../engine/hooks';
+import { ThemeStyle } from '../../engine/state/theme';
 
 export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
@@ -39,6 +40,8 @@ export const WalletSecureComponent = React.memo((props: {
         })();
     }, []);
 
+    let dark = theme.style === ThemeStyle.Dark;
+
     let buttonText = '';
     let title = t('secure.title');
     let text = t('secure.subtitle');
@@ -50,8 +53,8 @@ export const WalletSecureComponent = React.memo((props: {
                 ? t('secure.protectFaceID')
                 : t('secure.protectBiometrics');
             imgSource = Platform.select({
-                ios: require('@assets/ios-protect-face.webp'),
-                android: require('@assets/and-protect-face.webp')
+                ios: dark ? require('@assets/ios-protect-face-dark.webp') : require('@assets/ios-protect-face.webp'),
+                android: dark ? require('@assets/and-protect-face-dark.webp') : require('@assets/and-protect-face.webp')
             });
             break;
         case 'biometric':
@@ -60,16 +63,16 @@ export const WalletSecureComponent = React.memo((props: {
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
             imgSource = Platform.select({
-                ios: require('@assets/ios-protect-touch.webp'),
-                android: require('@assets/and-protect-finger.webp')
+                ios: dark ? require('@assets/ios-protect-touch-dark.webp') : require('@assets/ios-protect-touch.webp'),
+                android: dark ? require('@assets/and-protect-finger-dark.webp') : require('@assets/and-protect-finger.webp')
             });
             break;
         case 'passcode':
         case 'secret':
             buttonText = t('secure.protectPasscode');
             imgSource = Platform.select({
-                ios: require('@assets/ios-protect-passcode.webp'),
-                android: require('@assets/and-protect-passcode.webp')
+                ios: dark ? require('@assets/ios-protect-passcode-dark.webp') : require('@assets/ios-protect-passcode.webp'),
+                android: dark ? require('@assets/and-protect-passcode-dark.webp') : require('@assets/and-protect-passcode.webp')
             });
             break;
         default:

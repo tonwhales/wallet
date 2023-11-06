@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Alert, Platform, View } from 'react-native';
 import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
-import { useReboot } from '../../utils/RebootContext';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { warn } from '../../utils/log';
@@ -26,16 +25,15 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     onBack?: () => void,
 }) => {
     const theme = useTheme();
-    const { isTestnet} = useNetwork();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
-    const reboot = useReboot();
     const setAppState = useSetAppState();
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
 
-    const onAfterImport = useCallback(() => {
+    const onComplete = useCallback(() => {
         const address = getBackup();
         let state = getAppState();
         if (!state) {
@@ -98,14 +96,14 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     ],
                     selected: state.addresses.length
                 }, isTestnet);
-                onAfterImport();
+                onComplete();
             } catch {
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
             } finally {
                 setLoading(false);
             }
         })();
-    }, [setAppState]);
+    }, []);
 
     const onConfirmed = useCallback(async (passcode: string) => {
         setLoading(true);
@@ -126,7 +124,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             const passcodeState = storage.getString(passcodeStateKey);
             const isPasscodeSet = (passcodeState === PasscodeState.Set);
 
-            if (isPasscodeSet) {
+            const appState = getAppState();
+
+            if (isPasscodeSet && appState.addresses.length > 0) {
                 // Use prev app key
                 try {
                     secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), passcode);
@@ -147,10 +147,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }
 
             // Persist state
-            const state = getAppState();
             setAppState({
                 addresses: [
-                    ...state.addresses,
+                    ...appState.addresses,
                     {
                         address: contract.address,
                         publicKey: key.publicKey,
@@ -159,7 +158,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                         addressString: contract.address.toString({ testOnly: isTestnet })
                     }
                 ],
-                selected: state.addresses.length
+                selected: appState.addresses.length
             }, isTestnet);
 
             const deviceEncryption = await getDeviceEncryption();
@@ -275,26 +274,16 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     <WalletSecureComponent
                         deviceEncryption={state.deviceEncryption}
                         passcode={state.passcode}
+                        import={props.import}
                         callback={(res: boolean) => {
                             if (res) {
-                                if (props.import) {
-                                    onAfterImport();
-                                } else {
-                                    const account = getCurrentAddress();
-                                    markAddressSecured(account.address, isTestnet);
-                                    reboot();
-                                }
-                            }
-                        }}
-                        onLater={() => {
-                            if (props.import) {
-                                onAfterImport();
+                                onComplete();
                             } else {
-                                const account = getCurrentAddress();
-                                markAddressSecured(account.address, isTestnet);
-                                reboot();
+                                resetConfirmedAddressState();
+                                setState(undefined);
                             }
                         }}
+                        onLater={onComplete}
                     />
                 </Animated.View>
             )}

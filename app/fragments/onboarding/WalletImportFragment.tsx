@@ -19,6 +19,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useTheme } from '../../engine/hooks';
 import { mnemonicValidate } from '@ton/crypto';
+import { BackButton } from '../../components/navigation/BackButton';
 
 export const wordsTrie = WordsListTrie();
 
@@ -246,13 +247,7 @@ export const WalletImportFragment = systemFragment(() => {
                 navigation.base.setOptions({
                     headerLeft: () => {
                         return (
-                            <HeaderBackButton
-                                style={{ marginLeft: -13 }}
-                                label={t('common.back')}
-                                labelVisible
-                                onPress={navigation.goBack}
-                                tintColor={theme.accent}
-                            />
+                            <BackButton onPress={navigation.goBack} />
                         )
                     },
                 });

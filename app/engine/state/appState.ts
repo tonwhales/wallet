@@ -1,6 +1,7 @@
 import { atom, selector } from 'recoil';
 import { getAppState } from '../../storage/appState';
 import { networkSelector } from './network';
+import { mixpanelIdentify } from '../../analytics/mixpanel';
 
 export const appStateAtom = atom({
     key: 'wallet/appstate',
@@ -18,11 +19,16 @@ export const selectedAccountSelector = selector({
             : state.addresses[state.selected];
 
         if (selected) {
+            mixpanelIdentify(selected.address.toString({ testOnly: isTestnet }), isTestnet);
+        }
+
+        if (selected) {
             return {
                 ...selected,
                 addressString: selected.address.toString({ testOnly: isTestnet }),
             };
         }
+
         return selected;
     }
 });

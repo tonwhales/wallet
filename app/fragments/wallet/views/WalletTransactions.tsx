@@ -140,16 +140,14 @@ export const WalletTransactions = memo((props: {
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={headerComponent}
-            ListFooterComponent={props.loading ? (
+            ListFooterComponent={props.hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <LoadingIndicator simple />
                 </View>
-            ) : (
-                props.hasNext ? (<View style={{ height: 64 }} />) : undefined
-            )}
+            ) : null}
             renderItem={renderItem}
             onEndReached={() => props.onLoadMore()}
-            onEndReachedThreshold={0.5}
+            onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.id}
         />
     );

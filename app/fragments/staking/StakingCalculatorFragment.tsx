@@ -9,7 +9,7 @@ import { ATextInput } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
-import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
+import { StakingCalculator } from "../../components/staking/StakingCalculator";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
@@ -146,7 +146,7 @@ export const StakingCalculatorFragment = fragment(() => {
                         </View>
                     </View>
                     {!!pool && (
-                        <StakingCalcComponent
+                        <StakingCalculator
                             amount={amount}
                             pool={pool}
                         />

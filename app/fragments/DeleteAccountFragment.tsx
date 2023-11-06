@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, Cell, SendMode, beginCell, external, internal, storeMessage, toNano } from "@ton/core";
+import { Address, SendMode, beginCell, external, internal, storeMessage, toNano } from "@ton/core";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
@@ -23,12 +23,12 @@ import { fetchNfts } from "../engine/api/fetchNfts";
 import { useTheme } from '../engine/hooks';
 import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { useClient4 } from '../engine/hooks';
-import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 import { useNetwork } from '../engine/hooks';
 import { useSelectedAccount } from '../engine/hooks';
 import { useAccountLite } from '../engine/hooks';
 import { fetchSeqno } from '../engine/api/fetchSeqno';
 import { getLastBlock } from '../engine/accountWatcher';
+import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -48,6 +48,8 @@ export const DeleteAccountFragment = fragment(() => {
     const [status, setStatus] = useState<'loading' | 'deleted'>();
     const [targetAddressInput, setTansferAddressInput] = useState(tresuresAddress.toString({ testOnly: isTestnet }));
     const isKnown: boolean = !!KnownWallets(isTestnet)[targetAddressInput];
+
+    const onAccountDeleted = useDeleteCurrentAccount();
 
     const onDeleteAccount = React.useCallback(() => {
         let ended = false;
@@ -197,7 +199,7 @@ export const DeleteAccountFragment = fragment(() => {
                         setStatus('deleted');
                         ended = true;
                         setTimeout(() => {
-                           onAccountDeleted(isTestnet);
+                            onAccountDeleted();
                         }, 2000);
                         break;
                     }
@@ -209,7 +211,7 @@ export const DeleteAccountFragment = fragment(() => {
                 return;
             }
         });
-    }, [targetAddressInput]);
+    }, [targetAddressInput, onAccountDeleted]);
 
     const onContinue = React.useCallback(() => {
         if (Platform.OS === 'ios') {

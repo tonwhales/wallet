@@ -10,7 +10,7 @@ import { useTheme } from '../../engine/hooks';
 import { useStakingApy } from '../../engine/hooks';
 import { StakingPoolState } from '../../engine/types';
 
-export const StakingCalcComponent = memo((
+export const StakingCalculator = memo((
     {
         amount,
         topUp,

@@ -1,5 +1,6 @@
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
 import { getAppState } from "../../../storage/appState";
+import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { queryClient } from "../../clients";
 import { useNetwork } from "../network";
@@ -24,9 +25,10 @@ export function useDeleteCurrentAccount() {
         queryClient.invalidateQueries({ queryKey: ['account', selected.address.toString({ testOnly: isTestnet })] });
         queryClient.invalidateQueries({ queryKey: ['holders', selected.address.toString({ testOnly: isTestnet })] });
 
+        
         mixpanelReset(isTestnet);
         mixpanelFlush(isTestnet);
-
+        
         if (appState.addresses.length > 1) {
             const addresses = appState.addresses.filter((v, i) => i !== appState.selected);
             setAppState({
@@ -35,10 +37,11 @@ export function useDeleteCurrentAccount() {
             }, isTestnet);
             navigation.navigateAndReplaceAll('Home');
         } else {
+            // clear all storage including app key and go to welcome screen
+            storagePersistence.clearAll();
+            storage.clearAll();
             setAppState({ addresses: [], selected: -1 }, isTestnet);
             navigation.navigateAndReplaceAll('Welcome');
         }
-
-
     }
 }

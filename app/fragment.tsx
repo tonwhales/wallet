@@ -4,6 +4,7 @@ import { useRoute } from '@react-navigation/native';
 import { useTrackScreen } from './analytics/mixpanel';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
 import { useNetwork } from './engine/hooks';
+import { ToastProvider } from './components/toast/ToastProvider';
 
 export function fragment<T>(
     Component: React.ComponentType<T>,
@@ -21,7 +22,9 @@ export function fragment<T>(
         return (
             <GlobalLoaderProvider>
                 <AuthWalletKeysContextProvider>
-                    <Component {...props} />
+                    <ToastProvider>
+                        <Component {...props} />
+                    </ToastProvider>
                 </AuthWalletKeysContextProvider>
             </GlobalLoaderProvider>
         );

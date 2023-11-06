@@ -73,6 +73,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
  import * as Notifications from 'expo-notifications';
  import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
+import { useIsRestoring } from '@tanstack/react-query';
 
 const Stack = createNativeStackNavigator();
 
@@ -226,15 +227,17 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Splash
-    const [hideSplash, setHideSplash] = React.useState(false);
+    const [mounted, setMounted] = React.useState(false);
+    const isRestoring = useIsRestoring();
     const onMounted = React.useMemo(() => {
         return () => {
-            if (hideSplash) {
+            if (mounted) {
                 return;
             }
-            setHideSplash(true);
+            setMounted(true);
         }
-    }, [hideSplash]);
+    }, [mounted]);
+    const hideSplash = mounted && !isRestoring;
 
     // Register token
     React.useEffect(() => {

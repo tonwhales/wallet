@@ -1,16 +1,17 @@
-import React from "react";
+import React, { memo } from "react";
 import { StyleProp, View, ViewStyle } from "react-native";
 import { PasscodeStep } from "./PasscodeStep";
 
-const defaultPasscodeLen = 6;
 const dotSize = 10;
 
-export const PasscodeSteps = React.memo((
+export const PasscodeSteps = memo((
     {
+        passcodeLength = 6,
         state,
         style,
         emoji,
     }: {
+        passcodeLength?: number,
         state: {
             passLen: number,
             error?: boolean,
@@ -19,7 +20,7 @@ export const PasscodeSteps = React.memo((
         emoji?: boolean,
     }
 ) => {
-    const width = defaultPasscodeLen * ((emoji ? 32 : dotSize) + 22);
+    const width = passcodeLength * ((emoji ? 32 : dotSize) + 22);
 
     return (
         <View style={[
@@ -35,7 +36,7 @@ export const PasscodeSteps = React.memo((
                 justifyContent: 'flex-start', alignItems: 'center',
                 width: width, height: dotSize
             }}>
-                {new Array(defaultPasscodeLen).fill(0).map((_, index) => {
+                {new Array(passcodeLength).fill(0).map((_, index) => {
                     return (
                         <PasscodeStep
                             key={`passcode-step-${index}`}

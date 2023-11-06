@@ -66,12 +66,12 @@ export const DeveloperToolsFragment = fragment(() => {
     // }, [offlineApp]);
 
     const reboot = useReboot();
-    const clearHolders = useClearHolders(acc.address.toString({ testOnly: isTestnet }));
+    const clearHolders = useClearHolders();
 
     const resetCache = useCallback(async () => {
         storagePersistence.clearAll();
         storageQuery.clearAll();
-        await clearHolders();
+        await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         reboot();
     }, [isTestnet, clearHolders]);

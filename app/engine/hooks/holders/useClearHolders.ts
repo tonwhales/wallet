@@ -1,15 +1,13 @@
 import { holdersUrl } from "../../api/holders/fetchAccountState";
 import { useDomainKeys } from "../dapps/useDomainKeys";
-import { deleteHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
-import { useHoldersCards } from "./useHoldersCards";
+import { deleteHoldersToken } from "./useHoldersAccountStatus";
 import { extractDomain } from "../../utils/extractDomain";
+import { queryClient } from "../../clients";
 
-export function useClearHolders(address: string) {
+export function useClearHolders() {
     const [domainKeys, setDomainKeysState] = useDomainKeys();
-    const status = useHoldersAccountStatus(address);
-    const cards = useHoldersCards(address);
 
-    return async () => {
+    return async (address: string) => {
         deleteHoldersToken(address);
 
         const temp = { ...domainKeys };
@@ -18,7 +16,7 @@ export function useClearHolders(address: string) {
 
         setDomainKeysState(temp);
 
-        await cards.refetch();
-        await status.refetch();
+        await queryClient.cancelQueries(['holders']);
+        await queryClient.removeQueries(['holders']);
     }
 }

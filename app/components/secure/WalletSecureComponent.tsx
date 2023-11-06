@@ -1,76 +1,79 @@
 import * as React from 'react';
-import { Alert, ImageSourcePropType, Platform, Pressable, View, Text } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
+import { Alert, Platform, View, Text, Image } from 'react-native';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
-import { FragmentMediaContent } from '../FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
+import { useCallback, useState } from 'react';
+import { useDimensions } from '@react-native-community/hooks';
 import { useTheme } from '../../engine/hooks';
-import { memo, useCallback, useState } from 'react';
+import { ThemeStyle } from '../../engine/state/theme';
 
-export const WalletSecureComponent = memo((props: {
+export const WalletSecureComponent = React.memo((props: {
     deviceEncryption: DeviceEncryption,
     passcode: string,
     callback: (res: boolean) => void,
-    onLater?: () => void,
+    onLater?: () => void
     import?: boolean
 }) => {
+    const dimensions = useDimensions();
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
     // Action
     const [loading, setLoading] = useState(false);
-    const onClick = useCallback((async () => {
-        setLoading(true);
-        try {
-            encryptAndStoreAppKeyWithBiometrics(props.passcode);
-            // Save default state to Use biometrics
-            storeBiometricsState(BiometricsState.InUse);
+    const onClick = useCallback(() => {
+        (async () => {
+            setLoading(true);
+            try {
+                encryptAndStoreAppKeyWithBiometrics(props.passcode);
+                // Save default state to Use biometrics
+                storeBiometricsState(BiometricsState.InUse);
 
-            props.callback(true);
-        } catch (e) {
-            warn('Failed to generate new key');
-            Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
-            props.callback(false);
-        } finally {
-            setLoading(false);
-        }
-    }), [props.callback]);
+                props.callback(true);
+            } catch (e) {
+                warn('Failed to generate new key');
+                Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
+                props.callback(false);
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
 
-    let iconImage: ImageSourcePropType | undefined;
-    let icon: any | undefined;
+    let dark = theme.style === ThemeStyle.Dark;
+
     let buttonText = '';
     let title = t('secure.title');
     let text = t('secure.subtitle');
+    let imgSource = require('@assets/ios-protect-face.webp');
 
     switch (props.deviceEncryption) {
         case 'face':
-            iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/ic_face_id.png')
-                : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectFaceID')
                 : t('secure.protectBiometrics');
+            imgSource = Platform.select({
+                ios: dark ? require('@assets/ios-protect-face-dark.webp') : require('@assets/ios-protect-face.webp'),
+                android: dark ? require('@assets/and-protect-face-dark.webp') : require('@assets/and-protect-face.webp')
+            });
             break;
         case 'biometric':
         case 'fingerprint':
-            iconImage = Platform.OS === 'ios'
-                ? require('../../../assets/ic_touch_id.png')
-                : require('../../../assets/ic_and_touch.png');
             buttonText = Platform.OS === 'ios'
                 ? t('secure.protectTouchID')
                 : t('secure.protectBiometrics');
+            imgSource = Platform.select({
+                ios: dark ? require('@assets/ios-protect-touch-dark.webp') : require('@assets/ios-protect-touch.webp'),
+                android: dark ? require('@assets/and-protect-finger-dark.webp') : require('@assets/and-protect-finger.webp')
+            });
             break;
         case 'passcode':
         case 'secret':
-            icon = <Ionicons
-                name="keypad"
-                size={20}
-                color="white"
-            />;
             buttonText = t('secure.protectPasscode');
+            imgSource = Platform.select({
+                ios: dark ? require('@assets/ios-protect-passcode-dark.webp') : require('@assets/ios-protect-passcode.webp'),
+                android: dark ? require('@assets/and-protect-passcode-dark.webp') : require('@assets/and-protect-passcode.webp')
+            });
             break;
         default:
             break;
@@ -82,9 +85,7 @@ export const WalletSecureComponent = memo((props: {
             t('secure.onLaterMessage'),
             [
                 { text: t('common.cancel') },
-                {
-                    text: t('secure.onLaterButton'), onPress: props.onLater
-                }
+                { text: t('secure.onLaterButton'), onPress: props.onLater }
             ]
         );
     }, []);
@@ -92,55 +93,60 @@ export const WalletSecureComponent = memo((props: {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.background,
             justifyContent: 'center',
             alignContent: 'center'
         }}>
-            <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                <View style={{ flexGrow: 1 }} />
-                <FragmentMediaContent
-                    animation={require('../../../assets/animations/lock.json')}
-                    title={title}
-                    text={text}
-                />
-                <View style={{ flexGrow: 1 }} />
-                <View style={{ height: props.onLater ? 128 : 64, marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch' }}>
-                    <RoundButton
-                        onPress={onClick}
-                        title={buttonText}
-                        loading={loading}
-                        iconImage={iconImage}
-                        icon={icon}
+            <View style={{ flexGrow: 1 }} />
+            <View style={{ paddingHorizontal: 16 }}>
+                <View style={{
+                    justifyContent: 'center', alignItems: 'center',
+                    aspectRatio: 0.92,
+                    width: dimensions.screen.width - 32,
+                }}>
+                    <Image
+                        resizeMode={'contain'}
+                        style={{ width: dimensions.screen.width - 32 }}
+                        source={imgSource}
                     />
-                    {props.onLater && (
-                        <Pressable
-                            onPress={onLater}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: pressed ? 0.5 : 1,
-                                    alignSelf: 'center',
-                                    marginTop: 26,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }
-                            }}
-                            hitSlop={{
-                                top: 12,
-                                left: 100,
-                                bottom: 12,
-                                right: 100
-                            }}
-                        >
-                            <Text style={{
-                                fontSize: 17,
-                                fontWeight: '600',
-                                color: theme.accent
-                            }}>
-                                {t('common.later')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </View>
+                <Text style={{
+                    fontSize: 32, lineHeight: 38,
+                    fontWeight: '600',
+                    textAlign: 'center',
+                    marginTop: 26,
+                    color: theme.textPrimary
+                }}>
+                    {title}
+                </Text>
+                <Text style={{
+                    textAlign: 'center',
+                    color: theme.textSecondary,
+                    fontSize: 17, lineHeight: 24,
+                    marginTop: 12,
+                    flexShrink: 1,
+                }}>
+                    {text}
+                </Text>
+            </View>
+            <View style={{ flexGrow: 1 }} />
+            <View style={[
+                { marginHorizontal: 16, marginTop: 16, alignSelf: 'stretch' },
+                Platform.select({ android: { paddingBottom: 16 } })
+            ]}>
+                <RoundButton
+                    onPress={onClick}
+                    title={buttonText}
+                    loading={loading}
+                />
+                {props.onLater && (
+                    <RoundButton
+                        display={'secondary'}
+                        style={{ marginTop: 16 }}
+                        onPress={onLater}
+                        title={t('common.later')}
+                    />
+                )}
             </View>
         </View>
     );

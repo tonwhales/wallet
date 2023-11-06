@@ -2,20 +2,16 @@ import { StatusBar } from "expo-status-bar";
 import React from "react";
 import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../analytics/mixpanel";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
-import { extractDomain } from "../engine/utils/extractDomain";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { storage } from "../storage/storage";
-import { useReboot } from "../utils/RebootContext";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useTheme } from '../engine/hooks';
 import { Address } from "@ton/core";
-import { onAccountDeleted } from '../engine/effects/onAccountDeleted';
 import { useNetwork } from '../engine/hooks';
+import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 
 export function clearHolders(isTestnet: boolean, address?: Address) {
     // TODO
@@ -34,9 +30,9 @@ export const LogoutFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const reboot = useReboot();
+    const onAccountDeleted = useDeleteCurrentAccount();
 
-    const onDeletetAccount = React.useCallback(() => {
+    const onLogout = React.useCallback(() => {
         if (Platform.OS === 'ios') {
             ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -48,8 +44,7 @@ export const LogoutFragment = fragment(() => {
                 },
                 (buttonIndex) => {
                     if (buttonIndex === 1) {
-                        onAccountDeleted(isTestnet);
-                        reboot();
+                        onAccountDeleted();
                     }
                 }
             );
@@ -59,11 +54,11 @@ export const LogoutFragment = fragment(() => {
                 t('confirm.logout.message'),
                 [{
                     text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        onAccountDeleted(isTestnet);
+                        onAccountDeleted();
                     }
                 }, { text: t('common.cancel') }])
         }
-    }, [isTestnet]);
+    }, [isTestnet, onAccountDeleted]);
 
     return (
         <View style={{
@@ -101,7 +96,7 @@ export const LogoutFragment = fragment(() => {
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
                 <RoundButton
                     title={t('common.logout')}
-                    onPress={onDeletetAccount}
+                    onPress={onLogout}
                     display={'danger_zone'}
                 />
             </View>

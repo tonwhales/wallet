@@ -3,10 +3,10 @@ import { View, Text, StyleProp, ViewStyle, Pressable } from "react-native";
 import { Address, fromNano } from "@ton/core";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PriceComponent } from "../PriceComponent";
-import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
-import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { TransferAction } from "../../fragments/staking/StakingTransferFragment";
 import { t } from "../../i18n/t";
+import Img_Widthdraw_ready_action from '../../../assets/ic_withdraw_ready_unstake.svg';
+import ForwardIcon from '../../../assets/ic_chevron_forward.svg'
 import { useTheme } from '../../engine/hooks';
 
 export const StakingPendingComponent = React.memo((

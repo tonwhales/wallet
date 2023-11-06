@@ -5,18 +5,21 @@ import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
-import { useCallback, useState } from 'react';
+import { memo, useCallback, useState } from 'react';
 import { useDimensions } from '@react-native-community/hooks';
 import { useTheme } from '../../engine/hooks';
 import { ThemeStyle } from '../../engine/state/theme';
+import { ScreenHeader } from '../ScreenHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-export const WalletSecureComponent = React.memo((props: {
+export const WalletSecureComponent = memo((props: {
     deviceEncryption: DeviceEncryption,
     passcode: string,
     callback: (res: boolean) => void,
     onLater?: () => void
     import?: boolean
 }) => {
+    const safeArea = useSafeAreaInsets();
     const dimensions = useDimensions();
     const theme = useTheme();
     // Action
@@ -91,49 +94,57 @@ export const WalletSecureComponent = React.memo((props: {
     }, []);
 
     return (
-        <View style={{
-            flexGrow: 1,
-            backgroundColor: theme.background,
-            justifyContent: 'center',
-            alignContent: 'center'
-        }}>
-            <View style={{ flexGrow: 1 }} />
-            <View style={{ paddingHorizontal: 16 }}>
-                <View style={{
-                    justifyContent: 'center', alignItems: 'center',
-                    aspectRatio: 0.92,
-                    width: dimensions.screen.width - 32,
-                }}>
-                    <Image
-                        resizeMode={'contain'}
-                        style={{ width: dimensions.screen.width - 32 }}
-                        source={imgSource}
-                    />
+        <View style={{ flexGrow: 1 }}>
+            <ScreenHeader
+                onBackPressed={() => {
+                    props.callback(false);
+                }}
+                style={[{ zIndex: 100, paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
+                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
+            />
+            <View style={{
+                backgroundColor: theme.background,
+                justifyContent: 'center',
+                flexGrow: 1,
+            }}>
+                <View style={{ paddingHorizontal: 16 }}>
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        aspectRatio: 0.92,
+                        width: dimensions.screen.width - 32,
+                    }}>
+                        <Image
+                            resizeMode={'contain'}
+                            style={{ width: dimensions.screen.width - 32 }}
+                            source={imgSource}
+                        />
+                    </View>
+                    <Text style={{
+                        fontSize: 32, lineHeight: 38,
+                        fontWeight: '600',
+                        textAlign: 'center',
+                        marginTop: 26,
+                        color: theme.textPrimary
+                    }}>
+                        {title}
+                    </Text>
+                    <Text style={{
+                        textAlign: 'center',
+                        color: theme.textSecondary,
+                        fontSize: 17, lineHeight: 24,
+                        marginTop: 12,
+                        flexShrink: 1,
+                    }}>
+                        {text}
+                    </Text>
                 </View>
-                <Text style={{
-                    fontSize: 32, lineHeight: 38,
-                    fontWeight: '600',
-                    textAlign: 'center',
-                    marginTop: 26,
-                    color: theme.textPrimary
-                }}>
-                    {title}
-                </Text>
-                <Text style={{
-                    textAlign: 'center',
-                    color: theme.textSecondary,
-                    fontSize: 17, lineHeight: 24,
-                    marginTop: 12,
-                    flexShrink: 1,
-                }}>
-                    {text}
-                </Text>
             </View>
-            <View style={{ flexGrow: 1 }} />
-            <View style={[
-                { marginHorizontal: 16, marginTop: 16, alignSelf: 'stretch' },
-                Platform.select({ android: { paddingBottom: 16 } })
-            ]}>
+            <View style={{
+                flexGrow: 1,
+                marginHorizontal: 16, marginTop: 16,
+                alignSelf: 'stretch',
+                justifyContent: 'flex-end'
+            }}>
                 <RoundButton
                     onPress={onClick}
                     title={buttonText}

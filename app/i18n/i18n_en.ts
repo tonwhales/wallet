@@ -53,7 +53,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         airdrop: 'Airdrop',
         ok: 'Ok',
         totalBalance: 'Total balance',
-        done: 'Done'
+        done: 'Done',
+        assets: 'Assets'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -233,12 +234,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
+        addNew: 'Add new product',
         tonConnect: {
             errors: {
                 connection: 'Connection error',
             }
         },
-        accounts: 'Accounts',
+        accounts: 'Tokens',
         services: 'Extensions',
         oldWallets: {
             title: 'Old wallets',
@@ -263,30 +265,31 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 devPromo: 'Multiply your test coins'
             },
             pools: {
+                title: 'Staking pools',
                 active: 'Active',
-                best: 'Best pool',
+                best: 'Best',
                 alternatives: 'Alternative',
                 private: 'Private pools',
                 restrictedTitle: 'Pool is restricted',
                 restrictedMessage: 'This staking pool is available only for the Whales Club members',
                 viewClub: 'View Whales Club',
                 nominators: 'Nominators',
-                nominatorsDescription: 'Open for everyone',
+                nominatorsDescription: 'For everyone',
                 club: 'Club',
-                clubDescription: 'Only for the Whales Club members',
+                clubDescription: 'For the Whales Club members',
                 team: 'Team',
-                teamDescription: 'Only for Ton Whales teammates and TOP 15 the Whales Club members',
-                joinClub: 'Join the Club',
-                joinTeam: 'Join our team',
-                clubBanner: 'Become our Club Member',
+                teamDescription: 'For Ton Whales teammates and TOP 15 the Whales Club members',
+                joinClub: 'Join',
+                joinTeam: 'Join',
+                clubBanner: 'Join our Club',
                 clubBannerLearnMore: 'Learn about our club',
                 clubBannerDescription: 'If you are not participating in our Club membership your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
-                teamBanner: 'Become our Team Member',
+                teamBanner: 'Join our Team',
                 teamBannerLearnMore: 'Learn about our team',
                 teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
                 epnPartners: 'ePN Partners',
-                epnPartnersDescription: 'Join over 200,000 webmasters working with ePN and get paid in TON',
-                moreAboutEPN: 'More about ePN',
+                epnPartnersDescription: 'Join over 200,000 webmasters',
+                moreAboutEPN: 'Info',
                 lockups: 'Lockups Pool',
                 lockupsDescription: 'Allows holders of big lockups in TON to earn additional income',
                 tonkeeper: 'Tonkeeper',
@@ -307,6 +310,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 restrictedMessage: 'Your funds will not participate in staking if your wallet address is not on the permit list, but will be on the pool balance and awaiting a withdrawal',
                 notEnoughCoinsFee: 'There are not enough TON on your wallet balance to pay the fee. Please note that the {{amount}} TON fee must be on the main balance, not on the staking balance',
                 notEnoughCoins: 'There are not enough funds on your wallet balance to top up the staking balance',
+                ledgerSignText: 'Staking: {{action}}',
             },
             nextCycle: 'Next cycle',
             cycleNote: 'All transactions take effect once the cycle ends',
@@ -316,7 +320,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             actions: {
                 deposit: 'Deposit',
                 top_up: 'Top Up',
-                withdraw: 'Unstake'
+                withdraw: 'Withdraw',
+                calc: 'Calculate',
             },
             join: {
                 title: 'Become a TON validator',
@@ -342,14 +347,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             empty: {
                 message: 'You have no transactions'
             },
-            pending: {
-                deposit: 'Pending Deposit',
-                withdraw: 'Pending Withdraw'
-            },
+            pending: 'pending',
             withdrawStatus: {
                 pending: 'Withdraw pending',
                 ready: 'Withdraw ready',
-                withdrawNow: 'Withdraw now'
+                withdrawNow: 'Press to withdraw now'
             },
             depositStatus: {
                 pending: 'Deposit pending'
@@ -371,11 +373,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 yearlyTopUp: 'After Top Up',
                 yearlyTotal: 'Total rewards in a year',
                 yearlyCurrent: 'Current',
-                topUpTitle: 'Your yearly rewards'
+                topUpTitle: 'Your yearly rewards',
+                goToTopUp: 'Go to Top Up',
             },
             info: {
                 rate: 'up to 13.3%',
-                rateTitle: 'Est. APY rate',
+                rateTitle: 'APY',
                 frequency: 'Every 36 hours',
                 frequencyTitle: 'Reward Frequency',
                 minDeposit: 'Minimal deposit',
@@ -385,11 +388,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 withdrawFee: 'Withdraw Fee',
                 withdrawRequestFee: 'Withdraw request Fee',
                 withdrawCompleteFee: 'Withdrawal completion request Fee',
+                depositFeeDescription: 'TON amount that will be deducted from deposit amout to cover the deposit action fees, unused amount will be returned to your wallet balance',
+                withdrawFeeDescription: 'TON transfer amount needed to cover the withdraw action fees, unused amount will be returned to your wallet balance',
+                withdrawCompleteDescription: 'TON transfer amount needed to cover the withdraw completion action fees, unused amount will be returned to your wallet balance',
                 blockchainFee: 'Blockhain fee',
-                cooldownTitle: 'Cooldown period',
+                cooldownTitle: 'Simplified period',
                 cooldownActive: 'Active',
                 cooldownInactive: 'Inactive',
-                cooldownDescription: 'Two-hour period applied at the start of each staking cycle to improve the process of withdrawals and deposits between cycles',
+                cooldownDescription: 'All transactions take effect instantly during this period',
+                cooldownAlert: 'At the beginning of each staking cycle, the Simplified Period is active. During this period you don\'t have to wait for the cycle to end in order to withdraw or top up - it happens instantly, and you don\'t have to send a second transaction to withdraw, which halves the withdrawal fee. You can transfer funds from one pool to another without losing cycle profits if the Simplified Period is active in both pools',
+                lockedAlert: 'While the staking sycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends'
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             tryAgainLater: 'Please, try again later',
@@ -397,16 +405,23 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 estimatedEarnings: 'Your estimated yearly earnings will decrease by {{amount}}\u00A0TON\u00A0({{price}})',
                 estimatedEarningsDev: 'Your estimated yearly earnings will decrease',
                 message: 'Are you sure about the unstaking?'
+            },
+            activePools: 'Active pools',
+            analytics: {
+                operations: 'Operations',
+                operationsDescription: 'Top Up and withdraw',
+                analyticsTitle: 'Analytics',
+                analyticsSubtitle: 'Total profit',
             }
         },
-        zenPay: {
+        holders: {
             title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
                 cardDetails: 'Card Details',
                 cardCredentials: 'Card Details',
-                cardLimits: '*{{cardNumber}} Card Limits',
+                cardLimits: '{{cardNumber}} Card Limits',
                 cardLimitsDefault: 'Card Limits',
                 cardDeposit: 'Top Up TON',
                 transfer: 'Transfer',
@@ -414,13 +429,52 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
+            hiddenCards: 'Hidden cards',
             card: {
-                title: 'Tonhub Card *{{cardNumber}}',
-                defaultSubtitle: 'TON to EUR (0% fee)',
+                cards: 'Holders cards',
+                title: 'Tonhub card {{cardNumber}}',
+                defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Physical Card',
                     virtual: 'Virtual',
+                },
+                notifications: {
+                    type: {
+                        card_ready: 'Card activated',
+                        deposit: 'Card Top Up',
+                        charge: 'Payment',
+                        charge_failed: 'Payment',
+                        limits_change: {
+                            pending: 'Limits changing',
+                            completed: 'Limits changed',
+                        },
+                        card_withdraw: 'Transfer to wallet',
+                        contract_closed: 'Contract closed',
+                        card_block: 'Card blocked',
+                        card_freeze: 'Card frozen',
+                        card_unfreeze: 'Card unfrozen',
+                        card_paid: 'Bank card issue',
+                    },
+                    category: {
+                        deposit: 'Top Up',
+                        card_withdraw: 'Transfer',
+                        charge: 'Purchases',
+                        charge_failed: 'Purchases',
+                        other: 'Other',
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: 'Failed (over onetime limit)',
+                                daily: 'Failed (over daily limit)',
+                                monthly: 'Failed (over monthly limit)',
+                            },
+                            failed: 'Failed',
+                        },
+                        completed: 'Completed',
+                    }
                 }
             },
             confirm: {
@@ -566,7 +620,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenReceived: 'Token received'
     },
     jetton: {
-        token: 'token'
+        token: 'token',
+        productButtonTitle: 'Jettons',
+        productButtonSubtitle: '{{jettonName}} and {{count}} others',
+        hidden: 'Hidden jettons',
     },
     connections: {
         extensions: 'Extensions',

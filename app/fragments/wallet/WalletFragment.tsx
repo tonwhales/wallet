@@ -22,7 +22,7 @@ import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
 import { useFocusEffect } from '@react-navigation/native';
 import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
-import { ProductsComponent } from './products/ProductsComponent';
+import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { Address } from '@ton/core';
 

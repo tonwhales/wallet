@@ -6,15 +6,10 @@ import { getSecureRandomBytes, keyPairFromSeed } from '@ton/crypto';
 import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
+import { SelectedAccount } from '../engine/types';
 
 export type AppState = {
-    addresses: {
-        address: Address,
-        addressString: string,
-        publicKey: Buffer,
-        secretKeyEnc: Buffer,
-        utilityKey: Buffer
-    }[],
+    addresses: SelectedAccount[],
     selected: number
 }
 

@@ -40,7 +40,10 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
             if (!domainKey) {
                 return true;
             }
-            if (!!status && status.state === HoldersAccountState.NeedEnrollment) {
+            if (!status) {
+                return true;
+            }
+            if (status.state === HoldersAccountState.NeedEnrollment) {
                 return true;
             }
         } catch (error) {
@@ -108,7 +111,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                     <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                             <Text style={{ color: theme.textPrimary, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
-                                {account.card.lastFourDigits ? t('products.zenPay.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.zenPay.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
+                                {account.card.lastFourDigits ? t('products.holders.card.title', { cardNumber: account.card.lastFourDigits }) : t('products.holders.card.defaultTitle') + `${account.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                             </Text>
                             {!!account && (
                                 <Text style={{ color: theme.textPrimary, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
@@ -124,12 +127,12 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                             >
                                 {!!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t(`products.zenPay.card.type.${cardKind}` as any)}
+                                        {t(`products.holders.card.type.${cardKind}` as any)}
                                     </Text>
                                 )}
                                 {!account && (
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t('products.zenPay.card.defaultSubtitle')}
+                                        {t('products.holders.card.defaultSubtitle')}
                                     </Text>
                                 )}
                             </Text>
@@ -156,7 +159,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                         <View style={{ flexDirection: 'column', flexShrink: 1 }}>
                             <View style={{ flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: 10, marginRight: 10 }}>
                                 <Text style={{ color: theme.textPrimary, fontSize: 16, marginRight: 16, fontWeight: '600', flexShrink: 1 }} ellipsizeMode="tail" numberOfLines={1}>
-                                    {t('products.zenPay.card.defaultTitle')}
+                                    {t('products.holders.card.defaultTitle')}
                                 </Text>
                             </View>
                             <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginRight: 10, marginBottom: 10, }}>
@@ -166,7 +169,7 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
                                     numberOfLines={1}
                                 >
                                     <Text style={{ flexShrink: 1 }}>
-                                        {t('products.zenPay.card.defaultSubtitle')}
+                                        {t('products.holders.card.defaultSubtitle')}
                                     </Text>
                                 </Text>
                             </View>

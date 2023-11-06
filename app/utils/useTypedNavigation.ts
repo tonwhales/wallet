@@ -7,6 +7,7 @@ import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateF
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 import { BarCodeScanner } from 'expo-barcode-scanner';
+import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -116,6 +117,10 @@ export class TypedNavigation {
 
     navigateLedgerApp() {
         this.replace('LedgerApp');
+    }
+
+    navigateHolders(params: HoldersAppParams) {
+        this.navigate('Holders', params);
     }
     
     navigateConnectAuth(params: TonConnectAuthProps) {

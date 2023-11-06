@@ -1,5 +1,5 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
-import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown, Keyframe } from 'react-native-reanimated';
+import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, Pressable, Text } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
@@ -9,19 +9,17 @@ import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
-import { useReboot } from '../../utils/RebootContext';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useSelectedAccount, useTheme } from '../../engine/hooks';
 import { queryClient } from '../../engine/clients';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
     | EntryExitAnimationFunction
-    | Keyframe
 
 export type AuthParams = {
     backgroundColor?: string,

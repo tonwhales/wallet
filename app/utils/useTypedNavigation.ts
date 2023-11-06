@@ -6,8 +6,19 @@ import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransfer
 import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
+import { BarCodeScanner } from 'expo-barcode-scanner';
 
 type Base = NavigationProp<ParamListBase>;
+
+export const nullTransfer = {
+    amount: null,
+    target: null,
+    stateInit: null,
+    job: null,
+    comment: null,
+    jetton: null,
+    callback: null
+}
 
 export function typedNavigate(src: Base, name: string, params?: any) {
     setTimeout(() => {
@@ -109,6 +120,13 @@ export class TypedNavigation {
     
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
+    }
+
+    navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
+        (async () => {
+            await BarCodeScanner.requestPermissionsAsync();
+            this.navigate('Scanner', params);
+        })();
     }
 
     // TODO: implement ScreenCapture modal fragment

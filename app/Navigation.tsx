@@ -77,7 +77,7 @@ import { useIsRestoring } from '@tanstack/react-query';
 
 const Stack = createNativeStackNavigator();
 
-function fullScreen(name: string, component: React.ComponentType<any>) {
+export function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
         <Stack.Screen
             key={`fullScreen-${name}`}
@@ -88,7 +88,7 @@ function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}

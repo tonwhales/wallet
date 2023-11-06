@@ -54,6 +54,8 @@ export type LocalizationSchema = {
         errorOccurred: string,
         airdrop: string,
         ok: string,
+        totalBalance: string,
+        done: string
     },
     syncStatus: {
         connecting: string,
@@ -61,8 +63,10 @@ export type LocalizationSchema = {
         online: string
     },
     home: {
-        wallet: string,
-        settings: string
+        home: string,
+        history: string,
+        browser: string,
+        more: string
     }
     settings: {
         title: string,
@@ -781,6 +785,11 @@ export type LocalizationSchema = {
         contactSupportOrTryToReload: string,
         contactSupport: string,
         checkInternetAndReload: string,
+    },
+    onboarding: {
+        avatar: string,
+        wallet: string,
+        price: string
     }
 };
 

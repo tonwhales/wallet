@@ -52,6 +52,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         errorOccurred: 'Error occurred: {{error}}',
         airdrop: 'Airdrop',
         ok: 'Ok',
+        totalBalance: 'Total balance',
+        done: 'Done'
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -59,8 +61,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         online: 'Connected'
     },
     home: {
-        wallet: 'Wallet',
-        settings: 'Settings'
+        home: 'Home',
+        history: 'History',
+        browser: 'Browser',
+        more: 'More',
     },
     settings: {
         title: 'Settings',
@@ -779,6 +783,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         contactSupportOrTryToReload: 'Contact support or try to reload the page',
         contactSupport: 'Contact support',
         checkInternetAndReload: 'Check your internet connection and reload the page',
+    },
+    onboarding: {
+        avatar: 'This is where you can change your wallets avatar and name',
+        wallet: 'This is where you can add new or switch between your wallets',
+        price: 'This is where you can change your primary currency',
     }
 };
 

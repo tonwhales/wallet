@@ -459,6 +459,9 @@ PODS:
   - React-jsinspector (0.72.6)
   - React-logger (0.72.6):
     - glog
+  - react-native-another-keyboard-avoiding-view (0.1.3):
+    - RCT-Folly (= 2021.07.22.00)
+    - React-Core
   - react-native-ble-plx (2.0.3):
     - MultiplatformBleAdapter (= 0.1.9)
     - React-Core
@@ -597,6 +600,8 @@ PODS:
     - React-Core
   - RNCPicker (2.4.10):
     - React-Core
+  - RNDeviceInfo (10.11.0):
+    - React-Core
   - RNFastImage (8.6.3):
     - React-Core
     - SDWebImage (~> 5.11.1)
@@ -611,7 +616,7 @@ PODS:
     - React-Core
   - RNPermissions (3.6.1):
     - React-Core
-  - RNReanimated (3.3.0):
+  - RNReanimated (3.5.4):
     - DoubleConversion
     - FBLazyVector
     - glog
@@ -733,6 +738,7 @@ DEPENDENCIES:
   - React-jsiexecutor (from `../node_modules/react-native/ReactCommon/jsiexecutor`)
   - React-jsinspector (from `../node_modules/react-native/ReactCommon/jsinspector`)
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
+  - react-native-another-keyboard-avoiding-view (from `../node_modules/react-native-another-keyboard-avoiding-view`)
   - react-native-ble-plx (from `../node_modules/react-native-ble-plx`)
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
@@ -760,6 +766,7 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNCClipboard (from `../node_modules/@react-native-clipboard/clipboard`)"
   - "RNCPicker (from `../node_modules/@react-native-picker/picker`)"
+  - RNDeviceInfo (from `../node_modules/react-native-device-info`)
   - RNFastImage (from `../node_modules/react-native-fast-image`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNInAppBrowser (from `../node_modules/react-native-inappbrowser-reborn`)
@@ -893,6 +900,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/jsinspector"
   React-logger:
     :path: "../node_modules/react-native/ReactCommon/logger"
+  react-native-another-keyboard-avoiding-view:
+    :path: "../node_modules/react-native-another-keyboard-avoiding-view"
   react-native-ble-plx:
     :path: "../node_modules/react-native-ble-plx"
   react-native-blurhash:
@@ -947,6 +956,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-clipboard/clipboard"
   RNCPicker:
     :path: "../node_modules/@react-native-picker/picker"
+  RNDeviceInfo:
+    :path: "../node_modules/react-native-device-info"
   RNFastImage:
     :path: "../node_modules/react-native-fast-image"
   RNGestureHandler:
@@ -1034,6 +1045,7 @@ SPEC CHECKSUMS:
   React-jsiexecutor: 3bf18ff7cb03cd8dfdce08fbbc0d15058c1d71ae
   React-jsinspector: 194e32c6aab382d88713ad3dd0025c5f5c4ee072
   React-logger: cebf22b6cf43434e471dc561e5911b40ac01d289
+  react-native-another-keyboard-avoiding-view: 99c2c648a74654f10c2fc54169da8d7cb9d69bcc
   react-native-ble-plx: f10240444452dfb2d2a13a0e4f58d7783e92d76e
   react-native-blurhash: add4df9a937b4e021a24bc67a0714f13e0bd40b7
   react-native-context-menu-view: a54a97ead7e44b0671a8c2b48ac70b9e4e2a19fb
@@ -1061,13 +1073,14 @@ SPEC CHECKSUMS:
   ReactCommon: dd03c17275c200496f346af93a7b94c53f3093a4
   RNCClipboard: 3f0451a8100393908bea5c5c5b16f96d45f30bfc
   RNCPicker: 0bc2f0a29abcca7b7ed44a2d036aac9ab6d25700
+  RNDeviceInfo: bf8a32acbcb875f568217285d1793b0e8588c974
   RNFastImage: 5c9c9fed9c076e521b3f509fe79e790418a544e8
   RNGestureHandler: c0d04458598fcb26052494ae23dda8f8f5162b13
   RNInAppBrowser: e36d6935517101ccba0e875bac8ad7b0cb655364
   RNKeychain: ff836453cba46938e0e9e4c22e43d43fa2c90333
   RNLocalize: d4b8af4e442d4bcca54e68fc687a2129b4d71a81
   RNPermissions: dcdb7b99796bbeda6975a6e79ad519c41b251b1c
-  RNReanimated: 9f7068e43b9358a46a688d94a5a3adb258139457
+  RNReanimated: ab2e96c6d5591c3dfbb38a464f54c8d17fb34a87
   RNScreens: 68fd1060f57dd1023880bf4c05d74784b5392789
   RNSVG: 53c661b76829783cdaf9b7a57258f3d3b4c28315
   SDWebImage: a7f831e1a65eb5e285e3fb046a23fcfbf08e696d

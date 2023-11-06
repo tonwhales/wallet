@@ -53,6 +53,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         errorOccurred: 'Произошла ошибка: {{error}}',
         airdrop: 'Раздача',
         ok: 'Ок',
+        totalBalance: 'Общий баланс',
+        done: 'Готово'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -60,8 +62,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         online: 'Подключено'
     },
     home: {
-        wallet: 'Кошелек',
-        settings: 'Настройки'
+        home: 'Главная',
+        history: 'История',
+        browser: 'Браузер',
+        more: 'Еще',
     },
     settings: {
         title: 'Настройки',
@@ -780,6 +784,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
         checkInternetAndReload: 'Пожалуйста, проверьте интернет соединение и попробуйте перезагрузить страницу',
+    },
+    onboarding: {
+        avatar: 'Здесь вы можете изменить аватар и имя своего кошелька',
+        wallet: 'Здесь вы можете добавить новый или переключиться между своими кошельками',
+        price: 'Здесь вы можете изменить основную валюту',
     }
 };
 

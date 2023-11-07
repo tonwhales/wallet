@@ -12,7 +12,7 @@ function getStoredHiddenCards(): string[] {
 }
 
 function storeHiddenCards(value: string[]) {
-    storagePersistence.set(hiddenCardsKey, value.toString());
+    storagePersistence.set(hiddenCardsKey, JSON.stringify([...new Set(value)]));
 }
 
 export const hiddenCardsState = atom<string[]>({

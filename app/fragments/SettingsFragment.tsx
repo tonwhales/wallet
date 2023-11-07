@@ -19,18 +19,19 @@ import { useNetwork, useOldWalletsBalances, usePrice, useSyncState, useTheme } f
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from '../engine/state/appState';
 import * as Application from 'expo-application';
+import { ThemeStyle } from '../engine/state/theme';
 
-import IcSecurity from '@assets/settingsic-security.svg';
-import IcSpam from '@assets/settingsic-spam.svg';
-import IcContacts from '@assets/settingsic-contacts.svg';
-import IcCurrency from '@assets/settingsic-currency.svg';
-import IcTerms from '@assets/settingsic-terms.svg';
-import IcPrivacy from '@assets/settingsic-privacy.svg';
-import IcSupport from '@assets/settingsic-support.svg';
-import IcTelegram from '@assets/settingsic-tg.svg';
-import IcRateApp from '@assets/settingsic-rate-app.svg';
-import IcNoConnection from '@assets/settingsic-no-connection.svg';
-import IcTheme from '@assets/settingsic-theme.svg';
+import IcSecurity from '@assets/settings/ic-security.svg';
+import IcSpam from '@assets/settings/ic-spam.svg';
+import IcContacts from '@assets/settings/ic-contacts.svg';
+import IcCurrency from '@assets/settings/ic-currency.svg';
+import IcTerms from '@assets/settings/ic-terms.svg';
+import IcPrivacy from '@assets/settings/ic-privacy.svg';
+import IcSupport from '@assets/settings/ic-support.svg';
+import IcTelegram from '@assets/settings/ic-tg.svg';
+import IcRateApp from '@assets/settings/ic-rate-app.svg';
+import IcNoConnection from '@assets/settings/ic-no-connection.svg';
+import IcTheme from '@assets/settings/ic-theme.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -300,7 +301,7 @@ export const SettingsFragment = fragment(() => {
                             height: 48
                         }}
                         resizeMode={'contain'}
-                        source={require('@assets/ic-splash.png')}
+                        source={theme.style === ThemeStyle.Dark ? require('@assets/ic-splash-dark.png') : require('@assets/ic-splash.png')}
                     />
                     <Text
                         style={{

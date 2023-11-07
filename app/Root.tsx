@@ -9,7 +9,7 @@ import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 import { LogBox } from 'react-native';
 
-const PERSISTANCE_VERSION = '10';
+const PERSISTANCE_VERSION = '11';
 
 LogBox.ignoreAllLogs();
 

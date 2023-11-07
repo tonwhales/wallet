@@ -7,7 +7,7 @@ import { log } from '../../../utils/log';
 import { parseBody } from '../../transactions/parseWalletTransaction';
 import { resolveOperation } from '../../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
-import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, TxBody } from '../../types';
+import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, StoredTxBody, TxBody } from '../../types';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -96,6 +96,11 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
         body = parseBody(inMessageBody!);
     }
 
+    let storedBody: StoredTxBody | null = null;
+    if (body) {
+        storedBody = body?.type === 'comment' ? { type: 'comment', comment: body.comment } : { type: 'payload' };
+    }
+
     //
     // Resolve amount
     //
@@ -166,7 +171,7 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
         },
         parsed: {
             seqno,
-            body,
+            body: storedBody,
             status,
             dest,
             amount: amount.toString(10),

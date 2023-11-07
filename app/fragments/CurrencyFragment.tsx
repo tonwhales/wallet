@@ -1,22 +1,22 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback } from "react";
+import React, { useCallback, useLayoutEffect } from "react";
 import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
-import { CloseButton } from "../components/CloseButton";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import CheckMark from '../../assets/ic_check_mark.svg';
-import { confirmAlertWithTitle } from "../utils/confirmAlert";
-import { useTheme } from '../engine/hooks';
-import { usePrimaryCurrency } from '../engine/hooks';
+import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
+import Animated from "react-native-reanimated";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { usePrimaryCurrency, useTheme } from "../engine/hooks";
 import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
+
+import IcCheck from "@assets/ic-check.svg";
 
 export const CurrencyFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [currency, setPrimaryCurrency] = usePrimaryCurrency();
+    let [currency, setPrimaryCurrency] = usePrimaryCurrency();
     const theme = useTheme();
 
     const onCurrency = useCallback(
@@ -24,10 +24,7 @@ export const CurrencyFragment = fragment(() => {
             if (currency === code) {
                 return;
             }
-            const c = await confirmAlertWithTitle(t('confirm.changeCurrency', { currency: code }));
-            if (c) {
-                setPrimaryCurrency(code);
-            }
+            setPrimaryCurrency(code)
         },
         [currency],
     );
@@ -37,83 +34,79 @@ export const CurrencyFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('settings.primaryCurrency')} />
-            {Platform.OS === 'ios' && (
+            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
+            <ScreenHeader
+                title={t('settings.primaryCurrency')}
+                onClosePressed={navigation.goBack}
+            />
+            <ScrollView
+                style={{ marginTop: 16 }}
+                contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
+            >
                 <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17,
-                        color: theme.textPrimary
-                    }, { textAlign: 'center' }]}>
-                        {t('settings.primaryCurrency')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
+                    backgroundColor: theme.background,
                     borderRadius: 14,
-                    paddingHorizontal: 16
+                    justifyContent: 'center',
                 }}>
-                    <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.surfaceSecondary,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        paddingVertical: 16,
-                    }}>
-                        {Object.keys(PrimaryCurrency).map((key, index) => {
-                            return (
-                                <View key={`${key}-${index}`}>
-                                    <Pressable
-                                        style={({ pressed }) => {
-                                            return {
-                                                opacity: pressed ? 0.3 : 1
-                                            }
-                                        }}
-                                        onPress={() => onCurrency(PrimaryCurrency[key])}
-                                    >
-                                        <View style={{ flexDirection: 'row', height: 24, justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <Text style={{
-                                                fontWeight: '600',
-                                                marginLeft: 17,
-                                                fontSize: 17
-                                            }}>
-                                                {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
-                                            </Text>
-                                            {PrimaryCurrency[key] === currency &&
-                                                <View style={{
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    height: 24, width: 24, borderRadius: 4,
-                                                    backgroundColor: theme.accent,
-                                                    marginRight: 16
-                                                }}>
-                                                    <CheckMark color={theme.accent} />
-                                                </View>
-                                            }
-                                        </View>
-                                    </Pressable>
-                                    {index !== Object.keys(PrimaryCurrency).length - 1 && (<View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 }} />)}
-                                </View>
-                            )
-                        })}
-                    </View>
+                    {Object.keys(PrimaryCurrency).map((key, index) => {
+                        const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+                        return (
+                            <Pressable
+                                key={`${key}-${index}`}
+                                onPress={() => onCurrency(PrimaryCurrency[key])}
+                                onPressIn={onPressIn}
+                                onPressOut={onPressOut}
+                            >
+                                <Animated.View
+                                    style={[
+                                        {
+                                            flexDirection: 'row',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: 20,
+                                            borderRadius: 20,
+                                            backgroundColor: theme.border,
+                                            marginBottom: 16, marginHorizontal: 16
+                                        },
+                                        animatedStyle
+                                    ]}>
+                                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                        <Text style={{
+                                            fontWeight: '600',
+                                            fontSize: 17,
+                                            color: theme.textPrimary
+                                        }}>
+                                            {`${PrimaryCurrency[key]} (${CurrencySymbols[PrimaryCurrency[key]].symbol})`}
+                                        </Text>
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontWeight: '400',
+                                            marginLeft: 12, fontSize: 15,
+                                            textAlign: 'left'
+                                        }}>
+                                            {`${CurrencySymbols[PrimaryCurrency[key]].label}`}
+                                        </Text>
+                                    </View>
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 24, width: 24,
+                                        backgroundColor: PrimaryCurrency[key] === currency ? theme.accent : theme.divider,
+                                        borderRadius: 12
+                                    }}>
+                                        {PrimaryCurrency[key] === currency && (
+                                            <IcCheck
+                                                color={theme.white}
+                                                height={16} width={16}
+                                                style={{ height: 16, width: 16 }}
+                                            />
+                                        )}
+                                    </View>
+                                </Animated.View>
+                            </Pressable>
+                        )
+                    })}
                 </View>
             </ScrollView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </View>
     );
 });

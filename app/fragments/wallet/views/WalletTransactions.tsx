@@ -35,6 +35,38 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
     )
 });
 
+type TransactionListItemProps = {
+    address: Address,
+    theme: ThemeType,
+    onPress: (tx: TransactionDescription) => void,
+    fontScaleNormal: boolean,
+}
+const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
+    return (
+        <View style={[
+            {
+                marginHorizontal: 16,
+                overflow: 'hidden',
+            },
+            index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
+            section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
+        ]}>
+            <TransactionView
+                own={props.address}
+                tx={item}
+                separator={section.data[index + 1] !== undefined}
+                onPress={props.onPress}
+                theme={theme}
+                fontScaleNormal={props.fontScaleNormal}
+            />
+        </View>
+    );
+}, (prevProps, nextProps) => {
+    return prevProps.item.id === nextProps.item.id 
+            && prevProps.fontScaleNormal === nextProps.fontScaleNormal 
+            && prevProps.theme === nextProps.theme;
+});
+
 export const WalletTransactions = memo((props: {
     txs: TransactionDescription[],
     hasNext: boolean,
@@ -84,28 +116,6 @@ export const WalletTransactions = memo((props: {
         );
     }, [props.ledger, props.navigation]);
 
-    const renderItem = useCallback(({ item, section, index }: SectionListRenderItemInfo<TransactionDescription, { title: string }>,) => {
-        return (
-            <View style={[
-                {
-                    marginHorizontal: 16,
-                    overflow: 'hidden',
-                },
-                index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
-                section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
-            ]}>
-                <TransactionView
-                    own={props.address}
-                    tx={item}
-                    separator={section.data[index + 1] !== undefined}
-                    onPress={() => navigateToPreview(item)}
-                    theme={theme}
-                    fontScaleNormal={fontScaleNormal}
-                />
-            </View>
-        );
-    }, [props.address.hash, theme, fontScaleNormal]);
-
     const renderSectionHeader = useCallback((section: { section: SectionListData<TransactionDescription, { title: string }> }) => (
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
@@ -145,7 +155,7 @@ export const WalletTransactions = memo((props: {
                     <LoadingIndicator simple />
                 </View>
             ) : null}
-            renderItem={renderItem}
+            renderItem={(item) => <TransactionListItem {...item} address={props.address} theme={theme} onPress={navigateToPreview} fontScaleNormal={fontScaleNormal} />}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.id}

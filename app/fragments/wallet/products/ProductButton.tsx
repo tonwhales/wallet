@@ -31,7 +31,6 @@ export type ProductButtonProps = {
 
 export function ProductButton(props: ProductButtonProps) {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
     const Icon = props.icon;
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;

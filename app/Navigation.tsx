@@ -79,6 +79,8 @@ import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
 import { AlertFragment } from './fragments/utils/AlertFragment';
 import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
 import { memo, useEffect, useMemo, useState } from 'react';
+import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
+import { AvatarPickerFragment } from './fragments/wallet/AvatarPickerFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -228,6 +230,8 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
+    modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
+    modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea),

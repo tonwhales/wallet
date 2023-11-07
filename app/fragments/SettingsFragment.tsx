@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
+import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -38,7 +39,7 @@ export const SettingsFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
     const currentWalletIndex = getAppState().selected;
     const seleted = useSelectedAccount();
-    // TODO: const walletSettings = useWalletSettings(seleted!.address);
+    const [walletSettings,] = useWalletSettings(seleted!.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
@@ -119,8 +120,7 @@ export const SettingsFragment = fragment(() => {
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {/* TODO {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`} */}
-                        {`${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
                     </Text>
                     {syncState === 'updating' && (
                         <ReAnimatedCircularProgress
@@ -309,7 +309,7 @@ export const SettingsFragment = fragment(() => {
                             alignSelf: 'center',
                         }}
                     >
-                        v{Application.nativeApplicationVersion} ({network.isTestnet ? Application.nativeBuildVersion : ''})
+                        v{Application.nativeApplicationVersion} {network.isTestnet ? `(${Application.nativeBuildVersion})` : ''}
                     </Text>
                 </Pressable>
             </ScrollView>

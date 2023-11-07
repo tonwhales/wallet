@@ -58,6 +58,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         wallets: 'Wallets',
         attention: 'Attention',
         recipientAddress: 'Recipient address',
+        walletName: 'Wallet name',
+        select: 'Select'
     },
     syncStatus: {
         connecting: 'Connecting',

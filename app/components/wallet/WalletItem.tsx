@@ -8,6 +8,7 @@ import { Address } from "@ton/core";
 import { useAppState, useNetwork, useSetAppState, useTheme } from "../../engine/hooks";
 
 import IcCheck from "@assets/ic-check.svg";
+import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 
 export const WalletItem = memo((
     {
@@ -25,7 +26,7 @@ export const WalletItem = memo((
     const navigation = useTypedNavigation();
     const appState = useAppState();
     const updateAppState = useSetAppState();
-    // TODO: const walletSettings = useWalletSettings(address);
+    const [walletSettings,] = useWalletSettings(address);
 
     const onSelectAccount = useCallback(() => {
         if (selected) return;
@@ -39,8 +40,7 @@ export const WalletItem = memo((
         updateAppState({ ...appState, selected: index }, network.isTestnet);
 
         navigation.goBack();
-    }, [selected, address, network]);
-    // TODO: }, [walletSettings, selected, address]);
+    }, [walletSettings, selected, address, network]);
 
     return (
         <Pressable
@@ -67,7 +67,7 @@ export const WalletItem = memo((
                     borderWith={0}
                     id={address.toString({ testOnly: network.isTestnet })}
                     size={46}
-                    // hash={walletSettings?.avatar}
+                    hash={walletSettings?.avatar}
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>
@@ -81,9 +81,7 @@ export const WalletItem = memo((
                     }}
                     numberOfLines={1}
                 >
-                    {`${t('common.wallet')} ${index + 1}`}
-                    {/* TODO */}
-                    {/* {walletSettings?.name || `${t('common.wallet')} ${index + 1}`} */}
+                    {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
                 </Text>
                 <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
                     {ellipsiseAddress(address.toString({ testOnly: network.isTestnet }))}

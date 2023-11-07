@@ -187,7 +187,7 @@ export const TransactionView = memo((props: {
             default:
                 break;
         }
-    }, [addressLink, explorerTxLink, onShare]);
+    }, [addressLink, explorerTxLink, onShare, onMarkAddressSpam]);
 
     return (
         <ContextMenu

@@ -8,7 +8,7 @@ import './utils/CachedLinking';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 
-const PERSISTANCE_VERSION = '11';
+const PERSISTANCE_VERSION = '12';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);
@@ -24,7 +24,7 @@ export const Root = React.memo(() => {
             entering={FadeIn}
         >
             <RebootContext.Provider value={reboot}>
-                <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION }} client={queryClient}>
+                <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }} client={queryClient}>
                     <RecoilRoot>
                         <Navigation />
                     </RecoilRoot>

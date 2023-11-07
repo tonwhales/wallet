@@ -63,6 +63,8 @@ export type StoredOperationItem = {
     amount: string;
 };
 
+export type StoredTxBody = { type: 'comment', comment: string } | { type: 'payload' };
+
 export type StoredTransaction = {
     address: string;
     lt: string;
@@ -84,7 +86,7 @@ export type StoredTransaction = {
     outMessages: StoredMessage[];
     parsed: {
         seqno: number | null;
-        body: TxBody | null;
+        body: StoredTxBody | null;
         status: 'success' | 'failed' | 'pending';
         dest: string | null;
         kind: 'out' | 'in';

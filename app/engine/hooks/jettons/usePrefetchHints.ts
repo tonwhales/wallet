@@ -7,11 +7,11 @@ import { getLastBlock } from '../../accountWatcher';
 import { useClient4 } from '../network/useClient4';
 import { JettonMasterState, fetchJettonMasterContent } from '../../metadata/fetchJettonMasterContent';
 import { Address } from '@ton/core';
-import { queryClient } from '../../clients';
 import { StoredContractMetadata, StoredJettonWallet } from '../../metadata/StoredMetadata';
 import { log } from '../../../utils/log';
 import { tryFetchJettonWallet } from '../../metadata/introspections/tryFetchJettonWallet';
 import { TonClient4 } from '@ton/ton';
+import { QueryClient } from '@tanstack/react-query';
 
 export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, addressString: string) {
     return async (): Promise<StoredContractMetadata> => {
@@ -75,7 +75,7 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
     }
 }
 
-export function usePrefetchHints(address?: string) {
+export function usePrefetchHints(queryClient: QueryClient, address?: string) {
     const hints = useHints(address);
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);

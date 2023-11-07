@@ -64,7 +64,9 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
 }, (prevProps, nextProps) => {
     return prevProps.item.id === nextProps.item.id 
             && prevProps.fontScaleNormal === nextProps.fontScaleNormal 
-            && prevProps.theme === nextProps.theme;
+            && prevProps.theme === nextProps.theme 
+            && nextProps.index === prevProps.index
+            && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
 });
 
 export const WalletTransactions = memo((props: {

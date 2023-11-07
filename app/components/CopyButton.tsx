@@ -1,12 +1,12 @@
-import React, { useCallback } from "react";
+import React, { memo, useCallback } from "react";
 import { Pressable, StyleProp, View, ViewStyle, Text, Platform, TextStyle } from "react-native";
+import CopyIcon from '@assets/ic_copy_address.svg';
+import CopyIconSuccess from '@assets/ic_copy_address_success.svg';
 import { t } from "../i18n/t";
 import { copyText } from "../utils/copyText";
 import Animated, { Easing, interpolate, useAnimatedStyle, useSharedValue, withDelay, withTiming } from "react-native-reanimated";
-import { useTheme } from "../engine/hooks/theme/useTheme";
-
-import CopyIcon from '../../assets/ic_copy_address.svg';
-import CopyIconSuccess from '../../assets/ic_copy_address_success.svg';
+import { ToastDuration, useToaster } from "./toast/ToastProvider";
+import { useTheme } from "../engine/hooks";
 
 const size = {
     height: 56,
@@ -15,7 +15,7 @@ const size = {
     pad: Platform.OS == 'ios' ? 0 : -1
 }
 
-export const CopyButton = React.memo(({
+export const CopyButton = memo(({
     body,
     style,
     disabled,
@@ -28,12 +28,22 @@ export const CopyButton = React.memo(({
     showIcon?: boolean,
     textStyle?: StyleProp<TextStyle>
 }) => {
+    const toaster = useToaster();
     const theme = useTheme();
 
     const doneShared = useSharedValue(0);
 
     const onCopy = useCallback(() => {
         copyText(body);
+
+        toaster.show(
+            {
+                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                type: 'default',
+                duration: ToastDuration.SHORT
+            }
+        );
+
         doneShared.value = withTiming(
             1,
             { duration: 350, easing: Easing.bezier(0.25, 0.1, 0.25, 1) },
@@ -43,7 +53,7 @@ export const CopyButton = React.memo(({
                 }
             }
         );
-    }, [body]);
+    }, [body, toaster]);
 
     const doneStyle = useAnimatedStyle(() => {
         return { opacity: doneShared.value };
@@ -59,15 +69,16 @@ export const CopyButton = React.memo(({
             hitSlop={size.hitSlop}
             style={(p) => ([
                 {
+                    flex: 1,
+                    borderWidth: 1,
                     borderRadius: 16,
                     backgroundColor: theme.surfaceSecondary,
-                    overflow: 'hidden',
+                    overflow: 'hidden'
                 },
                 p.pressed && {
                     opacity: 0.55
                 },
-                style
-            ])}
+                style])}
             onPress={onCopy}
         >
             <View style={{
@@ -80,7 +91,7 @@ export const CopyButton = React.memo(({
                     {
                         position: 'absolute',
                         left: 0, right: 0, bottom: 0, top: 0,
-                        flexGrow: 1,
+                        flexGrow: 1
                     },
                     planeStyle
                 ]}>

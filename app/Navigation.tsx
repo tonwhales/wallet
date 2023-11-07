@@ -183,7 +183,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
     lockedModalScreen('Holders', HoldersAppFragment, safeArea),
-    modalScreen('Assets', AssetsFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
@@ -207,6 +206,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
+    modalScreen('Assets', AssetsFragment, safeArea),
 
     // Logout
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),

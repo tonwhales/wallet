@@ -175,7 +175,7 @@ export const HoldersCardItem = memo((props: {
                                     {!!props.account && (
                                         <Text style={{ flexShrink: 1 }}>
                                             {
-                                                t(`products.holders.card.type.${props.account.card.kind}`)
+                                                t(`products.holders.card.type.${props.account.card.kind as 'virtual' | 'physical'}`)
                                                 + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`
                                             }
                                         </Text>
@@ -249,7 +249,7 @@ export const HoldersCardItem = memo((props: {
                         <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
                             {!!props.account && (
                                 <Text style={{ flexShrink: 1 }}>
-                                    {t(`products.holders.card.type.${props.account.card.kind}`) + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
+                                    {t(`products.holders.card.type.${props.account.card.kind as 'virtual' | 'physical'}`) + `${props.account?.card.personalizationCode === 'minimal-2' ? ' PRO' : ''}`}
                                 </Text>
                             )}
                             {!props.account && (

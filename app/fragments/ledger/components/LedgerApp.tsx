@@ -104,7 +104,7 @@ export const LedgerApp = memo((props: {
                                     fontWeight: '500',
                                     fontFamily: undefined
                                 }}
-                                lockActions
+                                disableContextMenu
                             />
                         </View>
                         <View

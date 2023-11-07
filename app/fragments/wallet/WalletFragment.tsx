@@ -25,14 +25,9 @@ import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useSta
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { Address } from '@ton/core';
+import { SelectedAccount } from '../../engine/types';
 
-function WalletComponent(props: { wallet: AccountLite | null, selectedAcc:  {
-    addressString: string;
-    address: Address;
-    publicKey: Buffer;
-    secretKeyEnc: Buffer;
-    utilityKey: Buffer;
-}}) {
+function WalletComponent(props: { wallet: AccountLite | null, selectedAcc:  SelectedAccount}) {
     const network = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();

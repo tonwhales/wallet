@@ -10,16 +10,15 @@ import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
 import { HoldersHiddenCards } from "./HoldersHiddenCards"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
-import { getCurrentAddress } from "../../storage/appState"
+import { SelectedAccount } from "../../engine/types"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 
-export const ProductsComponent = memo(() => {
+export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const acc = getCurrentAddress();
-    const cards = useHoldersCards(acc.address).data ?? [];
+    const cards = useHoldersCards(selected.address).data ?? [];
     const totalStaked = useStaking().total;
 
     // Resolve accounts

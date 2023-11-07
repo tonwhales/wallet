@@ -1,27 +1,50 @@
 import * as React from 'react';
-import { View, Text, Platform, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
-import { BlurView } from 'expo-blur';
 import { t } from '../i18n/t';
-import { useTheme } from '../engine/hooks';
-import { useNetwork } from '../engine/hooks';
+import { useTrackScreen } from '../analytics/mixpanel';
+import { openWithInApp } from '../utils/openWithInApp';
+import { useCallback, useMemo } from 'react';
+import { useActionSheet } from '@expo/react-native-action-sheet';
+import * as StoreReview from 'expo-store-review';
+import { setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
+import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
+import { getAppState } from '../storage/appState';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme } from '../engine/hooks';
 import * as Application from 'expo-application';
-import { useSelectedAccount } from '../engine/hooks';
-import { useOldWalletsBalances } from '../engine/hooks';
+import { ThemeStyle } from '../engine/state/theme';
+
+import IcSecurity from '@assets/settings/ic-security.svg';
+import IcSpam from '@assets/settings/ic-spam.svg';
+import IcContacts from '@assets/settings/ic-contacts.svg';
+import IcCurrency from '@assets/settings/ic-currency.svg';
+import IcTerms from '@assets/settings/ic-terms.svg';
+import IcPrivacy from '@assets/settings/ic-privacy.svg';
+import IcSupport from '@assets/settings/ic-support.svg';
+import IcTelegram from '@assets/settings/ic-tg.svg';
+import IcRateApp from '@assets/settings/ic-rate-app.svg';
+import IcNoConnection from '@assets/settings/ic-no-connection.svg';
+import IcTheme from '@assets/settings/ic-theme.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const network = useNetwork();
     const safeArea = useSafeAreaInsets();
+    const { showActionSheetWithOptions } = useActionSheet();
+    const currentWalletIndex = getAppState().selected;
+    const seleted = useSelectedAccount();
+    // TODO: const walletSettings = useWalletSettings(seleted!.address);
     const navigation = useTypedNavigation();
-    const account = useSelectedAccount();
     const oldWalletsBalance = useOldWalletsBalances().total;
+    const syncState = useSyncState();
+    const [, currency] = usePrice();
 
-    const onVersionTap = React.useMemo(() => {
+    const onVersionTap = useMemo(() => {
         let count = 0;
         let timer: any | null = null;
         return () => {
@@ -41,61 +64,87 @@ export const SettingsFragment = fragment(() => {
         };
     }, []);
 
+    const onRateApp = useCallback(async () => {
+        if (await StoreReview.hasAction()) {
+            StoreReview.requestReview();
+        }
+    }, []);
+
+    const onSupport = useCallback(() => {
+        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            title: t('settings.support.title'),
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp('https://t.me/WhalesSupportBot');
+                    break;
+                case 2:
+                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                    break;
+                default:
+                    break;
+            }
+        });
+    }, []);
+
+    useTrackScreen('More', network.isTestnet);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
+
     return (
         <View style={{ flexGrow: 1 }}>
-            {Platform.OS === 'ios' && (
-                <BlurView
-                    style={{
-                        height: safeArea.top + 44,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                    tint={theme.style}
-                >
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={[
-                            { fontSize: 22, color: theme.textPrimary, fontWeight: '700' },
-                        ]}>
-                            {t('settings.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: theme.black,
-                        opacity: 0.08
-                    }} />
-                </BlurView>
-            )}
-            {Platform.OS === 'android' && (
+            <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
                 <View style={{
-                    height: safeArea.top + 44,
-                    paddingTop: safeArea.top,
-                    justifyContent: 'center',
-                    alignItems: 'center',
+                    flexDirection: 'row',
+                    backgroundColor: theme.surfaceSecondary,
+                    borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                    alignItems: 'center'
                 }}>
-                    <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                        <Text style={[
-                            { fontSize: 22, color: theme.textPrimary, fontWeight: '700' },
-                        ]}>
-                            {t('settings.title')}
-                        </Text>
-                    </View>
-                    <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                    <View style={{
-                        position: 'absolute',
-                        bottom: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: theme.black,
-                        opacity: 0.08
-                    }} />
+                    <Text
+                        style={{
+                            fontWeight: '500',
+                            fontSize: 17, lineHeight: 24,
+                            color: theme.textPrimary, flexShrink: 1,
+                            marginRight: 8
+                        }}
+                        ellipsizeMode='tail'
+                        numberOfLines={1}
+                    >
+                        {/* TODO {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`} */}
+                        {`${t('common.wallet')} ${currentWalletIndex + 1}`}
+                    </Text>
+                    {syncState === 'updating' && (
+                        <ReAnimatedCircularProgress
+                            size={14}
+                            color={theme.textThird}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
+                    )}
+                    {syncState === 'connecting' && (
+                        <IcNoConnection
+                            height={16}
+                            width={16}
+                            style={{ height: 16, width: 16 }}
+                        />
+                    )}
+                    {syncState === 'online' && (
+                        <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
+                            <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
+                        </View>
+                    )}
                 </View>
-            )}
+            </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
@@ -103,143 +152,167 @@ export const SettingsFragment = fragment(() => {
                     backgroundColor: theme.background,
                     paddingHorizontal: 16,
                     flexBasis: 0,
-                    marginBottom: 52 + safeArea.bottom
                 }}
             >
                 <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.surfaceSecondary,
-                    borderRadius: 14,
+                    marginBottom: 16, marginTop: 16,
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_backup.png')} title={t('settings.backupKeys')} onPress={() => navigation.navigate('WalletBackup', { back: true })} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
+                    <ItemButton
+                        leftIconComponent={<IcSecurity width={24} height={24} />}
+                        title={t('security.title')}
+                        onPress={() => navigation.navigate('Security')}
+                    />
                     {oldWalletsBalance > 0n && (
-                        <>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton leftIcon={require('../../assets/ic_wallet_2.png')} title={t('settings.migrateOldWallets')} onPress={() => navigation.navigate('Migration')} />
-                            </View>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                        </>
+                        <ItemButton
+                            leftIcon={require('@assets/ic_wallet_2.png')}
+                            title={t('settings.migrateOldWallets')}
+                            onPress={() => navigation.navigate('Migration')}
+                        />
                     )}
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_accounts.png')} title={t('products.accounts')} onPress={() => navigation.navigate('Accounts')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_filter.png')} title={t('settings.spamFilter')} onPress={() => navigation.navigate('SpamFilter')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_contacts.png')} title={t('contacts.title')} onPress={() => navigation.navigate('Contacts')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_security.png')} title={t('security.title')} onPress={() => navigation.navigate('Security')} />
-                    </View>
+                    <ItemButton
+                        leftIconComponent={<IcSpam width={24} height={24} />}
+                        title={t('settings.spamFilter')}
+                        onPress={() => navigation.navigate('SpamFilter')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcContacts width={24} height={24} />}
+                        title={t('contacts.title')}
+                        onPress={() => navigation.navigate('Contacts')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcCurrency width={24} height={24} />}
+                        title={t('settings.primaryCurrency')}
+                        onPress={() => navigation.navigate('Currency')}
+                        hint={currency}
+                    />
                 </View>
-
-                {!isTestnet && (
-                    <View style={{
-                        marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.surfaceSecondary,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../assets/ic_ton_symbol.png')} title={t('settings.primaryCurrency')} onPress={() => navigation.navigate('Currency')} />
-                        </View>
-                    </View>
-                )}
                 <View style={{
-                    marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.surfaceSecondary,
-                    borderRadius: 14,
+                    marginBottom: 16,
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
                     justifyContent: 'center',
-                    alignItems: 'center',
+                    alignItems: 'center'
                 }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_import.png')} title={t('auth.name')} onPress={() => navigation.navigate('Connections')} />
-                    </View>
+                    <ItemButton
+                        leftIconComponent={<IcTheme width={24} height={24} />}
+                        title={t('settings.theme')}
+                        onPress={() => navigation.navigate('Theme')}
+                        hint={t(`theme.${theme.style}`)}
+                    />
                 </View>
 
                 <View style={{
-                    marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.surfaceSecondary,
-                    borderRadius: 14,
+                    marginBottom: 16,
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
                     justifyContent: 'center',
-                    alignItems: 'center',
+                    alignItems: 'center'
                 }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_terms.png')} title={t('settings.termsOfService')} onPress={() => navigation.navigate('Terms')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_privacy.png')} title={t('settings.privacyPolicy')} onPress={() => navigation.navigate('Privacy')} />
-                    </View>
+                    <ItemButton
+                        leftIconComponent={<IcSupport width={24} height={24} />}
+                        title={t('settings.support.title')}
+                        onPress={onSupport}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcTelegram width={24} height={24} />}
+                        title={t('settings.telegram')}
+                        onPress={() => openWithInApp('https://t.me/tonhub')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcRateApp width={24} height={24} />}
+                        title={t('settings.rateApp')}
+                        onPress={onRateApp}
+                    />
+                </View>
+
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<IcTerms width={24} height={24} />}
+                        title={t('settings.termsOfService')}
+                        onPress={() => navigation.navigate('Terms')}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcPrivacy width={24} height={24} />}
+                        title={t('settings.privacyPolicy')}
+                        onPress={() => navigation.navigate('Privacy')}
+                    />
                 </View>
 
                 {__DEV__ && (
                     <View style={{
-                        marginBottom: 16, marginTop: 16,
-                        backgroundColor: theme.surfaceSecondary,
-                        borderRadius: 14,
+                        marginBottom: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 20,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title='Dev Tools' onPress={() => navigation.navigate('DeveloperTools')} />
-                        </View>
+                        <ItemButton
+                            title={'Dev Tools'}
+                            onPress={() => navigation.navigate('DeveloperTools')}
+                        />
                     </View>
                 )}
                 <View style={{
-                    marginBottom: 4, marginTop: 8,
-                    backgroundColor: theme.surfaceSecondary,
-                    borderRadius: 14,
+                    marginBottom: 4,
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_sign_out.png')} dangerZone title={t('common.logout')} onPress={() => navigation.navigate('Logout')} />
-                    </View>
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../assets/ic_delete.png')} dangerZone title={t('deleteAccount.title')} onPress={() => navigation.navigate('DeleteAccount')} />
-                    </View>
+                    <ItemButton
+                        dangerZone
+                        title={t('common.logout')}
+                        onPress={() => navigation.navigate('Logout')}
+                    />
+                    <ItemButton
+                        dangerZone
+                        title={t('settings.deleteAccount')}
+                        onPress={() => navigation.navigate('DeleteAccount')}
+                    />
                 </View>
-                <View style={{ height: 52 + 8 + safeArea.bottom }} />
+                <Pressable
+                    onPress={onVersionTap}
+                    style={{
+                        bottom: 14,
+                        flexShrink: 1,
+                        alignSelf: 'center',
+                        borderRadius: 20,
+                        overflow: 'hidden',
+                        marginTop: 36, marginBottom: 32,
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                    }}
+                >
+                    <Image
+                        style={{
+                            height: 48
+                        }}
+                        resizeMode={'contain'}
+                        source={theme.style === ThemeStyle.Dark ? require('@assets/ic-splash-dark.png') : require('@assets/ic-splash.png')}
+                    />
+                    <Text
+                        style={{
+                            color: theme.textSecondary,
+                            fontSize: 13,
+                            lineHeight: 18,
+                            fontWeight: '400',
+                            alignSelf: 'center',
+                        }}
+                    >
+                        v{Application.nativeApplicationVersion} ({network.isTestnet ? Application.nativeBuildVersion : ''})
+                    </Text>
+                </Pressable>
             </ScrollView>
-            <Pressable
-                onPress={onVersionTap}
-                style={{
-                    position: 'absolute',
-                    bottom: 52 + 14 + safeArea.bottom,
-                    flexShrink: 1,
-                    alignSelf: 'center',
-                    borderRadius: 20,
-                    overflow: 'hidden',
-                    paddingHorizontal: 6,
-                    paddingVertical: 2,
-                }}
-            >
-                <View style={{
-                    position: 'absolute',
-                    top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: theme.background,
-                    opacity: 0.8
-                }} />
-
-                <Text style={{
-                    color: theme.textSecondary,
-                    alignSelf: 'center',
-                }}>
-                    Tonhub v{Application.nativeApplicationVersion} ({Application.nativeBuildVersion})
-                </Text>
-            </Pressable>
         </View>
     );
 }, true);

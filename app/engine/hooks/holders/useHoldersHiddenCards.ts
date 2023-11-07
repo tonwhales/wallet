@@ -16,7 +16,7 @@ export function useHoldersHiddenCards(address: string | Address): [string[], (ca
     };
 
     return [
-        hiddenState.filter((card) => !cards?.find((c) => c.id === card)),
+        hiddenState.filter((card) => cards?.find((c) => c.id === card)),
         markCard
     ];
 }

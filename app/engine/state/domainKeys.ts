@@ -32,6 +32,11 @@ export function getDomainKeysState() {
     return mapStringToDomainKeysState(stored);
 }
 
+export function getDomainKey(domain: string) {
+    const state = getDomainKeysState();
+    return state[domain];
+}
+
 function storeDomainKeys(state: DomainKeysState) {
     const mapped = Object.keys(state).reduce((acc, key) => {
         if (state[key]) {

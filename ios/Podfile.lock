@@ -482,6 +482,8 @@ PODS:
     - RCTTypeSafety
     - React-Core
     - ReactCommon/turbomodule/core
+  - react-native-segmented-control (2.4.2):
+    - React-Core
   - react-native-skia (0.1.196):
     - React
     - React-callinvoker
@@ -748,6 +750,7 @@ DEPENDENCIES:
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
+  - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
   - react-native-webview (from `../node_modules/react-native-webview`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
@@ -919,6 +922,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-mmkv"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
+  react-native-segmented-control:
+    :path: "../node_modules/@react-native-segmented-control/segmented-control"
   react-native-skia:
     :path: "../node_modules/@shopify/react-native-skia"
   react-native-webview:
@@ -1058,6 +1063,7 @@ SPEC CHECKSUMS:
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
+  react-native-segmented-control: 2221962f5073e2e809aa3691e8e410fc10b60578
   react-native-skia: 73b15a92d31e322fd25e5bb7feff226c0a25215e
   react-native-webview: 8fc09f66a1a5b16bbe37c3878fda27d5982bb776
   React-NativeModulesApple: 02e35e9a51e10c6422f04f5e4076a7c02243fff2

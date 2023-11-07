@@ -1,5 +1,5 @@
-import axios from "axios";
 import { Address } from "@ton/core";
+import axios from "axios";
 import * as t from 'io-ts';
 
 export type CommentInput = {
@@ -52,6 +52,62 @@ const reportCodec = t.type({
         comment: t.union([t.null, commentCodec])
     })
 });
+
+export const imagePreviewCodec = t.type({
+    blurhash: t.string,
+    preview256: t.string
+});
+
+export const appDataCodec = t.type({
+    title: t.string,
+    url: t.string,
+    color: t.union([t.string, t.null]),
+    description: t.union([t.string, t.null]),
+    image: t.union([imagePreviewCodec, t.null]),
+    originalImage: t.union([t.string, t.null]),
+    extension: t.union([t.string, t.null])
+});
+
+export const reportsSummaryCodec = t.type({
+    spam: t.number,
+    scam: t.number,
+    bug: t.number,
+    offense: t.number
+});
+
+export const extensionStatsCodec = t.union([
+    t.type({
+        url: t.string,
+        metadata: t.union([appDataCodec, t.null]),
+        verified: t.boolean,
+        reportsSummary: reportsSummaryCodec,
+        rating: t.number,
+        reviewsCount: t.number
+    }),
+    t.type({
+        url: t.string,
+        metadata: t.union([appDataCodec, t.null]),
+        reportsSummary: reportsSummaryCodec,
+        rating: t.number,
+        reviewsCount: t.number
+    })
+]);
+
+export const extensionResCodec = t.type({
+    extension: extensionStatsCodec
+});
+
+export type ExtensionStats = t.TypeOf<typeof extensionStatsCodec>;
+
+export async function fetchExtensionStats(url: string) {
+    const res = await axios.get(`https://connect.tonhubapi.com/apps/catalog`, { params: { url: encodeURIComponent(url) } });
+
+    if (!extensionResCodec.is(res.data)) {
+        throw Error('Error fetching extension');
+    }
+
+    return res.data.extension;
+}
 
 export async function fetchExtensionReview(address: Address, url: string, isTestnet: boolean) {
     let res = await axios.get('https://connect.tonhubapi.com/apps/reviews' + `?url=${encodeURIComponent(url)}&address=${address.toString({ testOnly: isTestnet, urlSafe: true })}`, { timeout: 5000 });

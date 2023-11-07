@@ -23,6 +23,7 @@
     "@react-native-clipboard/clipboard": "^1.8.5",
     "@react-native-community/hooks": "^2.8.1",
     "@react-native-picker/picker": "2.4.10",
+    "@react-native-segmented-control/segmented-control": "^2.4.2",
     "@react-navigation/bottom-tabs": "^6.5.11",
     "@react-navigation/native": "6.1.6",
     "@react-navigation/native-stack": "^6.9.12",

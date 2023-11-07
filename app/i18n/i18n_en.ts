@@ -200,6 +200,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         completed: 'This authentication request already completed',
         authorized: 'Authorization request approved',
         authorizedDescription: 'Now you can get back the app.',
+        noExtensions: 'You don\'t have any extensions installed yet',
         noApps: 'No connected apps',
         name: 'Connected apps',
         yourWallet: 'Your wallet',

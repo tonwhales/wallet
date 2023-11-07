@@ -24,10 +24,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
-import { Address } from '@ton/core';
+import { Address, toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
 
-function WalletComponent(props: { wallet: AccountLite | null, selectedAcc:  SelectedAccount}) {
+function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
@@ -201,7 +201,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc:  Sele
                                 </CopilotStep>
                                 <PriceComponent
                                     showSign
-                                    amount={1n}
+                                    amount={toNano(1)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
                                     textStyle={{ color: theme.textThird }}
                                 />

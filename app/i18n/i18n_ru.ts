@@ -53,6 +53,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         errorOccurred: 'Произошла ошибка: {{error}}',
         airdrop: 'Раздача',
         ok: 'Ок',
+        totalBalance: 'Общий баланс',
+        done: 'Готово',
+        assets: 'Активы'
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -60,8 +63,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         online: 'Подключено'
     },
     home: {
-        wallet: 'Кошелек',
-        settings: 'Настройки'
+        home: 'Главная',
+        history: 'История',
+        browser: 'Браузер',
+        more: 'Еще',
     },
     settings: {
         title: 'Настройки',
@@ -230,23 +235,24 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         failedToReadFromImage: 'Не удалось прочитать QR-код из изображения',
     },
     products: {
+        addNew: 'Добавить новый продукт',
         tonConnect: {
             errors: {
                 connection: 'Ошибка соединения',
             }
         },
-        accounts: 'Счета',
+        accounts: 'Жетоны',
         services: 'Расширения',
         oldWallets: {
             title: 'Старые кошельки',
             subtitle: 'Нажмите, чтобы перенести кошельки'
         },
         transactionRequest: {
-            title: 'Запрос транзакции',
+            title: 'Запрос на транзакцию',
             subtitle: 'Нажмите что бы посмотреть запрос'
         },
         signatureRequest: {
-            title: 'Запрос подписи',
+            title: 'Запрос на подпись',
             subtitle: 'Нажмите что бы посмотреть запрос'
         },
         staking: {
@@ -260,6 +266,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 devPromo: 'Приумножайте тестовые монеты'
             },
             pools: {
+                title: 'Стейкинг пулы',
                 active: 'Активные пулы',
                 best: 'Наилучший пул',
                 alternatives: 'Альтернативы',
@@ -304,6 +311,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 restrictedMessage: 'Ваши средства не будут принимать участия в стейкинге, если адрес вашего кошелька не находится в вайтлисте, а будут находиться на балансе пула и ожидать обратного вывода',
                 notEnoughCoinsFee: 'На балансе вашего кошелька недостаточно средств для оплаты комиссии. Обратите внимание, что сумма комиссии {{amount}} TON должна находиться на основном балансе, а не на балансе стейкинга',
                 notEnoughCoins: 'На балансе вашего кошелька недостаточно средств для операции пополения баланса стейкинга',
+                ledgerSignText: 'Стейкинг: {{action}}',
             },
             nextCycle: 'След. цикл',
             cycleNote: 'Все транзакции (вывод, пополнение стейкинга) исполняются только после завершения цикла',
@@ -313,7 +321,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             actions: {
                 deposit: 'Внести',
                 top_up: 'Пополнить',
-                withdraw: 'Вывести'
+                withdraw: 'Вывести',
+                calc: 'Calculate',
             },
             join: {
                 title: 'Стань валидатором TON',
@@ -339,14 +348,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             empty: {
                 message: 'У вас нет транзакций'
             },
-            pending: {
-                deposit: 'Выполняется внесение',
-                withdraw: 'Ожидание вывода'
-            },
+            pending: 'Ожидает',
             withdrawStatus: {
                 pending: 'Вывод ожидает',
                 ready: 'Готово к выводу',
-                withdrawNow: 'Вывести сейчас'
+                withdrawNow: 'Нажмите для вывода',
             },
             depositStatus: {
                 pending: 'Взнос ожидает'
@@ -368,7 +374,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 yearlyTopUp: 'После пополнения',
                 yearlyTotal: 'Всего вознаграждений за год',
                 yearlyCurrent: 'Текущая',
-                topUpTitle: 'Ваша годовая доходность'
+                topUpTitle: 'Ваша годовая доходность',
+                goToTopUp: 'Пополнить',
             },
             info: {
                 rate: '~13.3%',
@@ -382,11 +389,16 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 withdrawFee: 'Комиссия за вывод',
                 withdrawRequestFee: 'Комиссия за запрос на вывод',
                 withdrawCompleteFee: 'Комиссия за запрос на завершение вывода',
+                depositFeeDescription: 'Комиссия, которая будет вычтена из суммы депозита для покрытия комиссии за депозит, неиспользованная сумма будет возвращена на баланс вашего кошелька',
+                withdrawFeeDescription: 'Комиссия, необходимая для вывода, неиспользованная сумма будет возвращена на баланс вашего кошелька',
+                withdrawCompleteDescription: 'Комиссия, необходимая для завершения вывода, неиспользованная сумма будет возвращена на баланс вашего кошелька',
                 blockchainFee: 'Комиссия сети',
                 cooldownTitle: 'Период ожидания',
                 cooldownActive: 'Активен',
                 cooldownInactive: 'Неактивный',
-                cooldownDescription: 'Двухчасовой период, применяемый в начале каждого стейкинг цикла для улучшения процесса снятия и внесения средств между циклами',
+                cooldownDescription: 'Все транзакции вступают в силу мгновенно в течение этого периода',
+                cooldownAlert: 'В начале каждого цикла стейкинга активен упрощенный период. В течение этого периода вам не нужно ждать завершения цикла, чтобы вывести или пополнить - это происходит мгновенно, и вам не нужно отправлять вторую транзакцию для вывода, что уменьшает комиссию за вывод в два раза. Вы можете переводить средства из одного пула в другой без потери прибыли цикла, если упрощенный период активен в обоих пулах',
+                lockedAlert: 'Во время цикла стейкинга все выводы и взносы ставятся в очередь на выполение (в статусе ожидания). Все транзакции вступают в силу после завершения цикла'
             },
             minAmountWarning: 'Минимальное количество {{minAmount}} TON',
             tryAgainLater: 'Пожалуйста, повторите попытку позже',
@@ -394,16 +406,23 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 estimatedEarnings: "Ваш предполагаемый годовой доход уменьшится на {{amount}}\u00A0TON\u00A0(${{price}})",
                 estimatedEarningsDev: "Ваш предполагаемый годовой доход уменьшится",
                 message: "Уверены, что хотите вывести?"
+            },
+            activePools: 'Активные пулы',
+            analytics: {
+                operations: 'Операции',
+                operationsDescription: 'Пополнение и вывод',
+                analyticsTitle: 'Аналитика',
+                analyticsSubtitle: 'Общая прибыль',
             }
         },
-        zenPay: {
+        holders: {
             title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
                 cardDetails: 'Детали карты',
                 cardCredentials: 'Данные карты',
-                cardLimits: '*{{cardNumber}} Лимиты карты',
+                cardLimits: '{{cardNumber}} Лимиты карты',
                 cardLimitsDefault: 'Лимиты карты',
                 cardDeposit: 'Пополнить TON',
                 transfer: 'Перевод',
@@ -411,13 +430,52 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 setUpCard: 'Настройка карты',
                 pin: 'Смена PIN-кода',
             },
+            hiddenCards: 'Скрытые карты',
             card: {
-                title: 'Tonhub Card *{{cardNumber}}',
-                defaultSubtitle: 'TON в EUR (комиссия 0%)',
+                cards: 'Карты Holders',
+                title: 'Tonhub card {{cardNumber}}',
+                defaultSubtitle: 'Платите в TON, конвертация в EUR с комиссией 0%',
                 defaultTitle: 'Tonhub Bank Card',
+                eurSubtitle: 'Tonhub EUR',
                 type: {
                     physical: 'Физическая карта',
                     virtual: 'Виртуальная',
+                },
+                notifications: {
+                    type: {
+                        card_ready: 'Карта активирована',
+                        deposit: 'Пополнение карты',
+                        charge: 'Оплата',
+                        charge_failed: 'Оплата',
+                        limits_change: {
+                            pending: 'Изменение лимитов',
+                            completed: 'Лимиты изменены',
+                        },
+                        card_withdraw: 'Перевод на кошелек',
+                        contract_closed: 'Контракт закрыт',
+                        card_block: 'Карта заблокирована',
+                        card_freeze: 'Карта заморожена',
+                        card_unfreeze: 'Карта разморожена',
+                        card_paid: 'Выпуск банковской карты',
+                    },
+                    category: {
+                        deposit: 'Пополнение',
+                        charge: 'Покупки',
+                        charge_failed: 'Покупки',
+                        card_withdraw: 'Перевод',
+                        other: 'Другое',
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: 'Неудачно (превышен лимит на одну транзакцию)',
+                                daily: 'Неудачно (превышен дневной лимит)',
+                                monthly: 'Неудачно (превышен месячный лимит)',
+                            },
+                            failed: 'Неудачно',
+                        },
+                        completed: 'Завершено',
+                    }
                 }
             },
             confirm: {
@@ -563,7 +621,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         tokenReceived: 'Токен получен'
     },
     jetton: {
-        token: 'токен'
+        token: 'токен',
+        productButtonTitle: 'Токены',
+        productButtonSubtitle: '{{jettonName}} и {{count}} других',
+        hidden: 'Скрытые токены',
     },
     connections: {
         extensions: 'Расширения',
@@ -780,6 +841,11 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
         checkInternetAndReload: 'Пожалуйста, проверьте интернет соединение и попробуйте перезагрузить страницу',
+    },
+    onboarding: {
+        avatar: 'Здесь вы можете изменить аватар и имя своего кошелька',
+        wallet: 'Здесь вы можете добавить новый или переключиться между своими кошельками',
+        price: 'Здесь вы можете изменить основную валюту',
     }
 };
 

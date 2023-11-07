@@ -7,8 +7,11 @@ import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
+import { LogBox } from 'react-native';
 
 const PERSISTANCE_VERSION = '10';
+
+LogBox.ignoreAllLogs();
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);

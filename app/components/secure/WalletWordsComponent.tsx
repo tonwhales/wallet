@@ -2,7 +2,7 @@ import React from "react";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
-import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
+import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
 import { WordInput, WordInputRef, normalize, wordsTrie } from "../../fragments/onboarding/WalletImportFragment";
 import { t } from "../../i18n/t";
@@ -25,7 +25,7 @@ export const WalletWordsComponent = React.memo((props: {
     const keyboard = useKeyboard();
 
     // References to all fields
-    const animatedRefs: React.RefObject<View>[] = [];
+    const animatedRefs: AnimatedRef<View>[] = [];
     for (let i = 0; i < 24; i++) {
         animatedRefs.push(useAnimatedRef());
     }

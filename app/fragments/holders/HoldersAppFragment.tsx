@@ -9,10 +9,9 @@ import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersStatus } from '../../engine/hooks';
-import { useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useDomainKey } from '../../engine/hooks';
-import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
+import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -20,8 +19,9 @@ export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
+    const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
-    const status = useHoldersStatus();
+    const status = useHoldersAccountStatus(selected!.address).data;
     const domain = extractDomain(holdersUrl);
     const domainKey = useDomainKey(domain);
 
@@ -33,7 +33,10 @@ export const HoldersAppFragment = fragment(() => {
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrollment') {
+            if (!status) {
+                return true;
+            }
+            if (status.state === HoldersAccountState.NeedEnrollment) {
                 return true;
             }
         } catch (error) {
@@ -56,16 +59,14 @@ export const HoldersAppFragment = fragment(() => {
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
 
-            <HoldersAppComponent
-                title={t('products.zenPay.title')}
-                variant={params}
-                token={(
-                    status as { state: 'need-phone', token: string }
-                    | { state: 'need-kyc', token: string }
-                    | { state: 'ready', token: string }
-                ).token}
-                endpoint={holdersUrl}
-            />
+            {needsEnrollment ? null : (
+                <HoldersAppComponent
+                    title={t('products.holders.title')}
+                    variant={params}
+                    token={(status as { token: string }).token}
+                    endpoint={holdersUrl}
+                />
+            )}
         </View>
     );
 });

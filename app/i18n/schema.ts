@@ -54,6 +54,9 @@ export type LocalizationSchema = {
         errorOccurred: string,
         airdrop: string,
         ok: string,
+        totalBalance: string,
+        done: string,
+        assets: string
     },
     syncStatus: {
         connecting: string,
@@ -61,8 +64,10 @@ export type LocalizationSchema = {
         online: string
     },
     home: {
-        wallet: string,
-        settings: string
+        home: string,
+        history: string,
+        browser: string,
+        more: string
     }
     settings: {
         title: string,
@@ -231,6 +236,7 @@ export type LocalizationSchema = {
         failedToReadFromImage: string
     },
     products: {
+        addNew: string,
         tonConnect: {
             errors: {
                 connection: string
@@ -269,8 +275,10 @@ export type LocalizationSchema = {
                 top_up: string,
                 deposit: string,
                 withdraw: string,
+                calc: string,
             },
             pools: {
+                title: string,
                 active: string,
                 best: string,
                 alternatives: string,
@@ -315,6 +323,7 @@ export type LocalizationSchema = {
                 restrictedMessage: string,
                 notEnoughCoinsFee: string,
                 notEnoughCoins: string,
+                ledgerSignText: string
             },
             join: {
                 title: string,
@@ -340,10 +349,7 @@ export type LocalizationSchema = {
             empty: {
                 message: string
             },
-            pending: {
-                deposit: string,
-                withdraw: string
-            },
+            pending: string,
             withdrawStatus: {
                 pending: string,
                 ready: string,
@@ -369,7 +375,8 @@ export type LocalizationSchema = {
                 yearlyTopUp: string,
                 yearlyTotal: string,
                 yearlyCurrent: string,
-                topUpTitle: string
+                topUpTitle: string,
+                goToTopUp: string,
             },
             info: {
                 rate: string,
@@ -383,11 +390,16 @@ export type LocalizationSchema = {
                 withdrawFee: string,
                 withdrawRequestFee: string,
                 withdrawCompleteFee: string,
+                depositFeeDescription: string,
+                withdrawFeeDescription: string,
+                withdrawCompleteDescription: string,
                 blockchainFee: string,
                 cooldownTitle: string,
                 cooldownActive: string,
                 cooldownInactive: string,
                 cooldownDescription: string,
+                cooldownAlert: string,
+                lockedAlert: string
             },
             minAmountWarning: string,
             tryAgainLater: string,
@@ -395,9 +407,16 @@ export type LocalizationSchema = {
                 estimatedEarnings: string,
                 estimatedEarningsDev: string,
                 message: string
+            },
+            activePools: string,
+            analytics: {
+                operations: string,
+                operationsDescription: string,
+                analyticsTitle: string,
+                analyticsSubtitle: string,
             }
         },
-        zenPay: {
+        holders: {
             title: string,
             pageTitles: {
                 general: string,
@@ -412,13 +431,52 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
+            hiddenCards: string,
             card: {
+                cards: string,
                 title: string,
                 defaultSubtitle: string,
                 defaultTitle: string,
+                eurSubtitle: string,
                 type: {
                     physical: string,
                     virtual: string,
+                },
+                notifications: {
+                    type: {
+                        card_ready: string,
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        limits_change: {
+                            pending: string,
+                            completed: string,
+                        },
+                        card_withdraw: string,
+                        contract_closed: string,
+                        card_block: string,
+                        card_freeze: string,
+                        card_unfreeze: string,
+                        card_paid: string,
+                    },
+                    category: {
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        card_withdraw: string,
+                        other: string,
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: string,
+                                daily: string,
+                                monthly: string,
+                            },
+                            failed: string,
+                        },
+                        completed: string,
+                    }
                 }
             },
             confirm: {
@@ -434,7 +492,7 @@ export type LocalizationSchema = {
                 buttonSub: string
             }
         }
-    }
+    },
     welcome: {
         title: string,
         titleDev: string,
@@ -564,7 +622,10 @@ export type LocalizationSchema = {
         tokenReceived: string
     },
     jetton: {
-        token: string
+        token: string,
+        productButtonTitle: string,
+        productButtonSubtitle: string,
+        hidden: string
     },
     connections: {
         extensions: string,
@@ -781,6 +842,11 @@ export type LocalizationSchema = {
         contactSupportOrTryToReload: string,
         contactSupport: string,
         checkInternetAndReload: string,
+    },
+    onboarding: {
+        avatar: string,
+        wallet: string,
+        price: string
     }
 };
 

@@ -1,15 +1,7 @@
 import { useRecoilValue } from 'recoil';
 import { selectedAccountSelector } from '../../state/appState';
-import { Address } from '@ton/core';
+import { SelectedAccount } from '../../types';
 
-export type SelectedAccount = {
-    address: Address;
-    addressString: string;
-    publicKey: Buffer;
-    secretKeyEnc: Buffer;
-    utilityKey: Buffer;
-}
-
-export function useSelectedAccount() {
+export function useSelectedAccount(): SelectedAccount | null {
     return useRecoilValue(selectedAccountSelector);
 }

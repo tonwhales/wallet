@@ -3,13 +3,10 @@ import * as React from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useEngine } from '../../engine/Engine';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { backoff } from '../../utils/time';
-import { useAppConfig } from '../../utils/AppConfigContext';
-import { TabHeader } from '../../components/topbar/TabHeader';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import LottieView from 'lottie-react-native';
 import { resolveUrl } from '../../utils/resolveUrl';
@@ -20,6 +17,11 @@ import { extractDomain } from '../../engine/utils/extractDomain';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import { TabHeader } from '../../components/topbar/TabHeader';
+import { ConnectionButton } from '../../components/ConnectionButton';
+import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useTheme, useTonConnectExtensions } from '../../engine/hooks';
+import { getDomainKey } from '../../engine/state/domainKeys';
+import { getCachedAppData } from '../../engine/getters/getAppData';
 
 import Scanner from '@assets/ic-scanner-accent.svg';
 
@@ -54,24 +56,35 @@ function groupItems(items: Item[]): GroupedItems[] {
 }
 
 export const ConnectionsFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const network = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const engine = useEngine();
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
-    const extensions = engine.products.extensions.useExtensions();
-    const tonconnectApps = engine.products.tonConnect.useExtensions();
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
+
+    const [installedExtensions,] = useExtensions();
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+
+    const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => {
+        const appData = getCachedAppData(ext.url);
+        return { ...ext, key, title: appData?.title || ext.title || ext.url }
+    });
+    const tonconnectApps = Object.entries(inastalledConnectApps).map(([key, ext]) => ({ ...ext, key }));
+
+    const removeExtension = useRemoveExtension();
+    const disconnectConnect = useDisconnectApp();
+
+    const linkNavigator = useLinkNavigator(network.isTestnet);
 
     const [isExtensions, setIsExtensions] = useState(true);
     let [apps, setApps] = useState(groupItems(getConnectionReferences()));
 
-    const openExtension = React.useCallback((url: string) => {
+    const openExtension = useCallback((url: string) => {
         let domain = extractDomain(url);
         if (!domain) {
             return; // Shouldn't happen
         }
-        let k = engine.products.keys.getDomainKey(domain);
+        let k = getDomainKey(domain);
         if (!k) {
             navigation.navigate('Install', { url });
         } else {
@@ -79,7 +92,9 @@ export const ConnectionsFragment = fragment(() => {
         }
     }, []);
 
-    const disconnectApp = useCallback((url: string) => {
+    console.log({ apps, extensions, tonconnectApps })
+
+    const onDisconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
         if (toRemove.length === 0) {
@@ -103,25 +118,26 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, []);
 
-    const removeExtension = useCallback((key: string) => {
+    const onRemoveExtension = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.extensions.removeExtension(key);
+                console.log('remove', key);
+                removeExtension(key);
             }
         }]);
-    }, []);
+    }, [removeExtension]);
 
     let disconnectConnectApp = useCallback((key: string) => {
         Alert.alert(t('auth.revoke.title'), t('auth.revoke.message'), [{ text: t('common.cancel') }, {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                engine.products.tonConnect.disconnect(key);
+                disconnectConnect(key);
             }
         }]);
-    }, []);
+    }, [disconnectConnect]);
 
     // 
     // Lottie animation
@@ -137,7 +153,7 @@ export const ConnectionsFragment = fragment(() => {
 
     const onQRCodeRead = (src: string) => {
         try {
-            let res = resolveUrl(src, AppConfig.isTestnet);
+            let res = resolveUrl(src, network.isTestnet);
             if (res) {
                 linkNavigator(res);
             }
@@ -148,12 +164,12 @@ export const ConnectionsFragment = fragment(() => {
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
 
-    useTrackScreen('Browser', engine.isTestnet);
+    useTrackScreen('Browser', network.isTestnet);
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
         setTimeout(() => {
-            setStatusBarStyle(Theme.style === 'dark' ? 'light' : 'dark');
+            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
         }, 10);
     }, []));
 
@@ -175,7 +191,7 @@ export const ConnectionsFragment = fragment(() => {
                             }}
                             height={24}
                             width={24}
-                            color={Theme.iconPrimary}
+                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 }
@@ -206,7 +222,7 @@ export const ConnectionsFragment = fragment(() => {
                                     fontWeight: '600',
                                     marginHorizontal: 24,
                                     textAlign: 'center',
-                                    color: Theme.textPrimary,
+                                    color: theme.textPrimary,
                                     marginTop: (window.height / 4) + safeArea.top,
                                 }}>
                                     {t('auth.noExtensions')}
@@ -216,10 +232,10 @@ export const ConnectionsFragment = fragment(() => {
                                 <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
                                         onPress={() => openExtension(app.url)}
-                                        onRevoke={() => removeExtension(app.key)}
-                                        onLongPress={() => removeExtension(app.key)}
+                                        onRevoke={() => onRemoveExtension(app.url)}
+                                        onLongPress={() => onRemoveExtension(app.url)}
                                         url={app.url}
-                                        name={app.name}
+                                        name={app.title}
                                     />
                                 </View>
                             ))}
@@ -257,7 +273,7 @@ export const ConnectionsFragment = fragment(() => {
                                     fontWeight: '600',
                                     marginHorizontal: 24,
                                     textAlign: 'center',
-                                    color: Theme.textPrimary,
+                                    color: theme.textPrimary,
                                     marginTop: (window.height / 4) + safeArea.top,
                                 }}>
                                     {t('auth.noApps')}
@@ -266,7 +282,7 @@ export const ConnectionsFragment = fragment(() => {
                             {apps.map((app) => (
                                 <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
-                                        onRevoke={() => disconnectApp(app.url)}
+                                        onRevoke={() => onDisconnectApp(app.url)}
                                         url={app.url}
                                         name={app.name}
                                     />

@@ -13,11 +13,9 @@ import * as StoreReview from 'expo-store-review';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
-import { getAppState, getCurrentAddress } from '../storage/appState';
+import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useOldWalletsBalances, usePrice, useSyncState, useTheme } from '../engine/hooks';
-import { useRecoilValue } from 'recoil';
-import { appStateAtom } from '../engine/state/appState';
+import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 
@@ -38,10 +36,9 @@ export const SettingsFragment = fragment(() => {
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const { showActionSheetWithOptions } = useActionSheet();
-    const appState = useRecoilValue(appStateAtom);
     const currentWalletIndex = getAppState().selected;
-    const address = useMemo(() => getCurrentAddress().address, []);
-    // TODO: const walletSettings = useWalletSettings(address);
+    const seleted = useSelectedAccount();
+    // TODO: const walletSettings = useWalletSettings(seleted!.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();

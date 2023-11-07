@@ -58,7 +58,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         assets: 'Активы',
         wallets: 'Кошельки',
         attention: 'Внимание',
-        recipientAddress: 'Адрес получателя'
+        recipientAddress: 'Адрес получателя',
+        walletName: 'Имя кошелька',
+        select: 'Выбрать'
     },
     syncStatus: {
         connecting: 'Идет подключение',

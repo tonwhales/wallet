@@ -364,23 +364,6 @@ export const TransferBatch = React.memo((props: Props) => {
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),
         });
-        // TODO
-        // engine.products.main.registerPending({
-        //     id: 'pending-' + account.seqno,
-        //     lt: null,
-        //     fees: fees,
-        //     amount: totalAmount.mul(BigInt(-1)),
-        //     address: null,
-        //     seqno: account.seqno,
-        //     kind: 'out',
-        //     body: null,
-        //     status: 'pending',
-        //     time: Math.floor(Date.now() / 1000),
-        //     bounced: false,
-        //     prev: null,
-        //     mentioned: [],
-        //     hash: msg.hash(),
-        // });
 
         // Reset stack to root
         if (back && back > 0) {

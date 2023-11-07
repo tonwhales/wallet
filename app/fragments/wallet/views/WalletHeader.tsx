@@ -1,17 +1,18 @@
 import React from "react";
-import { memo, useCallback, useMemo } from "react";
+import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { getAppState, getCurrentAddress } from "../../../storage/appState";
+import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { CopilotStep } from "react-native-copilot";
 import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
-import { useAccountTransactions, useClient4, useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
+import { useAccountTransactions, useClient4, useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
+import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 
 import Chart from '@assets/ic-chart.svg';
 import Scanner from '@assets/ic-scan-white.svg';
@@ -25,14 +26,12 @@ export const WalletHeader = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const client = useClient4(network.isTestnet);
-    
-    const address = useMemo(() => getCurrentAddress().address, []);
-    const currentWalletIndex = getAppState().selected;
-    
-    const txs = useAccountTransactions(client, address.toString({ testOnly: network.isTestnet }))?.data;
 
-    // TODO
-    // const walletSettings = engine.products.wallets.useWalletSettings(address);
+    const address = useSelectedAccount()!.address;
+    const currentWalletIndex = getAppState().selected;
+    const [walletSettings,] = useWalletSettings(address);
+
+    const txs = useAccountTransactions(client, address.toString({ testOnly: network.isTestnet }))?.data;
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -93,7 +92,7 @@ export const WalletHeader = memo(() => {
                                 id={address.toString({ testOnly: network.isTestnet })}
                                 size={24}
                                 borderWith={0}
-                                // TODO: hash={walletSettings?.avatar} 
+                                hash={walletSettings?.avatar}
                             />
                         </OnboadingView>
                     </CopilotStep>
@@ -123,8 +122,7 @@ export const WalletHeader = memo(() => {
                                 ellipsizeMode='tail'
                                 numberOfLines={1}
                             >
-                                {/* TODO: {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`} */}
-                                {`${t('common.wallet')} ${currentWalletIndex + 1}`}
+                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
                             </Text>
                             {syncState === 'updating' && (
                                 <ReAnimatedCircularProgress

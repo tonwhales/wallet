@@ -3,16 +3,17 @@ import { Alert } from 'react-native';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
-import { queryClient } from './engine/clients';
 import { Queries } from './engine/queries';
 import { useClient4 } from './engine/hooks';
 import { useSelectedAccount } from './engine/hooks';
 import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
+import { useQueryClient } from '@tanstack/react-query';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
     const client = useClient4(isTestnet);
     const selected = useSelectedAccount();
+    const queryClient = useQueryClient();
 
     const handler = React.useCallback(async (resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {

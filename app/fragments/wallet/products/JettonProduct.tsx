@@ -81,4 +81,9 @@ export const JettonProduct = React.memo((props: {
             known={isKnown}
         />
     );
+}, (prev, next) => {
+    return prev.jetton.master.equals(next.jetton.master)
+        && prev.jetton.balance === next.jetton.balance
+        && prev.jetton.disabled === next.jetton.disabled
+        && prev.jetton.icon === next.jetton.icon;
 });

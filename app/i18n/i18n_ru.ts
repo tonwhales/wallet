@@ -55,7 +55,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         ok: 'Ок',
         totalBalance: 'Общий баланс',
         done: 'Готово',
-        assets: 'Активы'
+        assets: 'Активы',
+        wallets: 'Кошельки',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -850,6 +851,20 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertMessage: 'Внимание ⚠️ Копировать сид фразу из 24 слов в буфер обмена не безопасно. Продолжайте на свой страх и риск.',
         copySeedAlertAction: 'Скопировать',
         holdersOfflineApp: 'Holders Offline App',
+    },
+    wallets: {
+        switchToAlertTitle: 'Переключить на {{wallet}}',
+        switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
+        switchToAlertAction: 'Переключить',
+        addNewTitle: 'Добавить кошелек',
+        addNewAlertTitle: 'Добавить новый кошелек',
+        addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
+        addNewAlertAction: 'Добавить',
+        alreadyExistsAlertTitle: 'Кошелек уже существует',
+        alreadyExistsAlertMessage: 'Кошелек с таким адресом уже существует',
+        settings: {
+            changeAvatar: 'Изменить аватар',
+        }
     },
     webView: {
         noInternet: 'Нет интернет соединения',

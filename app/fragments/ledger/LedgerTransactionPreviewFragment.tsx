@@ -23,7 +23,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { openWithInApp } from "../../utils/openWithInApp";
 import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { useTheme } from '../../engine/hooks';
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
@@ -530,7 +530,7 @@ export const LedgerTransactionPreviewFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const params = useParams<{ transaction: TransactionDescription }>();
-    const { addr } = useTransport();
+    const { addr } = useLedgerTransport();
     const address = React.useMemo(() => {
         return Address.parse(addr!.address);
     }, []);

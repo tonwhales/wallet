@@ -7,14 +7,14 @@ import { t } from "../../../i18n/t";
 import { LedgerDeviceSelection } from "./LedgerDeviceSelection";
 import { LedgerDevice } from "./BleDevice";
 import { LedgerSelectAccount } from "./LedgerSelectAccount";
-import { useTransport } from "./TransportContext";
+import { useLedgerTransport } from "./TransportContext";
 import { LedgerBleDescription } from "./LedgerBleDescription";
 
 type StepScreen = 'scan' | 'select-account' | 'description';
 
 export const LedgerBle = React.memo(() => {
     const safeArea = useSafeAreaInsets();
-    const { ledgerConnection, setLedgerConnection, tonTransport, addr } = useTransport();
+    const { ledgerConnection, setLedgerConnection, tonTransport, addr } = useLedgerTransport();
     const [screen, setScreen] = useState<StepScreen>('description');
 
     const onSelectDevice = useCallback(async (device: LedgerDevice) => {

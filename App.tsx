@@ -26,6 +26,7 @@ import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-c
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 changeNavBarColor('white');
 
@@ -48,7 +49,9 @@ function Boot() {
       <StatusBar style="auto" />
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <GestureHandlerRootView style={styles.container}>
-          <Root />
+          <ActionSheetProvider>
+            <Root />
+          </ActionSheetProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </>

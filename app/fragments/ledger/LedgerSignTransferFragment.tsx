@@ -42,7 +42,7 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
-import { useTransport } from './components/TransportContext';
+import { useLedgerTransport } from './components/TransportContext';
 import { LottieAnimView } from '../../components/LottieAnimView';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
@@ -929,7 +929,7 @@ export const LedgerSignTransferFragment = fragment(() => {
         text: string | null,
     } = useRoute().params! as any;
 
-    const { ledgerConnection, tonTransport, addr } = useTransport();
+    const { ledgerConnection, tonTransport, addr } = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 

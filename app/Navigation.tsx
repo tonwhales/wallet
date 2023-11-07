@@ -76,6 +76,9 @@ import { warn } from './utils/log';
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
 import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
+import { AlertFragment } from './fragments/utils/AlertFragment';
+import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -226,20 +229,18 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('Privacy', PrivacyFragment, safeArea),
     genericScreen('Terms', TermsFragment, safeArea),
     lockedModalScreen('Scanner', ScannerFragment, safeArea),
-
-    // TODO: uncomment when ready
-    // transparentModalScreen('Alert', AlertFragment, safeArea),
+    transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
-    // transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
+    transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 ];
 
-export const Navigation = React.memo(() => {
+export const Navigation = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigationTheme = useNavigationTheme();
     const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
 
-    const initial = React.useMemo(() => {
+    const initial = useMemo(() => {
         const onboarding = resolveOnboarding(isTestnet);
 
         if (onboarding === 'backup') {
@@ -260,9 +261,9 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Splash
-    const [mounted, setMounted] = React.useState(false);
+    const [mounted, setMounted] = useState(false);
     const isRestoring = useIsRestoring();
-    const onMounted = React.useMemo(() => {
+    const onMounted = useMemo(() => {
         return () => {
             if (mounted) {
                 return;
@@ -273,7 +274,7 @@ export const Navigation = React.memo(() => {
     const hideSplash = mounted && !isRestoring;
 
     // Register token
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -308,7 +309,7 @@ export const Navigation = React.memo(() => {
     }, [appState]);
 
     // Grant accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {
@@ -326,7 +327,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Revoke accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {

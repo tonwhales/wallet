@@ -858,6 +858,11 @@ export type LocalizationSchema = {
         contactSupport: string,
         checkInternetAndReload: string,
     },
+    screenCapture: {
+        title: string,
+        description: string,
+        action: string,
+    },
     onboarding: {
         avatar: string,
         wallet: string,

@@ -856,6 +856,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         contactSupport: 'Contact support',
         checkInternetAndReload: 'Check your internet connection and reload the page',
     },
+    screenCapture: {
+        title: 'Wow, cool screenshot, but it\'s not safe',
+        description: 'Unencrypted digital copies of your secret phrase are NOT recommended. Examples include saving copies on computer, on online accounts or by taking screenshots',
+        action: 'OK, I\'m taking the risk',
+    },
     onboarding: {
         avatar: 'This is where you can change your wallets avatar and name',
         wallet: 'This is where you can add new or switch between your wallets',

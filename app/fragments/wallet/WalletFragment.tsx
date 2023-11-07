@@ -32,7 +32,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = useMemo(() => getCurrentAddress().address, []);
+    const address = props.selectedAcc.address;
     const account = props.wallet;
     const staking = useStaking();
     const holdersCards = useHoldersCards(address).data;

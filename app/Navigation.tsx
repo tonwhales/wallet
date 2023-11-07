@@ -74,6 +74,7 @@ import { registerForPushNotificationsAsync, registerPushToken } from './utils/re
  import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
 import { useIsRestoring } from '@tanstack/react-query';
+import { ThemeFragment } from './fragments/ThemeFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -198,6 +199,9 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
+
+    // Settings
+    modalScreen('Theme', ThemeFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

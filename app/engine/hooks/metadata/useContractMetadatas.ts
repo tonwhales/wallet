@@ -13,6 +13,7 @@ export function useContractMetadatas(contracts: string[]) {
             queryKey: Queries.ContractMetadata(m),
             queryFn: contractMetadataQueryFn(client, isTestnet, m),
             staleTime: Infinity,
+            cacheTime: Infinity,
         })),
     });
 }

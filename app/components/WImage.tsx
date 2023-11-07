@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Image, ImageRequireSource, StyleProp, View, ViewStyle } from 'react-native';
+import { ImageRequireSource, StyleProp, View, ViewStyle } from 'react-native';
+import Image from 'react-native-fast-image';
 import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
@@ -16,7 +17,7 @@ export const WImage = React.memo((props: {
     lockLoading?: boolean
 }) => {
     const theme = useTheme();
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = React.useState(true);
     let url = props.src ? resolveLink(props.src) : null;
     let blurhash = url && props.blurhash ? props.blurhash : null;
 

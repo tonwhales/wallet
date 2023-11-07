@@ -32,6 +32,8 @@ export function stakingPoolMemberQuery(pool: Address, member: Address | undefine
     return {
         queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Member(member?.toString({ testOnly: isTestnet }) || 'default-null'),
         queryFn: fetchStakingMemberQueryFn(client, isTestnet, pool, member),
+        staleTime: Infinity,
+        cacheTime: Infinity,
     };
 }
 

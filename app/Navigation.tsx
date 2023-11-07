@@ -164,8 +164,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
-    modalScreen('Connections', ConnectionsFragment, safeArea),
-    modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
     modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -177,17 +175,10 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 
-    fullScreen('Staking', StakingFragment),
-    fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
-    modalScreen('Logout', LogoutFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
-    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
     lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
@@ -211,8 +202,21 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Home', HomeFragment),
     fullScreen('Sync', SyncFragment),
     modalScreen('Transfer', TransferFragment, safeArea),
+    modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
+
+    // Logout
+    modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
+    modalScreen('Logout', LogoutFragment, safeArea),
+    modalScreen('WalletBackupLogout', WalletBackupFragment, safeArea),
+
+    // Staking
+    fullScreen('Staking', StakingFragment),
+    fullScreen('StakingPools', StakingPoolsFragment),
+    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
+    modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
 
     // Settings
     modalScreen('Security', SecurityFragment, safeArea),

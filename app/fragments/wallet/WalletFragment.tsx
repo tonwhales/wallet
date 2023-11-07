@@ -1,6 +1,5 @@
 import * as React from 'react';
 import { Image, Platform, Pressable, Text, View } from 'react-native';
-import { getCurrentAddress } from '../../storage/appState';
 import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ValueComponent } from '../../components/ValueComponent';
@@ -10,7 +9,7 @@ import { fragment } from '../../fragment';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { setStatusBarStyle } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
 import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
@@ -24,8 +23,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
-import { Address, toNano } from '@ton/core';
+import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
+import { ProductsFragment } from './ProductsFragment';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -419,7 +419,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    // fullScreen('Products', ProductsFragment), TODO
+    fullScreen('Products', ProductsFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

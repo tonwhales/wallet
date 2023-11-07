@@ -18,7 +18,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import MessageIcon from '../../../assets/ic_message.svg';
 import { createLedgerJettonOrder, createSimpleLedgerOrder } from "../secure/ops/Order";
 import { contractFromPublicKey } from "../../engine/contractFromPublicKey";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { SimpleTransferParams } from "../secure/SimpleTransferFragment";
@@ -36,7 +36,7 @@ import { estimateFees } from '../../utils/estimateFees';
 import { useContact } from '../../engine/hooks';
 
 export const LedgerTransferFragment = fragment(() => {
-    const { addr } = useTransport();
+    const { addr } = useLedgerTransport();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);

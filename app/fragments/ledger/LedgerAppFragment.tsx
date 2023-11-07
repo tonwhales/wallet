@@ -7,7 +7,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { LedgerApp } from "./components/LedgerApp";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useTheme } from "../../engine/hooks";
 
@@ -19,7 +19,7 @@ export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
-    const { tonTransport, addr, setAddr } = useTransport();
+    const { tonTransport, addr, setAddr } = useLedgerTransport();
 
     useEffect(() => {
         return () => {

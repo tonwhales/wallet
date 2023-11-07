@@ -54,7 +54,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         ok: 'Ok',
         totalBalance: 'Total balance',
         done: 'Done',
-        assets: 'Assets'
+        assets: 'Assets',
+        wallets: 'Wallets',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -855,6 +856,25 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         contactSupportOrTryToReload: 'Contact support or try to reload the page',
         contactSupport: 'Contact support',
         checkInternetAndReload: 'Check your internet connection and reload the page',
+    },
+    wallets: {
+        switchToAlertTitle: 'Switching to {{wallet}}',
+        switchToAlertMessage: 'Are you sure you want to switch wallets?',
+        switchToAlertAction: 'Switch',
+        addNewTitle: 'Add wallet',
+        addNewAlertTitle: 'Adding new wallet',
+        addNewAlertMessage: 'Are you sure you want to add new wallet?',
+        addNewAlertAction: 'Add',
+        alreadyExistsAlertTitle: 'Wallet already exists',
+        alreadyExistsAlertMessage: 'Wallet with this address already exists',
+        settings: {
+            changeAvatar: 'Change avatar',
+        }
+    },
+    screenCapture: {
+        title: 'Wow, cool screenshot, but it\'s not safe',
+        description: 'Unencrypted digital copies of your secret phrase are NOT recommended. Examples include saving copies on computer, on online accounts or by taking screenshots',
+        action: 'OK, I\'m taking the risk',
     },
     onboarding: {
         avatar: 'This is where you can change your wallets avatar and name',

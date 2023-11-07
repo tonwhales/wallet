@@ -10,7 +10,7 @@ import { warn } from "../../../utils/log";
 import { pathFromAccountNumber } from "../../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { AccountButton } from "./AccountButton";
-import { useTransport } from "./TransportContext";
+import { useLedgerTransport } from "./TransportContext";
 import { useTheme } from '../../../engine/hooks';
 import { useClient4 } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
@@ -22,7 +22,7 @@ export const LedgerSelectAccount = React.memo(({ onReset }: { onReset: () => voi
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { tonTransport, setAddr, addr } = useTransport();
+    const { tonTransport, setAddr, addr } = useLedgerTransport();
     const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
     const [accounts, setAccounts] = useState<LedgerAccount[]>([]);

@@ -12,7 +12,7 @@ import TonIcon from '../../../assets/ic_ton_account.svg';
 import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useJettons, useTheme } from '../../engine/hooks';
 import { useAccountLite } from '../../engine/hooks';
@@ -23,7 +23,7 @@ export const LedgerAssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { addr } = useTransport();
+    const { addr } = useLedgerTransport();
     const addressParsed = useMemo(() => Address.parse(addr!.address), [addr]);
     const address = useMemo(() => addressParsed.toString({ testOnly: false }), [addressParsed]);
     const jettons = useJettons(address);

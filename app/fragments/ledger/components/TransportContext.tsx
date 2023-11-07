@@ -1,21 +1,17 @@
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
-import React, { useCallback, useEffect } from "react";
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useState } from "react";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { warn } from "../../../utils/log";
 import { TonTransport } from '@ton-community/ton-ledger';
-import { useAccountLite } from '../../../engine/hooks';
-import { useAccountTransactions } from '../../../engine/hooks';
-import { useClient4 } from '../../../engine/hooks';
-import { useNetwork } from '../../../engine/hooks';
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
 
-export const TransportContext = React.createContext<
+export const TransportContext = createContext<
     {
         ledgerConnection: TypedTransport | null,
         setLedgerConnection: (transport: TypedTransport | null) => void,
@@ -26,11 +22,11 @@ export const TransportContext = React.createContext<
     | null
 >(null);
 
-export const TransportProvider = ({ children }: { children: React.ReactNode }) => {
+export const TransportProvider = ({ children }: { children: ReactNode }) => {
     const navigation = useTypedNavigation();
-    const [ledgerConnection, setLedgerConnection] = React.useState<TypedTransport | null>(null);
-    const [tonTransport, setTonTransport] = React.useState<TonTransport | null>(null);
-    const [addr, setAddr] = React.useState<LedgerAddress | null>(null);
+    const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
+    const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
+    const [addr, setAddr] = useState<LedgerAddress | null>(null);
 
     const reset = useCallback(() => {
         setLedgerConnection(null);
@@ -97,6 +93,6 @@ export const TransportProvider = ({ children }: { children: React.ReactNode }) =
     );
 };
 
-export function useTransport() {
-    return React.useContext(TransportContext)!;
+export function useLedgerTransport() {
+    return useContext(TransportContext)!;
 }

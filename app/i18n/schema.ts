@@ -56,7 +56,8 @@ export type LocalizationSchema = {
         ok: string,
         totalBalance: string,
         done: string,
-        assets: string
+        assets: string,
+        wallets: string,
     },
     syncStatus: {
         connecting: string,
@@ -852,11 +853,30 @@ export type LocalizationSchema = {
         copySeedAlertAction: string,
         holdersOfflineApp: string,
     },
+    wallets: {
+        switchToAlertTitle: string,
+        switchToAlertMessage: string,
+        switchToAlertAction: string,
+        addNewTitle: string,
+        addNewAlertTitle: string,
+        addNewAlertMessage: string,
+        addNewAlertAction: string,
+        alreadyExistsAlertTitle: string,
+        alreadyExistsAlertMessage: string,
+        settings: {
+            changeAvatar: string
+        }
+    },
     webView: {
         noInternet: string,
         contactSupportOrTryToReload: string,
         contactSupport: string,
         checkInternetAndReload: string,
+    },
+    screenCapture: {
+        title: string,
+        description: string,
+        action: string,
     },
     onboarding: {
         avatar: string,

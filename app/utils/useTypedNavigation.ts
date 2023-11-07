@@ -134,9 +134,12 @@ export class TypedNavigation {
         })();
     }
 
-    // TODO: implement ScreenCapture modal fragment
     navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
         this.navigate('ScreenCapture', params);
+    }
+
+    navigateAlert(params: { title: string, message?: string, callback?: () => void }) {
+        this.navigate('Alert', params);
     }
 }
 

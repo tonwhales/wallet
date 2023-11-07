@@ -50,10 +50,21 @@ export const WalletCreateFragment = systemFragment(() => {
         navigation.base.dispatch(e.data.action);
     }, [state, navigation]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
+        if (state) {
+            ScreenCapture.preventScreenCaptureAsync('words-screen');
+        } else {
+            ScreenCapture.allowScreenCaptureAsync('words-screen');
+        }
+    }, [state]);
 
+    useLayoutEffect(() => {
         let subscription: ScreenCapture.Subscription;
-        subscription = ScreenCapture.addScreenshotListener(() => navigation.navigateScreenCapture);
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigateScreenCapture({
+                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+            });
+        });
 
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', onBack);
@@ -65,7 +76,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 navigation.base.removeListener('beforeRemove', onBack);
             }
         }
-    }, [navigation, onBack, state]);
+    }, [navigation]);
 
     return (
         <View

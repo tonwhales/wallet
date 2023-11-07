@@ -70,11 +70,15 @@ import { useTonconnectWatcher } from './engine/tonconnectWatcher';
 import { useHoldersWatcher } from './engine/holdersWatcher';
 import { usePendingWatcher } from './engine/hooks';
 import { registerForPushNotificationsAsync, registerPushToken } from './utils/registerPushNotifications';
- import * as Notifications from 'expo-notifications';
- import { PermissionStatus } from 'expo-modules-core';
+import * as Notifications from 'expo-notifications';
+import { PermissionStatus } from 'expo-modules-core';
 import { warn } from './utils/log';
 import { useIsRestoring } from '@tanstack/react-query';
 import { ThemeFragment } from './fragments/ThemeFragment';
+import { ScreenCaptureFragment } from './fragments/utils/ScreenCaptureFragment';
+import { AlertFragment } from './fragments/utils/AlertFragment';
+import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragment';
+import { memo, useEffect, useMemo, useState } from 'react';
 
 const Stack = createNativeStackNavigator();
 
@@ -134,10 +138,24 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
     );
 }
 
+function transparentModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    return (
+        <Stack.Screen
+            key={`modalScreen-${name}`}
+            name={name}
+            component={component}
+            options={{
+                presentation: 'modal',
+                headerShown: false,
+                contentStyle: { backgroundColor: 'transparent' },
+            }}
+        />
+    );
+}
+
 const navigation = (safeArea: EdgeInsets) => [
+    // Onboarding
     fullScreen('Welcome', WelcomeFragment),
-    fullScreen('Home', HomeFragment),
-    fullScreen('Sync', SyncFragment),
     genericScreen('LegalCreate', LegalFragment, safeArea),
     genericScreen('LegalImport', LegalFragment, safeArea),
     genericScreen('WalletImport', WalletImportFragment, safeArea),
@@ -146,12 +164,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
-    genericScreen('Settings', SettingsFragment, safeArea),
-    genericScreen('Privacy', PrivacyFragment, safeArea),
-    genericScreen('Terms', TermsFragment, safeArea),
     modalScreen('Connections', ConnectionsFragment, safeArea),
-    modalScreen('Transfer', TransferFragment, safeArea),
-    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
@@ -159,22 +172,20 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
-    lockedModalScreen('Scanner', ScannerFragment, safeArea),
+
+    // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
-    lockedModalScreen('Buy', NeocryptoFragment, safeArea),
+
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
-    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     modalScreen('Logout', LogoutFragment, safeArea),
-    modalScreen('Contact', ContactFragment, safeArea),
-    modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
@@ -192,25 +203,44 @@ const navigation = (safeArea: EdgeInsets) => [
         component={ConnectAppFragment}
         options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
     />,
-    modalScreen('Security', SecurityFragment, safeArea),
-    modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
-    modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
-    modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
 
+    // Wallet
+    fullScreen('Home', HomeFragment),
+    fullScreen('Sync', SyncFragment),
+    modalScreen('Transfer', TransferFragment, safeArea),
+    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
+    lockedModalScreen('Buy', NeocryptoFragment, safeArea),
+
     // Settings
-    modalScreen('Theme', ThemeFragment, safeArea),
+    modalScreen('Security', SecurityFragment, safeArea),
+    modalScreen('Contacts', ContactsFragment, safeArea),
+    modalScreen('Contact', ContactFragment, safeArea),
+    modalScreen('SpamFilter', SpamFilterFragment, safeArea),
     modalScreen('Currency', CurrencyFragment, safeArea),
+    modalScreen('Theme', ThemeFragment, safeArea),
+    modalScreen('PasscodeSetup', PasscodeSetupFragment, safeArea),
+    modalScreen('PasscodeChange', PasscodeChangeFragment, safeArea),
+    modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
+
+    // Utils
+    genericScreen('Privacy', PrivacyFragment, safeArea),
+    genericScreen('Terms', TermsFragment, safeArea),
+    lockedModalScreen('Scanner', ScannerFragment, safeArea),
+    transparentModalScreen('Alert', AlertFragment, safeArea),
+    transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
+    transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
 ];
 
-export const Navigation = React.memo(() => {
+export const Navigation = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigationTheme = useNavigationTheme();
     const appState = useRecoilValue(appStateAtom);
     const { isTestnet } = useNetwork();
 
-    const initial = React.useMemo(() => {
+    const initial = useMemo(() => {
         const onboarding = resolveOnboarding(isTestnet);
 
         if (onboarding === 'backup') {
@@ -231,9 +261,9 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Splash
-    const [mounted, setMounted] = React.useState(false);
+    const [mounted, setMounted] = useState(false);
     const isRestoring = useIsRestoring();
-    const onMounted = React.useMemo(() => {
+    const onMounted = useMemo(() => {
         return () => {
             if (mounted) {
                 return;
@@ -244,7 +274,7 @@ export const Navigation = React.memo(() => {
     const hideSplash = mounted && !isRestoring;
 
     // Register token
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         (async () => {
             const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -279,7 +309,7 @@ export const Navigation = React.memo(() => {
     }, [appState]);
 
     // Grant accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {
@@ -297,7 +327,7 @@ export const Navigation = React.memo(() => {
     }, []);
 
     // Revoke accesses
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         backoff('navigation', async () => {
             if (ended) {

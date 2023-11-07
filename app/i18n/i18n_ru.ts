@@ -55,7 +55,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         ok: 'Ок',
         totalBalance: 'Общий баланс',
         done: 'Готово',
-        assets: 'Активы'
+        assets: 'Активы',
+        wallets: 'Кошельки',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -851,11 +852,30 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         copySeedAlertAction: 'Скопировать',
         holdersOfflineApp: 'Holders Offline App',
     },
+    wallets: {
+        switchToAlertTitle: 'Переключить на {{wallet}}',
+        switchToAlertMessage: 'Вы уверены что хотите переключить кошелек?',
+        switchToAlertAction: 'Переключить',
+        addNewTitle: 'Добавить кошелек',
+        addNewAlertTitle: 'Добавить новый кошелек',
+        addNewAlertMessage: 'Вы уверены что хотите добавить новый кошелек?',
+        addNewAlertAction: 'Добавить',
+        alreadyExistsAlertTitle: 'Кошелек уже существует',
+        alreadyExistsAlertMessage: 'Кошелек с таким адресом уже существует',
+        settings: {
+            changeAvatar: 'Изменить аватар',
+        }
+    },
     webView: {
         noInternet: 'Нет интернет соединения',
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
         checkInternetAndReload: 'Пожалуйста, проверьте интернет соединение и попробуйте перезагрузить страницу',
+    },
+    screenCapture: {
+        title: 'Вау, крутой скриншот, но это не безопасно',
+        description: 'Незашифрованные цифровые копии вашей секретной фразы НЕ рекомендуются. Примеры включают сохранение копий на компьютере, в онлайн-аккаунтах или путем создания скриншотов',
+        action: 'Ок, я рискну',
     },
     onboarding: {
         avatar: 'Здесь вы можете изменить аватар и имя своего кошелька',

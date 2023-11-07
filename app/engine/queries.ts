@@ -38,6 +38,7 @@ export const Queries = {
     Apps: (url: string) => ({
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],
+        Stats: () => ['apps', url, 'stats'],
     }),
     Job: () => (['job']),
     APY: () => (['staking', 'apy']),

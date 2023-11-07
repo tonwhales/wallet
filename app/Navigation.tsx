@@ -170,7 +170,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
     modalScreen('SpamFilter', SpamFilterFragment, safeArea),
-    modalScreen('Currency', CurrencyFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
     modalScreen('Logout', LogoutFragment, safeArea),
@@ -202,6 +201,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Settings
     modalScreen('Theme', ThemeFragment, safeArea),
+    modalScreen('Currency', CurrencyFragment, safeArea),
 ];
 
 export const Navigation = React.memo(() => {

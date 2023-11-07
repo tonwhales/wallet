@@ -58,6 +58,8 @@ export type LocalizationSchema = {
         done: string,
         assets: string,
         wallets: string,
+        attention: string,
+        recipientAddress: string,
     },
     syncStatus: {
         connecting: string,
@@ -746,7 +748,13 @@ export type LocalizationSchema = {
         confirm: {
             title: string,
             message: string
-        }
+        },
+        checkRecipient: string,
+        checkRecipientDescription: string,
+    },
+    logout: {
+        title: string,
+        logoutDescription: string,
     },
     contacts: {
         title: string,

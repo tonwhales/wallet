@@ -1,114 +1,161 @@
-import { StatusBar } from "expo-status-bar";
-import React from "react";
-import { Platform, View, Text, ScrollView, ActionSheetIOS, Alert } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Platform, View, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
-import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { useTheme } from '../engine/hooks';
-import { Address } from "@ton/core";
-import { useNetwork } from '../engine/hooks';
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { useKeysAuth } from "../components/secure/AuthWalletKeys";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ItemButton } from "../components/ItemButton";
+import { openWithInApp } from "../utils/openWithInApp";
+import { useTheme } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 
-export function clearHolders(isTestnet: boolean, address?: Address) {
-    // TODO
-    // const holdersDomain = extractDomain(holdersUrl);
-    // engine.products.holders.stopWatching();
-    // engine.persistence.domainKeys.setValue(
-    //     `${(address ?? engine.address).toString({ testOnly: isTestnet })}/${holdersDomain}`,
-    //     null
-    // );
-    // engine.persistence.holdersState.setValue(address ?? engine.address, null);
-    // engine.products.holders.deleteToken();
-}
+import IcLogout from '@assets/ic-alert-red.svg';
+import Support from '@assets/ic-support.svg';
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+
+    const { showActionSheetWithOptions } = useActionSheet();
     const onAccountDeleted = useDeleteCurrentAccount();
 
-    const onLogout = React.useCallback(() => {
-        if (Platform.OS === 'ios') {
-            ActionSheetIOS.showActionSheetWithOptions(
-                {
-                    title: t('confirm.logout.title'),
-                    message: t('confirm.logout.message'),
-                    options: [t('common.cancel'), t('deleteAccount.logOutAndDelete')],
-                    destructiveButtonIndex: 1,
-                    cancelButtonIndex: 0
-                },
-                (buttonIndex) => {
-                    if (buttonIndex === 1) {
-                        onAccountDeleted();
-                    }
-                }
-            );
-        } else {
-            Alert.alert(
-                t('confirm.logout.title'),
-                t('confirm.logout.message'),
-                [{
-                    text: t('deleteAccount.logOutAndDelete'), style: 'destructive', onPress: () => {
-                        onAccountDeleted();
-                    }
-                }, { text: t('common.cancel') }])
+    const onSupport = useCallback(() => {
+        const options = [t('common.cancel'), t('settings.support.telegram'), t('settings.support.form')];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            options,
+            title: t('settings.support.title'),
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp('https://t.me/WhalesSupportBot');
+                    break;
+                case 2:
+                    openWithInApp('https://airtable.com/appWErwfR8x0o7vmz/shr81d2H644BNUtPN');
+                    break;
+                default:
+                    break;
+            }
+        });
+    }, []);
+
+    const [isShown, setIsShown] = useState(false);
+
+    const onLogout = useCallback(async () => {
+        try {
+            await authContext.authenticate({ cancelable: true, showResetOnMaxAttempts: true });
+        } catch (e) {
+            navigation.goBack();
+            return;
         }
-    }, [isTestnet, onAccountDeleted]);
+        onAccountDeleted();
+    }, [onAccountDeleted]);
+
+    const showLogoutActSheet = useCallback(() => {
+        if (isShown) {
+            return;
+        }
+        const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
+        const destructiveButtonIndex = 1;
+        const cancelButtonIndex = 0;
+
+        setIsShown(true);
+
+        showActionSheetWithOptions({
+            title: t('confirm.logout.title'),
+            message: t('confirm.logout.message'),
+            options,
+            destructiveButtonIndex,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    onLogout();
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+            setIsShown(false);
+        });
+    }, [isShown]);
 
     return (
         <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            flexGrow: 1,
+            paddingBottom: safeArea.bottom,
+            backgroundColor: theme.background
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('common.logout')} />
-            {Platform.OS === 'ios' && (
+            <ScreenHeader
+                title={t('common.logout')}
+                onBackPressed={navigation.goBack}
+                style={[
+                    { paddingLeft: 16 },
+                    Platform.select({ android: { marginTop: safeArea.top } })
+                ]}
+                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
+            />
+            <View style={{ paddingHorizontal: 16, flexGrow: 1, marginTop: 16 }}>
                 <View style={{
-                    marginTop: 17,
-                    height: 32
+                    backgroundColor: 'rgba(255, 65, 92, 0.10)',
+                    borderRadius: 20, padding: 20,
+                    marginBottom: 16
                 }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17,
-                        color: theme.textPrimary
-                    }, { textAlign: 'center' }]}>
-                        {t('common.logout')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
-                    paddingHorizontal: 16
-                }}>
-                    <View style={{ marginRight: 10, marginLeft: 10, marginTop: 8 }}>
-                        <Text style={{ color: theme.textPrimary, fontSize: 14 }}>
-                            {t('settings.logoutDescription')}
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <IcLogout width={24} height={24} color={theme.accentRed} />
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            marginLeft: 12,
+                            fontWeight: '600',
+                            color: theme.accentRed,
+                        }}>
+                            {t('common.attention')}
                         </Text>
                     </View>
+                    <Text style={{
+                        fontSize: 15, lineHeight: 20,
+                        fontWeight: '400',
+                        color: theme.accentRed,
+                    }}>
+                        {t('logout.logoutDescription')}
+                    </Text>
                 </View>
-            </ScrollView>
-            <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton
-                    title={t('common.logout')}
-                    onPress={onLogout}
-                    display={'danger_zone'}
-                />
+                <View style={{
+                    backgroundColor: theme.border,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <ItemButton
+                        leftIconComponent={<Support width={24} height={24} />}
+                        title={t('settings.support.title')}
+                        onPress={onSupport}
+                    />
+                    <ItemButton
+                        leftIcon={require('@assets/ic-backup.png')}
+                        title={t('settings.backupKeys')}
+                        onPress={() => navigation.navigate('WalletBackupLogout', { back: true })}
+                    />
+                </View>
+                <View style={{ flexGrow: 1 }} />
+                <View style={{ marginBottom: 16 }}>
+                    <RoundButton
+                        title={t('common.logout')}
+                        onPress={showLogoutActSheet}
+                        display={'default'}
+                        style={{ marginBottom: 16 }}
+                    />
+                </View>
             </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </View>
     );
 });

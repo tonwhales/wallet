@@ -11,6 +11,8 @@ export function useHints(addressString?: string): string[] {
             return await fetchHints(addressString!);
         },
         enabled: !!addressString,
+        refetchInterval: 20000,
+        refetchOnWindowFocus: true,
     });
 
     return hints.data || [];

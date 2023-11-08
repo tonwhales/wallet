@@ -62,51 +62,31 @@ export const HardwareWalletFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
                 style={{ paddingHorizontal: 16 }}
             />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingHorizontal: 16,
-                    justifyContent: 'center', alignItems: 'center',
-                    marginTop: 41, marginBottom: 33,
-                }}>
-                    <Image
-                        style={{
-                            width: dimentions.screen.width - 32,
-                            height: undefined,
-                            aspectRatio: 1,
-                            borderRadius: 20,
-                        }}
-                        source={
-                            Platform.select({
-                                ios: theme.style === 'dark'
-                                    ? require('@assets/ledger/ledger-ios-dark.webp')
-                                    : require('@assets/ledger/ledger-ios.webp'),
-                                android: theme.style === 'dark'
-                                    ? require('@assets/ledger/ledger-and-dark.webp')
-                                    : require('@assets/ledger/ledger-and.webp')
-                            })
-                        }
-                        resizeMode={'contain'}
-                    />
-                </View>
-            )}
-            {Platform.OS === 'android' && (
-                <View style={{
-                    paddingHorizontal: 16,
-                    justifyContent: 'center', alignItems: 'center',
-                    marginTop: 41, marginBottom: 33
-                }}>
-                    <Image
-                        style={{
-                            width: dimentions.screen.width - 32,
-                            height: undefined,
-                            aspectRatio: 1,
-                            borderRadius: 20,
-                        }}
-                        source={require('@assets/and_ledger.webp')}
-                        resizeMode={'contain'}
-                    />
-                </View>
-            )}
+            <View style={{
+                paddingHorizontal: 16,
+                justifyContent: 'center', alignItems: 'center',
+                marginTop: 41, marginBottom: 33,
+            }}>
+                <Image
+                    style={{
+                        width: dimentions.screen.width - 32,
+                        height: undefined,
+                        aspectRatio: 1,
+                        borderRadius: 20,
+                    }}
+                    source={
+                        Platform.select({
+                            ios: theme.style === 'dark'
+                                ? require('@assets/ledger/ledger-ios-dark.webp')
+                                : require('@assets/ledger/ledger-ios.webp'),
+                            android: theme.style === 'dark'
+                                ? require('@assets/ledger/ledger-and-dark.webp')
+                                : require('@assets/ledger/ledger-and.webp')
+                        })
+                    }
+                    resizeMode={'contain'}
+                />
+            </View>
             <View style={{
                 marginHorizontal: 16,
                 marginBottom: safeArea.bottom + 16,

@@ -9,7 +9,6 @@ import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragm
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
-import { SettingsFragment } from './fragments/SettingsFragment';
 import { ScannerFragment } from './fragments/utils/ScannerFragment';
 import { MigrationFragment } from './fragments/secure/MigrationFragment';
 import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
@@ -25,7 +24,6 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { t } from './i18n/t';
 import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
-import { ConnectionsFragment } from './fragments/connections/ConnectionsFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -47,7 +45,6 @@ import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { LedgerRoot } from './fragments/ledger/LedgerRoot';
 import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
@@ -83,6 +80,11 @@ import { AvatarPickerFragment } from './fragments/wallet/AvatarPickerFragment';
 import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
 import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
 import { StakingAnalyticsFragment } from './fragments/staking/StakingAnalyticsFragment';
+import { HardwareWalletFragment } from './fragments/ledger/HardwareWalletFragment';
+import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSelectionFragment';
+import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
+import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
+import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -182,7 +184,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('Ledger', LedgerRoot, safeArea),
     modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
     lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     <Stack.Screen
@@ -224,6 +225,21 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
     modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
+
+    // Ledger
+    modalScreen('Ledger', HardwareWalletFragment, safeArea),
+    lockedModalScreen('LedgerDeviceSelection', LedgerDeviceSelectionFragment, safeArea),
+    lockedModalScreen('LedgerSelectAccount', LedgerSelectAccountFragment, safeArea),
+    fullScreen('LedgerApp', LedgerAppFragment),
+    modalScreen('LedgerSimpleTransfer', SimpleTransferFragment, safeArea),
+    modalScreen('LedgerReceive', ReceiveFragment, safeArea),
+    lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
+    modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
+    modalScreen('LedgerAssets', AssetsFragment, safeArea),
+    modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
+    modalScreen('LedgerStaking', StakingFragment, safeArea),
+    modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 
     // Settings
     modalScreen('Security', SecurityFragment, safeArea),

@@ -7,13 +7,13 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useLedgerTransport } from "./components/LedgerTransportProvider";
 import { useDimensions } from "@react-native-community/hooks";
+import { useTheme } from "../../engine/hooks";
+import { useLedgerTransport } from "./components/TransportContext";
 
 export const HardwareWalletFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
@@ -51,7 +51,6 @@ export const HardwareWalletFragment = fragment(() => {
             navigation.navigate('LedgerSelectAccount');
         }
     }, [ledgerContext?.ledgerConnection]);
-
     return (
         <View style={{
             flex: 1,
@@ -76,7 +75,16 @@ export const HardwareWalletFragment = fragment(() => {
                             aspectRatio: 1,
                             borderRadius: 20,
                         }}
-                        source={require('@assets/ledger_ios.webp')}
+                        source={
+                            Platform.select({
+                                ios: theme.style === 'dark'
+                                    ? require('@assets/ledger/ledger-ios-dark.webp')
+                                    : require('@assets/ledger/ledger-ios.webp'),
+                                android: theme.style === 'dark'
+                                    ? require('@assets/ledger/ledger-and-dark.webp')
+                                    : require('@assets/ledger/ledger-and.webp')
+                            })
+                        }
                         resizeMode={'contain'}
                     />
                 </View>
@@ -108,7 +116,7 @@ export const HardwareWalletFragment = fragment(() => {
                 flexGrow: 1,
             }}>
                 <Text style={{
-                    color: Theme.textPrimary,
+                    color: theme.textPrimary,
                     fontWeight: '600',
                     fontSize: 32, lineHeight: 38,
                     marginBottom: 16,
@@ -120,7 +128,7 @@ export const HardwareWalletFragment = fragment(() => {
                 </Text>
                 <View style={{ alignItems: 'center' }}>
                     <Text style={{
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                         fontWeight: '400',
                         fontSize: 17, lineHeight: 24,
                         textAlign: 'center'
@@ -136,7 +144,7 @@ export const HardwareWalletFragment = fragment(() => {
                         onPress={() => openWithInApp('https://tonwhales.com/ledger')}
                     >
                         <Text style={{
-                            color: Theme.accent,
+                            color: theme.accent,
                             fontWeight: '500',
                             fontSize: 17, lineHeight: 24,
                         }}>

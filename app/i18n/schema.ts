@@ -865,6 +865,8 @@ export type LocalizationSchema = {
             transactionRejected: string,
             transferFailed: string,
             permissions: string,
+            unknown: string,
+            reboot: string,
         },
         moreAbout: string
     },

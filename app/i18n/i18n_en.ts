@@ -863,6 +863,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             transactionRejected: 'Transaction rejected',
             transferFailed: 'Transfer failed',
             permissions: 'Please, allow access to bluetooth and location',
+            unknown: 'Unknown error',
+            reboot: 'Please, reboot your device and try again',
         },
         moreAbout: 'More about Ledger'
     },

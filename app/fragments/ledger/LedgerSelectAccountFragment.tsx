@@ -34,11 +34,19 @@ export const LedgerSelectAccountFragment = fragment(() => {
             (async () => {
                 const res: { address: Address, publicKey: Buffer }[] = [];
                 const run = Array.from({ length: 10 }).map((_, i) => i);
-                for (const i of run) {
-                    const path = pathFromAccountNumber(i, network.isTestnet);
-                    const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: network.isTestnet });
-                    const address = Address.parse(addr.address);
-                    res.push({ address, publicKey: addr.publicKey });
+                try {
+                    for (const i of run) {
+                        const path = pathFromAccountNumber(i, network.isTestnet);
+                        const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: network.isTestnet });
+                        const address = Address.parse(addr.address);
+                        res.push({ address, publicKey: addr.publicKey });
+                    }
+                } catch {
+                    Alert.alert(
+                        t('hardwareWallet.errors.unknown'),
+                        t('hardwareWallet.errors.reboot'),
+                        [{ text: t('common.ok'), onPress: () => ledgerContext.setLedgerConnection(null) }]
+                    );
                 }
                 setAccounts(res);
             })();
@@ -71,8 +79,6 @@ export const LedgerSelectAccountFragment = fragment(() => {
             navigation.navigateLedgerApp();
         }
     }, [ledgerContext?.addr]);
-
-    console.log('accs', { accs, accountsLite });
 
     return (
         <View style={{

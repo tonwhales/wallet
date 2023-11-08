@@ -19,7 +19,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    
+
     const devices = (
         (ledgerContext?.bleSearchState?.type === 'completed' && ledgerContext?.bleSearchState?.success)
         || (ledgerContext?.bleSearchState?.type === 'ongoing') && ledgerContext?.bleSearchState.devices.length > 0
@@ -27,7 +27,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     const onDeviceSelect = useCallback(async (device: any) => {
         const transport = await TransportBLE.open(device.id);
-        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
+        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device, navigation });
     }, [ledgerContext]);
 
     const newScan = useCallback(() => {

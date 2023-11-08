@@ -4,14 +4,13 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import React, { useCallback, useEffect, useMemo } from "react";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { warn } from "../../utils/log";
 import { Pressable, View, Image, Text, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
-import { useAccountLite, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
@@ -31,7 +30,8 @@ export const LedgerHomeFragment = fragment(() => {
             return Address.parse(ledgerContext.addr.address);
         } catch {}
     }, [ledgerContext?.addr?.address]);
-    const account = useAccountLite(address);
+
+    const account = useAccountsLite([address!])[0].data;
 
     // Navigation
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
@@ -156,7 +156,7 @@ export const LedgerHomeFragment = fragment(() => {
                             }}>
                                 <ValueComponent
                                     precision={4}
-                                    value={account?.balance ?? 0n}
+                                    value={BigInt(account?.balance.coins ?? 0)}
                                     centFontStyle={{ opacity: 0.5 }}
                                 />
                                 <Text style={{
@@ -194,7 +194,7 @@ export const LedgerHomeFragment = fragment(() => {
                                 onPress={navigateToCurrencySettings}
                             >
                                 <PriceComponent
-                                    amount={account?.balance ?? 0n}
+                                    amount={BigInt(account?.balance.coins ?? 0)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                     textStyle={{ color: theme.textThird }}
                                 />

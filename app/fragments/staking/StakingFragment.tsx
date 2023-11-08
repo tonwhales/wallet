@@ -20,11 +20,11 @@ import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { setStatusBarStyle } from "expo-status-bar";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-
-import InfoIcon from '@assets/ic-info-staking.svg';
 import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
+
+import InfoIcon from '@assets/ic-info-staking.svg';
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -156,7 +156,7 @@ export const StakingFragment = fragment(() => {
     return (
         <View style={{ flex: 1 }}>
             <ScreenHeader
-                style={{ marginTop: 32, paddingLeft: 16 }}
+                style={{ marginTop: 32, paddingHorizontal: 16 }}
                 onBackPressed={navigation.goBack}
                 rightButton={
                     <Pressable
@@ -164,7 +164,7 @@ export const StakingFragment = fragment(() => {
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
                             position: 'absolute',
-                            bottom: 12, right: 16
+                            bottom: 12, right: 0
                         })}
                     >
                         <InfoIcon height={26} width={26} style={{ height: 26, width: 26 }} />

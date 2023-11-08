@@ -3,10 +3,10 @@ import { View, Text, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-
-import IcGrowth from "@assets/ic-growth.svg";
 import { Address } from "@ton/core";
 import { useNetwork, useNominatorInfo, useSelectedAccount, useTheme } from "../../engine/hooks";
+
+import IcGrowth from "@assets/ic-growth.svg";
 
 export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const theme = useTheme();
@@ -21,33 +21,37 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
 
     return (
         <View style={{ flexDirection: 'row', marginBottom: 20, minHeight: 126 }}>
-            <Pressable
-                style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
-                onPress={() => navigation.navigate('StakingOperations', { pool })}
-            >
-                <View style={{
-                    flex: 1,
-                    backgroundColor: theme.surfaceSecondary,
-                    borderRadius: 20,
-                    padding: 20, marginRight: 16,
-                    minHeight: 126
-                }}>
-                    <Text style={{
-                        color: theme.textPrimary,
-                        fontWeight: '600',
-                        fontSize: 17, lineHeight: 24
+            {((nominatorInfo.nominator?.deposits.length ?? 0) + (nominatorInfo.nominator?.withdraws.length ?? 0)) > 0 ? (
+                <Pressable
+                    style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
+                    onPress={() => navigation.navigate('StakingOperations', { pool })}
+                >
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: theme.surfaceSecondary,
+                        borderRadius: 20,
+                        padding: 20, marginRight: 16,
+                        minHeight: 126
                     }}>
-                        {t('products.staking.analytics.operations')}
-                    </Text>
-                    <Text style={{
-                        color: theme.textSecondary,
-                        fontWeight: '600',
-                        fontSize: 15, lineHeight: 20, marginTop: 2
-                    }}>
-                        {t('products.staking.analytics.operationsDescription')}
-                    </Text>
-                </View>
-            </Pressable>
+                        <Text style={{
+                            color: theme.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 17, lineHeight: 24
+                        }}>
+                            {t('products.staking.analytics.operations')}
+                        </Text>
+                        <Text style={{
+                            color: theme.textSecondary,
+                            fontWeight: '600',
+                            fontSize: 15, lineHeight: 20, marginTop: 2
+                        }}>
+                            {t('products.staking.analytics.operationsDescription')}
+                        </Text>
+                    </View>
+                </Pressable>
+            ) : (
+                <View style={{ flex: 1 }} />
+            )}
             <Pressable
                 style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
                 onPress={() => navigation.navigate('StakingAnalytics', { pool })}

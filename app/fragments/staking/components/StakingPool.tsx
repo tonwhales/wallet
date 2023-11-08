@@ -207,7 +207,7 @@ export const StakingPool = memo((props: {
                             </Text>
                         </Text>
                     </View>
-                    <View style={{}}>
+                    <View>
                         {props.balance  > 0n && (
                             <>
                                 <Text style={{

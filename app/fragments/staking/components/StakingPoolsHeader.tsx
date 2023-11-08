@@ -9,7 +9,7 @@ export const StakingPoolsHeader = memo((props: {
     action?: { title: string, onAction: () => void }
 }) => {
     const theme = useTheme();
-    
+
     return (
         <View style={{
             paddingHorizontal: 20,

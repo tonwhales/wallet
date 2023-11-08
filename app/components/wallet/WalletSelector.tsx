@@ -29,8 +29,7 @@ export const WalletSelector = memo(() => {
                         key={`wallet-${index}`}
                         index={index}
                         address={wallet.address}
-                        //TODO: update with ledger selected={index === appState.selected && !ledgerContext?.focused}
-                        selected={index === appState.selected}
+                        selected={index === appState.selected && !ledgerContext?.focused}
                     />
                 )
             })}
@@ -80,8 +79,7 @@ export const WalletSelector = memo(() => {
                             {ellipsiseAddress(ledgerContext.addr?.address ?? '')}
                         </Text>
                     </View>
-                    {/* TODO: update with ledger */}
-                    {/* <View style={{
+                    <View style={{
                         justifyContent: 'center', alignItems: 'center',
                         height: 24, width: 24,
                         backgroundColor: ledgerContext.focused ? theme.accent : theme.divider,
@@ -90,7 +88,7 @@ export const WalletSelector = memo(() => {
                         {ledgerContext.focused && (
                             <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
                         )}
-                    </View> */}
+                    </View>
                 </Pressable>
             )}
         </View>

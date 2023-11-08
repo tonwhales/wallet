@@ -1,18 +1,15 @@
-import BN from "bn.js";
 import React, { useEffect, useState } from "react";
 import { View, Text, Alert } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
-import { warn } from "../../utils/log";
 import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AccountButton } from "./components/AccountButton";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useClient4, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
-import { getLastBlock } from "../../engine/accountWatcher";
 import { Address } from "@ton/core";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
@@ -23,36 +20,30 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
-    const client = useClient4(network.isTestnet);
 
-    const [loading, setLoading] = useState(true);
     const [selected, setSelected] = useState<number>();
-    const [accounts, setAccounts] = useState<LedgerAccount[]>([]);
+    const [accs, setAccounts] = useState<{
+        address: Address;
+        publicKey: Buffer;
+    }[]>([]);
+
+    const accountsLite = useAccountsLite(accs.map((a) => a.address));
 
     useEffect(() => {
-        (async () => {
-            if (!ledgerContext?.tonTransport) {
-                return;
-            }
-            const proms: Promise<LedgerAccount>[] = [];
-            const seqno = (await getLastBlock());
-            for (let i = 0; i < 10; i++) {
-                proms.push((async () => {
+        if (!!ledgerContext?.tonTransport) {
+            (async () => {
+                const res: { address: Address, publicKey: Buffer }[] = [];
+                const run = Array.from({ length: 10 }).map((_, i) => i);
+                for (const i of run) {
                     const path = pathFromAccountNumber(i, network.isTestnet);
                     const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: network.isTestnet });
-                    try {
-                        const address = Address.parse(addr.address);
-                        const liteAcc = await client.getAccountLite(seqno, address);
-                        return { i, addr, balance: BigInt(liteAcc.account.balance.coins) };
-                    } catch (error) {
-                        return { i, addr, balance: 0n };
-                    }
-                })());
-            }
-            const res = await Promise.all(proms);
-            setAccounts(res);
-            setLoading(false);
-        })();
+                    const address = Address.parse(addr.address);
+                    res.push({ address, publicKey: addr.publicKey });
+                }
+                setAccounts(res);
+            })();
+            return;
+        }
     }, [ledgerContext?.tonTransport]);
 
     const onLoadAccount = React.useCallback(
@@ -68,9 +59,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                 await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
                 ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
                 setSelected(undefined);
-            } catch (e) {
-                warn(e);
-                // onReset();
+            } catch {
                 setSelected(undefined);
             }
         }),
@@ -82,6 +71,8 @@ export const LedgerSelectAccountFragment = fragment(() => {
             navigation.navigateLedgerApp();
         }
     }, [ledgerContext?.addr]);
+
+    console.log('accs', { accs, accountsLite });
 
     return (
         <View style={{
@@ -114,7 +105,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                 contentOffset={{ y: 16 + safeArea.top, x: 0 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
             >
-                {loading && (
+                {(!accountsLite || accountsLite.length === 0) ? (
                     <>
                         <View style={{
                             height: 86,
@@ -168,15 +159,26 @@ export const LedgerSelectAccountFragment = fragment(() => {
                             }} />
                         </View>
                     </>
+                ) : (
+                    accountsLite.map((acc) => {
+                        const item = accs.find((a) => a.address.equals(acc.address));
+                        return (
+                            <AccountButton
+                                key={acc.address.toString()}
+                                loadingAcc={selected}
+                                onSelect={onLoadAccount}
+                                acc={{
+                                    i: accs.findIndex((a) => a.address.equals(acc.address)),
+                                    addr: {
+                                        address: acc.address.toString({ testOnly: network.isTestnet }),
+                                        publicKey: item!.publicKey || Buffer.from([]),
+                                    },
+                                    balance: BigInt(acc.data?.balance.coins || 0),
+                                }}
+                            />
+                        )
+                    })
                 )}
-                {accounts.map((acc) => (
-                    <AccountButton
-                        key={acc.i}
-                        loadingAcc={selected}
-                        onSelect={onLoadAccount}
-                        acc={acc}
-                    />
-                ))}
                 <View style={{ height: 56 }} />
             </ScrollView>
         </View>

@@ -5,7 +5,6 @@ import React, { memo, useCallback, useMemo } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { t } from "../../i18n/t";
-import { LedgerTransactionsSection } from "./components/LedgerTransactionsSection";
 import { formatDate, getDateKey } from "../../utils/dates";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 

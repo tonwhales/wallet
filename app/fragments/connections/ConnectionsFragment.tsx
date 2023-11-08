@@ -92,8 +92,6 @@ export const ConnectionsFragment = fragment(() => {
         }
     }, []);
 
-    console.log({ apps, extensions, tonconnectApps })
-
     const onDisconnectApp = useCallback((url: string) => {
         let refs = getConnectionReferences();
         let toRemove = refs.filter((v) => v.url.toLowerCase() === url.toLowerCase());
@@ -123,7 +121,6 @@ export const ConnectionsFragment = fragment(() => {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                console.log('remove', key);
                 removeExtension(key);
             }
         }]);

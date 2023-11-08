@@ -2,11 +2,9 @@ import React, { ReactNode, createContext, useCallback, useContext, useEffect, us
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert, Platform } from "react-native";
 import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
-import { warn } from "../../../utils/log";
 import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 
@@ -76,13 +74,12 @@ export const TransportContext = createContext<
     | null
 >(null);
 
-export const TransportProvider = ({ children }: { children: ReactNode }) => {
-    const navigation = useTypedNavigation();
+export const LedgerTransportProvider = ({ children }: { children: ReactNode }) => {
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
     const [addr, setAddr] = useState<LedgerAddress | null>(null);
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
-    const [bleSearch, setSearch] = useState(0);
+    const [bleSearch, setSearch] = useState<number>(0);
     const [focused, setFocused] = useState(false);
 
     const reset = useCallback(() => {
@@ -90,6 +87,7 @@ export const TransportProvider = ({ children }: { children: ReactNode }) => {
         setTonTransport(null);
         setAddr(null);
         setSearch(0);
+        setFocused(false);
         dispatchBleState({ type: 'reset' });
     }, []);
 
@@ -101,7 +99,7 @@ export const TransportProvider = ({ children }: { children: ReactNode }) => {
         Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
             text: t('common.back'),
             onPress: () => {
-                navigation.popToTop();
+                reset();
             }
         }]);
     }, []);
@@ -111,20 +109,9 @@ export const TransportProvider = ({ children }: { children: ReactNode }) => {
         setLedgerConnection({ type: 'hid', transport: hid, device: null });
     }, []);
 
-    const startBleSearch = useCallback(async () => {
+    const startBleSearch = useCallback(() => {
         setSearch(bleSearch + 1);
     }, [bleSearch]);
-
-    const onSetAddress = useCallback((selected: LedgerAddress | null) => {
-        setAddr(selected);
-        try {
-            // const parsed = Address.parse(selected!.address);
-            // startWalletV4Sync(parsed, engine);
-            // engine.products.ledger.startSync(parsed);
-        } catch (e) {
-            warn('Failed to parse address');
-        }
-    }, [])
 
     useEffect(() => {
         let powerSub: Subscription;
@@ -215,22 +202,22 @@ export const TransportProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         let sub: Subscription | null = null;
         if (ledgerConnection?.type === 'ble') {
-            ledgerConnection.transport.on('disconnect', onDisconnect);
 
+            ledgerConnection.transport.on('disconnect', onDisconnect);
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
         } else if (ledgerConnection?.type === 'hid') {
+
             ledgerConnection.transport.on('disconnect', onDisconnect);
             ledgerConnection.transport.on('onDeviceDisconnect', onDisconnect);
-
+            
             sub = new Observable(TransportHID.listen).subscribe((e: any) => {
                 if (e.type === "remove") {
                     onDisconnect();
                 }
             });
-
+            
             setTonTransport(new TonTransport(ledgerConnection.transport));
-
         }
         return () => {
             sub?.unsubscribe();

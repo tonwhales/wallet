@@ -7,6 +7,7 @@ import { RebootContext } from './utils/RebootContext';
 import './utils/CachedLinking';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
+import { LedgerTransportProvider } from './fragments/ledger/components/TransportContext';
 
 const PERSISTANCE_VERSION = '12';
 
@@ -26,7 +27,9 @@ export const Root = React.memo(() => {
             <RebootContext.Provider value={reboot}>
                 <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }} client={queryClient}>
                     <RecoilRoot>
-                        <Navigation />
+                        <LedgerTransportProvider>
+                            <Navigation />
+                        </LedgerTransportProvider>
                     </RecoilRoot>
                 </PersistQueryClientProvider>
             </RebootContext.Provider>

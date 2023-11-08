@@ -6,9 +6,9 @@ import { ellipsiseAddress } from "../WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
 import { useAppState, useNetwork, useSetAppState, useTheme } from "../../engine/hooks";
+import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 
 import IcCheck from "@assets/ic-check.svg";
-import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 
 export const WalletItem = memo((
     {
@@ -39,7 +39,7 @@ export const WalletItem = memo((
         // Select new account
         updateAppState({ ...appState, selected: index }, network.isTestnet);
 
-        navigation.goBack();
+        navigation.navigateAndReplaceAll('Home');
     }, [walletSettings, selected, address, network]);
 
     return (

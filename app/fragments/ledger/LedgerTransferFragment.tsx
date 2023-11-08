@@ -1,7 +1,7 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import BN from "bn.js";
 import { StatusBar } from "expo-status-bar";
-import React, { useMemo } from "react"
+import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react"
 import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard } from "react-native"
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -57,16 +57,16 @@ export const LedgerTransferFragment = fragment(() => {
     const config = useConfig();
 
     // Input state
-    const [target, setTarget] = React.useState(params?.target ?? '');
-    const [addressDomainInput, setAddressDomainInput] = React.useState(target);
-    const [domain, setDomain] = React.useState<string>();
-    const [comment, setComment] = React.useState(params?.comment ?? '');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [stateInit, setStateInit] = React.useState<Cell | null>(null);
+    const [target, setTarget] = useState(params?.target ?? '');
+    const [addressDomainInput, setAddressDomainInput] = useState(target);
+    const [domain, setDomain] = useState<string>();
+    const [comment, setComment] = useState(params?.comment ?? '');
+    const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
+    const [stateInit, setStateInit] = useState<Cell | null>(null);
     const jettonWallet = useJettonWallet(params.jetton);
     const jettonMaster = useJettonMaster(jettonWallet?.master || null);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance = React.useMemo(() => {
+    const balance = useMemo(() => {
         let value;
         if (jettonWallet) {
             value = jettonWallet.balance;
@@ -76,10 +76,10 @@ export const LedgerTransferFragment = fragment(() => {
         return value;
     }, [jettonWallet, jettonMaster, accountV4State?.balance]);
 
-    const [estimation, setEstimation] = React.useState<bigint | null>(null);
+    const [estimation, setEstimation] = useState<bigint | null>(null);
 
     // Resolve order
-    const order = React.useMemo(() => {
+    const order = useMemo(() => {
         // Parse value
         let value: bigint;
         try {
@@ -125,7 +125,7 @@ export const LedgerTransferFragment = fragment(() => {
         });
     }, [amount, target, domain, comment, stateInit]);
 
-    const doSend = React.useCallback(async () => {
+    const doSend = useCallback(async () => {
         // Parse value
         let value: bigint;
         try {
@@ -157,10 +157,10 @@ export const LedgerTransferFragment = fragment(() => {
     }, [addr, target, amount, comment]);
 
     // Estimate fees
-    const lock = React.useMemo(() => {
+    const lock = useMemo(() => {
         return new AsyncLock();
     }, []);
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
             await backoff('ledger-transfer', async () => {
@@ -249,7 +249,7 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, [order, config, comment]);
 
-    const onQRCodeRead = React.useCallback((src: string) => {
+    const onQRCodeRead = useCallback((src: string) => {
         let res = resolveUrl(src, isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
@@ -285,19 +285,19 @@ export const LedgerTransferFragment = fragment(() => {
         }
     }, []);
 
-    const onAddAll = React.useCallback(() => {
+    const onAddAll = useCallback(() => {
         setAmount(jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
     }, [balance, jettonWallet, jettonMaster]);
 
     //
     // Scroll state tracking
     //
-    const [selectedInput, setSelectedInput] = React.useState(0);
+    const [selectedInput, setSelectedInput] = useState(0);
 
-    const refs = React.useMemo(() => {
-        let r: React.RefObject<ATextInputRef>[] = [];
+    const refs = useMemo(() => {
+        let r: RefObject<ATextInputRef>[] = [];
         for (let i = 0; i < 3; i++) {
-            r.push(React.createRef());
+            r.push(createRef());
         }
         return r;
     }, []);
@@ -306,7 +306,7 @@ export const LedgerTransferFragment = fragment(() => {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -321,19 +321,19 @@ export const LedgerTransferFragment = fragment(() => {
     }, []);
 
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
         if (keyboard.keyboardShown) {
             runOnUI(scrollToInput)(selectedInput);
         }
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
-    const onSubmit = React.useCallback((index: number) => {
+    const onSubmit = useCallback((index: number) => {
         let next = refs[index + 1].current;
         if (next) {
             next.focus();

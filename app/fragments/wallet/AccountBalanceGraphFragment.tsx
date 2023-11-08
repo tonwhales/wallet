@@ -160,8 +160,6 @@ export const AccountBalanceGraphFragment = fragment(() => {
 
     }, [timeRange]);
 
-    console.log({ animatedPointerProps: animatedPointerProps.text })
-
     return (
         <View style={{
             flex: 1,

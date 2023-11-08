@@ -14,8 +14,10 @@ export type LocalizationSchema = {
         logout: string,
         cancel: string,
         balance: string,
+        totalBalance: string,
         walletAddress: string,
-        recepientAddress: string,
+        recipientAddress: string,
+        recipient: string,
         copy: string,
         copiedAlert: string,
         copied: string,
@@ -36,6 +38,7 @@ export type LocalizationSchema = {
         delete: string,
         apply: string,
         domainOrAddress: string,
+        domainOrAddressOrContact: string,
         domain: string,
         search: string,
         termsOfService: string,
@@ -47,21 +50,27 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
+        wallets: string,
         later: string,
+        select: string,
+        showAll: string,
+        hideAll: string,
+        done: string,
+        mainWallet: string,
+        walletName: string,
+        from: string,
+        to: string,
+        transaction: string,
         somethingWentWrong: string,
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        airdrop: string,
+        recent: string, 
         ok: string,
-        totalBalance: string,
-        done: string,
-        assets: string,
-        wallets: string,
         attention: string,
-        recipientAddress: string,
-        walletName: string,
-        select: string,
+        save: string,
+        assets: string,
+        message: string
     },
     syncStatus: {
         connecting: string,
@@ -110,7 +119,8 @@ export type LocalizationSchema = {
         },
         empty: {
             message: string,
-            receive: string
+            receive: string,
+            description: string,
         },
         pendingTransactions: string
     },
@@ -125,12 +135,12 @@ export type LocalizationSchema = {
         bounced: string,
         tokenTransfer: string,
         airdrop: string,
-        failed: string,
-        batch: string
+        failed: string
     },
     txPreview: {
         sendAgain: string,
-        blockchainFee: string
+        blockchainFee: string,
+        blockchainFeeDescription: string,
     },
     receive: {
         title: string,
@@ -161,10 +171,12 @@ export type LocalizationSchema = {
         scanQR: string,
         sendTo: string,
         fee: string,
+        feeEmpty: string,
         feeTitle: string,
         feeTotalTitle: string,
         purpose: string,
         comment: string,
+        commentDescription: string,
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
@@ -189,6 +201,8 @@ export type LocalizationSchema = {
         wrongJettonMessage: string,
         notEnoughJettonsTitle: string,
         notEnoughJettonsMessage: string,
+        aboutFees: string,
+        aboutFeesDescription: string,
     },
     auth: {
         phoneVerify: string,
@@ -243,10 +257,7 @@ export type LocalizationSchema = {
         subtitle: string,
         inProgress: string,
         transfer: string,
-        check: string,
-        keyStoreTitle: string,
-        keyStoreSubtitle: string,
-        failed: string,
+        check: string
     },
     qr: {
         title: string,
@@ -436,7 +447,7 @@ export type LocalizationSchema = {
                 analyticsSubtitle: string,
             }
         },
-        holders: {
+        zenPay: {
             title: string,
             pageTitles: {
                 general: string,
@@ -512,7 +523,7 @@ export type LocalizationSchema = {
                 buttonSub: string
             }
         }
-    },
+    }
     welcome: {
         title: string,
         titleDev: string,
@@ -761,6 +772,8 @@ export type LocalizationSchema = {
     contacts: {
         title: string,
         contact: string,
+        contacts: string,
+        unknown: string,
         name: string,
         lastName: string,
         company: string,
@@ -778,6 +791,8 @@ export type LocalizationSchema = {
         empty: string,
         description: string,
         contactAddress: string,
+        search: string,
+        new: string
     },
     currency: {
         USD: string,
@@ -798,6 +813,7 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
+        view: string,
         share: {
             address: string,
             transaction: string
@@ -807,8 +823,7 @@ export type LocalizationSchema = {
         ledger: string,
         title: string,
         description: string,
-        installationIOS: string,
-        installationAndroid: string,
+        installation: string,
         installationGuide: string,
         connectionDescriptionAndroid: string,
         connectionDescriptionIOS: string,
@@ -822,6 +837,7 @@ export type LocalizationSchema = {
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
         devices: string,
+        connection: string,
         actions: {
             connect: string,
             selectAccount: string,
@@ -849,6 +865,8 @@ export type LocalizationSchema = {
             transactionRejected: string,
             transferFailed: string,
             permissions: string,
+            unknown: string,
+            reboot: string,
         },
         moreAbout: string
     },
@@ -878,10 +896,11 @@ export type LocalizationSchema = {
         }
     },
     webView: {
-        noInternet: string,
         contactSupportOrTryToReload: string,
         contactSupport: string,
-        checkInternetAndReload: string,
+    },
+    appAuth: {
+        description: string,
     },
     screenCapture: {
         title: string,

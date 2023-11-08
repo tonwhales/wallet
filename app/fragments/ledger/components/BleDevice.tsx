@@ -1,7 +1,9 @@
-import React, { useCallback, useState } from "react";
-import { Pressable, Text } from "react-native";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useTheme } from '../../../engine/hooks';
+import React, { memo, useCallback, useState } from "react";
+import { Pressable, Text, Image, View } from "react-native";
+import CircularProgress from "../../../components/CircularProgress/CircularProgress";
+import { useTheme } from "../../../engine/hooks";
+
+import Chevron from '@assets/ic-chevron-down.svg';
 
 export type LedgerDevice = {
     id: string,
@@ -10,7 +12,7 @@ export type LedgerDevice = {
     name: string,
 }
 
-export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: any) => Promise<void>, device: any }) => {
+export const BleDevice = memo(({ onSelect, device }: { onSelect: (device: any) => Promise<void>, device: any }) => {
     const theme = useTheme();
     const [pending, setPending] = useState(false);
 
@@ -28,19 +30,25 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
             onPress={onPress}
             style={({ pressed }) => {
                 return {
-                    opacity: pressed ? 0.3 : 1,
-                    paddingVertical: 16,
-                    paddingHorizontal: 32,
+                    opacity: pressed ? 0.5 : 1,
+                    padding: 20,
                     marginVertical: 8,
                     marginHorizontal: 16,
                     borderRadius: 16,
                     flexDirection: "row",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    backgroundColor: theme.surfacePimary
+                    backgroundColor: theme.border
                 }
             }}
         >
+            <Image
+                style={{
+                    width: 44,
+                    height: 44,
+                    marginRight: 12,
+                }}
+                source={require('@assets/ledger_device.png')}
+            />
             <Text style={{
                 fontSize: 18,
                 fontWeight: '600'
@@ -48,7 +56,30 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
             >
                 {device.name}
             </Text>
-            {pending ? <LoadingIndicator simple /> : null}
+            <View style={{ flexGrow: 1 }} />
+            {pending ? <CircularProgress
+                style={{
+                    transform: [{ rotate: '-90deg' }],
+                }}
+                progress={100}
+                animateFromValue={0}
+                duration={6000}
+                size={12}
+                width={2}
+                color={theme.accent}
+                backgroundColor={theme.transparent}
+                fullColor={null}
+                loop={true}
+                containerColor={theme.transparent}
+            /> : (
+                <Chevron
+                    height={16} width={16}
+                    style={{
+                        height: 16, width: 16,
+                        transform: [{ rotate: '-90deg' }],
+                    }}
+                />
+            )}
         </Pressable>
     );
 });

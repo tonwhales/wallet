@@ -12,8 +12,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         logout: 'Log Out',
         cancel: 'Cancel',
         balance: 'Balance',
+        totalBalance: 'Total balance',
         walletAddress: 'Wallet address',
-        recepientAddress: 'Recipient address',
+        recipientAddress: 'Recipient address',
+        recipient: 'Recipient',
         copy: 'Copy',
         copiedAlert: 'Copied to clipboard',
         copied: 'Copied',
@@ -34,6 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         delete: 'Delete',
         apply: 'Apply',
         domainOrAddress: 'Wallet address or domain',
+        domainOrAddressOrContact: 'Wallet address, domain or contact',
         domain: 'Domain',
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',
@@ -45,21 +48,27 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         gotIt: 'Got it',
         error: 'Error',
         wallet: 'Wallet',
+        wallets: 'Wallets',
         later: 'Later',
+        select: 'Select',
+        showAll: 'Show all',
+        hideAll: 'Hide all',
+        done: 'Done',
+        mainWallet: 'Main wallet',
+        walletName: 'Wallet name',
+        from: 'From',
+        to: 'To',
+        transaction: 'Transaction',
         somethingWentWrong: 'Something went wrong',
         checkInternetConnection: 'Check your internet connection',
         reload: 'Reload',
         errorOccurred: 'Error occurred: {{error}}',
-        airdrop: 'Airdrop',
-        ok: 'Ok',
-        totalBalance: 'Total balance',
-        done: 'Done',
-        assets: 'Assets',
-        wallets: 'Wallets',
+        recent: 'Recent',
+        ok: 'OK',
         attention: 'Attention',
-        recipientAddress: 'Recipient address',
-        walletName: 'Wallet name',
-        select: 'Select'
+        save: 'Save',
+        assets: 'Assets',
+        message: 'Message',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -108,9 +117,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         empty: {
             message: 'You have no transactions',
-            receive: 'Receive TON'
+            receive: 'Receive TON',
+            description: 'Make your first transaction'
         },
-        pendingTransactions: 'Pending transactions',
+        pendingTransactions: 'Pending transactions'
     },
     transactions: {
         title: 'Transactions',
@@ -124,11 +134,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         tokenTransfer: 'Token transfer',
         airdrop: 'Airdrop',
         failed: 'Failed',
-        batch: 'Batch transfer',
     },
     txPreview: {
         sendAgain: 'Send again',
-        blockchainFee: 'Blockchain fee'
+        blockchainFee: 'Blockchain fee',
+        blockchainFeeDescription: 'All fees are calculated in Gas. It\'s a special currency for fees in TON. All fees are nominated and fixed in a certain gas amount, but the gas price itself is not fixed. Even if TON price increases 100 times, transactions will remain ultra-cheap; less than $0.01. Moreover, validators may lower this value if they see commissions have become expensive. The gas fee, like many other parameters of TON, is configurable and may be changed by a special vote made in the mainnet. Fees on TON are difficult to calculate in advance, as their amount depends on transaction run time, account status, message content and size, blockchain network settings, and a number of other variables that cannot be calculated until the transaction is sent.',
     },
     receive: {
         title: 'Receive',
@@ -138,7 +148,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         }
     },
     transfer: {
-        title: 'Send {{symbol}}',
+        title: 'Send',
         titleAction: 'Action',
         confirm: 'Are you sure want to proceed?',
         error: {
@@ -155,14 +165,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
         },
-        sendAll: 'send all',
+        sendAll: 'Submit All',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',
+        feeEmpty: 'Fees will be calculated later',
         feeTitle: 'Blockchain fees',
         feeTotalTitle: 'Total blockchain fees',
         purpose: 'Purpose of transaction',
-        comment: 'Optional message',
+        comment: 'Message',
+        commentDescription: 'Message will be visible to everyone on the blockchain',
         commentRequired: 'Сomment required',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
@@ -179,14 +191,16 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         txsTotal: 'Total amount',
         gasDetails: 'Gas details',
         jettonGas: 'Gas for sending jettons',
-        unusualJettonsGas: '⛽️ Gas is higher than usual',
-        unusualJettonsGasTitle: '⚠️ The fee for sending jettons is {{amount}} TON',
+        unusualJettonsGas: 'Gas is higher than usual',
+        unusualJettonsGasTitle: 'The fee for sending jettons is {{amount}} TON',
         unusualJettonsGasMessage: 'Jetton transaction fee (Gas) is higher than usual',
         addressNotActive: 'Not active',
-        wrongJettonTitle: '⚠️ Wrong jetton',
+        wrongJettonTitle: 'Wrong jetton',
         wrongJettonMessage: 'You are trying to send a jetton that that you don\'t have',
-        notEnoughJettonsTitle: '⚠️ Not enough jettons',
+        notEnoughJettonsTitle: 'Not enough jettons',
         notEnoughJettonsMessage: 'You are trying to send more jettons than you have',
+        aboutFees: 'About fees',
+        aboutFeesDescription: 'The fees for transactions on the blockchain depend on several factors, such as network congestion, transaction size, gas price, and blockchain configuration parameters. The higher the demand for transaction processing on the blockchain or the larger the transaction size (message/comment), the higher the fees will be.'
     },
     auth: {
         phoneVerify: 'Verify phone',
@@ -196,8 +210,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         codeTitle: 'Enter code',
         codeSubtitle: 'We sent verification code to ',
         codeHint: 'Code',
-        title: 'Connection Request',
-        message: '<strong>{{name}}</strong> wants to connect to your account',
+        title: 'Login into {{name}}',
+        message: 'requests to connect to your wallet account {{wallet}}',
         hint: 'No funds would be transfered to the app and no access to your coins would be granted.',
         action: 'Allow',
         expired: 'This authentication request already expired',
@@ -206,7 +220,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         authorized: 'Authorization request approved',
         authorizedDescription: 'Now you can get back the app.',
         noExtensions: 'You don\'t have any extensions installed yet',
-        noApps: 'No connected apps',
+        noApps: 'You don\'t have any connected apps yet',
         name: 'Connected apps',
         yourWallet: 'Your wallet',
         revoke: {
@@ -241,10 +255,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',
         inProgress: 'Migrating old wallets...',
         transfer: 'Transfering coins from {{address}}',
-        check: 'Checking address {{address}}',
-        keyStoreTitle: 'Transition to a new security method',
-        keyStoreSubtitle: 'We want your keys to always be secure, so we have updated the way we protect them. We need your permission to transfer your keys to a new secure storage.',
-        failed: 'Migration failed',
+        check: 'Checking address {{address}}'
     },
     qr: {
         title: 'Point camera at QR code',
@@ -434,7 +445,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 analyticsSubtitle: 'Total profit',
             }
         },
-        holders: {
+        zenPay: {
             title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',
@@ -629,7 +640,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     known: {
         deposit: 'Deposit',
         depositOk: 'Deposit accepted',
-        withdraw: 'Request withdraw of {{coins}} 💎',
+        withdraw: 'Withdrawal request of {{coins}} TON',
         withdrawAll: 'Request withdraw of all coins',
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',
@@ -647,7 +658,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     connections: {
         extensions: 'Extensions',
-        connections: 'External apps'
+        connections: 'Connections'
     },
     accounts: {
         active: 'Active',
@@ -664,10 +675,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         minAmountDescription: 'Transactions with TON amount less than {{amount}} will be automatically marked as SPAM',
         applyConfig: 'Apply selected SPAM filter settings',
         denyList: 'Manual spam filter',
-        denyListEmpty: 'No blocked addresses yet',
+        denyListEmpty: 'No blocked addresses',
         unblockConfirm: 'Unblock address',
         blockConfirm: 'Mark address as spam',
-        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu.'
+        description: 'You can easily add the address to the list of manually blocked addresses  if you click on any transaction or address and select the option \"Mark address as spam\" in the pop-up menu'
     },
     security: {
         title: 'Security',
@@ -759,11 +770,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     contacts: {
         title: 'Contacts',
         contact: 'Contact',
-        name: 'First name',
+        unknown: 'Resent',
+        contacts: 'My contacts',
+        name: 'Name',
         lastName: 'Last name',
         company: 'Company',
         add: 'Add Contact',
-        edit: 'Edit Contact',
+        edit: 'Edit',
         save: 'Save',
         notes: 'Notes',
         alert: {
@@ -774,8 +787,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         delete: 'Delete contact',
         empty: 'No contacts yet',
-        description: 'You can add an address to your contacts easily if you long press on any transaction or address and select \"Add address to contacts\" in the pop-up menu.',
+        description: 'You can add an address to your contacts long pressing on any transaction or address or using the \"Add\" button or from the list of recent contacts below',
         contactAddress: 'Contacts address',
+        search: 'Name or wallet address',
+        new: 'New contact',
     },
     currency: {
         USD: "United States dollar",
@@ -796,6 +811,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         addressMarkSpam: 'Mark address as spam',
         txShare: 'Share transaction',
         txRepeat: 'Repeat transaction',
+        view: 'View in explorer',
         share: {
             address: 'TON address',
             transaction: 'TON transaction',
@@ -803,23 +819,23 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     hardwareWallet: {
         ledger: 'Ledger',
-        title: 'Hardware wallet',
+        title: 'Connect Ledger',
         description: 'Your hardware Ledger wallet',
-        installationIOS: 'You will need a Ledger with bluetooth (Nano X model) and have Ton App installed on the device',
-        installationAndroid: 'You will need a Ledger Nano X model (for bluetooth and USB connection) or Nano S model (USB only) and have Ton App installed on the device',
-        installationGuide: 'Ton App installation guide',
+        installation: 'If this is your first time, then you can read',
+        installationGuide: 'TON ledger connection guide',
         connectionDescriptionAndroid: 'Connect your Ledger via USB or Bluetooth',
         connectionDescriptionIOS: 'Connect your Ledger via Bluetooth',
         connectionHIDDescription_1: '1. Turn your ledger on and unlock it',
         connectionHIDDescription_2: '2. Press \"Continue\"',
-        chooseAccountDescription: 'Open your Ledger \"Ton App\" and then choose an account you would like to connect to',
+        chooseAccountDescription: 'Open the app on your Ledger and select the account you want to use',
         bluetoothScanDescription_1: '1. Turn your ledger on and unlock it',
         bluetoothScanDescription_2: '2. Make sure that you have bluetooth enabled',
         bluetoothScanDescription_3: '3. Press \"Scan\" to search for available devices and select suitable Ledger Nano X',
         bluetoothScanDescription_3_and: '3. Press \"Scan\" to search for available devices (we will need access to device location data and permission to search for nearby devices)',
         bluetoothScanDescription_4_and: '4. Then select suitable Ledger Nano X',
         openAppVerifyAddress: 'Check the account address that you have selected and then verify the address with the Ledger Ton App when prompted',
-        devices: 'Devices',
+        devices: 'Your devices',
+        connection: 'Connection',
         actions: {
             connect: 'Connect Ledger',
             selectAccount: 'Select account',
@@ -827,8 +843,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             loadAddress: 'Verify address',
             connectHid: 'Connect Ledger via USB',
             connectBluetooth: 'Connect Ledger via Bluetooth',
-            scanBluetooth: 'Scan',
-            confirmOnLedger: 'Confirm via Ledger',
+            scanBluetooth: 'Scan again',
+            confirmOnLedger: 'Verify on Ledger',
             sending: 'Awaiting transaction',
             sent: 'Transaction sent',
             mainAddress: 'Main address',
@@ -847,6 +863,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             transactionRejected: 'Transaction rejected',
             transferFailed: 'Transfer failed',
             permissions: 'Please, allow access to bluetooth and location',
+            unknown: 'Unknown error',
+            reboot: 'Please, reboot your device and try again',
         },
         moreAbout: 'More about Ledger'
     },
@@ -857,15 +875,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         switchNetworkAlertAction: 'Switch',
         copySeed: 'Copy 24 words seed phrase',
         copySeedAlertTitle: 'Coping 24 words seed phrase to clipboard',
-        copySeedAlertMessage: 'WARNING ⚠️ Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
+        copySeedAlertMessage: 'WARNING! Coping 24 words seed phrase to clipboard is not secure. Proceed at your own risk.',
         copySeedAlertAction: 'Copy',
         holdersOfflineApp: 'Holders Offline App',
-    },
-    webView: {
-        noInternet: 'No internet connection',
-        contactSupportOrTryToReload: 'Contact support or try to reload the page',
-        contactSupport: 'Contact support',
-        checkInternetAndReload: 'Check your internet connection and reload the page',
     },
     wallets: {
         switchToAlertTitle: 'Switching to {{wallet}}',
@@ -880,6 +892,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         settings: {
             changeAvatar: 'Change avatar',
         }
+    },
+    webView: {
+        contactSupportOrTryToReload: 'Contact support or try to reload the page',
+        contactSupport: 'Contact support',
+    },
+    appAuth: {
+        description: 'To continue logging in to the app',
     },
     screenCapture: {
         title: 'Wow, cool screenshot, but it\'s not safe',

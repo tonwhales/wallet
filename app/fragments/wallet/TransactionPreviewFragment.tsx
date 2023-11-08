@@ -34,10 +34,13 @@ import { useSelectedAccount } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
 import { useContact } from '../../engine/hooks';
 import { TransactionDescription, TxBody } from '../../engine/types';
+import { useRoute } from "@react-navigation/native";
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerTransactionPreview';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = useSelectedAccount()!;

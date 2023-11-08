@@ -1,8 +1,8 @@
-import React, { useEffect, useRef } from "react"
-import { StyleProp, View, ViewStyle } from "react-native"
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { useTheme } from '../../engine/hooks';
-import { useNetwork } from '../../engine/hooks';
+import React, { useEffect } from "react"
+import { StyleProp, ViewStyle } from "react-native"
+import { Easing, useSharedValue, withTiming } from "react-native-reanimated";
+import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
+import { useNetwork, useTheme } from "../../engine/hooks";
 
 export const StakingCycleProgress = React.memo((
     {
@@ -20,17 +20,10 @@ export const StakingCycleProgress = React.memo((
     }
 ) => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
-    const stakingCycle = isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
+    const network = useNetwork();
+    const stakingCycle = network.isTestnet ? 8 * 60 * 60 : 36 * 60 * 60;
     const progress = 100 - Math.floor((left * 100) / (full ? full : stakingCycle));
-    const ref = useRef<Animated.View>(null);
     const scale = useSharedValue(0);
-
-    const progressStyle = useAnimatedStyle(() => {
-        return {
-            width: `${scale.value}%`
-        };
-    }, []);
 
     useEffect(() => {
         scale.value = withTiming(progress, {
@@ -40,35 +33,12 @@ export const StakingCycleProgress = React.memo((
     }, [progress]);
 
     return (
-        <Animated.View
-            ref={ref}
-            style={[{
-                position: 'absolute',
-                top: 0, left: 0, bottom: 0,
-            }, style, { ...progressStyle }]}
-        >
-            {!reverse && (<View
-                style={[{
-                    backgroundColor: color ? color : theme.accent,
-                    height: 4,
-                    width: '100%',
-                }]}
-            />)}
-            <View
-                style={[{
-                    backgroundColor: color ? color : theme.accent,
-                    flexGrow: 1,
-                    opacity: 0.1,
-                    width: '100%'
-                }]}
-            />
-            {reverse && (<View
-                style={[{
-                    backgroundColor: color ? color : theme.accent,
-                    height: 4,
-                    width: '100%',
-                }]}
-            />)}
-        </Animated.View>
+        <ReAnimatedCircularProgress
+            size={64}
+            color={'#AAA5F0'}
+            strokeWidth={8}
+            progress={(progress / 100) - 0.05}
+            backdropColor={theme.divider}
+        />
     );
 })

@@ -1,82 +1,111 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useState } from "react";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano } from "@ton/core";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { ATextInput } from "../../components/ATextInput";
-import { CloseButton } from "../../components/CloseButton";
-import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
-import { StakingCalculator } from "../../components/staking/StakingCalculator";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks';
-import { useStakingPool } from '../../engine/hooks';
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { formatCurrency } from "../../utils/formatCurrency";
+import { ValueComponent } from "../../components/ValueComponent";
+import { TransferAction } from "./StakingTransferFragment";
+import { usePrice, useStakingPool, useTheme } from "../../engine/hooks";
+import { Address, fromNano } from "@ton/core";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
     const params = useParams<{ target: Address }>();
-    const pool = useStakingPool(params.target);
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
+    const [price, currency] = usePrice();
+    const ledgerContext = useLedgerTransport();
+    const route = useRoute();
+
+    const isLedger = route.name === 'LedgerStakingCalculator';
+
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch { }
+    }, [ledgerContext?.addr?.address]);
+
+    const pool = useStakingPool(params.target, ledgerAddress);
 
     const [amount, setAmount] = useState(pool?.member?.balance ? fromNano(pool.member.balance) : '');
 
-    const onChangeAmount = useCallback(
-        (value: string) => {
-            let amount = value;
-            if (amount.length <= 10) {
-                setAmount(amount);
-                return;
-            }
+    const onChangeAmount = useCallback((value: string) => {
+        let amount = value;
+        if (amount.length <= 10) {
+            setAmount(amount);
+            return;
+        }
 
-            if (amount.includes(',')) {
-                amount = amount.replace(',', '.');
-                const parts = amount.split('.');
-                if (parts.length === 2) {
-                    if (parts[0].length <= 10) {
-                        setAmount(amount);
-                    } else {
-                        setAmount((prev) => prev);
-                    }
+        if (amount.includes(',')) {
+            amount = amount.replace(',', '.');
+            const parts = amount.split('.');
+            if (parts.length === 2) {
+                if (parts[0].length <= 10) {
+                    setAmount(amount);
+                } else {
+                    setAmount((prev) => prev);
                 }
             }
+        }
 
-            if (amount.includes('.')) {
-                const parts = amount.split('.');
-                if (parts.length === 2) {
-                    if (parts[0].length <= 10) {
-                        setAmount(amount);
-                    } else {
-                        setAmount((prev) => prev);
-                    }
+        if (amount.includes('.')) {
+            const parts = amount.split('.');
+            if (parts.length === 2) {
+                if (parts[0].length <= 10) {
+                    setAmount(amount);
+                } else {
+                    setAmount((prev) => prev);
                 }
             }
-        }, [setAmount]);
+        }
+    }, [setAmount]);
+
+    const priceText = useMemo(() => {
+        if (!amount) {
+            return;
+        }
+        const validAmount = parseAmountToValidBN(amount);
+        const isNeg = validAmount < 0n;
+        const abs = isNeg ? -validAmount : validAmount;
+
+        return formatCurrency(
+            (parseFloat(fromNano(validAmount)) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [amount, price, currency]);
+
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(
+                Platform.OS === 'ios'
+                    ? 'light'
+                    : theme.style === 'dark' ? 'light' : 'dark'
+            )
+        }, 10);
+    });
 
     return (
         <>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar
-                style={{ marginTop: safeArea.top }}
-                pageTitle={t('products.staking.calc.text')}
+            <ScreenHeader
+                title={t('products.staking.calc.text')}
+                onClosePressed={navigation.goBack}
             />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                }}>
-                    <Text style={{ textAlign: 'center', lineHeight: 32, fontWeight: '600', fontSize: 17, color: theme.textPrimary }}>
-                        {t('products.staking.calc.text')}
-                    </Text>
-                </View>
-            )}
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
@@ -86,67 +115,58 @@ export const StakingCalculatorFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
                 scrollEventThrottle={16}
             >
-                <View
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
-                >
-                    <View style={{
-                        marginBottom: 0,
-                        backgroundColor: theme.surfacePimary,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 15,
-                    }}>
+                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
+                    <View
+                        style={{
+                            marginVertical: 16,
+                            backgroundColor: theme.surfaceSecondary,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                            padding: 20
+                        }}
+                    >
                         <View style={{
                             flexDirection: 'row',
-                            width: '100%',
+                            marginBottom: 12,
                             justifyContent: 'space-between'
                         }}>
                             <Text style={{
                                 fontWeight: '400',
-                                fontSize: 16,
-                                color: theme.textThird,
+                                fontSize: 15, lineHeight: 20,
+                                color: theme.textSecondary,
                             }}>
-                                {t('common.amount')}
+                                {`${t('common.balance')}: `}
+                                <ValueComponent
+                                    precision={4}
+                                    value={pool?.member?.balance || 0n}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
                             </Text>
                         </View>
-                        <View style={{ width: '100%' }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <ATextInput
-                                    index={0}
-                                    value={amount}
-                                    onValueChange={onChangeAmount}
-                                    placeholder={'0'}
-                                    keyboardType={'numeric'}
-                                    textAlign={'left'}
-                                    style={{ paddingHorizontal: 0, backgroundColor: theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                    inputStyle={{ color: theme.accent, flexGrow: 1, paddingTop: 0 }}
-                                    fontWeight={'800'}
-                                    fontSize={30}
-                                    editable={true}
-                                    enabled={true}
-                                    preventDefaultHeight
-                                    preventDefaultLineHeight
-                                    preventDefaultValuePadding
-                                    blurOnSubmit={false}
-                                />
-                            </View>
-                            <PriceComponent
-                                amount={parseAmountToValidBN(amount)}
-                                style={{
-                                    backgroundColor: theme.transparent,
-                                    paddingHorizontal: 0
-                                }}
-                                textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
-                            />
-                        </View>
+                        <ATextInput
+                            index={0}
+                            value={amount}
+                            onValueChange={setAmount}
+                            keyboardType={'numeric'}
+                            style={{
+                                backgroundColor: theme.background,
+                                paddingHorizontal: 16, paddingVertical: 14,
+                                borderRadius: 16,
+                            }}
+                            inputStyle={{
+                                fontSize: 17, fontWeight: '400',
+                                textAlignVertical: 'top',
+                                color: theme.textPrimary,
+                                width: 'auto',
+                                flexShrink: 1
+                            }}
+                            suffux={priceText}
+                            hideClearButton
+                            prefix={'TON'}
+                        />
                     </View>
                     {!!pool && (
-                        <StakingCalculator
+                        <StakingCalcComponent
                             amount={amount}
                             pool={pool}
                         />
@@ -162,20 +182,21 @@ export const StakingCalculatorFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 <RoundButton
-                    title={t('common.back')}
-                    action={async () => navigation.goBack()}
+                    title={t('products.staking.calc.goToTopUp')}
+                    onPress={() => {
+                        navigation.replace(
+                            isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
+                            {
+                                target: params.target,
+                                amount: (pool?.params.minStake ?? 0n) + (pool?.params?.receiptPrice ?? 0n) + (pool?.params?.depositFee ?? 0n),
+                                lockAddress: true,
+                                lockComment: true,
+                                action: 'top_up' as TransferAction,
+                            }
+                        )
+                    }}
                 />
             </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
         </>
 
     );

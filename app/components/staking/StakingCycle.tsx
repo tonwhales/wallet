@@ -3,7 +3,8 @@ import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { t } from "../../i18n/t"
 import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
-import { useTheme } from '../../engine/hooks'
+import { useTheme } from "../../engine/hooks"
+import { AboutIconButton } from "../AboutIconButton"
 
 export const StakingCycle = React.memo((
     {
@@ -29,89 +30,90 @@ export const StakingCycle = React.memo((
             clearInterval(timerId);
         };
     }, [stakeUntil]);
-
     return (
         <View style={[{
             backgroundColor: theme.surfaceSecondary,
             minHeight: 70,
-            borderRadius: 14,
-            marginHorizontal: 16,
+            borderRadius: 20,
+            padding: 20,
             overflow: 'hidden',
         }, style]}>
             {locked && (
-                <>
-                    <StakingCycleProgress left={left} />
-                    <View style={{
-                        flex: 1,
-                        paddingHorizontal: 16,
-                        paddingTop: 15,
-                        paddingBottom: 8
-                    }}>
+                <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flex: 1, paddingRight: 20 }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
                             <Text style={{
                                 color: theme.textPrimary,
                                 fontWeight: '600',
-                                fontSize: 16
+                                fontSize: 17, lineHeight: 24
                             }}>
-                                {t('products.staking.nextCycle')}
+                                {t('products.staking.nextCycle') + ' '}
+                                <Countdown
+                                    left={left}
+                                    textStyle={{
+                                        color: theme.textPrimary,
+                                        fontWeight: '600',
+                                        fontSize: 17, lineHeight: 24
+                                    }}
+                                />
                             </Text>
-                            <Countdown
-                                left={left}
-                                textStyle={{
-                                    fontWeight: '400',
-                                    color: theme.textPrimary,
-                                    fontSize: 16
-                                }}
-                            />
                         </View>
                         <Text style={{
                             color: theme.textSecondary,
                             fontWeight: '400',
-                            fontSize: 13,
-                            marginTop: 8
+                            fontSize: 15, lineHeight: 20,
+                            marginTop: 2
                         }}>
                             {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
+                            <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                                <AboutIconButton
+                                    title={withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
+                                    description={t('products.staking.info.lockedAlert')}
+                                    style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
+                                />
+                            </View>
                         </Text>
                     </View>
-                </>
+                    <StakingCycleProgress left={left} />
+                </View>
             )}
             {!locked && (
-                <>
-                    <View style={{
-                        flex: 1,
-                        paddingHorizontal: 16,
-                        paddingTop: 15,
-                        paddingBottom: 8
-                    }}>
-                        <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
-                            <Text style={{
-                                color: theme.textPrimary,
-                                fontWeight: '600',
-                                fontSize: 16
-                            }}>
-                                {t('products.staking.info.cooldownTitle')}
-                            </Text>
-                            <Text style={{
-                                color: theme.accentGreen,
-                                fontSize: 16,
-                                fontVariant: ['tabular-nums']
-                            }}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}
-                            >
-                                {t('products.staking.info.cooldownActive')}
-                            </Text>
-                        </View>
+                <View style={{ flex: 1 }}>
+                    <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
                         <Text style={{
-                            color: theme.textSecondary,
-                            fontWeight: '400',
-                            fontSize: 13,
-                            marginTop: 8
+                            color: theme.textPrimary,
+                            fontWeight: '600',
+                            fontSize: 16
                         }}>
-                            {t('products.staking.info.cooldownDescription')}
+                            {t('products.staking.info.cooldownTitle')}
+                        </Text>
+                        <Text style={{
+                            color: theme.accentGreen,
+                            fontSize: 16,
+                            fontVariant: ['tabular-nums']
+                        }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {t('products.staking.info.cooldownActive')}
                         </Text>
                     </View>
-                </>
+                    <Text style={{
+                        color: theme.textSecondary,
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: 8
+                    }}>
+                        {t('products.staking.info.cooldownDescription')}
+                        <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                            <AboutIconButton
+                                title={t('products.staking.info.cooldownDescription')}
+                                description={t('products.staking.info.cooldownAlert')}
+                                style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
+                            />
+                        </View>
+                    </Text>
+                </View>
             )}
         </View>
     )

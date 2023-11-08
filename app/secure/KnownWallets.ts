@@ -1,43 +1,43 @@
 import { Address } from "@ton/core";
 
-const Img_EXMO = require('../../assets/known/exmo.png');
-const Img_Foundation = require('../../assets/known/foundation.png');
-const Img_Whales = require('../../assets/known/whales.png');
-const Img_OKX = require('../../assets/known/okx.png');
-const Img_FTX = require('../../assets/known/ftx.png');
-const Img_Disintar = require('../../assets/known/disintar_logo.png');
-const Img_Neocrypto = require('../../assets/known/neocrypto.png');
+const Img_EXMO = require('@assets/known/exmo.png');
+const Img_Foundation = require('@assets/known/foundation.png');
+const Img_Whales = require('@assets/known/ic_nominators.webp');
+const Img_OKX = require('@assets/known/okx.png');
+const Img_FTX = require('@assets/known/ftx.png');
+const Img_Disintar = require('@assets/known/disintar_logo.png');
+const Img_Neocrypto = require('@assets/known/neocrypto.png');
 
-const Img_TonTake = require('../../assets/known/Img_TonTake.jpg');
+const Img_TonTake = require('@assets/known/Img_TonTake.jpg');
 
 // Tegro
-const Img_Tegro_Money_bot = require('../../assets/known/Tegro_Money_bot.png');
-const Img_Tegro_TON_bot = require('../../assets/known/Tegro_TON_bot.png');
+const Img_Tegro_Money_bot = require('@assets/known/Tegro_Money_bot.webp');
+const Img_Tegro_TON_bot = require('@assets/known/Tegro_TON_bot.png');
 
 // NFT
-const Img_tonwhalesNFT = require('../../assets/known/tonwhalesNFT.png');
+const Img_tonwhalesNFT = require('@assets/known/tonwhalesNFT.png');
 
-const Img_kingyTON = require('../../assets/known/kingyTON.png');
-const Img_kingyru = require('../../assets/known/kingyru.png');
-const Img_thetrixter = require('../../assets/known/thetrixter.jpg');
+const Img_kingyTON = require('@assets/known/kingyTON.webp');
+const Img_kingyru = require('@assets/known/kingyru.png');
+const Img_thetrixter = require('@assets/known/thetrixter.jpg');
 
-const Img_Web3TON = require('../../assets/known/Web3TON.jpg');
-const Img_TONLab_Pro_Inc = require('../../assets/known/TONLab_Pro_Inc.png');
+const Img_Web3TON = require('@assets/known/Web3TON.webp');
+const Img_TONLab_Pro_Inc = require('@assets/known/TONLab_Pro_Inc.webp');
 
-const Img_TON_Chuwee_Boys = require('../../assets/known/TON_Chuwee_Boys.png');
+const Img_TON_Chuwee_Boys = require('@assets/known/TON_Chuwee_Boys.webp');
 
-const Img_TON_DUCKS = require('../../assets/known/TON_DUCKS.jpeg')
+const Img_TON_DUCKS = require('@assets/known/TON_DUCKS.jpeg')
 
-const Img_venera = require('../../assets/known/Img_venera.jpeg');
+const Img_venera = require('@assets/known/Img_venera.jpeg');
 
-const Img_Team_1 = require('../../assets/known/ic_team_1.png');
-const Img_Team_2 = require('../../assets/known/ic_team_2.png');
-const Img_ePN_1 = require('../../assets/known/ic_epn_1.png');
-const Img_ePN_2 = require('../../assets/known/ic_epn_2.png');
-const Img_Lockups_1 = require('../../assets/known/ic_lockups_1.png');
-const Img_Lockups_2 = require('../../assets/known/ic_lockups_2.png');
+const Img_Team_1 = require('@assets/known/ic_team_1.png');
+const Img_Team_2 = require('@assets/known/ic_team_2.png');
+const Img_ePN_1 = require('@assets/known/ic_epn_1.png');
+const Img_ePN_2 = require('@assets/known/ic_epn_2.png');
+const Img_Lockups_1 = require('@assets/known/ic_lockups_1.png');
+const Img_Lockups_2 = require('@assets/known/ic_lockups_2.png');
 
-const Img_MEXC = require('../../assets/known/ic_mexc.png');
+const Img_MEXC = require('@assets/known/ic_mexc.png');
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -45,7 +45,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
     return isTestnet
         ? {
             [Address.parse('kQDV1LTU0sWojmDUV4HulrlYPpxLWSUjM6F3lUurMbwhales').toString({ testOnly: isTestnet })]: {
-                name: 'Nominators #1',
+                name: 'Nominators 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -53,7 +53,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('kQCkXp5Z3tJ_eAjFG_0xbbfx2Oh_ESyY6Nk56zARZDwhales').toString({ testOnly: isTestnet })]: {
-                name: 'Nominators #2',
+                name: 'Nominators 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -134,7 +134,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCkR1cGmnsE45N4K0otPl5EnxnRakmGqeJUNua5fkWhales').toString()]: {
-                name: 'Whales Nominators #1',
+                name: 'Whales Nominators 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -142,7 +142,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCY4M6TZYnOMnGBQlqi_nyeaIB1LeBFfGgP4uXQ1VWhales').toString()]: {
-                name: 'Whales Nominators #2',
+                name: 'Whales Nominators 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -150,7 +150,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Whales
             },
             [Address.parse('EQCOj4wEjXUR59Kq0KeXUJouY5iAcujkmwJGsYX7qPnITEAM').toString()]: {
-                name: 'Whales Team #1',
+                name: 'Whales Team 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -158,7 +158,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Team_1
             },
             [Address.parse('EQBI-wGVp_x0VFEjd7m9cEUD3tJ_bnxMSp0Tb9qz757ATEAM').toString()]: {
-                name: 'Whales Team #2',
+                name: 'Whales Team 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -369,7 +369,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_MEXC
             },
             [Address.parse('EQBYtJtQzU3M-AI23gFM91tW6kYlblVtjej59gS8P3uJ_ePN').toString()]: {
-                name: 'ePN Partners #1',
+                name: 'ePN Partners 1',
                 colors: {
                     primary: '#ec557c',
                     secondary: '#E01447'
@@ -377,7 +377,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_ePN_1
             },
             [Address.parse('EQCpCjQigwF27KQ588VhQv9jm_DUuL_ZLY3HCf_9yZW5_ePN').toString()]: {
-                name: 'ePN Partners #2',
+                name: 'ePN Partners 2',
                 colors: {
                     primary: '#ec557c',
                     secondary: '#E01447'
@@ -385,7 +385,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_ePN_2
             },
             [Address.parse('EQDhGXtbR6ejNQucRcoyzwiaF2Ke-5T8reptsiuZ_mLockup').toString()]: {
-                name: 'Lockups #1',
+                name: 'Lockups 1',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
@@ -393,7 +393,7 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Lockups_1
             },
             [Address.parse('EQDg5ThqQ1t9eriIv2HkH6XUiUs_Wd4YmXZeGpnPzwLockup').toString()]: {
-                name: 'Lockups #2',
+                name: 'Lockups 2',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'

@@ -3,9 +3,9 @@ import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, 
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTheme } from '../engine/hooks';
 
 import Clear from '@assets/ic-clear.svg';
-import { useTheme } from '../engine/hooks';
 
 export type ATextInputRef = {
     focus: () => void;

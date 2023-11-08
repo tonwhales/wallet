@@ -9,9 +9,9 @@ import { LedgerAssetsFragment } from "./LedgerAssetsFragment";
 import { LedgerBleFragment } from "./LedgerBleFragment";
 import { LedgerHIDFragment } from "./LedgerHIDFragment";
 import { LedgerSignTransferFragment } from "./LedgerSignTransferFragment";
-import { LedgerTransactionPreviewFragment } from "./LedgerTransactionPreviewFragment";
 import { LedgerTransferFragment } from "./LedgerTransferFragment";
 import { ReceiveFragment } from "../wallet/ReceiveFragment";
+import { TransactionPreviewFragment } from "../wallet/TransactionPreviewFragment";
 
 const Stack = createNativeStackNavigator();
 
@@ -45,7 +45,7 @@ const ledgerNavigation = [
     modalScreen('LedgerTransfer', LedgerTransferFragment),
     modalScreen('LedgerReceive', ReceiveFragment),
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment),
-    modalScreen('LedgerTransactionPreview', LedgerTransactionPreviewFragment),
+    modalScreen('LedgerTransactionPreview', TransactionPreviewFragment),
     modalScreen('LedgerAssets', LedgerAssetsFragment),
 ]
 

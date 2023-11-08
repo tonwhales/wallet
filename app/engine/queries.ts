@@ -8,7 +8,7 @@ export const Queries = {
             Status: () => ['account', address, 'staking', 'status'],
             Params: () => ['account', address, 'staking', 'params'],
             Member: (member: string) => ['account', address, 'staking', 'member', member],
-            Chart: (member: string) => ['account', address, 'staking', 'chart', member],
+            Chart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime') => ['account', address, 'staking', 'chart', pool, fixedPeriod],
         }),
     }),
     

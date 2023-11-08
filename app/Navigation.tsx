@@ -45,7 +45,6 @@ import { LogoutFragment } from './fragments/LogoutFragment';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
-import { StakingGraphFragment } from './fragments/staking/StakingGraphFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { LedgerRoot } from './fragments/ledger/LedgerRoot';
@@ -81,6 +80,9 @@ import { AccountSelectorFragment } from './fragments/wallet/AccountSelectorFragm
 import { memo, useEffect, useMemo, useState } from 'react';
 import { WalletSettingsFragment } from './fragments/wallet/WalletSettingsFragment';
 import { AvatarPickerFragment } from './fragments/wallet/AvatarPickerFragment';
+import { StakingPoolSelectorFragment } from './fragments/staking/StakingPoolSelectorFragment';
+import { StakingOperationsFragment } from './fragments/staking/StakingOperationsFragment';
+import { StakingAnalyticsFragment } from './fragments/staking/StakingAnalyticsFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -216,9 +218,12 @@ const navigation = (safeArea: EdgeInsets) => [
     // Staking
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    modalScreen('StakingGraph', StakingGraphFragment, safeArea),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
+    transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
+    transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
+    modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
+    modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
 
     // Settings
     modalScreen('Security', SecurityFragment, safeArea),

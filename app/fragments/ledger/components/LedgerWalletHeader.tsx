@@ -1,50 +1,45 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image } from "react-native";
-import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useBottomSheet } from '../../../components/modal/BottomSheetModal';
-import { useEngine } from "../../../engine/Engine";
 import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { CellMessage } from "ton";
-import BN from "bn.js";
+import { useNetwork, useSyncState, useTheme } from "../../../engine/hooks";
 
 import Scanner from '@assets/ic-scan-white.svg';
 import NoConnection from '@assets/ic-no-connection.svg';
 
 export const LedgerWalletHeader = memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
-    const engine = useEngine();
-    const account = engine.products.ledger.useAccount();
+    const theme = useTheme();
+    const network = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const modal = useBottomSheet();
     const navigation = useTypedNavigation();
-    const syncState = engine.state.use();
+    const syncState = useSyncState();
 
     const onQRCodeRead = useCallback((src: string) => {
         try {
-            let res = resolveUrl(src, AppConfig.isTestnet);
+            let res = resolveUrl(src, network.isTestnet);
             if (res && (res.type === 'jetton-transaction' || res.type === 'transaction')) {
                 if (res.type === 'transaction') {
                     if (res.payload) {
-                        navigation.navigateLedgerSignTransfer({
-                            order: {
-                                target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                                amount: res.amount || new BN(0),
-                                amountAll: false,
-                                stateInit: res.stateInit,
-                                payload: {
-                                    type: 'unsafe',
-                                    message: new CellMessage(res.payload),
-                                },
-                            },
-                            text: res.comment
-                        });
+                        // TODO: implement
+                        // navigation.navigateLedgerSignTransfer({
+                        //     order: {
+                        //         target: res.address.toString({ testOnly: network.isTestnet }),
+                        //         amount: res.amount || 0n,
+                        //         amountAll: false,
+                        //         stateInit: res.stateInit,
+                        //         payload: {
+                        //             type: 'unsafe',
+                        //             message: new CellMessage(res.payload),
+                        //         },
+                        //     },
+                        //     text: res.comment
+                        // });
                     } else {
                         navigation.navigateLedgerTransfer({
-                            target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            target: res.address.toString({ testOnly: network.isTestnet }),
                             comment: res.comment,
                             amount: res.amount,
                             stateInit: res.stateInit,
@@ -56,12 +51,12 @@ export const LedgerWalletHeader = memo(() => {
                     return;
                 }
                 navigation.navigateLedgerTransfer({
-                    target: res.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: res.address.toString({ testOnly: network.isTestnet }),
                     comment: res.comment,
                     amount: res.amount,
                     stateInit: null,
                     job: null,
-                    jetton: res.jettonMaster,
+                    jetton: res.jettonMaster.toString({ testOnly: network.isTestnet }),
                     callback: null
                 });
             }
@@ -72,13 +67,13 @@ export const LedgerWalletHeader = memo(() => {
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
     const onAccountPress = useCallback(() => {
         navigation.navigate('AccountSelector');
-    }, [modal]);
+    }, []);
 
 
     return (
         <View
             style={{
-                backgroundColor: Theme.backgroundUnchangeable,
+                backgroundColor: theme.backgroundUnchangeable,
                 paddingTop: safeArea.top,
                 paddingHorizontal: 16
             }}
@@ -101,7 +96,7 @@ export const LedgerWalletHeader = memo(() => {
                 >
                     <View style={{
                         width: 24, height: 24,
-                        backgroundColor: Theme.accent,
+                        backgroundColor: theme.accent,
                         borderRadius: 12
                     }}>
                         <Image
@@ -124,7 +119,7 @@ export const LedgerWalletHeader = memo(() => {
                             style={{
                                 fontWeight: '500',
                                 fontSize: 17, lineHeight: 24,
-                                color: Theme.white, flexShrink: 1,
+                                color: theme.white, flexShrink: 1,
                                 marginRight: 8
                             }}
                             ellipsizeMode='tail'
@@ -135,7 +130,7 @@ export const LedgerWalletHeader = memo(() => {
                         {syncState === 'updating' && (
                             <ReAnimatedCircularProgress
                                 size={14}
-                                color={Theme.white}
+                                color={theme.white}
                                 reverse
                                 infinitRotate
                                 progress={0.8}
@@ -150,7 +145,7 @@ export const LedgerWalletHeader = memo(() => {
                         )}
                         {syncState === 'online' && (
                             <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                <View style={{ backgroundColor: Theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
+                                <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
                             </View>
                         )}
                     </View>
@@ -168,7 +163,7 @@ export const LedgerWalletHeader = memo(() => {
                             }}
                             height={24}
                             width={24}
-                            color={Theme.iconPrimary}
+                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 </View>

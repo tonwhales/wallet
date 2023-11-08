@@ -1,15 +1,13 @@
 import React, { useMemo } from "react";
-import { BN } from "bn.js";
-import { useEngine } from "../../engine/Engine";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { ProductBanner } from "./ProductBanner";
-import { useLedgerTransport } from "../../fragments/ledger/components/LedgerTransportProvider";
-import { Address } from "ton";
+import { useNetwork, useStaking, useStakingApy, useTheme } from "../../engine/hooks";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { Address } from "@ton/core";
 
 import StakingIcon from '@assets/ic-staking.svg';
 
@@ -42,9 +40,9 @@ const subtitleStyle: StyleProp<TextStyle> = {
 }
 
 export const LedgerStakingProductComponent = React.memo(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const network = useNetwork();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const ledgerContext = useLedgerTransport();
     const address = useMemo(() => {
         if (!ledgerContext?.addr?.address) return;
@@ -55,10 +53,10 @@ export const LedgerStakingProductComponent = React.memo(() => {
         }
     }, [ledgerContext?.addr?.address]);
 
-    const staking = engine.products.whalesStakingPools.useStaking(address);
-    const showJoin = !staking || staking.total.eq(new BN(0));
+    const staking = useStaking(address!);
+    const showJoin = staking.total === 0n;
 
-    const apy = engine.products.whalesStakingPools.useStakingApy()?.apy;
+    const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy) {
             return (apy - apy * (5 / 100)).toFixed(2)
@@ -70,12 +68,12 @@ export const LedgerStakingProductComponent = React.memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('LedgerStakingPools')}
                 style={({ pressed }) => {
-                    return [style, { backgroundColor: Theme.surfaceSecondary, opacity: pressed ? 0.5 : 1 }]
+                    return [style, { backgroundColor: theme.surfaceSecondary, opacity: pressed ? 0.5 : 1 }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
                     <View style={icStyle}>
-                        <View style={{ backgroundColor: Theme.accent, ...icStyleInner }}>
+                        <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
                             <StakingIcon width={32} height={32} color={'white'} />
                         </View>
                     </View>
@@ -87,18 +85,18 @@ export const LedgerStakingProductComponent = React.memo(() => {
                     }}>
                         <View style={{ flexGrow: 1, flexShrink: 1 }}>
                             <Text
-                                style={{ color: Theme.textPrimary, ...titleStyle }}
+                                style={{ color: theme.textPrimary, ...titleStyle }}
                                 ellipsizeMode={'tail'}
                                 numberOfLines={1}
                             >
                                 {t('products.staking.title')}
                             </Text>
-                            <Text style={{ color: Theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                            <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
                                 {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
                             </Text>
                         </View>
                         <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ color: Theme.textPrimary, ...titleStyle }}>
+                            <Text style={{ color: theme.textPrimary, ...titleStyle }}>
                                 <ValueComponent
                                     value={staking.total}
                                     precision={3}
@@ -108,12 +106,12 @@ export const LedgerStakingProductComponent = React.memo(() => {
                             <PriceComponent
                                 amount={staking.total}
                                 style={{
-                                    backgroundColor: Theme.transparent,
+                                    backgroundColor: theme.transparent,
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
                                     height: 'auto'
                                 }}
-                                textStyle={{ color: Theme.textSecondary, ...subtitleStyle }}
+                                textStyle={{ color: theme.textSecondary, ...subtitleStyle }}
                             />
                         </View>
                     </View>
@@ -126,8 +124,8 @@ export const LedgerStakingProductComponent = React.memo(() => {
         <ProductBanner
             onPress={() => navigation.navigate('LedgerStakingPools')}
             title={t('products.staking.title')}
-            subtitle={AppConfig.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-            illustration={require('@assets/banner-staking.png')}
+            subtitle={network.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
+            illustration={require('@assets/banners/banner-staking.png')}
         />
     );
 })

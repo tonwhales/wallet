@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Pressable, Text, Image, View } from "react-native";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { useAppConfig } from "../../../utils/AppConfigContext";
-import Chevron from '@assets/ic-chevron-down.svg';
 import CircularProgress from "../../../components/CircularProgress/CircularProgress";
+import { useTheme } from "../../../engine/hooks";
+
+import Chevron from '@assets/ic-chevron-down.svg';
 
 export type LedgerDevice = {
     id: string,
@@ -12,8 +12,8 @@ export type LedgerDevice = {
     name: string,
 }
 
-export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: any) => Promise<void>, device: any }) => {
-    const { Theme } = useAppConfig();
+export const BleDevice = memo(({ onSelect, device }: { onSelect: (device: any) => Promise<void>, device: any }) => {
+    const theme = useTheme();
     const [pending, setPending] = useState(false);
 
     const onPress = useCallback(async () => {
@@ -37,7 +37,7 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                     borderRadius: 16,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: Theme.border
+                    backgroundColor: theme.border
                 }
             }}
         >
@@ -66,11 +66,11 @@ export const BleDevice = React.memo(({ onSelect, device }: { onSelect: (device: 
                 duration={6000}
                 size={12}
                 width={2}
-                color={Theme.accent}
-                backgroundColor={Theme.transparent}
+                color={theme.accent}
+                backgroundColor={theme.transparent}
                 fullColor={null}
                 loop={true}
-                containerColor={Theme.transparent}
+                containerColor={theme.transparent}
             /> : (
                 <Chevron
                     height={16} width={16}

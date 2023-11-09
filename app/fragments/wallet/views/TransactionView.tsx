@@ -1,10 +1,8 @@
-import BN from 'bn.js';
 import * as React from 'react';
 import { NativeSyntheticEvent, Text, View, Image, Platform, Share } from 'react-native';
 import { Address } from '@ton/core';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { formatTime } from '../../../utils/dates';
-import { AddressComponent } from '../../../components/AddressComponent';
 import { TouchableHighlight } from 'react-native';
 import { Avatar } from '../../../components/Avatar';
 import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
@@ -24,6 +22,7 @@ import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { useAddToDenyList } from '../../../engine/hooks';
 import { useContact } from '../../../engine/hooks';
 import { TransactionDescription } from '../../../engine/types';
+import { AddressComponent } from '../../../components/address/AddressComponent';
 
 export function knownAddressLabel(wallet: KnownWallet, isTestnet: boolean, friendly?: string) {
     return wallet.name + ` (${shortAddress({ friendly, isTestnet })})`
@@ -167,10 +166,11 @@ export const TransactionView = memo((props: {
                 break;
             }
             case t('txActions.txRepeat'): {
+                const amount = BigInt(tx.base.parsed.amount);
                 navigation.navigateSimpleTransfer({
                     target: opAddress,
                     comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-                    amount: BigInt(tx.base.parsed.amount),
+                    amount: amount < 0n ? -amount : amount,
                     job: null,
                     stateInit: null,
                     jetton: null,
@@ -271,7 +271,7 @@ export const TransactionView = memo((props: {
                                 ellipsizeMode="middle"
                                 numberOfLines={1}
                             >
-                                {known ? knownAddressLabel(known, isTestnet, opAddress) : <AddressComponent address={opAddress} />}
+                                {known ? knownAddressLabel(known, isTestnet, opAddress) : <AddressComponent address={Address.parse(opAddress)} />}
                             </Text>
                             {!!operation.comment ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} /> : null}
                             <Text style={{ color: theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(tx.base.time)}</Text>

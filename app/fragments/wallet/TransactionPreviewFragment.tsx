@@ -14,10 +14,6 @@ import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { StatusBar } from "expo-status-bar";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import ContactIcon from '../../../assets/ic_contacts.svg';
-import CopyIcon from '../../../assets/ic_copy.svg';
-import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
@@ -34,6 +30,12 @@ import { useSelectedAccount } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
 import { useContact } from '../../engine/hooks';
 import { StoredTxBody, TransactionDescription, TxBody } from '../../engine/types';
+import { useRoute } from "@react-navigation/native";
+
+import VerifiedIcon from '../../../assets/ic_verified.svg';
+import ContactIcon from '../../../assets/ic_contacts.svg';
+import CopyIcon from '../../../assets/ic_copy.svg';
+import ExplorerIcon from '../../../assets/ic_explorer.svg';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();

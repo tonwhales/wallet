@@ -1,5 +1,6 @@
+import React from "react";
 import { memo } from "react";
-import { TouchableHighlight, View, Text, Image, Platform } from "react-native";
+import { View, Text, Image, Platform } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
@@ -10,11 +11,11 @@ import { t } from "../../../i18n/t";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { useJettonContent } from "../../../engine/hooks/jettons/useJettonContent";
 import { knownAddressLabel } from "./TransactionView";
-import { AddressComponent } from "../../../components/AddressComponent";
 import { formatTime } from "../../../utils/dates";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContact } from "../../../engine/hooks/contacts/useContact";
+import { AddressComponent } from "../../../components/address/AddressComponent";
 
 const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean }) => {
     const theme = useTheme();
@@ -85,7 +86,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                                 >
                                     {known ?
                                         knownAddressLabel(known, isTestnet, targetFriendly)
-                                        : <AddressComponent address={targetFriendly} />
+                                        : <AddressComponent address={tx.address!} />
                                     }
                                 </Text>
                             )

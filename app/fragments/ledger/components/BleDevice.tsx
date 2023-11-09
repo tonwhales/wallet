@@ -51,9 +51,9 @@ export const BleDevice = memo(({ onSelect, device }: { onSelect: (device: any) =
             />
             <Text style={{
                 fontSize: 18,
-                fontWeight: '600'
-            }}
-            >
+                fontWeight: '600',
+                color: theme.textPrimary
+            }}>
                 {device.name}
             </Text>
             <View style={{ flexGrow: 1 }} />

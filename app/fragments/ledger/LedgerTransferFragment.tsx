@@ -6,7 +6,7 @@ import { Platform, Pressable, View, Text, Image, KeyboardAvoidingView, Keyboard 
 import Animated, { measure, runOnUI, useAnimatedRef, useSharedValue, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AsyncLock } from "teslabot";
-import { AddressDomainInput } from "../../components/AddressDomainInput";
+import { AddressDomainInput } from "../../components/address/AddressDomainInput";
 import { ATextInput, ATextInputRef } from "../../components/ATextInput";
 import { CloseButton } from "../../components/CloseButton";
 import { RoundButton } from "../../components/RoundButton";

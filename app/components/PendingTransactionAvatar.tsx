@@ -1,33 +1,32 @@
 import React, { useEffect, useRef, useState } from "react"
 import { StyleProp, View, ViewStyle } from "react-native"
 import { avatarHash } from "../utils/avatarHash";
-import { avatarColors, avatarImages } from "./Avatar";
+import { Avatar, avatarColors } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
-import { KnownAvatar } from "./KnownAvatar";
 import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
-import { useNetwork } from '../engine/hooks';
-import { useTheme } from '../engine/hooks';
+import { useNetwork, useTheme } from "../engine/hooks";
+
+import IcPending from '@assets/ic-tx-pending.svg';
 
 const Color = require('color');
 
 export const PendingTransactionAvatar = React.memo(({
     style,
     avatarId,
-    address
+    address,
+    kind
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
-    address?: string
+    address?: string,
+    kind: 'in' | 'out'
 }) => {
-    const { isTestnet } = useNetwork();
     const theme = useTheme();
-    
+    const network = useNetwork();
     const ref = useRef<CircularProgress>(null);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
-    let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
 
-    let size = Math.floor(42 * 0.6);
-    let known = address ? KnownWallets(isTestnet)[address] : undefined;
+    let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
     let lighter = Color(color).lighten(0.4).hex();
     let darker = Color(color).lighten(0.2).hex();
 
@@ -35,7 +34,6 @@ export const PendingTransactionAvatar = React.memo(({
         lighter = known.colors.primary;
         darker = known.colors.secondary;
     }
-
 
     const [progressParams, setProgressParams] = useState({
         tintColor: darker,
@@ -64,8 +62,8 @@ export const PendingTransactionAvatar = React.memo(({
     }, [progressParams]);
 
     return (
-        <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: color }} />
+        <View style={[{ flex: 1, height: 46, width: 46, justifyContent: 'center', alignItems: 'center' }, style]}>
+            <View style={{ width: 43, height: 43, borderRadius: 43, backgroundColor: theme.border }} />
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,
@@ -73,12 +71,7 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                {!known && (<Img
-                    width={size}
-                    height={size}
-                    color="white"
-                />)}
-                {known && <KnownAvatar size={42} wallet={known} />}
+                <Avatar size={42} id={avatarId} />
             </View>
             <CircularProgress
                 ref={ref}
@@ -91,13 +84,17 @@ export const PendingTransactionAvatar = React.memo(({
                 progress={100}
                 animateFromValue={0}
                 duration={defaultDuration}
-                size={42}
+                size={46}
                 width={3}
                 color={progressParams.tintColor}
-                backgroundColor={progressParams.backgroundColor}
+                backgroundColor={theme.border}
                 fullColor={null}
                 loop={true}
                 containerColor={theme.transparent}
+            />
+            <IcPending
+                height={16} width={16}
+                style={{ position: 'absolute', bottom: -2, right: -2, height: 16, width: 16 }}
             />
         </View>
     )

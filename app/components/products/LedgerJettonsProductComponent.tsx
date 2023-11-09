@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Pressable, View, Text } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import Animated, { FadeIn } from "react-native-reanimated";
-import Tokens from '@assets/ic-one.svg';
 import { t } from "../../i18n/t";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useJettons, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
-import { Address } from "@ton/core";
+
+import Tokens from '@assets/ic-one.svg';
 
 export const LedgerJettonsProductComponent = React.memo(() => {
     const theme = useTheme();
@@ -26,7 +26,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: theme.border,
+                backgroundColor: theme.surfaceSecondary,
             }}>
                 {jettons.map((j, index) => {
                     return (

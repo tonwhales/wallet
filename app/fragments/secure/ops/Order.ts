@@ -1,10 +1,10 @@
-import BN from "bn.js";
 import { Address, beginCell, Cell, comment } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
 /// mport { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
+    type: 'order';
     domain?: string;
     messages: {
         target: string;
@@ -20,6 +20,7 @@ export type Order = {
 };
 
 export type LedgerOrder = {
+    type: 'ledger';
     target: string;
     domain?: string;
     amount: bigint;
@@ -71,6 +72,7 @@ export function createLedgerJettonOrder(args: {
         .endCell();
 
     return {
+        type: 'ledger',
         target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
@@ -105,6 +107,7 @@ export function createSimpleLedgerOrder(args: {
     }
 
     return {
+        type: 'ledger',
         target: args.target,
         domain: args.domain,
         amount: args.amount,
@@ -128,7 +131,6 @@ export function createOrder(args: {
     }
 }) {
     return {
-        type: 'final',
         messages: [{
             target: args.target,
             amount: args.amount,
@@ -164,15 +166,18 @@ export function createSimpleOrder(args: {
         payload = c;
     }
 
-    return createOrder({
-        target: args.target,
-        domain: args.domain,
-        payload,
-        amount: args.amount,
-        amountAll: args.amountAll,
-        stateInit: args.stateInit,
-        app: args.app
-    });
+    return {
+        type: 'order',
+        ...createOrder({
+            target: args.target,
+            domain: args.domain,
+            payload,
+            amount: args.amount,
+            amountAll: args.amountAll,
+            stateInit: args.stateInit,
+            app: args.app
+        })
+    };
 }
 
 export function createJettonOrder(args: {
@@ -213,12 +218,15 @@ export function createJettonOrder(args: {
         .endCell();
 
 
-    return createOrder({
-        target: args.wallet.toString({ testOnly: isTestnet }),
-        domain: args.domain,
-        payload: msg,
-        amount: args.txAmount,
-        amountAll: false,
-        stateInit: null
-    });
+    return {
+        type: 'order',
+        ...createOrder({
+            target: args.wallet.toString({ testOnly: isTestnet }),
+            domain: args.domain,
+            payload: msg,
+            amount: args.txAmount,
+            amountAll: false,
+            stateInit: null
+        })
+    };
 }

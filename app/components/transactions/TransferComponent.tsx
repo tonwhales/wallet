@@ -4,7 +4,7 @@ import { PriceComponent } from "../PriceComponent";
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
 import { Address, Cell, fromNano } from "@ton/core";
-import { AddressComponent } from "../AddressComponent";
+import { AddressComponent } from "../address/AddressComponent";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";

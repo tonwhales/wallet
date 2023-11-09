@@ -1,3 +1,4 @@
+import React from "react";
 import { memo, useCallback } from "react";
 import { ScrollView, View, Text, Pressable, Image } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
@@ -14,7 +15,7 @@ import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
 import { useSelectedAccount, useTheme } from "../../../engine/hooks";
-import { AddressComponent } from "../../../components/AddressComponent";
+import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
@@ -30,7 +31,6 @@ export const TransferSingleView = memo(({
     operation,
     order,
     amount,
-    tonTransferAmount,
     text,
     jettonAmountString,
     target,
@@ -46,7 +46,6 @@ export const TransferSingleView = memo(({
     operation: StoredOperation,
     order: Order | LedgerOrder,
     amount: bigint,
-    tonTransferAmount: bigint,
     jettonAmountString: string | undefined,
     target: {
         isTestOnly: boolean;
@@ -70,7 +69,7 @@ export const TransferSingleView = memo(({
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
 
-    const from = isLedger? Address.parse(ledgerContext.addr!.address) : selected!.address;
+    const from = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
 
     const inactiveAlert = useCallback(() => {
         navigation.navigateAlert({
@@ -89,10 +88,10 @@ export const TransferSingleView = memo(({
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
         navigation.navigateAlert({
-            title: t('transfer.unusualJettonsGasTitle', { amount: fromNano(tonTransferAmount) }),
+            title: t('transfer.unusualJettonsGasTitle', { amount: fromNano(amount) }),
             message: t('transfer.unusualJettonsGasMessage')
         });
-    }, [tonTransferAmount, jettonAmountString]);
+    }, [amount, jettonAmountString]);
 
 
     return (
@@ -225,7 +224,8 @@ export const TransferSingleView = memo(({
                                     paddingHorizontal: 0, marginTop: 2,
                                     alignSelf: 'center'
                                 }}
-                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }} />
+                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                            />
                         )}
                     </ItemGroup>
 
@@ -471,11 +471,11 @@ export const TransferSingleView = memo(({
                                     </Text>
                                     <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
                                         <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                            {fromNano(tonTransferAmount) + ' TON'}
+                                            {fromNano(amount) + ' TON'}
                                         </Text>
                                     </View>
 
-                                    {(tonTransferAmount > toNano('0.2')) && (
+                                    {(amount > toNano('0.2')) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}
                                             style={({ pressed }) => {

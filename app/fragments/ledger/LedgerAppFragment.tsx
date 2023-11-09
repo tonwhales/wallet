@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect } from "react";
 import { View, Image } from "react-native";
 import { fragment } from "../../fragment";
@@ -34,12 +35,14 @@ export const LedgerAppFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
             <Tab.Navigator
-                initialRouteName={'Wallet'}
+                initialRouteName={'LedgerHome'}
                 screenOptions={({ route }) => ({
                     tabBarStyle: {
                         backgroundColor: theme.surfacePimary,
-                        borderTopColor: theme.border,
+                        borderTopColor: theme.border 
                     },
+                    tabBarActiveTintColor: theme.accent,
+                    tabBarInactiveTintColor: theme.iconPrimary,
                     headerShown: false,
                     header: undefined,
                     unmountOnBlur: true,

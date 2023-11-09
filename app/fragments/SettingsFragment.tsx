@@ -39,7 +39,7 @@ export const SettingsFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
     const currentWalletIndex = getAppState().selected;
     const seleted = useSelectedAccount();
-    const [walletSettings,] = useWalletSettings(seleted!.address);
+    const [walletSettings,] = useWalletSettings(seleted?.address);
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();

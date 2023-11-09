@@ -53,7 +53,6 @@ export const LogoutFragment = fragment(() => {
         try {
             await authContext.authenticate({ cancelable: true, showResetOnMaxAttempts: true });
         } catch (e) {
-            navigation.goBack();
             return;
         }
         onAccountDeleted();
@@ -87,7 +86,7 @@ export const LogoutFragment = fragment(() => {
             }
             setIsShown(false);
         });
-    }, [isShown]);
+    }, [isShown, onLogout]);
 
     return (
         <View style={{

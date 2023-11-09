@@ -25,8 +25,8 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             textColor: theme.textThird,
         },
         disabled: {
-            backgroundColor: theme.accent,
-            borderColor: theme.accent,
+            backgroundColor: theme.accentPrimaryDisabledViolet,
+            borderColor: theme.accentPrimaryDisabledViolet,
             textColor: theme.textThird,
         },
         secondary: {

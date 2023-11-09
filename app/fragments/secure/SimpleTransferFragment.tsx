@@ -847,7 +847,7 @@ export const SimpleTransferFragment = fragment(() => {
                                                 fontWeight: '600',
                                                 lineHeight: 24
                                             }}>
-                                                {`${jettonState?.master.symbol ?? 'TON'}`}
+                                                {symbol}
                                             </Text>
                                             <Text
                                                 style={{

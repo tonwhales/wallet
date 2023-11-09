@@ -12,23 +12,17 @@ import { TransactionDescription } from '../../../engine/types';
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
-        <View
-            style={{
+        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16 }}>
+            <View style={{
+                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
                 backgroundColor: theme.background,
-                justifyContent: 'flex-end',
-                paddingBottom: 2,
-                paddingTop: 12,
-                marginHorizontal: 16,
-                marginVertical: 8,
-            }}
-        >
-            <Text
-                style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    color: theme.textPrimary
-                }}
-            >
+                opacity: 0.91,
+            }} />
+            <Text style={{
+                fontSize: 17,
+                fontWeight: '600',
+                lineHeight: 24, color: theme.textPrimary
+            }}>
                 {title}
             </Text>
         </View>
@@ -43,30 +37,20 @@ type TransactionListItemProps = {
 }
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
     return (
-        <View style={[
-            {
-                marginHorizontal: 16,
-                overflow: 'hidden',
-            },
-            index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
-            section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
-        ]}>
-            <TransactionView
-                own={props.address}
-                tx={item}
-                separator={section.data[index + 1] !== undefined}
-                onPress={props.onPress}
-                theme={theme}
-                fontScaleNormal={props.fontScaleNormal}
-            />
-        </View>
+        <TransactionView
+            own={props.address}
+            tx={item}
+            separator={section.data[index + 1] !== undefined}
+            onPress={props.onPress}
+            theme={theme}
+        />
     );
 }, (prevProps, nextProps) => {
-    return prevProps.item.id === nextProps.item.id 
-            && prevProps.fontScaleNormal === nextProps.fontScaleNormal 
-            && prevProps.theme === nextProps.theme 
-            && nextProps.index === prevProps.index
-            && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
+    return prevProps.item.id === nextProps.item.id
+        && prevProps.fontScaleNormal === nextProps.fontScaleNormal
+        && prevProps.theme === nextProps.theme
+        && nextProps.index === prevProps.index
+        && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
 });
 
 export const WalletTransactions = memo((props: {
@@ -140,12 +124,12 @@ export const WalletTransactions = memo((props: {
                 props.sectionedListProps?.contentContainerStyle
             ]}
             sections={transactionsSectioned}
-            contentInset={props.sectionedListProps?.contentInset || { top: 44, bottom: 52 }}
-            contentOffset={props.sectionedListProps?.contentOffset || { y: -(44 + props.safeArea.top), x: 0 }}
+            // contentInset={props.sectionedListProps?.contentInset || { top: 44, bottom: 52 }}
+            // contentOffset={props.sectionedListProps?.contentOffset || { y: -(44 + props.safeArea.top), x: 0 }}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
-            initialNumToRender={300}
+            initialNumToRender={40}
             maxToRenderPerBatch={20}
             updateCellsBatchingPeriod={100}
             getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}

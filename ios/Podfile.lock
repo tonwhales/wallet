@@ -475,6 +475,8 @@ PODS:
   - react-native-mmkv (2.6.3):
     - MMKV (>= 1.2.13)
     - React-Core
+  - react-native-pager-view (6.2.2):
+    - React-Core
   - react-native-safe-area-context (4.6.3):
     - RCT-Folly
     - RCTRequired
@@ -752,6 +754,7 @@ DEPENDENCIES:
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
+  - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
@@ -925,6 +928,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-fast-pbkdf2"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
+  react-native-pager-view:
+    :path: "../node_modules/react-native-pager-view"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-segmented-control:
@@ -1071,6 +1076,7 @@ SPEC CHECKSUMS:
   react-native-context-menu-view: a54a97ead7e44b0671a8c2b48ac70b9e4e2a19fb
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
+  react-native-pager-view: 02a5c4962530f7efc10dd51ee9cdabeff5e6c631
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-segmented-control: 2221962f5073e2e809aa3691e8e410fc10b60578
   react-native-skia: 73b15a92d31e322fd25e5bb7feff226c0a25215e

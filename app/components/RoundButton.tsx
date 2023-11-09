@@ -61,7 +61,6 @@ export const RoundButton = React.memo((props: {
                     borderRadius: 16,
                     backgroundColor: display.backgroundColor,
                     borderColor: display.borderColor,
-                    opacity: props.disabled ? 0.5 : 1,
                 },
                 p.pressed && {
                     opacity: 0.55
@@ -98,7 +97,6 @@ export const RoundButton = React.memo((props: {
                         justifyContent: 'center',
                         alignItems: 'center'
                     }}>
-
                         {!doLoading && props.iconImage && (
                             <Image
                                 source={props.iconImage}
@@ -108,7 +106,17 @@ export const RoundButton = React.memo((props: {
                         {!doLoading && props.icon && (<View style={{ marginRight: 10 }}>{props.icon}</View>)}
                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text
-                                style={[iOSUIKit.title3, { marginTop: size.pad, opacity: doLoading ? 0 : 1, color: display.textColor, fontSize: size.fontSize, fontWeight: '600', includeFontPadding: false }]}
+                                style={[
+                                    iOSUIKit.title3,
+                                    {
+                                        marginTop: size.pad,
+                                        opacity: doLoading ? 0 : props.disabled ? 0.6 : 1,
+                                        color: display.textColor,
+                                        fontSize: size.fontSize,
+                                        fontWeight: '600',
+                                        includeFontPadding: false
+                                    }
+                                ]}
                                 numberOfLines={1}
                                 ellipsizeMode='tail'
                             >
@@ -116,7 +124,14 @@ export const RoundButton = React.memo((props: {
                             </Text>
                             {!!props.subtitle && (
                                 <Text
-                                    style={[{ marginTop: 0, opacity: doLoading ? 0 : 1, color: display.textColor, fontSize: 14, fontWeight: '400', includeFontPadding: false }]}
+                                    style={[{
+                                        marginTop: 0,
+                                        opacity: doLoading ? 0 : props.disabled ? 0.6 : 1,
+                                        color: display.textColor,
+                                        fontSize: 14,
+                                        fontWeight: '400',
+                                        includeFontPadding: false
+                                    }]}
                                     numberOfLines={1}
                                     ellipsizeMode='tail'
                                 >

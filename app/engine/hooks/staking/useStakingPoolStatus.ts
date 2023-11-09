@@ -28,5 +28,6 @@ export function useStakingPoolStatus(pool: Address, client: TonClient4, isTestne
     return useQuery({
         queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Status(),
         queryFn: fetchStakingStatusQueryFn(client, pool),
+        refetchOnMount: true,
     }).data;
 }

@@ -3,6 +3,7 @@ import { Address, Cell, TupleItem, beginCell } from "@ton/core";
 import { sha256 } from "@ton/crypto";
 import { bytesToHex } from "./bytesToHex";
 import { TonClient4 } from '@ton/ton';
+import { backoff } from '../time';
 
 export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract address
 export const DNS_CATEGORY_WALLET = 'wallet'; // Smart Contract address
@@ -183,7 +184,7 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     }
 
     const categoryBN = await categoryToBN(category);
-    const result = (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell.endCell() }, { type: 'int', value: categoryBN }])).result;
+    const result = await backoff('dns-resolve', async () => (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell.endCell() }, { type: 'int', value: categoryBN }])).result);
 
     if (result.length !== 2) {
         throw new Error('Invalid dnsresolve response, res.length !== 2');

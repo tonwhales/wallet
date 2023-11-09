@@ -15,7 +15,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme } from '../engine/hooks';
+import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
@@ -34,6 +34,7 @@ import IcTheme from '@assets/settings/ic-theme.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
+    const [themeStyle,] = useThemeStyle();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const { showActionSheetWithOptions } = useActionSheet();
@@ -201,7 +202,7 @@ export const SettingsFragment = fragment(() => {
                         leftIconComponent={<IcTheme width={24} height={24} />}
                         title={t('settings.theme')}
                         onPress={() => navigation.navigate('Theme')}
-                        hint={t(`theme.${theme.style}`)}
+                        hint={t(`theme.${themeStyle}`)}
                     />
                 </View>
 

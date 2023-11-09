@@ -33,8 +33,7 @@ import { useNetwork } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
 import { useContact } from '../../engine/hooks';
-import { TransactionDescription, TxBody } from '../../engine/types';
-import { useRoute } from "@react-navigation/native";
+import { StoredTxBody, TransactionDescription, TxBody } from '../../engine/types';
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -79,7 +78,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const verified = !!transaction.verified
         || !!KnownJettonMasters(isTestnet)[friendlyAddress];
 
-    let body: TxBody | null = transaction.base.parsed.body;
+    let body: StoredTxBody | null = transaction.base.parsed.body;
 
     const txId = useMemo(() => {
         if (!transaction.base.lt) {
@@ -167,7 +166,6 @@ export const TransactionPreviewFragment = fragment(() => {
         }
         return () => subscription?.remove();
     }, [tonhubLink]);
-
 
     return (
         <View style={{
@@ -271,7 +269,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         </>
                     )}
                 </View>
-                {(!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
+                {(!!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
                     <View style={{
                         marginTop: 14,
                         backgroundColor: theme.surfaceSecondary,

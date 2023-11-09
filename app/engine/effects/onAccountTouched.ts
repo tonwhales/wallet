@@ -9,6 +9,11 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
     let address = Address.parse(account).toString({ testOnly: isTestnet });
     await queryClient.invalidateQueries(Queries.Account(address).All());
 
+    await queryClient.invalidateQueries({
+        queryKey: Queries.Transactions(address),
+        refetchPage: (last, index) => index == 0,
+    });
+
     queryClient.setQueryData(Queries.Transactions(address), (old: InfiniteData<StoredTransaction[]> | undefined) => {
         if (!old) {
             return old;
@@ -18,11 +23,5 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
             pageParams: old.pageParams,
             pages: [old.pages[0]],
         };
-    });
-
-
-    await queryClient.refetchQueries({
-        queryKey: Queries.Transactions(address),
-        refetchPage: (last, index) => index == 0,
     });
 }

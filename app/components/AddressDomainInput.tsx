@@ -90,7 +90,7 @@ export const AddressDomainInput = React.memo(React.forwardRef(({
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }
-                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+                const resolvedWalletAddress = resolvedDomainWallet as Address;
 
                 setResolvedAddress(resolvedWalletAddress);
                 onTargetChange(resolvedWalletAddress.toString({ testOnly: isTestnet }));

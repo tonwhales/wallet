@@ -31,5 +31,6 @@ export function useStakingPoolParams(pool: Address, client: TonClient4, isTestne
         queryKey: Queries.Account(pool.toString({ testOnly: isTestnet })).StakingPool().Params(),
         queryFn: fetchStakingParamsQueryFn(client, pool),
         enabled: !!pool,
+        refetchOnMount: true,
     }).data;
 }

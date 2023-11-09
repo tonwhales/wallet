@@ -8,8 +8,8 @@ import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
 import Animated from 'react-native-reanimated';
 import { memo, useCallback, useRef, useState } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
-import { Jetton } from '../../engine/types';
 import { useNetwork, useTheme } from '../../engine/hooks';
+import { Jetton } from '../../engine/types';
 
 import Verified from '@assets/ic-verified.svg';
 
@@ -22,7 +22,7 @@ export const JettonProductItem = memo((props: {
     single?: boolean
 }) => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const {isTestnet} = useNetwork();
     const navigation = useTypedNavigation();
     const balance = props.jetton.balance;
     const [swiping, setSwiping] = useState(false);
@@ -46,7 +46,7 @@ export const JettonProductItem = memo((props: {
             amount: null,
             target: null,
             comment: null,
-            jetton: props.jetton.wallet.toString({ testOnly: isTestnet }),
+            jetton: props.jetton.wallet,
             stateInit: null,
             job: null,
             callback: null

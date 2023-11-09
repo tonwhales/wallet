@@ -29,7 +29,7 @@ import { useNetwork } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { BigMath } from '../../utils/BigMath';
 import { useContact } from '../../engine/hooks';
-import { StoredTxBody, TransactionDescription, TxBody } from '../../engine/types';
+import { StoredTxBody, TransactionDescription } from '../../engine/types';
 import { useRoute } from "@react-navigation/native";
 
 import VerifiedIcon from '../../../assets/ic_verified.svg';

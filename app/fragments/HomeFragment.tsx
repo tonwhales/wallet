@@ -16,7 +16,7 @@ import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { ConnectionsFragment } from './connections/ConnectionsFragment';
 import DeviceInfo from 'react-native-device-info';
-import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
 import { Platform } from 'react-native';
 import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks';
@@ -66,6 +66,7 @@ export const HomeFragment = fragment(() => {
                                 if (existing.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {
+                                            type: 'order',
                                             messages: [{
                                                 target: existing.job.target.toString({ testOnly: network.isTestnet }),
                                                 amount: existing.job.amount,

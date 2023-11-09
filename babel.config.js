@@ -3,6 +3,9 @@ module.exports = function (api) {
   api.cache(true);
 
   const plugins = [
+    ["@babel/plugin-transform-flow-strip-types", { "loose": true }],
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
+    ["@babel/plugin-proposal-private-methods", { "loose": true }],
     [
       'react-native-reanimated/plugin',
       {
@@ -17,9 +20,6 @@ module.exports = function (api) {
         },
       },
     ],
-    ["@babel/plugin-proposal-private-methods", {
-      "loose": true
-    }]
   ];
 
   if (babelEnv !== 'development') {

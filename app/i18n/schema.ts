@@ -135,7 +135,8 @@ export type LocalizationSchema = {
         bounced: string,
         tokenTransfer: string,
         airdrop: string,
-        failed: string
+        failed: string,
+        batch: string
     },
     txPreview: {
         sendAgain: string,

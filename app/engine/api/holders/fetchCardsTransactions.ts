@@ -210,6 +210,8 @@ export async function fetchCardsTransactions(
         order,
     });
 
+    console.log('fetchCardsTransactions', res.data);
+
     if (!res.data.ok) {
         throw Error('Error fetching events');
     }

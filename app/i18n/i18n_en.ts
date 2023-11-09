@@ -445,7 +445,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 analyticsSubtitle: 'Total profit',
             }
         },
-        zenPay: {
+        holders: {
             title: 'Tonhub Bank card',
             pageTitles: {
                 general: 'Tonhub Cards',

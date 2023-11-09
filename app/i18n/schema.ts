@@ -447,7 +447,7 @@ export type LocalizationSchema = {
                 analyticsSubtitle: string,
             }
         },
-        zenPay: {
+        holders: {
             title: string,
             pageTitles: {
                 general: string,

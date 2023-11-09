@@ -122,7 +122,7 @@ export const WalletHeader = memo(() => {
                                 ellipsizeMode='tail'
                                 numberOfLines={1}
                             >
-                                {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
+                                {walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
                             </Text>
                             {syncState === 'updating' && (
                                 <ReAnimatedCircularProgress

@@ -518,7 +518,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     </View>
                 </ItemGroup>
             </ScrollView>
-            {transaction.base.parsed.kind === 'out' && (transaction.base.parsed.body?.type !== 'payload') && (
+            {transaction.base.parsed.kind === 'out' && (transaction.base.parsed.body?.type !== 'payload') && !isLedger && (
                 <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                     <RoundButton
                         title={t('txPreview.sendAgain')}

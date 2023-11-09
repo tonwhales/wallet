@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share, Text, useWindowDimensions, View } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share, Text, View } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownJettonMasters, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { useAddToDenyList, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, useSelectedAccount, useSpamMinAmount, useTheme } from '../../../engine/hooks';
+import { useAddToDenyList, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, useSelectedAccount, useSpamMinAmount } from '../../../engine/hooks';
 import { TransactionDescription } from '../../../engine/types';
 import { useCallback, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
@@ -21,26 +21,24 @@ export function TransactionView(props: {
     tx: TransactionDescription,
     separator: boolean,
     theme: ThemeType,
-    onPress: (src: TransactionDescription) => void
+    onPress: (src: TransactionDescription) => void,
+    ledger?: boolean,
 }) {
     const theme = props.theme;
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const dontShowComments = useDontShowComments();
     const { isTestnet } = useNetwork();
-    const selectedAccount = useSelectedAccount();
     const [spamMinAmount,] = useSpamMinAmount();
 
     const tx = props.tx;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
     const kind = tx.base.parsed.kind;
-    const status = tx.base.parsed.status;
     const item = operation.items[0];
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = tx.base.parsed.resolvedAddress;
-    const verified = !!tx.verified || !!KnownJettonMasters(isTestnet)[opAddress];
 
     const contact = useContact(opAddress);
     const isSpam = useDenyAddress(opAddress);
@@ -98,13 +96,10 @@ export function TransactionView(props: {
     }, [tx]);
 
     const explorerTxLink = useMemo(() => {
-        if (!selectedAccount) {
-            return null;
-        }
         return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${selectedAccount.addressString}/`
+            + `${props.own.toString({ testOnly: isTestnet })}/`
             + `${txId}`
-    }, [txId, selectedAccount, isTestnet]);
+    }, [txId, isTestnet, props.own]);
 
     const onShare = useCallback((link: string) => {
         let title = t('receive.share.title');
@@ -149,11 +144,11 @@ export function TransactionView(props: {
         { title: t('txActions.addressShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
         { title: !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'), systemIcon: Platform.OS === 'ios' ? 'person.crop.circle' : undefined },
         ...(!spam ? [{ title: t('txActions.addressMarkSpam'), destructive: true, systemIcon: Platform.OS === 'ios' ? 'exclamationmark.octagon' : undefined }] : []),
-        ...(kind === 'out' ? [{ title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined }] : []),
+        ...((kind === 'out' && !props.ledger) ? [{ title: t('txActions.txRepeat'), systemIcon: Platform.OS === 'ios' ? 'repeat' : undefined }] : []),
         { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
     ];
 
-    const handleAction = React.useCallback(
+    const handleAction = useCallback(
         (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
             switch (e.nativeEvent.name) {
                 case t('txActions.addressShare'): {
@@ -290,7 +285,7 @@ export function TransactionView(props: {
                                     decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
                                     precision={3}
                                 />
-                                {item.kind === 'token' ? ' ' + tx.masterMetadata?.symbol: ' TON'}
+                                {item.kind === 'token' ? ' ' + tx.masterMetadata?.symbol : ' TON'}
                             </Text>
                         )}
                         {item.kind !== 'token' && (

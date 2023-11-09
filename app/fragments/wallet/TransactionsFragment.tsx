@@ -22,6 +22,7 @@ import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
+import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
     const theme = useTheme();
@@ -95,7 +96,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                     setTab({ prev: tab.current, current: index });
                 }}
                 lazy={true}
-                renderLazyPlaceholder={() => <Text>{'sdkjhfskdjfhs'}</Text>}
+                renderLazyPlaceholder={() => <TransactionsSkeleton />}
                 navigationState={{ index: tab.current, routes }}
                 offscreenPageLimit={2}
                 renderScene={(sceneProps: SceneRendererProps & { route: { key: string; title: string; } }) => {

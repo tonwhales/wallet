@@ -175,7 +175,7 @@ export const JettonProductItem = memo((props: {
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, borderRadius: 20, paddingHorizontal: 16 }}
+                style={{ flex: 1, borderRadius: 20, overflow: 'hidden' }}
                 onPress={onPress}
             >
                 <Animated.View style={[

@@ -171,6 +171,8 @@ export const HomeFragment = fragment(() => {
                             backgroundColor: theme.surfacePimary,
                             borderTopColor: theme.border,
                         },
+                        tabBarActiveTintColor: theme.accent,
+                        tabBarInactiveTintColor: theme.iconPrimary,
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 

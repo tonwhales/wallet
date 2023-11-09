@@ -4,9 +4,9 @@ import { View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
+import { useTheme } from '../../engine/hooks';
 
 import TonIcon from '@assets/ic-ton-qr.svg';
-import { useTheme } from '../../engine/hooks';
 
 function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
     const outerRadius = dotSize * 2;

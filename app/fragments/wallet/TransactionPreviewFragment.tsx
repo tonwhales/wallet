@@ -165,6 +165,10 @@ export const TransactionPreviewFragment = fragment(() => {
         return () => subscription?.remove();
     }, [tonhubLink]);
 
+    const showComments = !(spam && !dontShowComments);
+    const comment = body?.type === 'comment' ? body.comment : operation.comment;
+    const bold = body?.type === 'comment' ? false : true;
+
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
@@ -267,7 +271,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         </>
                     )}
                 </View>
-                {(!!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
+                {showComments && comment && (
                     <View style={{
                         marginTop: 14,
                         backgroundColor: theme.item,
@@ -287,43 +291,12 @@ export const TransactionPreviewFragment = fragment(() => {
                                     style={{
                                         marginTop: 5,
                                         textAlign: 'left',
-                                        fontWeight: '600',
+                                        fontWeight: bold ? '600' : '400',
                                         fontSize: 16,
                                         lineHeight: 20
                                     }}
                                 >
-                                    {body.comment}
-                                </Text>
-                            </View>
-                        </ContextMenu>
-                    </View>
-                )}
-                {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
-                    <View style={{
-                        marginTop: 14,
-                        backgroundColor: theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        width: '100%'
-                    }}>
-                        <ContextMenu
-                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
-                            onPress={handleCommentAction}
-                        >
-                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
-                                    {t('common.comment')}
-                                </Text>
-                                <Text
-                                    style={{
-                                        marginTop: 5,
-                                        textAlign: 'left',
-                                        fontWeight: '400',
-                                        fontSize: 16,
-                                        lineHeight: 20
-                                    }}
-                                >
-                                    {operation.comment}
+                                    {comment}
                                 </Text>
                             </View>
                         </ContextMenu>

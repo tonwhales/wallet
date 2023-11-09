@@ -3,13 +3,19 @@ import { SectionList, View, Text } from "react-native"
 import { HoldersCardNotification } from "./HoldersCardNotification";
 import { formatDate } from "../../../utils/dates";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
-import { useCardTransactions, useNetwork, useSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useCardTransactions, useNetwork, useTheme } from "../../../engine/hooks";
+import { Address } from "@ton/core";
 
-export const HoldersCardTransactions = memo(({ id }: { id: string }) => {
+export const HoldersCardTransactions = memo(({
+    id,
+    address
+}: {
+    id: string,
+    address: Address
+}) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const selected = useSelectedAccount();
-    const notificationsState = useCardTransactions(selected!.address.toString({ testOnly: isTestnet }), id);
+    const notificationsState = useCardTransactions(address.toString({ testOnly: isTestnet }), id);
     const notifications = notificationsState?.data;
     const txs = notifications?.pages?.map((p) => p?.data).filter((d) => !!d).flat() as CardNotification[];
 

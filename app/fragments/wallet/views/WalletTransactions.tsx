@@ -3,7 +3,7 @@ import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets, Rect } from "react-native-safe-area-context";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, useWindowDimensions, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
@@ -33,7 +33,7 @@ type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
     onPress: (tx: TransactionDescription) => void,
-    fontScaleNormal: boolean,
+    ledger?: boolean,
 }
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
     return (
@@ -43,13 +43,14 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
             separator={section.data[index + 1] !== undefined}
             onPress={props.onPress}
             theme={theme}
+            ledger={props.ledger}
         />
     );
 }, (prevProps, nextProps) => {
     return prevProps.item.id === nextProps.item.id
-        && prevProps.fontScaleNormal === nextProps.fontScaleNormal
         && prevProps.theme === nextProps.theme
         && nextProps.index === prevProps.index
+        && prevProps.ledger === nextProps.ledger
         && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
 });
 
@@ -71,8 +72,6 @@ export const WalletTransactions = memo((props: {
     ledger?: boolean,
 }) => {
     const theme = useTheme();
-    const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
 
     const { transactionsSectioned } = useMemo(() => {
         let sectioned: { title: string, data: TransactionDescription[] }[] = [];
@@ -106,13 +105,6 @@ export const WalletTransactions = memo((props: {
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
 
-    const headerComponent = useMemo(() => {
-        if (!props.header) {
-            return Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined;
-        }
-        return props.header;
-    }, [props.header]);
-
     return (
         <SectionList
             contentContainerStyle={[
@@ -124,8 +116,6 @@ export const WalletTransactions = memo((props: {
                 props.sectionedListProps?.contentContainerStyle
             ]}
             sections={transactionsSectioned}
-            // contentInset={props.sectionedListProps?.contentInset || { top: 44, bottom: 52 }}
-            // contentOffset={props.sectionedListProps?.contentOffset || { y: -(44 + props.safeArea.top), x: 0 }}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
@@ -135,13 +125,21 @@ export const WalletTransactions = memo((props: {
             getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={headerComponent}
+            ListHeaderComponent={props.header}
             ListFooterComponent={props.hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
                     <LoadingIndicator simple />
                 </View>
             ) : null}
-            renderItem={(item) => <TransactionListItem {...item} address={props.address} theme={theme} onPress={navigateToPreview} fontScaleNormal={fontScaleNormal} />}
+            renderItem={(item) => (
+                <TransactionListItem
+                    {...item}
+                    address={props.address}
+                    theme={theme}
+                    onPress={navigateToPreview}
+                    ledger={props.ledger}
+                />
+            )}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.id}

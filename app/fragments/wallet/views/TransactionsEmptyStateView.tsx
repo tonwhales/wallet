@@ -1,3 +1,4 @@
+import React from "react";
 import { memo, useCallback } from "react";
 import { View, Text, Platform } from "react-native";
 import { t } from "../../../i18n/t";

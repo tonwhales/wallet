@@ -85,6 +85,7 @@ import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSe
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
+import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -168,7 +169,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletCreate', WalletCreateFragment, safeArea),
     genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
-    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('Authenticate', AuthenticateFragment, safeArea),
@@ -242,6 +242,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 
     // Settings
+    modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
@@ -261,6 +262,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
+    fullScreen('AppStartAuth', AppStartAuthFragment),
 ];
 
 export const Navigation = memo(() => {
@@ -270,23 +272,7 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
 
     const initial = useMemo(() => {
-        const onboarding = resolveOnboarding(isTestnet);
-
-        if (onboarding === 'backup') {
-            return 'WalletCreated';
-        } else if (onboarding === 'home') {
-            return 'Home';
-        } else if (onboarding === 'welcome') {
-            return 'Welcome';
-        } else if (onboarding === 'upgrade-store') {
-            return 'WalletUpgrade';
-        } else if (onboarding === 'passcode-setup') {
-            return 'PasscodeSetupInit';
-        } else if (onboarding === 'android-key-store-migration') {
-            return 'KeyStoreMigration';
-        } else {
-            throw Error('Invalid onboarding state');
-        }
+        return resolveOnboarding(isTestnet, true);
     }, []);
 
     // Splash

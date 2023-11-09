@@ -166,10 +166,11 @@ export const TransactionView = memo((props: {
                 break;
             }
             case t('txActions.txRepeat'): {
+                const amount = BigInt(tx.base.parsed.amount);
                 navigation.navigateSimpleTransfer({
                     target: opAddress,
                     comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-                    amount: BigInt(tx.base.parsed.amount),
+                    amount: amount < 0n ? -amount : amount,
                     job: null,
                     stateInit: null,
                     jetton: null,

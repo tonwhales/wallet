@@ -1,4 +1,4 @@
-import React, { } from "react";
+import React from "react";
 import { Platform, View, Text, Pressable } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -14,7 +14,6 @@ import { useAccountTransactions } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
-import { usePendingTransactions } from "../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransactions } from "./views/PendingTransactions";
 import { SelectedAccount } from '../../engine/types';
 

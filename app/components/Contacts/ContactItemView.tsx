@@ -6,7 +6,7 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
-import { AddressComponent } from "../AddressComponent";
+import { AddressComponent } from "../address/AddressComponent";
 
 export const ContactItemView = memo(({ addr, action }: { addr: string, action?: () => void }) => {
     const { isTestnet } = useNetwork();

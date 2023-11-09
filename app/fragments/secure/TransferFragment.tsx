@@ -1,9 +1,6 @@
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, View, Alert, Text } from "react-native";
+import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CommonMessageInfoRelaxedInternal, MessageRelaxed, SendMode, comment, external, fromNano, internal, loadStateInit, storeMessage, storeMessageRelaxed } from '@ton/core';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
@@ -13,31 +10,24 @@ import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
-import { useConfig } from '../../engine/hooks';
-import { useClient4 } from '../../engine/hooks';
-import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
-import { useNetwork } from '../../engine/hooks';
-import { useSelectedAccount } from '../../engine/hooks';
+import { parseBody } from '../../engine/transactions/parseWalletTransaction';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
+import { useEffect, useMemo, useState } from 'react';
+import { useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
-import { useCommitCommand } from '../../engine/hooks';
-import { memo, useEffect, useMemo, useState } from 'react';
 import { OperationType } from '../../engine/transactions/parseMessageBody';
+import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
+import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
 import { getLastBlock } from '../../engine/accountWatcher';
-import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
-
-export type ATextInputRef = {
-    focus: () => void;
-}
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -46,6 +36,20 @@ export type TransferFragmentProps = {
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number
 };
+
+export type OrderMessage = {
+    addr: {
+        address: Address;
+        balance: bigint,
+        active: boolean
+    },
+    metadata: ContractMetadata,
+    restricted: boolean,
+    amount: bigint,
+    amountAll: boolean,
+    payload: Cell | null,
+    stateInit: Cell | null,
+}
 
 export type ConfirmLoadedProps = {
     type: 'single',
@@ -70,19 +74,7 @@ export type ConfirmLoadedProps = {
     text: string | null,
     job: string | null,
     order: {
-        messages: {
-            addr: {
-                address: Address;
-                balance: bigint,
-                active: boolean
-            },
-            metadata: ContractMetadata,
-            restricted: boolean,
-            amount: bigint,
-            amountAll: boolean,
-            payload: Cell | null,
-            stateInit: Cell | null,
-        }[],
+        messages: OrderMessage[],
         app?: {
             domain: string,
             title: string
@@ -94,23 +86,17 @@ export type ConfirmLoadedProps = {
     totalAmount: bigint
 };
 
-const TransferLoaded = memo((props: ConfirmLoadedProps) => {
+const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
         return <TransferSingle {...props} />
     }
-    return (
-        <View>
-            <Text>
-                {fromNano(props.fees)}
-            </Text>
-        </View>
-    );
 
-    // return <TransferBatch {...props} />;
+    return <TransferBatch {...props} />;
 });
 
 export const TransferFragment = fragment(() => {
     const { isTestnet } = useNetwork();
+    const theme = useTheme();
     const params: TransferFragmentProps = useRoute().params! as any;
     const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
@@ -165,8 +151,8 @@ export const TransferFragment = fragment(() => {
                     try {
                         const tonZoneMatch = order.domain.match(/\.ton$/);
                         const tMeZoneMatch = order.domain.match(/\.t\.me$/);
-                        let zone = null;
-                        let domain = null;
+                        let zone: string | null = null;
+                        let domain: string | null = null;
                         if (tonZoneMatch || tMeZoneMatch) {
                             zone = tonZoneMatch ? '.ton' : '.t.me';
                             domain = zone === '.ton'
@@ -323,9 +309,17 @@ export const TransferFragment = fragment(() => {
             const config = await backoff('transfer', () => fetchConfig());
 
             const outMsgs: Cell[] = [];
-            const storageStats = [];
+            const storageStats: ({
+                lastPaid: number;
+                duePayment: string | null;
+                used: {
+                    bits: number;
+                    cells: number;
+                    publicCells: number;
+                }
+            } | null)[] = [];
             const inMsgs: MessageRelaxed[] = [];
-            const messages = [];
+            const messages: OrderMessage[] = [];
             let totalAmount = BigInt(0);
             for (let i = 0; i < order.messages.length; i++) {
                 const msg = internalFromSignRawMessage(order.messages[i]);
@@ -384,7 +378,6 @@ export const TransferFragment = fragment(() => {
                         }
                     }]);
                     exited = true;
-
                     if (params && params.job) {
                         commitCommand(false, params.job, new Cell());
                     }
@@ -437,23 +430,29 @@ export const TransferFragment = fragment(() => {
     }, [netConfig, selectedAccount]);
 
     return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
-                {!!loadedProps && <TransferLoaded {...loadedProps} />}
+        <View style={{ flexGrow: 1 }}>
+            <ScreenHeader
+                style={{ paddingLeft: 16 }}
+                statusBarStyle={Platform.select({
+                    ios: 'dark',
+                    android: theme.style === 'dark' ? 'light' : 'dark'
+                })}
+                onBackPressed={navigation.goBack}
+                onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
+            />
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+                {!loadedProps ? (
+                    <View style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    }}>
+                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                            <TransferSkeleton />
+                        </View>
+                    </View>
+                ) : (
+                    <TransferLoaded {...loadedProps} />
+                )}
             </View>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
-        </>
+        </View>
     );
 });

@@ -4,7 +4,7 @@ import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation
 import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
-import { AddressDomainInput } from "../components/AddressDomainInput";
+import { AddressDomainInput } from "../components/address/AddressDomainInput";
 import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInputRef } from "../components/ATextInput";
 import { CloseButton } from "../components/CloseButton";
@@ -88,7 +88,7 @@ export const ContactsFragment = fragment(() => {
             }
         }
 
-        const views = [];
+        const views: any[] = [];
         for (let s of transactionsSectioned) {
             views.push(
                 <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>

@@ -16,7 +16,7 @@ import LottieView from 'lottie-react-native';
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { WImage } from "../../../components/WImage";
-import { AddressComponent } from "../../../components/AddressComponent";
+import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Avatar } from "../../../components/Avatar";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { ItemLarge } from "../../../components/ItemLarge";

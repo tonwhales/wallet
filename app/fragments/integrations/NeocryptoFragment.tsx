@@ -158,8 +158,6 @@ export const NeocryptoFragment = fragment(() => {
     const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalNeocrypto));
     const [loading, setloading] = useState(false);
 
-    const wref = React.useRef<WebView>(null);
-
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
         address: address.address.toString({ testOnly: isTestnet }),

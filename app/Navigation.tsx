@@ -23,7 +23,7 @@ import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRev
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { t } from './i18n/t';
-import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
+import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -33,7 +33,7 @@ import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
-import { InstallFragment } from './fragments/secure/InstallFragment';
+import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
@@ -45,7 +45,7 @@ import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
@@ -171,9 +171,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
-    modalScreen('Authenticate', AuthenticateFragment, safeArea),
-    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
-    modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
 
@@ -183,19 +180,6 @@ const navigation = (safeArea: EdgeInsets) => [
 
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
-    modalScreen('Review', ReviewFragment, safeArea),
-    <Stack.Screen
-        key={`genericScreen-App`}
-        name={'App'}
-        component={AppFragment}
-        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />,
-    <Stack.Screen
-        key={`genericScreen-connect-App`}
-        name={'ConnectApp'}
-        component={ConnectAppFragment}
-        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />,
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
@@ -208,6 +192,24 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+
+    // dApps
+    transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    modalScreen('Install', InstallFragment, safeArea),
+    modalScreen('Authenticate', AuthenticateFragment, safeArea),
+    <Stack.Screen
+        key={`genericScreen-App`}
+        name={'App'}
+        component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    <Stack.Screen
+        key={`genericScreen-connect-App`}
+        name={'ConnectApp'}
+        component={ConnectAppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    modalScreen('Review', ReviewFragment, safeArea),
 
     // Logout
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),

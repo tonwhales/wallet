@@ -240,43 +240,41 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         }}
                         collapsable={false}
                     >
-                        {
-                            (!network.isTestnet && Platform.OS === 'android') && (
-                                <View style={{
-                                    flexGrow: 1, flexBasis: 0,
-                                    marginRight: 7,
-                                    borderRadius: 14,
-                                    padding: 10
-                                }}>
-                                    <Pressable
-                                        onPress={onOpenBuy}
-                                        style={({ pressed }) => ({
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 20
-                                        })}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View style={{
-                                                backgroundColor: theme.accent,
-                                                width: 32, height: 32,
-                                                borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Image source={require('@assets/ic_buy.png')} />
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textThird,
-                                                marginTop: 6
-                                            }}>
-                                                {t('wallet.actions.buy')}
-                                            </Text>
+                        {!network.isTestnet && (
+                            <View style={{
+                                flexGrow: 1, flexBasis: 0,
+                                marginRight: 7,
+                                borderRadius: 14,
+                                padding: 10
+                            }}>
+                                <Pressable
+                                    onPress={onOpenBuy}
+                                    style={({ pressed }) => ({
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    })}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View style={{
+                                            backgroundColor: theme.accent,
+                                            width: 32, height: 32,
+                                            borderRadius: 16,
+                                            alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <Image source={require('@assets/ic_buy.png')} />
                                         </View>
-                                    </Pressable>
-                                </View>
-                            )
-                        }
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: theme.textThird,
+                                            marginTop: 6
+                                        }}>
+                                            {t('wallet.actions.buy')}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        )}
                         <View style={{
                             flexGrow: 1, flexBasis: 0,
                             marginRight: 7,
@@ -289,7 +287,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                     return {
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
-                                        marginHorizontal: 20
+                                        marginHorizontal: !network.isTestnet ? 10 : 20
                                     }
                                 }}
                             >

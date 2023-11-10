@@ -66,7 +66,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
                     title={t('wallet.actions.receive')}
                     style={{ flex: 1, flexGrow: 1 }}
                 />
-                {(!network.isTestnet && Platform.OS === 'android' && !isLedger) && (
+                {(!network.isTestnet && !isLedger) && (
                     <RoundButton
                         onPress={() => navigation.navigate('Buy')}
                         display={'secondary'}

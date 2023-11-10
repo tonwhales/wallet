@@ -82,7 +82,7 @@ export const WalletCreateFragment = systemFragment(() => {
         <View
             style={[
                 { flexGrow: 1 },
-                Platform.select({ android: { paddingBottom: safeArea.bottom } }),
+                Platform.select({ android: { paddingBottom: safeArea.bottom + 16 } }),
             ]}
         >
             {!state && (
@@ -119,8 +119,8 @@ export const WalletCreateFragment = systemFragment(() => {
                     />
                     <ScrollView
                         alwaysBounceVertical={false}
-                        style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
-                        contentInset={{ bottom: safeArea.bottom + 16 }}
+                        style={{ width: '100%', paddingHorizontal: 16, }}
+                        contentInset={{ bottom: safeArea.bottom + 16 + 56 }}
                     >
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
@@ -171,6 +171,7 @@ export const WalletCreateFragment = systemFragment(() => {
                     ]}>
                         <RoundButton
                             title={t('create.okSaved')}
+                            style={{ position: 'absolute', bottom: 0, left: 16, right: 16 }}
                             onPress={() => {
                                 setState({ ...state, saved: true });
                             }}

@@ -316,6 +316,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 <Animated.View
                     style={[
                         {
+                            position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                             backgroundColor: auth.params?.backgroundColor ?? theme.background,
                             flexGrow: 1,
                             justifyContent: 'center',

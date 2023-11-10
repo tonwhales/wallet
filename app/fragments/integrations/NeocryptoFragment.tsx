@@ -32,8 +32,8 @@ export const ConfirmLegal = React.memo((
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
 
-    const privacy = 'https://neocrypto.net/privacypolicy.html';
-    const terms = 'https://neocrypto.net/terms.html';
+    const privacy = 'https://neocrypto.net/policy/privacy.pdf';
+    const terms = 'https://neocrypto.net/policy/term-of-use.pdf';
 
     const onDoNotShowToggle = useCallback((newVal: boolean) => {
         setDoNotShow(newVal);
@@ -168,7 +168,7 @@ export const NeocryptoFragment = fragment(() => {
         ...params
     }), [params]);
 
-    const main = `https://neocrypto.net/tonhub.html?${queryParams.toString()}`;
+    const main = `https://buy.neocrypto.net?${queryParams.toString()}`;
 
     const onOpenBuy = useCallback(() => {
         setAccepted(true);

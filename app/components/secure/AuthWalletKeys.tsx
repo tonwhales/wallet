@@ -1,6 +1,6 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
-import { Alert, Platform, Pressable, Text } from 'react-native';
+import { Alert, Platform, Pressable, StyleProp, Text, ViewStyle } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -31,6 +31,7 @@ export type AuthParams = {
     description?: string,
     enteringAnimation?: EnteringAnimation,
     isAppStart?: boolean,
+    containerStyle?: StyleProp<ViewStyle>,
 }
 
 export type AuthProps =
@@ -316,6 +317,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 <Animated.View
                     style={[
                         {
+                            position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                             backgroundColor: auth.params?.backgroundColor ?? theme.background,
                             flexGrow: 1,
                             justifyContent: 'center',
@@ -323,6 +325,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                             paddingTop: auth.params?.paddingTop ?? 0,
                             paddingBottom: safeAreaInsets.bottom === 0 ? 120 : safeAreaInsets.bottom,
                         },
+                        auth.params?.containerStyle
                     ]}
                     exiting={FadeOutUp}
                     entering={auth.params?.enteringAnimation || SlideInDown}

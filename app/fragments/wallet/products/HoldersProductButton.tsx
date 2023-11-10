@@ -7,12 +7,12 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useTheme } from '../../../engine/hooks';
-import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../../storage/appState";
 import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { HoldersCard } from "../../../engine/api/holders/fetchCards";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
+import { getDomainKey } from "../../../engine/state/domainKeys";
 
 const colorsMap: { [key: string]: string[] } = {
     'minimal-1': ['#8689b5', '#9fa2d1'],
@@ -26,20 +26,13 @@ const colorsMap: { [key: string]: string[] } = {
 export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const dimentions = useWindowDimensions();
     const navigation = useTypedNavigation();
 
     const acc = useMemo(() => getCurrentAddress(), []);
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
 
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
-
     const needsenrollment = useMemo(() => {
         try {
-            if (!domainKey) {
-                return true;
-            }
             if (!status) {
                 return true;
             }
@@ -50,24 +43,23 @@ export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }
             return true;
         }
         return false;
-    }, [status, domainKey]);
+    }, [status]);
 
-    const onPress = useCallback(
-        () => {
-            if (needsenrollment) {
-                navigation.navigate(
-                    'HoldersLanding',
-                    {
-                        endpoint: holdersUrl,
-                        onEnrollType: account ? { type: 'card', id: account.id } : { type: 'account' }
-                    }
-                );
-                return;
-            }
-            navigation.navigate('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
-        },
-        [account, needsenrollment],
-    );
+    const onPress = useCallback(() => {
+        const domain = extractDomain(holdersUrl);
+        const domainKey = getDomainKey(domain);
+        if (needsenrollment || !domainKey) {
+            navigation.navigate(
+                'HoldersLanding',
+                {
+                    endpoint: holdersUrl,
+                    onEnrollType: account ? { type: 'card', id: account.id } : { type: 'account' }
+                }
+            );
+            return;
+        }
+        navigation.navigate('Holders', account ? { type: 'card', id: account.id } : { type: 'account' });
+    }, [account, needsenrollment]);
 
     const colors = account ? (colorsMap[account.card.personalizationCode] ?? colorsMap['default-2']) : ['#333A5A', "#A7AFD3"];
     const cardKind = account?.card.kind === 'virtual' ? 'virtual' : 'physical';

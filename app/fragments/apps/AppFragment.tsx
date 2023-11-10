@@ -8,7 +8,7 @@ import Color from 'color';
 import { useRoute } from '@react-navigation/native';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useAppData } from '../../engine/hooks';
-import { useDomainKey } from '../../engine/hooks';
+import { getDomainKey } from '../../engine/state/domainKeys';
 
 export const AppFragment = fragment(() => {
     const url = (useRoute().params as any).url as string;
@@ -19,7 +19,7 @@ export const AppFragment = fragment(() => {
     const c = Color(color);
     const dark = c.isDark();
     const fontColor = dark ? '#fff' : '#000';
-    const key = useDomainKey(domain);
+    const key = getDomainKey(domain);
     if (!appData || !key) {
         throw Error('No App Data');
     }

@@ -12,7 +12,6 @@ export { useCurrentJob } from './useCurrentJob';
 export { useDAppBridge } from './useDAppBridge';
 export { useDeleteActiveRemoteRequests } from './useDeleteActiveRemoteRequests';
 export { useDisconnectApp } from './useDisconnect';
-export { useDomainKey } from './useDomainKey';
 export { useDomainKeys } from './useDomainKeys';
 export { useExtensions } from './useExtensions';
 export { useHandleMessage } from './useHandleMessage';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, View, Text, Image } from 'react-native';
+import { Alert, Platform, View, Text, Image, ScrollView } from 'react-native';
 import { BiometricsState, encryptAndStoreAppKeyWithBiometrics, storeBiometricsState } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
@@ -102,46 +102,51 @@ export const WalletSecureComponent = memo((props: {
                 style={[{ zIndex: 100, paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
                 statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
-            <View style={{
-                backgroundColor: theme.background,
-                justifyContent: 'center',
-                flexGrow: 1,
-            }}>
-                <View style={{ paddingHorizontal: 16 }}>
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        aspectRatio: 0.92,
-                        width: dimensions.screen.width - 32,
-                    }}>
-                        <Image
-                            resizeMode={'contain'}
-                            style={{ width: dimensions.screen.width - 32 }}
-                            source={imgSource}
-                        />
+            <ScrollView
+                bounces={false}
+                style={{ height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}
+            >
+                <View style={{
+                    backgroundColor: theme.background,
+                    justifyContent: 'center',
+                    flexGrow: 1,
+                }}>
+                    <View style={{ paddingHorizontal: 16 }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            aspectRatio: 0.92,
+                            width: dimensions.screen.width - 32,
+                        }}>
+                            <Image
+                                resizeMode={'contain'}
+                                style={{ width: dimensions.screen.width - 32 }}
+                                source={imgSource}
+                            />
+                        </View>
+                        <Text style={{
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            marginTop: 26,
+                            color: theme.textPrimary
+                        }}>
+                            {title}
+                        </Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            color: theme.textSecondary,
+                            fontSize: 17, lineHeight: 24,
+                            marginTop: 12,
+                            flexShrink: 1,
+                        }}>
+                            {text}
+                        </Text>
                     </View>
-                    <Text style={{
-                        fontSize: 32, lineHeight: 38,
-                        fontWeight: '600',
-                        textAlign: 'center',
-                        marginTop: 26,
-                        color: theme.textPrimary
-                    }}>
-                        {title}
-                    </Text>
-                    <Text style={{
-                        textAlign: 'center',
-                        color: theme.textSecondary,
-                        fontSize: 17, lineHeight: 24,
-                        marginTop: 12,
-                        flexShrink: 1,
-                    }}>
-                        {text}
-                    </Text>
                 </View>
-            </View>
+            </ScrollView>
             <View style={{
                 flexGrow: 1,
-                marginHorizontal: 16, marginTop: 16,
+                marginHorizontal: 16,
                 alignSelf: 'stretch',
                 justifyContent: 'flex-end'
             }}>

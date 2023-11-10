@@ -4,12 +4,13 @@ import { setStatusBarStyle } from "expo-status-bar";
 import { useFocusEffect } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useDomainKey, useHoldersAccountStatus, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
+import { getDomainKey } from "../../engine/state/domainKeys";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -25,29 +26,18 @@ export const ProductsFragment = fragment(() => {
         }
     }, [apy]);
 
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
-
     const needsEnrolment = useMemo(() => {
-        try {
-            if (!domain) {
-                return; // Shouldn't happen
-            }
-            if (!domainKey) {
-                return true;
-            }
-            if (status?.state === HoldersAccountState.NeedEnrollment) {
-                return true;
-            }
-        } catch (error) {
+        if (status?.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
         return false;
-    }, [status, domainKey]);
+    }, [status]);
 
     const onHolders = useCallback(
         () => {
-            if (needsEnrolment) {
+            const domain = extractDomain(holdersUrl);
+            const domainKey = getDomainKey(domain);
+            if (needsEnrolment || !domainKey) {
                 navigation.navigate(
                     'HoldersLanding',
                     {

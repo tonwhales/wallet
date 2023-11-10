@@ -1,3 +1,6 @@
 export function useOfflineApp() {
-    return {} as any;
+    return {
+        version: null,
+        stableOfflineV: null
+    };
 }

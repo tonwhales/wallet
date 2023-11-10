@@ -41,7 +41,7 @@ export const WalletBackupFragment = systemFragment(() => {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, network.isTestnet);
+        markAddressSecured(address.address);
         if (back) {
             navigation.goBack();
         } else {
@@ -57,7 +57,11 @@ export const WalletBackupFragment = systemFragment(() => {
 
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: theme.surfacePimary, cancelable: false });
+                let keys = await authContext.authenticate({
+                    backgroundColor: theme.surfacePimary,
+                    cancelable: true,
+                    containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -110,6 +114,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 <ScreenHeader
                     title={t('common.logout')}
                     onBackPressed={navigation.goBack}
+                    style={{ paddingHorizontal: 16 }}
                 />
             ) : (
                 !init && (

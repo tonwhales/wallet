@@ -3,6 +3,7 @@ import { ActivityIndicator, ImageSourcePropType, Platform, Pressable, StyleProp,
 import { iOSUIKit } from 'react-native-typography';
 import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
 import { useTheme } from '../engine/hooks';
+import { memo, useCallback, useState } from 'react';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
 const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hitSlop: number, pad: number } } = {
@@ -11,7 +12,7 @@ const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hit
     small: { height: 24, fontSize: 14, hitSlop: 12, pad: Platform.OS == 'ios' ? -1 : -1 }
 }
 
-export const RoundButton = React.memo((props: {
+export const RoundButton = memo((props: {
     size?: RoundButtonSize,
     display?: RoundButtonDisplay,
     title?: string,
@@ -27,9 +28,9 @@ export const RoundButton = React.memo((props: {
 }) => {
     const theme = useTheme();
 
-    const [loading, setLoading] = React.useState(false);
+    const [loading, setLoading] = useState(false);
     const doLoading = props.loading !== undefined ? props.loading : loading;
-    const doAction = React.useCallback(() => {
+    const doAction = useCallback(() => {
         if (props.onPress) {
             props.onPress();
             return;

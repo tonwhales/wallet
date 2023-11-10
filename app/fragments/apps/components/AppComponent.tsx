@@ -23,9 +23,8 @@ import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useDomainKey } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
-import { DomainSubkey } from '../../../engine/state/domainKeys';
+import { DomainSubkey, getDomainKey } from '../../../engine/state/domainKeys';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -38,8 +37,7 @@ export const AppComponent = memo((props: {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const domain = useMemo(() => extractDomain(props.endpoint), []);
-
-    const domainKey = useDomainKey(domain);
+    const domainKey = getDomainKey(domain);
     //
     // Track events
     //

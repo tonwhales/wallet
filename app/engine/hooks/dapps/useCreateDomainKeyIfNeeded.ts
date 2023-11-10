@@ -1,5 +1,5 @@
 import { beginCell, safeSign } from "@ton/core";
-import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
+import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { getCurrentAddress } from "../../../storage/appState";
 import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
@@ -10,28 +10,28 @@ import { DomainSubkey } from "../../state/domainKeys";
 
 export function useCreateDomainKeyIfNeeded() {
     const [domainKeys, setDomainKeysState] = useDomainKeys();
-    return async (domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys) => {
+    return async (domain: string, authContext: AuthWalletKeysType, keys?: WalletKeys, authStyle?: AuthParams) => {
         // Normalize
         domain = domain.toLowerCase();
-    
+
         const exising = domainKeys[domain] as DomainSubkey | undefined;
-    
+
         if (!!exising) {
             return exising;
         }
-    
+
         // Create new key
         const acc = getCurrentAddress();
         const contract = contractFromPublicKey(acc.publicKey);
         let time = Math.floor(Date.now() / 1000);
-    
+
         // Create signing key
         let walletKeys: WalletKeys;
         if (keys) {
             walletKeys = keys;
         } else {
             try {
-                walletKeys = await authContext.authenticate({ cancelable: true });
+                walletKeys = await authContext.authenticate({ cancelable: true, ...authStyle });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return false;
@@ -47,11 +47,11 @@ export function useCreateDomainKeyIfNeeded() {
             .storeRef(beginCell().storeBuffer(Buffer.from(domain)).endCell())
             .endCell();
         let signature = safeSign(toSign, walletKeys.keyPair.secretKey);
-    
+
         // Persist key
         const newKey = { time, signature, secret };
-        setDomainKeysState({...domainKeys, [domain]: newKey});
-    
+        setDomainKeysState({ ...domainKeys, [domain]: newKey });
+
         return newKey;
     }
 }

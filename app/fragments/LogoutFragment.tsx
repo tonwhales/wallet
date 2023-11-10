@@ -98,7 +98,7 @@ export const LogoutFragment = fragment(() => {
                 title={t('common.logout')}
                 onBackPressed={navigation.goBack}
                 style={[
-                    { paddingLeft: 16 },
+                    { paddingHorizontal: 16 },
                     Platform.select({ android: { marginTop: safeArea.top } })
                 ]}
                 statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}

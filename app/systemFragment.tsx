@@ -4,9 +4,10 @@ import { useTrackScreen } from './analytics/mixpanel';
 import { useRoute } from '@react-navigation/native';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
 import { useNetwork } from './engine/hooks';
+import { ToastProvider } from './components/toast/ToastProvider';
 
 export function systemFragment<T>(
-    Component: React.ComponentType<T>, 
+    Component: React.ComponentType<T>,
     doNotTrack?: boolean
 ): React.ComponentType<React.PropsWithRef<T & JSX.IntrinsicAttributes>> {
     return React.memo((props: T & JSX.IntrinsicAttributes) => {
@@ -21,7 +22,9 @@ export function systemFragment<T>(
         return (
             <AuthWalletKeysContextProvider>
                 <GlobalLoaderProvider>
-                    <Component {...props} />
+                    <ToastProvider>
+                        <Component {...props} />
+                    </ToastProvider>
                 </GlobalLoaderProvider>
             </AuthWalletKeysContextProvider>
         );

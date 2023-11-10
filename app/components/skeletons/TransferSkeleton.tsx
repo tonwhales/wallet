@@ -1,3 +1,4 @@
+import React from "react";
 import { memo, useEffect } from "react";
 import Animated, { Easing, FadeIn, FadeOut, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { usePulsatingStyle } from "./usePulsatingStyle";

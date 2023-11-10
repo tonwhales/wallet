@@ -1,5 +1,5 @@
 import { Address } from "@ton/core";
-import { AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
+import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { fetchAccountToken } from "../../api/holders/fetchAccountToken";
 import { contractFromPublicKey, walletConfigFromContract } from "../../contractFromPublicKey";
 import { deleteHoldersToken, getHoldersToken, setHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
@@ -16,7 +16,8 @@ export function useHoldersEnroll(
         utilityKey: Buffer;
     },
     domain: string,
-    authContext: AuthWalletKeysType
+    authContext: AuthWalletKeysType,
+    authStyle?: AuthParams | undefined
 ) {
     const { isTestnet } = useNetwork();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
@@ -27,7 +28,8 @@ export function useHoldersEnroll(
             // Create domain key if needed
             //
 
-            let existingKey = await createDomainKeyIfNeeded(domain, authContext);
+            let existingKey = await createDomainKeyIfNeeded(domain, authContext, undefined, authStyle);
+
             if (!existingKey) {
                 return false;
             }
@@ -36,7 +38,11 @@ export function useHoldersEnroll(
             // Check holders token cloud value
             // 
 
+            
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
+
+            console.log('existingToken', existingToken);
+
             if (existingToken && existingToken.toString().length > 0) {
                 return true;
             } else {

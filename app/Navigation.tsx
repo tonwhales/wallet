@@ -23,7 +23,7 @@ import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRev
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
 import { t } from './i18n/t';
-import { AuthenticateFragment } from './fragments/secure/AuthenticateFragment';
+import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragment';
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
@@ -33,7 +33,7 @@ import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
-import { InstallFragment } from './fragments/secure/InstallFragment';
+import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
@@ -45,7 +45,7 @@ import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
 import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
-import { TonConnectAuthenticateFragment } from './fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
 import { AssetsFragment } from './fragments/wallet/AssetsFragment';
 import { ConnectAppFragment } from './fragments/apps/ConnectAppFragment';
@@ -85,6 +85,7 @@ import { LedgerDeviceSelectionFragment } from './fragments/ledger/LedgerDeviceSe
 import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAccountFragment';
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
+import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 
 const Stack = createNativeStackNavigator();
 
@@ -99,15 +100,15 @@ export function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
             name={name}
             component={component}
             options={{
-                headerShown: Platform.OS === 'ios',
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+                headerShown: hideHeader ? false : Platform.OS === 'ios',
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
             }}
         />
     );
@@ -168,12 +169,8 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletCreate', WalletCreateFragment, safeArea),
     genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
-    genericScreen('WalletBackup', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
-    modalScreen('Authenticate', AuthenticateFragment, safeArea),
-    modalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
-    modalScreen('Install', InstallFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
 
@@ -183,21 +180,6 @@ const navigation = (safeArea: EdgeInsets) => [
 
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
-    modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
-    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
-    <Stack.Screen
-        key={`genericScreen-App`}
-        name={'App'}
-        component={AppFragment}
-        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />,
-    <Stack.Screen
-        key={`genericScreen-connect-App`}
-        name={'ConnectApp'}
-        component={ConnectAppFragment}
-        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
-    />,
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
@@ -210,6 +192,24 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+
+    // dApps
+    transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
+    transparentModalScreen('Install', InstallFragment, safeArea),
+    transparentModalScreen('Authenticate', AuthenticateFragment, safeArea),
+    <Stack.Screen
+        key={`genericScreen-App`}
+        name={'App'}
+        component={AppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    <Stack.Screen
+        key={`genericScreen-connect-App`}
+        name={'ConnectApp'}
+        component={ConnectAppFragment}
+        options={{ headerShown: false, headerBackVisible: false, gestureEnabled: false }}
+    />,
+    modalScreen('Review', ReviewFragment, safeArea),
 
     // Logout
     modalScreen('DeleteAccount', DeleteAccountFragment, safeArea),
@@ -242,6 +242,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 
     // Settings
+    modalScreen('WalletBackup', WalletBackupFragment, safeArea),
     modalScreen('Security', SecurityFragment, safeArea),
     modalScreen('Contacts', ContactsFragment, safeArea),
     modalScreen('Contact', ContactFragment, safeArea),
@@ -254,6 +255,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
 
+    // Holders
+    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
+    genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
+
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea),
     genericScreen('Terms', TermsFragment, safeArea),
@@ -261,6 +266,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
+    fullScreen('AppStartAuth', AppStartAuthFragment),
 ];
 
 export const Navigation = memo(() => {
@@ -270,23 +276,7 @@ export const Navigation = memo(() => {
     const { isTestnet } = useNetwork();
 
     const initial = useMemo(() => {
-        const onboarding = resolveOnboarding(isTestnet);
-
-        if (onboarding === 'backup') {
-            return 'WalletCreated';
-        } else if (onboarding === 'home') {
-            return 'Home';
-        } else if (onboarding === 'welcome') {
-            return 'Welcome';
-        } else if (onboarding === 'upgrade-store') {
-            return 'WalletUpgrade';
-        } else if (onboarding === 'passcode-setup') {
-            return 'PasscodeSetupInit';
-        } else if (onboarding === 'android-key-store-migration') {
-            return 'KeyStoreMigration';
-        } else {
-            throw Error('Invalid onboarding state');
-        }
+        return resolveOnboarding(isTestnet, true);
     }, []);
 
     // Splash

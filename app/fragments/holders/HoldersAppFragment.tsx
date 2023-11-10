@@ -6,12 +6,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
-import { useDomainKey } from '../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
+import { getDomainKey } from '../../engine/state/domainKeys';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -22,17 +22,16 @@ export const HoldersAppFragment = fragment(() => {
     const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const status = useHoldersAccountStatus(selected!.address).data;
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
 
     const needsEnrollment = useMemo(() => {
         try {
-            if (!domain) {
-                return; // Shouldn't happen
-            }
+            const domain = extractDomain(holdersUrl);
+            const domainKey = getDomainKey(domain);
+
             if (!domainKey) {
                 return true;
             }
+
             if (!status) {
                 return true;
             }
@@ -43,7 +42,7 @@ export const HoldersAppFragment = fragment(() => {
             return true;
         }
         return false;
-    }, [status, domainKey]);
+    }, [status]);
 
     useEffect(() => {
         if (needsEnrollment) {
@@ -51,10 +50,16 @@ export const HoldersAppFragment = fragment(() => {
         }
     }, [needsEnrollment]);
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: false
+        });
+    }, [navigation]);
+
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingTop: safeArea.top,
             backgroundColor: theme.surfacePimary
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />

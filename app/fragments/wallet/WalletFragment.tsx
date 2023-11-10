@@ -6,7 +6,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -26,6 +26,7 @@ import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
+import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -239,43 +240,41 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         }}
                         collapsable={false}
                     >
-                        {
-                            (!network.isTestnet && Platform.OS === 'android') && (
-                                <View style={{
-                                    flexGrow: 1, flexBasis: 0,
-                                    marginRight: 7,
-                                    borderRadius: 14,
-                                    padding: 10
-                                }}>
-                                    <Pressable
-                                        onPress={onOpenBuy}
-                                        style={({ pressed }) => ({
-                                            opacity: pressed ? 0.5 : 1,
-                                            borderRadius: 14, flex: 1, paddingVertical: 10,
-                                            marginHorizontal: 20
-                                        })}
-                                    >
-                                        <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                            <View style={{
-                                                backgroundColor: theme.accent,
-                                                width: 32, height: 32,
-                                                borderRadius: 16,
-                                                alignItems: 'center', justifyContent: 'center'
-                                            }}>
-                                                <Image source={require('@assets/ic_buy.png')} />
-                                            </View>
-                                            <Text style={{
-                                                fontSize: 15, lineHeight: 20,
-                                                color: theme.textThird,
-                                                marginTop: 6
-                                            }}>
-                                                {t('wallet.actions.buy')}
-                                            </Text>
+                        {!network.isTestnet && (
+                            <View style={{
+                                flexGrow: 1, flexBasis: 0,
+                                marginRight: 7,
+                                borderRadius: 14,
+                                padding: 10
+                            }}>
+                                <Pressable
+                                    onPress={onOpenBuy}
+                                    style={({ pressed }) => ({
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 20
+                                    })}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View style={{
+                                            backgroundColor: theme.accent,
+                                            width: 32, height: 32,
+                                            borderRadius: 16,
+                                            alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <Image source={require('@assets/ic_buy.png')} />
                                         </View>
-                                    </Pressable>
-                                </View>
-                            )
-                        }
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20,
+                                            color: theme.textThird,
+                                            marginTop: 6
+                                        }}>
+                                            {t('wallet.actions.buy')}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        )}
                         <View style={{
                             flexGrow: 1, flexBasis: 0,
                             marginRight: 7,
@@ -288,7 +287,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                     return {
                                         opacity: pressed ? 0.5 : 1,
                                         borderRadius: 14, flex: 1, paddingVertical: 10,
-                                        marginHorizontal: 20
+                                        marginHorizontal: !network.isTestnet ? 10 : 20
                                     }
                                 }}
                             >
@@ -375,6 +374,12 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     );
 }
 
+const skeleton = (
+    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+        <WalletSkeleton />
+    </View>
+)
+
 export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
@@ -388,7 +393,7 @@ export const WalletFragment = fragment(() => {
     });
 
     if (!accountLite || !selectedAcc) {
-        return null; // TODO add loader
+        return skeleton;
     }
 
     return (
@@ -404,10 +409,13 @@ export const WalletFragment = fragment(() => {
                 tooltipComponent={CopilotTooltip}
                 svgMaskPath={defaultCopilotSvgPath}
             >
-                <WalletComponent
-                    selectedAcc={selectedAcc}
-                    wallet={accountLite}
-                />
+                <Suspense fallback={skeleton}>
+                    <WalletComponent
+                        selectedAcc={selectedAcc}
+                        wallet={accountLite}
+                    />
+                </Suspense>
+
             </CopilotProvider>
         </>
     );

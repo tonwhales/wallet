@@ -27,7 +27,7 @@ export async function fetchManifest(link: string) {
         warn(e)
         return null;
     }
-
+    
     const res = await axios.get(link);
 
     if (res.status === 200) {

@@ -11,7 +11,7 @@ export function usePulsatingStyle(progress: SharedValue<number>) {
         const scale = interpolate(
             progress.value,
             [0, 1],
-            [1, 1.03],
+            [1, 1.005],
             Extrapolate.CLAMP,
         )
         return {

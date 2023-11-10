@@ -7,13 +7,14 @@ import { HoldersCardItem } from "./HoldersCardItem";
 import { Pressable, View, Text, Image } from "react-native";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
-import { useDomainKey, useHoldersAccountStatus, useHoldersCards, useHoldersHiddenCards, useNetwork, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useHoldersCards, useHoldersHiddenCards, useNetwork, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { holdersCardImageMap } from "./HoldersHiddenCards";
 
 import Chevron from '@assets/ic_chevron_down.svg'
 import Hide from '@assets/ic-hide.svg';
 import MCard from '@assets/ic-m-card.svg';
+import { getDomainKey } from "../../engine/state/domainKeys";
 
 export const HoldersProductComponent = memo(() => {
     const theme = useTheme();
@@ -31,9 +32,6 @@ export const HoldersProductComponent = memo(() => {
 
     const staking = useStaking();
 
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
-
     const [collapsed, setCollapsed] = useState(true);
 
     const rotation = useSharedValue(0);
@@ -49,21 +47,11 @@ export const HoldersProductComponent = memo(() => {
     }, [collapsed])
 
     const needsEnrolment = useMemo(() => {
-        try {
-            if (!domain) {
-                return; // Shouldn't happen
-            }
-            if (!domainKey) {
-                return true;
-            }
-            if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
-                return true;
-            }
-        } catch (error) {
+        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
         return false;
-    }, [holdersAccStatus, domainKey]);
+    }, [holdersAccStatus]);
 
     const collapsedBorderStyle = useAnimatedStyle(() => {
         return {
@@ -72,22 +60,21 @@ export const HoldersProductComponent = memo(() => {
         }
     });
 
-    const onPress = useCallback(
-        () => {
-            if (needsEnrolment) {
-                navigation.navigate(
-                    'HoldersLanding',
-                    {
-                        endpoint: holdersUrl,
-                        onEnrollType: { type: 'account' }
-                    }
-                );
-                return;
-            }
-            navigation.navigateHolders({ type: 'account' });
-        },
-        [needsEnrolment],
-    );
+    const onPress = useCallback(() => {
+        const domain = extractDomain(holdersUrl);
+        const domainKey = getDomainKey(domain);
+        if (needsEnrolment || !domainKey) {
+            navigation.navigate(
+                'HoldersLanding',
+                {
+                    endpoint: holdersUrl,
+                    onEnrollType: { type: 'account' }
+                }
+            );
+            return;
+        }
+        navigation.navigateHolders({ type: 'account' });
+    }, [needsEnrolment]);
 
     if (!network.isTestnet) {
         return null;

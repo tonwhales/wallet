@@ -41,7 +41,7 @@ export const WalletBackupFragment = systemFragment(() => {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, network.isTestnet);
+        markAddressSecured(address.address);
         if (back) {
             navigation.goBack();
         } else {

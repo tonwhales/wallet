@@ -39,7 +39,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, isTestnet);
+        markAddressSecured(address.address);
         navigation.navigateAndReplaceAll('Home');
     }, []);
 

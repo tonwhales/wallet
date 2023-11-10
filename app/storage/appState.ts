@@ -221,8 +221,9 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
     throw Error('No keys');
 }
 
-export function markAddressSecured(src: Address, isTestnet: boolean) {
-    storage.set('backup_' + src.toString({ testOnly: isTestnet }), true);
+export function markAddressSecured(src: Address) {
+    storage.set('backup_' + src.toString({ testOnly: true }), true);
+    storage.set('backup_' + src.toString({ testOnly: false }), true);
 }
 
 export function isAddressSecured(src: Address, isTestnet: boolean) {

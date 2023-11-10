@@ -29,6 +29,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { normalizePath } from './components/HoldersAppComponent';
 
 export const HoldersLandingFragment = fragment(() => {
+    const safeArea = useSafeAreaInsets();
     const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
     const webRef = useRef<WebView>(null);
@@ -44,16 +45,13 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
 
     const domain = extractDomain(endpoint);
-    const enroll = useHoldersEnroll(acc, domain, authContext);
+    const enroll = useHoldersEnroll(acc, domain, authContext, { paddingTop: 32 });
     const lang = getLocales()[0].languageCode;
 
     // TODO
     const stableOfflineV = useOfflineApp().stableOfflineV;
 
-    //
-    // View
-    //
-    const safeArea = useSafeAreaInsets();
+    // Anim
     let [loaded, setLoaded] = React.useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
@@ -70,7 +68,7 @@ export const HoldersLandingFragment = fragment(() => {
         };
     });
 
-    let [auth, setAuth] = React.useState(false);
+    let [auth, setAuth] = useState(false);
     const authOpacity = useSharedValue(0);
     const animatedAuthStyles = useAnimatedStyle(() => {
         return {

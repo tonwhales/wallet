@@ -23,7 +23,6 @@ import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../.
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
@@ -33,7 +32,6 @@ import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
-import { useDomainKey } from '../../../engine/hooks';
 import { useHoldersCards } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
@@ -45,6 +43,7 @@ export function normalizePath(path: string) {
 }
 
 import IcHolders from '../../../../assets/ic_holders.svg';
+import { getDomainKey } from '../../../engine/state/domainKeys';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -223,7 +222,7 @@ export const HoldersAppComponent = memo((
 
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
     const cards = useHoldersCards(acc.address.toString({ testOnly: isTestnet })).data;
-    const domainKey = useDomainKey(domain);
+    const domainKey = getDomainKey(domain);
 
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();

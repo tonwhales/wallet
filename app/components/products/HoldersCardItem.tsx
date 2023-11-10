@@ -9,9 +9,10 @@ import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Swipeable } from "react-native-gesture-handler";
 import { holdersCardImageMap } from "./HoldersHiddenCards";
-import { useDomainKey, useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { HoldersCard } from "../../engine/api/holders/fetchCards";
+import { getDomainKey } from "../../engine/state/domainKeys";
 
 import MCard from '@assets/ic-m-card.svg';
 
@@ -28,35 +29,25 @@ export const HoldersCardItem = memo((props: {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
-    
+
     const swipableRef = useRef<Swipeable>(null);
 
     const [swiping, setSwiping] = useState(false);
 
     const needsEnrolment = useMemo(() => {
-        try {
-            if (!domain) {
-                return; // Shouldn't happen
-            }
-            if (!domainKey) {
-                return true;
-            }
-            if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
-                return true;
-            }
-        } catch (error) {
+        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
         return false;
-    }, [holdersAccStatus, domainKey]);
+    }, [holdersAccStatus]);
 
     const onPress = useCallback(() => {
         if (swiping) {
             return;
         }
-        if (needsEnrolment) {
+        const domain = extractDomain(holdersUrl);
+        const domainKey = getDomainKey(domain);
+        if (needsEnrolment || !domainKey) {
             navigation.navigate(
                 'HoldersLanding',
                 {

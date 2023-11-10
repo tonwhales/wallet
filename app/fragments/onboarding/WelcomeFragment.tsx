@@ -11,6 +11,7 @@ import { isTermsAccepted } from '../../storage/terms';
 import { ThemeStyle } from '../../engine/state/theme';
 import { useCallback } from 'react';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
+import { ScrollView } from 'react-native-gesture-handler';
 
 export const WelcomeFragment = systemFragment(() => {
     const theme = useTheme();
@@ -34,7 +35,9 @@ export const WelcomeFragment = systemFragment(() => {
             backgroundColor: theme.background,
         }}>
             <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
-            <WelcomeSlider style={{ paddingTop: safeArea.top }} />
+            <ScrollView bounces={false}>
+                <WelcomeSlider style={{ paddingTop: safeArea.top }} />
+            </ScrollView>
             <View style={{
                 width: '100%',
                 justifyContent: 'space-between',

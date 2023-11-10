@@ -102,7 +102,10 @@ export const WalletSecureComponent = memo((props: {
                 style={[{ zIndex: 100, paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
                 statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
-            <ScrollView style={{ height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
+            <ScrollView
+                bounces={false}
+                style={{ height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}
+            >
                 <View style={{
                     backgroundColor: theme.background,
                     justifyContent: 'center',

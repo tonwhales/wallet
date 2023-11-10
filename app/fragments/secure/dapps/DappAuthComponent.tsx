@@ -200,7 +200,6 @@ export const DappAuthComponent = memo(({
                         <WImage
                             heigh={72}
                             width={72}
-                            style={{}}
                             src={iconUrl}
                             borderRadius={16}
                         />

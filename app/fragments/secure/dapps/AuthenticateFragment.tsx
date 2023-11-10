@@ -1,11 +1,9 @@
 import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
-import { Platform, StyleProp, Text, TextStyle, View } from "react-native";
-import { AndroidToolbar } from "../../../components/topbar/AndroidToolbar";
+import { Platform, StyleProp, TextStyle } from "react-native";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { backoff } from '../../../utils/time';
 import axios from 'axios';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../../storage/appState';
@@ -14,7 +12,6 @@ import { beginCell, Cell, safeSign } from '@ton/core';
 import { WalletKeys } from '../../../storage/walletKeys';
 import { fragment } from '../../../fragment';
 import { warn } from '../../../utils/log';
-import { CloseButton } from '../../../components/CloseButton';
 import { AppData } from '../../../engine/api/fetchAppData';
 import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -22,13 +19,13 @@ import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../../engine/api/connectAnswer';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
-import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { useAddExtension } from '../../../engine/hooks';
 import { getAppData } from '../../../engine/getters/getAppData';
 import { DappAuthComponent } from './DappAuthComponent';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',
@@ -264,9 +261,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 });
 
 export const AuthenticateFragment = fragment(() => {
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const theme = useTheme();
     const params: {
         session: string,
         endpoint: string | null
@@ -276,25 +271,9 @@ export const AuthenticateFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('auth.title')} />
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center', color: theme.textPrimary }]}>{t('auth.title')}</Text>
-                </View>
-            )}
+            <ScreenHeader title={t('auth.title')} onClosePressed={navigation.goBack} />
             <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </>
     );
 });

@@ -233,9 +233,8 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     },
                 });
 
-                console.log('Saved connection');
+                navigation.goBack();
 
-                setState({ type: 'authorized', returnStrategy: state.returnStrategy });
                 return;
             } else if (connectProps.type === 'callback') {
                 connectProps.callback({ ok: true, replyItems });

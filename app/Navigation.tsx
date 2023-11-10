@@ -195,8 +195,8 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // dApps
     transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
-    modalScreen('Install', InstallFragment, safeArea),
-    modalScreen('Authenticate', AuthenticateFragment, safeArea),
+    transparentModalScreen('Install', InstallFragment, safeArea),
+    transparentModalScreen('Authenticate', AuthenticateFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}

@@ -1,5 +1,4 @@
 import { useEffect, useMemo } from 'react';
-import { storage } from '../storage/storage';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
 import { useTonConnectExtensions } from './hooks';
@@ -84,5 +83,5 @@ export function useTonconnectWatcher() {
                 logger.log('sse close');
             }
         };
-    }, [handleMessage]);
+    }, [handleMessage, extensions, connections]);
 }

@@ -30,8 +30,6 @@ export function useHoldersEnroll(
 
             let existingKey = await createDomainKeyIfNeeded(domain, authContext, undefined, authStyle);
 
-            console.log('existingKey', existingKey);
-
             if (!existingKey) {
                 return false;
             }
@@ -42,7 +40,7 @@ export function useHoldersEnroll(
 
             
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
-            
+
             console.log('existingToken', existingToken);
 
             if (existingToken && existingToken.toString().length > 0) {

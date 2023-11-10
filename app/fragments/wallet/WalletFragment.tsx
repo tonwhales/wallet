@@ -6,7 +6,7 @@ import { ValueComponent } from '../../components/ValueComponent';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { memo, useCallback, useEffect, useMemo } from 'react';
+import { Suspense, memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { setStatusBarStyle } from 'expo-status-bar';
@@ -26,6 +26,7 @@ import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
+import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -375,6 +376,12 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     );
 }
 
+const skeleton = (
+    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+        <WalletSkeleton />
+    </View>
+)
+
 export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
@@ -388,7 +395,7 @@ export const WalletFragment = fragment(() => {
     });
 
     if (!accountLite || !selectedAcc) {
-        return null; // TODO add loader
+        return skeleton;
     }
 
     return (
@@ -404,10 +411,13 @@ export const WalletFragment = fragment(() => {
                 tooltipComponent={CopilotTooltip}
                 svgMaskPath={defaultCopilotSvgPath}
             >
-                <WalletComponent
-                    selectedAcc={selectedAcc}
-                    wallet={accountLite}
-                />
+                <Suspense fallback={skeleton}>
+                    <WalletComponent
+                        selectedAcc={selectedAcc}
+                        wallet={accountLite}
+                    />
+                </Suspense>
+
             </CopilotProvider>
         </>
     );

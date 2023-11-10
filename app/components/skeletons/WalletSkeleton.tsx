@@ -32,7 +32,7 @@ export const WalletSkeleton = memo(() => {
             style={[
                 {
                     width: '100%',
-                    marginTop: 4, flexGrow: 1,
+                    flexGrow: 1,
                     opacity: 0.7,
                     paddingTop: safeArea.top,
                     backgroundColor: theme.backgroundUnchangeable,

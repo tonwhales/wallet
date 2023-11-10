@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -51,10 +51,16 @@ export const HoldersAppFragment = fragment(() => {
         }
     }, [needsEnrollment]);
 
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerShown: false
+        });
+    }, [navigation]);
+
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingTop: safeArea.top,
             backgroundColor: theme.surfacePimary
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />

@@ -100,15 +100,15 @@ export function fullScreen(name: string, component: React.ComponentType<any>) {
     );
 }
 
-export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+export function genericScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets, hideHeader?: boolean, paddingBottom?: number) {
     return (
         <Stack.Screen
             key={`genericScreen-${name}`}
             name={name}
             component={component}
             options={{
-                headerShown: Platform.OS === 'ios',
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+                headerShown: hideHeader ? false : Platform.OS === 'ios',
+                contentStyle: { paddingBottom: paddingBottom ?? (Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined) }
             }}
         />
     );
@@ -184,8 +184,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
     modalScreen('Accounts', AccountsFragment, safeArea),
     modalScreen('Review', ReviewFragment, safeArea),
-    modalScreen('HoldersLanding', HoldersLandingFragment, safeArea),
-    lockedModalScreen('Holders', HoldersAppFragment, safeArea),
     <Stack.Screen
         key={`genericScreen-App`}
         name={'App'}
@@ -254,6 +252,10 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('BiometricsSetup', BiometricsSetupFragment, safeArea),
     modalScreen('WalletSettings', WalletSettingsFragment, safeArea),
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
+
+    // Holders
+    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
+    genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
 
     // Utils
     genericScreen('Privacy', PrivacyFragment, safeArea),

@@ -124,7 +124,7 @@ export const initialNavigationTheme: NavigationThemeType = {
 
 const themeStyleKey = 'themeStyle';
 
-function getThemeStyleState() {
+export function getThemeStyleState() {
     const res = storagePersistence.getString(themeStyleKey);
 
     if (z.union([z.literal('light'), z.literal('dark'), z.literal('system')]).safeParse(res).success) {

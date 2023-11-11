@@ -13,14 +13,10 @@ export async function onBlockMissed(client: TonClient4, lastBlock: number, newBl
             queryKey: ['account'],
         });
 
-        await queryClient.refetchQueries({
+        await queryClient.invalidateQueries({
             queryKey: ['transactions'],
-            refetchPage: (lastPage, index) => index === 0,
+            refetchPage: (last, index, allPages) => index == 0,
         });
-        await queryClient.resetQueries({
-            queryKey: ['transactions'],
-            refetchPage: (lastPage, index) => index !== 0,
-        })
     }
 
     let missedBlocksRange = getMissedBlocksRange(lastBlock, newBlock);

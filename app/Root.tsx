@@ -9,7 +9,7 @@ import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 import { LedgerTransportProvider } from './fragments/ledger/components/TransportContext';
 
-const PERSISTANCE_VERSION = '12';
+const PERSISTANCE_VERSION = '14';
 
 export const Root = React.memo(() => {
     const [sessionId, setSessionId] = React.useState(0);

@@ -11,17 +11,6 @@ export async function onAccountTouched(account: string, isTestnet: boolean) {
 
     await queryClient.invalidateQueries({
         queryKey: Queries.Transactions(address),
-        refetchPage: (last, index) => index == 0,
-    });
-
-    queryClient.setQueryData(Queries.Transactions(address), (old: InfiniteData<StoredTransaction[]> | undefined) => {
-        if (!old) {
-            return old;
-        }
-
-        return {
-            pageParams: old.pageParams,
-            pages: [old.pages[0]],
-        };
+        refetchPage: (last, index, allPages) => index == 0,
     });
 }

@@ -9,6 +9,8 @@ import { TransactionView } from "./TransactionView";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
+import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
+import { useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -34,6 +36,14 @@ type TransactionListItemProps = {
     theme: ThemeType,
     onPress: (tx: TransactionDescription) => void,
     ledger?: boolean,
+    navigation: TypedNavigation,
+    addToDenyList: (address: string | Address, reason: string) => void,
+    spamMinAmount: bigint,
+    dontShowComments: boolean,
+    denyList: { [key: string]: { reason: string | null } },
+    contacts: { [key: string]: AddressContact },
+    isTestnet: boolean,
+    spamWallets: string[],
 }
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
     return (
@@ -41,17 +51,11 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
             own={props.address}
             tx={item}
             separator={section.data[index + 1] !== undefined}
-            onPress={props.onPress}
             theme={theme}
             ledger={props.ledger}
+            {...props}
         />
     );
-}, (prevProps, nextProps) => {
-    return prevProps.item.id === nextProps.item.id
-        && prevProps.theme === nextProps.theme
-        && nextProps.index === prevProps.index
-        && prevProps.ledger === nextProps.ledger
-        && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
 });
 
 export const WalletTransactions = memo((props: {
@@ -72,6 +76,24 @@ export const WalletTransactions = memo((props: {
     ledger?: boolean,
 }) => {
     const theme = useTheme();
+    const navigation = props.navigation;
+    const { isTestnet } = useNetwork();
+    const [spamMinAmount,] = useSpamMinAmount();
+    const [dontShowComments,] = useDontShowComments();
+    const [addressBook, updateAddressBook] = useAddressBook();
+    const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
+
+    const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
+        let addr = '';
+
+        if (address instanceof Address) {
+            addr = address.toString({ testOnly: isTestnet });
+        } else {
+            addr = address;
+        }
+
+        return updateAddressBook((doc) => doc.denyList[addr] = { reason });
+    }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
         let sectioned: { title: string, data: TransactionDescription[] }[] = [];
@@ -138,6 +160,14 @@ export const WalletTransactions = memo((props: {
                     theme={theme}
                     onPress={navigateToPreview}
                     ledger={props.ledger}
+                    navigation={navigation}
+                    addToDenyList={addToDenyList}
+                    spamMinAmount={spamMinAmount}
+                    dontShowComments={dontShowComments}
+                    denyList={addressBook.denyList}
+                    contacts={addressBook.contacts}
+                    isTestnet={isTestnet}
+                    spamWallets={spamWallets}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

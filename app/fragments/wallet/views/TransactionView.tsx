@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share, Text, View } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share, View, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
@@ -8,30 +8,38 @@ import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { confirmAlert } from '../../../utils/confirmAlert';
-import { useTypedNavigation } from '../../../utils/useTypedNavigation';
+import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { useAddToDenyList, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, useSelectedAccount, useSpamMinAmount } from '../../../engine/hooks';
 import { TransactionDescription } from '../../../engine/types';
 import { useCallback, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
+import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 
 export function TransactionView(props: {
     own: Address,
     tx: TransactionDescription,
     separator: boolean,
     theme: ThemeType,
+    navigation: TypedNavigation,
     onPress: (src: TransactionDescription) => void,
     ledger?: boolean,
+    addToDenyList: (address: string | Address, reason: string) => void,
+    spamMinAmount: bigint,
+    dontShowComments: boolean,
+    denyList: { [key: string]: { reason: string | null } },
+    contacts: { [key: string]: AddressContact },
+    isTestnet: boolean,
+    spamWallets: string[],
 }) {
-    const theme = props.theme;
-    const network = useNetwork();
-    const navigation = useTypedNavigation();
-    const dontShowComments = useDontShowComments();
-    const { isTestnet } = useNetwork();
-    const [spamMinAmount,] = useSpamMinAmount();
-
-    const tx = props.tx;
+    const {
+        theme, navigation,
+        tx,
+        denyList, addToDenyList,
+        spamMinAmount, dontShowComments, spamWallets,
+        contacts,
+        isTestnet,
+    } = props;
     const parsed = tx.base.parsed;
     const operation = tx.base.operation;
     const kind = tx.base.parsed.kind;
@@ -40,9 +48,8 @@ export function TransactionView(props: {
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = tx.base.parsed.resolvedAddress;
 
-    const contact = useContact(opAddress);
-    const isSpam = useDenyAddress(opAddress);
-    const addToDenyList = useAddToDenyList();
+    const contact = contacts[opAddress];
+    const isSpam = !!denyList[opAddress]?.reason;
 
     // Operation
     const op = useMemo(() => {
@@ -77,7 +84,8 @@ export function TransactionView(props: {
         known = { name: contact.name }
     }
 
-    let spam = useIsSpamWallet(opAddress)
+    let spam =
+        !!spamWallets.find((i) => opAddress === i)
         || isSpam
         || (
             absAmount < spamMinAmount
@@ -86,9 +94,7 @@ export function TransactionView(props: {
             && !isTestnet
         ) && kind !== 'out';
 
-    // 
     // Address actions
-    // 
     const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
 
     const txId = useMemo(() => {
@@ -119,12 +125,12 @@ export function TransactionView(props: {
     const onMarkAddressSpam = useCallback(async () => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');
         if (confirmed) {
-            addToDenyList(opAddress);
+            addToDenyList(opAddress, 'spam');
         }
     }, [addToDenyList]);
 
     const onAddressContact = useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toString({ testOnly: network.isTestnet }) });
+        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
     }, []);
 
     const onRepeatTx = useCallback(() => {
@@ -187,6 +193,7 @@ export function TransactionView(props: {
     return (
         <ContextMenu
             actions={transactionActions}
+            // actions={[]}
             onPress={handleAction}
         >
             <Pressable
@@ -244,7 +251,15 @@ export function TransactionView(props: {
                                     marginLeft: 10,
                                     height: 15
                                 }}>
-                                    <Text style={{ color: theme.textPrimaryInverted, fontSize: 10, fontWeight: '500' }}>{'SPAM'}</Text>
+                                    <Text
+                                        style={{
+                                            color: theme.textPrimaryInverted,
+                                            fontSize: 10,
+                                            fontWeight: '500'
+                                        }}
+                                    >
+                                        {'SPAM'}
+                                    </Text>
                                 </View>
                             )}
                         </View>

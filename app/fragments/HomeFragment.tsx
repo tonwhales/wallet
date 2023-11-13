@@ -31,7 +31,7 @@ export const HomeFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
-    const tonXRequest = useCurrentJob();
+    const [tonXRequest,] = useCurrentJob();
     const [tonconnectRequests,] = useConnectPendingRequests();
     const linkNavigator = useLinkNavigator(network.isTestnet);
 

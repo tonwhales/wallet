@@ -1,30 +1,32 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
 import Animated, { Layout } from "react-native-reanimated";
-import { useAppConfig } from "../../../utils/AppConfigContext";
 import { t } from "../../../i18n/t";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getConnectionReferences } from "../../../storage/appState";
-import { useEngine } from "../../../engine/Engine";
-import { prepareTonConnectRequest, tonConnectTransactionCallback } from "../../../engine/tonconnect/utils";
 import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useAnimatedPressedInOut } from "../../../utils/useAnimatedPressedInOut";
+import { useConnectCallback, useConnectPendingRequests, useCurrentJob, useNetwork, usePrepareConnectRequest, useTheme } from "../../../engine/hooks";
 
-export const RequestsView = memo(() => {
-    const engine = useEngine();
-    const tonXRequest = engine.products.apps.useState();
-    const tonconnectRequests = engine.products.tonConnect.usePendingRequests();
+export const DappsRequests = memo(() => {
     const navigation = useTypedNavigation();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const network = useNetwork();
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+
+    const [tonconnectRequests,] = useConnectPendingRequests();
+    const [tonXRequest,] = useCurrentJob();
+    const prepareConnectRequest = usePrepareConnectRequest();
+    const connectCallback = useConnectCallback();
 
     const onPress = useCallback(() => {
         if (tonXRequest) {
             if (tonXRequest.job.type === 'transaction') {
                 navigation.navigateTransfer({
                     order: {
+                        type: 'order',
                         messages: [{
-                            target: tonXRequest.job.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                            target: tonXRequest.job.target.toString({ testOnly: network.isTestnet }),
                             amount: tonXRequest.job.amount,
                             payload: tonXRequest.job.payload,
                             stateInit: tonXRequest.job.stateInit,
@@ -51,19 +53,20 @@ export const RequestsView = memo(() => {
             }
         } else if (tonconnectRequests.length > 0) {
             const request = tonconnectRequests[0];
-            const prepared = prepareTonConnectRequest(request, engine);
+            const prepared = prepareConnectRequest(request);
             if (request.method === 'sendTransaction' && prepared) {
                 navigation.navigateTransfer({
                     text: null,
                     order: {
+                        type: 'order',
                         messages: prepared.messages,
-                        app: (prepared.app && prepared.app.connectedApp) ? {
-                            title: prepared.app.connectedApp.name,
-                            domain: extractDomain(prepared.app.connectedApp.url),
+                        app: (prepared.app && prepared.app) ? {
+                            title: prepared.app.name,
+                            domain: extractDomain(prepared.app.url),
                         } : undefined
                     },
                     job: null,
-                    callback: (ok, result) => tonConnectTransactionCallback(ok, result, prepared.request, prepared.sessionCrypto, engine)
+                    callback: (ok, result) => connectCallback(ok, result, prepared.request, prepared.sessionCrypto)
                 })
             }
         }
@@ -82,12 +85,12 @@ export const RequestsView = memo(() => {
     return (
         <Animated.View
             layout={Layout.duration(300)}
-            style={[{paddingHorizontal: 16, marginTop: 24}, animatedStyle]}
+            style={[{ paddingHorizontal: 16, marginTop: 24 }, animatedStyle]}
         >
             <Pressable
                 style={{
                     flex: 1,
-                    backgroundColor: Theme.border,
+                    backgroundColor: theme.border,
                     borderRadius: 20,
                     padding: 20,
                     flexDirection: 'row',
@@ -101,7 +104,7 @@ export const RequestsView = memo(() => {
                     <Text style={{
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
-                        color: Theme.textPrimary,
+                        color: theme.textPrimary,
                         marginBottom: 2
                     }}>
                         {title}
@@ -109,13 +112,13 @@ export const RequestsView = memo(() => {
                     <Text style={{
                         fontSize: 15, lineHeight: 20,
                         fontWeight: '400',
-                        color: Theme.textSecondary,
+                        color: theme.textSecondary,
                     }}>
                         {t('products.transactionRequest.subtitle')}
                     </Text>
                 </View>
                 <View style={{
-                    backgroundColor: Theme.accentRed,
+                    backgroundColor: theme.accentRed,
                     borderRadius: 20,
                     justifyContent: 'center', alignItems: 'center',
                     paddingHorizontal: 8, paddingVertical: 3,
@@ -123,7 +126,7 @@ export const RequestsView = memo(() => {
                 }}>
                     <Text style={{
                         flexShrink: 1,
-                        color: Theme.white,
+                        color: theme.white,
                         fontSize: 13,
                         fontWeight: '500',
                         lineHeight: 18,

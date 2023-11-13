@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
 import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { t } from "../../i18n/t"
 import { Countdown } from "../Countdown"
@@ -6,7 +6,7 @@ import { StakingCycleProgress } from "./StakingCycleProgress"
 import { useTheme } from "../../engine/hooks"
 import { AboutIconButton } from "../AboutIconButton"
 
-export const StakingCycle = React.memo((
+export const StakingCycle = memo((
     {
         stakeUntil,
         style,

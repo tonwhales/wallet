@@ -52,7 +52,7 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
                 } : null,
             });
 
-            navigation.navigateAlert({ title: t('review.posted'), message: t('review.postedDescription') })
+            navigation.navigateAlert({ title: t('review.posted'), message: t('review.postedDescription') }, true)
         } catch (error) {
             Alert.alert(t('review.error'));
         }

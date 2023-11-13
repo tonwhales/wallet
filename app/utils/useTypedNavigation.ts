@@ -8,6 +8,7 @@ import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
+import { useMemo } from 'react';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -138,13 +139,17 @@ export class TypedNavigation {
         this.navigate('ScreenCapture', params);
     }
 
-    navigateAlert(params: { title: string, message?: string, callback?: () => void }) {
+    navigateAlert(params: { title: string, message?: string, callback?: () => void }, replace?: boolean) {
+        if (replace) {
+            this.replace('Alert', params);
+            return;
+        };
         this.navigate('Alert', params);
     }
 }
 
 export function useTypedNavigation() {
     const baseNavigation = useNavigation();
-    const typedNavigation = React.useMemo(() => new TypedNavigation(baseNavigation), [baseNavigation]);
+    const typedNavigation = useMemo(() => new TypedNavigation(baseNavigation), [baseNavigation]);
     return typedNavigation;
 }

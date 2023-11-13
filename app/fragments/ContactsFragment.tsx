@@ -16,28 +16,43 @@ import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useTheme } from '../engine/hooks';
-import { useSelectedAccount } from '../engine/hooks';
-import { useAccountTransactions } from '../engine/hooks';
-import { useClient4 } from '../engine/hooks';
-import { useNetwork } from '../engine/hooks';
+import { useClient4, useDontShowComments, useAddressBook, useNetwork, useSelectedAccount, useSpamMinAmount, useTheme, useAccountTransactions, useServerConfig } from '../engine/hooks';
 import { useContacts } from "../engine/hooks/contacts/useContacts";
 import { TransactionDescription } from '../engine/types';
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
+    const { isTestnet } = useNetwork();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
     const account = useSelectedAccount();
-    let client = useClient4(useNetwork().isTestnet);
+    const client = useClient4(isTestnet);
     const transactions = useAccountTransactions(client, account?.addressString ?? '');
+    const [spamMinAmount,] = useSpamMinAmount();
+    const [dontShowComments,] = useDontShowComments();
+    const [addressBook, updateAddressBook] = useAddressBook();
+    const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
+
+    const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
+        let addr = '';
+
+        if (address instanceof Address) {
+            addr = address.toString({ testOnly: isTestnet });
+        } else {
+            addr = address;
+        }
+
+        return updateAddressBook((doc) => doc.denyList[addr] = { reason });
+    }, [isTestnet, updateAddressBook]);
 
     const [addingAddress, setAddingAddress] = useState(false);
     const [domain, setDomain] = useState<string>();
     const [target, setTarget] = useState('');
     const [addressDomainInput, setAddressDomainInput] = useState('');
+
     const inputRef: RefObject<ATextInputRef> = createRef();
+
     const validAddress = useMemo(() => {
         try {
             const valid = target.trim();
@@ -109,7 +124,14 @@ export const ContactsFragment = fragment(() => {
                             key={'tx-' + t.id}
                             onPress={() => { }}
                             theme={theme}
-                            fontScaleNormal={true}
+                            navigation={navigation}
+                            addToDenyList={addToDenyList}
+                            spamMinAmount={spamMinAmount}
+                            dontShowComments={dontShowComments}
+                            denyList={addressBook.denyList}
+                            contacts={addressBook.contacts}
+                            isTestnet={isTestnet}
+                            spamWallets={spamWallets}
                         />
                     ))}
                 </View >

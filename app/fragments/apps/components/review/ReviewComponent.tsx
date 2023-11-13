@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
-import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native"
+import { View, Text, ScrollView, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput, ATextInputRef } from "../../../../components/ATextInput";
@@ -62,6 +62,7 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
         (async () => {
             setLoading(true);
             try {
+                // TODO rewrite using new hooks
                 const selectedAddress = getCurrentAddress();
                 const reviewRes = await fetchExtensionReview(selectedAddress.address, url, isTestnet);
                 if (reviewRes) {
@@ -134,9 +135,14 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton title={t('common.send')} action={onSend} disabled={rating < 1} />
-            </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                keyboardVerticalOffset={16}
+            >
+                <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
+                    <RoundButton title={t('common.send')} action={onSend} disabled={rating < 1} />
+                </View>
+            </KeyboardAvoidingView>
 
             <Animated.View
                 style={animatedStyles}

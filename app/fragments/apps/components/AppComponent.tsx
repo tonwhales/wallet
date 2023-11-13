@@ -234,7 +234,7 @@ export const AppComponent = memo((props: {
                     ref={webRef}
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;
@@ -249,14 +249,6 @@ export const AppComponent = memo((props: {
                     onShouldStartLoadWithRequest={loadWithRequest}
                     onMessage={handleWebViewMessage}
                 />
-
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <ActivityIndicator size="large" color={props.foreground} />
-                </Animated.View>
-
             </View>
         </>
     );

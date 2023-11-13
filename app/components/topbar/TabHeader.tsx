@@ -1,10 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { useTheme } from "../../engine/hooks";
 
-export const TabHeader = React.memo(({
+export const TabHeader = memo(({
     title,
     style,
     rightAction

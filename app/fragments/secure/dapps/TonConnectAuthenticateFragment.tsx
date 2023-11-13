@@ -215,7 +215,6 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 // Send connect response
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
-                console.log('Saving connection...');
                 // Save connection
                 await saveAppConnection({
                     app: {

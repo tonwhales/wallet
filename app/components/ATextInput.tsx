@@ -132,7 +132,6 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         }
     }, [props.index]);
     const onSubmit = useCallback(() => {
-        console.log('onSubmit', props.index);
         if (props.onSubmit && props.index) {
             props.onSubmit(props.index);
         }

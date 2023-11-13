@@ -745,7 +745,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         review: 'Review (optional)',
         heading: 'Title',
         error: 'Error posing review',
-        posted: 'Your review is sent'
+        posted: 'Thanks for your feedback!',
+        postedDescription: 'Your review will be published after moderation',
     },
     deleteAccount: {
         title: 'Are you sure you want to Delete Account?',

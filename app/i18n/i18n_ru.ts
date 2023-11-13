@@ -745,8 +745,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         rating: 'рейтинг',
         review: 'Отзыв (по желанию)',
         heading: 'Заголовок',
-        posted: 'Отзыв отправлен',
-        error: 'Ошибка при отправке отзыва'
+        error: 'Ошибка при отправке отзыва',
+        posted: 'Спасибо за ваш отзыв!',
+        postedDescription: 'Ваш отзыв будет опубликован после модерации',
     },
     deleteAccount: {
         title: 'Удалить аккаунт',

@@ -11,6 +11,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ReportComponent } from "./components/review/ReportComponent";
 import { ReviewComponent } from "./components/review/ReviewComponent";
 import { useTheme } from "../../engine/hooks";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export const ReviewFragment = fragment(() => {
     const params = (useRoute().params) as {
@@ -24,35 +25,12 @@ export const ReviewFragment = fragment(() => {
     return (
         <>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar style={{ marginTop: safeArea.top }} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        marginLeft: 17,
-                        fontSize: 17,
-                        color: theme.textPrimary
-                    }, { textAlign: 'center' }]}>
-                        {params.type === 'report' ? t('report.title') : t('review.title')}
-                    </Text>
-                </View>
-            )}
+            <ScreenHeader onClosePressed={navigation.goBack} />
             {params.type === 'report' && (
                 <ReportComponent url={params.url} />
             )}
             {params.type === 'review' && (
                 <ReviewComponent url={params.url} />
-            )}
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
             )}
         </>
     );

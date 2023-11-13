@@ -747,6 +747,7 @@ export type LocalizationSchema = {
         review: string,
         heading: string,
         posted: string,
+        postedDescription: string,
         error: string
     },
     deleteAccount: {

@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from "react"
-import { Pressable, StyleProp, View, ViewStyle } from "react-native";
+import React, { memo, useCallback, useEffect, useState } from "react"
+import { Pressable, StyleProp, View, ViewStyle, Image } from "react-native";
 import FilledStar from '../../../../../assets/ic_star_filled.svg';
 import Star from '../../../../../assets/ic_star_outline.svg';
 import { useTheme } from '../../../../engine/hooks';
 import { useNetwork } from '../../../../engine/hooks';
 
-const StarView = React.memo(({
+const StarView = memo(({
     rate,
     rating,
     setRating
@@ -20,7 +20,7 @@ const StarView = React.memo(({
         <Pressable
             style={({ pressed }) => {
                 return {
-                    height: 54, width: 54,
+                    height: 46, width: 46,
                     margin: 4,
                     opacity: pressed ? 0.3 : 1
                 }
@@ -32,12 +32,15 @@ const StarView = React.memo(({
                 setRating(rate);
             }}
         >
-            {rating > rate - 1 ? <FilledStar color={theme.accent} width={54} height={54} /> : <Star color={theme.textPrimary} width={54} height={54} />}
+            <Image
+                source={require('@assets/ic-star.png')}
+                style={{ tintColor: rating > rate - 1 ? theme.accent : theme.divider, height: 46, width: 46 }}
+            />
         </Pressable>
     )
 })
 
-export const StarRating = React.memo(({
+export const StarRating = memo(({
     initial,
     onSet,
     style

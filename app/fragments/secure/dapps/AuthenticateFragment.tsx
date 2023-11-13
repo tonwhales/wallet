@@ -25,13 +25,6 @@ import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { useAddExtension } from '../../../engine/hooks';
 import { getAppData } from '../../../engine/getters/getAppData';
 import { DappAuthComponent } from './DappAuthComponent';
-import { ScreenHeader } from '../../../components/ScreenHeader';
-
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    marginLeft: 17,
-    fontSize: 17
-};
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
@@ -173,8 +166,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             if (!active.current) {
                 return;
             }
-
-            setState({ type: 'authorized' });
         });
 
         // Add extension if AppData has extension field
@@ -245,6 +236,8 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
 
             // Navigate
             navigation.replace('App', { url });
+        } else {
+            navigation.goBack();
         }
     }, [state, addExt, useCreateDomainKeyIfNeeded]);
 
@@ -254,26 +247,25 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             state={{ ...state, connector: 'ton-x' }}
             onApprove={approve}
             onCancel={navigation.goBack}
-            setAddExtension={setAddExt}
-            addExtension={addExt}
+            setAddExtension={state.type === 'initing' && state.app?.extension ? setAddExt : undefined}
+            addExtension={state.type === 'initing' && state.app?.extension ? addExt : undefined}
         />
     )
 });
 
 export const AuthenticateFragment = fragment(() => {
-    const navigation = useTypedNavigation();
     const params: {
         session: string,
         endpoint: string | null
     } = useRoute().params as any;
 
-    const [state, setState] = useState<SignState>({ type: 'loading' });
-
     return (
         <>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <ScreenHeader title={t('auth.title')} onClosePressed={navigation.goBack} />
-            <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} />
+            <SignStateLoader
+                session={params.session}
+                endpoint={params.endpoint || 'connect.tonhubapi.com'}
+            />
         </>
     );
 });

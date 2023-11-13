@@ -32,7 +32,10 @@ export const Root = memo(() => {
     }, []);
 
     return (
-        <PerformanceProfiler onReportPrepared={onReportPrepared}>
+        <PerformanceProfiler
+            onReportPrepared={onReportPrepared}
+            enabled={__DEV__}
+        >
             <Animated.View
                 key={'session-' + sessionId}
                 style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}

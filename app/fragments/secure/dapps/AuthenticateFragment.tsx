@@ -171,7 +171,6 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         // Add extension if AppData has extension field
         // and option is checked
         if (addExt && state.app?.extension) {
-            console.log('Adding extension')
             // Read cell from extension field
             let slice = Cell.fromBoc(Buffer.from(state.app?.extension, 'base64'))[0].beginParse();
             let endpoint = slice.loadRef().toString();

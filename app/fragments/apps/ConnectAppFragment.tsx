@@ -32,7 +32,6 @@ export const ConnectAppFragment = fragment(() => {
             backgroundColor: theme.background
         }}>
             <StatusBar style={'dark'} />
-
             <ConnectAppComponent
                 endpoint={url}
                 title={appManifest.name}

@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react"
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { View, Text, ScrollView, ActivityIndicator, Alert } from "react-native"
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { ATextInput } from "../../../../components/ATextInput";
+import { ATextInput, ATextInputRef } from "../../../../components/ATextInput";
 import { RoundButton } from "../../../../components/RoundButton";
 import { fetchExtensionReview, postExtensionReview } from "../../../../engine/api/reviews";
 import { t } from "../../../../i18n/t";
@@ -12,16 +12,17 @@ import { StarRating } from "./StarRating";
 import { useTheme } from '../../../../engine/hooks';
 import { useAppData } from '../../../../engine/hooks';
 import { useNetwork } from "../../../../engine/hooks/network/useNetwork";
+import { WImage } from "../../../../components/WImage";
 
-export const ReviewComponent = React.memo(({ url }: { url: string }) => {
+export const ReviewComponent = memo(({ url }: { url: string }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const appData = useAppData(url);
     const safeArea = useSafeAreaInsets();
-    const address = React.useMemo(() => getCurrentAddress().address, []);
+    const address = useMemo(() => getCurrentAddress().address, []);
     const navigation = useTypedNavigation();
+
     const [loading, setLoading] = useState(true);
-    const [sending, setSending] = useState(false);
     const [rating, setRating] = useState<number>(0);
     const [review, setReview] = useState<string>('');
 
@@ -40,31 +41,22 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
         };
     });
 
-    const onSend = useCallback(
-        async () => {
-            setSending(true);
-            try {
-                await postExtensionReview(url, {
-                    rating,
-                    address: address.toString({ testOnly: isTestnet }),
-                    comment: review.length > 0 ? {
-                        text: review,
-                        images: []
-                    } : null,
-                });
+    const onSend = useCallback(async () => {
+        try {
+            await postExtensionReview(url, {
+                rating,
+                address: address.toString({ testOnly: isTestnet }),
+                comment: review.length > 0 ? {
+                    text: review,
+                    images: []
+                } : null,
+            });
 
-                Alert.alert(t('review.posted'), undefined, [{
-                    onPress: () => {
-                        navigation.goBack();
-                    }
-                }]);
-            } catch (error) {
-                Alert.alert(t('review.error'));
-            }
-            setSending(false);
-        },
-        [address, rating, review],
-    );
+            navigation.navigateAlert({ title: t('review.posted'), message: t('review.postedDescription') })
+        } catch (error) {
+            Alert.alert(t('review.error'));
+        }
+    }, [address, rating, review]);
 
     useEffect(() => {
         (async () => {
@@ -76,8 +68,7 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                     setRating(reviewRes.rating);
                     if (reviewRes.comment) setReview(reviewRes.comment.text);
                 }
-            } catch (error) {
-            }
+            } catch (error) { }
             setLoading(false);
         })();
     }, []);
@@ -98,64 +89,53 @@ export const ReviewComponent = React.memo(({ url }: { url: string }) => {
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
                 alwaysBounceVertical={false}
             >
-                <Text
-                    style={{
-                        fontSize: 24,
-                        marginHorizontal: 16,
-                        textAlign: 'center',
-                        color: theme.textPrimary,
-                        fontWeight: '600',
-                        marginTop: 10
-                    }}
-                >
-                    {appData?.title}
-                </Text>
-                <StarRating
-                    initial={rating}
-                    onSet={setRating}
-                    style={{
-                        marginVertical: 16
-                    }}
-                />
-                <View style={{
-                    marginBottom: 16, marginTop: 2,
-                    marginHorizontal: 16,
-                    backgroundColor: theme.surfacePimary,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <ATextInput
-                        value={review}
-                        onValueChange={setReview}
-                        keyboardType="default"
-                        autoCapitalize="sentences"
-                        style={{ backgroundColor: theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
-                        preventDefaultHeight
-                        multiline
-                        label={
-                            <View style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                overflow: 'hidden',
-                            }}>
-                                <Text style={{
-                                    fontWeight: '500',
-                                    fontSize: 12,
-                                    color: theme.textSecondary,
-                                    alignSelf: 'flex-start',
-                                }}>
-                                    {t('review.review')}
-                                </Text>
-                            </View>
-                        }
+                <View style={{ alignItems: 'center' }}>
+                    <WImage
+                        heigh={72}
+                        width={72}
+                        src={appData?.image?.preview256}
+                        blurhash={appData?.image?.preview256}
+                        style={{ marginRight: 10 }}
+                        borderRadius={16}
                     />
+                    <Text
+                        style={{
+                            fontSize: 24,
+                            marginHorizontal: 16,
+                            textAlign: 'center',
+                            color: theme.textPrimary,
+                            fontWeight: '600',
+                            marginTop: 16
+                        }}
+                    >
+                        {appData?.title}
+                    </Text>
+                    <StarRating
+                        initial={rating}
+                        onSet={setRating}
+                        style={{ marginVertical: 24 }}
+                    />
+                    <View style={{
+                        backgroundColor: theme.border,
+                        paddingVertical: 20,
+                        width: '100%', borderRadius: 20,
+                        marginTop: 5
+                    }}>
+                        <ATextInput
+                            value={review}
+                            onValueChange={setReview}
+                            keyboardType="default"
+                            autoCapitalize="sentences"
+                            style={{ paddingHorizontal: 16 }}
+                            multiline
+                            label={t('review.review')}
+                            blurOnSubmit={true}
+                        />
+                    </View>
                 </View>
             </ScrollView>
             <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                <RoundButton title={t('common.send')} onPress={onSend} disabled={rating < 1 || sending} loading={sending} />
+                <RoundButton title={t('common.send')} action={onSend} disabled={rating < 1} />
             </View>
 
             <Animated.View

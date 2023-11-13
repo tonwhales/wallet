@@ -8,31 +8,50 @@ import './utils/CachedLinking';
 import { clientPersister } from './engine/queryClientPersister';
 import { queryClient } from './engine/clients';
 import { LedgerTransportProvider } from './fragments/ledger/components/TransportContext';
+import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-performance';
+import { memo, useCallback, useState } from 'react';
+import { Mixpanel } from 'mixpanel-react-native';
+import { LogBox } from 'react-native';
 
 const PERSISTANCE_VERSION = '14';
 
-export const Root = React.memo(() => {
-    const [sessionId, setSessionId] = React.useState(0);
-    const reboot = React.useCallback(() => {
+LogBox.ignoreAllLogs()
+
+export const Root = memo(() => {
+    const [sessionId, setSessionId] = useState(0);
+    const reboot = useCallback(() => {
         setSessionId((s) => s + 1);
     }, [setSessionId]);
 
+    const onReportPrepared = useCallback((report: RenderPassReport) => {
+        // send report to analytics
+        if (__DEV__) {
+            console.log('Render pass report', report);
+            new Mixpanel("b4b856b618ade30de503c189af079566").track('react_native_performance', report);
+        }
+    }, []);
+
     return (
-        <Animated.View
-            key={'session-' + sessionId}
-            style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}
-            exiting={FadeOut}
-            entering={FadeIn}
-        >
-            <RebootContext.Provider value={reboot}>
-                <PersistQueryClientProvider persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }} client={queryClient}>
-                    <RecoilRoot>
-                        <LedgerTransportProvider>
-                            <Navigation />
-                        </LedgerTransportProvider>
-                    </RecoilRoot>
-                </PersistQueryClientProvider>
-            </RebootContext.Provider>
-        </Animated.View >
+        <PerformanceProfiler onReportPrepared={onReportPrepared}>
+            <Animated.View
+                key={'session-' + sessionId}
+                style={{ flexGrow: 1, flexBasis: 0, flexDirection: 'column', alignItems: 'stretch' }}
+                exiting={FadeOut}
+                entering={FadeIn}
+            >
+                <RebootContext.Provider value={reboot}>
+                    <PersistQueryClientProvider
+                        persistOptions={{ persister: clientPersister, buster: PERSISTANCE_VERSION, maxAge: Infinity }}
+                        client={queryClient}
+                    >
+                        <RecoilRoot>
+                            <LedgerTransportProvider>
+                                <Navigation />
+                            </LedgerTransportProvider>
+                        </RecoilRoot>
+                    </PersistQueryClientProvider>
+                </RebootContext.Provider>
+            </Animated.View>
+        </PerformanceProfiler>
     );
 });

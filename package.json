@@ -28,6 +28,7 @@
     "@react-navigation/native": "6.1.6",
     "@react-navigation/native-stack": "^6.9.12",
     "@react-navigation/stack": "6.3.16",
+    "@shopify/react-native-performance": "^4.1.2",
     "@shopify/react-native-skia": "0.1.196",
     "@tanstack/query-sync-storage-persister": "^4.32.6",
     "@tanstack/react-query": "^4.32.6",

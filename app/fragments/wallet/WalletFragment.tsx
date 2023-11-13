@@ -27,6 +27,7 @@ import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
+import { PerformanceMeasureView } from '@shopify/react-native-performance';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -392,31 +393,34 @@ export const WalletFragment = fragment(() => {
         }, 10);
     });
 
-    if (!accountLite || !selectedAcc) {
-        return skeleton;
-    }
-
     return (
         <>
-            <CopilotProvider
-                arrowColor={'#1F1E25'}
-                tooltipStyle={{
-                    backgroundColor: '#1F1E25',
-                    borderRadius: 20, padding: 16
-                }}
-                margin={16}
-                stepNumberComponent={() => null}
-                tooltipComponent={CopilotTooltip}
-                svgMaskPath={defaultCopilotSvgPath}
+            <PerformanceMeasureView
+                interactive={accountLite !== undefined && selectedAcc !== undefined}
+                screenName={'Wallet'}
             >
-                <Suspense fallback={skeleton}>
-                    <WalletComponent
-                        selectedAcc={selectedAcc}
-                        wallet={accountLite}
-                    />
-                </Suspense>
+                {(!accountLite || !selectedAcc) ? (skeleton) : (
+                    <CopilotProvider
+                        arrowColor={'#1F1E25'}
+                        tooltipStyle={{
+                            backgroundColor: '#1F1E25',
+                            borderRadius: 20, padding: 16
+                        }}
+                        margin={16}
+                        stepNumberComponent={() => null}
+                        tooltipComponent={CopilotTooltip}
+                        svgMaskPath={defaultCopilotSvgPath}
+                    >
+                        <Suspense fallback={skeleton}>
+                            <WalletComponent
+                                selectedAcc={selectedAcc}
+                                wallet={accountLite}
+                            />
+                        </Suspense>
 
-            </CopilotProvider>
+                    </CopilotProvider>
+                )}
+            </PerformanceMeasureView>
         </>
     );
 }, true);

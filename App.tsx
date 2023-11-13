@@ -28,6 +28,7 @@ import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
+import { PerformanceProfiler } from '@shopify/react-native-performance';
 
 const style = getThemeStyleState();
 const scheme = Appearance.getColorScheme();

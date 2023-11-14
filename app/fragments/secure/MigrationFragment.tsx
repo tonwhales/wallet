@@ -237,7 +237,7 @@ export const MigrationFragment = systemFragment(() => {
                                             style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                         />
                                         <Text>
-                                            <ValueComponent value={v.account.balance.coins} /> TON
+                                            <ValueComponent value={v.data?.balance.coins ?? 0n} /> TON
                                         </Text>
                                     </View>
                                 </>

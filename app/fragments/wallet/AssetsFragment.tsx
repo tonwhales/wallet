@@ -66,7 +66,7 @@ export const AssetsFragment = fragment(() => {
             amount: null,
             target: target,
             comment: null,
-            jetton: jetton.wallet.toString({ testOnly: network.isTestnet }),
+            jetton: jetton.wallet,
             stateInit: null,
             job: null,
             callback: null

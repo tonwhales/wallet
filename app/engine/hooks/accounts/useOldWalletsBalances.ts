@@ -24,8 +24,8 @@ export function useOldWalletsBalances() {
     const accounts = useAccountsLite(wallets);
 
     const totalBalance = accounts.reduce((total, acc) => {
-        if (!!acc?.account?.balance) {
-            return total + BigInt(acc?.account?.balance.coins);
+        if (!!acc?.data?.balance) {
+            return total + BigInt(acc?.data?.balance.coins);
         }
         return total;
     }, BigInt(0));

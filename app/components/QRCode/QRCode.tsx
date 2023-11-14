@@ -5,6 +5,7 @@ import { createQRMatrix } from './QRMatrix';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
 import { useTheme } from '../../engine/hooks';
+import { memo } from 'react';
 
 import TonIcon from '@assets/ic-ton-qr.svg';
 
@@ -74,7 +75,7 @@ function getRectPath(x: number, y: number, w: number, h: number, tlr: number, tr
         + ' Z';
 };
 
-export const QRCode = React.memo((props: {
+export const QRCode = memo((props: {
     data: string,
     size: number,
     color?: string,
@@ -169,7 +170,6 @@ export const QRCode = React.memo((props: {
                     width={46}
                     heigh={46}
                     borderRadius={23}
-                    borderWidth={0}
                     lockLoading
                 />}
             </View>

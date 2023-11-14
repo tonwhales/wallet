@@ -445,6 +445,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 operationsDescription: 'Пополнение и вывод',
                 analyticsTitle: 'Аналитика',
                 analyticsSubtitle: 'Общая прибыль',
+                labels: {
+                    week: '1Нед.',
+                    month: '1Мес.',
+                    year: '1Год',
+                    allTime: 'Все',
+                }
             }
         },
         holders: {

@@ -60,7 +60,7 @@ export const StakingPool = memo((props: {
     const navigation = useTypedNavigation();
     const poolAddressString = props.address.toString({ testOnly: network.isTestnet });
     const pool = useStakingPool(props.address);
-    const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee)) / toNano(100)) : undefined;
+    const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
     const knownPools = KnownPools(network.isTestnet);
 
     const stakeUntil = pool?.status.proxyStakeUntil || 0;
@@ -208,7 +208,7 @@ export const StakingPool = memo((props: {
                         </Text>
                     </View>
                     <View>
-                        {props.balance  > 0n && (
+                        {props.balance > 0n && (
                             <>
                                 <Text style={{
                                     color: theme.textPrimary,

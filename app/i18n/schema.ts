@@ -446,6 +446,12 @@ export type LocalizationSchema = {
                 operationsDescription: string,
                 analyticsTitle: string,
                 analyticsSubtitle: string,
+                labels: {
+                    week: string,
+                    month: string,
+                    year: string,
+                    allTime: string
+                }
             }
         },
         holders: {

@@ -356,6 +356,11 @@ export const HoldersAppComponent = memo((
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
+        window['tonhub'] = (() => {
+            const obj = {};
+            Object.freeze(obj);
+            return obj;
+        })();
         `;
 
         if (!domainKey) {

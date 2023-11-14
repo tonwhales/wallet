@@ -15,7 +15,7 @@ import * as FileSystem from 'expo-file-system';
 
 // export const holdersEndpoint = AppConfig.isTestnet ? 'card-staging.whales-api.com' : 'card.whales-api.com';
 export const holdersEndpoint = 'card-staging.whales-api.com';
-export const holdersUrl = storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org';
+export const holdersUrl = 'https://tonhub.holders.io';
 const currentTokenVersion = 1;
 
 export type HoldersAccountStatus = { state: 'need-enrolment' } | (AccountState & { token: string })

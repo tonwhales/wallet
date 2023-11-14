@@ -86,19 +86,6 @@ export const DeveloperToolsFragment = fragment(() => {
         [AppConfig.isTestnet],
     );
 
-    const [holdersAppUrl, setHoldersAppUrl] = useState(storage.getString('zenpay-app-url') ?? 'https://next.zenpay.org');
-
-    const onUrlSet = useCallback((link: string) => {
-        let url: URL
-        try {
-            url = new URL(link);
-            setHoldersAppUrl(link);
-        } catch (e) {
-            warn(e)
-            setHoldersAppUrl('');
-        }
-    }, []);
-
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
@@ -263,45 +250,6 @@ export const DeveloperToolsFragment = fragment(() => {
                                         setOfflineAppEnabled(newValue);
                                         reboot();
                                     }}
-                                />
-                            </View>
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ATextInput
-                                    blurOnSubmit={false}
-                                    value={holdersAppUrl}
-                                    onValueChange={onUrlSet}
-                                    placeholder={'Holders App URL'}
-                                    keyboardType={'default'}
-                                    editable={true}
-                                    enabled={true}
-                                    label={'Holders App URL'}
-                                    multiline
-                                    autoCorrect={false}
-                                    autoComplete={'off'}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0,
-                                        minHeight: 72,
-                                        marginHorizontal: 16,
-                                    }}
-                                />
-                                <RoundButton
-                                    title={'Default URL'}
-                                    onPress={() => {
-                                        storage.set('zenpay-app-url', 'https://next.zenpay.org');
-                                        Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
-                                    }}
-                                    display={'default'}
-                                    style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
-                                />
-                                <RoundButton
-                                    title={'Apply URL'}
-                                    onPress={() => {
-                                        storage.set('zenpay-app-url', holdersAppUrl);
-                                        Alert.alert('Success', 'Holders App URL has been updated, now restart the app to apply changes.');
-                                    }}
-                                    display={'default'}
-                                    style={{ flexGrow: 1, marginHorizontal: 16, marginBottom: 16 }}
                                 />
                             </View>
                         </View>

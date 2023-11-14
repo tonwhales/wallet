@@ -5,7 +5,6 @@ import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
@@ -13,13 +12,12 @@ import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHandle, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { HeaderBackButton } from "@react-navigation/elements";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useTheme } from '../../engine/hooks';
 import { mnemonicValidate } from '@ton/crypto';
-import { BackButton } from '../../components/navigation/BackButton';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export const wordsTrie = WordsListTrie();
 
@@ -241,20 +239,6 @@ export const WalletImportFragment = systemFragment(() => {
     } | null>(null);
     const safeArea = useSafeAreaInsets();
 
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            if (Platform.OS === 'ios') {
-                navigation.base.setOptions({
-                    headerLeft: () => {
-                        return (
-                            <BackButton onPress={navigation.goBack} />
-                        )
-                    },
-                });
-            }
-        }
-    }, [navigation,]);
-
     useFocusEffect(useCallback(() => {
         setTimeout(() => {
             setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
@@ -265,7 +249,12 @@ export const WalletImportFragment = systemFragment(() => {
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
+                ...Platform.select({
+                    ios: {
+                        paddingBottom: state ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
+                        paddingTop: state ? 0 : 32,
+                    }
+                }),
             }}
         >
             {!state && (
@@ -277,7 +266,7 @@ export const WalletImportFragment = systemFragment(() => {
                     key={'loading'}
                     exiting={FadeOutDown}
                 >
-                    <AndroidToolbar />
+                    <ScreenHeader style={{ paddingHorizontal: 16 }} onBackPressed={navigation.goBack} />
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}

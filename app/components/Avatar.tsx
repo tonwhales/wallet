@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
@@ -7,7 +7,6 @@ import FastImage from 'react-native-fast-image';
 import { memo } from 'react';
 import { useNetwork, useTheme } from '../engine/hooks';
 
-import Verified from '@assets/ic-verified.svg';
 import ContactIcon from '@assets/ic_contacts.svg';
 
 export const avatarImages = [
@@ -124,8 +123,9 @@ export const Avatar = memo((props: {
                     {img}
                 </View>
                 {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
-                    <Verified
-                        style={{ position: 'absolute', bottom: -2, right: -2 }}
+                    <Image
+                        source={require('@assets/ic-verified.png')}
+                        style={{ position: 'absolute', bottom: -2, right: -2, width: verifiedSize, height: verifiedSize }}
                         height={verifiedSize}
                         width={verifiedSize}
                     />

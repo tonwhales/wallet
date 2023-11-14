@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
-import { Alert, View, Text, ScrollView, Pressable } from "react-native";
+import { Alert, View, Text, ScrollView, Pressable, Image } from "react-native";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
 import { SupportedMessage, parseMessageBody } from "../../../engine/transactions/parseMessageBody";
@@ -37,7 +37,6 @@ import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSetti
 import IcAlert from '@assets/ic-alert.svg';
 import TonSign from '@assets/ic_ton_sign.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import Verified from '@assets/ic-verified.svg';
 
 type Props = {
     text: string | null,
@@ -656,7 +655,13 @@ export const TransferBatch = memo((props: Props) => {
                                                     >
                                                         {i.known?.name}
                                                     </Text>
-                                                    <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                                    <Image
+                                                        source={require('@assets/ic-verified.png')}
+                                                        style={{
+                                                            height: 18, width: 18,
+                                                            marginLeft: 6
+                                                        }}
+                                                    />
                                                 </View>
                                             )}
                                             {(!i.message.addr.active) && (

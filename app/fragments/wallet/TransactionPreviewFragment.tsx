@@ -103,16 +103,6 @@ export const TransactionPreviewFragment = fragment(() => {
             transaction.base.hash
     }, [transaction]);
 
-    const explorerLink = useMemo(() => {
-        if (!txId) {
-            return null;
-        }
-        return isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
-            + '/explorer/address/' +
-            selected.addressString +
-            '/' + txId
-    }, [txId]);
-
     const tonhubLink = useMemo(() => {
         if (!txId) {
             return null;
@@ -440,7 +430,7 @@ export const TransactionPreviewFragment = fragment(() => {
                             </Pressable>
                         </>
                     )}
-                    {!(dontShowComments && isSpam) && (!operation.comment && body?.type === 'comment' && body.comment) && (
+                    {!(dontShowComments && isSpam) && (!!operation.comment) && (
                         <>
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                             <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
@@ -452,24 +442,6 @@ export const TransactionPreviewFragment = fragment(() => {
                                 </Text>
                                 <View style={{ alignItems: 'flex-start' }}>
                                     <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {body.comment}
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    )}
-                    {!(dontShowComments && isSpam) && (!(body?.type === 'comment' && body.comment)) && !!operation.comment && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('common.message')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-start' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary, marginTop: 2 }}>
                                         {operation.comment}
                                     </Text>
                                 </View>

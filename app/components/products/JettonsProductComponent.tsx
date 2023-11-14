@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Image } from "react-native";
 import { JettonProductItem } from "./JettonProductItem";
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { t } from "../../i18n/t";
@@ -15,7 +15,6 @@ import IcTokens from '@assets/ic-jettons.svg';
 import IcChevron from '@assets/ic_chevron_down.svg'
 import IcHide from '@assets/ic-hide.svg';
 import IcTonIcon from '@assets/ic_ton_account.svg';
-import IcVerified from '@assets/ic-verified.svg';
 
 export const JettonsProductComponent = memo(() => {
     const theme = useTheme();
@@ -77,8 +76,8 @@ export const JettonsProductComponent = memo(() => {
                 ]}>
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <IcTonIcon width={46} height={46} />
-                        <IcVerified
-                            height={16} width={16}
+                        <Image
+                            source={require('@assets/ic-verified.png')}
                             style={{
                                 height: 16, width: 16,
                                 position: 'absolute', right: -2, bottom: -2,

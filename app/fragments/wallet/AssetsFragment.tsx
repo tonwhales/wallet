@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from "react";
-import { View, ScrollView } from "react-native";
+import { View, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
@@ -15,7 +15,6 @@ import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 
-import Verified from '@assets/ic-verified.svg';
 import TonIcon from '@assets/ic_ton_account.svg';
 
 export const AssetsFragment = fragment(() => {
@@ -136,8 +135,8 @@ export const AssetsFragment = fragment(() => {
                         icon={
                             <View style={{ width: 46, height: 46 }}>
                                 <TonIcon width={46} height={46} />
-                                <Verified
-                                    height={16} width={16}
+                                <Image
+                                    source={require('@assets/ic-verified.png')}
                                     style={{
                                         height: 16, width: 16,
                                         position: 'absolute', right: -2, bottom: -2,
@@ -166,8 +165,8 @@ export const AssetsFragment = fragment(() => {
                                             borderRadius={23}
                                         />
                                         {verified && (
-                                            <Verified
-                                                height={16} width={16}
+                                            <Image
+                                                source={require('@assets/ic-verified.png')}
                                                 style={{
                                                     height: 16, width: 16,
                                                     position: 'absolute', right: -2, bottom: -2,

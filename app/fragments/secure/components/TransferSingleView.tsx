@@ -25,7 +25,6 @@ import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import IcInfo from '@assets/ic-info.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import Verified from '@assets/ic-verified.svg';
 
 export const TransferSingleView = memo(({
     operation,
@@ -282,7 +281,13 @@ export const TransferSingleView = memo(({
                                             >
                                                 {known?.name.length > 16 ? known?.name.slice(0, 16) + '...' : known?.name}
                                             </Text>
-                                            <Verified style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                            <Image
+                                                source={require('@assets/ic-verified.png')}
+                                                style={{
+                                                    height: 18, width: 18,
+                                                    marginLeft: 6
+                                                }}
+                                            />
                                         </>
                                     )}
                                     {!!order.domain && (

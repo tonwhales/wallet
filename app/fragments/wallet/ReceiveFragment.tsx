@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, useWindowDimensions, ScrollView, Platform } from "react-native";
+import { View, Text, Pressable, useWindowDimensions, ScrollView, Platform, Image } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -22,7 +22,6 @@ import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterConten
 import { useImageColors } from "../../utils/useImageColors";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 
-import Verified from '@assets/ic-verified.svg';
 import TonIcon from '@assets/ic_ton_account.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
 
@@ -71,8 +70,8 @@ export const ReceiveFragment = fragment(() => {
     const link = useMemo(() => {
         if (jetton) {
             return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
-            + `/${friendly}`
-            + `?jetton=${jetton.master.toString({ testOnly: network.isTestnet })}`
+                + `/${friendly}`
+                + `?jetton=${jetton.master.toString({ testOnly: network.isTestnet })}`
         }
         return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
             + `/${friendly}`
@@ -213,8 +212,8 @@ export const ReceiveFragment = fragment(() => {
                                             <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
                                         )}
                                         {isVerified && (
-                                            <Verified
-                                                height={16} width={16}
+                                            <Image
+                                                source={require('@assets/ic-verified.png')}
                                                 style={{
                                                     height: 16, width: 16,
                                                     position: 'absolute', right: -2, bottom: -2,

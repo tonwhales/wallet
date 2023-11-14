@@ -193,7 +193,6 @@ export function TransactionView(props: {
     return (
         <ContextMenu
             actions={transactionActions}
-            // actions={[]}
             onPress={handleAction}
         >
             <Pressable
@@ -210,24 +209,24 @@ export function TransactionView(props: {
                     <View style={{
                         width: 46, height: 46,
                         borderRadius: 23,
+                        position: 'relative',
                         borderWidth: 0, marginRight: 10,
                         justifyContent: 'center', alignItems: 'center',
                         backgroundColor: theme.border
                     }}>
-                        {parsed.status !== 'pending' && (
+                        {parsed.status === 'pending' ? (
+                            <PendingTransactionAvatar
+                                kind={kind}
+                                address={opAddress}
+                                avatarId={opAddress}
+                            />
+                        ) : (
                             <Avatar
                                 size={42}
                                 address={opAddress}
                                 id={opAddress}
                                 borderWith={0}
                                 spam={spam}
-                            />
-                        )}
-                        {parsed.status === 'pending' && (
-                            <PendingTransactionAvatar
-                                kind={kind}
-                                address={opAddress}
-                                avatarId={opAddress}
                             />
                         )}
                     </View>
@@ -264,7 +263,14 @@ export function TransactionView(props: {
                             )}
                         </View>
                         <Text
-                            style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            style={{
+                                color: theme.textSecondary,
+                                fontSize: 15,
+                                marginRight: 8,
+                                lineHeight: 20,
+                                fontWeight: '400',
+                                marginTop: 2
+                            }}
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >

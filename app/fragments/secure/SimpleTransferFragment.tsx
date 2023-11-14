@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, ScrollView } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
@@ -36,7 +36,6 @@ import { AddressSearch } from '../../components/address/AddressSearch';
 import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 
-import IcVerified from '@assets/ic-verified.svg';
 import IcTonIcon from '@assets/ic_ton_account.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -831,8 +830,8 @@ export const SimpleTransferFragment = fragment(() => {
                                             )}
                                             {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                             {isVerified && (
-                                                <IcVerified
-                                                    height={16} width={16}
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
                                                     style={{
                                                         height: 16, width: 16,
                                                         position: 'absolute', right: -2, bottom: -2,

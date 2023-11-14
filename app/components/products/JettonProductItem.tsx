@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KnownJettonMasters } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { WImage } from '../WImage';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
@@ -10,8 +10,6 @@ import { memo, useCallback, useRef, useState } from 'react';
 import { Swipeable } from 'react-native-gesture-handler';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
-
-import Verified from '@assets/ic-verified.svg';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -22,7 +20,7 @@ export const JettonProductItem = memo((props: {
     single?: boolean
 }) => {
     const theme = useTheme();
-    const {isTestnet} = useNetwork();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const balance = props.jetton.balance;
     const [swiping, setSwiping] = useState(false);
@@ -127,8 +125,8 @@ export const JettonProductItem = memo((props: {
                                     borderRadius={23}
                                 />
                                 {isKnown && (
-                                    <Verified
-                                        height={16} width={16}
+                                    <Image
+                                        source={require('@assets/ic-verified.png')}
                                         style={{
                                             height: 16, width: 16,
                                             position: 'absolute', right: -2, bottom: -2,
@@ -195,8 +193,8 @@ export const JettonProductItem = memo((props: {
                             borderRadius={23}
                         />
                         {isKnown && (
-                            <Verified
-                                height={16} width={16}
+                            <Image
+                                source={require('@assets/ic-verified.png')}
                                 style={{
                                     height: 16, width: 16,
                                     position: 'absolute', right: -2, bottom: -2,

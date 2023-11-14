@@ -170,7 +170,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 || (Platform.OS === 'android' && Platform.Version < 30);
 
             const account = getCurrentAddress();
-            markAddressSecured(account.address, isTestnet);
+            markAddressSecured(account.address);
 
             // Skip biometrics setup if encryption is disabled
             if (disableEncryption) {
@@ -241,7 +241,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     }, [navigation, onBack]);
 
     return (
-        <View style={{ flexGrow: 1, width: '100%' }}>
+        <View style={{ flexGrow: 1, width: '100%', paddingTop: 32 }}>
             {!state && !loading && (
                 <Animated.View
                     style={[
@@ -261,6 +261,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                             }
                         }}
                         description={t('secure.passcodeSetupDescription')}
+                        screenHeaderStyle={props.import ? { paddingHorizontal: 16 } : undefined}
                     />
                 </Animated.View>
             )}

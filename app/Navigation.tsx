@@ -163,9 +163,9 @@ function transparentModalScreen(name: string, component: React.ComponentType<any
 const navigation = (safeArea: EdgeInsets) => [
     // Onboarding
     fullScreen('Welcome', WelcomeFragment),
-    genericScreen('LegalCreate', LegalFragment, safeArea),
-    genericScreen('LegalImport', LegalFragment, safeArea),
-    genericScreen('WalletImport', WalletImportFragment, safeArea),
+    genericScreen('LegalCreate', LegalFragment, safeArea, true),
+    genericScreen('LegalImport', LegalFragment, safeArea, true),
+    genericScreen('WalletImport', WalletImportFragment, safeArea, true),
     genericScreen('WalletCreate', WalletCreateFragment, safeArea),
     genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
@@ -175,7 +175,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Migration', MigrationFragment, safeArea),
 
     // Dev
-    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
+    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),

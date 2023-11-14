@@ -8,7 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../navigation/CloseButton";
-import { ScreenHeader } from "../ScreenHeader";
+import { ScreenHeader, ScreenHeaderProps } from "../ScreenHeader";
 import { ThemeType } from "../../engine/state/theme";
 import { useTheme } from "../../engine/hooks";
 
@@ -95,6 +95,7 @@ export const PasscodeSetup = memo((
         showSuccess,
         style,
         onBack,
+        screenHeaderStyle
     }: {
         description?: string,
         onReady?: (pass: string) => Promise<void>,
@@ -103,6 +104,7 @@ export const PasscodeSetup = memo((
         showSuccess?: boolean,
         style?: StyleProp<ViewStyle>,
         onBack?: () => void,
+        screenHeaderStyle?: StyleProp<ViewStyle>
     }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
@@ -150,7 +152,7 @@ export const PasscodeSetup = memo((
                         navigation.base.goBack();
                     }
                 }}
-                style={[{ paddingTop: 32 }, Platform.select({ android: { paddingLeft: 16 } })]}
+                style={[Platform.select({ android: { paddingHorizontal: 16 } }), screenHeaderStyle]}
                 statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             {state.step === 'input' && (

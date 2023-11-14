@@ -99,7 +99,7 @@ export const WalletSecureComponent = memo((props: {
                 onBackPressed={() => {
                     props.callback(false);
                 }}
-                style={[{ zIndex: 100, paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
+                style={[{ zIndex: 100, paddingHorizontal: 16, paddingTop: 8 }]}
                 statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             <ScrollView

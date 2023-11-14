@@ -77,6 +77,20 @@ export function useScreenHeader(
     }, [navigation, options, Theme]);
 }
 
+export type ScreenHeaderProps = {
+    style?: StyleProp<ViewStyle>,
+    title?: string,
+    textColor?: string,
+    tintColor?: string,
+    onBackPressed?: () => void,
+    onClosePressed?: () => void,
+    rightButton?: ReactNode,
+    leftButton?: ReactNode,
+    titleComponent?: ReactNode,
+    statusBarStyle?: StatusBarStyle,
+    options?: NativeStackNavigationOptions
+}
+
 export const ScreenHeader = memo((
     {
         style,
@@ -97,9 +111,9 @@ export const ScreenHeader = memo((
         tintColor?: string,
         onBackPressed?: () => void,
         onClosePressed?: () => void,
-        rightButton?: React.ReactNode,
-        leftButton?: React.ReactNode,
-        titleComponent?: React.ReactNode,
+        rightButton?: ReactNode,
+        leftButton?: ReactNode,
+        titleComponent?: ReactNode,
         statusBarStyle?: StatusBarStyle,
         options?: NativeStackNavigationOptions
     }

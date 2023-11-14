@@ -5,8 +5,9 @@ import { resolveLink } from '../utils/resolveLink';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { Blurhash } from 'react-native-blurhash';
 import { useTheme } from '../engine/hooks';
+import { memo, useState } from 'react';
 
-export const WImage = React.memo((props: {
+export const WImage = memo((props: {
     src?: string | null | undefined,
     requireSource?: ImageRequireSource,
     blurhash?: string | null | undefined,
@@ -17,7 +18,7 @@ export const WImage = React.memo((props: {
     lockLoading?: boolean
 }) => {
     const theme = useTheme();
-    const [loading, setLoading] = React.useState(true);
+    const [loading, setLoading] = useState(true);
     let url = props.src ? resolveLink(props.src) : null;
     let blurhash = url && props.blurhash ? props.blurhash : null;
 
@@ -54,14 +55,6 @@ export const WImage = React.memo((props: {
                         />
                     </Animated.View>
                 )}
-                <View style={{
-                    borderWidth: 0.5,
-                    borderColor: 'black',
-                    backgroundColor: theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -97,14 +90,6 @@ export const WImage = React.memo((props: {
                         />
                     </Animated.View>
                 )}
-                <View style={{
-                    borderWidth: 0.5,
-                    borderColor: 'black',
-                    backgroundColor: theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -122,14 +107,6 @@ export const WImage = React.memo((props: {
                     style={{ width: props.width, height: props.heigh }}
                     resizeMode={'cover'}
                 />
-                <View style={{
-                    borderWidth: 0.5,
-                    borderColor: 'black',
-                    backgroundColor: theme.transparent,
-                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                    opacity: 0.06,
-                    borderRadius: props.borderRadius
-                }} />
             </View>
         );
     }
@@ -146,14 +123,6 @@ export const WImage = React.memo((props: {
                 style={{ width: props.width, height: props.heigh }}
                 resizeMode={'cover'}
             />
-            <View style={{
-                borderWidth: 0.5,
-                borderColor: 'black',
-                backgroundColor: theme.transparent,
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                opacity: 0.06,
-                borderRadius: props.borderRadius
-            }} />
         </View>
     );
 });

@@ -318,6 +318,11 @@ export const HoldersAppComponent = React.memo((
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
+        window['tonhub'] = (() => {
+            const obj = {};
+            Object.freeze(obj);
+            return obj;
+        })();
         `;
 
         let domainSign = engine.products.keys.createDomainSignature(domain);

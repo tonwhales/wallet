@@ -29,7 +29,7 @@ export const StakingCalcComponent = memo((
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
-    const poolFee = pool.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee)) / toNano(100)) : undefined;
+    const poolFee = pool.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return (apy - apy * (poolFee / 100)) / 100;

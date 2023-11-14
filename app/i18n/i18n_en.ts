@@ -444,6 +444,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 operationsDescription: 'Top Up and withdraw',
                 analyticsTitle: 'Analytics',
                 analyticsSubtitle: 'Total profit',
+                labels: {
+                    week: '1W',
+                    month: '1M',
+                    year: '1Y',
+                    allTime: 'All',
+                }
             }
         },
         holders: {

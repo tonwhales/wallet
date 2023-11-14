@@ -32,7 +32,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
     const depositFee = pool.params.depositFee + pool.params.receiptPrice;
     const withdrawFee = pool.params.withdrawFee + pool.params.receiptPrice;
     const poolFee = pool.params.poolFee
-        ? Number(toNano(fromNano(pool.params.poolFee)) / toNano(100))
+        ? Number(toNano(fromNano(pool.params.poolFee))) / 100
         : undefined;
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {

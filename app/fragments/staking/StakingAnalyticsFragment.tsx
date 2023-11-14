@@ -17,9 +17,9 @@ import { ReAnimatedCircularProgress } from "../../components/CircularProgress/Re
 import { useNetwork, useSelectedAccount, useStakingPool, useTheme } from "../../engine/hooks";
 import { Address, fromNano } from "@ton/core";
 import { useNominatorInfo } from "../../engine/hooks/staking/useNominatorInfo";
+import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
 
 import IcGrowth from "@assets/ic-growth.svg";
-import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
 
 type Dataset = {
     /** The data corresponding to the x-axis label. */
@@ -84,7 +84,7 @@ const TimeLineButton = memo(({
                         fontSize: 15, lineHeight: 20,
                         fontWeight: '500'
                     }}>
-                    {timespan}
+                    {t(`products.staking.analytics.labels.${timespan}`)}
                 </Text>
             )}
         </Pressable>
@@ -146,7 +146,7 @@ const extractLabels = (points: any[], timeLine: NominatorPeriod) => {
 export const StakingAnalyticsFragment = fragment(() => {
     const { pool } = useParams<{ pool: Address }>();
     const theme = useTheme();
-    const { isTestnet} = useNetwork();
+    const { isTestnet } = useNetwork();
     const dimensions = useDimensions();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();

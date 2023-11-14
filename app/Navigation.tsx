@@ -175,7 +175,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Migration', MigrationFragment, safeArea),
 
     // Dev
-    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea),
+    genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),

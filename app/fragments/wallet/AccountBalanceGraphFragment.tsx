@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, TextInput, View, Text, Pressable } from "react-native";
-import { GraphPoint, LineGraph, SelectionDotProps } from "react-native-graph";
+import { GraphPoint, LineGraph } from "react-native-graph";
 import Animated, { useAnimatedProps, useAnimatedRef, useAnimatedStyle, useSharedValue, withSpring } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";

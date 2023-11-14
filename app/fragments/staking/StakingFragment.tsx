@@ -183,7 +183,7 @@ export const StakingFragment = fragment(() => {
                             color: theme.textPrimary,
                             fontWeight: '500',
                         }}>
-                            {KnownPools(network.isTestnet)[params.pool].name}
+                            {KnownPools(network.isTestnet)[params.pool]?.name}
                         </Text>
                     </Pressable>
                 }

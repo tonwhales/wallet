@@ -9145,10 +9145,10 @@ react-native-gesture-handler@~2.12.0:
     lodash "^4.17.21"
     prop-types "^15.7.2"
 
-react-native-graph@^0.3.0:
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/react-native-graph/-/react-native-graph-0.3.0.tgz#c5f86faab94a5f885057f5e0840999651eeb6305"
-  integrity sha512-JhLzhyPlKwB32H6RmrQNH2hwMK2w/jWRGtAC1+fdF6kaqg679dXKUB+L0a5c72TUc9YiFW0eRnl6rZaD8Y3CyA==
+react-native-graph@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/react-native-graph/-/react-native-graph-1.0.2.tgz#960c682159e18f053322492c0572210c82076fc8"
+  integrity sha512-VjJcOrU6fSkvG/Gl9euAsPnTewQK/Fk2QdCgdgY4/lY/XuoFWF2m5oYK3g1OodEdPpB4xLUlGolskEmcON2yzA==
 
 react-native-image-colors@^2.3.0:
   version "2.3.0"

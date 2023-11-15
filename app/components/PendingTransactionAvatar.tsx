@@ -71,7 +71,11 @@ export const PendingTransactionAvatar = memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Avatar size={42} id={avatarId} />
+                <Avatar
+                    address={address}
+                    size={42}
+                    id={avatarId}
+                />
             </View>
             <CircularProgress
                 ref={ref}

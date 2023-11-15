@@ -65,6 +65,8 @@ export const ConnectionsFragment = fragment(() => {
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
 
+    console.log({ inastalledConnectApps });
+
     const extensions = Object.entries(installedExtensions.installed).map(([key, ext]) => {
         const appData = getCachedAppData(ext.url);
         return { ...ext, key, title: appData?.title || ext.title || ext.url }

@@ -178,6 +178,7 @@ export const StakingTransferFragment = fragment(() => {
             const text = t('products.staking.transfer.ledgerSignText', { action: actionText });
             navigation.navigateLedgerSignTransfer({
                 order: {
+                    type: 'ledger',
                     target: params.target.toString({ testOnly: network.isTestnet }),
                     payload: ledgerPayload,
                     amount: transferAmount,
@@ -237,6 +238,7 @@ export const StakingTransferFragment = fragment(() => {
         // Navigate to TransferFragment
         navigation.navigateTransfer({
             order: {
+                type: 'order',
                 messages: [{
                     target: params.target.toString({ testOnly: network.isTestnet }),
                     payload,

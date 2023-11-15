@@ -177,13 +177,11 @@ export const HomeFragment = fragment(() => {
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 
-                            if (route.name === 'Transactions') {
-                                source = require('@assets/ic-history.png');
-
+                            if (route.name === 'Wallet-Stack') {
                                 if (!!tonXRequest || tonconnectRequests.length > 0) {
                                     source = focused
-                                        ? require('@assets/ic-history-active-badge.png')
-                                        : require('@assets/ic-history-badge.png');
+                                        ? require('@assets/ic-home-active-badge.png')
+                                        : require('@assets/ic-home-badge.png');
                                     return (
                                         <Image
                                             source={source}
@@ -191,6 +189,10 @@ export const HomeFragment = fragment(() => {
                                         />
                                     )
                                 }
+                            }
+
+                            if (route.name === 'Transactions') {
+                                source = require('@assets/ic-history.png');
                             }
 
                             if (route.name === 'Browser') {

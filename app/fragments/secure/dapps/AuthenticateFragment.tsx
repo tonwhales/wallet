@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
-import { Platform, StyleProp, TextStyle } from "react-native";
-import { t } from "../../../i18n/t";
+import { Platform } from "react-native";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { StatusBar } from 'expo-status-bar';
 import { backoff } from '../../../utils/time';

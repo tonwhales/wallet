@@ -1,29 +1,23 @@
 import { useEffect, useMemo } from 'react';
 import EventSource, { MessageEvent } from 'react-native-sse';
 import { createLogger, warn } from '../utils/log';
-import { useTonConnectExtensions } from './hooks';
-import { useAppConnections } from './hooks';
 import { SessionCrypto } from '@tonconnect/protocol';
 import { useHandleMessage } from './hooks';
 import { ConnectedAppConnection, ConnectedAppConnectionRemote, TonConnectBridgeType } from './tonconnect/types';
 import { getLastEventId } from './tonconnect/utils';
 import { bridgeUrl } from './tonconnect/config';
+import { useAppsConnections } from './hooks/dapps/useAppConnections';
 
 const logger = createLogger('tonconnect');
 
 export function useTonconnectWatcher() {
-    const [extensions,] = useTonConnectExtensions();
-    const getConnections = useAppConnections();
-    const appKeys = Object.keys(extensions);
-
+    const connectionsMap = useAppsConnections();
     const connections = useMemo(() => {
-        const temp: ConnectedAppConnection[] = [];
-        for (let appKey of appKeys) {
-            const appConnections = getConnections(appKey);
-            temp.push(...(appConnections ?? []));
-        }
-        return temp
-    }, [appKeys, getConnections]);
+        return Object.values(connectionsMap).reduce((acc, item) => {
+            acc.push(...item);
+            return acc;
+        }, [] as ConnectedAppConnection[]).filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
+    }, [connectionsMap]);
 
     const handleMessage = useHandleMessage(
         connections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[],
@@ -31,17 +25,7 @@ export function useTonconnectWatcher() {
     );
 
     useEffect(() => {
-        const apps = Object.keys(extensions);
-        const connections: ConnectedAppConnectionRemote[] = [];
-        for (let appKey of apps) {
-            const appConnections = getConnections(appKey);
-            connections.push(
-                ...(
-                    appConnections.filter((item) => item.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[]
-                    ?? []
-                ));
-        }
-
+        console.log('connections', connections);
         if (connections.length === 0) {
             return;
         }
@@ -49,6 +33,8 @@ export function useTonconnectWatcher() {
         const walletSessionIds = connections.map((item) => new SessionCrypto(item.sessionKeyPair).sessionId).join(',');
         let url = `${bridgeUrl}/events?client_id=${walletSessionIds}`;
         const lastEventId = getLastEventId();
+
+        console.log('url', url);
 
         if (lastEventId) {
             url += `&last_event_id=${lastEventId}`;
@@ -83,5 +69,5 @@ export function useTonconnectWatcher() {
                 logger.log('sse close');
             }
         };
-    }, [handleMessage, extensions, connections]);
+    }, [handleMessage, connections]);
 }

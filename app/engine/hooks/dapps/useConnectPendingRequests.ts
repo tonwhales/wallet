@@ -1,10 +1,8 @@
-import { useRecoilValue, useSetRecoilState } from "recoil";
-import { pendingRequestsState } from "../../state/tonconnect";
+import { useRecoilState } from "recoil";
+import { pendingRequestsSelector } from "../../state/tonconnect";
 import { SendTransactionRequest } from '../../tonconnect/types';
 
-export function useConnectPendingRequests(): [SendTransactionRequest[], (newState: SendTransactionRequest[]) => void] {
-    const value = useRecoilValue(pendingRequestsState);
-    const update = useSetRecoilState(pendingRequestsState);
-
+export function useConnectPendingRequests(): [SendTransactionRequest[], (updater: (currVal: SendTransactionRequest[]) => SendTransactionRequest[]) => void] {
+    const [value, update] = useRecoilState(pendingRequestsSelector);
     return [value, update];
 }

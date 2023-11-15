@@ -1,4 +1,3 @@
-import BN from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -17,7 +16,6 @@ import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
 import { LedgerOrder } from '../secure/ops/Order';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
@@ -260,13 +258,11 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         <TransferSingleView
             operation={operation}
             order={order}
-            amount={order.amount}
-            tonTransferAmount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
+            amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
             jettonAmountString={jettonAmountString}
             target={target}
             fees={fees}
             jettonMaster={jettonMaster}
-            // doSend={doSend}
             walletSettings={walletSettings}
             text={text}
             known={known}

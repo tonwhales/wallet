@@ -212,11 +212,8 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     testnet: isTestnet
                 });
 
-                // Send connect response
-                sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
-
                 // Save connection
-                await saveAppConnection({
+                saveAppConnection({
                     app: {
                         name: state.app.name,
                         url: state.app.url,
@@ -231,6 +228,9 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         replyItems,
                     },
                 });
+
+                // Send connect response
+                await sendTonConnectResponse({ response, sessionCrypto, clientSessionId: state.clientSessionId });
 
                 navigation.goBack();
 

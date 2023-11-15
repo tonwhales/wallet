@@ -1,5 +1,5 @@
-import { SetterOrUpdater, useRecoilValue, useSetRecoilState } from "recoil";
-import { connectExtensions } from "../../state/tonconnect";
+import { SetterOrUpdater, useRecoilState } from "recoil";
+import { connectExtensionsSelector, connectExtensionsState } from "../../state/tonconnect";
 
 export type ConnectedApp = {
   date: number,
@@ -11,7 +11,6 @@ export type ConnectedApp = {
 }
 
 export function useTonConnectExtensions(): [{ [key: string]: ConnectedApp; }, SetterOrUpdater<{ [key: string]: ConnectedApp }>] {
-  const value = useRecoilValue(connectExtensions);
-  const update = useSetRecoilState(connectExtensions);
-  return [value || {}, update];
+  const [value, update] = useRecoilState(connectExtensionsSelector);
+  return [value || {}, update]
 }

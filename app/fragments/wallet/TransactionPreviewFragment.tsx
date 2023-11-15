@@ -496,7 +496,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         title={t('txPreview.sendAgain')}
                         style={{ flexGrow: 1 }}
                         onPress={() => navigation.navigateSimpleTransfer({
-                            target: transaction.base.address,
+                            target: transaction.base.parsed.resolvedAddress,
                             comment: transaction.base.parsed.body && transaction.base.parsed.body.type === 'comment' ? transaction.base.parsed.body.comment : null,
                             amount: BigInt(transaction.base.parsed.amount) > 0n ? BigInt(transaction.base.parsed.amount) : -BigInt(transaction.base.parsed.amount),
                             job: null,

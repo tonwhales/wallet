@@ -44,8 +44,8 @@ export const SecurityFragment = fragment(() => {
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos width={20} height={20} color={'#000'} />
-                    : <TouchAndroid width={20} height={20} color={'#000'} />
+                    ? <FaceIos width={20} height={20} color={theme.iconSecondary} />
+                    : <TouchAndroid width={20} height={20} color={theme.iconSecondary} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectFaceID')
                     : t('secure.protectBiometrics');
@@ -53,8 +53,8 @@ export const SecurityFragment = fragment(() => {
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos width={20} height={20} color={'#000'} />
-                    : <TouchAndroid width={20} height={20} color={'#000'} />
+                    ? <TouchIos width={20} height={20} color={theme.iconSecondary} />
+                    : <TouchAndroid width={20} height={20} color={theme.iconSecondary} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectTouchID')
                     : t('secure.protectBiometrics');
@@ -64,7 +64,7 @@ export const SecurityFragment = fragment(() => {
                 icon = <Ionicons
                     name={'keypad'}
                     size={20}
-                    color={'#000'}
+                    color={theme.iconSecondary}
                 />;
                 buttonText = t('secure.protectPasscode');
                 break;

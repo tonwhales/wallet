@@ -70,7 +70,8 @@ export type LocalizationSchema = {
         attention: string,
         save: string,
         assets: string,
-        message: string
+        message: string,
+        airdrop: string
     },
     syncStatus: {
         connecting: string,
@@ -904,6 +905,7 @@ export type LocalizationSchema = {
         }
     },
     webView: {
+        checkInternetAndReload: string,
         contactSupportOrTryToReload: string,
         contactSupport: string,
     },

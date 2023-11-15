@@ -70,6 +70,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         save: 'Сохранить',
         assets: 'Активы',
         message: 'Сообщение',
+        airdrop: 'Airdrop',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -903,6 +904,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         }
     },
     webView: {
+        checkInternetAndReload: 'Пожалуйста, проверьте интернет соединение и попробуйте перезагрузить страницу',
         contactSupportOrTryToReload: 'Пожалуйста, свяжитесь с поддержкой или попробуйте перезагрузить страницу',
         contactSupport: 'Связаться с поддержкой',
     },

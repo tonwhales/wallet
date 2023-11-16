@@ -92,7 +92,9 @@ export const StakingProductComponent = React.memo(() => {
                                     value={totalStaked}
                                     precision={3}
                                 />
-                                {' TON'}
+                                <Text style={{ opacity: 0.5 }}>
+                                    {' TON'}
+                                </Text>
                             </Text>
                             <PriceComponent
                                 amount={totalStaked}

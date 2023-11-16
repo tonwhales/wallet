@@ -181,7 +181,10 @@ export const HoldersCardItem = memo((props: {
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                                        <ValueComponent value={props.account.balance} precision={2} />{' TON'}
+                                        <ValueComponent value={props.account.balance} precision={2} />
+                                        <Text style={{ opacity: 0.5 }}>
+                                            {' TON'}
+                                        </Text>
                                     </Text>
                                     <PriceComponent
                                         amount={BigInt(props.account.balance)}
@@ -253,7 +256,10 @@ export const HoldersCardItem = memo((props: {
                     {(!!props.account && props.account.balance) && (
                         <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                             <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                                <ValueComponent value={props.account.balance} precision={2} />{' TON'}
+                                <ValueComponent value={props.account.balance} precision={2} />
+                                <Text style={{ opacity: 0.5 }}>
+                                    {' TON'}
+                                </Text>
                             </Text>
                             <PriceComponent
                                 amount={BigInt(props.account.balance)}

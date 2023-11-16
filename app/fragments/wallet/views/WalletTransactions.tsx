@@ -11,19 +11,16 @@ import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
 import { useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
+import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
-        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16 }}>
-            <View style={{
-                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                backgroundColor: theme.backgroundPrimary,
-                opacity: 0.91,
-            }} />
+        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
             <Text style={{
-                fontSize: 17,
+                fontSize: 20,
                 fontWeight: '600',
-                lineHeight: 24, color: theme.textPrimary
+                lineHeight: 28, color: theme.textPrimary
             }}>
                 {title}
             </Text>
@@ -45,6 +42,7 @@ type TransactionListItemProps = {
     isTestnet: boolean,
     spamWallets: string[],
 }
+
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
     return (
         <TransactionView
@@ -56,6 +54,19 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
             {...props}
         />
     );
+}, (prev, next) => {
+    return prev.item.id === next.item.id 
+    && prev.isTestnet === next.isTestnet
+    && prev.dontShowComments === next.dontShowComments
+    && prev.spamMinAmount === next.spamMinAmount
+    && prev.address === next.address
+    && prev.theme === next.theme
+    && prev.section === next.section
+    && prev.index === next.index
+    && prev.addToDenyList === next.addToDenyList
+    && prev.denyList === next.denyList
+    && prev.contacts === next.contacts
+    && prev.spamWallets === next.spamWallets;
 });
 
 export const WalletTransactions = memo((props: {
@@ -129,6 +140,7 @@ export const WalletTransactions = memo((props: {
 
     return (
         <SectionList
+            style={{ flexGrow: 1 }}
             contentContainerStyle={[
                 {
                     paddingTop: Platform.OS === 'android'
@@ -141,10 +153,7 @@ export const WalletTransactions = memo((props: {
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
-            initialNumToRender={40}
-            maxToRenderPerBatch={20}
-            updateCellsBatchingPeriod={100}
-            getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
+            initialNumToRender={20}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={props.header}
@@ -153,6 +162,7 @@ export const WalletTransactions = memo((props: {
                     <LoadingIndicator simple />
                 </View>
             ) : null}
+            ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
             renderItem={(item) => (
                 <TransactionListItem
                     {...item}

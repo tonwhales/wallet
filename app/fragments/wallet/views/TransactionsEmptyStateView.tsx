@@ -6,6 +6,8 @@ import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
+import { useDimensions } from "@react-native-community/hooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import IcEmpty from '@assets/ic-history-empty.svg';
 
@@ -14,6 +16,8 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
+    const dimentions = useDimensions();
+    const safeArea = useSafeAreaInsets();
 
     const navigateReceive = useCallback(() => {
         if (isLedger && !!ledgerContext?.addr) {
@@ -31,7 +35,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     }, [isLedger, ledgerContext]);
 
     return (
-        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>
+        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimentions.window.height - safeArea.bottom - 112 }}>
             <IcEmpty
                 height={68}
                 width={68}
@@ -71,7 +75,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
                         onPress={() => navigation.navigate('Buy')}
                         display={'secondary'}
                         title={t('wallet.actions.buy')}
-                        style={{ flex: 1, flexGrow: 1, marginRight: 16 }}
+                        style={{ flex: 1, flexGrow: 1, marginLeft: 16 }}
                     />
                 )}
             </View>

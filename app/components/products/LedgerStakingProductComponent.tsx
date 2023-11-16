@@ -101,7 +101,9 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     value={staking.total}
                                     precision={3}
                                 />
-                                {' TON'}
+                                <Text style={{ opacity: 0.5 }}>
+                                    {' TON'}
+                                </Text>
                             </Text>
                             <PriceComponent
                                 amount={staking.total}

@@ -15,6 +15,7 @@ import { TransactionDescription } from '../../../engine/types';
 import { useCallback, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
+import { formatDate, formatTime } from '../../../utils/dates';
 
 export function TransactionView(props: {
     own: Address,
@@ -278,6 +279,7 @@ export function TransactionView(props: {
                                 ? known.name
                                 : <AddressComponent address={Address.parse(opAddress)} />
                             }
+                            {` • ${formatTime(tx.base.time)}`}
                         </Text>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>

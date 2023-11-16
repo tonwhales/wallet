@@ -31,7 +31,6 @@ import { PerformanceMeasureView } from '@shopify/react-native-performance';
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
     const theme = useTheme();
-    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const address = props.selectedAcc.address;
     const account = props.wallet;
@@ -116,7 +115,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             textStyle={{
                                 fontSize: 32,
                                 color: theme.textOnsurfaceOnDark,
-                                marginRight: 8,
                                 fontWeight: '500',
                                 lineHeight: 38,
                             }}
@@ -124,57 +122,25 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                 opacity: 0.5
                             }}
                         />
-                        <View style={{
-                            flexDirection: 'row', alignItems: 'center',
-                            marginTop: 10
-                        }}>
-                            <View style={{
-                                backgroundColor: theme.surfaceOnDark,
-                                borderRadius: 16,
-                                height: 28,
-                                flexDirection: 'row',
-                                justifyContent: 'flex-start',
-                                alignItems: 'center',
-                                alignSelf: 'flex-start',
-                                paddingVertical: 4,
-                                paddingHorizontal: 12,
-                            }}>
-                                <Text style={[{
-                                    color: theme.textOnsurfaceOnDark,
-                                    fontSize: 15, fontWeight: '500',
-                                    textAlign: 'center',
-                                    lineHeight: 20
-                                }]}>
-                                    <ValueComponent
-                                        precision={4}
-                                        value={balance}
-                                        centFontStyle={{ opacity: 0.5 }}
-                                    />
-                                    <Text style={{
-                                        opacity: 0.5
-                                    }}>{' TON'}</Text>
-                                </Text>
-                            </View>
-                            <Pressable
-                                style={{ flexDirection: 'row', alignItems: 'center' }}
-                                onPress={navigateToCurrencySettings}
+                        <Pressable
+                            style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
+                            onPress={navigateToCurrencySettings}
+                        >
+                            <CopilotStep
+                                text={t('onboarding.price')}
+                                order={3}
+                                name={'thirdStep'}
                             >
-                                <CopilotStep
-                                    text={t('onboarding.price')}
-                                    order={3}
-                                    name={'thirdStep'}
-                                >
-                                    <OnboadingView>
-                                        <PriceComponent
-                                            showSign
-                                            amount={toNano(1)}
-                                            style={{ backgroundColor: theme.surfaceOnDark, marginLeft: 10 }}
-                                            textStyle={{ color: theme.textOnsurfaceOnDark }}
-                                        />
-                                    </OnboadingView>
-                                </CopilotStep>
-                            </Pressable>
-                        </View>
+                                <OnboadingView>
+                                    <PriceComponent
+                                        showSign
+                                        amount={toNano(1)}
+                                        style={{ backgroundColor: theme.surfaceOnDark }}
+                                        textStyle={{ color: theme.textOnsurfaceOnDark }}
+                                    />
+                                </OnboadingView>
+                            </CopilotStep>
+                        </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
                             value={address.toString({ testOnly: network.isTestnet })}

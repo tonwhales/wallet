@@ -22,7 +22,7 @@ import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterConten
 import { useImageColors } from "../../utils/useImageColors";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 
-import TonIcon from '@assets/ic_ton_account.svg';
+import TonIcon from '@assets/ic-ton-acc.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
 
 export const ReceiveFragment = fragment(() => {

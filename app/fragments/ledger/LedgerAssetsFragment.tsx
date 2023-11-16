@@ -8,7 +8,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import TonIcon from '../../../assets/ic_ton_account.svg';
+import TonIcon from '../../../assets/ic-ton-acc.svg';
 import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";

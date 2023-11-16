@@ -115,7 +115,7 @@ export const JettonProductItem = memo((props: {
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
-                            backgroundColor: theme.surfaceOnElevation,
+                            backgroundColor: theme.surfaceOnBg,
                         }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <WImage
@@ -181,7 +181,7 @@ export const JettonProductItem = memo((props: {
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceOnElevation
+                        backgroundColor: theme.surfaceOnBg
                     },
                     animatedStyle
                 ]}>

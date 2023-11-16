@@ -36,7 +36,7 @@ import { AddressSearch } from '../../components/address/AddressSearch';
 import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 
-import IcTonIcon from '@assets/ic_ton_account.svg';
+import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {

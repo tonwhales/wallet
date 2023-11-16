@@ -55,7 +55,7 @@ export const JettonsProductComponent = memo(() => {
                             justifyContent: 'center',
                             overflow: 'hidden',
                             padding: 20,
-                            backgroundColor: theme.surfaceOnElevation,
+                            backgroundColor: theme.surfaceOnBg,
                             borderTopEndRadius: 20,
                             borderTopStartRadius: 20
                         },
@@ -126,7 +126,7 @@ export const JettonsProductComponent = memo(() => {
                     items={visibleList}
                     itemHeight={86}
                     divider={
-                        <View style={{ backgroundColor: theme.surfaceOnElevation, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                        <View style={{ backgroundColor: theme.surfaceOnBg, marginHorizontal: 16, paddingHorizontal: 20 }}>
                             <View style={{ backgroundColor: theme.divider, height: 1 }} />
                         </View>
                     }
@@ -135,7 +135,7 @@ export const JettonsProductComponent = memo(() => {
                             <JettonProductItem
                                 key={'jt' + j.wallet.toString()}
                                 jetton={j}
-                                last={index === visibleList.length - 2}
+                                last={index === visibleList.length - 1}
                                 rightAction={() => markJettonDisabled(j.master)}
                                 rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             />

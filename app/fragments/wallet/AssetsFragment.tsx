@@ -15,7 +15,7 @@ import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 
-import TonIcon from '@assets/ic_ton_account.svg';
+import TonIcon from '@assets/ic-ton-acc.svg';
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();

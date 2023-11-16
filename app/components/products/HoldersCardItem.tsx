@@ -108,7 +108,7 @@ export const HoldersCardItem = memo((props: {
                                         justifyContent: 'center', alignItems: 'center',
                                         borderTopRightRadius: props.first ? 20 : 0,
                                         borderBottomRightRadius: props.last ? 20 : 0,
-                                        backgroundColor: props.single ? theme.transparent : theme.surfaceOnElevation,
+                                        backgroundColor: props.single ? theme.transparent : theme.accent,
                                     }}
                                     onPress={() => {
                                         swipableRef.current?.close();
@@ -134,7 +134,7 @@ export const HoldersCardItem = memo((props: {
                             flexGrow: 1, flexDirection: 'row',
                             padding: 20,
                             alignItems: 'center',
-                            backgroundColor: theme.surfaceOnElevation,
+                            backgroundColor: theme.surfaceOnBg,
                         }}>
                             <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
                                 <Image source={image} style={{ width: 46, height: 30, borderRadius: 6 }} />

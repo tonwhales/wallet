@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersCards, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -15,9 +15,14 @@ import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut"
 import { ValueComponent } from "../ValueComponent"
 import { PriceComponent } from "../PriceComponent"
+import { ProductBanner } from "./ProductBanner"
+import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState"
+import { getDomainKey } from "../../engine/state/domainKeys"
+import { extractDomain } from "../../engine/utils/extractDomain"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import IcTonIcon from '@assets/ic_ton_account.svg';
+import IcTonIcon from '@assets/ic-ton-acc.svg';
+
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -26,6 +31,15 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const cards = useHoldersCards(selected.address).data ?? [];
     const totalStaked = useStaking().total;
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
+    const holdersAccounts = useHoldersCards(selected!.address).data;
+    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+
+    const needsEnrolment = useMemo(() => {
+        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
+            return true;
+        }
+        return false;
+    }, [holdersAccStatus]);
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -51,12 +65,28 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
         navigation.navigate('SimpleTransfer');
     }, []);
 
+    const onHoldersPress = useCallback(() => {
+        const domain = extractDomain(holdersUrl);
+        const domainKey = getDomainKey(domain);
+        if (needsEnrolment || !domainKey) {
+            navigation.navigate(
+                'HoldersLanding',
+                {
+                    endpoint: holdersUrl,
+                    onEnrollType: { type: 'account' }
+                }
+            );
+            return;
+        }
+        navigation.navigateHolders({ type: 'account' });
+    }, [needsEnrolment]);
+
     const tonItem = useMemo(() => {
         return (
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, paddingHorizontal: 16, marginBottom: 16 }}
+                style={{ flex: 1, paddingHorizontal: 16 }}
                 onPress={onTonPress}
             >
                 <Animated.View style={[
@@ -64,7 +94,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceOnElevation,
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,
                         overflow: 'hidden'
                     },
@@ -118,7 +148,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     }, [theme, balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
 
     return (
-        <View style={{}}>
+        <View>
             <View style={{
                 backgroundColor: theme.backgroundPrimary,
             }}>
@@ -159,6 +189,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         </Pressable>
                     )}
                 </View>
+
+                {holdersAccounts?.length === 0 && (
+                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                        <ProductBanner
+                            title={t('products.holders.card.defaultTitle')}
+                            subtitle={t('products.holders.card.defaultSubtitle')}
+                            onPress={onHoldersPress}
+                            illustration={require('@assets/banners/banner-holders.png')}
+                        />
+                    </View>
+                )}
 
                 {tonItem}
 

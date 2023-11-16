@@ -14,7 +14,6 @@ import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 
-import Scanner from '@assets/ic-scan-white.svg';
 import NoConnection from '@assets/ic-no-connection.svg';
 
 export const WalletHeader = memo(() => {

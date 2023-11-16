@@ -25,7 +25,6 @@ export function useTonconnectWatcher() {
     );
 
     useEffect(() => {
-        console.log('connections', connections);
         if (connections.length === 0) {
             return;
         }
@@ -33,8 +32,6 @@ export function useTonconnectWatcher() {
         const walletSessionIds = connections.map((item) => new SessionCrypto(item.sessionKeyPair).sessionId).join(',');
         let url = `${bridgeUrl}/events?client_id=${walletSessionIds}`;
         const lastEventId = getLastEventId();
-
-        console.log('url', url);
 
         if (lastEventId) {
             url += `&last_event_id=${lastEventId}`;

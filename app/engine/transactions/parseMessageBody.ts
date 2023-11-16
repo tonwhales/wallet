@@ -25,7 +25,7 @@ export type SupportedMessage =
             queryId: number;
             amount: bigint;
             sender: Address;
-            forwardPayload: Cell;
+            forwardPayload: Cell | null;
         }
     } | {
         type: 'whales-staking::deposit',
@@ -106,7 +106,10 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
             let queryId = sc.loadUint(64);
             let amount = sc.loadCoins();
             let sender = sc.loadAddress();
-            let forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();
+            let forwardPayload: Cell | null = null;
+            if (sc.remainingBits > 0) {
+                forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();
+            }
             return {
                 type: 'jetton::transfer_notification',
                 data: {

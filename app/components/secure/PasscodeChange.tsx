@@ -10,6 +10,8 @@ import { loadWalletKeys } from "../../storage/walletKeys";
 import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";
+import { useDimensions } from "@react-native-community/hooks";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Action =
     | { type: 'auth', input: string }
@@ -74,6 +76,8 @@ function reduceSteps() {
 
 export const PasscodeChange = memo(() => {
     const acc = getCurrentAddress();
+    const safeArea = useSafeAreaInsets();
+    const dimentions = useDimensions();
     const [isFirstRender, setFirstRender] = useState(true);
     const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
@@ -85,11 +89,12 @@ export const PasscodeChange = memo(() => {
     }, []);
 
     return (
-        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             {state.step === 'auth' && (
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={isFirstRender ? undefined : SlideInRight}
+                    style={{ height: dimentions.window.height - 156 }}
                 >
                     <PasscodeInput
                         passcodeLength={passcodeLength}
@@ -109,6 +114,7 @@ export const PasscodeChange = memo(() => {
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
+                    style={{ height: dimentions.window.height - 156 }}
                 >
                     <PasscodeInput
                         title={t('security.passcodeSettings.enterNew')}
@@ -128,6 +134,7 @@ export const PasscodeChange = memo(() => {
                 <Animated.View
                     exiting={SlideOutLeft}
                     entering={SlideInRight}
+                    style={{ height: dimentions.window.height - 156 }}
                 >
                     <PasscodeInput
                         title={t('security.passcodeSettings.confirmNew')}

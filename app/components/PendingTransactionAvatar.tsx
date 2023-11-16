@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from "react"
-import { StyleProp, View, ViewStyle } from "react-native"
+import React, { memo, useEffect, useRef, useState } from "react"
+import { StyleProp, View, ViewStyle, Image } from "react-native"
 import { avatarHash } from "../utils/avatarHash";
 import { Avatar, avatarColors } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
@@ -10,7 +10,7 @@ import IcPending from '@assets/ic-tx-pending.svg';
 
 const Color = require('color');
 
-export const PendingTransactionAvatar = React.memo(({
+export const PendingTransactionAvatar = memo(({
     style,
     avatarId,
     address,
@@ -71,7 +71,11 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                <Avatar size={42} id={avatarId} />
+                <Avatar
+                    address={address}
+                    size={42}
+                    id={avatarId}
+                />
             </View>
             <CircularProgress
                 ref={ref}
@@ -92,8 +96,8 @@ export const PendingTransactionAvatar = React.memo(({
                 loop={true}
                 containerColor={theme.transparent}
             />
-            <IcPending
-                height={16} width={16}
+            <Image
+                source={require('@assets/ic-tx-pending.png')}
                 style={{ position: 'absolute', bottom: -2, right: -2, height: 16, width: 16 }}
             />
         </View>

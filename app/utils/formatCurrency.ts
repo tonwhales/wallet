@@ -28,11 +28,9 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
 
 function toLocaleNumber(value: string) {
     const { decimalSeparator } = getNumberFormatSettings();
-
-    if (decimalSeparator === ',') {
-        return `${value}`.replace('.', ',');
-    }
-    return value;
+    let parts = value.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, " "); // Add spaces between thousands
+    return parts.join(decimalSeparator === ',' ? ',' : '.');;
 }
 
 export function formatCurrency(amount: string, currency: string, neg?: boolean): string {

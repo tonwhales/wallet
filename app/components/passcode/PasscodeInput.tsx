@@ -62,29 +62,31 @@ export const PasscodeInput = memo((
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
         } else if (/\d/.test(key) && passcode.length < passcodeLength) {
             setPasscode((prevPasscode) => {
-                if (prevPasscode.length < passcodeLength) {
-                    return prevPasscode + key;
+                let newState = prevPasscode
+                if (newState.length < passcodeLength) {
+                    newState = newState + key;
                 }
-                return prevPasscode;
+                if (newState.length === passcodeLength) {
+                    (async () => {
+                        try {
+                            await onEntered(newState);
+                        } catch (e) {
+                            setIsWrong(true);
+                        }
+                        setTimeout(() => {
+                            setPasscode('');
+                            setIsWrong(false);
+                        }, 1500);
+                    })();
+                }
+                return newState;
             });
         }
-    }, [passcodeLength]);
+    }, [passcodeLength, passcode]);
 
     useEffect(() => {
-        if (passcode.length === passcodeLength) {
-            (async () => {
-                try {
-                    await onEntered(passcode);
-                } catch (e) {
-                    setIsWrong(true);
-                }
-                setTimeout(() => {
-                    setPasscode('');
-                    setIsWrong(false);
-                }, 1500);
-            })();
-        }
-    }, [passcode, passcodeLength]);
+        setPasscode('');
+    }, [passcodeLength]);
 
     useEffect(() => {
         if (isWrong) {

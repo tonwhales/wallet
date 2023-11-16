@@ -8,6 +8,7 @@ import { useClient4 } from './engine/hooks';
 import { useSelectedAccount } from './engine/hooks';
 import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
 import { useQueryClient } from '@tanstack/react-query';
+import { Address } from '@ton/core';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
@@ -20,6 +21,7 @@ export function useLinkNavigator(isTestnet: boolean) {
             if (resolved.payload) {
                 navigation.navigateTransfer({
                     order: {
+                        type: 'order',
                         messages: [{
                             target: resolved.address.toString({ testOnly: isTestnet }),
                             amount: resolved.amount || BigInt(0),
@@ -66,7 +68,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                 amount: resolved.amount,
                 stateInit: null,
                 job: null,
-                jetton: jettonWallet,
+                jetton: Address.parse(jettonWallet),
                 callback: null
             });
         }

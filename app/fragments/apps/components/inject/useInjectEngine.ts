@@ -66,6 +66,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
             if (src.payload) {
                 navigation.navigateTransfer({
                     order: {
+                        type: 'order',
                         messages: [{
                             target: src.to.toString({ testOnly: isTestnet }),
                             amount: src.value,

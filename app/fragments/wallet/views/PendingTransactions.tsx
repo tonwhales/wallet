@@ -15,7 +15,6 @@ import { useContact } from "../../../engine/hooks/contacts/useContact";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Address } from "@ton/core";
 import { PriceComponent } from "../../../components/PriceComponent";
-import { DappsRequests } from "./DappsRequests";
 
 const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean }) => {
     const theme = useTheme();
@@ -151,7 +150,6 @@ export const PendingTransactions = memo(() => {
     const theme = useTheme();
     return (
         <View>
-            <DappsRequests />
             {pending.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}

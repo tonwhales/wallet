@@ -1,9 +1,11 @@
-import { atom } from "recoil";
+import { atom, selector } from "recoil";
 import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
 import { CHAIN } from "@tonconnect/protocol";
 import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
-import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
+import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, ConnectedAppConnectionRemote, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
+import { selectedAccountSelector } from "./appState";
+import { getCurrentAddressNullable } from "../../storage/appState";
 
 const appConnectionsKey = 'connectConnectedApps';
 const pendingRequestsKey = 'connectPendingRequests';
@@ -59,11 +61,13 @@ const appConnectionCodec = z.union([
 ]);
 
 const connectedAppConnectionsCodec = z.array(appConnectionCodec);
-
 const connectedAppConnectionsMapCodec = z.record(connectedAppConnectionsCodec);
 
-function getConnectionsState() {
-  const stored = storagePersistence.getString(appConnectionsKey);
+function getConnectionsState(address?: string) {
+  if (!address) {
+    return {};
+  }
+  const stored = storagePersistence.getString(`${address}/${appConnectionsKey}`);
   if (!stored) {
     return {};
   }
@@ -76,22 +80,59 @@ function getConnectionsState() {
   return {};
 }
 
-function storeConnectionsState(state: { [key: string]: ConnectedAppConnection[] }) {
-  storagePersistence.set(appConnectionsKey, JSON.stringify(state));
+function storeConnectionsState(state: { [key: string]: ConnectedAppConnection[] }, address?: string) {
+  if (!!address) {
+    storagePersistence.set(`${address}/${appConnectionsKey}`, JSON.stringify(state));
+  }
 }
 
-export const appsConnectionsState = atom<{ [key: string]: ConnectedAppConnection[] }>({
-  key: 'tonconnect/connections',
-  default: getConnectionsState(),
+function getConnectionsForCurrent() {
+  const selected = getCurrentAddressNullable();
+  const state = getConnectionsState(selected?.addressString);
+  return state;
+}
+
+function storeConnectionsForCurrent(newValue: { [key: string]: ConnectedAppConnection[] }) {
+  const selected = getCurrentAddressNullable();
+  storeConnectionsState(newValue, selected?.addressString);
+}
+
+const connnectionsState = atom({
+  key: 'tonconnect/connections/state',
+  default: getConnectionsForCurrent(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
-      storeConnectionsState(newValue);
+      storeConnectionsForCurrent(newValue);
     })
   }]
 });
 
-function getPendingRequestsState() {
-  const stored = storagePersistence.getString(pendingRequestsKey);
+export const connectionsSelector = selector<{ [key: string]: ConnectedAppConnection[] }>({
+  key: 'tonconnect/connections/selector',
+  get: ({ get }) => {
+    const apps = get(connectExtensionsState);
+    const state = get(connnectionsState);
+
+    // filter connections that are not in apps
+    const filtered = Object.keys(state).reduce((acc, key) => {
+      if (apps[key]) {
+        acc[key] = state[key];
+      }
+      return acc;
+    }, {} as { [key: string]: ConnectedAppConnection[] });
+
+    return filtered;
+  },
+  set: ({ set }, newValue) => {
+    set(connnectionsState, newValue);
+  },
+});
+
+function getPendingRequestsState(address?: string) {
+  if (!address) {
+    return [];
+  }
+  const stored = storagePersistence.getString(`${address}/${pendingRequestsKey}`);
   if (!stored) {
     return [];
   }
@@ -109,22 +150,61 @@ function getPendingRequestsState() {
   return [];
 }
 
-function storePendingRequestsState(newState: SendTransactionRequest[]) {
-  storagePersistence.set(pendingRequestsKey, JSON.stringify(newState));
+function storePendingRequestsState(newState: SendTransactionRequest[], address?: string) {
+  if (!!address) {
+    storagePersistence.set(`${address}/${pendingRequestsKey}`, JSON.stringify(newState));
+  }
 }
 
-export const pendingRequestsState = atom<SendTransactionRequest[]>({
-  key: 'tonconnect/pendingRequests',
-  default: getPendingRequestsState(),
+function getPendingRequestsForCurrent() {
+  const selected = getCurrentAddressNullable();
+  const state = getPendingRequestsState(selected?.addressString);
+  return state;
+}
+
+function storePendingRequestsForCurrent(newValue: SendTransactionRequest[]) {
+  const selected = getCurrentAddressNullable();
+  storePendingRequestsState(newValue, selected?.addressString);
+}
+
+const pendingRequestsState = atom({
+  key: 'tonconnect/pendingRequests/state',
+  default: getPendingRequestsForCurrent(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
-      storePendingRequestsState(newValue);
+      storePendingRequestsForCurrent(newValue);
     })
   }]
 });
 
-function getConnectExtensions() {
-  const stored = storagePersistence.getString('wallet.tonconnect.extensions.v2');
+export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
+  key: 'tonconnect/pendingRequests/selector',
+  get: ({ get }) => {
+    const connections = get(connectionsSelector);
+    const state = get(pendingRequestsState);
+
+    // filter requests that are not in connections
+    const filtered = state.filter((request) => {
+      const remoteConnections = Object.values(connections).filter((c) => c[0].type === TonConnectBridgeType.Remote).map((c) => (c[0] as ConnectedAppConnectionRemote));
+      return remoteConnections.some((c) => c.clientSessionId === request.from);
+    });
+
+    return filtered;
+  },
+  set: ({ set }, newValue) => {
+    set(pendingRequestsState, newValue);
+  }
+});
+
+const connectExtensionsKey = 'tonconnect.extensions';
+
+function getStoredConnectExtensions(address?: string) {
+  if (!address) {
+    return {};
+  }
+
+  const stored = storagePersistence.getString(`${address}/${connectExtensionsKey}`);
+
   if (!stored) {
     return {};
   }
@@ -145,12 +225,44 @@ function getConnectExtensions() {
   return {};
 }
 
-export const connectExtensions = atom<{ [key: string]: ConnectedApp }>({
-  key: 'tonconnect/extensions',
-  default: getConnectExtensions(),
-  effects_UNSTABLE: [({ onSet }) => {
+function storeConnectExtensions(newState: { [key: string]: ConnectedApp }, address?: string) {
+  if (!!address) {
+    storagePersistence.set(`${address}/${connectExtensionsKey}`, JSON.stringify(newState));
+  }
+}
+
+function storeExtensionsForCurrent(newValue: { [key: string]: ConnectedApp }) {
+  const selected = getCurrentAddressNullable();
+  storeConnectExtensions(newValue, selected?.addressString);
+}
+
+export function loadExtensionsStored() {
+  const selected = getCurrentAddressNullable();
+  const state = getStoredConnectExtensions(selected?.addressString);
+  return state;
+}
+
+export const connectExtensionsState = atom({
+  key: 'tonconnect/extensions/state',
+  default: loadExtensionsStored(),
+  effects: [({ onSet }) => {
     onSet((newValue) => {
-      storagePersistence.set('wallet.tonconnect.extensions.v2', JSON.stringify(newValue));
+      storeExtensionsForCurrent(newValue);
     })
   }]
-})
+});
+
+export const connectExtensionsSelector = selector<{ [key: string]: ConnectedApp }>({
+  key: 'tonconnect/extensions/selector',
+  get: ({ get }) => {
+    const selected = get(selectedAccountSelector);
+    if (!selected) {
+      return {};
+    }
+    const state = get(connectExtensionsState);
+    return state;
+  },
+  set: ({ set }, newValue) => {
+    set(connectExtensionsState, newValue);
+  }
+});

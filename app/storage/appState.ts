@@ -187,6 +187,14 @@ export function getAppState(): AppState {
     };
 }
 
+export function getCurrentAddressNullable() {
+    const state = getAppState();
+    if (state.selected < 0) {
+        return null;
+    }
+    return state.addresses[state.selected];
+}
+
 export function getCurrentAddress() {
     const state = getAppState();
     if (state.selected < 0) {

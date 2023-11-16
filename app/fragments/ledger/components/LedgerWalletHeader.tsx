@@ -56,7 +56,7 @@ export const LedgerWalletHeader = memo(() => {
                     amount: res.amount,
                     stateInit: null,
                     job: null,
-                    jetton: res.jettonMaster.toString({ testOnly: network.isTestnet }),
+                    jetton: res.jettonMaster,
                     callback: null
                 });
             }

@@ -11,7 +11,7 @@ export function useDisconnectApp() {
     const getConnectApp = useConnectApp();
     const getConnections = useAppConnections();
     const removeConnectedApp = useRemoveConnectApp();
-    const [requests, update] = useConnectPendingRequests();
+    const [, update] = useConnectPendingRequests();
 
     return (endpoint: string) => {
         const app = getConnectApp(endpoint);
@@ -32,14 +32,18 @@ export function useDisconnectApp() {
             sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
         });
 
-        const temp = [...requests];
-        remoteConnections.forEach((connection) => {
-            const index = temp.findIndex((item) => item.from === connection.clientSessionId);
-            if (index !== -1) {
-                temp.splice(index, 1);
-            }
+        update((prev) => {
+            const temp = [...prev];
+            
+            remoteConnections.forEach((connection) => {
+                const index = temp.findIndex((item) => item.from === connection.clientSessionId);
+                if (index !== -1) {
+                    temp.splice(index, 1);
+                }
+            });
+
+            return temp
         });
-        update(temp);
 
         removeConnectedApp(endpoint);
     }

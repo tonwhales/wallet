@@ -217,29 +217,6 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     }, [state, setAppState]);
 
-    const onBack = useCallback((e: any) => {
-        if (props.onBack) {
-            e.preventDefault();
-            resetConfirmedAddressState();
-            props.onBack();
-            return;
-        }
-
-        navigation.base.dispatch(e.data.action);
-    }, [state, navigation, props.onBack, resetConfirmedAddressState]);
-
-    useLayoutEffect(() => {
-        if (Platform.OS === 'android') {
-            navigation.base.addListener('beforeRemove', onBack);
-        }
-
-        return () => {
-            if (Platform.OS === 'android') {
-                navigation.base.removeListener('beforeRemove', onBack);
-            }
-        }
-    }, [navigation, onBack]);
-
     return (
         <View style={{ flexGrow: 1, width: '100%', paddingTop: 32 }}>
             {!state && !loading && (

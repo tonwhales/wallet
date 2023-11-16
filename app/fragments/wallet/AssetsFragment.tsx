@@ -112,7 +112,7 @@ export const AssetsFragment = fragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            backgroundColor: theme.background
+            backgroundColor: theme.backgroundPrimary
         }}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}

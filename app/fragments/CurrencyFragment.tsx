@@ -44,7 +44,7 @@ export const CurrencyFragment = fragment(() => {
                 contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
             >
                 <View style={{
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.backgroundPrimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                 }}>

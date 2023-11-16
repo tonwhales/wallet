@@ -34,7 +34,7 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),

@@ -15,7 +15,7 @@ export const CloseButton = React.memo((props: {
             style={({ pressed }) => [
                 {
                     opacity: pressed ? 0.5 : 1,
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 32,
                     height: 32, width: 32,
                     justifyContent: 'center', alignItems: 'center',

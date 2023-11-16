@@ -96,7 +96,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: theme.surfacePimary });
+            walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {

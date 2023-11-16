@@ -11,9 +11,9 @@ export function useNavigationTheme(): NavigationThemeType {
         colors: {
             ...DefaultTheme.colors,
             primary: theme.accent,
-            background: theme.background,
+            background: theme.backgroundPrimary,
             border: theme.border,
-            card: theme.background
+            card: theme.backgroundPrimary
         }
     }
 }

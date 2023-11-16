@@ -250,7 +250,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                     ]}
                 >
                     <PasscodeSetup
-                        style={props.import ? { backgroundColor: theme.background } : undefined}
+                        style={props.import ? { backgroundColor: theme.backgroundPrimary } : undefined}
                         onReady={onConfirmed}
                         onBack={() => {
                             if (props.onBack) {

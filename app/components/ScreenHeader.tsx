@@ -54,7 +54,7 @@ export function useScreenHeader(
                         <ScreenHeader
                             style={[
                                 {
-                                    backgroundColor: Theme.background,
+                                    backgroundColor: Theme.backgroundPrimary,
                                     borderTopLeftRadius: 16,
                                     borderTopRightRadius: 16,
                                     paddingHorizontal: 16,

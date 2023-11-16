@@ -17,7 +17,7 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
         <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16 }}>
             <View style={{
                 position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
                 opacity: 0.91,
             }} />
             <Text style={{

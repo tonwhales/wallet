@@ -61,7 +61,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 </Text>
                                 {isSpam && (
                                     <View style={{
-                                        backgroundColor: theme.backgroundInverted,
+                                        backgroundColor: theme.backgroundPrimaryInverted,
                                         borderRadius: 100,
                                         height: 15,
                                         marginLeft: 10,
@@ -98,7 +98,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 </Text>
                                 {isSpam && (
                                     <View style={{
-                                        backgroundColor: theme.backgroundInverted,
+                                        backgroundColor: theme.backgroundPrimaryInverted,
                                         borderRadius: 100,
                                         height: 15,
                                         marginLeft: 10,

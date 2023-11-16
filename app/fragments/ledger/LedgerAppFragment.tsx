@@ -38,7 +38,7 @@ export const LedgerAppFragment = fragment(() => {
                 initialRouteName={'LedgerHome'}
                 screenOptions={({ route }) => ({
                     tabBarStyle: {
-                        backgroundColor: theme.surfacePimary,
+                        backgroundColor: theme.surfaceOnBg,
                         borderTopColor: theme.border
                     },
                     tabBarActiveTintColor: theme.accent,

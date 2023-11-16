@@ -236,7 +236,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                     {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
                         <View style={{ alignItems: 'baseline' }}>
                             <View style={{
-                                backgroundColor: theme.background,
+                                backgroundColor: theme.backgroundPrimary,
                                 padding: 10,
                                 borderRadius: 6,
                                 marginTop: 8,

@@ -180,7 +180,7 @@ export const DappAuthComponent = memo(({
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                 flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
                 borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                 borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                 padding: 16,
@@ -189,7 +189,7 @@ export const DappAuthComponent = memo(({
                 <View>
                     <View style={{
                         borderRadius: 20,
-                        backgroundColor: theme.surfaceSecondary,
+                        backgroundColor: theme.surfaceOnElevation,
                         width: '100%',
                         paddingVertical: 44,
                         justifyContent: 'center',

@@ -26,7 +26,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: theme.surfaceSecondary,
+                backgroundColor: theme.surfaceOnElevation,
             }}>
                 {jettons.map((j, index) => {
                     return (

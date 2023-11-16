@@ -70,7 +70,7 @@ export const LegalFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 16,
         }}>
             <ScreenHeader

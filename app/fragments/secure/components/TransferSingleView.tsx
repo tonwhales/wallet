@@ -353,7 +353,7 @@ export const TransferSingleView = memo(({
                                     <View style={{ alignItems: 'flex-end' }}>
                                         {order?.app?.domain !== extractDomain(holdersUrl) ? (
                                             <View style={{
-                                                backgroundColor: theme.surfacePimary,
+                                                backgroundColor: theme.surfaceOnBg,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,
@@ -397,7 +397,7 @@ export const TransferSingleView = memo(({
                                     <View style={{ alignItems: 'flex-end' }}>
                                         {order?.app?.domain !== extractDomain(holdersUrl) ? (
                                             <View style={{
-                                                backgroundColor: theme.surfacePimary,
+                                                backgroundColor: theme.surfaceOnBg,
                                                 shadowColor: 'rgba(0, 0, 0, 0.25)',
                                                 shadowOffset: {
                                                     height: 1,

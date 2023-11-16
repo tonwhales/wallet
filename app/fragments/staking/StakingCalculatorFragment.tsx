@@ -119,7 +119,7 @@ export const StakingCalculatorFragment = fragment(() => {
                     <View
                         style={{
                             marginVertical: 16,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderRadius: 20,
                             justifyContent: 'center',
                             padding: 20
@@ -149,7 +149,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             onValueChange={setAmount}
                             keyboardType={'numeric'}
                             style={{
-                                backgroundColor: theme.background,
+                                backgroundColor: theme.backgroundPrimary,
                                 paddingHorizontal: 16, paddingVertical: 14,
                                 borderRadius: 16,
                             }}

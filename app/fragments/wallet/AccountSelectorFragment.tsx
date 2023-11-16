@@ -80,7 +80,7 @@ export const AccountSelectorFragment = fragment(() => {
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom,
-            backgroundColor: Platform.OS === 'android' ? theme.background : undefined,
+            backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar />
@@ -92,7 +92,7 @@ export const AccountSelectorFragment = fragment(() => {
             )}
             {isScrollMode ? (
                 <View style={{
-                    flex: 1, backgroundColor: theme.background,
+                    flex: 1, backgroundColor: theme.backgroundPrimary,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: safeArea.bottom + 16
@@ -129,7 +129,7 @@ export const AccountSelectorFragment = fragment(() => {
                 <View style={{
                     height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
                     flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.backgroundPrimary,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     padding: 16,

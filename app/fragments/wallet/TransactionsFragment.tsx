@@ -61,7 +61,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [txs?.next, txs?.hasNext]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -165,7 +165,7 @@ export const TransactionsFragment = fragment(() => {
 
     if (!account) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background }}>
+            <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
                 <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>

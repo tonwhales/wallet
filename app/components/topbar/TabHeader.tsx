@@ -24,7 +24,7 @@ export const TabHeader = memo(({
                 alignItems: 'center',
                 marginTop: safeArea.top,
                 flexDirection: 'row',
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
             }, style
         ]}>
             {Platform.OS === 'android' && <StatusBar style={'dark'} />}

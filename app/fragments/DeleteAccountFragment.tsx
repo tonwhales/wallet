@@ -309,7 +309,7 @@ export const DeleteAccountFragment = fragment(() => {
                         </Text>
                     </View>
                     <View style={{
-                        backgroundColor: theme.background,
+                        backgroundColor: theme.backgroundPrimary,
                         paddingVertical: 20,
                         width: '100%', borderRadius: 20,
                         flexGrow: 1,
@@ -381,7 +381,7 @@ export const DeleteAccountFragment = fragment(() => {
             </View>
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
-                    <View style={{ backgroundColor: theme.surfacePimary, padding: 16, borderRadius: 16 }}>
+                    <View style={{ backgroundColor: theme.surfaceOnBg, padding: 16, borderRadius: 16 }}>
                         <LoadingIndicator simple />
                         {status === 'deleted' && (
                             <Text style={{ color: theme.textPrimary }}>

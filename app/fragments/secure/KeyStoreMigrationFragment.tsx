@@ -64,7 +64,7 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
                             onPress={onStart}
                             icon={<Image
                                 source={require('../../../assets/ic_privacy.png')}
-                                style={{ tintColor: theme.surfacePimary, height: 24, width: 24 }}
+                                style={{ tintColor: theme.surfaceOnBg, height: 24, width: 24 }}
                             />}
                         />
                     </View>

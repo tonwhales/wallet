@@ -92,7 +92,7 @@ export const StakingPoolsFragment = fragment(() => {
     };
 
     const poolItemsStyle = {
-        backgroundColor: theme.style === 'dark' ? theme.surfaceSecondary : theme.surfacePimary,
+        backgroundColor: theme.style === 'dark' ? theme.surfaceOnElevation : theme.surfaceOnBg,
         marginHorizontal: 4, marginBottom: 4,
         borderRadius: 20
     }

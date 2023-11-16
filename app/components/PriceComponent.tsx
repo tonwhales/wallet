@@ -1,5 +1,4 @@
-import BN from "bn.js"
-import React from "react"
+import React, { memo, useMemo } from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { formatCurrency } from "../utils/formatCurrency"
 import { usePrice, useTheme } from "../engine/hooks";
@@ -7,11 +6,12 @@ import { fromNano } from "@ton/core";
 
 import TonSign from '@assets/ic_ton_sign.svg';
 
-export const PriceComponent = React.memo((
+export const PriceComponent = memo((
     {
         amount,
         style,
         textStyle,
+        centsTextStyle,
         prefix,
         suffix,
         currencyCode,
@@ -20,6 +20,7 @@ export const PriceComponent = React.memo((
         amount: bigint,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
+        centsTextStyle?: StyleProp<TextStyle>,
         prefix?: string,
         suffix?: string,
         currencyCode?: string,
@@ -35,6 +36,19 @@ export const PriceComponent = React.memo((
 
     const isNeg = amount < 0;
     const abs = isNeg ? -amount : amount;
+
+    const fullText = useMemo(() => {
+        return `${prefix ?? ''}${formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currencyCode || currency]).toFixed(2),
+            currencyCode || currency,
+            isNeg
+        )}${suffix ?? ''}`
+    }, [amount, price, currencyCode, currency]);
+
+    const decimalPoint = fullText.match(/[.,]/)?.[0];
+    const parts = fullText.split(decimalPoint ?? /[.,]/);
+    const integer = parts[0];
+    const cents = parts[1];
 
     return (
         <View style={[{
@@ -64,12 +78,15 @@ export const PriceComponent = React.memo((
                 </View>
             )}
             <Text style={[{
-                color: theme.surfacePimary,
+                color: theme.surfaceOnBg,
                 fontSize: 15, fontWeight: '500',
                 textAlign: "center",
                 lineHeight: 20
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currencyCode || currency]).toFixed(2), currencyCode || currency, isNeg)}${suffix ?? ''}`}
+                {`${integer}${decimalPoint ?? ','}`}
+                <Text style={centsTextStyle}>
+                    {cents}
+                </Text>
             </Text>
         </View>
     )

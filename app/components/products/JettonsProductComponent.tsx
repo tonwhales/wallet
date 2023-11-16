@@ -65,7 +65,7 @@ export const JettonsProductComponent = memo(() => {
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceSecondary,
+                        backgroundColor: theme.surfaceOnElevation,
                         borderTopLeftRadius: visibleCount > 5 ? 0 : 20,
                         borderTopRightRadius: visibleCount > 5 ? 0 : 20,
                         borderBottomLeftRadius: visibleCount === 1 ? 20 : 0,
@@ -134,7 +134,7 @@ export const JettonsProductComponent = memo(() => {
                             justifyContent: 'center',
                             overflow: 'hidden',
                             padding: 20,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderTopEndRadius: 20,
                             borderTopStartRadius: 20
                         },
@@ -205,7 +205,7 @@ export const JettonsProductComponent = memo(() => {
                     items={visibleList}
                     itemHeight={86}
                     divider={
-                        <View style={{ backgroundColor: theme.surfaceSecondary, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                        <View style={{ backgroundColor: theme.surfaceOnElevation, marginHorizontal: 16, paddingHorizontal: 20 }}>
                             <View style={{ backgroundColor: theme.divider, height: 1 }} />
                         </View>
                     }

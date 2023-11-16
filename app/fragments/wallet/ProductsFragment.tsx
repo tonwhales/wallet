@@ -59,7 +59,7 @@ export const ProductsFragment = fragment(() => {
     });
 
     return (
-        <View style={{ backgroundColor: theme.background, flexGrow: 1 }}>
+        <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1 }}>
             <ScreenHeader
                 style={{ paddingTop: 32, paddingHorizontal: 16 }}
                 title={t('products.addNew')}

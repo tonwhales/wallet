@@ -9,10 +9,10 @@ import { ToastDuration, ToastProps, useToaster } from "./toast/ToastProvider";
 import { useAddToDenyList, useNetwork, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
 
-export function ellipsiseAddress(src: string) {
-    return src.slice(0, 10)
+export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
+    return src.slice(0, params?.start ?? 10)
         + '...'
-        + src.slice(src.length - 6)
+        + src.slice(src.length - (params?.end ?? 6))
 }
 
 export const WalletAddress = memo((props: {
@@ -23,7 +23,7 @@ export const WalletAddress = memo((props: {
     textProps?: TextProps,
     known?: boolean,
     spam?: boolean;
-    elipsise?: boolean,
+    elipsise?: boolean | { start?: number, end?: number },
     limitActions?: boolean,
     disableContextMenu?: boolean,
     previewBackgroundColor?: string,
@@ -132,7 +132,7 @@ export const WalletAddress = memo((props: {
                     previewBackgroundColor={props.previewBackgroundColor ? props.previewBackgroundColor : theme.transparent}
                 >
                     <View>
-                        {props.elipsise && (
+                        {props.elipsise ? (
                             <Text
                                 style={[
                                     {
@@ -148,10 +148,9 @@ export const WalletAddress = memo((props: {
                                 ellipsizeMode={'middle'}
                                 {...props.textProps}
                             >
-                                {ellipsiseAddress(friendlyAddress)}
+                                {ellipsiseAddress(friendlyAddress, typeof props.elipsise === 'boolean' ? undefined : props.elipsise)}
                             </Text>
-                        )}
-                        {!props.elipsise && (
+                        ) : (
                             <>
                                 <Text
                                     style={[
@@ -202,7 +201,7 @@ export const WalletAddress = memo((props: {
                     }}
                     onPress={props.copyOnPress ? onCopy : undefined}
                 >
-                    {props.elipsise && (
+                    {props.elipsise ? (
                         <Text
                             style={[
                                 {
@@ -218,10 +217,9 @@ export const WalletAddress = memo((props: {
                             ellipsizeMode={'middle'}
                             {...props.textProps}
                         >
-                            {ellipsiseAddress(friendlyAddress)}
+                            {ellipsiseAddress(friendlyAddress, typeof props.elipsise === 'boolean' ? undefined : props.elipsise)}
                         </Text>
-                    )}
-                    {!props.elipsise && (
+                    ) : (
                         <>
                             <Text
                                 style={[

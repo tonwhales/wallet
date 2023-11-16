@@ -916,7 +916,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 onValueChange={setAmount}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: theme.background,
+                                    backgroundColor: theme.backgroundPrimary,
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
                                 }}
@@ -1012,7 +1012,7 @@ export const SimpleTransferFragment = fragment(() => {
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={[
-                            { marginTop: 16, backgroundColor: theme.background },
+                            { marginTop: 16, backgroundColor: theme.backgroundPrimary },
                             seletectInputStyles.comment
                         ]}
                     >

@@ -107,7 +107,7 @@ export const WalletSecureComponent = memo((props: {
                 style={{ height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}
             >
                 <View style={{
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.backgroundPrimary,
                     justifyContent: 'center',
                     flexGrow: 1,
                 }}>

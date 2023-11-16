@@ -125,7 +125,7 @@ export const SpamFilterFragment = fragment(() => {
                             </View>
                         )}
                         <View style={{
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             marginTop: 20,
                             paddingVertical: 20,
                             paddingHorizontal: 20,
@@ -145,7 +145,7 @@ export const SpamFilterFragment = fragment(() => {
                                 onValueChange={setMinValue}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: theme.background,
+                                    backgroundColor: theme.backgroundPrimary,
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
                                 }}
@@ -171,7 +171,7 @@ export const SpamFilterFragment = fragment(() => {
                         </View>
                         <View style={{
                             marginTop: 16,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderRadius: 20,
                             justifyContent: 'center',
                         }}>

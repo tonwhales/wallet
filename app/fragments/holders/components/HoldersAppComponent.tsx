@@ -154,7 +154,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -239,9 +239,9 @@ export const HoldersAppComponent = memo((
         reduceMainButton(),
         {
             text: '',
-            textColor: theme.surfacePimary,
+            textColor: theme.surfaceOnBg,
             color: theme.accent,
-            disabledColor: theme.surfaceSecondary,
+            disabledColor: theme.surfaceOnElevation,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,
@@ -548,7 +548,7 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <View style={{ backgroundColor: theme.surfacePimary, flex: 1 }}>
+            <View style={{ backgroundColor: theme.surfaceOnBg, flex: 1 }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView
                         key={`offline-rendered-${offlineRender}`}
@@ -558,7 +558,7 @@ export const HoldersAppComponent = memo((
                         initialRoute={source.initialRoute}
                         queryParams={source.queryParams}
                         style={{
-                            backgroundColor: theme.surfacePimary,
+                            backgroundColor: theme.surfaceOnBg,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -609,7 +609,7 @@ export const HoldersAppComponent = memo((
                             source={{ uri: source.url }}
                             startInLoadingState={true}
                             style={{
-                                backgroundColor: theme.surfacePimary,
+                                backgroundColor: theme.surfaceOnBg,
                                 flexGrow: 1, flexBasis: 0, height: '100%',
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,

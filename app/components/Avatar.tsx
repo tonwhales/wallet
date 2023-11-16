@@ -102,7 +102,7 @@ export const Avatar = memo((props: {
         img = <KnownAvatar size={props.size} wallet={known} />;
     }
 
-    let backgroundColor: string | undefined = props.backgroundColor ?? theme.surfaceSecondary;
+    let backgroundColor: string | undefined = props.backgroundColor ?? theme.surfaceOnElevation;
 
     if (known && known?.ic) {
         backgroundColor = theme.white;
@@ -140,7 +140,7 @@ export const Avatar = memo((props: {
             </View>
             {(props.showSpambadge && props.spam) && (
                 <View style={{
-                    backgroundColor: theme.backgroundInverted,
+                    backgroundColor: theme.backgroundPrimaryInverted,
                     borderRadius: 100,
                     height: 15,
                     paddingHorizontal: 5,

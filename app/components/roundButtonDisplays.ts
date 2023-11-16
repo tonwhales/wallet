@@ -22,11 +22,11 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         default: {
             backgroundColor: theme.accent,
             borderColor: theme.accent,
-            textColor: theme.textThird,
+            textColor: theme.textUnchangeable,
         },
         disabled: {
-            backgroundColor: theme.accentPrimaryDisabledViolet,
-            borderColor: theme.accentPrimaryDisabledViolet,
+            backgroundColor: theme.accentDisabled,
+            borderColor: theme.accentDisabled,
             textColor: theme.textThird,
         },
         secondary: {
@@ -35,28 +35,28 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             textColor: theme.accent,
         },
         secondary_contrast: {
-            backgroundColor: theme.surfaceSecondary,
-            borderColor: theme.surfaceSecondary,
+            backgroundColor: theme.surfaceOnElevation,
+            borderColor: theme.surfaceOnElevation,
             textColor: theme.textPrimary,
         },
         pro: {
             backgroundColor: theme.textPrimary,
             borderColor: theme.textPrimary,
-            textColor: theme.surfacePimary,
+            textColor: theme.surfaceOnBg,
         },
         telegram: {
             backgroundColor: theme.telegram,
             borderColor: theme.telegram,
-            textColor: theme.surfacePimary,
+            textColor: theme.surfaceOnBg,
         },
         outline: {
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             borderColor: theme.accent,
             textColor: theme.accent,
         },
         inverted: {
-            backgroundColor: theme.surfacePimary,
-            borderColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
+            borderColor: theme.surfaceOnBg,
             textColor: theme.accent,
         },
         text: {
@@ -70,8 +70,8 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
             textColor: theme.accentRed,
         },
         danger_zone: {
-            backgroundColor: theme.surfacePimary,
-            borderColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
+            borderColor: theme.surfaceOnBg,
             textColor: theme.accentRed,
         },
     }

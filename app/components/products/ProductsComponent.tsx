@@ -11,9 +11,9 @@ import { JettonsProductComponent } from "./JettonsProductComponent"
 import { HoldersHiddenCards } from "./HoldersHiddenCards"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
+import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -41,12 +41,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     }
 
     return (
-        <View style={{ backgroundColor: theme.backgroundUnchangeable }}>
+        <View style={{ }}>
             <View style={{
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                backgroundColor: theme.surfacePimary,
-                minHeight: 400
+                backgroundColor: theme.backgroundPrimary,
             }}>
                 <DappsRequests />
                 <View style={{

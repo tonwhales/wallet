@@ -92,7 +92,7 @@ export const LogoutFragment = fragment(() => {
         <View style={{
             flexGrow: 1,
             paddingBottom: safeArea.bottom,
-            backgroundColor: theme.background
+            backgroundColor: theme.backgroundPrimary
         }}>
             <ScreenHeader
                 title={t('common.logout')}

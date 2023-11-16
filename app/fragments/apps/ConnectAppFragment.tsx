@@ -29,7 +29,7 @@ export const ConnectAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: theme.background
+            backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={'dark'} />
             <ConnectAppComponent

@@ -57,7 +57,7 @@ export const ConnectedAppButton = memo(({
     return (
         <View style={{
             height: 62, borderRadius: 14,
-            backgroundColor: theme.surfaceSecondary, flexDirection: 'row',
+            backgroundColor: theme.surfaceOnElevation, flexDirection: 'row',
             alignItems: 'center',
             padding: 10
         }}>

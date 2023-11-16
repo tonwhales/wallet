@@ -111,7 +111,7 @@ export const HoldersProductComponent = memo(() => {
                             justifyContent: 'center',
                             overflow: 'hidden',
                             padding: 20,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderTopEndRadius: 20,
                             borderTopStartRadius: 20
                         },
@@ -184,7 +184,7 @@ export const HoldersProductComponent = memo(() => {
                 <AnimatedChildrenCollapsible
                     collapsed={collapsed}
                     items={visibleList}
-                    divider={<View style={{ backgroundColor: theme.surfaceSecondary, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                    divider={<View style={{ backgroundColor: theme.surfaceOnElevation, marginHorizontal: 16, paddingHorizontal: 20 }}>
                         <View style={{ backgroundColor: theme.divider, height: 1 }}
                         />
                     </View>}

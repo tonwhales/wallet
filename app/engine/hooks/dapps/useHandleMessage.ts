@@ -94,8 +94,6 @@ export function useHandleMessage(
                     return;
                 }
 
-                console.log('here');
-
                 update((prev) => {
                     const temp = [...prev];
 
@@ -117,8 +115,6 @@ export function useHandleMessage(
                             method: 'sendTransaction'
                         });
                     }
-
-                    console.log('update', { temp });
 
                     return temp;
                 });

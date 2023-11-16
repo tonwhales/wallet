@@ -172,7 +172,6 @@ const pendingRequestsState = atom({
   default: getPendingRequestsForCurrent(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
-      console.log('pendingRequestsState newValue', newValue);
       storePendingRequestsForCurrent(newValue);
     })
   }]
@@ -193,7 +192,6 @@ export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
     return filtered;
   },
   set: ({ set }, newValue) => {
-    console.log('setting pendingRequests', newValue);
     set(pendingRequestsState, newValue);
   }
 });
@@ -229,7 +227,6 @@ function getStoredConnectExtensions(address?: string) {
 
 function storeConnectExtensions(newState: { [key: string]: ConnectedApp }, address?: string) {
   if (!!address) {
-    console.log('storing new connectExtensions', newState);
     storagePersistence.set(`${address}/${connectExtensionsKey}`, JSON.stringify(newState));
   }
 }

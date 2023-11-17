@@ -103,7 +103,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: theme.backgroundPrimary,
+                backgroundColor: !init ? undefined : theme.backgroundPrimary,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}
@@ -159,20 +159,21 @@ export const WalletBackupFragment = systemFragment(() => {
                         mnemonics={mnemonics.join(' ')}
                         style={{
                             paddingTop: init ? 16 : 46,
+                            backgroundColor: !init ? theme.surfaceOnElevation : undefined
                         }}
                     />
                     {!init && (
                         <View style={{
                             borderRadius: 34,
                             height: 68, width: 68,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             justifyContent: 'center', alignItems: 'center',
                             position: 'absolute', top: -34, alignSelf: 'center'
                         }}>
                             <Avatar
                                 id={address.address.toString({ testOnly: network.isTestnet })}
                                 size={77}
-                                borderColor={theme.border}
+                                borderColor={theme.elevation}
                                 borderWith={3}
                             />
                         </View>

@@ -35,7 +35,7 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
                     borderRadius: 23,
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: theme.border
+                    backgroundColor: theme.surfaceOnElevation
                 }}>
                     {op.type === 'deposit' ? (
                         <IcDeposit
@@ -174,15 +174,10 @@ export const StakingOperationsFragment = fragment(() => {
                     />
                 )}
                 stickySectionHeadersEnabled={false}
-                contentInset={{ bottom: safeArea.bottom === 0 ? 16 : safeArea.bottom }}
+                contentInset={{ bottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16 }}
                 onEndReachedThreshold={0.5}
                 renderSectionHeader={({ section: { title } }) => (
                     <View style={{ width: '100%', paddingVertical: 8 }}>
-                        <View style={{
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            backgroundColor: theme.backgroundPrimary,
-                            opacity: 0.91,
-                        }} />
                         <Text style={{
                             fontSize: 17,
                             fontWeight: '600',

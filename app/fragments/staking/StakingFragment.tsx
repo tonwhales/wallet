@@ -24,7 +24,7 @@ import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig,
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 
-import InfoIcon from '@assets/ic-info-staking.svg';
+// import InfoIcon from '@assets/ic-info-staking.svg';
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -164,10 +164,19 @@ export const StakingFragment = fragment(() => {
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
                             position: 'absolute',
-                            bottom: 12, right: 0
+                            bottom: 12, right: 0,
+                            backgroundColor: theme.surfaceOnElevation,
+                            height: 32, width: 32, borderRadius: 16,
+                            justifyContent: 'center', alignItems: 'center'
                         })}
                     >
-                        <InfoIcon height={26} width={26} style={{ height: 26, width: 26 }} />
+                        <Image
+                            source={require('@assets/ic-info.png')}
+                            style={{
+                                tintColor: theme.iconNav,
+                                height: 16, width: 16,
+                            }}
+                        />
                     </Pressable>
                 }
                 titleComponent={

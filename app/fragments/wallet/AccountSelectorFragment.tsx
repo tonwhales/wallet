@@ -19,10 +19,10 @@ export const AccountSelectorFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const appState = useAppState();
-    
+
     const ledgerContext = useLedgerTransport();
     const ledgerConnected = !!ledgerContext?.tonTransport;
-    
+
     const addressesCount = appState.addresses.length + (ledgerConnected ? 1 : 0);
 
     const heightMultiplier = useMemo(() => {
@@ -92,7 +92,8 @@ export const AccountSelectorFragment = fragment(() => {
             )}
             {isScrollMode ? (
                 <View style={{
-                    flex: 1, backgroundColor: theme.backgroundPrimary,
+                    flex: 1,
+                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: safeArea.bottom + 16
@@ -129,7 +130,7 @@ export const AccountSelectorFragment = fragment(() => {
                 <View style={{
                     height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
                     flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                    backgroundColor: theme.backgroundPrimary,
+                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     padding: 16,

@@ -155,9 +155,9 @@ export const SecurityFragment = fragment(() => {
                                     onChange={async (newValue: boolean) => {
                                         try {
                                             if (newValue) {
-                                                await authContext.authenticateWithPasscode({ cancelable: true });
+                                                await authContext.authenticateWithPasscode({ cancelable: true, backgroundColor: theme.elevation });
                                             } else {
-                                                await authContext.authenticate({ cancelable: true });
+                                                await authContext.authenticate({ cancelable: true, backgroundColor: theme.elevation });
                                             }
                                             setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                         } catch (e) {
@@ -189,7 +189,7 @@ export const SecurityFragment = fragment(() => {
                         onChange={(newValue: boolean) => {
                             (async () => {
                                 try {
-                                    await authContext.authenticate({ cancelable: true })
+                                    await authContext.authenticate({ cancelable: true, backgroundColor: theme.elevation })
                                     setLockAppWithAuthState(newValue);
                                 } catch {
                                     // ignore

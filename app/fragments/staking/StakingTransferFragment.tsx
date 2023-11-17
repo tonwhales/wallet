@@ -351,7 +351,7 @@ export const StakingTransferFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
+        <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={title}
@@ -464,7 +464,7 @@ export const StakingTransferFragment = fragment(() => {
                     {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
                         <>
                             <View style={{
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 14,
                                 justifyContent: 'center',
                                 alignItems: 'center',

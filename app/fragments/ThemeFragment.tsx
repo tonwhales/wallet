@@ -44,7 +44,7 @@ export const ThemeFragment = fragment(() => {
                             alignItems: 'center',
                             padding: 20,
                             borderRadius: 20,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             marginBottom: 16, marginHorizontal: 16
                         },
                         animatedStyleSystem
@@ -88,7 +88,7 @@ export const ThemeFragment = fragment(() => {
                             alignItems: 'center',
                             padding: 20,
                             borderRadius: 20,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             marginBottom: 16, marginHorizontal: 16
                         },
                         animatedStyleLight
@@ -132,7 +132,7 @@ export const ThemeFragment = fragment(() => {
                             alignItems: 'center',
                             padding: 20,
                             borderRadius: 20,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             marginBottom: 16, marginHorizontal: 16
                         },
                         animatedStyleDark

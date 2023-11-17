@@ -1,4 +1,4 @@
-import React, { useMemo } from "react"
+import React, { memo, useMemo } from "react"
 import { View, Text, StyleProp, TextStyle, ViewStyle } from "react-native"
 import { t } from "../../i18n/t";
 import { PriceComponent } from "../PriceComponent";
@@ -25,7 +25,7 @@ const itemValueTextStyle = (theme: ThemeType) => ({
     fontWeight: '400'
 }) as StyleProp<TextStyle>;
 
-export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
+export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
     if (!pool) return null;
     const theme = useTheme();
     const network = useNetwork();

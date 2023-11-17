@@ -13,7 +13,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const nominatorInfo = useNominatorInfo(pool, selected!.address, 'month', network.isTestnet).data;
+    const nominatorInfo = useNominatorInfo(pool, selected!.address, 'allTime', network.isTestnet).data;
 
     if (!nominatorInfo || network.isTestnet) {
         return null;

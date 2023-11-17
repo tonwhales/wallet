@@ -190,7 +190,8 @@ export const StakingPoolSelectorFragment = fragment(() => {
             )}
             {(activeLength > 3) ? (
                 <View style={{
-                    flex: 1, backgroundColor: theme.backgroundPrimary,
+                    flex: 1,
+                    backgroundColor: Platform.OS === 'ios' ? theme.surfaceOnElevation : theme.backgroundPrimary,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: safeArea.bottom + 16
@@ -232,7 +233,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
                 <View style={{
                     height: Platform.OS === 'ios' ? (Math.floor(dimentions.height * heightMultiplier)) : undefined,
                     flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                    backgroundColor: theme.backgroundPrimary,
+                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : theme.backgroundPrimary,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     padding: 16,

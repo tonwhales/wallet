@@ -35,7 +35,7 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
                     borderRadius: 23,
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: theme.border
+                    backgroundColor: theme.surfaceOnElevation
                 }}>
                     {op.type === 'deposit' ? (
                         <IcDeposit
@@ -107,11 +107,11 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
 export const StakingOperationsFragment = fragment(() => {
     const { pool } = useParams<{ pool: Address }>();
     const theme = useTheme();
-    const { isTestnet} = useNetwork();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();;
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
-    const nominatorInfo = useNominatorInfo(pool, selected!.address, 'month', isTestnet).data;
+    const nominatorInfo = useNominatorInfo(pool, selected!.address, 'allTime', isTestnet).data;
 
     const operations = useMemo(() => {
         const ops = [
@@ -122,7 +122,7 @@ export const StakingOperationsFragment = fragment(() => {
         return ops.sort((a, b) => {
             const aTime = new Date(a.time);
             const bTime = new Date(b.time);
-            return aTime.getTime() - bTime.getTime();
+            return bTime.getTime() - aTime.getTime();
         }) as (NominatorOperation & { type: 'withdraw' | 'deposit' })[];
     }, [nominatorInfo]);
 
@@ -162,7 +162,7 @@ export const StakingOperationsFragment = fragment(() => {
                 onClosePressed={() => navigation.goBack()}
             />
             <SectionList
-                style={{ marginTop: 16 }}
+                style={{ marginTop: 16, flexBasis: 0, flexGrow: 1 }}
                 sections={operationsSectioned}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 getItemCount={(data) => data.items.length}
@@ -174,15 +174,10 @@ export const StakingOperationsFragment = fragment(() => {
                     />
                 )}
                 stickySectionHeadersEnabled={false}
-                contentInset={{ bottom: safeArea.bottom + 64 }}
+                contentInset={{ bottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16 }}
                 onEndReachedThreshold={0.5}
                 renderSectionHeader={({ section: { title } }) => (
                     <View style={{ width: '100%', paddingVertical: 8 }}>
-                        <View style={{
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            backgroundColor: theme.backgroundPrimary,
-                            opacity: 0.91,
-                        }} />
                         <Text style={{
                             fontSize: 17,
                             fontWeight: '600',

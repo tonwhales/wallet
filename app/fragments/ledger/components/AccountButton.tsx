@@ -43,7 +43,7 @@ export const AccountButton = memo(({
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: 20,
-                backgroundColor: theme.border,
+                backgroundColor: theme.surfaceOnElevation,
                 marginVertical: 8,
                 borderRadius: 20,
             }}>

@@ -63,7 +63,7 @@ export const baseTheme: ThemeType = {
     backgroundPrimaryInverted: '#000000',
     backgroundUnchangeable: '#000000',
 
-    elevation: '#000000',
+    elevation: '#FFFFFF',
 
     surfaceOnBg: '#F7F8F9',
     surfaceOnElevation: '#F7F8F9',

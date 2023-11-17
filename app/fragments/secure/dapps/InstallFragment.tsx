@@ -6,15 +6,18 @@ import { fragment } from '../../../fragment';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
-import { useAppData } from '../../../engine/hooks';
+import { useAppData, useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
 import { useAddExtension } from '../../../engine/hooks';
 import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { DappAuthComponent } from './DappAuthComponent';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const SignStateLoader = memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
     const authContext = useKeysAuth();
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const addExtension = useAddExtension();
@@ -34,7 +37,15 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
 
         // Create Domain Key if Needed
         let domain = extractDomain(props.url);
-        let created = await createDomainKeyIfNeeded(domain, authContext);
+        let created = await createDomainKeyIfNeeded(
+            domain,
+            authContext,
+            undefined,
+            {
+                backgroundColor: theme.elevation,
+                containerStyle: { paddingBottom: safeArea.bottom + 56 },
+            },
+        );
         if (!created) {
             return;
         }
@@ -61,8 +72,8 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
             state={{
                 type: 'initing',
                 connector: 'ton-x',
-                name: props.title || '', 
-                url: props.url, 
+                name: props.title || '',
+                url: props.url,
                 app: appData
             }}
             onApprove={approve}

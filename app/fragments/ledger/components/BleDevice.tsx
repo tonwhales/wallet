@@ -37,7 +37,7 @@ export const BleDevice = memo(({ onSelect, device }: { onSelect: (device: any) =
                     borderRadius: 16,
                     flexDirection: "row",
                     alignItems: "center",
-                    backgroundColor: theme.border
+                    backgroundColor: theme.surfaceOnElevation
                 }
             }}
         >

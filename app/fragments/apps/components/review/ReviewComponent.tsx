@@ -116,22 +116,25 @@ export const ReviewComponent = memo(({ url }: { url: string }) => {
                         onSet={setRating}
                         style={{ marginVertical: 24 }}
                     />
-                    <View style={{
-                        backgroundColor: theme.border,
-                        paddingVertical: 20,
-                        width: '100%', borderRadius: 20,
-                        marginTop: 5
-                    }}>
-                        <ATextInput
-                            value={review}
-                            onValueChange={setReview}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            style={{ paddingHorizontal: 16 }}
-                            multiline
-                            label={t('review.review')}
-                            blurOnSubmit={true}
-                        />
+                    <View style={{ width: '100%' }}>
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            marginHorizontal: 16,
+                            paddingVertical: 20,
+                            borderRadius: 20,
+                            marginTop: 5
+                        }}>
+                            <ATextInput
+                                value={review}
+                                onValueChange={setReview}
+                                keyboardType="default"
+                                autoCapitalize="sentences"
+                                style={{ paddingHorizontal: 16 }}
+                                multiline
+                                label={t('review.review')}
+                                blurOnSubmit={true}
+                            />
+                        </View>
                     </View>
                 </View>
             </ScrollView>

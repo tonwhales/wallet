@@ -18,7 +18,7 @@ import Url from 'url-parse';
 import isValid from 'is-valid-domain';
 import { connectAnswer } from '../../../engine/api/connectAnswer';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
-import { useNetwork } from '../../../engine/hooks';
+import { useNetwork, useTheme } from '../../../engine/hooks';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { useAddExtension } from '../../../engine/hooks';
@@ -33,6 +33,7 @@ type SignState = { type: 'loading' }
     | { type: 'failed' }
 
 const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
+    const theme = useTheme();
     const { isTestnet } = useNetwork();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -110,7 +111,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         // Sign
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ cancelable: true });
+            walletKeys = await authContext.authenticate({ cancelable: true, backgroundColor: theme.surfaceOnElevation });
         } catch (e) {
             warn('Failed to load wallet keys');
             return;

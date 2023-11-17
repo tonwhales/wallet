@@ -30,7 +30,6 @@ export const AssetsFragment = fragment(() => {
         selectedJetton?: Address
     }>();
 
-
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
 
@@ -43,6 +42,7 @@ export const AssetsFragment = fragment(() => {
 
     const ledgerJettons = useJettons(address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
     const jettons = useJettons(selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
+    const visibleList = jettons.filter((j) => !j.disabled);
 
     const onSelected = useCallback((jetton: Jetton) => {
         if (callback) {
@@ -110,19 +110,16 @@ export const AssetsFragment = fragment(() => {
     }, [callback]);
 
     return (
-        <View style={{
-            flexGrow: 1,
-            backgroundColor: theme.backgroundPrimary
-        }}>
+        <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
                 style={{ paddingHorizontal: 16 }}
             />
             <ScrollView
-                style={{ flexGrow: 1, marginTop: 16 }}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 32 + 44 }}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
             >
                 <View style={{
                     borderRadius: 14,
@@ -147,7 +144,7 @@ export const AssetsFragment = fragment(() => {
                         selected={!selectedJetton}
                         hideSelection={!callback}
                     />
-                    {(isLedgerScreen ? ledgerJettons : jettons).map((j) => {
+                    {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
                         const verified = KnownJettonMasters(network.isTestnet)[j.master.toString()];
                         const selected = selectedJetton && j.master.equals(selectedJetton);
                         return (

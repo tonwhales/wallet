@@ -796,7 +796,7 @@ export const SimpleTransferFragment = fragment(() => {
                     >
                         <View
                             style={{
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20, padding: 20, marginTop: 16
                             }}
                         >
@@ -870,7 +870,7 @@ export const SimpleTransferFragment = fragment(() => {
                             style={{
                                 marginTop: 16,
                                 marginBottom: amountError ? 0 : 16,
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
                                 justifyContent: 'center',
                                 padding: 20
@@ -954,7 +954,7 @@ export const SimpleTransferFragment = fragment(() => {
                     >
                         <View style={{
                             flex: 1,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             paddingVertical: 20,
                             width: '100%', borderRadius: 20,
                         }}>
@@ -1012,13 +1012,13 @@ export const SimpleTransferFragment = fragment(() => {
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={[
-                            { marginTop: 16, backgroundColor: theme.backgroundPrimary },
+                            { marginTop: 16, backgroundColor: theme.elevation },
                             seletectInputStyles.comment
                         ]}
                     >
                         <View style={{
                             flex: 1,
-                            backgroundColor: theme.border,
+                            backgroundColor: theme.surfaceOnElevation,
                             paddingVertical: 20,
                             width: '100%', borderRadius: 20,
                         }}>

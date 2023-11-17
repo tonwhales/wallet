@@ -246,7 +246,6 @@ export const TransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: theme.backgroundPrimary,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             <ScreenHeader

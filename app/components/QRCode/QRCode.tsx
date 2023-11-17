@@ -4,17 +4,16 @@ import { View } from 'react-native';
 import { createQRMatrix } from './QRMatrix';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
-import { useTheme } from '../../engine/hooks';
 import { memo } from 'react';
 
 import TonIcon from '@assets/ic-ton-qr.svg';
 
 function addCornerFinderPatterns(items: JSX.Element[], dotSize: number, matrixSize: number, color?: string) {
-    const outerRadius = dotSize * 2;
-    const innerRadius = dotSize * 1.2;
+    const outerRadius = dotSize * 2.5;
+    const innerRadius = dotSize * 1.5;
     const outerSize = dotSize * 7;
     const innerDotSize = dotSize * 5;
-    const innerDotRadius = dotSize * 1.2;
+    const innerDotRadius = dotSize * 1;
 
     const corners = [
         { x: 0, y: 0 },
@@ -81,8 +80,7 @@ export const QRCode = memo((props: {
     color?: string,
     icon?: ImagePreview | null
 }) => {
-    const theme = useTheme();
-    const matrix = createQRMatrix(props.data, 'quartile');
+    const matrix = createQRMatrix(props.data, 'medium');
     const dotSize = props.size / matrix.size;
     const padding = (props.size - dotSize * matrix.size) / 2;
 
@@ -150,12 +148,14 @@ export const QRCode = memo((props: {
         <View style={{
             width: props.size,
             height: props.size,
-            backgroundColor: 'white',
             padding: padding,
             flexWrap: 'wrap',
             borderRadius: 20,
         }}>
-            <Canvas style={{ width: props.size, height: props.size, backgroundColor: theme.white }}>
+            <Canvas style={{
+                width: props.size,
+                height: props.size,
+            }}>
                 {items}
             </Canvas>
             <View style={{

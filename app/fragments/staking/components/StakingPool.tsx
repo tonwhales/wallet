@@ -2,7 +2,7 @@ import { memo, useEffect, useMemo, useState } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { KnownPools } from "../../../utils/KnownPools";
 import { t } from "../../../i18n/t";
-import { Pressable, View, Text, Alert } from "react-native";
+import { Pressable, View, Text, Alert, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../../../components/WImage";
 import { openWithInApp } from "../../../utils/openWithInApp";
 import { ValueComponent } from "../../../components/ValueComponent";
@@ -53,7 +53,9 @@ export const StakingPool = memo((props: {
     address: Address,
     balance: bigint,
     restricted?: boolean,
-    isLedger?: boolean
+    isLedger?: boolean,
+    style?: StyleProp<ViewStyle>,
+    hideCycle?: boolean
 }) => {
     const theme = useTheme();
     const network = useNetwork();
@@ -70,7 +72,7 @@ export const StakingPool = memo((props: {
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
-            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}% • ${t('products.staking.info.poolFeeTitle')} ${poolFee}%`;
+            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
         }
     }, [apy, poolFee]);
 
@@ -106,17 +108,15 @@ export const StakingPool = memo((props: {
                 }
                 navigation.navigate(props.isLedger ? 'LedgerStaking' : 'Staking', { backToHome: false, pool: poolAddressString })
             }}
-            style={({ pressed }) => {
-                return {
-                    flex: 1,
-                    opacity: pressed ? 0.5 : 1,
-                    borderRadius: 20,
-                    backgroundColor: theme.style === 'dark' ? theme.surfaceOnElevation : theme.surfaceOnBg,
-                    padding: 16
-                }
-            }}
+            style={({ pressed }) => [{
+                flex: 1,
+                opacity: pressed ? 0.5 : 1,
+                borderRadius: 20,
+                backgroundColor: theme.backgroundPrimary,
+                padding: 16
+            }, props.style]}
         >
-            <View style={{
+            {!props.hideCycle && (<View style={{
                 flexShrink: 1,
                 alignItems: 'center',
                 alignSelf: 'flex-end',
@@ -145,7 +145,7 @@ export const StakingPool = memo((props: {
                         }}
                     />
                 </Text>
-            </View>
+            </View>)}
             <View style={{
                 alignSelf: 'stretch',
                 flexDirection: 'row',
@@ -220,7 +220,11 @@ export const StakingPool = memo((props: {
                                     <ValueComponent
                                         precision={3}
                                         value={props.balance}
-                                    /> {' TON'}
+                                        centFontStyle={{ opacity: 0.5 }}
+                                    />
+                                    <Text style={{ opacity: 0.5 }}>
+                                        {' TON'}
+                                    </Text>
                                 </Text>
                                 <PriceComponent
                                     amount={props.balance}

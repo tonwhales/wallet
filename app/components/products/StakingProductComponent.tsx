@@ -4,10 +4,13 @@ import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-na
 import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
-import { useStaking, useStakingApy, useTheme } from "../../engine/hooks";
+import { useStaking, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { getCurrentAddress } from "../../storage/appState";
 
 import StakingIcon from '@assets/ic-staking.svg';
+import { StakingPool } from "../../fragments/staking/components/StakingPool";
+import { Address } from "@ton/core";
+import { ItemDivider } from "../ItemDivider";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -40,8 +43,8 @@ const subtitleStyle: StyleProp<TextStyle> = {
 export const StakingProductComponent = memo(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const acc = getCurrentAddress();
     const totalStaked = useStaking().total;
+    const active = useStakingActive();
 
     const apy = useStakingApy()?.apy;
     const apyWithFee = useMemo(() => {
@@ -51,59 +54,60 @@ export const StakingProductComponent = memo(() => {
     }, [apy]);
 
     return (
-        <Pressable
-            onPress={() => navigation.navigate('StakingPools')}
-            style={({ pressed }) => {
-                return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
-            }}
-        >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
-                <View style={icStyle}>
-                    <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
-                        <StakingIcon width={32} height={32} color={'white'} />
-                    </View>
+        <View style={{
+            backgroundColor: theme.surfaceOnBg,
+            borderRadius: 20
+        }}>
+            {!!active && active.map((p, i) => (
+                <View
+                    key={`active-${p.address.toString()}`}
+                >
+                    <StakingPool
+                        address={p.address}
+                        balance={p.balance}
+                        style={{
+                            backgroundColor: theme.surfaceOnBg
+                        }}
+                        hideCycle
+                    />
+                    <ItemDivider
+                        marginVertical={0}
+                    />
                 </View>
-                <View style={{
-                    flexDirection: 'row',
-                    flexGrow: 1, flexShrink: 1, alignItems: 'center',
-                    justifyContent: 'space-between',
-                    overflow: 'hidden'
-                }}>
-                    <View style={{ flexGrow: 1, flexShrink: 1 }}>
-                        <Text
-                            style={{ color: theme.textPrimary, ...titleStyle }}
-                            ellipsizeMode={'tail'}
-                            numberOfLines={1}
-                        >
-                            {t('products.staking.title')}
-                        </Text>
-                        <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
-                            {t("products.staking.subtitle.joined", { apy: apyWithFee ?? '8' })}
-                        </Text>
+            ))}
+            <Pressable
+                onPress={() => navigation.navigate('StakingPools')}
+                style={({ pressed }) => {
+                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
+                }}
+            >
+                <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
+                    <View style={icStyle}>
+                        <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
+                            <StakingIcon width={32} height={32} color={'white'} />
+                        </View>
                     </View>
-                    <View style={{ alignItems: 'flex-end' }}>
-                        <Text style={{ color: theme.textPrimary, ...titleStyle }}>
-                            <ValueComponent
-                                value={totalStaked}
-                                precision={3}
-                            />
-                            <Text style={{ opacity: 0.5 }}>
-                                {' TON'}
+                    <View style={{
+                        flexDirection: 'row',
+                        flexGrow: 1, flexShrink: 1, alignItems: 'center',
+                        justifyContent: 'space-between',
+                        overflow: 'hidden'
+                    }}>
+                        <View style={{ flexGrow: 1, flexShrink: 1 }}>
+                            <Text
+                                style={{ color: theme.textPrimary, ...titleStyle }}
+                                ellipsizeMode={'tail'}
+                                numberOfLines={1}
+                            >
+                                {t('products.staking.title')}
                             </Text>
-                        </Text>
-                        <PriceComponent
-                            amount={totalStaked}
-                            style={{
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: 0, paddingVertical: 0,
-                                alignSelf: 'flex-end',
-                                height: undefined
-                            }}
-                            textStyle={{ color: theme.textSecondary, ...subtitleStyle }}
-                        />
+                            <Text style={{ color: theme.textSecondary, ...subtitleStyle, flexShrink: 1 }} numberOfLines={1} ellipsizeMode="tail">
+                                {t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
+                            </Text>
+                        </View>
                     </View>
                 </View>
-            </View>
-        </Pressable>
+            </Pressable>
+        </View>
     );
 })

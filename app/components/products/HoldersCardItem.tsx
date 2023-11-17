@@ -256,7 +256,7 @@ export const HoldersCardItem = memo((props: {
                     {(!!props.account && props.account.balance) && (
                         <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                             <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                                <ValueComponent value={props.account.balance} precision={2} />
+                                <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
                                 <Text style={{ opacity: 0.5 }}>
                                     {' TON'}
                                 </Text>

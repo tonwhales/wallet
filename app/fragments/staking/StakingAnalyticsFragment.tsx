@@ -80,7 +80,7 @@ const TimeLineButton = memo(({
             ) : (
                 <Text
                     style={{
-                        color: isSeleted ? theme.textThird : theme.textSecondary,
+                        color: isSeleted ? theme.textOnsurfaceOnDark : theme.textSecondary,
                         fontSize: 15, lineHeight: 20,
                         fontWeight: '500'
                     }}>
@@ -113,7 +113,7 @@ const extractLabels = (points: any[], timeLine: NominatorPeriod) => {
     }
 
     let dateFormat = 'dd.MM';
-    let labelsLength = 7;
+    let max = 7;
 
     switch (timeLine) {
         case 'week':
@@ -121,22 +121,22 @@ const extractLabels = (points: any[], timeLine: NominatorPeriod) => {
             break;
         case 'month':
             dateFormat = 'dd.MM';
-            labelsLength = 6
+            max = 6
             break;
         case 'year':
             dateFormat = 'MMM';
-            labelsLength = 12
+            max = 12
             break;
         case 'allTime':
             dateFormat = 'MM.yy';
-            labelsLength = 4
+            max = 4
             break;
     }
 
     const labels = [];
 
-    for (let i = 0; i < labelsLength; i++) {
-        const date = new Date(minDate.getTime() + (maxDate.getTime() - minDate.getTime()) / (labelsLength - 1) * i);
+    for (let i = 0; i < (max <= dates.length ? max : dates.length); i++) {
+        const date = new Date(minDate.getTime() + (maxDate.getTime() - minDate.getTime()) / (max - 1) * i);
         labels.push(format(date, dateFormat));
     }
 
@@ -164,6 +164,7 @@ export const StakingAnalyticsFragment = fragment(() => {
         date: new Date(),
         index: undefined as number | undefined
     }
+
     const [selectedPoint, setSelectedPoint] = useState(initialPointSelected);
 
     useEffect(() => {

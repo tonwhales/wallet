@@ -171,8 +171,6 @@ export const StakingAnalyticsFragment = fragment(() => {
         setSelectedPoint(initialPointSelected);
     }, [data]);
 
-    console.log({ data: data?.nominator?.profits, loading })
-
     const chart = useMemo(() => {
         const newPoints = formatPoints(data?.nominator?.profits ?? []);
         if (loading) {

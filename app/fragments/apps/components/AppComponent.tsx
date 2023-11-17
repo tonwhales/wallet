@@ -197,7 +197,7 @@ export const AppComponent = memo((props: {
 
     return (
         <>
-            <View style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <ScreenHeader
                     style={{ paddingTop: 32, paddingHorizontal: 16 }}
                     onBackPressed={close}
@@ -215,7 +215,7 @@ export const AppComponent = memo((props: {
                             <View style={{
                                 height: 30, width: 30,
                                 justifyContent: 'center', alignItems: 'center',
-                                backgroundColor: theme.surfaceSecondary, borderRadius: 15
+                                backgroundColor: theme.surfaceOnElevation, borderRadius: 15
                             }}>
                                 <Image
                                     style={{
@@ -234,7 +234,7 @@ export const AppComponent = memo((props: {
                     ref={webRef}
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;

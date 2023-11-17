@@ -59,7 +59,7 @@ const TimeLineButton = memo(({
     return (
         <Pressable
             style={{
-                backgroundColor: isSeleted ? theme.accent : theme.surfaceSecondary,
+                backgroundColor: isSeleted ? theme.accent : theme.surfaceOnElevation,
                 borderRadius: 10,
                 paddingHorizontal: 16, paddingVertical: 6,
                 marginHorizontal: 6,
@@ -288,7 +288,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <View style={{
-                backgroundColor: theme.surfaceSecondary,
+                backgroundColor: theme.surfaceOnElevation,
                 borderRadius: 20,
                 marginHorizontal: 16,
                 paddingBottom: 20,

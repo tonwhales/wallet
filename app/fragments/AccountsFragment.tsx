@@ -112,7 +112,7 @@ export const AccountsFragment = fragment(() => {
                         borderRadius: 14,
                         flexShrink: 1,
                     }}>
-                        <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
+                        <View style={{ marginTop: 8, backgroundColor: theme.backgroundPrimary }} collapsable={false}>
                             {disabled.length === 0 && (
                                 <Text style={{
                                     marginHorizontal: 16,
@@ -147,7 +147,7 @@ export const AccountsFragment = fragment(() => {
                             );
                         })}
                         {disabled.length > 0 && (
-                            <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
+                            <View style={{ marginTop: 8, backgroundColor: theme.backgroundPrimary }} collapsable={false}>
                                 <Text style={{
                                     fontSize: 18,
                                     fontWeight: '700',

@@ -85,14 +85,14 @@ export function useCurrentJob(): [ParsedJob | null, (job: ParsedJob | null) => v
     }, [selected, isTestnet]);
 
     const query = useQuery({
-        queryKey: Queries.Account(addressString).Job(),
+        queryKey: Queries.Job(addressString),
         queryFn: fetchJob,
         suspense: true,
         refetchInterval: 1000 * 3,
     });
 
     const update = (job: ParsedJob | null) => {
-        queryClient.setQueryData(Queries.Account(addressString).Job(), job?.jobRaw || null);
+        queryClient.setQueryData(Queries.Job(addressString), job?.jobRaw || null);
     }
 
     if (!query.data) {

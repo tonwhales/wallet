@@ -18,7 +18,7 @@ export const ProductBanner = React.memo((props: {
                 return {
                     opacity: pressed ? 0.5 : 1,
                     height: 106,
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnBg,
                     borderRadius: 20,
                 }
             }}
@@ -29,7 +29,7 @@ export const ProductBanner = React.memo((props: {
                         height: 74, width: 96,
                         justifyContent: 'center', alignItems: 'center',
                         overflow: 'hidden',
-                        backgroundColor: theme.surfaceSecondary
+                        backgroundColor: theme.surfaceOnBg
                     }}>
                         <Image resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>

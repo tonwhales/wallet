@@ -155,7 +155,7 @@ export const PendingTransactions = memo(() => {
                     entering={FadeInDown}
                     exiting={FadeOutUp}
                     style={{
-                        backgroundColor: theme.background,
+                        backgroundColor: theme.backgroundPrimary,
                         justifyContent: 'flex-end',
                         paddingBottom: 2,
                         paddingTop: 12,

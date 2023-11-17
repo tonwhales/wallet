@@ -52,7 +52,7 @@ export const ConnectAppComponent = memo((props: {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -99,7 +99,7 @@ export const ConnectAppComponent = memo((props: {
 
     return (
         <>
-            <View style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
                 <ScreenHeader
                     style={{ paddingTop: 32, paddingHorizontal: 16 }}
                     onBackPressed={close}
@@ -109,7 +109,7 @@ export const ConnectAppComponent = memo((props: {
                     ref={ref}
                     source={{ uri: endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;

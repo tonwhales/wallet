@@ -23,7 +23,7 @@ export const CalculatorButton = memo(({ style, target }: { style: StyleProp<View
         >
             <View style={{
                 borderRadius: 14,
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceOnBg,
                 paddingLeft: 16, paddingVertical: 10,
                 flexDirection: 'row',
                 alignItems: 'center'

@@ -88,7 +88,7 @@ export const WalletCreateFragment = systemFragment(() => {
             {!state && (
                 <Animated.View
                     style={{
-                        flexGrow: 1, backgroundColor: theme.background,
+                        flexGrow: 1, backgroundColor: theme.backgroundPrimary,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
                     }}
                     key={'loading'}
@@ -183,7 +183,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center',
-                        flexGrow: 1, backgroundColor: theme.background,
+                        flexGrow: 1, backgroundColor: theme.backgroundPrimary,
                     }}
                     key={'content'}
                     entering={FadeIn}

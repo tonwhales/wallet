@@ -211,7 +211,7 @@ export const MigrationFragment = systemFragment(() => {
 
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
-                        marginHorizontal: 16, backgroundColor: theme.surfacePimary,
+                        marginHorizontal: 16, backgroundColor: theme.surfaceOnBg,
                         borderRadius: 14,
                     }}>
 

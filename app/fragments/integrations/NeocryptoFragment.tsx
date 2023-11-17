@@ -193,7 +193,7 @@ export const NeocryptoFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>

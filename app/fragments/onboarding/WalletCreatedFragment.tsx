@@ -22,7 +22,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             flexGrow: 1,
             flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             paddingHorizontal: 16,
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -39,7 +39,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         marginTop: 20,
                         marginVertical: 16,
                         borderRadius: 14,
-                        backgroundColor: theme.background,
+                        backgroundColor: theme.backgroundPrimary,
                         paddingHorizontal: 16,
                         paddingVertical: 15
                     }}

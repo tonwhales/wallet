@@ -27,7 +27,7 @@ export const WImage = memo((props: {
             <View style={[{
                 width: props.width, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -64,7 +64,7 @@ export const WImage = memo((props: {
             <View style={[{
                 width: props.width, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -99,7 +99,7 @@ export const WImage = memo((props: {
             <View style={[{
                 width: props.heigh, height: props.heigh,
                 overflow: 'hidden',
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceOnBg,
                 borderRadius: props.borderRadius
             }, props.style]}>
                 <Image
@@ -115,7 +115,7 @@ export const WImage = memo((props: {
         <View style={[{
             width: props.heigh, height: props.heigh,
             overflow: 'hidden',
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             borderRadius: props.borderRadius
         }, props.style]}>
             <Image

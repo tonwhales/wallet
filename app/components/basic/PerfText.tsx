@@ -1,0 +1,1 @@
+export const PerfText = require('react-native/Libraries/Text/TextNativeComponent').NativeText

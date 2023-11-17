@@ -10,8 +10,8 @@ export const Queries = {
             Member: (member: string) => ['account', address, 'staking', 'member', member],
             Chart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime') => ['account', address, 'staking', 'chart', pool, fixedPeriod],
         }),
-        Job: () => (['account', address, 'job']),
     }),
+    Job: (address: string) => (['job', address]),
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({

@@ -328,7 +328,7 @@ export const LedgerHomeFragment = fragment(() => {
                     </View>
                 </View>
                 <LedgerProductsComponent />
-                <View style={{ height: 100, width: '100%', backgroundColor: theme.surfacePimary }} />
+                <View style={{ height: 100, width: '100%', backgroundColor: theme.surfaceOnBg }} />
             </Animated.ScrollView>
         </View>
     );

@@ -36,7 +36,7 @@ import { AddressSearch } from '../../components/address/AddressSearch';
 import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 
-import IcTonIcon from '@assets/ic_ton_account.svg';
+import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
@@ -916,7 +916,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 onValueChange={setAmount}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: theme.background,
+                                    backgroundColor: theme.backgroundPrimary,
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
                                 }}
@@ -1012,7 +1012,7 @@ export const SimpleTransferFragment = fragment(() => {
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={[
-                            { marginTop: 16, backgroundColor: theme.background },
+                            { marginTop: 16, backgroundColor: theme.backgroundPrimary },
                             seletectInputStyles.comment
                         ]}
                     >

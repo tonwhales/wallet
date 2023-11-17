@@ -29,7 +29,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
         }}>

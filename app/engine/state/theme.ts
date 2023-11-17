@@ -12,30 +12,38 @@ export enum ThemeStyle {
 export type ThemeType = {
     style: Exclude<ThemeStyle, ThemeStyle.System>,
 
-    background: string,
-    backgroundInverted: string,
+    backgroundPrimary: string,
+    backgroundPrimaryInverted: string,
     backgroundUnchangeable: string,
 
-    surfacePimary: string,
-    surfaceSecondary: string,
+    elevation: string,
+
+    surfaceOnBg: string,
+    surfaceOnElevation: string,
+    surfaceOnDark: string,
+    surfaceTab: string,
+
+    overlay: string,
 
     accent: string,
-    accentPrimaryDisabledViolet: string,
+    accentDisabled: string,
     accentRed: string,
     accentGreen: string,
     accentBlue: string,
 
     textPrimary: string,
-    textPrimaryInverted: string,
     textSecondary: string,
+    textPrimaryInverted: string,
+    textOnsurfaceOnDark: string,
+    textUnchangeable: string,
     textThird: string,
 
     iconPrimary: string,
-    iconSecondary: string,
+    iconUnchangeable: string,
+    iconNav: string,
     
     divider: string,
     border: string,
-    overlay: string,
 
     ton: string,
     telegram: string,
@@ -51,30 +59,38 @@ export type ThemeType = {
 export const baseTheme: ThemeType = {
     style: ThemeStyle.Light,
 
-    background: '#FFFFFF',
-    backgroundInverted: '#000000',
+    backgroundPrimary: '#FFFFFF',
+    backgroundPrimaryInverted: '#000000',
     backgroundUnchangeable: '#000000',
 
-    surfacePimary: 'white',
-    surfaceSecondary: '#F7F8F9',
+    elevation: '#000000',
+
+    surfaceOnBg: '#F7F8F9',
+    surfaceOnElevation: '#F7F8F9',
+    surfaceOnDark: '#2C2C2D',
+    surfaceTab: '#FFFFFF',
+
+    overlay: 'rgba(0, 0, 0, 0.6)',
 
     accent: '#564CE2',
-    accentPrimaryDisabledViolet: '#AAA5F0',
+    accentDisabled: '#AAA5F0',
     accentRed: '#FF415C',
     accentGreen: '#00BE80',
     accentBlue: '#61BDFF',
 
     textPrimary: '#000',
-    textPrimaryInverted: '#FFFFFF',
     textSecondary: '#838D99',
-    textThird: '#FFFFFF',
+    textPrimaryInverted: '#FFFFFF',
+    textOnsurfaceOnDark: '#FFFFFF',
+    textUnchangeable: '#FFFFFF',
+    textThird: '#564CE2',
 
     iconPrimary: '#AAB4BF',
-    iconSecondary: '#FFFFFF',
+    iconUnchangeable: '#FFFFFF',
+    iconNav: '#838D99',
 
     divider: '#E4E6EA',
     border: '#F7F8F9',
-    overlay: 'rgba(0, 0, 0, 0.6)',
 
     ton: '#0098EA',
     telegram: '#59ADE7',
@@ -92,20 +108,25 @@ export const darkTheme: ThemeType = {
 
     style: ThemeStyle.Dark,
 
-    background: '#000000',
-    backgroundInverted: '#FFFFFF',
+    backgroundPrimary: '#000000',
+    backgroundPrimaryInverted: '#FFFFFF',
 
-    surfacePimary: '#1C1C1E',
-    surfaceSecondary: '#2C2C2D',
+    elevation: '#1C1C1E',
 
-    accent: '#564CE2',
-    accentPrimaryDisabledViolet: '#7F7BBB',
+    surfaceOnBg: '#1C1C1E',
+    surfaceOnElevation: '#2C2C2D',
+    surfaceTab: '#6A6A6C',
+
+    accent: '#5E54F2',
+    accentDisabled: '#7F7BBB',
 
     textPrimary: '#FFFFFF',
-    textPrimaryInverted: '#000000',
     textSecondary: '#9398A1',
+    textPrimaryInverted: '#000000',
+    textThird: '#FFFFFF',
 
     iconPrimary: '#828B96',
+    iconNav: '#A3A3AA',
 
     divider: '#444446',
 
@@ -117,8 +138,8 @@ export const initialNavigationTheme: NavigationThemeType = {
     colors: {
         ...DefaultTheme.colors,
         primary: baseTheme.accent,
-        background: baseTheme.background,
-        card: baseTheme.background
+        background: baseTheme.backgroundPrimary,
+        card: baseTheme.backgroundPrimary
     }
 };
 

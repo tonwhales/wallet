@@ -108,7 +108,7 @@ export const HoldersCardItem = memo((props: {
                                         justifyContent: 'center', alignItems: 'center',
                                         borderTopRightRadius: props.first ? 20 : 0,
                                         borderBottomRightRadius: props.last ? 20 : 0,
-                                        backgroundColor: props.single ? theme.transparent : theme.surfaceSecondary,
+                                        backgroundColor: props.single ? theme.transparent : theme.accent,
                                     }}
                                     onPress={() => {
                                         swipableRef.current?.close();
@@ -123,7 +123,7 @@ export const HoldersCardItem = memo((props: {
                                             position: 'absolute',
                                             top: 0, bottom: 0, left: -20,
                                             width: 20,
-                                            backgroundColor: theme.surfaceSecondary,
+                                            backgroundColor: theme.surfaceOnElevation,
                                         }}
                                     />}
                                 </Pressable>
@@ -134,7 +134,7 @@ export const HoldersCardItem = memo((props: {
                             flexGrow: 1, flexDirection: 'row',
                             padding: 20,
                             alignItems: 'center',
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnBg,
                         }}>
                             <View style={{ width: 46, height: 30, borderRadius: 6, borderWidth: 0, overflow: 'hidden' }}>
                                 <Image source={image} style={{ width: 46, height: 30, borderRadius: 6 }} />
@@ -181,7 +181,10 @@ export const HoldersCardItem = memo((props: {
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                                        <ValueComponent value={props.account.balance} precision={2} />{' TON'}
+                                        <ValueComponent value={props.account.balance} precision={2} />
+                                        <Text style={{ opacity: 0.5 }}>
+                                            {' TON'}
+                                        </Text>
                                     </Text>
                                     <PriceComponent
                                         amount={BigInt(props.account.balance)}
@@ -253,7 +256,10 @@ export const HoldersCardItem = memo((props: {
                     {(!!props.account && props.account.balance) && (
                         <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                             <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                                <ValueComponent value={props.account.balance} precision={2} />{' TON'}
+                                <ValueComponent value={props.account.balance} precision={2} />
+                                <Text style={{ opacity: 0.5 }}>
+                                    {' TON'}
+                                </Text>
                             </Text>
                             <PriceComponent
                                 amount={BigInt(props.account.balance)}

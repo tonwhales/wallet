@@ -37,11 +37,10 @@ export function ProductButton(props: ProductButtonProps) {
         <TouchableHighlight
             onPress={props.onPress}
             onLongPress={props.onLongPress}
-            underlayColor={theme.surfacePimary}
             style={[
                 {
                     alignSelf: 'stretch', borderRadius: 14,
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnBg,
                     marginHorizontal: 16, marginVertical: 8
                 },
                 props.style
@@ -99,7 +98,14 @@ export function ProductButton(props: ProductButtonProps) {
                         </Text>
                         {(!!props.value && typeof props.value !== 'string') && (
                             <Text style={{ color: props.value >= BigInt(0) ? theme.accentGreen : theme.accentRed, fontWeight: '400', fontSize: 16, marginRight: 2, alignSelf: 'flex-start' }}>
-                                <ValueComponent value={props.value} decimals={props.decimals} />{props.symbol ? (' ' + props.symbol) : ''}
+                                <ValueComponent
+                                    value={props.value}
+                                    decimals={props.decimals}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
+                                <Text style={{ opacity: 0.5 }}>
+                                    {props.symbol ? (' ' + props.symbol) : ''}
+                                </Text>
                             </Text>
                         )}
                         {(!!props.value && typeof props.value === 'string') && (
@@ -136,6 +142,6 @@ export function ProductButton(props: ProductButtonProps) {
                     <View style={{ flexGrow: 1 }} />
                 </View>
             </View>
-        </TouchableHighlight>
+        </TouchableHighlight >
     )
 }

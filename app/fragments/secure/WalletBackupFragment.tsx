@@ -58,7 +58,7 @@ export const WalletBackupFragment = systemFragment(() => {
         (async () => {
             try {
                 let keys = await authContext.authenticate({
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceOnBg,
                     cancelable: true,
                     containerStyle: { paddingBottom: safeArea.bottom + 56 },
                 });
@@ -103,7 +103,7 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
             }}
             exiting={FadeIn}

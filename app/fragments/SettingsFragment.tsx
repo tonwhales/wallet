@@ -107,7 +107,7 @@ export const SettingsFragment = fragment(() => {
             <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
                 <View style={{
                     flexDirection: 'row',
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
                     alignItems: 'center'
                 }}>
@@ -150,7 +150,7 @@ export const SettingsFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1 }}
                 style={{
                     flexGrow: 1,
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.backgroundPrimary,
                     paddingHorizontal: 16,
                     flexBasis: 0,
                 }}

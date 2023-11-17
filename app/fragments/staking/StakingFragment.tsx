@@ -287,7 +287,7 @@ export const StakingFragment = fragment(() => {
                 <View
                     style={{
                         flexDirection: 'row',
-                        backgroundColor: theme.surfaceSecondary,
+                        backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 20,
                         marginBottom: 16, marginTop: 32
                     }}

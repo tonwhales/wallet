@@ -169,7 +169,7 @@ export const HomeFragment = fragment(() => {
                         unmountOnBlur: false,
                         freezeOnBlur: route.name === 'Transactions',
                         tabBarStyle: {
-                            backgroundColor: theme.surfacePimary,
+                            backgroundColor: theme.surfaceOnBg,
                             borderTopColor: theme.border,
                         },
                         tabBarActiveTintColor: theme.accent,

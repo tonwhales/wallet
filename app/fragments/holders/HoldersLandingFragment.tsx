@@ -61,7 +61,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
@@ -77,7 +77,7 @@ export const HoldersLandingFragment = fragment(() => {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.surfacePimary,
+            backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -219,9 +219,9 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: 36,
-            backgroundColor: theme.surfacePimary
+            backgroundColor: theme.surfaceOnBg
         }}>
-            <View style={{ backgroundColor: theme.surfacePimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
+            <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView
                         ref={webRef}
@@ -231,7 +231,7 @@ export const HoldersLandingFragment = fragment(() => {
                         initialRoute={source.initialRoute}
                         queryParams={source.queryParams}
                         style={{
-                            backgroundColor: theme.surfacePimary,
+                            backgroundColor: theme.surfaceOnBg,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -278,7 +278,7 @@ export const HoldersLandingFragment = fragment(() => {
                                 source={{ uri: source.url }}
                                 startInLoadingState={true}
                                 style={{
-                                    backgroundColor: theme.surfacePimary,
+                                    backgroundColor: theme.surfaceOnBg,
                                     flexGrow: 1, flexBasis: 0, height: '100%',
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,

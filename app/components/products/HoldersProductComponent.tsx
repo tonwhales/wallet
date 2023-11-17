@@ -10,11 +10,11 @@ import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollaps
 import { useHoldersAccountStatus, useHoldersCards, useHoldersHiddenCards, useNetwork, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { holdersCardImageMap } from "./HoldersHiddenCards";
+import { getDomainKey } from "../../engine/state/domainKeys";
 
 import Chevron from '@assets/ic_chevron_down.svg'
 import Hide from '@assets/ic-hide.svg';
 import MCard from '@assets/ic-m-card.svg';
-import { getDomainKey } from "../../engine/state/domainKeys";
 
 export const HoldersProductComponent = memo(() => {
     const theme = useTheme();
@@ -81,24 +81,12 @@ export const HoldersProductComponent = memo(() => {
     }
 
     if (accounts?.length === 0) {
-        if (staking.total > 0n) {
-            return null;
-        }
-        return (
-            <View style={{ paddingHorizontal: 16 }}>
-                <ProductBanner
-                    title={t('products.holders.card.defaultTitle')}
-                    subtitle={t('products.holders.card.defaultSubtitle')}
-                    onPress={onPress}
-                    illustration={require('@assets/banners/banner-holders.png')}
-                />
-            </View>
-        );
+        return null;
     }
 
     if (visibleList.length > 5) {
         return (
-            <View>
+            <View style={{ marginTop: 16 }}>
                 <Pressable
                     onPress={() => {
                         setCollapsed(!collapsed)
@@ -111,7 +99,7 @@ export const HoldersProductComponent = memo(() => {
                             justifyContent: 'center',
                             overflow: 'hidden',
                             padding: 20,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnBg,
                             borderTopEndRadius: 20,
                             borderTopStartRadius: 20
                         },
@@ -184,9 +172,8 @@ export const HoldersProductComponent = memo(() => {
                 <AnimatedChildrenCollapsible
                     collapsed={collapsed}
                     items={visibleList}
-                    divider={<View style={{ backgroundColor: theme.surfaceSecondary, marginHorizontal: 16, paddingHorizontal: 20 }}>
-                        <View style={{ backgroundColor: theme.divider, height: 1 }}
-                        />
+                    divider={<View style={{ backgroundColor: theme.surfaceOnBg, marginHorizontal: 16, paddingHorizontal: 20 }}>
+                        <View style={{ backgroundColor: theme.divider, height: 1 }} />
                     </View>}
                     renderItem={(item, index) => {
                         return (
@@ -206,7 +193,7 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View>
+        <View style={{ marginTop: 16 }}>
             {visibleList.map((item, index) => {
                 return (
                     <HoldersCardItem

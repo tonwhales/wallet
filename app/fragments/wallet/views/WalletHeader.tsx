@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -11,11 +11,9 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { CopilotStep } from "react-native-copilot";
 import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
-import { useAccountTransactions, useClient4, useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 
-import Chart from '@assets/ic-chart.svg';
-import Scanner from '@assets/ic-scan-white.svg';
 import NoConnection from '@assets/ic-no-connection.svg';
 
 export const WalletHeader = memo(() => {
@@ -25,13 +23,10 @@ export const WalletHeader = memo(() => {
     const syncState = useSyncState();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const client = useClient4(network.isTestnet);
 
     const address = useSelectedAccount()!.address;
     const currentWalletIndex = getAppState().selected;
     const [walletSettings,] = useWalletSettings(address);
-
-    const txs = useAccountTransactions(client, address.toString({ testOnly: network.isTestnet }))?.data;
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -44,11 +39,7 @@ export const WalletHeader = memo(() => {
         }
     };
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-    const openGraph = useCallback(() => {
-        if (!!txs && (txs.length > 0)) {
-            navigation.navigate('AccountBalanceGraph');
-        }
-    }, [txs]);
+
     const onAccountPress = useCallback(() => {
         navigation.navigate('AccountSelector');
     }, []);
@@ -84,15 +75,16 @@ export const WalletHeader = memo(() => {
                         name={'firstStep'}
                     >
                         <OnboadingView style={{
-                            width: 24, height: 24,
+                            width: 32, height: 32,
                             backgroundColor: theme.accent,
-                            borderRadius: 12
+                            borderRadius: 16
                         }}>
                             <Avatar
                                 id={address.toString({ testOnly: network.isTestnet })}
-                                size={24}
+                                size={32}
                                 borderWith={0}
                                 hash={walletSettings?.avatar}
+                                backgroundColor={theme.iconUnchangeable}
                             />
                         </OnboadingView>
                     </CopilotStep>
@@ -108,15 +100,16 @@ export const WalletHeader = memo(() => {
                     >
                         <OnboadingView style={{
                             flexDirection: 'row',
-                            backgroundColor: 'rgba(255,255,255,0.08)',
-                            borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                            backgroundColor: theme.surfaceOnDark,
+                            height: 32, borderRadius: 32,
+                            paddingHorizontal: 12, paddingVertical: 4,
                             alignItems: 'center'
                         }}>
                             <Text
                                 style={{
                                     fontWeight: '500',
                                     fontSize: 17, lineHeight: 24,
-                                    color: theme.textThird, flexShrink: 1,
+                                    color: theme.textOnsurfaceOnDark, flexShrink: 1,
                                     marginRight: 8
                                 }}
                                 ellipsizeMode='tail'
@@ -127,7 +120,7 @@ export const WalletHeader = memo(() => {
                             {syncState === 'updating' && (
                                 <ReAnimatedCircularProgress
                                     size={14}
-                                    color={theme.textThird}
+                                    color={theme.textOnsurfaceOnDark}
                                     reverse
                                     infinitRotate
                                     progress={0.8}
@@ -149,35 +142,21 @@ export const WalletHeader = memo(() => {
                     </CopilotStep>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
-                    {(!!txs && txs.length > 0) && (
-                        <Pressable
-                            style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
-                            onPress={openGraph}
-                        >
-                            <Chart
-                                style={{
-                                    height: 24,
-                                    width: 24,
-                                }}
-                                height={24}
-                                width={24}
-                                color={theme.iconPrimary}
-                            />
-                        </Pressable>
-                    )}
                     <Pressable
-                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1,
+                            backgroundColor: theme.surfaceOnDark,
+                            height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 16
+                        })}
                         onPress={openScanner}
                     >
-                        <Scanner
+                        <Image
+                            source={require('@assets/ic-scan.png')}
                             style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
+                                height: 19,
+                                width: 19,
                             }}
-                            height={24}
-                            width={24}
-                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 </View>

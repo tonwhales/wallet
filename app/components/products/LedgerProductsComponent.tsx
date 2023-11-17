@@ -13,7 +13,7 @@ export const LedgerProductsComponent = React.memo(() => {
             <View style={{
                 borderTopLeftRadius: 20,
                 borderTopRightRadius: 20,
-                backgroundColor: theme.surfacePimary,
+                backgroundColor: theme.surfaceOnBg,
                 minHeight: 400
             }}>
                 <View style={{ paddingHorizontal: 16 }}>

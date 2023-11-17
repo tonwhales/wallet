@@ -351,7 +351,7 @@ export const StakingTransferFragment = fragment(() => {
     });
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: theme.background }}>
+        <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={title}
@@ -374,7 +374,7 @@ export const StakingTransferFragment = fragment(() => {
                         style={{
                             marginTop: 16,
                             marginBottom: minAmountWarn ? 0 : 16,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderRadius: 20,
                             justifyContent: 'center',
                             padding: 20
@@ -418,7 +418,7 @@ export const StakingTransferFragment = fragment(() => {
                             onValueChange={setAmount}
                             keyboardType={'numeric'}
                             style={{
-                                backgroundColor: theme.background,
+                                backgroundColor: theme.backgroundPrimary,
                                 paddingHorizontal: 16, paddingVertical: 14,
                                 borderRadius: 16,
                             }}

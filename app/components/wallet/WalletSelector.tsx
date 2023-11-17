@@ -36,7 +36,7 @@ export const WalletSelector = memo(() => {
             {ledgerConnected && (
                 <Pressable
                     style={{
-                        backgroundColor: theme.surfaceSecondary,
+                        backgroundColor: theme.surfaceOnElevation,
                         padding: 20,
                         marginBottom: 16,
                         borderRadius: 20,

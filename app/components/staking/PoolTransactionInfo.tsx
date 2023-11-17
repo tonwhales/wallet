@@ -45,7 +45,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
     return (
         <View>
             <View style={{
-                backgroundColor: theme.surfaceSecondary,
+                backgroundColor: theme.surfaceOnElevation,
                 borderRadius: 20,
                 justifyContent: 'center',
                 alignItems: 'center',
@@ -91,7 +91,7 @@ export const PoolTransactionInfo = React.memo(({ pool, fee }: { pool: StakingPoo
                 </View>
             </View>
             <View style={{
-                backgroundColor: theme.surfaceSecondary,
+                backgroundColor: theme.surfaceOnElevation,
                 borderRadius: 20,
                 justifyContent: 'center',
                 alignItems: 'center',

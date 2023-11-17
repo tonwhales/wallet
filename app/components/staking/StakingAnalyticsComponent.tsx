@@ -28,7 +28,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                 >
                     <View style={{
                         flex: 1,
-                        backgroundColor: theme.surfaceSecondary,
+                        backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 20,
                         padding: 20, marginRight: 16,
                         minHeight: 126
@@ -57,7 +57,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                 onPress={() => navigation.navigate('StakingAnalytics', { pool })}
             >
                 <View style={{
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     padding: 20,
                     minHeight: 126,

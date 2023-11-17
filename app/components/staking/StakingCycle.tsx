@@ -32,7 +32,7 @@ export const StakingCycle = memo((
     }, [stakeUntil]);
     return (
         <View style={[{
-            backgroundColor: theme.surfaceSecondary,
+            backgroundColor: theme.surfaceOnElevation,
             minHeight: 70,
             borderRadius: 20,
             padding: 20,

@@ -246,7 +246,7 @@ export const TransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
             <ScreenHeader
@@ -258,7 +258,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
             >
                 <View style={{
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     padding: 20,
                     width: '100%',
@@ -275,8 +275,8 @@ export const TransactionPreviewFragment = fragment(() => {
                         showSpambadge
                         verified={verified}
                         borderWith={2}
-                        borderColor={theme.surfaceSecondary}
-                        backgroundColor={theme.background}
+                        borderColor={theme.surfaceOnElevation}
+                        backgroundColor={theme.backgroundPrimary}
                     />
                     <Text
                         style={{

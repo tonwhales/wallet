@@ -72,7 +72,7 @@ export const CopyButton = memo(({
                     flex: 1,
                     borderWidth: 1,
                     borderRadius: 16,
-                    backgroundColor: theme.surfaceSecondary,
+                    backgroundColor: theme.surfaceOnElevation,
                     overflow: 'hidden'
                 },
                 p.pressed && {

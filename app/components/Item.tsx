@@ -12,8 +12,8 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
                 flexDirection: 'row', alignItems: 'center',
                 paddingHorizontal: 16,
                 backgroundColor: pressed
-                    ? theme.background
-                    : (props.backgroundColor || theme.surfacePimary)
+                    ? theme.backgroundPrimary
+                    : (props.backgroundColor || theme.surfaceOnBg)
                 , justifyContent: 'center'
             })}
             disabled={!props.onPress}

@@ -72,7 +72,7 @@ export const WalletSkeleton = memo(() => {
                     }} />
                 </View>
                 <View style={{
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceOnBg,
                     borderTopLeftRadius: 20,
                     borderTopRightRadius: 20,
                     paddingVertical: 16, paddingHorizontal: 20,

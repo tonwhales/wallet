@@ -32,7 +32,7 @@ export const WelcomeFragment = systemFragment(() => {
     return (
         <View style={{
             flex: 1,
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
         }}>
             <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
             <ScrollView bounces={false}>

@@ -47,7 +47,7 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
                     flexDirection: 'row',
                     alignItems: 'center', borderRadius: 20,
                     marginBottom: 16, padding: 20,
-                    backgroundColor: theme.surfacePimary,
+                    backgroundColor: theme.surfaceOnBg,
                     overflow: 'hidden',
                     opacity: pressed ? .5 : 1
                 })}

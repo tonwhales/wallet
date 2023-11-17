@@ -68,7 +68,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('LedgerStakingPools')}
                 style={({ pressed }) => {
-                    return [style, { backgroundColor: theme.surfaceSecondary, opacity: pressed ? 0.5 : 1 }]
+                    return [style, { backgroundColor: theme.surfaceOnElevation, opacity: pressed ? 0.5 : 1 }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
@@ -101,7 +101,9 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     value={staking.total}
                                     precision={3}
                                 />
-                                {' TON'}
+                                <Text style={{ opacity: 0.5 }}>
+                                    {' TON'}
+                                </Text>
                             </Text>
                             <PriceComponent
                                 amount={staking.total}

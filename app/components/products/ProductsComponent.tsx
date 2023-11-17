@@ -1,8 +1,8 @@
-import React, { ReactElement, memo } from "react"
-import { Pressable, Text, View } from "react-native"
+import React, { ReactElement, memo, useCallback, useMemo } from "react"
+import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
-import { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useHoldersCards, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
+import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -11,9 +11,18 @@ import { JettonsProductComponent } from "./JettonsProductComponent"
 import { HoldersHiddenCards } from "./HoldersHiddenCards"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
+import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut"
+import { ValueComponent } from "../ValueComponent"
+import { PriceComponent } from "../PriceComponent"
+import { ProductBanner } from "./ProductBanner"
+import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState"
+import { getDomainKey } from "../../engine/state/domainKeys"
+import { extractDomain } from "../../engine/utils/extractDomain"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
-import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
+import IcTonIcon from '@assets/ic-ton-acc.svg';
+
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -21,6 +30,16 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const oldWalletsBalance = useOldWalletsBalances().total;
     const cards = useHoldersCards(selected.address).data ?? [];
     const totalStaked = useStaking().total;
+    const balance = useAccountLite(selected.address)?.balance ?? 0n;
+    const holdersAccounts = useHoldersCards(selected!.address).data;
+    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+
+    const needsEnrolment = useMemo(() => {
+        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
+            return true;
+        }
+        return false;
+    }, [holdersAccStatus]);
 
     // Resolve accounts
     let accounts: ReactElement[] = [];
@@ -40,13 +59,98 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
         );
     }
 
+    const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
+
+    const onTonPress = useCallback(() => {
+        navigation.navigate('SimpleTransfer');
+    }, []);
+
+    const onHoldersPress = useCallback(() => {
+        const domain = extractDomain(holdersUrl);
+        const domainKey = getDomainKey(domain);
+        if (needsEnrolment || !domainKey) {
+            navigation.navigate(
+                'HoldersLanding',
+                {
+                    endpoint: holdersUrl,
+                    onEnrollType: { type: 'account' }
+                }
+            );
+            return;
+        }
+        navigation.navigateHolders({ type: 'account' });
+    }, [needsEnrolment]);
+
+    const tonItem = useMemo(() => {
+        return (
+            <Pressable
+                onPressIn={onPressIn}
+                onPressOut={onPressOut}
+                style={{ flex: 1, paddingHorizontal: 16 }}
+                onPress={onTonPress}
+            >
+                <Animated.View style={[
+                    {
+                        flexDirection: 'row', flexGrow: 1,
+                        alignItems: 'center',
+                        padding: 20,
+                        backgroundColor: theme.surfaceOnBg,
+                        borderRadius: 20,
+                        overflow: 'hidden'
+                    },
+                    animatedStyle
+                ]}>
+                    <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                        <IcTonIcon width={46} height={46} />
+                        <Image
+                            source={require('@assets/ic-verified.png')}
+                            style={{
+                                height: 16, width: 16,
+                                position: 'absolute', right: -2, bottom: -2,
+                            }}
+                        />
+                    </View>
+                    <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                        <Text
+                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            ellipsizeMode="tail"
+                            numberOfLines={1}
+                        >
+                            {'TON'}
+                        </Text>
+                        <Text
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                            style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                        >
+                            {'The Open Network'}
+                        </Text>
+                    </View>
+                    <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                        <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                            <ValueComponent value={balance} precision={2} />
+                            <Text style={{ opacity: 0.5 }}>{' TON'}</Text>
+                        </Text>
+                        <PriceComponent
+                            amount={balance}
+                            style={{
+                                backgroundColor: 'transparent',
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                                height: undefined,
+                            }}
+                            textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                        />
+                    </View>
+                </Animated.View>
+            </Pressable>
+        )
+    }, [theme, balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
+
     return (
-        <View style={{ backgroundColor: theme.backgroundUnchangeable }}>
+        <View>
             <View style={{
-                borderTopLeftRadius: 20,
-                borderTopRightRadius: 20,
-                backgroundColor: theme.surfacePimary,
-                minHeight: 400
+                backgroundColor: theme.backgroundPrimary,
             }}>
                 <DappsRequests />
                 <View style={{
@@ -86,13 +190,26 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     )}
                 </View>
 
+                {holdersAccounts?.length === 0 && (
+                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                        <ProductBanner
+                            title={t('products.holders.card.defaultTitle')}
+                            subtitle={t('products.holders.card.defaultSubtitle')}
+                            onPress={onHoldersPress}
+                            illustration={require('@assets/banners/banner-holders.png')}
+                        />
+                    </View>
+                )}
+
+                {tonItem}
+
                 <HoldersProductComponent key={'holders'} />
 
-                <View style={{ marginTop: 8, paddingHorizontal: 16 }}>
+                <View style={{ marginTop: 16, paddingHorizontal: 16 }}>
                     <StakingProductComponent key={'pool'} />
                 </View>
 
-                <View style={{ marginTop: 8 }}>
+                <View style={{ marginTop: 16 }}>
                     <JettonsProductComponent key={'jettons'} />
                 </View>
 

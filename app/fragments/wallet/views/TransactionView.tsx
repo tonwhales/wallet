@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share, View, Text } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share, View } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
@@ -15,6 +15,8 @@ import { TransactionDescription } from '../../../engine/types';
 import { useCallback, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
+import { formatDate, formatTime } from '../../../utils/dates';
+import { PerfText } from '../../../components/basic/PerfText';
 
 export function TransactionView(props: {
     own: Address,
@@ -232,13 +234,13 @@ export function TransactionView(props: {
                     </View>
                     <View style={{ flex: 1, marginRight: 4 }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <Text
+                            <PerfText
                                 style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                                 ellipsizeMode={'tail'}
                                 numberOfLines={1}
                             >
                                 {op}
-                            </Text>
+                            </PerfText>
                             {spam && (
                                 <View style={{
                                     backgroundColor: theme.backgroundUnchangeable,
@@ -250,7 +252,7 @@ export function TransactionView(props: {
                                     marginLeft: 10,
                                     height: 15
                                 }}>
-                                    <Text
+                                    <PerfText
                                         style={{
                                             color: theme.textPrimaryInverted,
                                             fontSize: 10,
@@ -258,11 +260,11 @@ export function TransactionView(props: {
                                         }}
                                     >
                                         {'SPAM'}
-                                    </Text>
+                                    </PerfText>
                                 </View>
                             )}
                         </View>
-                        <Text
+                        <PerfText
                             style={{
                                 color: theme.textSecondary,
                                 fontSize: 15,
@@ -278,15 +280,16 @@ export function TransactionView(props: {
                                 ? known.name
                                 : <AddressComponent address={Address.parse(opAddress)} />
                             }
-                        </Text>
+                            {` • ${formatTime(tx.base.time)}`}
+                        </PerfText>
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         {parsed.status === 'failed' ? (
-                            <Text style={{ color: theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
+                            <PerfText style={{ color: theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}
-                            </Text>
+                            </PerfText>
                         ) : (
-                            <Text
+                            <PerfText
                                 style={{
                                     color: kind === 'in'
                                         ? spam
@@ -307,7 +310,7 @@ export function TransactionView(props: {
                                     precision={3}
                                 />
                                 {item.kind === 'token' ? ' ' + tx.masterMetadata?.symbol : ' TON'}
-                            </Text>
+                            </PerfText>
                         )}
                         {item.kind !== 'token' && (
                             <PriceComponent
@@ -336,13 +339,13 @@ export function TransactionView(props: {
                         paddingHorizontal: 10, paddingVertical: 8,
                         borderRadius: 10, marginLeft: 46 + 10, height: 36
                     }}>
-                        <Text
+                        <PerfText
                             numberOfLines={1}
                             ellipsizeMode={'tail'}
                             style={{ color: theme.textPrimary, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
                         >
                             {operation.comment}
-                        </Text>
+                        </PerfText>
                     </View>
                 )}
             </Pressable>

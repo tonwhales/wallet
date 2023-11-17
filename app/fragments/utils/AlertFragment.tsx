@@ -32,14 +32,14 @@ export const AlertFragment = fragment(() => {
             justifyContent: 'flex-end',
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom,
-            backgroundColor: Platform.OS === 'android' ? theme.background : undefined,
+            backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
             <AndroidToolbar />
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                 flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
                 borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                 borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                 padding: 16,

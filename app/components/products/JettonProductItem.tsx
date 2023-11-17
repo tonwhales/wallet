@@ -89,7 +89,7 @@ export const JettonProductItem = memo((props: {
                                         justifyContent: 'center', alignItems: 'center',
                                         borderTopRightRadius: props.first ? 20 : 0,
                                         borderBottomRightRadius: props.last ? 20 : 0,
-                                        backgroundColor: props.single ? theme.transparent : theme.surfaceSecondary,
+                                        backgroundColor: props.single ? theme.transparent : theme.surfaceOnElevation,
                                     }}
                                     onPress={() => {
                                         swipableRef.current?.close();
@@ -104,7 +104,7 @@ export const JettonProductItem = memo((props: {
                                             position: 'absolute',
                                             top: 0, bottom: 0, left: -20,
                                             width: 20,
-                                            backgroundColor: theme.surfaceSecondary,
+                                            backgroundColor: theme.surfaceOnElevation,
                                         }}
                                     />}
                                 </Pressable>
@@ -115,7 +115,7 @@ export const JettonProductItem = memo((props: {
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
-                            backgroundColor: theme.surfaceSecondary,
+                            backgroundColor: theme.surfaceOnBg,
                         }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <WImage
@@ -181,7 +181,7 @@ export const JettonProductItem = memo((props: {
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceSecondary
+                        backgroundColor: theme.surfaceOnBg
                     },
                     animatedStyle
                 ]}>

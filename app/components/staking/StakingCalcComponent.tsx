@@ -41,7 +41,7 @@ export const StakingCalcComponent = memo((
         const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
         const yearlyPlus = yearly + (toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
         return (
-            <View style={{ backgroundColor: theme.surfaceSecondary, padding: 20, borderRadius: 20 }}>
+            <View style={{ backgroundColor: theme.surfaceOnElevation, padding: 20, borderRadius: 20 }}>
                 <View style={{
                     borderRadius: 14,
                     justifyContent: 'center',
@@ -137,7 +137,7 @@ export const StakingCalcComponent = memo((
 
     return (
         <View style={{
-            backgroundColor: theme.surfaceSecondary,
+            backgroundColor: theme.surfaceOnElevation,
             padding: 20,
             borderRadius: 20,
             justifyContent: 'center',
@@ -216,7 +216,7 @@ export const StakingCalcComponent = memo((
             <View style={{
                 borderRadius: 12,
                 paddingHorizontal: 16, paddingVertical: 12,
-                backgroundColor: theme.background,
+                backgroundColor: theme.backgroundPrimary,
                 width: '100%',
                 justifyContent: 'center', alignItems: 'center',
                 marginTop: 16

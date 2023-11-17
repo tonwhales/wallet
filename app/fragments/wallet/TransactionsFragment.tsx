@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { Suspense, useCallback, useMemo, useState } from "react";
 import { View, Text } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
@@ -55,13 +55,13 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [holdersCards]);
 
     const onReachedEnd = useCallback(() => {
-        if (txs?.hasNext) {
+        if (txs?.hasNext && !txs?.loading) {
             txs?.next();
         }
-    }, [txs?.next, txs?.hasNext]);
+    }, [txs?.next, txs?.hasNext, txs?.loading]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.background }}>
+        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -75,7 +75,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                             {...props}
                             scrollEnabled={true}
                             style={{ backgroundColor: theme.transparent, paddingVertical: 8 }}
-                            contentContainerStyle={{ marginLeft: 8 }}
+                            contentContainerStyle={{ marginLeft: 16 }}
                             indicatorStyle={{ backgroundColor: theme.transparent }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
@@ -83,7 +83,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                     <PressableChip
                                         key={`selector-${tabItemProps.route.key}`}
                                         onPress={tabItemProps.onPress}
-                                        style={{ backgroundColor: focused ? theme.accent : theme.border, }}
+                                        style={{ backgroundColor: focused ? theme.accent : theme.border }}
                                         textStyle={{ color: focused ? theme.white : theme.textPrimary, }}
                                         text={tabItemProps.route.title}
                                     />
@@ -101,22 +101,20 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                 offscreenPageLimit={2}
                 renderScene={(sceneProps: SceneRendererProps & { route: { key: string; title: string; } }) => {
                     if (sceneProps.route.key === 'main') {
-                        return (transactions && transactions.length > 0)
-                            ? (
-                                <WalletTransactions
-                                    txs={transactions}
-                                    address={address}
-                                    navigation={navigation}
-                                    safeArea={safeArea}
-                                    onLoadMore={onReachedEnd}
-                                    hasNext={txs?.hasNext === true}
-                                    frameArea={frameArea}
-                                    loading={txs?.loading === true}
-                                    ledger={props.isLedger}
-                                    header={props.isLedger ? undefined : <PendingTransactions />}
-                                />
-                            )
-                            : (<TransactionsEmptyState isLedger={props.isLedger} />)
+                        return (
+                            <WalletTransactions
+                                txs={transactions ?? []}
+                                address={address}
+                                navigation={navigation}
+                                safeArea={safeArea}
+                                onLoadMore={onReachedEnd}
+                                hasNext={txs?.hasNext === true}
+                                frameArea={frameArea}
+                                loading={txs?.loading === true}
+                                ledger={props.isLedger}
+                                header={props.isLedger ? undefined : <PendingTransactions />}
+                            />
+                        )
                     } else {
                         return (
                             <HoldersCardTransactions
@@ -165,7 +163,7 @@ export const TransactionsFragment = fragment(() => {
 
     if (!account) {
         return (
-            <View style={{ flex: 1, backgroundColor: theme.background }}>
+            <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
                 <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -175,7 +173,9 @@ export const TransactionsFragment = fragment(() => {
         );
     } else {
         return (
-            <TransactionsComponent isLedger={isLedger} account={account} />
+            <Suspense fallback={<TransactionsSkeleton />}>
+                <TransactionsComponent isLedger={isLedger} account={account} />
+            </Suspense>
         )
     }
 }, true);

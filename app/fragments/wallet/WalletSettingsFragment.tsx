@@ -107,7 +107,7 @@ export const WalletSettingsFragment = fragment(() => {
                     >
                         <Avatar
                             size={100}
-                            borderColor={theme.border}
+                            borderColor={theme.surfaceOnElevation}
                             id={''}
                             hash={avatar}
                         />
@@ -122,7 +122,7 @@ export const WalletSettingsFragment = fragment(() => {
                     </Pressable>
                     <View style={{
                         flex: 1,
-                        backgroundColor: theme.border,
+                        backgroundColor: theme.surfaceOnElevation,
                         marginTop: 20,
                         paddingVertical: 20,
                         width: '100%', borderRadius: 20,
@@ -139,7 +139,7 @@ export const WalletSettingsFragment = fragment(() => {
                         />
                     </View>
                     <View style={{
-                        backgroundColor: theme.border,
+                        backgroundColor: theme.surfaceOnElevation,
                         paddingVertical: 10,
                         paddingHorizontal: 16,
                         marginTop: 20,

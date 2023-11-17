@@ -40,11 +40,10 @@ export const CurrencyFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <ScrollView
-                style={{ marginTop: 16 }}
-                contentInset={{ bottom: safeArea.bottom === 0 ? 64 : safeArea.bottom + 64 }}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
+                contentInset={{ bottom: safeArea.bottom === 0 ? 16 : safeArea.bottom + 16 }}
             >
                 <View style={{
-                    backgroundColor: theme.backgroundPrimary,
                     borderRadius: 14,
                     justifyContent: 'center',
                 }}>
@@ -65,7 +64,7 @@ export const CurrencyFragment = fragment(() => {
                                             alignItems: 'center',
                                             padding: 20,
                                             borderRadius: 20,
-                                            backgroundColor: theme.border,
+                                            backgroundColor: theme.surfaceOnElevation,
                                             marginBottom: 16, marginHorizontal: 16
                                         },
                                         animatedStyle

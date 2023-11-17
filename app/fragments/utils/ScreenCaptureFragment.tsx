@@ -28,7 +28,7 @@ export const ScreenCaptureFragment = systemFragment(() => {
             />
             <View style={{
                 height: '50%',
-                backgroundColor: theme.backgroundPrimary,
+                backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.surfaceOnElevation,
                 borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,
                 paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 16

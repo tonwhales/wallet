@@ -23,7 +23,7 @@ export const AvatarPickerFragment = fragment(() => {
     }, [hashState]);
 
     return (
-        <View style={{ backgroundColor: theme.white, flexGrow: 1 }}>
+        <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
                 title={t('wallets.settings.changeAvatar')}
@@ -52,8 +52,6 @@ export const AvatarPickerFragment = fragment(() => {
                         </Text>
                     </Pressable>
                 }
-                textColor={theme.accent}
-                tintColor={theme.accent}
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>

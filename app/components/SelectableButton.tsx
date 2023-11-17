@@ -28,7 +28,7 @@ export const SelectableButton = memo((
         <Animated.View entering={FadeIn} exiting={FadeOut}>
             <Pressable
                 style={{
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     padding: 20,
                     marginBottom: 16,
                     borderRadius: 20,

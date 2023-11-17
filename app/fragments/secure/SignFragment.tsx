@@ -10,11 +10,11 @@ import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { CloseButton } from '../../components/CloseButton';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks';
 import { useCommitCommand } from '../../engine/hooks';
 import { useCallback, useEffect } from 'react';
+import { CloseButton } from '../../components/navigation/CloseButton';
 
 const labelStyle: StyleProp<TextStyle> = {
     fontWeight: '600',

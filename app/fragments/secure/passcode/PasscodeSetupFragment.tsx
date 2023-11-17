@@ -2,7 +2,6 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -16,6 +15,7 @@ import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
 import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
 import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
+import { CloseButton } from "../../../components/navigation/CloseButton";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();

@@ -1,6 +1,6 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
-import { Alert, Platform, Pressable, StyleProp, Text, ViewStyle } from 'react-native';
+import { Alert, Platform, Pressable, StyleProp, ViewStyle, Image } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -16,6 +16,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSelectedAccount, useTheme } from '../../engine/hooks';
 import { queryClient } from '../../engine/clients';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
+import { CloseButton } from '../navigation/CloseButton';
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
@@ -395,30 +396,19 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         }
                     />
                     {auth.params?.cancelable && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    position: 'absolute',
-                                    top: Platform.OS === 'android'
-                                        ? safeAreaInsets.top + 24 + (auth.params?.paddingTop ?? 0)
-                                        : 24 + (auth.params?.paddingTop ?? 0),
-                                    right: 16,
-                                    opacity: pressed ? 0.5 : 1,
-                                }
-                            }}
+                        <CloseButton
                             onPress={() => {
                                 auth.promise.reject();
                                 setAuth(null);
                             }}
-                        >
-                            <Text style={{
-                                color: theme.accent,
-                                fontSize: 17,
-                                fontWeight: '500',
-                            }}>
-                                {t('common.cancel')}
-                            </Text>
-                        </Pressable>
+                            style={{
+                                position: 'absolute',
+                                top: Platform.OS === 'android'
+                                    ? safeAreaInsets.top + 24 + (auth.params?.paddingTop ?? 0)
+                                    : 24 + (auth.params?.paddingTop ?? 0),
+                                right: 16,
+                            }}
+                        />
                     )}
                 </Animated.View>
             )}

@@ -69,51 +69,57 @@ export const ReportComponent = memo(({ url }: { url: string }) => {
                     >
                         {appData?.title}
                     </Text>
-                    <View style={{
-                        backgroundColor: theme.border,
-                        paddingVertical: 20,
-                        width: '100%', borderRadius: 20,
-                        marginTop: 5
-                    }}>
-                        <ATextInput
-                            value={report}
-                            onValueChange={setReport}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            style={{ paddingHorizontal: 16 }}
-                            multiline
-                            label={t('report.message')}
-                        />
-                    </View>
-                    <View style={{
-                        backgroundColor: theme.border,
-                        paddingVertical: 20, paddingHorizontal: 20,
-                        width: '100%', borderRadius: 20,
-                        marginTop: 16
-                    }}>
-                        <Text style={{
-                            color: theme.textSecondary,
-                            fontSize: 17,
-                            fontWeight: '400',
-                            alignSelf: 'flex-start',
+                    <View style={{ width: '100%' }}>
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            marginHorizontal: 16,
+                            paddingVertical: 20,
+                            borderRadius: 20,
+                            marginTop: 5
                         }}>
-                            {t('report.reason')}
-                        </Text>
-                        <Picker
-                            itemStyle={{
+                            <ATextInput
+                                value={report}
+                                onValueChange={setReport}
+                                keyboardType="default"
+                                autoCapitalize="sentences"
+                                style={{ paddingHorizontal: 16 }}
+                                multiline
+                                label={t('report.message')}
+                            />
+                        </View>
+                    </View>
+                    <View style={{ width: '100%' }}>
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            marginHorizontal: 16,
+                            paddingVertical: 20, paddingHorizontal: 20,
+                            borderRadius: 20,
+                            marginTop: 16
+                        }}>
+                            <Text style={{
+                                color: theme.textSecondary,
                                 fontSize: 17,
-                                color: theme.textSecondary
-                            }}
-                            mode={'dropdown'}
-                            selectedValue={type}
-                            onValueChange={(itemValue, itemIndex) => {
-                                setType(itemValue);
+                                fontWeight: '400',
+                                alignSelf: 'flex-start',
                             }}>
-                            <Picker.Item label={t('report.spam')} value={'spam'} />
-                            <Picker.Item label={t('report.scam')} value={'scam'} />
-                            <Picker.Item label={t('report.bug')} value={'bug'} />
-                            <Picker.Item label={t('report.offense')} value={'offense'} />
-                        </Picker>
+                                {t('report.reason')}
+                            </Text>
+                            <Picker
+                                itemStyle={{
+                                    fontSize: 17,
+                                    color: theme.textSecondary
+                                }}
+                                mode={'dropdown'}
+                                selectedValue={type}
+                                onValueChange={(itemValue, itemIndex) => {
+                                    setType(itemValue);
+                                }}>
+                                <Picker.Item label={t('report.spam')} value={'spam'} />
+                                <Picker.Item label={t('report.scam')} value={'scam'} />
+                                <Picker.Item label={t('report.bug')} value={'bug'} />
+                                <Picker.Item label={t('report.offense')} value={'offense'} />
+                            </Picker>
+                        </View>
                     </View>
                 </View>
             </ScrollView>

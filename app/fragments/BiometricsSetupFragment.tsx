@@ -16,7 +16,6 @@ import { FragmentMediaContent } from '../components/FragmentMediaContent';
 import { RoundButton } from '../components/RoundButton';
 import { warn } from '../utils/log';
 import Animated, { FadeIn } from 'react-native-reanimated';
-import { CloseButton } from '../components/CloseButton';
 import { useBiometricsState } from '../engine/hooks';
 import { useTheme } from '../engine/hooks';
 import { useSetBiometricsState } from '../engine/hooks';

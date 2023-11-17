@@ -110,19 +110,16 @@ export const AssetsFragment = fragment(() => {
     }, [callback]);
 
     return (
-        <View style={{
-            flexGrow: 1,
-            backgroundColor: theme.backgroundPrimary
-        }}>
+        <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
                 style={{ paddingHorizontal: 16 }}
             />
             <ScrollView
-                style={{ flexGrow: 1, marginTop: 16 }}
+                style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
-                contentInset={{ bottom: safeArea.bottom + 32 + 44 }}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
             >
                 <View style={{
                     borderRadius: 14,

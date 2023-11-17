@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { memo, useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
@@ -16,17 +16,13 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
+
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
 
-export const ConfirmLegal = React.memo((
-    {
-        onOpenBuy
-    }: {
-        onOpenBuy: () => void
-    }
-) => {
+export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
@@ -35,22 +31,9 @@ export const ConfirmLegal = React.memo((
     const privacy = 'https://neocrypto.net/policy/privacy.pdf';
     const terms = 'https://neocrypto.net/policy/term-of-use.pdf';
 
-    const onDoNotShowToggle = useCallback((newVal: boolean) => {
-        setDoNotShow(newVal);
-    }, []);
-
-    const openTerms = useCallback(
-        () => {
-            openWithInApp(terms);
-        },
-        [],
-    );
-    const openPrivacy = useCallback(
-        () => {
-            openWithInApp(privacy)
-        },
-        [],
-    );
+    const onDoNotShowToggle = useCallback((newVal: boolean) => { setDoNotShow(newVal) }, []);
+    const openTerms = useCallback(() => { openWithInApp(terms) }, []);
+    const openPrivacy = useCallback(() => { openWithInApp(privacy) }, []);
 
     const onOpen = useCallback(() => {
         if (accepted) {
@@ -90,6 +73,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '400',
                         fontSize: 16,
                         marginTop: 24,
+                        color: theme.textSecondary
                     }}>
                         {t('neocrypto.description')}
                     </Text>
@@ -103,9 +87,8 @@ export const ConfirmLegal = React.memo((
                             checked={accepted}
                             onToggle={(newVal) => setAccepted(newVal)}
                             text={
-                                <Text>
+                                <Text style={{ color: theme.textSecondary }}>
                                     {t('neocrypto.termsAndPrivacy')}
-
                                     <Text
                                         style={{ color: theme.accent }}
                                         onPress={openTerms}
@@ -192,22 +175,13 @@ export const NeocryptoFragment = fragment(() => {
 
     return (
         <View style={{
-            flex: 1,
-            backgroundColor: theme.backgroundPrimary,
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             {!accepted && (
                 <>
-                    <AndroidToolbar />
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        {Platform.OS === 'ios' && (
-                            <Text style={{ color: theme.textPrimary, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
-                                {'Neorcypto'}
-                            </Text>
-                        )}
-                    </View>
+                    <ScreenHeader onClosePressed={navigation.goBack} title={'Neocrypto'} />
                     <ConfirmLegal onOpenBuy={onOpenBuy} />
                 </>
             )}
@@ -221,33 +195,33 @@ export const NeocryptoFragment = fragment(() => {
                     {loading && <LoadingIndicator simple style={{
                         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0
                     }} />}
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                                position: 'absolute',
+                                top: Platform.OS === 'android' ? safeArea.top + 16 : 16,
+                                right: 16
+                            }
+                        }}
+                        onPress={() => {
+                            Alert.alert(t('neocrypto.confirm.title'), t('neocrypto.confirm.message'), [{
+                                text: t('common.close'),
+                                style: 'destructive',
+                                onPress: () => {
+                                    navigation.goBack();
+                                }
+                            }, {
+                                text: t('common.cancel'),
+                            }]);
+                        }}
+                    >
+                        <Image source={require('../../../assets/ic_close.png')} style={{
+                            height: 32, width: 32
+                        }} />
+                    </Pressable>
                 </View>
             )}
-            <Pressable
-                style={({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.5 : 1,
-                        position: 'absolute',
-                        top: Platform.OS === 'android' ? safeArea.top + 16 : 16,
-                        right: 16
-                    }
-                }}
-                onPress={() => {
-                    Alert.alert(t('neocrypto.confirm.title'), t('neocrypto.confirm.message'), [{
-                        text: t('common.close'),
-                        style: 'destructive',
-                        onPress: () => {
-                            navigation.goBack();
-                        }
-                    }, {
-                        text: t('common.cancel'),
-                    }]);
-                }}
-            >
-                <Image source={require('../../../assets/ic_close.png')} style={{
-                    height: 32, width: 32
-                }} />
-            </Pressable>
         </View>
     );
 })

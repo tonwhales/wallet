@@ -113,7 +113,7 @@ export const SecurityFragment = fragment(() => {
             >
                 <View style={{
                     marginTop: 16,
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -126,7 +126,7 @@ export const SecurityFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     justifyContent: 'center',
                 }}>
@@ -178,7 +178,7 @@ export const SecurityFragment = fragment(() => {
                 </View>
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     justifyContent: 'center',
                 }}>

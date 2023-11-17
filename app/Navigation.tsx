@@ -35,7 +35,6 @@ import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
 import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
-import { AccountsFragment } from './fragments/AccountsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
@@ -56,7 +55,7 @@ import { HoldersLandingFragment } from './fragments/holders/HoldersLandingFragme
 import { HoldersAppFragment } from './fragments/holders/HoldersAppFragment';
 import { BiometricsSetupFragment } from './fragments/BiometricsSetupFragment';
 import { KeyStoreMigrationFragment } from './fragments/secure/KeyStoreMigrationFragment';
-import { useNetwork } from './engine/hooks';
+import { useNetwork, useTheme } from './engine/hooks';
 import { useNavigationTheme } from './engine/hooks';
 import { useRecoilValue } from 'recoil';
 import { appStateAtom } from './engine/state/appState';
@@ -86,6 +85,7 @@ import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAcco
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
+import { ThemeType } from './engine/state/theme';
 
 const Stack = createNativeStackNavigator();
 
@@ -115,6 +115,7 @@ export function genericScreen(name: string, component: React.ComponentType<any>,
 }
 
 function modalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    const theme = useTheme();
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
@@ -123,13 +124,17 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined }
+                contentStyle: {
+                    paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined,
+                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : undefined
+                }
             }}
         />
     );
 }
 
 function lockedModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    const theme = useTheme();
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
@@ -139,7 +144,10 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
                 presentation: 'modal',
                 headerShown: false,
                 gestureEnabled: false,
-                contentStyle: { paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined }
+                contentStyle: {
+                    paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined,
+                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : undefined
+                }
             }}
         />
     );
@@ -179,7 +187,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 
     modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-    modalScreen('Accounts', AccountsFragment, safeArea),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),

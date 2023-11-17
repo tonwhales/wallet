@@ -180,7 +180,7 @@ export const DappAuthComponent = memo(({
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                 flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: theme.backgroundPrimary,
+                backgroundColor: theme.elevation,
                 borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                 borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                 padding: 16,
@@ -286,20 +286,22 @@ export const DappAuthComponent = memo(({
                             )}
                         </>
                     )}
-                    <RoundButton
-                        style={{ marginBottom: 16 }}
-                        title={t('common.connect')}
-                        disabled={!onApprove || state.type !== 'initing'}
-                        action={onApprove}
-                        loading={state.type === 'loading'}
-                    />
-                    <RoundButton
-                        style={{ marginBottom: 16 }}
-                        display={'secondary'}
-                        disabled={!onCancel}
-                        title={t('common.cancel')}
-                        onPress={onCancel}
-                    />
+                    <View style={{ flexDirection: 'row', width: '100%' }}>
+                        <RoundButton
+                            style={{ marginBottom: 16, flex: 1, marginRight: 16 }}
+                            display={'secondary'}
+                            disabled={!onCancel}
+                            title={t('common.cancel')}
+                            onPress={onCancel}
+                        />
+                        <RoundButton
+                            style={{ marginBottom: 16, flex: 1 }}
+                            title={t('common.connect')}
+                            disabled={!onApprove || state.type !== 'initing'}
+                            action={onApprove}
+                            loading={state.type === 'loading'}
+                        />
+                    </View>
                 </View>
             </View>
         </View>

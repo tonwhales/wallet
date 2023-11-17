@@ -144,7 +144,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     receive: {
         title: 'Receive',
-        subtitle: 'Share this link to receive Ton',
+        subtitle: 'Only send TON Blockchain assets to this address. Other assets will be lost forever',
         share: {
             title: 'My Tonhub Address'
         }

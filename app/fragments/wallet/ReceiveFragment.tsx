@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, useWindowDimensions, ScrollView, Platform, Image } from "react-native";
+import { View, Text, Pressable, ScrollView, Image } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -10,16 +10,11 @@ import { ShareButton } from "../../components/ShareButton";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
-import { Avatar } from "../../components/Avatar";
-import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
-import { CloseButton } from "../../components/navigation/CloseButton";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
-import { useImageColors } from "../../utils/useImageColors";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
@@ -28,14 +23,13 @@ import Chevron from '@assets/ic_chevron_forward.svg';
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
-    const dimentions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const imageRef = useRef<View>(null);
     const params = useParams<{ addr?: string, ledger?: boolean }>();
     const selected = useSelectedAccount();
 
-    const qrSize = Math.floor((dimentions.width - 80 - 56 + 16));
+    const qrSize = 262;
 
     const [isSharing, setIsSharing] = useState(false);
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
@@ -77,39 +71,6 @@ export const ReceiveFragment = fragment(() => {
             + `/${friendly}`
     }, [jetton, network]);
 
-    const previewImageColors = useImageColors(jetton?.data?.image?.preview256, '#0098EA');
-
-    const { mainColor, luminance } = useMemo(() => {
-        let color = '#0098EA';
-
-        if (!!jetton?.data?.image?.preview256 && previewImageColors) {
-            color = Platform.select({
-                android: (previewImageColors as AndroidImageColors).dominant,
-                ios: (previewImageColors as IOSImageColors).primary,
-            }) || '#0098EA';
-        }
-
-        let hexColor = color.replace(/^#/, '');
-        if (hexColor.length === 3) {
-            hexColor = hexColor.split('').map((c) => c + c).join('');
-        }
-        const [r, g, b] = hexColor.match(/\w\w/g)?.map((x) => parseInt(x, 16)) ?? [0, 0, 0];
-        const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-        if (luminance > 0.8) {
-            color = '#0098EA';
-        }
-        return { mainColor: color, luminance };
-    }, [previewImageColors, jetton]);
-
-    const isDark = useMemo(() => {
-        if (mainColor === '#0098EA') {
-            return true;
-        }
-
-        return luminance < 0.58;
-    }, [mainColor, luminance]);
-
     return (
         <View
             ref={imageRef}
@@ -117,62 +78,43 @@ export const ReceiveFragment = fragment(() => {
                 flexGrow: 1,
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                backgroundColor: mainColor,
             }}
             collapsable={false}>
             <ScreenHeader
                 style={{ opacity: isSharing ? 0 : 1, flex: 1, minHeight: safeArea.bottom === 0 ? 60 : undefined }}
                 title={t('receive.title')}
-                textColor={isDark ? '#fff' : '#000'}
-                tintColor={isDark ? '#fff' : '#000'}
-                rightButton={<CloseButton style={{ backgroundColor: theme.white, marginRight: 16 }} onPress={navigation.goBack} />}
+                onClosePressed={navigation.goBack}
             />
-            <View style={{ position: 'absolute', top: 60, bottom: 0, left: 0, right: 0 }}>
-                <Canvas style={{ flex: 1 }}>
-                    <Rect x={0} y={0} width={dimentions.width} height={dimentions.height - (safeArea.top + 60)}>
-                        <LinearGradient
-                            start={vec(0, (dimentions.height + 100 - (safeArea.top + 60)) / 2)}
-                            end={vec(0, dimentions.height - (safeArea.top + 60))}
-                            colors={[mainColor, "rgba(256, 256, 256, 0.1)"]}
-                        />
-                    </Rect>
-                </Canvas>
-            </View>
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
-                <View style={{ paddingHorizontal: 28, width: '100%' }}>
+                <Text style={{
+                    color: theme.textSecondary,
+                    fontSize: 17,
+                    fontWeight: '400',
+                    lineHeight: 24,
+                    textAlign: 'center',
+                    marginBottom: 24,
+                    marginHorizontal: 32
+                }}>
+                    {t('receive.subtitle')}
+                </Text>
+                <View style={{ paddingHorizontal: 43, width: '100%' }}>
                     <View style={{
                         justifyContent: 'center',
-                        backgroundColor: theme.white,
+                        backgroundColor: theme.style === 'dark' ? theme.white : theme.surfaceOnElevation,
                         borderRadius: 20,
-                        padding: 32,
-                        paddingTop: 52,
-                        marginTop: 81,
+                        padding: 24,
                         marginBottom: 16
                     }}>
-                        <View style={{
-                            height: 87, width: 87, borderRadius: 44,
-                            position: 'absolute', top: -49,
-                            alignSelf: 'center',
-                            backgroundColor: mainColor,
-                            justifyContent: 'center', alignItems: 'center',
-                        }}>
-                            <Avatar
-                                id={friendly}
-                                size={77}
-                                borderWith={0}
-                                backgroundColor={theme.white}
-                            />
-                        </View>
                         <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
                             <QRCode
                                 data={link}
                                 size={qrSize}
                                 icon={jetton?.data.image}
-                                color={isDark ? mainColor : theme.black}
+                                color={theme.backgroundUnchangeable}
                             />
                         </View>
                     </View>
-                    <View style={{ backgroundColor: theme.white, borderRadius: 20, padding: 20 }}>
+                    <View style={{ backgroundColor: theme.surfaceOnElevation, borderRadius: 20, padding: 20 }}>
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -224,7 +166,7 @@ export const ReceiveFragment = fragment(() => {
                                     <View style={{ justifyContent: 'space-between' }}>
                                         <Text style={{
                                             fontSize: 17,
-                                            color: theme.black,
+                                            color: theme.textPrimary,
                                             fontWeight: '600',
                                             lineHeight: 24
                                         }}>
@@ -258,18 +200,18 @@ export const ReceiveFragment = fragment(() => {
                     flexDirection: 'row',
                     justifyContent: 'space-evenly',
                     opacity: isSharing ? 0 : 1,
-                    marginTop: 16, paddingHorizontal: 28,
+                    marginTop: 16, paddingHorizontal: 43,
                 }}>
                     <CopyButton
                         style={{
                             marginRight: 16,
-                            backgroundColor: theme.white,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderWidth: 0,
                             height: 56,
                         }}
                         body={friendly}
                         textStyle={{
-                            color: isDark ? mainColor : theme.black,
+                            color: theme.textThird,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '600',
                         }}
@@ -277,13 +219,13 @@ export const ReceiveFragment = fragment(() => {
                     <ShareButton
                         style={{
                             marginRight: 8,
-                            backgroundColor: theme.white,
+                            backgroundColor: theme.surfaceOnElevation,
                             borderWidth: 0,
                             height: 56,
                         }}
                         body={link}
                         textStyle={{
-                            color: isDark ? mainColor : theme.black,
+                            color: theme.textThird,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '600',
                         }}

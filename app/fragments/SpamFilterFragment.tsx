@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -18,7 +17,7 @@ import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcInfo from '@assets/ic-info.svg';
 
 export type SpamFilterConfig = {
-    minAmount: BN | null,
+    minAmount: bigint | null,
     dontShowComments: boolean | null
 }
 
@@ -136,7 +135,7 @@ export const SpamFilterFragment = fragment(() => {
                                     height={16} width={16}
                                     style={{ height: 16, width: 16, marginRight: 12 }}
                                 />
-                                <Text style={{ fontSize: 17, fontWeight: '600', lineHeight: 24 }}>
+                                <Text style={{ fontSize: 17, fontWeight: '600', lineHeight: 24, color: theme.textPrimary }}>
                                     {t('spamFilter.minAmount')}
                                 </Text>
                             </View>

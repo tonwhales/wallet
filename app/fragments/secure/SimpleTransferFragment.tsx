@@ -37,6 +37,7 @@ import { TransferAddressInput } from '../../components/address/TransferAddressIn
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { ItemDivider } from '../../components/ItemDivider';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -627,10 +628,7 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: null,
                 onNext: null,
-                header: {
-                    title: t('transfer.title'),
-                    onBackPressed: navigation.goBack
-                }
+                header: { title: t('transfer.title') }
             }
         }
 
@@ -678,10 +676,10 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: 'amount',
                 onNext: (validAmount && !amountError)
-                    ? () => refs[1]?.current?.focus()
+                    ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: resetInput,
+                    onBackPressed: () => refs[0]?.current?.focus(),
                     ...headertitle
                 }
             }
@@ -691,7 +689,7 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: 'address',
                 onNext: !!targetAddressValid
-                    ? () => refs[2]?.current?.focus()
+                    ? () => refs[1]?.current?.focus()
                     : null,
                 header: {
                     title: t('common.recipient'),
@@ -705,7 +703,7 @@ export const SimpleTransferFragment = fragment(() => {
                 selected: 'comment',
                 onNext: resetInput,
                 header: {
-                    onBackPressed: resetInput,
+                    onBackPressed: () => refs[1]?.current?.focus(),
                     ...headertitle,
                 }
             }
@@ -763,7 +761,7 @@ export const SimpleTransferFragment = fragment(() => {
                 ]}
             />
             <Animated.ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
@@ -803,8 +801,12 @@ export const SimpleTransferFragment = fragment(() => {
                     >
                         <View
                             style={{
+                                marginTop: 16,
+                                marginBottom: amountError ? 0 : 16,
                                 backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 20, padding: 20, marginTop: 16
+                                borderRadius: 20,
+                                justifyContent: 'center',
+                                padding: 20
                             }}
                         >
                             <Pressable
@@ -872,17 +874,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     <IcChevron style={{ height: 16, width: 16 }} height={16} width={16} />
                                 </View>
                             </Pressable>
-                        </View>
-                        <View
-                            style={{
-                                marginTop: 16,
-                                marginBottom: amountError ? 0 : 16,
-                                backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 20,
-                                justifyContent: 'center',
-                                padding: 20
-                            }}
-                        >
+                            <ItemDivider marginHorizontal={0} />
                             <View style={{
                                 flexDirection: 'row',
                                 marginBottom: 12,

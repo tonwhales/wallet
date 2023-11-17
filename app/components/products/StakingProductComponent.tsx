@@ -59,14 +59,13 @@ export const StakingProductComponent = memo(() => {
             borderRadius: 20
         }}>
             {!!active && active.map((p, i) => (
-                <View
-                    key={`active-${p.address.toString()}`}
-                >
+                <View key={`active-${p.address.toString()}`}>
                     <StakingPool
                         address={p.address}
                         balance={p.balance}
                         style={{
-                            backgroundColor: theme.surfaceOnBg
+                            backgroundColor: theme.surfaceOnBg,
+                            paddingHorizontal: 20
                         }}
                         hideCycle
                     />

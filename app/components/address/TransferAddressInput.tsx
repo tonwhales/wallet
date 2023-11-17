@@ -1,4 +1,4 @@
-import { ForwardedRef, forwardRef, memo } from "react";
+import { ForwardedRef, forwardRef, memo, useEffect } from "react";
 import { ScrollView, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
@@ -37,6 +37,12 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const contact = useContact(props.target);
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
+
+    useEffect(() => {
+        if (props.isSelected) {
+            (ref as ForwardedRef<ATextInputRef>)?.current?.focus();
+        }
+    }, [props.isSelected, ref]);
 
     return (
         <>

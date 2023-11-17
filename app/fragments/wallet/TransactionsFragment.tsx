@@ -32,7 +32,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     const { isTestnet } = useNetwork();
     const address = props.account;
     const client = useClient4(isTestnet);
-    const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
+    // const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
+    const txs = useAccountTransactions(client, 'EQABKYFl0SWU72G6Vq123zdQ1w_8gn3kWv5eYPohCxOZH8J_');
     const holdersCards = useHoldersCards(address).data;
     const transactions = txs?.data;
 

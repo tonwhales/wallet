@@ -167,7 +167,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             addressIsNotActiveDescription: 'This means that no transactions have been made from this wallet address',
             invalidTransaction: 'Invalid transaction',
         },
-        sendAll: 'Submit All',
+        sendAll: 'Max',
         scanQR: 'scan qr code',
         sendTo: 'Send to',
         fee: 'Blockchain fee: {{fee}}',

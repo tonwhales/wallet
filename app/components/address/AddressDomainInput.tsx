@@ -12,10 +12,9 @@ import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
+import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 
 import Scanner from '@assets/ic-scanner-accent.svg';
-import { LoadingIndicator } from "../LoadingIndicator";
-import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 

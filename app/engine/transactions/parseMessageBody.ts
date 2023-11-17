@@ -24,7 +24,7 @@ export type SupportedMessage =
         data: {
             queryId: number;
             amount: bigint;
-            sender: Address;
+            sender: Address | null;
             forwardPayload: Cell | null;
         }
     } | {
@@ -105,7 +105,7 @@ export function parseMessageBody(payload: Cell): SupportedMessage | null {
         case OperationType.JettonTransferNotification: {
             let queryId = sc.loadUint(64);
             let amount = sc.loadCoins();
-            let sender = sc.loadAddress();
+            let sender = sc.loadMaybeAddress();
             let forwardPayload: Cell | null = null;
             if (sc.remainingBits > 0) {
                 forwardPayload = sc.loadBit() ? sc.loadRef() : sc.asCell();

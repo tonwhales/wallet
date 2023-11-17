@@ -19,6 +19,7 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useBiometricsState } from '../engine/hooks';
 import { useTheme } from '../engine/hooks';
 import { useSetBiometricsState } from '../engine/hooks';
+import { CloseButton } from '../components/navigation/CloseButton';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const theme = useTheme();

@@ -36,7 +36,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         delete: 'Delete',
         apply: 'Apply',
         domainOrAddress: 'Wallet address or domain',
-        domainOrAddressOrContact: 'Wallet address, domain or contact',
+        domainOrAddressOrContact: 'Address, domain or name',
         domain: 'Domain',
         search: 'Search',
         termsOfService: 'Terms\u00A0Of\u00A0Service',

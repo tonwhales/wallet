@@ -14,6 +14,8 @@ import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 
 import Scanner from '@assets/ic-scanner-accent.svg';
+import { LoadingIndicator } from "../LoadingIndicator";
+import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -62,7 +64,7 @@ export const AddressDomainInput = memo(forwardRef(({
     const theme = useTheme();
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
-    
+
     const [focused, setFocused] = useState<boolean>(false);
     const [resolving, setResolving] = useState<boolean>();
     const [resolvedAddress, setResolvedAddress] = useState<Address>();
@@ -135,33 +137,37 @@ export const AddressDomainInput = memo(forwardRef(({
         }
     }, [input, onResolveDomain, onTargetChange]);
 
-    const label = useMemo(() => {
-        let text = t('common.domainOrAddressOrContact');
+    const { suffix, textInput } = useMemo(() => {
+        let suffix = undefined;
+        let textInput = input;
 
-        if (!isKnown && contact && !resolvedAddress && !resolving) {
-            text += ` • ${contact.name}`;
-        }
-
-        if (isKnown && target && !resolvedAddress && !resolving) {
-            text += ` • ${KnownWallets(network.isTestnet)[target].name}`;
-        }
-
-        // TODO: add address resolving progress
         if (resolvedAddress && !resolving && !network.isTestnet) {
-            text += ' • ';
             const t = resolvedAddress.toString({ testOnly: network.isTestnet });
-            t.slice(0, 4) + '...' + t.slice(t.length - 4)
-            text += t;
+
+            return {
+                suffix: t.slice(0, 4) + '...' + t.slice(t.length - 4),
+                textInput: input
+            }
         }
 
-        return text;
-    }, [resolvedAddress, resolving, isKnown, contact, focused, target]);
+        if (!resolving && target) {
+            if (isKnown) {
+                suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
+                textInput = `${KnownWallets(network.isTestnet)[target].name}`
+            } else if (contact) {
+                suffix = target.slice(0, 4) + '...' + target.slice(target.length - 4);
+                textInput = `${contact.name}`
+            }
+        }
+
+        return { suffix, textInput };
+    }, [resolvedAddress, resolving, isKnown, contact, focused, target, input]);
 
     return (
         <View>
             <ATextInput
                 autoFocus={autoFocus}
-                value={input}
+                value={textInput}
                 index={index}
                 ref={tref}
                 onFocus={(index) => {
@@ -170,11 +176,14 @@ export const AddressDomainInput = memo(forwardRef(({
                         onFocus(index);
                     }
                 }}
-                onValueChange={onInputChange}
+                onValueChange={(value) => {
+                    onInputChange(value);
+                }}
                 placeholder={t('common.domainOrAddressOrContact')}
                 keyboardType={'default'}
                 autoCapitalize={'none'}
-                label={label}
+                label={t('common.domainOrAddressOrContact')}
+                suffix={suffix}
                 multiline
                 autoCorrect={false}
                 autoComplete={'off'}
@@ -190,20 +199,41 @@ export const AddressDomainInput = memo(forwardRef(({
                 returnKeyType={'next'}
                 blurOnSubmit={false}
                 editable={!resolving}
-                enabled={!resolving}
-                inputStyle={[inputStyle, { marginLeft: (focused && input.length === 0) ? 0 : -2 }]}
+                inputStyle={[
+                    inputStyle,
+                    {
+                        marginLeft: (focused && input.length === 0) ? 0 : -8,
+                        flexShrink: suffix ? 1 : undefined,
+                        // backgroundColor: suffix ? 'red' : undefined,
+                        maxWidth: suffix ? '70%' : undefined,
+                    }
+                ]}
+                suffixStyle={{
+                    fontSize: 17, fontWeight: '400',
+                    color: theme.textSecondary,
+                    textAlign: 'center',
+                    minWidth: '30%'
+                }}
                 textAlignVertical={'center'}
                 actionButtonRight={
-                    input.length === 0 && !!onQRCodeRead && (
-                        <Animated.View entering={FadeIn} exiting={FadeOut}>
-                            <Pressable
-                                onPress={openScanner}
-                                style={{ height: 24, width: 24 }}
-                            >
-                                <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
-                            </Pressable>
-                        </Animated.View>
-                    )
+                    resolving
+                        ? <ReAnimatedCircularProgress
+                            size={24}
+                            color={theme.iconPrimary}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
+                        : input.length === 0 && !!onQRCodeRead && (
+                            <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                <Pressable
+                                    onPress={openScanner}
+                                    style={{ height: 24, width: 24 }}
+                                >
+                                    <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Pressable>
+                            </Animated.View>
+                        )
                 }
             />
             {invalid && (input.length >= 48 || (!focused && input.length > 0)) && (

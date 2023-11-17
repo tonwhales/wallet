@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, TextInputProps } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -112,7 +112,8 @@ export interface ATextInputProps {
     labelTextStyle?: StyleProp<TextStyle>,
     backgroundColor?: string,
     textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
-    suffux?: string,
+    suffix?: string,
+    suffixStyle?: StyleProp<TextStyle>,
     error?: string,
     hideClearButton?: boolean,
     maxLength?: number,
@@ -295,21 +296,24 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
                                 {props.prefix}
                             </Text>
                         )}
-                        {props.suffux && (
+                        {props.suffix && (
                             <Text
                                 numberOfLines={1}
                                 ellipsizeMode={'tail'}
-                                style={{
-                                    flexGrow: 1,
-                                    fontSize: 15, lineHeight: 20,
-                                    fontWeight: '400',
-                                    alignSelf: 'center',
-                                    color: theme.textSecondary,
-                                    flexShrink: 1,
-                                    textAlign: 'right'
-                                }}
+                                style={[
+                                    {
+                                        flexGrow: 1,
+                                        fontSize: 15, lineHeight: 20,
+                                        fontWeight: '400',
+                                        alignSelf: 'center',
+                                        color: theme.textSecondary,
+                                        flexShrink: 1,
+                                        textAlign: 'right',
+                                    },
+                                    props.suffixStyle
+                                ]}
                             >
-                                {props.suffux}
+                                {props.suffix}
                             </Text>
                         )}
                     </View>

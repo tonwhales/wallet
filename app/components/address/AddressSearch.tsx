@@ -1,7 +1,7 @@
 import React from "react";
 import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
-import { ScrollView, Text } from "react-native";
+import { ScrollView, Text, View } from "react-native";
 import { Address } from "@ton/core";
 import { useAccountTransactions, useClient4, useContacts, useNetwork, useTheme } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
@@ -12,11 +12,13 @@ export type AddressSearchItem = { address: Address, title: string, searchable: s
 export const AddressSearch = memo(({
     account,
     query,
-    onSelect
+    onSelect,
+    transfer
 }: {
     account: Address,
     query?: string,
-    onSelect?: (address: Address) => void
+    onSelect?: (address: Address) => void,
+    transfer?: boolean
 }) => {
     const theme = useTheme();
     const network = useNetwork();
@@ -124,51 +126,79 @@ export const AddressSearch = memo(({
         >
             <>
                 {filtered.recent.length > 0 && (
-                    <>
+                    <View style={transfer ? {
+                        borderRadius: 20,
+                        backgroundColor: theme.surfaceOnElevation,
+                        padding: 2
+                    } : undefined}>
                         <Text style={{
                             fontSize: 17, fontWeight: '600',
                             lineHeight: 24,
                             color: theme.textPrimary,
-                            marginBottom: 8
+                            marginBottom: 8,
+                            marginLeft: transfer ? 16 : 0,
+                            marginTop: transfer ? 16 : 0
                         }}>
                             {t('common.recent')}
                         </Text>
-                        {filtered.recent.map((address, index) => {
-                            return (
-                                <AddressSearchItemView
-                                    key={index}
-                                    item={{
-                                        address: address,
-                                        title: t('contacts.unknown'),
-                                        searchable: address.toString({ testOnly: network.isTestnet }),
-                                        type: 'contact'
-                                    }}
-                                    onPress={onSelect}
-                                />
-                            )
-                        })}
-                    </>
+                        <View style={transfer ? {
+                            backgroundColor: theme.elevation,
+                            borderRadius: 18,
+                            paddingHorizontal: 16,
+                            paddingVertical: 8
+                        } : undefined}>
+                            {filtered.recent.map((address, index) => {
+                                return (
+                                    <AddressSearchItemView
+                                        key={index}
+                                        item={{
+                                            address: address,
+                                            title: t('contacts.unknown'),
+                                            searchable: address.toString({ testOnly: network.isTestnet }),
+                                            type: 'contact'
+                                        }}
+                                        onPress={onSelect}
+                                    />
+                                )
+                            })}
+                        </View>
+                    </View>
                 )}
                 {filtered.searchRes.length > 0 && (
-                    <Text style={{
-                        fontSize: 17, fontWeight: '600',
-                        lineHeight: 24,
-                        color: theme.textPrimary,
-                        marginBottom: 8,
+                    <View style={transfer ? {
+                        borderRadius: 20,
+                        backgroundColor: theme.surfaceOnElevation,
+                        padding: 2,
                         marginTop: filtered.recent.length > 0 ? 24 : 0
-                    }}>
-                        {t('contacts.contacts')}
-                    </Text>
+                    } : undefined}>
+                        <Text style={{
+                            fontSize: 17, fontWeight: '600',
+                            lineHeight: 24,
+                            color: theme.textPrimary,
+                            marginBottom: 8,
+                            marginLeft: transfer ? 16 : 0,
+                            marginTop: transfer ? 16 : 0
+                        }}>
+                            {t('contacts.contacts')}
+                        </Text>
+                        <View style={transfer ? {
+                            backgroundColor: theme.elevation,
+                            borderRadius: 18,
+                            paddingHorizontal: 16,
+                            paddingVertical: 8
+                        } : undefined}>
+                            {filtered.searchRes.map((item, index) => {
+                                return (
+                                    <AddressSearchItemView
+                                        key={index}
+                                        item={item}
+                                        onPress={onSelect}
+                                    />
+                                );
+                            })}
+                        </View>
+                    </View>
                 )}
-                {filtered.searchRes.map((item, index) => {
-                    return (
-                        <AddressSearchItemView
-                            key={index}
-                            item={item}
-                            onPress={onSelect}
-                        />
-                    );
-                })}
             </>
         </ScrollView>
     );

@@ -32,9 +32,8 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
-import { AddressSearch } from '../../components/address/AddressSearch';
-import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
+import { TransferAddressInput } from '../../components/address/TransferAddressInput';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -467,7 +466,7 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState<number | null>(null);
+    const [selectedInput, setSelectedInput] = useState<number | null>(0);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -637,17 +636,6 @@ export const SimpleTransferFragment = fragment(() => {
 
         const addressFriendly = targetAddressValid?.address.toString({ testOnly: network.isTestnet });
 
-        const saveButton = (
-            <Pressable
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginRight: 16 })}
-                onPress={resetInput}
-            >
-                <Text style={{ color: theme.accent, fontWeight: '500', fontSize: 17, lineHeight: 24 }}>
-                    {t('common.save')}
-                </Text>
-            </Pressable>
-        );
-
         const headertitle = addressFriendly
             ? {
                 titleComponent: (
@@ -686,7 +674,7 @@ export const SimpleTransferFragment = fragment(() => {
                 title: t('transfer.title'),
             }
 
-        if (selectedInput === 0) {
+        if (selectedInput === 1) {
             return {
                 selected: 'amount',
                 onNext: (validAmount && !amountError)
@@ -699,17 +687,15 @@ export const SimpleTransferFragment = fragment(() => {
             }
         }
 
-        if (selectedInput === 1) {
+        if (selectedInput === 0) {
             return {
                 selected: 'address',
                 onNext: !!targetAddressValid
                     ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: resetInput,
                     title: t('common.recipient'),
                     titleComponent: undefined,
-                    rightButton: saveButton
                 }
             }
         }
@@ -721,7 +707,6 @@ export const SimpleTransferFragment = fragment(() => {
                 header: {
                     onBackPressed: resetInput,
                     ...headertitle,
-                    rightButton: saveButton
                 }
             }
         }
@@ -771,7 +756,7 @@ export const SimpleTransferFragment = fragment(() => {
                 title={header.title}
                 onBackPressed={header?.onBackPressed}
                 titleComponent={header.titleComponent}
-                rightButton={header.rightButton}
+                onClosePressed={navigation.goBack}
                 style={[
                     { paddingLeft: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })
@@ -790,6 +775,28 @@ export const SimpleTransferFragment = fragment(() => {
                     ref={containerRef}
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
                 >
+                    <Animated.View
+                        layout={Layout.duration(300)}
+                        style={seletectInputStyles.address}
+                    >
+                        <TransferAddressInput
+                            ref={refs[0]}
+                            acc={ledgerAddress ?? acc!.address}
+                            theme={theme}
+                            validAddress={targetAddressValid?.address}
+                            isTestnet={network.isTestnet}
+                            index={0}
+                            target={target}
+                            input={addressDomainInput}
+                            onFocus={onFocus}
+                            setInput={setAddressDomainInput}
+                            setTarget={setTarget}
+                            setDomain={setDomain}
+                            onSubmit={onSubmit}
+                            onQRCodeRead={onQRCodeRead}
+                            isSelected={selected === 'address'}
+                        />
+                    </Animated.View>
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={seletectInputStyles.amount}
@@ -909,8 +916,8 @@ export const SimpleTransferFragment = fragment(() => {
                                 </Pressable>
                             </View>
                             <ATextInput
-                                index={0}
-                                ref={refs[0]}
+                                index={1}
+                                ref={refs[1]}
                                 onFocus={onFocus}
                                 value={amount}
                                 onValueChange={setAmount}
@@ -927,7 +934,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     width: 'auto',
                                     flexShrink: 1
                                 }}
-                                suffux={priceText}
+                                suffix={priceText}
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                             />
@@ -945,67 +952,6 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {amountError}
                                 </Text>
-                            </Animated.View>
-                        )}
-                    </Animated.View>
-                    <Animated.View
-                        layout={Layout.duration(300)}
-                        style={seletectInputStyles.address}
-                    >
-                        <View style={{
-                            flex: 1,
-                            backgroundColor: theme.surfaceOnElevation,
-                            paddingVertical: 20,
-                            width: '100%', borderRadius: 20,
-                        }}>
-                            <AddressDomainInput
-                                input={addressDomainInput}
-                                onInputChange={setAddressDomainInput}
-                                target={target}
-                                index={1}
-                                ref={refs[1]}
-                                onFocus={onFocus}
-                                onTargetChange={setTarget}
-                                onDomainChange={setDomain}
-                                style={{ paddingHorizontal: 16 }}
-                                inputStyle={{
-                                    flexShrink: 1,
-                                    fontSize: 17,
-                                    fontWeight: '400', color: theme.textPrimary,
-                                    textAlignVertical: 'center',
-                                }}
-                                isKnown={isKnown}
-                                onSubmit={onSubmit}
-                                contact={contact}
-                                onQRCodeRead={onQRCodeRead}
-                                invalid={!targetAddressValid}
-                            />
-                        </View>
-                        {selected === 'address' && (
-                            <Animated.View
-                                style={{ marginTop: 32, marginHorizontal: -16 }}
-                                entering={FadeIn} exiting={FadeOut}
-                            >
-                                <ScrollView
-                                    contentInset={{
-                                        bottom: keyboard.keyboardHeight - safeArea.bottom - 16 - 56 - safeArea.top,
-                                        top: 0.1 /* Some weird bug on iOS */
-                                    }}
-                                    contentContainerStyle={{ paddingHorizontal: 16 }}
-                                    contentInsetAdjustmentBehavior={'never'}
-                                    keyboardShouldPersistTaps={'always'}
-                                    keyboardDismissMode={'none'}
-                                >
-                                    <AddressSearch
-                                        account={ledgerAddress ?? acc!.address}
-                                        onSelect={(address) => {
-                                            setAddressDomainInput(address.toString({ testOnly: network.isTestnet }));
-                                            setTarget(address.toString({ testOnly: network.isTestnet }));
-                                            refs[2]?.current?.focus();
-                                        }}
-                                        query={addressDomainInput}
-                                    />
-                                </ScrollView>
                             </Animated.View>
                         )}
                     </Animated.View>

@@ -10,7 +10,7 @@ import { useTheme } from "../engine/hooks";
 
 export function useScreenHeader(
     navigation: TypedNavigation,
-    Theme: ThemeType,
+    theme: ThemeType,
     options: {
         title?: string,
         textColor?: string,
@@ -35,10 +35,13 @@ export function useScreenHeader(
             },
             title: options.title,
             headerTitleStyle: {
-                color: options.textColor ?? Theme.textPrimary,
+                color: options.textColor ?? theme.textPrimary,
                 fontWeight: '600',
                 fontSize: 17
             },
+            headerStyle: options.headerSearchBarOptions ? {
+                backgroundColor: theme.elevation,
+            } : undefined,
             headerBackVisible: true,
             headerRight: () => {
                 return (
@@ -54,7 +57,7 @@ export function useScreenHeader(
                         <ScreenHeader
                             style={[
                                 {
-                                    backgroundColor: Theme.backgroundPrimary,
+                                    backgroundColor: theme.backgroundPrimary,
                                     borderTopLeftRadius: 16,
                                     borderTopRightRadius: 16,
                                     paddingHorizontal: 16,
@@ -74,7 +77,7 @@ export function useScreenHeader(
                     );
                 },
         });
-    }, [navigation, options, Theme]);
+    }, [navigation, options, theme]);
 }
 
 export type ScreenHeaderProps = {

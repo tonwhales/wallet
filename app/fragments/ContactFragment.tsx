@@ -275,7 +275,7 @@ export const ContactFragment = fragment(() => {
                                 size={100}
                                 image={undefined}
                                 borderWith={2}
-                                borderColor={theme.border}
+                                borderColor={theme.surfaceOnElevation}
                             />
                         </View>
                         {!editing && (
@@ -309,7 +309,7 @@ export const ContactFragment = fragment(() => {
                                 style={{
                                     flexDirection: 'row',
                                     marginTop: 24,
-                                    backgroundColor: theme.border,
+                                    backgroundColor: theme.surfaceOnElevation,
                                     width: '100%',
                                     justifyContent: 'center', alignItems: 'center',
                                     borderRadius: 20,
@@ -378,7 +378,7 @@ export const ContactFragment = fragment(() => {
 
                         {(!editing && fields.filter((f) => (f.value?.length ?? 0) > 0).length > 0) && (
                             <View style={{
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 paddingHorizontal: 20, marginTop: 20,
                                 paddingVertical: 10,
                                 width: '100%', borderRadius: 20
@@ -414,7 +414,7 @@ export const ContactFragment = fragment(() => {
                     {editing && (
                         <>
                             <View style={{
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 marginTop: 20,
                                 paddingVertical: 20,
                                 width: '100%', borderRadius: 20
@@ -432,7 +432,7 @@ export const ContactFragment = fragment(() => {
                             </View>
                             {!params.isNew && (
                                 <View style={{
-                                    backgroundColor: theme.border,
+                                    backgroundColor: theme.surfaceOnElevation,
                                     paddingHorizontal: 20, marginTop: 20,
                                     paddingVertical: 10,
                                     width: '100%', borderRadius: 20
@@ -459,7 +459,7 @@ export const ContactFragment = fragment(() => {
                             )}
                             {params.isNew && (
                                 <View style={{
-                                    backgroundColor: theme.border,
+                                    backgroundColor: theme.surfaceOnElevation,
                                     marginTop: 20,
                                     paddingVertical: 20,
                                     width: '100%', borderRadius: 20
@@ -481,7 +481,7 @@ export const ContactFragment = fragment(() => {
                             )}
 
                             <View style={{
-                                backgroundColor: theme.border,
+                                backgroundColor: theme.surfaceOnElevation,
                                 marginTop: 20,
                                 paddingVertical: 20,
                                 width: '100%', borderRadius: 20

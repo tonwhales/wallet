@@ -30,7 +30,6 @@ export const AssetsFragment = fragment(() => {
         selectedJetton?: Address
     }>();
 
-
     const route = useRoute();
     const isLedgerScreen = route.name === 'LedgerAssets';
 
@@ -43,6 +42,7 @@ export const AssetsFragment = fragment(() => {
 
     const ledgerJettons = useJettons(address?.toString({ testOnly: network.isTestnet }) || '') ?? [];
     const jettons = useJettons(selected!.address.toString({ testOnly: network.isTestnet })) ?? [];
+    const visibleList = jettons.filter((j) => !j.disabled);
 
     const onSelected = useCallback((jetton: Jetton) => {
         if (callback) {
@@ -147,7 +147,7 @@ export const AssetsFragment = fragment(() => {
                         selected={!selectedJetton}
                         hideSelection={!callback}
                     />
-                    {(isLedgerScreen ? ledgerJettons : jettons).map((j) => {
+                    {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
                         const verified = KnownJettonMasters(network.isTestnet)[j.master.toString()];
                         const selected = selectedJetton && j.master.equals(selectedJetton);
                         return (

@@ -206,13 +206,13 @@ export const StakingFragment = fragment(() => {
                     <Text
                         style={{
                             fontSize: 15, lineHeight: 20,
-                            color: theme.textThird,
+                            color: theme.textUnchangeable,
                             opacity: 0.7,
                         }}
                     >
                         {t('products.staking.balance')}
                     </Text>
-                    <Text style={{ fontSize: 27, color: theme.textThird, fontWeight: '600', marginTop: 14 }}>
+                    <Text style={{ fontSize: 27, color: theme.textUnchangeable, fontWeight: '600', marginTop: 14 }}>
                         <ValueComponent
                             value={member?.balance || 0n}
                             precision={4}
@@ -221,7 +221,7 @@ export const StakingFragment = fragment(() => {
                         <Text style={{
                             fontSize: 17,
                             lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                            color: theme.textThird,
+                            color: theme.textUnchangeable,
                             marginRight: 8,
                             fontWeight: '500',
                             opacity: 0.5
@@ -255,13 +255,13 @@ export const StakingFragment = fragment(() => {
                             <PriceComponent
                                 amount={member?.balance || 0n}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
-                                textStyle={{ color: theme.textThird }}
+                                textStyle={{ color: theme.textUnchangeable }}
                             />
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
-                                textStyle={{ color: theme.textThird }}
+                                textStyle={{ color: theme.textUnchangeable }}
                             />
                         </Pressable>
                     </View>

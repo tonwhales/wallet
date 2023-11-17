@@ -14,7 +14,7 @@ import { useParams } from '../../../utils/useParams';
 import { connectAnswer } from '../../../engine/api/connectAnswer';
 import { sendTonConnectResponse } from '../../../engine/api/sendTonConnectResponse';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
-import { useNetwork } from '../../../engine/hooks';
+import { useNetwork, useTheme } from '../../../engine/hooks';
 import { handleConnectDeeplink } from '../../../engine/tonconnect/handleConnectDeeplink';
 import { isUrl } from '../../../utils/resolveUrl';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -26,6 +26,7 @@ import { ConnectQrQuery, ReturnStrategy, TonConnectBridgeType } from '../../../e
 import { ConnectReplyBuilder } from '../../../engine/tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
 import { DappAuthComponent } from './DappAuthComponent';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SignState = { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
@@ -47,10 +48,13 @@ type SignState = { type: 'loading' }
 
 const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthProps }) => {
     const { isTestnet } = useNetwork();
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
+
 
     useEffect(() => {
         (async () => {
@@ -149,7 +153,11 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             // Sign
             let walletKeys: WalletKeys;
             try {
-                walletKeys = await authContext.authenticate({ cancelable: true });
+                walletKeys = await authContext.authenticate({
+                    cancelable: true,
+                    backgroundColor: theme.elevation,
+                    containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                });
             } catch (e) {
                 warn('Failed to load wallet keys');
                 return;

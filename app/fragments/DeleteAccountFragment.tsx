@@ -293,7 +293,7 @@ export const DeleteAccountFragment = fragment(() => {
 
                 <View style={{
                     marginBottom: 16,
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     padding: 20,
                 }}>
@@ -358,7 +358,7 @@ export const DeleteAccountFragment = fragment(() => {
                     </Text>
                 </View>
                 <View style={{
-                    backgroundColor: theme.border,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 20,
                     justifyContent: 'center',
                     alignItems: 'center'

@@ -1,16 +1,18 @@
-import { ForwardedRef, forwardRef, memo, useEffect } from "react";
-import { Platform, ScrollView, View, Image } from "react-native";
+import { ForwardedRef, RefObject, forwardRef, memo, useEffect } from "react";
+import { Platform, ScrollView, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useContact } from "../../engine/hooks";
+import { useContact, useTheme } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AddressSearch } from "./AddressSearch";
+import { t } from "../../i18n/t";
+import { PerfText } from "../basic/PerfText";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
 
@@ -22,6 +24,7 @@ type TransferAddressInputProps = {
     index: number,
     target: string,
     input: string,
+    domain?: string,
     dispatch: (action: AddressInputAction) => void,
     onFocus: (index: number) => void,
     onSubmit: (index: number) => void,
@@ -72,6 +75,13 @@ export function addressInputReducer() {
                 if (action.input === state.input) {
                     return state;
                 }
+                if (action.input.length === 48) {
+                    return {
+                        input: action.input,
+                        domain: undefined,
+                        target: action.input
+                    };
+                }
                 return {
                     input: action.input,
                     domain: undefined,
@@ -116,10 +126,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const contact = useContact(props.target);
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
 
     useEffect(() => {
         if (props.isSelected) {
-            (ref as ForwardedRef<ATextInputRef>)?.current?.focus();
+            (ref as RefObject<ATextInputRef>)?.current?.focus();
         }
     }, [props.isSelected, ref]);
 
@@ -162,10 +173,24 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         onSubmit={props.onSubmit}
                         contact={contact}
                         onQRCodeRead={props.onQRCodeRead}
-                        invalid={!props.validAddress}
+                        domain={props.domain}
                     />
                 </View>
             </View>
+            {!props.validAddress && (props.target.length === 48) && (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <PerfText style={{
+                        color: theme.accentRed,
+                        fontSize: 13,
+                        lineHeight: 18,
+                        marginTop: 4,
+                        marginLeft: 16,
+                        fontWeight: '400'
+                    }}>
+                        {t('transfer.error.invalidAddress')}
+                    </PerfText>
+                </Animated.View>
+            )}
             {props.isSelected && (
                 <Animated.View
                     style={{ marginHorizontal: -16 }}
@@ -188,7 +213,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         <AddressSearch
                             account={props.acc}
                             onSelect={(item) => {
-                                console.log(item);
                                 props.dispatch({
                                     type: InputActionType.InputTarget,
                                     input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),

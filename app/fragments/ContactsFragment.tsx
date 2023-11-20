@@ -14,11 +14,13 @@ import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
+import { useParams } from "../utils/useParams";
 
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
+    const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const contacts = useContacts();
@@ -157,20 +159,23 @@ export const ContactsFragment = fragment(() => {
                             <ContactItemView
                                 key={`contact-${d[0]}`}
                                 addr={d[0]}
+                                action={callback}
                             />
                         );
                     })}
                 </ScrollView>
 
             )}
-            <RoundButton
-                title={t('contacts.add')}
-                onPress={onAddContact}
-                style={[
-                    { marginHorizontal: 16 },
-                    Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
-                ]}
-            />
+            {!callback && (
+                <RoundButton
+                    title={t('contacts.add')}
+                    onPress={onAddContact}
+                    style={[
+                        { marginHorizontal: 16 },
+                        Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
+                    ]}
+                />
+            )}
         </View>
     )
 });

@@ -8,7 +8,7 @@ import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/h
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
 
-export const ContactItemView = memo(({ addr, action }: { addr: string, action?: () => void }) => {
+export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
     const address = useMemo(() => Address.parse(addr), [addr])
@@ -27,11 +27,11 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
 
     const onPress = useCallback(() => {
         if (action) {
-            action();
+            action(address);
             return;
         }
         navigation.navigate('Contact', { address: addr });
-    }, [addr, action]);
+    }, [addr, action, address]);
 
     return (
         <Pressable

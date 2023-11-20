@@ -11,10 +11,13 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useAppState, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { useParams } from "../../utils/useParams";
+import { Address } from "@ton/core";
 
 export const AccountSelectorFragment = fragment(() => {
     const theme = useTheme();
     const { showActionSheetWithOptions } = useActionSheet();
+    const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const dimentions = useWindowDimensions();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -118,13 +121,13 @@ export const AccountSelectorFragment = fragment(() => {
                             top: 16
                         }}
                     >
-                        <WalletSelector />
+                        <WalletSelector onSelect={callback} />
                     </ScrollView>
-                    <RoundButton
+                    {!callback && (<RoundButton
                         style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
                         onPress={onAddNewAccount}
                         title={t('wallets.addNewTitle')}
-                    />
+                    />)}
                 </View>
             ) : (
                 <View style={{
@@ -144,12 +147,12 @@ export const AccountSelectorFragment = fragment(() => {
                     }}>
                         {t('common.wallets')}
                     </Text>
-                    <WalletSelector />
-                    <RoundButton
+                    <WalletSelector onSelect={callback} />
+                    {!callback && (<RoundButton
                         style={{ marginVertical: 16 }}
                         onPress={onAddNewAccount}
                         title={t('wallets.addNewTitle')}
-                    />
+                    />)}
                 </View>
             )}
         </View>

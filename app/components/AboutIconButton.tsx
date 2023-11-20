@@ -7,11 +7,13 @@ import IcInfo from '@assets/ic-info.svg'
 export const AboutIconButton = memo(({
     title,
     description,
-    style
+    style,
+    size = 16
 }: {
     title: string,
     description: string,
-    style: StyleProp<ViewStyle>
+    style: StyleProp<ViewStyle>,
+    size?: number
 }) => {
     const navigation = useTypedNavigation();
 
@@ -31,8 +33,8 @@ export const AboutIconButton = memo(({
             ])}
         >
             <IcInfo
-                height={16} width={16}
-                style={{ height: 16, width: 16 }}
+                height={size} width={size}
+                style={{ height: size, width: size }}
             />
         </Pressable>
     )

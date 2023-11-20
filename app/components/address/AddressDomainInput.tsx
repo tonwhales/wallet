@@ -1,5 +1,5 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Text, Image } from "react-native"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react"
+import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { View } from "react-native";
@@ -7,15 +7,14 @@ import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useClient4, useNetwork, useTheme } from "../../engine/hooks";
+import { useAppState, useClient4, useContacts, useNetwork, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
-
-import Scanner from '@assets/ic-scanner-accent.svg';
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
@@ -32,8 +31,8 @@ export const AddressDomainInput = memo(forwardRef(({
     index,
     contact,
     onQRCodeRead,
-    invalid,
-    autoFocus
+    autoFocus,
+    domain
 }: {
     style?: StyleProp<ViewStyle>,
     inputStyle?: StyleProp<TextStyle>,
@@ -47,17 +46,19 @@ export const AddressDomainInput = memo(forwardRef(({
     index: number,
     contact?: AddressContact | null,
     onQRCodeRead?: (value: string) => void,
-    invalid?: boolean
-    autoFocus?: boolean
+    autoFocus?: boolean,
+    domain?: string
 }, ref: ForwardedRef<ATextInputRef>) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
+    const appState = useAppState();
+    const ledgerContext = useLedgerTransport();
+    const contacts = useContacts();
 
     const [focused, setFocused] = useState<boolean>(false);
     const [resolving, setResolving] = useState<boolean>();
-    const [resolvedAddress, setResolvedAddress] = useState<Address>();
 
     const openScanner = useCallback(() => {
         if (!onQRCodeRead) {
@@ -80,8 +81,6 @@ export const AddressDomainInput = memo(forwardRef(({
 
     const onResolveDomain = useCallback(
         async (toResolve: string, zone: '.t.me' | '.ton') => {
-            // Clear prev resolved address
-            setResolvedAddress(undefined);
 
             let domain = zone === '.ton'
                 ? toResolve.slice(0, toResolve.length - 4)
@@ -104,14 +103,22 @@ export const AddressDomainInput = memo(forwardRef(({
                 if (!resolvedDomainWallet) {
                     throw Error('Error resolving domain wallet');
                 }
-                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
 
-                setResolvedAddress(resolvedWalletAddress);
-                dispatch({
-                    type: InputActionType.DomainTarget,
-                    domain: toResolve,
-                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
-                });
+                if (resolvedDomainWallet instanceof Address) {
+                    const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
+                    dispatch({
+                        type: InputActionType.DomainTarget,
+                        domain: toResolve,
+                        target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                    });
+                } else {
+                    const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+                    dispatch({
+                        type: InputActionType.DomainTarget,
+                        domain: toResolve,
+                        target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                    });
+                }
             } catch (e) {
                 Alert.alert(t('transfer.error.invalidDomain'));
                 warn(e);
@@ -123,8 +130,8 @@ export const AddressDomainInput = memo(forwardRef(({
         let suffix = undefined;
         let textInput = input;
 
-        if (resolvedAddress && !resolving && !network.isTestnet) {
-            const t = resolvedAddress.toString({ testOnly: network.isTestnet });
+        if (domain && target) {
+            const t = target;
 
             return {
                 suffix: t.slice(0, 4) + '...' + t.slice(t.length - 4),
@@ -143,7 +150,106 @@ export const AddressDomainInput = memo(forwardRef(({
         }
 
         return { suffix, textInput };
-    }, [resolvedAddress, resolving, isKnown, contact, focused, target, input]);
+    }, [resolving, isKnown, contact, focused, target, input, domain]);
+
+    const showWallets = appState.addresses.length > 0 || !!ledgerContext.addr?.address;
+    const showContacts = Object.keys(contacts).length > 0;
+
+    const openContacts = useCallback(() => {
+        const callback = (address: Address) => {
+            navigation.goBack();
+            dispatch({
+                type: InputActionType.InputTarget,
+                input: address.toString({ testOnly: network.isTestnet }),
+                target: address.toString({ testOnly: network.isTestnet })
+            });
+        }
+        navigation.navigate('Contacts', { callback });
+    }, [dispatch, navigation]);
+
+    const openWallets = useCallback(() => {
+        const callback = (address: Address) => {
+            navigation.goBack();
+            dispatch({
+                type: InputActionType.InputTarget,
+                input: address.toString({ testOnly: network.isTestnet }),
+                target: address.toString({ testOnly: network.isTestnet })
+            });
+        }
+        navigation.navigate('AccountSelector', { callback });
+    }, [dispatch, navigation]);
+
+    const actionsRight = useMemo(() => {
+        if (resolving) {
+            return (
+                <ReAnimatedCircularProgress
+                    size={24}
+                    color={theme.iconPrimary}
+                    reverse
+                    infinitRotate
+                    progress={0.8}
+                />
+            );
+        }
+
+        if (input.length === 0) {
+            return (
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <View style={{ flexDirection: 'row' }}>
+                        {showContacts && (
+                            <Pressable
+                                onPress={openContacts}
+                                style={{ height: 24, width: 24 }}
+                            >
+                                <Image source={require('@assets/ic-contact-tx.png')}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                            </Pressable>
+                        )}
+                        {showWallets && (
+                            <Pressable
+                                onPress={openWallets}
+                                style={{ height: 24, width: 24, marginLeft: showContacts ? 16 : undefined }}
+                            >
+                                <Image source={require('@assets/ic-wallet-tx.png')}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                            </Pressable>
+                        )}
+                        {!!onQRCodeRead && (
+                            <Pressable
+                                onPress={openScanner}
+                                style={{ height: 24, width: 24, marginLeft: (showContacts || showWallets) ? 16 : undefined }}
+                            >
+                                <Image source={require('@assets/ic-scan-tx.png')}
+                                    style={{ height: 24, width: 24 }}
+                                />
+                            </Pressable>
+                        )}
+                    </View>
+                </Animated.View>
+            )
+        }
+
+        return (
+            <Animated.View entering={FadeIn} exiting={FadeOut}>
+                <Pressable
+                    onPress={() => dispatch({ type: InputActionType.Clear })}
+                    style={{ height: 24, width: 24 }}
+                    hitSlop={16}
+                >
+                    <Image
+                        source={require('@assets/ic-clear.png')}
+                        style={{ height: 24, width: 24 }}
+                    />
+                </Pressable>
+            </Animated.View>
+        )
+    }, [resolving, input, onQRCodeRead, openScanner, openWallets, openContacts, showWallets, showContacts]);
+
+    const actionsWidth = input.length === 0
+        ? 124 - (showContacts ? 0 : 40) - (showWallets ? 0 : 40) - (!!onQRCodeRead ? 0 : 40)
+        : 24
 
     return (
         <View>
@@ -160,14 +266,16 @@ export const AddressDomainInput = memo(forwardRef(({
                     }
                 }}
                 onValueChange={(value) => {
-                    dispatch({
-                        type: InputActionType.Input,
-                        input: value
-                    });
-                    if (input.endsWith('.ton')) {
-                        onResolveDomain(input, '.ton');
-                    } else if (input.endsWith('.t.me')) {
-                        onResolveDomain(input, '.t.me');
+                    if (value !== textInput) {
+                        dispatch({
+                            type: InputActionType.Input,
+                            input: value
+                        });
+                    }
+                    if (value.endsWith('.ton')) {
+                        onResolveDomain(value, '.ton');
+                    } else if (value.endsWith('.t.me')) {
+                        onResolveDomain(value, '.t.me');
                     }
                 }}
                 placeholder={t('common.domainOrAddressOrContact')}
@@ -205,54 +313,11 @@ export const AddressDomainInput = memo(forwardRef(({
                     minWidth: 104
                 }}
                 textAlignVertical={'center'}
-                actionButtonRight={
-                    resolving
-                        ? <ReAnimatedCircularProgress
-                            size={24}
-                            color={theme.iconPrimary}
-                            reverse
-                            infinitRotate
-                            progress={0.8}
-                        />
-                        : (input.length === 0 && !!onQRCodeRead) ? (
-                            <Animated.View entering={FadeIn} exiting={FadeOut}>
-                                <Pressable
-                                    onPress={openScanner}
-                                    style={{ height: 24, width: 24 }}
-                                >
-                                    <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
-                                </Pressable>
-                            </Animated.View>
-                        ) : (
-                            <Animated.View entering={FadeIn} exiting={FadeOut}>
-                                <Pressable
-                                    onPress={() => dispatch({ type: InputActionType.Clear })}
-                                    style={{ height: 24, width: 24 }}
-                                    hitSlop={16}
-                                >
-                                    <Image
-                                        source={require('@assets/ic-clear.png')}
-                                        style={{ height: 24, width: 24 }}
-                                    />
-                                </Pressable>
-                            </Animated.View>
-                        )
-                }
+                actionButtonRight={{
+                    component: actionsRight,
+                    width: actionsWidth
+                }}
             />
-            {invalid && (input.length >= 48 || (!focused && input.length > 0)) && (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <Text style={{
-                        color: theme.accentRed,
-                        fontSize: 13,
-                        lineHeight: 18,
-                        marginTop: 16,
-                        marginLeft: 16,
-                        fontWeight: '400'
-                    }}>
-                        {t('transfer.error.invalidAddress')}
-                    </Text>
-                </Animated.View>
-            )}
         </View>
     )
 }));

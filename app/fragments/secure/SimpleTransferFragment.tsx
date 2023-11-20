@@ -19,7 +19,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -38,6 +38,7 @@ import { ItemDivider } from '../../components/ItemDivider';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { AboutIconButton } from '../../components/AboutIconButton';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -627,8 +628,8 @@ export const SimpleTransferFragment = fragment(() => {
         header: {
             onBackPressed?: () => void,
             title?: string,
-            rightButton?: React.ReactNode,
-            titleComponent?: React.ReactNode,
+            rightButton?: ReactNode,
+            titleComponent?: ReactNode,
         }
     }>(() => {
 
@@ -636,7 +637,7 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: null,
                 onNext: null,
-                header: { title: t('transfer.title') }
+                header: { title: t('transfer.title'), onBackPressed: () => refs[1]?.current?.focus(), }
             }
         }
 
@@ -654,6 +655,7 @@ export const SimpleTransferFragment = fragment(() => {
                             flexDirection: 'row',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            marginLeft: -16,
                             paddingLeft: 6, paddingRight: 12,
                             paddingVertical: 6
                         }}
@@ -711,8 +713,8 @@ export const SimpleTransferFragment = fragment(() => {
                 selected: 'comment',
                 onNext: resetInput,
                 header: {
-                    onBackPressed: () => refs[1]?.current?.focus(),
                     ...headertitle,
+                    onBackPressed: () => refs[1]?.current?.focus(),
                 }
             }
         }
@@ -789,11 +791,12 @@ export const SimpleTransferFragment = fragment(() => {
                             ref={refs[0]}
                             acc={ledgerAddress ?? acc!.address}
                             theme={theme}
+                            target={target}
+                            input={addressDomainInput}
+                            domain={domain}
                             validAddress={targetAddressValid?.address}
                             isTestnet={network.isTestnet}
                             index={0}
-                            target={target}
-                            input={addressDomainInput}
                             onFocus={onFocus}
                             dispatch={dispatchAddressDomainInput}
                             onSubmit={onSubmit}
@@ -877,7 +880,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             </Text>
                                         </View>
                                     </View>
-                                    <IcChevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                                 </View>
                             </Pressable>
                             <ItemDivider marginHorizontal={0} />
@@ -895,7 +898,6 @@ export const SimpleTransferFragment = fragment(() => {
                                     <ValueComponent
                                         precision={4}
                                         value={balance}
-                                        centFontStyle={{ opacity: 0.5 }}
                                         decimals={jettonState ? jettonState.master.decimals : undefined}
                                     />
                                     {jettonState ? ` ${jettonState.master.symbol}` : ''}
@@ -1002,14 +1004,35 @@ export const SimpleTransferFragment = fragment(() => {
                     </Animated.View>
                     {selectedInput === null && (
                         <Animated.View layout={Layout.duration(300)}>
-                            <Text
-                                style={{
-                                    color: theme.textSecondary,
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    marginTop: 16,
-                                }}>
-                                {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
-                            </Text>
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                padding: 20, borderRadius: 20, marginTop: 16,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between', alignItems: 'center'
+                            }}>
+                                <View>
+                                    <Text
+                                        style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                            marginBottom: 2
+                                        }}>
+                                        {t('txPreview.blockchainFee')}
+                                    </Text>
+                                    <Text style={{
+                                        color: theme.textPrimary,
+                                        fontSize: 17, lineHeight: 24, fontWeight: '400'
+                                    }}>
+                                        {estimation ? fromNano(estimation) : '...'}
+                                    </Text>
+                                </View>
+                                <AboutIconButton
+                                    title={t('txPreview.blockchainFee')}
+                                    description={t('txPreview.blockchainFeeDescription')}
+                                    style={{ height: 24, width: 24, position: undefined }}
+                                    size={20}
+                                />
+                            </View>
                         </Animated.View>
                     )}
                 </View>
@@ -1028,7 +1051,7 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 {!!selected
                     ? <RoundButton
-                        title={selected === 'comment' ? t('common.done') : t('common.continue')}
+                        title={t('common.continue')}
                         disabled={!onNext}
                         onPress={onNext ? onNext : undefined}
                     />

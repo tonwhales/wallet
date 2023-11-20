@@ -1,14 +1,16 @@
 import React, { memo, useCallback } from "react";
-import { View, Text, Pressable, Image } from "react-native";
+import { View, Text, Pressable, Image, Alert } from "react-native";
 import { ellipsiseAddress } from "../WalletAddress";
 import { WalletItem } from "./WalletItem";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppState, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
+import { Address } from "@ton/core";
+import { t } from "../../i18n/t";
 
 import IcCheck from "@assets/ic-check.svg";
 
-export const WalletSelector = memo(() => {
+export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address) => void }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -18,18 +20,34 @@ export const WalletSelector = memo(() => {
     const ledgerConnected = !!ledgerContext?.tonTransport;
 
     const onLedgerSelect = useCallback(async () => {
+        if (!!onSelect) {
+            if (!!ledgerContext.addr?.address) {
+                try {
+                    onSelect(Address.parse(ledgerContext.addr?.address));
+                } catch (error) {
+                    Alert.alert(t('transfer.error.invalidAddress'));
+                }
+            } else {
+                Alert.alert(t('transfer.error.invalidAddress'));
+            }
+            return;
+        }
         navigation.navigateLedgerApp();
-    }, []);
+    }, [onSelect, ledgerContext]);
 
     return (
         <View style={{ flexGrow: 1 }}>
             {appState.addresses.map((wallet, index) => {
+                if (onSelect && index === appState.selected) {
+                    return null;
+                }
                 return (
                     <WalletItem
                         key={`wallet-${index}`}
                         index={index}
                         address={wallet.address}
                         selected={index === appState.selected && !ledgerContext?.focused}
+                        onSelect={onSelect}
                     />
                 )
             })}

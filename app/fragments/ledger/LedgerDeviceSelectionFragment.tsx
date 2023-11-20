@@ -13,6 +13,8 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
+import { StatusBar } from "expo-status-bar";
+import { Platform } from "react-native";
 
 export const LedgerDeviceSelectionFragment = fragment(() => {
     const theme = useTheme();
@@ -47,10 +49,17 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
     if (ledgerContext?.bleSearchState?.type === 'permissions-failed') {
         return (
             <View style={{ flexGrow: 1 }}>
+                <StatusBar style={Platform.select({
+                    android: theme.style === 'dark' ? 'light' : 'dark',
+                    ios: 'light'
+                })} />
                 <ScreenHeader
                     title={t('hardwareWallet.title')}
                     onBackPressed={navigation.goBack}
-                    style={{ paddingHorizontal: 16 }}
+                    style={[
+                        { paddingHorizontal: 16 },
+                        Platform.select({ android: { paddingTop: safeArea.top } })
+                    ]}
                 />
                 <Text style={{
                     fontSize: 18,

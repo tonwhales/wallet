@@ -1,5 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { StatusBar } from "expo-status-bar";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, View, Text, Pressable, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
@@ -11,6 +10,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useDimensions } from "@react-native-community/hooks";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
+import { StatusBar } from "expo-status-bar";
 
 export const HardwareWalletFragment = fragment(() => {
     const theme = useTheme();
@@ -56,7 +56,10 @@ export const HardwareWalletFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}

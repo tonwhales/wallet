@@ -51,7 +51,7 @@ SplashScreen.preventAutoHideAsync();
 function Boot() {
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <GestureHandlerRootView style={styles.container}>
           <ActionSheetProvider>

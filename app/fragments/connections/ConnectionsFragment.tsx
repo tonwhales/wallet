@@ -14,7 +14,6 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useLinkNavigator } from '../../useLinkNavigator';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { TabHeader } from '../../components/topbar/TabHeader';
@@ -165,14 +164,10 @@ export const ConnectionsFragment = fragment(() => {
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
     }, []));
 
     return (
         <View style={{ flex: 1 }}>
-            <StatusBar style={'dark'} />
             <TabHeader
                 title={t('home.browser')}
                 rightAction={

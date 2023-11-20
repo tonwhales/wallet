@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
@@ -62,8 +61,6 @@ export const HoldersAppFragment = fragment(() => {
             paddingTop: safeArea.top,
             backgroundColor: theme.surfaceOnBg
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-
             {needsEnrollment ? null : (
                 <HoldersAppComponent
                     title={t('products.holders.title')}

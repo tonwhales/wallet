@@ -5,7 +5,6 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Pressable, View, Image, Text, Platform } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/WalletAddress";
@@ -111,7 +110,6 @@ export const LedgerHomeFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundUnchangeable }}>
-            <StatusBar style={'light'} />
             <LedgerWalletHeader />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}

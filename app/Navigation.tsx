@@ -15,7 +15,6 @@ import { ReceiveFragment } from './fragments/wallet/ReceiveFragment';
 import { TransactionPreviewFragment } from './fragments/wallet/TransactionPreviewFragment';
 import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/onboarding/TermsFragment';
-import { SyncFragment } from './fragments/SyncFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
 import { NavigationContainer } from '@react-navigation/native';
@@ -42,7 +41,6 @@ import { LogoutFragment } from './fragments/LogoutFragment';
 import { ContactFragment } from './fragments/ContactFragment';
 import { ContactsFragment } from './fragments/ContactsFragment';
 import { CurrencyFragment } from './fragments/CurrencyFragment';
-import { AccountBalanceGraphFragment } from './fragments/wallet/AccountBalanceGraphFragment';
 import { StakingCalculatorFragment } from './fragments/staking/StakingCalculatorFragment';
 import { TonConnectAuthenticateFragment } from './fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { Splash } from './components/Splash';
@@ -85,7 +83,6 @@ import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAcco
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
-import { ThemeType } from './engine/state/theme';
 
 const Stack = createNativeStackNavigator();
 
@@ -154,6 +151,7 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
 }
 
 function transparentModalScreen(name: string, component: React.ComponentType<any>, safeArea: EdgeInsets) {
+    const theme = useTheme();
     return (
         <Stack.Screen
             key={`modalScreen-${name}`}
@@ -162,7 +160,7 @@ function transparentModalScreen(name: string, component: React.ComponentType<any
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: { backgroundColor: 'transparent' },
+                contentStyle: { backgroundColor: Platform.OS === 'ios' ? 'transparent' : theme.backgroundPrimary },
             }}
         />
     );
@@ -186,17 +184,14 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
 
-    modalScreen('AccountBalanceGraph', AccountBalanceGraphFragment, safeArea),
-
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
 
     // Wallet
     fullScreen('Home', HomeFragment),
-    fullScreen('Sync', SyncFragment),
+    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     modalScreen('Transfer', TransferFragment, safeArea),
     modalScreen('Receive', ReceiveFragment, safeArea),
-    modalScreen('SimpleTransfer', SimpleTransferFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
 
@@ -224,8 +219,6 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('WalletBackupLogout', WalletBackupFragment, safeArea),
 
     // Staking
-    fullScreen('Staking', StakingFragment),
-    fullScreen('StakingPools', StakingPoolsFragment),
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),

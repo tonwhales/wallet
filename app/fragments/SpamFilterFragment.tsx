@@ -77,7 +77,6 @@ export const SpamFilterFragment = fragment(() => {
             <ScreenHeader
                 title={t('settings.spamFilter')}
                 onClosePressed={navigation.goBack}
-                statusBarStyle={Platform.select({ ios: 'light', android: theme.style === 'dark' ? 'light' : 'dark' })}
             />
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'height' : undefined}

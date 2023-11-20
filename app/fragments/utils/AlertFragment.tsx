@@ -1,13 +1,11 @@
 import { Platform, View, Text } from "react-native"
 import { fragment } from "../../fragment"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { setStatusBarStyle } from "expo-status-bar";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useParams } from "../../utils/useParams";
 import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useFocusEffect } from "@react-navigation/native";
 import { useTheme } from "../../engine/hooks";
 
 export const AlertFragment = fragment(() => {
@@ -15,16 +13,6 @@ export const AlertFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { title, message, callback } = useParams<{ title: string, message?: string, callback?: () => void }>();
-
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'light'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
 
     return (
         <View style={{

@@ -1,7 +1,5 @@
 import { View, ScrollView } from "react-native";
 import { useCallback, useMemo } from "react";
-import { setStatusBarStyle } from "expo-status-bar";
-import { useFocusEffect } from "@react-navigation/native";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
@@ -11,6 +9,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
 import { getDomainKey } from "../../engine/state/domainKeys";
+import { StatusBar } from "expo-status-bar";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -52,18 +51,12 @@ export const ProductsFragment = fragment(() => {
         [needsEnrolment],
     );
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1 }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ScreenHeader
                 style={{ paddingTop: 32, paddingHorizontal: 16 }}
                 title={t('products.addNew')}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
                 onBackPressed={navigation.goBack}
             />
             <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>

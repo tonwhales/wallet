@@ -6,9 +6,8 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarImages } from "../../components/Avatar";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
-import { setStatusBarStyle } from "expo-status-bar";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { ATextInput } from "../../components/ATextInput";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
@@ -48,12 +47,6 @@ export const WalletSettingsFragment = fragment(() => {
         const callback = (hash: number) => setAvatar(hash);
         navigation.navigate('AvatarPicker', { callback, hash: avatar });
     }, []);
-
-    useLayoutEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    }, [theme.style]);
 
     return (
         <View style={{ flexGrow: 1 }}>

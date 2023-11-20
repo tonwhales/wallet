@@ -1,7 +1,6 @@
-import { View, Image, Alert } from "react-native";
+import { View, Image, Alert, Platform } from "react-native";
 import { systemFragment } from "../../systemFragment";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useCallback, useState } from "react";
@@ -12,6 +11,7 @@ import { useKeysAuth } from "../../components/secure/AuthWalletKeys";
 import { useReboot } from "../../utils/RebootContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
+import { StatusBar } from "expo-status-bar";
 
 export const KeyStoreMigrationFragment = systemFragment(() => {
     const theme = useTheme();
@@ -39,7 +39,7 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={'dark'} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             {state === 'loading' && (
                 <View style={{

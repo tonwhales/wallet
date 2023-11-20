@@ -1,7 +1,6 @@
 import { View, Text } from "react-native";
 import { systemFragment } from "../../systemFragment";
 import { Platform } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -21,7 +20,6 @@ export const ScreenCaptureFragment = systemFragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <Pressable
                 onPress={navigation.goBack}
                 style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}

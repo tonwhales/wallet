@@ -1,5 +1,4 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect } from "react";
+import React, { useCallback } from "react";
 import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../fragment";
@@ -34,7 +33,6 @@ export const CurrencyFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
             <ScreenHeader
                 title={t('settings.primaryCurrency')}
                 onClosePressed={navigation.goBack}

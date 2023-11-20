@@ -153,7 +153,6 @@ export const PasscodeSetup = memo((
                     }
                 }}
                 style={[Platform.select({ android: { paddingHorizontal: 16 } }), screenHeaderStyle]}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>

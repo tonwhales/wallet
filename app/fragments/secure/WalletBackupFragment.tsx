@@ -8,19 +8,19 @@ import { getAppState, getBackup, markAddressSecured } from '../../storage/appSta
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { systemFragment } from '../../systemFragment';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { StatusBar } from 'expo-status-bar';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -88,12 +88,6 @@ export const WalletBackupFragment = systemFragment(() => {
         }
     );
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     if (!mnemonics) {
         return null;
     }
@@ -109,7 +103,10 @@ export const WalletBackupFragment = systemFragment(() => {
             exiting={FadeIn}
             key={"content"}
         >
-            <StatusBar style={'dark'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: !init ? 'light' : theme.style === 'dark' ? 'light' : 'dark',
+            })} />
             {logout ? (
                 <ScreenHeader
                     title={t('common.logout')}
@@ -122,7 +119,6 @@ export const WalletBackupFragment = systemFragment(() => {
                         title={t('create.backupTitle')}
                         onClosePressed={navigation.goBack}
                         style={Platform.select({ android: { paddingTop: safeArea.top } })}
-                        statusBarStyle={Platform.OS === 'ios' ? 'dark' : 'light'}
                     />
                 )
             )}

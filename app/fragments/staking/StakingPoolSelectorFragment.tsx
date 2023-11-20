@@ -3,7 +3,6 @@ import { fragment } from "../../fragment";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { memo, useCallback, useMemo } from "react";
-import { StatusBar } from "expo-status-bar";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t } from "../../i18n/t";
 import { KnownPools } from "../../utils/KnownPools";
@@ -17,6 +16,7 @@ import { StakingPoolMember } from "../../engine/types";
 
 import StakingIcon from '@assets/ic_staking.svg';
 import IcCheck from "@assets/ic-check.svg";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool: Address, onSelect: () => void }) => {
     const theme = useTheme();
@@ -180,8 +180,9 @@ export const StakingPoolSelectorFragment = fragment(() => {
             paddingBottom: 0,
             backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar />
+            {Platform.OS === 'android' && (
+                <ScreenHeader onClosePressed={navigation.goBack} />
+            )}
             {Platform.OS === 'ios' && (
                 <Pressable
                     onPress={navigation.goBack}

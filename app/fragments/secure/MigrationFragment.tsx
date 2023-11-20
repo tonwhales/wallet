@@ -14,7 +14,6 @@ import { WalletAddress } from '../../components/WalletAddress';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
-import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
@@ -27,6 +26,7 @@ import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContr
 import { getLastBlock } from '../../engine/accountWatcher';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { StatusBar } from 'expo-status-bar';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -122,7 +122,6 @@ const MigrationProcessFragment = fragment(() => {
 
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
@@ -152,9 +151,11 @@ export const MigrationFragment = systemFragment(() => {
     if (!confirm) {
         return (
             <>
+                <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
                 <ScreenHeader
                     title={t('migrate.title')}
                     onClosePressed={() => navigation.goBack()}
+                    style={Platform.select({ android: { marginTop: safeArea.top } })}
                 />
                 <ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}

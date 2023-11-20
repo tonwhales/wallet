@@ -7,8 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { TopBar } from "../../components/topbar/TopBar";
-import { setStatusBarStyle } from "expo-status-bar";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
 import { StakingPool } from "./components/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -16,6 +15,7 @@ import { Address } from "@ton/core";
 import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
+import { StatusBar } from "expo-status-bar";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -352,17 +352,12 @@ export const StakingPoolsFragment = fragment(() => {
         );
     }
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View style={{
             flex: 1,
             flexGrow: 1,
         }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ScreenHeader
                 title={t('products.staking.pools.title')}
                 onBackPressed={navigation.goBack}

@@ -1,20 +1,19 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { AppComponent } from './components/AppComponent';
 import Color from 'color';
 import { useRoute } from '@react-navigation/native';
 import { extractDomain } from '../../engine/utils/extractDomain';
-import { useAppData } from '../../engine/hooks';
+import { useAppData, useTheme } from '../../engine/hooks';
 import { getDomainKey } from '../../engine/state/domainKeys';
+import { StatusBar } from 'expo-status-bar';
 
 export const AppFragment = fragment(() => {
+    const theme = useTheme();
     const url = (useRoute().params as any).url as string;
     const domain = extractDomain(url);
     const appData = useAppData(url);
-    const safeArea = useSafeAreaInsets();
     const color = appData && appData.color ? appData.color : '#fff';
     const c = Color(color);
     const dark = c.isDark();
@@ -26,11 +25,9 @@ export const AppFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             backgroundColor: color
         }}>
-            <StatusBar style={dark ? 'light' : 'dark'} />
-
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <AppComponent
                 endpoint={url}
                 color={color}

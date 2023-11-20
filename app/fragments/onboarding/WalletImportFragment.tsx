@@ -13,8 +13,6 @@ import { WalletWordsComponent } from '../../components/secure/WalletWordsCompone
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { setStatusBarStyle } from 'expo-status-bar';
 import { useTheme } from '../../engine/hooks';
 import { mnemonicValidate } from '@ton/crypto';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -238,12 +236,6 @@ export const WalletImportFragment = systemFragment(() => {
         deviceEncryption: DeviceEncryption
     } | null>(null);
     const safeArea = useSafeAreaInsets();
-
-    useFocusEffect(useCallback(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    }, []));
 
     return (
         <View

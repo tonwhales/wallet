@@ -103,7 +103,6 @@ export const ContactsFragment = fragment(() => {
                 <ScreenHeader
                     title={t('contacts.title')}
                     onClosePressed={navigation.goBack}
-                    statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
                 />
             )}
             {(!contactsList || contactsList.length === 0) ? (

@@ -58,7 +58,6 @@ export const Splash = memo(({ hide }: { hide: boolean }) => {
             ]}
             pointerEvents={'none'}
         >
-            <StatusBar style={'dark'} />
             <View style={{
                 width: 147, height: 175,
                 alignItems: 'center'

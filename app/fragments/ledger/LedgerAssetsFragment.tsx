@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
@@ -53,7 +52,6 @@ export const LedgerAssetsFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar pageTitle={t('products.accounts')} />
             {Platform.OS === 'ios' && (
                 <View style={{

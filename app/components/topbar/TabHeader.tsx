@@ -1,8 +1,9 @@
 import React, { memo } from "react";
-import { StyleProp, View, ViewStyle, Text, Platform } from "react-native";
+import { StyleProp, View, ViewStyle, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
 import { useTheme } from "../../engine/hooks";
+import { StatusBar } from "expo-status-bar";
+import { Platform } from "react-native";
 
 export const TabHeader = memo(({
     title,
@@ -27,7 +28,7 @@ export const TabHeader = memo(({
                 backgroundColor: theme.backgroundPrimary,
             }, style
         ]}>
-            {Platform.OS === 'android' && <StatusBar style={'dark'} />}
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <Text
                 numberOfLines={1}
                 style={{

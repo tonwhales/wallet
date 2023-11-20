@@ -1,6 +1,5 @@
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, ScrollView, Image } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
 import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
@@ -36,10 +35,10 @@ import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
+import { StatusBar } from 'expo-status-bar';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { PriceComponent } from '../../components/PriceComponent';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -775,7 +774,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <ScreenHeader
                 title={header.title}
                 onBackPressed={header?.onBackPressed}

@@ -28,6 +28,7 @@ import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, extern
 import { getLastBlock } from '../../engine/accountWatcher';
 import { estimateFees } from '../../utils/estimateFees';
 import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
+import { StatusBar } from 'expo-status-bar';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -431,12 +432,9 @@ export const TransferFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <ScreenHeader
-                style={{ paddingLeft: 16 }}
-                statusBarStyle={Platform.select({
-                    ios: 'dark',
-                    android: theme.style === 'dark' ? 'light' : 'dark'
-                })}
+                style={[{ paddingLeft: 16 }, Platform.select({ android: { paddingTop: safeArea.top } })]}
                 onBackPressed={navigation.goBack}
                 onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
             />

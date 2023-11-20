@@ -10,8 +10,6 @@ import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
-import { setStatusBarStyle } from 'expo-status-bar';
-import { useFocusEffect } from '@react-navigation/native';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -31,6 +29,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
+import { StatusBar } from 'expo-status-bar';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -96,15 +95,10 @@ export const SettingsFragment = fragment(() => {
 
     useTrackScreen('More', network.isTestnet);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1 }}>
             <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
+                <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
                 <View style={{
                     flexDirection: 'row',
                     backgroundColor: theme.surfaceOnElevation,

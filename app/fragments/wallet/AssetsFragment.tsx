@@ -16,6 +16,8 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
+import { StatusBar } from "expo-status-bar";
+import { Platform } from "react-native";
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -111,10 +113,14 @@ export const AssetsFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <ScreenHeader
                 onBackPressed={navigation.goBack}
                 title={t('products.accounts')}
-                style={{ paddingHorizontal: 16 }}
+                style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
             />
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, marginTop: 16 }}

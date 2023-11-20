@@ -27,7 +27,6 @@ export const ThemeFragment = fragment(() => {
                 title={t('theme.title')}
                 onClosePressed={navigation.goBack}
                 style={Platform.select({ android: { paddingTop: safeArea.top } })}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             <Pressable
                 key={`theme-system`}

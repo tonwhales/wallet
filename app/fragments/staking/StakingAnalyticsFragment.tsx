@@ -7,8 +7,6 @@ import { t } from "../../i18n/t";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { useDimensions } from "@react-native-community/hooks";
-import { setStatusBarStyle } from "expo-status-bar";
-import { useFocusEffect } from "@react-navigation/native";
 import { LineChart } from "react-native-chart-kit";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
@@ -20,6 +18,7 @@ import { useNominatorInfo } from "../../engine/hooks/staking/useNominatorInfo";
 import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
 
 import IcGrowth from "@assets/ic-growth.svg";
+import { StatusBar } from "expo-status-bar";
 
 type Dataset = {
     /** The data corresponding to the x-axis label. */
@@ -272,18 +271,12 @@ export const StakingAnalyticsFragment = fragment(() => {
         // }
     }, [data]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Platform.select({
-                ios: 'light',
-                android: theme.style === 'dark' ? 'light' : 'dark',
-                default: 'light',
-            }));
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('products.staking.analytics.analyticsTitle')}
                 onClosePressed={navigation.goBack}

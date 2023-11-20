@@ -8,7 +8,6 @@ import { WordInput, WordInputRef, normalize, wordsTrie } from "../../fragments/o
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";
-import { StatusBar } from "expo-status-bar";
 import { AutocompleteView } from "../AutocompleteView";
 import { useTheme } from "../../engine/hooks";
 import { mnemonicValidate } from "@ton/crypto";
@@ -210,7 +209,6 @@ export const WalletWordsComponent = React.memo((props: {
 
     return (
         <>
-            <StatusBar style='dark' />
             <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef} collapsable={false}>
                 <Animated.ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}

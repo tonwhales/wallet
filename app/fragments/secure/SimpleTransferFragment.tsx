@@ -39,6 +39,7 @@ import { AboutIconButton } from '../../components/AboutIconButton';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { PriceComponent } from '../../components/PriceComponent';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -153,6 +154,21 @@ export const SimpleTransferFragment = fragment(() => {
             isNeg
         );
     }, [jettonState, validAmount, price, currency]);
+
+    const estimationPrise = useMemo(() => {
+        if (!estimation || !price || !validAmount) {
+            return undefined;
+        }
+
+        const isNeg = estimation < 0n;
+        const abs = isNeg ? -estimation : estimation;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [price, currency, estimation]);
 
     const isVerified = useMemo(() => {
         if (!jettonState || !jettonState.wallet.master) {
@@ -1023,7 +1039,12 @@ export const SimpleTransferFragment = fragment(() => {
                                         color: theme.textPrimary,
                                         fontSize: 17, lineHeight: 24, fontWeight: '400'
                                     }}>
-                                        {estimation ? fromNano(estimation) : '...'}
+                                        {estimation
+                                            ? <>
+                                                {`${fromNano(estimation)} (${estimationPrise})`}
+                                            </>
+                                            : '...'
+                                        }
                                     </Text>
                                 </View>
                                 <AboutIconButton

@@ -779,7 +779,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     contacts: {
         title: 'Contacts',
         contact: 'Contact',
-        unknown: 'Resent',
+        unknown: 'Recent',
         contacts: 'My contacts',
         name: 'Name',
         lastName: 'Last name',

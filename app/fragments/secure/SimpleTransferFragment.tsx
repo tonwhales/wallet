@@ -762,7 +762,7 @@ export const SimpleTransferFragment = fragment(() => {
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16, flexGrow: 1 }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
                 keyboardDismissMode={'none'}

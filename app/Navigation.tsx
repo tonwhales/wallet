@@ -126,7 +126,7 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
                 headerShown: false,
                 contentStyle: {
                     paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined,
-                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : undefined
+                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : theme.backgroundPrimary
                 }
             }}
         />

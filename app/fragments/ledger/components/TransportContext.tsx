@@ -35,6 +35,11 @@ const bleSearchStateReducer = (state: BLESearchState, action: BleSearchAction): 
                 devices: [],
             };
         case 'add':
+            if (state?.type === 'ongoing') {
+                if (state.devices.find(d => d.id === action.device.id)) {
+                    return state;
+                }
+            }
             return {
                 type: 'ongoing',
                 devices: state?.type === 'ongoing' ? state.devices.concat(action.device) : [action.device],

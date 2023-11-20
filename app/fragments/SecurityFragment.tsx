@@ -1,5 +1,5 @@
 import React from "react"
-import { Platform, View, ScrollView } from "react-native"
+import { Platform, View, ScrollView, Image } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
@@ -19,7 +19,6 @@ import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometrics
 import { ScreenHeader } from "../components/ScreenHeader"
 import { useLockAppWithAuthState } from "../engine/hooks/settings"
 
-import TouchIos from '@assets/ic_touch_ios.svg';
 import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
 
@@ -52,9 +51,7 @@ export const SecurityFragment = fragment(() => {
                 break;
             case 'biometric':
             case 'fingerprint':
-                icon = Platform.OS === 'ios'
-                    ? <TouchIos width={20} height={20} color={theme.iconNav} />
-                    : <TouchAndroid width={20} height={20} color={theme.iconNav} />
+                icon = <Image style={{ height: 24, width: 24 }} source={require('@assets/ic-touch-id.png')} />
                 buttonText = Platform.OS === 'ios'
                     ? t('secure.protectTouchID')
                     : t('secure.protectBiometrics');
@@ -144,6 +141,13 @@ export const SecurityFragment = fragment(() => {
                             onPress={() => navigation.navigate('PasscodeSetup')}
                         />
                     )}
+                </View>
+                <View style={{
+                    marginBottom: 16,
+                    backgroundColor: theme.surfaceOnElevation,
+                    borderRadius: 20,
+                    justifyContent: 'center',
+                }}>
                     {biometricsProps && (
                         <>
                             {!!biometricsProps.state && biometricsProps.state !== BiometricsState.NotSet && (
@@ -175,15 +179,8 @@ export const SecurityFragment = fragment(() => {
                             )}
                         </>
                     )}
-                </View>
-                <View style={{
-                    marginBottom: 16,
-                    backgroundColor: theme.surfaceOnElevation,
-                    borderRadius: 20,
-                    justifyContent: 'center',
-                }}>
                     <ItemSwitch
-                        leftIcon={require('@assets/ic-secure-lock.png')}
+                        leftIcon={require('@assets/ic-block-app.png')}
                         title={t('secure.lockAppWithAuth')}
                         value={lockAppWithAuthState}
                         onChange={(newValue: boolean) => {

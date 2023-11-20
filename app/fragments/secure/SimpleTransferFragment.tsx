@@ -975,13 +975,13 @@ export const SimpleTransferFragment = fragment(() => {
                         layout={Layout.duration(300)}
                         style={[
                             { backgroundColor: theme.elevation },
-                            seletectInputStyles.comment
+                            seletectInputStyles.comment,
                         ]}
                     >
                         <View style={{
                             flex: 1,
                             backgroundColor: theme.surfaceOnElevation,
-                            paddingVertical: 20,
+                            paddingVertical: 26, paddingHorizontal: 10,
                             width: '100%', borderRadius: 20,
                         }}>
                             <ATextInput

@@ -1,5 +1,5 @@
 import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Text } from "react-native"
+import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Text, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { View } from "react-native";
@@ -13,6 +13,7 @@ import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
+import { AddressInputAction, InputActionType } from "./TransferAddressInput";
 
 import Scanner from '@assets/ic-scanner-accent.svg';
 
@@ -26,15 +27,10 @@ export const AddressDomainInput = memo(forwardRef(({
     onSubmit,
     target,
     input,
-    onInputChange,
-    onDomainChange,
-    onTargetChange,
+    dispatch,
     isKnown,
     index,
     contact,
-    labelStyle,
-    labelText,
-    showToMainAddress,
     onQRCodeRead,
     invalid,
     autoFocus
@@ -46,15 +42,10 @@ export const AddressDomainInput = memo(forwardRef(({
     onSubmit?: (index: number) => void,
     target?: string,
     input: string,
-    onInputChange: (value: string) => void,
-    onTargetChange: (value: string) => void,
-    onDomainChange: (domain: string | undefined) => void,
+    dispatch: (action: AddressInputAction) => void,
     isKnown?: boolean,
     index: number,
     contact?: AddressContact | null,
-    labelStyle?: StyleProp<ViewStyle>,
-    labelText?: string,
-    showToMainAddress?: boolean,
     onQRCodeRead?: (value: string) => void,
     invalid?: boolean
     autoFocus?: boolean
@@ -116,25 +107,17 @@ export const AddressDomainInput = memo(forwardRef(({
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
 
                 setResolvedAddress(resolvedWalletAddress);
-                onTargetChange(resolvedWalletAddress.toString({ testOnly: network.isTestnet }));
-                onDomainChange(toResolve);
+                dispatch({
+                    type: InputActionType.DomainTarget,
+                    domain: toResolve,
+                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                });
             } catch (e) {
                 Alert.alert(t('transfer.error.invalidDomain'));
                 warn(e);
             }
             setResolving(false);
         }, []);
-
-    useEffect(() => {
-        onDomainChange(undefined);
-        onTargetChange(input);
-
-        if (input.endsWith('.ton')) {
-            onResolveDomain(input, '.ton');
-        } else if (input.endsWith('.t.me')) {
-            onResolveDomain(input, '.t.me');
-        }
-    }, [input, onResolveDomain, onTargetChange]);
 
     const { suffix, textInput } = useMemo(() => {
         let suffix = undefined;
@@ -169,6 +152,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 value={textInput}
                 index={index}
                 ref={tref}
+                maxLength={48}
                 onFocus={(index) => {
                     setFocused(true);
                     if (onFocus) {
@@ -176,7 +160,15 @@ export const AddressDomainInput = memo(forwardRef(({
                     }
                 }}
                 onValueChange={(value) => {
-                    onInputChange(value);
+                    dispatch({
+                        type: InputActionType.Input,
+                        input: value
+                    });
+                    if (input.endsWith('.ton')) {
+                        onResolveDomain(input, '.ton');
+                    } else if (input.endsWith('.t.me')) {
+                        onResolveDomain(input, '.t.me');
+                    }
                 }}
                 placeholder={t('common.domainOrAddressOrContact')}
                 keyboardType={'default'}
@@ -203,15 +195,14 @@ export const AddressDomainInput = memo(forwardRef(({
                     {
                         marginLeft: (focused && input.length === 0) ? 0 : -8,
                         flexShrink: suffix ? 1 : undefined,
-                        // backgroundColor: suffix ? 'red' : undefined,
-                        maxWidth: suffix ? '70%' : undefined,
                     }
                 ]}
                 suffixStyle={{
                     fontSize: 17, fontWeight: '400',
                     color: theme.textSecondary,
                     textAlign: 'center',
-                    minWidth: '30%'
+                    flexGrow: 1,
+                    minWidth: 104
                 }}
                 textAlignVertical={'center'}
                 actionButtonRight={
@@ -223,13 +214,26 @@ export const AddressDomainInput = memo(forwardRef(({
                             infinitRotate
                             progress={0.8}
                         />
-                        : input.length === 0 && !!onQRCodeRead && (
+                        : (input.length === 0 && !!onQRCodeRead) ? (
                             <Animated.View entering={FadeIn} exiting={FadeOut}>
                                 <Pressable
                                     onPress={openScanner}
                                     style={{ height: 24, width: 24 }}
                                 >
                                     <Scanner height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Pressable>
+                            </Animated.View>
+                        ) : (
+                            <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                <Pressable
+                                    onPress={() => dispatch({ type: InputActionType.Clear })}
+                                    style={{ height: 24, width: 24 }}
+                                    hitSlop={16}
+                                >
+                                    <Image
+                                        source={require('@assets/ic-clear.png')}
+                                        style={{ height: 24, width: 24 }}
+                                    />
                                 </Pressable>
                             </Animated.View>
                         )

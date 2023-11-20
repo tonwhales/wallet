@@ -19,7 +19,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -33,11 +33,11 @@ import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
-import { TransferAddressInput } from '../../components/address/TransferAddressInput';
+import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { ItemDivider } from '../../components/ItemDivider';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { ItemDivider } from '../../components/ItemDivider';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -79,9 +79,17 @@ export const SimpleTransferFragment = fragment(() => {
 
     const account = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [target, setTarget] = useState(params?.target || '');
-    const [addressDomainInput, setAddressDomainInput] = useState(target);
-    const [domain, setDomain] = useState<string>();
+    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
+        addressInputReducer(),
+        {
+            input: params?.target || '',
+            target: params?.target || '',
+            domain: undefined
+        }
+    );
+
+    const { target, input: addressDomainInput, domain } = addressDomainInputState;
+
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
@@ -787,9 +795,7 @@ export const SimpleTransferFragment = fragment(() => {
                             target={target}
                             input={addressDomainInput}
                             onFocus={onFocus}
-                            setInput={setAddressDomainInput}
-                            setTarget={setTarget}
-                            setDomain={setDomain}
+                            dispatch={dispatchAddressDomainInput}
                             onSubmit={onSubmit}
                             onQRCodeRead={onQRCodeRead}
                             isSelected={selected === 'address'}
@@ -1011,11 +1017,14 @@ export const SimpleTransferFragment = fragment(() => {
             </Animated.ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 32,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 16}
+                style={[
+                    { marginHorizontal: 16, marginTop: 16, },
+                    Platform.select({
+                        android: { marginBottom: safeArea.bottom + 16 },
+                        ios: { marginBottom: safeArea.bottom + 32 }
+                    })
+                ]}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
             >
                 {!!selected
                     ? <RoundButton

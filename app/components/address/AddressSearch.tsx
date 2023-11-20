@@ -7,7 +7,7 @@ import { useAccountTransactions, useClient4, useContacts, useNetwork, useTheme }
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 
-export type AddressSearchItem = { address: Address, title: string, searchable: string, type: 'contact' | 'known', icon?: string };
+export type AddressSearchItem = { address: Address, title: string, searchable: string, type: 'contact' | 'known' | 'unknown', icon?: string };
 
 export const AddressSearch = memo(({
     account,
@@ -17,14 +17,14 @@ export const AddressSearch = memo(({
 }: {
     account: Address,
     query?: string,
-    onSelect?: (address: Address) => void,
+    onSelect?: (item: AddressSearchItem) => void,
     transfer?: boolean
 }) => {
     const theme = useTheme();
     const network = useNetwork();
     const contacts = useContacts();
     const client = useClient4(network.isTestnet);
-    const known = KnownWallets(network.isTestnet);
+    const knownWallets = KnownWallets(network.isTestnet);
 
     const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet }))?.data;
 
@@ -81,7 +81,7 @@ export const AddressSearch = memo(({
                     type: 'contact'
                 }
             }),
-            ...Object.entries(known).map(([key, known]) => {
+            ...Object.entries(knownWallets).map(([key, known]) => {
                 let address;
                 try {
                     address = Address.parse(key);
@@ -99,7 +99,7 @@ export const AddressSearch = memo(({
                 }
             })
         ].filter((i) => !!i) as AddressSearchItem[];
-    }, [contacts, known]);
+    }, [contacts, knownWallets]);
 
     const filtered = useMemo(() => {
         if (!query || query.length === 0) {
@@ -124,82 +124,85 @@ export const AddressSearch = memo(({
             keyboardShouldPersistTaps={'always'}
             keyboardDismissMode={'none'}
         >
-            <>
-                {filtered.recent.length > 0 && (
+            {filtered.recent.length > 0 && (
+                <View style={transfer ? {
+                    borderRadius: 20,
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 2
+                } : undefined}>
+                    <Text style={{
+                        fontSize: 17, fontWeight: '600',
+                        lineHeight: 24,
+                        color: theme.textPrimary,
+                        marginBottom: 8,
+                        marginLeft: transfer ? 16 : 0,
+                        marginTop: transfer ? 16 : 0
+                    }}>
+                        {t('common.recent')}
+                    </Text>
                     <View style={transfer ? {
-                        borderRadius: 20,
-                        backgroundColor: theme.surfaceOnElevation,
-                        padding: 2
+                        backgroundColor: theme.elevation,
+                        borderRadius: 18,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8
                     } : undefined}>
-                        <Text style={{
-                            fontSize: 17, fontWeight: '600',
-                            lineHeight: 24,
-                            color: theme.textPrimary,
-                            marginBottom: 8,
-                            marginLeft: transfer ? 16 : 0,
-                            marginTop: transfer ? 16 : 0
-                        }}>
-                            {t('common.recent')}
-                        </Text>
-                        <View style={transfer ? {
-                            backgroundColor: theme.elevation,
-                            borderRadius: 18,
-                            paddingHorizontal: 16,
-                            paddingVertical: 8
-                        } : undefined}>
-                            {filtered.recent.map((address, index) => {
-                                return (
-                                    <AddressSearchItemView
-                                        key={index}
-                                        item={{
-                                            address: address,
-                                            title: t('contacts.unknown'),
-                                            searchable: address.toString({ testOnly: network.isTestnet }),
-                                            type: 'contact'
-                                        }}
-                                        onPress={onSelect}
-                                    />
-                                )
-                            })}
-                        </View>
+                        {filtered.recent.map((address, index) => {
+                            const contact = contacts[address.toString({ testOnly: network.isTestnet })];
+                            const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
+                            const type = contact ? 'contact' : known ? 'known' : 'unknown';
+                            const title = contact ? contact.name : known ? known.name : t('contacts.unknown');
+
+                            return (
+                                <AddressSearchItemView
+                                    key={index}
+                                    item={{
+                                        address: address,
+                                        title: title,
+                                        searchable: address.toString({ testOnly: network.isTestnet }),
+                                        type: type
+                                    }}
+                                    onPress={onSelect}
+                                />
+                            )
+                        })}
                     </View>
-                )}
-                {filtered.searchRes.length > 0 && (
+                </View>
+            )}
+            {filtered.searchRes.length > 0 && (
+                <View style={transfer ? {
+                    borderRadius: 20,
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 2,
+                    marginTop: filtered.recent.length > 0 ? 24 : 0
+                } : undefined}>
+                    <Text style={{
+                        fontSize: 17, fontWeight: '600',
+                        lineHeight: 24,
+                        color: theme.textPrimary,
+                        marginBottom: 8,
+                        marginLeft: transfer ? 16 : 0,
+                        marginTop: transfer ? 16 : 0
+                    }}>
+                        {t('contacts.contacts')}
+                    </Text>
                     <View style={transfer ? {
-                        borderRadius: 20,
-                        backgroundColor: theme.surfaceOnElevation,
-                        padding: 2,
-                        marginTop: filtered.recent.length > 0 ? 24 : 0
+                        backgroundColor: theme.elevation,
+                        borderRadius: 18,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8
                     } : undefined}>
-                        <Text style={{
-                            fontSize: 17, fontWeight: '600',
-                            lineHeight: 24,
-                            color: theme.textPrimary,
-                            marginBottom: 8,
-                            marginLeft: transfer ? 16 : 0,
-                            marginTop: transfer ? 16 : 0
-                        }}>
-                            {t('contacts.contacts')}
-                        </Text>
-                        <View style={transfer ? {
-                            backgroundColor: theme.elevation,
-                            borderRadius: 18,
-                            paddingHorizontal: 16,
-                            paddingVertical: 8
-                        } : undefined}>
-                            {filtered.searchRes.map((item, index) => {
-                                return (
-                                    <AddressSearchItemView
-                                        key={index}
-                                        item={item}
-                                        onPress={onSelect}
-                                    />
-                                );
-                            })}
-                        </View>
+                        {filtered.searchRes.map((item, index) => {
+                            return (
+                                <AddressSearchItemView
+                                    key={index}
+                                    item={item}
+                                    onPress={onSelect}
+                                />
+                            );
+                        })}
                     </View>
-                )}
-            </>
+                </View>
+            )}
         </ScrollView>
     );
 });

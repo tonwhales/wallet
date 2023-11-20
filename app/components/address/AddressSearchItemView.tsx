@@ -6,16 +6,15 @@ import { useNetwork, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
-import { Address } from "@ton/core";
 
-export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSearchItem, onPress?: (address: Address) => void }) => {
+export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSearchItem, onPress?: (item: AddressSearchItem) => void }) => {
     const theme = useTheme();
     const network = useNetwork();
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     return (
         <Pressable
-            onPress={() => onPress ? onPress(item.address) : undefined}
+            onPress={() => onPress ? onPress(item) : undefined}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
         >

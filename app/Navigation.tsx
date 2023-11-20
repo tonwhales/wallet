@@ -256,12 +256,12 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('AvatarPicker', AvatarPickerFragment, safeArea),
 
     // Holders
-    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, undefined, 0),
-    genericScreen('Holders', HoldersAppFragment, safeArea, undefined, 0),
+    genericScreen('HoldersLanding', HoldersLandingFragment, safeArea, true, 0),
+    genericScreen('Holders', HoldersAppFragment, safeArea, true, 0),
 
     // Utils
-    genericScreen('Privacy', PrivacyFragment, safeArea),
-    genericScreen('Terms', TermsFragment, safeArea),
+    genericScreen('Privacy', PrivacyFragment, safeArea, true),
+    genericScreen('Terms', TermsFragment, safeArea, true),
     lockedModalScreen('Scanner', ScannerFragment, safeArea),
     transparentModalScreen('Alert', AlertFragment, safeArea),
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),

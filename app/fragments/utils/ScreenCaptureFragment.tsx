@@ -7,6 +7,8 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
 import { useTheme } from "../../engine/hooks";
+import { StatusBar } from "expo-status-bar";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export const ScreenCaptureFragment = systemFragment(() => {
     const theme = useTheme();
@@ -20,12 +22,25 @@ export const ScreenCaptureFragment = systemFragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            {Platform.OS === 'android' && (
+                <ScreenHeader
+                    onClosePressed={navigation.goBack}
+                />
+            )}
+            {Platform.OS === 'ios' && (
+                <View style={{ flexGrow: 1 }} />
+            )}
             <Pressable
                 onPress={navigation.goBack}
                 style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
             />
             <View style={{
-                height: '50%',
+                height: Platform.OS === 'android' ? undefined : '50%',
+                flexGrow: Platform.OS === 'ios' ? 0 : 1,
                 backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.surfaceOnElevation,
                 borderTopEndRadius: 20, borderTopStartRadius: 20,
                 padding: 16,

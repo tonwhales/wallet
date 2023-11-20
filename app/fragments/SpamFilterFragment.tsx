@@ -12,6 +12,7 @@ import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { useDenyList, useDontShowComments, useRemoveFromDenyList, useSpamMinAmount, useTheme } from "../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { confirmAlert } from "../utils/confirmAlert";
+import { StatusBar } from "expo-status-bar";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcInfo from '@assets/ic-info.svg';
@@ -74,6 +75,10 @@ export const SpamFilterFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 32
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('settings.spamFilter')}
                 onClosePressed={navigation.goBack}

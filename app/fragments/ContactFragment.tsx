@@ -19,6 +19,7 @@ import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
 import { useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -212,6 +213,10 @@ export const ContactFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('contacts.title')}
                 style={{ paddingLeft: 16 }}

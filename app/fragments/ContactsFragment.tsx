@@ -12,9 +12,10 @@ import { useClient4, useNetwork, useSelectedAccount, useTheme, useAccountTransac
 import { useContacts } from "../engine/hooks/contacts/useContacts";
 import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
+import { useParams } from "../utils/useParams";
+import { StatusBar } from "expo-status-bar";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
-import { useParams } from "../utils/useParams";
 
 
 export const ContactsFragment = fragment(() => {
@@ -99,6 +100,10 @@ export const ContactsFragment = fragment(() => {
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
             paddingBottom: safeArea.bottom + 16,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             {(Object.entries(contacts).length <= 0) && (
                 <ScreenHeader
                     title={t('contacts.title')}

@@ -130,10 +130,17 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
-                style={{ paddingHorizontal: 16 }}
+                style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
             />
             <Text style={{
                 color: theme.textPrimary,

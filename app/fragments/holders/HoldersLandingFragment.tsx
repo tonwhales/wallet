@@ -25,6 +25,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { normalizePath } from './components/HoldersAppComponent';
+import { StatusBar } from 'expo-status-bar';
 
 export const HoldersLandingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -219,6 +220,7 @@ export const HoldersLandingFragment = fragment(() => {
             paddingTop: 36,
             backgroundColor: theme.surfaceOnBg
         }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView

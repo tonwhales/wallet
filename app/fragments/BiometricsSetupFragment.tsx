@@ -20,6 +20,7 @@ import { useBiometricsState } from '../engine/hooks';
 import { useTheme } from '../engine/hooks';
 import { useSetBiometricsState } from '../engine/hooks';
 import { CloseButton } from '../components/navigation/CloseButton';
+import { StatusBar } from 'expo-status-bar';
 
 export const BiometricsSetupFragment = systemFragment(() => {
     const theme = useTheme();
@@ -126,6 +127,10 @@ export const BiometricsSetupFragment = systemFragment(() => {
             justifyContent: 'center',
             alignContent: 'center'
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                 <View style={{ flexGrow: 1 }} />
                 <FragmentMediaContent

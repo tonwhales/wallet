@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
@@ -11,6 +11,7 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 
@@ -84,10 +85,17 @@ export const LedgerSelectAccountFragment = fragment(() => {
         <View style={{
             flex: 1,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('hardwareWallet.title')}
                 onBackPressed={navigation.goBack}
-                style={{ paddingHorizontal: 16 }}
+                style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
             />
             <Text style={{
                 color: theme.textPrimary,

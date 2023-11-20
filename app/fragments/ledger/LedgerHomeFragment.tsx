@@ -13,6 +13,7 @@ import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
+import { StatusBar } from "expo-status-bar";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -110,6 +111,7 @@ export const LedgerHomeFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundUnchangeable }}>
+            <StatusBar style={'light'} />
             <LedgerWalletHeader />
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}

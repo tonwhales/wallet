@@ -8,6 +8,7 @@ import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme, useThemeStyle } from "../engine/hooks";
 import { ThemeStyle } from "../engine/state/theme";
+import { StatusBar } from "expo-status-bar";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -23,6 +24,10 @@ export const ThemeFragment = fragment(() => {
 
     return (
         <View>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('theme.title')}
                 onClosePressed={navigation.goBack}

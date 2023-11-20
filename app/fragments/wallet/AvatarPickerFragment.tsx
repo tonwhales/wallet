@@ -7,11 +7,14 @@ import { t } from "../../i18n/t";
 import { useCallback, useState } from "react";
 import { Avatar, avatarImages } from "../../components/Avatar";
 import { useTheme } from "../../engine/hooks";
+import { StatusBar } from "expo-status-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const AvatarPickerFragment = fragment(() => {
     const { callback, hash } = useParams<{ callback: (newHash: number) => void, hash: number }>();
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
 
     const [hashState, setHash] = useState(hash);
 
@@ -24,10 +27,17 @@ export const AvatarPickerFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
                 title={t('wallets.settings.changeAvatar')}
-                style={{ paddingHorizontal: 16 }}
+                style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } }),
+                ]}
                 rightButton={
                     <Pressable
                         style={({ pressed }) => {

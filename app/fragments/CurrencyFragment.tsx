@@ -9,6 +9,7 @@ import Animated from "react-native-reanimated";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { usePrimaryCurrency, useTheme } from "../engine/hooks";
 import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
+import { StatusBar } from "expo-status-bar";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -33,6 +34,10 @@ export const CurrencyFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('settings.primaryCurrency')}
                 onClosePressed={navigation.goBack}

@@ -70,7 +70,6 @@ export type AddressInputAction = {
 
 export function addressInputReducer() {
     return (state: AddressInputState, action: AddressInputAction): AddressInputState => {
-        console.log({ action });
         switch (action.type) {
             case InputActionType.Input:
                 if (action.input === state.input) {

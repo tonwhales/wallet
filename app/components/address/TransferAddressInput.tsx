@@ -1,5 +1,5 @@
 import { ForwardedRef, forwardRef, memo, useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { Platform, ScrollView, View, Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -61,7 +61,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             backgroundColor={props.theme.elevation}
                             borderColor={props.theme.elevation}
                         />
-                        : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
+                        : <Image
+                            source={require('@assets/ic-question.png')}
+                            style={{ height: 46, width: 46, tintColor: props.theme.iconPrimary }}
+                        />
                     }
                 </View>
                 <View style={{ flexGrow: 1 }}>
@@ -91,15 +94,19 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
             </View>
             {props.isSelected && (
                 <Animated.View
-                    style={{ marginTop: 32, marginHorizontal: -16 }}
+                    style={{ marginHorizontal: -16 }}
                     entering={FadeIn} exiting={FadeOut}
                 >
                     <ScrollView
                         contentInset={{
+                            top: 32,
                             bottom: keyboard.keyboardHeight - safeArea.bottom - 16 - 56 - safeArea.top,
-                            top: 0.1 /* Some weird bug on iOS */
+                            // top: 0.1 /* Some weird bug on iOS */
                         }}
-                        contentContainerStyle={{ paddingHorizontal: 16 }}
+                        contentContainerStyle={[
+                            { paddingHorizontal: 16, borderRadius: 20 },
+                            Platform.select({ android: { paddingTop: 32 } })
+                        ]}
                         contentInsetAdjustmentBehavior={'never'}
                         keyboardShouldPersistTaps={'always'}
                         keyboardDismissMode={'none'}

@@ -177,7 +177,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         purpose: 'Purpose of transaction',
         comment: 'Message (optional)',
         commentDescription: 'Message will be visible to everyone on the blockchain',
-        commentRequired: 'Check your memo before sending',
+        commentRequired: 'Check your message before sending',
         commentLabel: 'Message',
         checkComment: 'Check before sending',
         confirmTitle: 'Confirm transaction',

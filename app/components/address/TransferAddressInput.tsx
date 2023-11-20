@@ -1,5 +1,5 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useEffect } from "react";
-import { Platform, ScrollView, View } from "react-native";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
+import { Platform, Pressable, ScrollView, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -15,6 +15,7 @@ import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -128,21 +129,31 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
 
+    const select = useCallback(() => {
+        (ref as RefObject<ATextInputRef>)?.current?.focus();
+    }, [ref]);
+
     useEffect(() => {
         if (props.isSelected) {
-            (ref as RefObject<ATextInputRef>)?.current?.focus();
+            select();
         }
-    }, [props.isSelected, ref]);
+    }, [select, ref]);
 
     return (
-        <>
-            <View style={{
-                backgroundColor: props.theme.surfaceOnElevation,
-                paddingVertical: 20,
-                width: '100%', borderRadius: 20,
-                flexDirection: 'row', alignItems: 'center'
-            }}>
-                <View style={{ marginLeft: 20 }}>
+        <View>
+            <View
+                style={props.isSelected ? { opacity: 0, height: 0, width: 0 } : undefined}
+                pointerEvents={!props.isSelected ? 'box-none' : 'none'}
+            >
+                <Pressable
+                    style={{
+                        backgroundColor: props.theme.surfaceOnElevation,
+                        padding: 20,
+                        width: '100%', borderRadius: 20,
+                        flexDirection: 'row', alignItems: 'center'
+                    }}
+                    onPress={select}
+                >
                     {!!props.validAddress
                         ? <Avatar
                             size={46}
@@ -153,49 +164,88 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         />
                         : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
                     }
-                </View>
-                <View style={{ flexGrow: 1 }}>
-                    <AddressDomainInput
-                        input={props.input}
-                        dispatch={props.dispatch}
-                        target={props.target}
-                        index={props.index}
-                        ref={ref}
-                        onFocus={props.onFocus}
-                        style={{ paddingHorizontal: 16, flexGrow: 1 }}
-                        inputStyle={{
-                            flexShrink: 1,
-                            fontSize: 17, fontWeight: '400',
-                            color: props.theme.textPrimary,
-                            textAlignVertical: 'center',
-                        }}
-                        isKnown={isKnown}
-                        onSubmit={props.onSubmit}
-                        contact={contact}
-                        onQRCodeRead={props.onQRCodeRead}
-                        domain={props.domain}
-                    />
-                </View>
+                    <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
+                        <PerfText style={{
+                            color: theme.textSecondary,
+                            fontSize: 15,
+                            lineHeight: 20,
+                            fontWeight: '400'
+                        }}>
+                            {t('common.recipient')}
+                        </PerfText>
+                        <PerfText style={{
+                            color: theme.textPrimary,
+                            fontSize: 17,
+                            lineHeight: 24,
+                            fontWeight: '400',
+                            marginTop: 2,
+                        }}>
+                            {props.target.slice(0, 4) + '...' + props.target.slice(-4)}
+                        </PerfText>
+                    </View>
+                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                </Pressable>
             </View>
-            {!props.validAddress && (props.target.length === 48) && (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <PerfText style={{
-                        color: theme.accentRed,
-                        fontSize: 13,
-                        lineHeight: 18,
-                        marginTop: 4,
-                        marginLeft: 16,
-                        fontWeight: '400'
-                    }}>
-                        {t('transfer.error.invalidAddress')}
-                    </PerfText>
-                </Animated.View>
-            )}
-            {props.isSelected && (
-                <Animated.View
-                    style={{ marginHorizontal: -16 }}
-                    entering={FadeIn} exiting={FadeOut}
-                >
+            <View
+                style={!props.isSelected ? { opacity: 0, height: 0, width: 0 } : { marginTop: -16 }}
+                pointerEvents={props.isSelected ? 'box-none' : 'none'}
+            >
+                <View style={{
+                    backgroundColor: props.theme.surfaceOnElevation,
+                    paddingVertical: 20,
+                    width: '100%', borderRadius: 20,
+                    flexDirection: 'row', alignItems: 'center'
+                }}>
+                    <View style={{ marginLeft: 20 }}>
+                        {!!props.validAddress
+                            ? <Avatar
+                                size={46}
+                                id={props.validAddress.toString({ testOnly: props.isTestnet })}
+                                address={props.validAddress.toString({ testOnly: props.isTestnet })}
+                                backgroundColor={props.theme.elevation}
+                                borderColor={props.theme.elevation}
+                            />
+                            : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
+                        }
+                    </View>
+                    <View style={{ flexGrow: 1 }}>
+                        <AddressDomainInput
+                            input={props.input}
+                            dispatch={props.dispatch}
+                            target={props.target}
+                            index={props.index}
+                            ref={ref}
+                            onFocus={props.onFocus}
+                            style={{ paddingHorizontal: 16, flexGrow: 1 }}
+                            inputStyle={{
+                                flexShrink: 1,
+                                fontSize: 17, fontWeight: '400',
+                                color: props.theme.textPrimary,
+                                textAlignVertical: 'center',
+                            }}
+                            isKnown={isKnown}
+                            onSubmit={props.onSubmit}
+                            contact={contact}
+                            onQRCodeRead={props.onQRCodeRead}
+                            domain={props.domain}
+                        />
+                    </View>
+                </View>
+                {!props.validAddress && (props.target.length === 48) && (
+                    <Animated.View entering={FadeIn} exiting={FadeOut}>
+                        <PerfText style={{
+                            color: theme.accentRed,
+                            fontSize: 13,
+                            lineHeight: 18,
+                            marginTop: 4,
+                            marginLeft: 16,
+                            fontWeight: '400'
+                        }}>
+                            {t('transfer.error.invalidAddress')}
+                        </PerfText>
+                    </Animated.View>
+                )}
+                <View style={{ marginHorizontal: -16 }}>
                     <ScrollView
                         contentInset={{
                             top: 16,
@@ -223,8 +273,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             transfer
                         />
                     </ScrollView>
-                </Animated.View>
-            )}
-        </>
+                </View>
+            </View>
+        </View>
     )
 }))

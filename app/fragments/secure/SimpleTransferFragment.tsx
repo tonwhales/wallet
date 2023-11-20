@@ -35,10 +35,10 @@ import { estimateFees } from '../../utils/estimateFees';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
 import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
 import { ItemDivider } from '../../components/ItemDivider';
+import { AboutIconButton } from '../../components/AboutIconButton';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { AboutIconButton } from '../../components/AboutIconButton';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -810,7 +810,7 @@ export const SimpleTransferFragment = fragment(() => {
                     >
                         <View
                             style={{
-                                marginTop: 16,
+                                marginTop: !selected ? 16 : 0,
                                 marginBottom: amountError ? 0 : 16,
                                 backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
@@ -958,7 +958,7 @@ export const SimpleTransferFragment = fragment(() => {
                     <Animated.View
                         layout={Layout.duration(300)}
                         style={[
-                            { marginTop: 16, backgroundColor: theme.elevation },
+                            { backgroundColor: theme.elevation },
                             seletectInputStyles.comment
                         ]}
                     >

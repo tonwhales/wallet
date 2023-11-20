@@ -111,7 +111,7 @@ export const StakingPool = memo((props: {
             style={({ pressed }) => [{
                 flex: 1,
                 opacity: pressed ? 0.5 : 1,
-                borderRadius: 20,
+                borderRadius: 16,
                 backgroundColor: theme.backgroundPrimary,
                 padding: 16
             }, props.style]}

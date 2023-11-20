@@ -13,6 +13,7 @@ import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/u
 import { useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
+import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -159,7 +160,13 @@ export const WalletTransactions = memo((props: {
             ListHeaderComponent={props.header}
             ListFooterComponent={props.hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <LoadingIndicator simple />
+                    <ReAnimatedCircularProgress
+                            size={24}
+                            color={theme.iconPrimary}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
                 </View>
             ) : null}
             ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}

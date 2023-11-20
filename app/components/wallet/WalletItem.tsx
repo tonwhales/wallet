@@ -14,11 +14,13 @@ export const WalletItem = memo((
     {
         index,
         address,
-        selected
+        selected,
+        onSelect
     }: {
         index: number
         address: Address,
         selected?: boolean,
+        onSelect?: (address: Address) => void
     }
 ) => {
     const theme = useTheme();
@@ -29,6 +31,10 @@ export const WalletItem = memo((
     const [walletSettings,] = useWalletSettings(address);
 
     const onSelectAccount = useCallback(() => {
+        if (onSelect) {
+            onSelect(address);
+            return;
+        }
         if (selected) return;
         const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
@@ -40,7 +46,7 @@ export const WalletItem = memo((
         updateAppState({ ...appState, selected: index }, network.isTestnet);
 
         navigation.navigateAndReplaceAll('Home');
-    }, [walletSettings, selected, address, network]);
+    }, [walletSettings, selected, address, network, onSelect]);
 
     return (
         <Pressable

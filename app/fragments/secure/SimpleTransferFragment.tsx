@@ -19,7 +19,7 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -32,12 +32,14 @@ import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
-import { AddressSearch } from '../../components/address/AddressSearch';
-import { AddressDomainInput } from '../../components/address/AddressDomainInput';
 import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
+import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { ItemDivider } from '../../components/ItemDivider';
+import { AboutIconButton } from '../../components/AboutIconButton';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { PriceComponent } from '../../components/PriceComponent';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -79,9 +81,17 @@ export const SimpleTransferFragment = fragment(() => {
 
     const account = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
-    const [target, setTarget] = useState(params?.target || '');
-    const [addressDomainInput, setAddressDomainInput] = useState(target);
-    const [domain, setDomain] = useState<string>();
+    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
+        addressInputReducer(),
+        {
+            input: params?.target || '',
+            target: params?.target || '',
+            domain: undefined
+        }
+    );
+
+    const { target, input: addressDomainInput, domain } = addressDomainInputState;
+
     const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
@@ -144,6 +154,21 @@ export const SimpleTransferFragment = fragment(() => {
             isNeg
         );
     }, [jettonState, validAmount, price, currency]);
+
+    const estimationPrise = useMemo(() => {
+        if (!estimation || !price || !validAmount) {
+            return undefined;
+        }
+
+        const isNeg = estimation < 0n;
+        const abs = isNeg ? -estimation : estimation;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [price, currency, estimation]);
 
     const isVerified = useMemo(() => {
         if (!jettonState || !jettonState.wallet.master) {
@@ -467,7 +492,7 @@ export const SimpleTransferFragment = fragment(() => {
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState<number | null>(null);
+    const [selectedInput, setSelectedInput] = useState<number | null>(0);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -619,8 +644,8 @@ export const SimpleTransferFragment = fragment(() => {
         header: {
             onBackPressed?: () => void,
             title?: string,
-            rightButton?: React.ReactNode,
-            titleComponent?: React.ReactNode,
+            rightButton?: ReactNode,
+            titleComponent?: ReactNode,
         }
     }>(() => {
 
@@ -628,25 +653,11 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: null,
                 onNext: null,
-                header: {
-                    title: t('transfer.title'),
-                    onBackPressed: navigation.goBack
-                }
+                header: { title: t('transfer.title'), onBackPressed: () => refs[1]?.current?.focus(), }
             }
         }
 
         const addressFriendly = targetAddressValid?.address.toString({ testOnly: network.isTestnet });
-
-        const saveButton = (
-            <Pressable
-                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1, marginRight: 16 })}
-                onPress={resetInput}
-            >
-                <Text style={{ color: theme.accent, fontWeight: '500', fontSize: 17, lineHeight: 24 }}>
-                    {t('common.save')}
-                </Text>
-            </Pressable>
-        );
 
         const headertitle = addressFriendly
             ? {
@@ -660,6 +671,7 @@ export const SimpleTransferFragment = fragment(() => {
                             flexDirection: 'row',
                             justifyContent: 'center',
                             alignItems: 'center',
+                            marginLeft: -16,
                             paddingLeft: 6, paddingRight: 12,
                             paddingVertical: 6
                         }}
@@ -686,30 +698,28 @@ export const SimpleTransferFragment = fragment(() => {
                 title: t('transfer.title'),
             }
 
-        if (selectedInput === 0) {
+        if (selectedInput === 1) {
             return {
                 selected: 'amount',
                 onNext: (validAmount && !amountError)
-                    ? () => refs[1]?.current?.focus()
+                    ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: resetInput,
+                    onBackPressed: () => refs[0]?.current?.focus(),
                     ...headertitle
                 }
             }
         }
 
-        if (selectedInput === 1) {
+        if (selectedInput === 0) {
             return {
                 selected: 'address',
                 onNext: !!targetAddressValid
-                    ? () => refs[2]?.current?.focus()
+                    ? () => refs[1]?.current?.focus()
                     : null,
                 header: {
-                    onBackPressed: resetInput,
                     title: t('common.recipient'),
                     titleComponent: undefined,
-                    rightButton: saveButton
                 }
             }
         }
@@ -719,9 +729,8 @@ export const SimpleTransferFragment = fragment(() => {
                 selected: 'comment',
                 onNext: resetInput,
                 header: {
-                    onBackPressed: resetInput,
                     ...headertitle,
-                    rightButton: saveButton
+                    onBackPressed: () => refs[1]?.current?.focus(),
                 }
             }
         }
@@ -771,15 +780,15 @@ export const SimpleTransferFragment = fragment(() => {
                 title={header.title}
                 onBackPressed={header?.onBackPressed}
                 titleComponent={header.titleComponent}
-                rightButton={header.rightButton}
+                onClosePressed={navigation.goBack}
                 style={[
                     { paddingLeft: 16 },
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
             <Animated.ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
+                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16, flexGrow: 1 }}
                 contentInsetAdjustmentBehavior={'never'}
                 keyboardShouldPersistTaps={'always'}
                 keyboardDismissMode={'none'}
@@ -792,12 +801,37 @@ export const SimpleTransferFragment = fragment(() => {
                 >
                     <Animated.View
                         layout={Layout.duration(300)}
+                        style={seletectInputStyles.address}
+                    >
+                        <TransferAddressInput
+                            ref={refs[0]}
+                            acc={ledgerAddress ?? acc!.address}
+                            theme={theme}
+                            target={target}
+                            input={addressDomainInput}
+                            domain={domain}
+                            validAddress={targetAddressValid?.address}
+                            isTestnet={network.isTestnet}
+                            index={0}
+                            onFocus={onFocus}
+                            dispatch={dispatchAddressDomainInput}
+                            onSubmit={onSubmit}
+                            onQRCodeRead={onQRCodeRead}
+                            isSelected={selected === 'address'}
+                        />
+                    </Animated.View>
+                    <Animated.View
+                        layout={Layout.duration(300)}
                         style={seletectInputStyles.amount}
                     >
                         <View
                             style={{
+                                marginTop: !selected ? 16 : 0,
+                                marginBottom: amountError ? 0 : 16,
                                 backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 20, padding: 20, marginTop: 16
+                                borderRadius: 20,
+                                justifyContent: 'center',
+                                padding: 20
                             }}
                         >
                             <Pressable
@@ -862,20 +896,10 @@ export const SimpleTransferFragment = fragment(() => {
                                             </Text>
                                         </View>
                                     </View>
-                                    <IcChevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                    <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
                                 </View>
                             </Pressable>
-                        </View>
-                        <View
-                            style={{
-                                marginTop: 16,
-                                marginBottom: amountError ? 0 : 16,
-                                backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 20,
-                                justifyContent: 'center',
-                                padding: 20
-                            }}
-                        >
+                            <ItemDivider marginHorizontal={0} />
                             <View style={{
                                 flexDirection: 'row',
                                 marginBottom: 12,
@@ -890,7 +914,6 @@ export const SimpleTransferFragment = fragment(() => {
                                     <ValueComponent
                                         precision={4}
                                         value={balance}
-                                        centFontStyle={{ opacity: 0.5 }}
                                         decimals={jettonState ? jettonState.master.decimals : undefined}
                                     />
                                     {jettonState ? ` ${jettonState.master.symbol}` : ''}
@@ -909,8 +932,8 @@ export const SimpleTransferFragment = fragment(() => {
                                 </Pressable>
                             </View>
                             <ATextInput
-                                index={0}
-                                ref={refs[0]}
+                                index={1}
+                                ref={refs[1]}
                                 onFocus={onFocus}
                                 value={amount}
                                 onValueChange={setAmount}
@@ -927,7 +950,7 @@ export const SimpleTransferFragment = fragment(() => {
                                     width: 'auto',
                                     flexShrink: 1
                                 }}
-                                suffux={priceText}
+                                suffix={priceText}
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                             />
@@ -950,76 +973,15 @@ export const SimpleTransferFragment = fragment(() => {
                     </Animated.View>
                     <Animated.View
                         layout={Layout.duration(300)}
-                        style={seletectInputStyles.address}
-                    >
-                        <View style={{
-                            flex: 1,
-                            backgroundColor: theme.surfaceOnElevation,
-                            paddingVertical: 20,
-                            width: '100%', borderRadius: 20,
-                        }}>
-                            <AddressDomainInput
-                                input={addressDomainInput}
-                                onInputChange={setAddressDomainInput}
-                                target={target}
-                                index={1}
-                                ref={refs[1]}
-                                onFocus={onFocus}
-                                onTargetChange={setTarget}
-                                onDomainChange={setDomain}
-                                style={{ paddingHorizontal: 16 }}
-                                inputStyle={{
-                                    flexShrink: 1,
-                                    fontSize: 17,
-                                    fontWeight: '400', color: theme.textPrimary,
-                                    textAlignVertical: 'center',
-                                }}
-                                isKnown={isKnown}
-                                onSubmit={onSubmit}
-                                contact={contact}
-                                onQRCodeRead={onQRCodeRead}
-                                invalid={!targetAddressValid}
-                            />
-                        </View>
-                        {selected === 'address' && (
-                            <Animated.View
-                                style={{ marginTop: 32, marginHorizontal: -16 }}
-                                entering={FadeIn} exiting={FadeOut}
-                            >
-                                <ScrollView
-                                    contentInset={{
-                                        bottom: keyboard.keyboardHeight - safeArea.bottom - 16 - 56 - safeArea.top,
-                                        top: 0.1 /* Some weird bug on iOS */
-                                    }}
-                                    contentContainerStyle={{ paddingHorizontal: 16 }}
-                                    contentInsetAdjustmentBehavior={'never'}
-                                    keyboardShouldPersistTaps={'always'}
-                                    keyboardDismissMode={'none'}
-                                >
-                                    <AddressSearch
-                                        account={ledgerAddress ?? acc!.address}
-                                        onSelect={(address) => {
-                                            setAddressDomainInput(address.toString({ testOnly: network.isTestnet }));
-                                            setTarget(address.toString({ testOnly: network.isTestnet }));
-                                            refs[2]?.current?.focus();
-                                        }}
-                                        query={addressDomainInput}
-                                    />
-                                </ScrollView>
-                            </Animated.View>
-                        )}
-                    </Animated.View>
-                    <Animated.View
-                        layout={Layout.duration(300)}
                         style={[
-                            { marginTop: 16, backgroundColor: theme.elevation },
-                            seletectInputStyles.comment
+                            { backgroundColor: theme.elevation },
+                            seletectInputStyles.comment,
                         ]}
                     >
                         <View style={{
                             flex: 1,
                             backgroundColor: theme.surfaceOnElevation,
-                            paddingVertical: 20,
+                            paddingVertical: 26, paddingHorizontal: 10,
                             width: '100%', borderRadius: 20,
                         }}>
                             <ATextInput
@@ -1058,14 +1020,40 @@ export const SimpleTransferFragment = fragment(() => {
                     </Animated.View>
                     {selectedInput === null && (
                         <Animated.View layout={Layout.duration(300)}>
-                            <Text
-                                style={{
-                                    color: theme.textSecondary,
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    marginTop: 16,
-                                }}>
-                                {t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}
-                            </Text>
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                padding: 20, borderRadius: 20, marginTop: 16,
+                                flexDirection: 'row',
+                                justifyContent: 'space-between', alignItems: 'center'
+                            }}>
+                                <View>
+                                    <Text
+                                        style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                            marginBottom: 2
+                                        }}>
+                                        {t('txPreview.blockchainFee')}
+                                    </Text>
+                                    <Text style={{
+                                        color: theme.textPrimary,
+                                        fontSize: 17, lineHeight: 24, fontWeight: '400'
+                                    }}>
+                                        {estimation
+                                            ? <>
+                                                {`${fromNano(estimation)} (${estimationPrise})`}
+                                            </>
+                                            : '...'
+                                        }
+                                    </Text>
+                                </View>
+                                <AboutIconButton
+                                    title={t('txPreview.blockchainFee')}
+                                    description={t('txPreview.blockchainFeeDescription')}
+                                    style={{ height: 24, width: 24, position: undefined }}
+                                    size={20}
+                                />
+                            </View>
                         </Animated.View>
                     )}
                 </View>
@@ -1073,15 +1061,18 @@ export const SimpleTransferFragment = fragment(() => {
             </Animated.ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 32,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 16}
+                style={[
+                    { marginHorizontal: 16, marginTop: 16, },
+                    Platform.select({
+                        android: { marginBottom: safeArea.bottom + 16 },
+                        ios: { marginBottom: safeArea.bottom + 32 }
+                    })
+                ]}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
             >
                 {!!selected
                     ? <RoundButton
-                        title={selected === 'comment' ? t('common.done') : t('common.continue')}
+                        title={t('common.continue')}
                         disabled={!onNext}
                         onPress={onNext ? onNext : undefined}
                     />

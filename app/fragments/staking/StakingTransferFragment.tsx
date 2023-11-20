@@ -429,7 +429,7 @@ export const StakingTransferFragment = fragment(() => {
                                 width: 'auto',
                                 flexShrink: 1
                             }}
-                            suffux={priceText}
+                            suffix={priceText}
                             hideClearButton
                             prefix={'TON'}
                         />

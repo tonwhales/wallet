@@ -169,7 +169,7 @@ export const SettingsFragment = fragment(() => {
                     />
                     {oldWalletsBalance > 0n && (
                         <ItemButton
-                            leftIcon={require('@assets/ic_wallet_2.png')}
+                            leftIcon={require('@assets/ic-wallets.png')}
                             title={t('settings.migrateOldWallets')}
                             onPress={() => navigation.navigate('Migration')}
                         />

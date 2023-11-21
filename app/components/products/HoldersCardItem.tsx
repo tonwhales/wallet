@@ -11,13 +11,13 @@ import { Swipeable } from "react-native-gesture-handler";
 import { holdersCardImageMap } from "./HoldersHiddenCards";
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { HoldersCard } from "../../engine/api/holders/fetchCards";
+import { HoldersAccount } from "../../engine/api/holders/fetchCards";
 import { getDomainKey } from "../../engine/state/domainKeys";
 
 import MCard from '@assets/ic-m-card.svg';
 
 export const HoldersCardItem = memo((props: {
-    account?: HoldersCard,
+    account?: HoldersAccount,
     last?: boolean,
     first?: boolean,
     rightAction?: () => void

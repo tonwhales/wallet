@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersAccountState } from "./api/holders/fetchAccountState";
-import { useHoldersCards } from "./hooks/holders/useHoldersCards";
+import { useHoldersAccounts } from "./hooks/holders/useHoldersCards";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 
@@ -10,7 +10,7 @@ export function useHoldersWatcher() {
     const account = useSelectedAccount();
     const { isTestnet } = useNetwork();
     const status = useHoldersAccountStatus(account?.address.toString({ testOnly: isTestnet }) ?? '');
-    const cards = useHoldersCards(account?.address.toString({ testOnly: isTestnet }) ?? '');
+    const cards = useHoldersAccounts(account?.address.toString({ testOnly: isTestnet }) ?? '');
 
     useEffect(() => {
         let watcher: null | (() => void) = null;
@@ -25,6 +25,9 @@ export function useHoldersWatcher() {
                 || event.message === 'state_change'
             ) {
                 status.refetch();
+            }
+            if (event.type === 'connected') {
+                cards.refetch();
             }
             if (event.type === 'accounts_changed' || event.type === 'balance_change' || event.type === 'limits_change') {
                 cards.refetch();

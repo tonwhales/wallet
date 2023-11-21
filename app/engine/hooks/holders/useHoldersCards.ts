@@ -3,11 +3,11 @@ import { useNetwork } from "../network/useNetwork";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
-import { fetchCardsList, fetchCardsPublic } from "../../api/holders/fetchCards";
+import { fetchCardsList, fetchAccountsPublic } from "../../api/holders/fetchCards";
 import { useHoldersAccountStatus } from "./useHoldersAccountStatus";
 import { HoldersAccountState } from "../../api/holders/fetchAccountState";
 
-export function useHoldersCards(address: string | Address) {
+export function useHoldersAccounts(address: string | Address) {
     let { isTestnet } = useNetwork();
     let status = useHoldersAccountStatus(address).data;
 
@@ -18,22 +18,24 @@ export function useHoldersCards(address: string | Address) {
         return address;
     }, [address, isTestnet]);
 
+    const token = (
+        !!status &&
+        status.state !== HoldersAccountState.NoRef &&
+        status.state !== HoldersAccountState.NeedEnrollment
+    ) ? status.token : null;
+
     let query = useQuery({
-        queryKey: Queries.Holders(addressString).Cards(),
-        queryFn: async (key) => {
-            if (!!status && status.state !== HoldersAccountState.NoRef && status.state !== HoldersAccountState.NeedEnrollment) {
-                const res = await fetchCardsList(status.token);
-                if (!!res) {
-                    return res;
-                }
-                return [];
+        queryKey: Queries.Holders(addressString).Cards(!!token ? 'private' : 'public'),
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        queryFn: async () => {
+            if (token) {
+                return await fetchCardsList(token);
             }
 
-            let addr = key.queryKey[1];
-            let publicRes = await fetchCardsPublic(addr, isTestnet);
-
-            return publicRes;
+            return await fetchAccountsPublic(addressString, isTestnet);
         },
+
     });
 
     return query;

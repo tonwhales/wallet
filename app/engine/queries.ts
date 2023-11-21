@@ -16,7 +16,7 @@ export const Queries = {
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
         Status: () => ['holders', address, 'status'],
-        Cards: () => ['holders', address, 'cards'],
+        Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'notifications', id],
     }),
 

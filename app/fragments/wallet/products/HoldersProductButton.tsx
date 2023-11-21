@@ -10,7 +10,7 @@ import { useTheme } from '../../../engine/hooks';
 import { useHoldersAccountStatus } from "../../../engine/hooks/holders/useHoldersAccountStatus";
 import { getCurrentAddress } from "../../../storage/appState";
 import { HoldersAccountState, holdersUrl } from "../../../engine/api/holders/fetchAccountState";
-import { HoldersCard } from "../../../engine/api/holders/fetchCards";
+import { HoldersAccount } from "../../../engine/api/holders/fetchCards";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { getDomainKey } from "../../../engine/state/domainKeys";
 
@@ -23,7 +23,7 @@ const colorsMap: { [key: string]: string[] } = {
     'default-2': ['#792AF6', "#954CF9"], // Default
 }
 
-export const HoldersProductButton = memo(({ account }: { account?: HoldersCard }) => {
+export const HoldersProductButton = memo(({ account }: { account?: HoldersAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();

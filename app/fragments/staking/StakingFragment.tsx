@@ -287,11 +287,12 @@ export const StakingFragment = fragment(() => {
                         flexDirection: 'row',
                         backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 20,
-                        marginBottom: 16, marginTop: 32
+                        marginBottom: 16, marginTop: 32,
+                        padding: 20
                     }}
                     collapsable={false}
                 >
-                    <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, borderRadius: 14, padding: 20 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                         <Pressable
                             onPress={onTopUp}
                             disabled={!available}
@@ -299,7 +300,7 @@ export const StakingFragment = fragment(() => {
                                 return {
                                     opacity: (pressed || !available) ? 0.5 : 1,
                                     borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 10
+                                    marginHorizontal: 4
                                 }
                             }}
                         >
@@ -318,19 +319,22 @@ export const StakingFragment = fragment(() => {
                                         color: theme.textPrimary,
                                         marginTop: 6,
                                         fontWeight: '400'
-                                    }}>
+                                    }}
+                                    minimumFontScale={0.7}
+                                    adjustsFontSizeToFit
+                                    numberOfLines={1}
+                                >
                                     {t('products.staking.actions.top_up')}
                                 </Text>
                             </View>
                         </Pressable>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                         <Pressable
                             onPress={onUnstake}
                             disabled={!hasStake}
                             style={({ pressed }) => ({
-                                opacity:
-                                    (!hasStake || pressed) ? 0.5 : 1,
+                                opacity: (!hasStake || pressed) ? 0.5 : 1,
                                 borderRadius: 14, flex: 1, paddingVertical: 10,
                                 marginHorizontal: 4
                             })}
@@ -357,7 +361,7 @@ export const StakingFragment = fragment(() => {
                             </View>
                         </Pressable>
                     </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14, padding: 20 }}>
+                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
                         <Pressable
                             onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
                             style={({ pressed }) => ({

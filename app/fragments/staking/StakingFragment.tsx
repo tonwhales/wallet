@@ -77,8 +77,10 @@ export const StakingFragment = fragment(() => {
         if (network.isTestnet) {
             return true;
         }
-        return !config!.pools.find((v2) => Address.parse(v2).equals(targetPool))
-    }, [config, targetPool]);
+        return !!config!.pools.find((v2) => {
+            return Address.parse(v2).equals(targetPool)
+        })
+    }, [config, targetPool, network]);
 
     const transferAmount = (pool?.params?.minStake ?? 0n)
         + (pool?.params?.receiptPrice ?? 0n)

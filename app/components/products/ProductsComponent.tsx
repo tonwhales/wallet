@@ -28,7 +28,6 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const cards = useHoldersAccounts(selected.address).data ?? [];
     const totalStaked = useStaking().total;
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
@@ -169,7 +168,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     }}>
                         {t('common.products')}
                     </Text>
-                    {!(cards.length === 0 && totalStaked === 0n) && (
+                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -190,7 +189,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     )}
                 </View>
 
-                {holdersAccounts?.length === 0 && isTestnet && (
+                {holdersAccounts?.accounts?.length === 0 && isTestnet && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}

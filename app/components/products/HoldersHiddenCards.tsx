@@ -81,6 +81,7 @@ export const HoldersHiddenAccounts = memo(() => {
                             key={`card-${index}`}
                             account={item}
                             first={index === 0}
+                            hidden={true}
                             last={index === hiddenList.length - 1}
                             rightAction={() => markCard(item.id, false)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}

@@ -12,6 +12,7 @@ import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../eng
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchCards";
 import { getDomainKey } from "../../engine/state/domainKeys";
+import { PerfText } from "../basic/PerfText";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -21,7 +22,8 @@ export const HoldersAccountItem = memo((props: {
     first?: boolean,
     rightAction?: () => void
     rightActionIcon?: any,
-    single?: boolean
+    single?: boolean,
+    hidden?: boolean
 }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -62,12 +64,18 @@ export const HoldersAccountItem = memo((props: {
         ? props.account.cards.map((card, index) => card.lastFourDigits).join(', ')
         : t('products.holders.card.defaultSubtitle');
 
+    const Wrapper = props.hidden ? View : TouchableHighlight;
+    const wrapperProps = props.hidden ? {} : {
+        onPressIn: onPressIn,
+        onPressOut: onPressOut,
+        onPress: onPress
+    }
+
     return (
         (props.rightAction) ? (
             <Animated.View style={[
                 {
-                    flex: 1,
-                    flexDirection: 'row',
+                    flex: 1, flexDirection: 'row',
                     paddingHorizontal: 16,
                 },
                 animatedStyle
@@ -78,6 +86,7 @@ export const HoldersAccountItem = memo((props: {
                     containerStyle={{ flex: 1 }}
                     useNativeAnimations={true}
                     childrenContainerStyle={{
+                        flex: 1,
                         borderTopLeftRadius: props.first ? 20 : 0,
                         borderTopRightRadius: props.first ? 20 : 0,
                         borderBottomLeftRadius: props.last ? 20 : 0,
@@ -114,11 +123,9 @@ export const HoldersAccountItem = memo((props: {
                         )
                     }}
                 >
-                    <TouchableHighlight
-                        onPressIn={onPressIn}
-                        onPressOut={onPressOut}
+                    <Wrapper
                         style={{ flex: 1 }}
-                        onPress={onPress}
+                        {...wrapperProps}
                     >
                         <View style={{
                             flexGrow: 1, flexDirection: 'row',
@@ -130,27 +137,27 @@ export const HoldersAccountItem = memo((props: {
                                 <IcTonIcon width={46} height={46} />
                             </View>
                             <View style={{ marginLeft: 12 }}>
-                                <Text
+                                <PerfText
                                     style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}
                                 >
                                     {title}
-                                </Text>
-                                <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
-                                    <Text style={{ flexShrink: 1 }}>
+                                </PerfText>
+                                <PerfText style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
+                                    <PerfText style={{ flexShrink: 1 }}>
                                         {subtitle}
-                                    </Text>
-                                </Text>
+                                    </PerfText>
+                                </PerfText>
                             </View>
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                                    <PerfText style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
                                         <ValueComponent value={props.account.balance} precision={2} />
-                                        <Text style={{ opacity: 0.5 }}>
+                                        <PerfText style={{ opacity: 0.5 }}>
                                             {' TON'}
-                                        </Text>
-                                    </Text>
+                                        </PerfText>
+                                    </PerfText>
                                     <PriceComponent
                                         amount={BigInt(props.account.balance)}
                                         style={{
@@ -165,7 +172,7 @@ export const HoldersAccountItem = memo((props: {
                                 </View>
                             )}
                         </View>
-                    </TouchableHighlight>
+                    </Wrapper>
                 </Swipeable>
                 {!props.last && (
                     <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
@@ -183,27 +190,27 @@ export const HoldersAccountItem = memo((props: {
                         <IcTonIcon width={46} height={46} />
                     </View>
                     <View style={{ marginLeft: 12 }}>
-                        <Text
+                        <PerfText
                             style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
                             {title}
-                        </Text>
-                        <Text style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
-                            <Text style={{ flexShrink: 1 }}>
+                        </PerfText>
+                        <PerfText style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
+                            <PerfText style={{ flexShrink: 1 }}>
                                 {subtitle}
-                            </Text>
-                        </Text>
+                            </PerfText>
+                        </PerfText>
                     </View>
                     {(!!props.account && props.account.balance) && (
                         <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                            <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                            <PerfText style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
                                 <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
-                                <Text style={{ opacity: 0.5 }}>
+                                <PerfText style={{ opacity: 0.5 }}>
                                     {' TON'}
-                                </Text>
-                            </Text>
+                                </PerfText>
+                            </PerfText>
                             <PriceComponent
                                 amount={BigInt(props.account.balance)}
                                 style={{

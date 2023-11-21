@@ -355,7 +355,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 deposit: 'Внести',
                 top_up: 'Пополнить',
                 withdraw: 'Вывести',
-                calc: 'Calculate',
+                calc: 'Калькулятор',
             },
             join: {
                 title: 'Стань валидатором TON',

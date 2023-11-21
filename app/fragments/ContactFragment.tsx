@@ -1,7 +1,7 @@
 import { useKeyboard } from "@react-native-community/hooks";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
-import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
+import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo, FadeIn, FadeOut } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "../components/Avatar";
 import { ContactField } from "../components/Contacts/ContactField";
@@ -461,26 +461,42 @@ export const ContactFragment = fragment(() => {
                                 </View>
                             )}
                             {params.isNew && (
-                                <View style={{
-                                    backgroundColor: theme.surfaceOnElevation,
-                                    marginTop: 20,
-                                    paddingVertical: 20,
-                                    width: '100%', borderRadius: 20
-                                }}>
-                                    <ATextInput
-                                        ref={refs[0]}
-                                        value={address}
-                                        maxLength={48}
-                                        style={{ paddingHorizontal: 16 }}
-                                        keyboardType={'ascii-capable'}
-                                        onValueChange={setAddress}
-                                        label={t('common.walletAddress')}
-                                        blurOnSubmit={true}
-                                        editable={editing}
-                                        multiline
-                                        onFocus={() => onFocus(0)}
-                                    />
-                                </View>
+                                <>
+                                    <View style={{
+                                        backgroundColor: theme.surfaceOnElevation,
+                                        marginTop: 20,
+                                        paddingVertical: 20,
+                                        width: '100%', borderRadius: 20
+                                    }}>
+                                        <ATextInput
+                                            ref={refs[0]}
+                                            value={address}
+                                            maxLength={48}
+                                            style={{ paddingHorizontal: 16 }}
+                                            keyboardType={'ascii-capable'}
+                                            onValueChange={setAddress}
+                                            label={t('common.walletAddress')}
+                                            blurOnSubmit={true}
+                                            editable={editing}
+                                            multiline
+                                            onFocus={() => onFocus(0)}
+                                        />
+                                    </View>
+                                    {address.length > 0 && (
+                                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                            <Text style={{
+                                                color: theme.accentRed,
+                                                fontSize: 13,
+                                                lineHeight: 18,
+                                                marginTop: 8,
+                                                marginLeft: 16,
+                                                fontWeight: '400'
+                                            }}>
+                                                {t('transfer.error.invalidAddress')}
+                                            </Text>
+                                        </Animated.View>
+                                    )}
+                                </>
                             )}
 
                             <View style={{

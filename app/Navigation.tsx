@@ -143,7 +143,7 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
                 gestureEnabled: false,
                 contentStyle: {
                     paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined,
-                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : undefined
+                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : theme.backgroundPrimary
                 }
             }}
         />

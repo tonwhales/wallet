@@ -18,7 +18,7 @@ export const AppStartAuthFragment = fragment(() => {
         (async () => {
             try {
                 await authContext.authenticate({
-                    backgroundColor: theme.white,
+                    backgroundColor: theme.backgroundPrimary,
                     cancelable: false,
                     showResetOnMaxAttempts: true,
                     description: t('appAuth.description'),

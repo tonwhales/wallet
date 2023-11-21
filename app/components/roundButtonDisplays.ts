@@ -32,7 +32,7 @@ export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisp
         secondary: {
             backgroundColor: theme.surfaceOnElevation,
             borderColor: theme.surfaceOnElevation,
-            textColor: theme.accent,
+            textColor: theme.textThird,
         },
         secondary_contrast: {
             backgroundColor: theme.surfaceOnElevation,

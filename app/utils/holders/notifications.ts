@@ -2,6 +2,7 @@ import { CardNotification } from "../../engine/api/holders/fetchCardsTransaction
 import { t } from "../../i18n/t";
 
 export const notificationTypeFormatter = (event: CardNotification) => {
+    console.log('notificationTypeFormatter', event.type)
     if (event.type === 'charge' || event.type === 'charge_failed') {
         const { merchantInfo } = event.data;
         return merchantInfo?.dirtyName || merchantInfo?.cleanName || t('products.holders.card.notifications.type.charge');
@@ -10,6 +11,9 @@ export const notificationTypeFormatter = (event: CardNotification) => {
             return t('products.holders.card.notifications.type.limits_change.pending');
         }
         return t('products.holders.card.notifications.type.limits_change.completed');
+    }
+    if (event.type === 'crypto_account_withdraw') {
+        return t('products.holders.card.notifications.type.card_withdraw');
     }
     return t(`products.holders.card.notifications.type.${event.type as
         | 'card_ready'

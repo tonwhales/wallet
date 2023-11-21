@@ -382,6 +382,7 @@ export const TransferBatch = memo((props: Props) => {
                                 fontSize: 14,
                                 fontWeight: '600',
                                 flexShrink: 1,
+                                color: theme.textPrimary
                             }}>
                                 {t('transfer.requestsToSign', { app: order.app.title })}
                             </Text>

@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useHoldersCards, useTheme } from '../../engine/hooks';
+import { useHoldersAccounts, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useAccountTransactions } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
@@ -21,6 +21,7 @@ import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
+import { HoldersAccount } from "../../engine/api/holders/fetchCards";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
     const theme = useTheme();
@@ -31,7 +32,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     const address = props.account;
     const client = useClient4(isTestnet);
     const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
-    const holdersCards = useHoldersCards(address).data;
+    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersCards = holdersAccounts?.type === 'private'
+        ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()
+        : [];
     const transactions = txs?.data;
 
     const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
@@ -43,10 +47,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     const routes = useMemo(() => {
         return [
             { key: 'main', title: t('common.mainWallet') },
-            ...(holdersCards ?? []).map((account) => {
+            ...(holdersCards ?? []).map((card) => {
                 return {
-                    key: account.id,
-                    title: t('products.holders.card.title', { cardNumber: account.card.lastFourDigits ?? '' })
+                    key: card.id,
+                    title: t('products.holders.card.title', { cardNumber: card.lastFourDigits ?? '' })
                 };
             }).filter((x) => !!x) as { key: string; title: string; }[]
         ]

@@ -17,7 +17,7 @@ export const Queries = {
     Holders: (address: string) => ({
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
-        Notifications: (id: string) => ['holders', address, 'notifications', id],
+        Notifications: (id: string) => ['holders', address, 'events', id],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),

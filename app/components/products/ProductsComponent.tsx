@@ -2,13 +2,13 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useNetwork, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
 import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
-import { HoldersHiddenCards } from "./HoldersHiddenCards"
+import { HoldersHiddenAccounts } from "./HoldersHiddenCards"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
@@ -23,16 +23,15 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
-
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const cards = useHoldersCards(selected.address).data ?? [];
+    const cards = useHoldersAccounts(selected.address).data ?? [];
     const totalStaked = useStaking().total;
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
-    const holdersAccounts = useHoldersCards(selected!.address).data;
+    const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
 
     const needsEnrolment = useMemo(() => {
@@ -215,7 +214,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     <JettonsProductComponent key={'jettons'} />
                 </View>
 
-                <HoldersHiddenCards key={'holders-hidden'} />
+                <HoldersHiddenAccounts key={'holders-hidden'} />
                 <JettonsHiddenComponent key={'jettons-hidden'} />
             </View>
         </View>

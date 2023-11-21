@@ -67,16 +67,14 @@ export async function fetchAccountsPublic(address: string | Address, isTestnet: 
   }
 
   if (!accoutnsListPublicSchema.safeParse(res.data).success) {
-    throw Error("Invalid card list response");
+    throw Error("Invalid public card list response");
   }
-
-  console.log({ fetchCardsPublic: res.data });
 
   if (!res.data.ok) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  return res.data.accounts as HoldersAccount[];
+  return res.data.accounts as GeneralHoldersAccount[];
 }
 
 export enum CardStatus {
@@ -122,45 +120,80 @@ const accountLimitsSchema = z.object({
   monthlyDeadline: z.number()
 });
 
+const cardPendingStatusSchema = z.union([
+  z.literal('PENDING_BLOCK'),
+  z.literal('PENDING_FREEZE'),
+  z.literal('PENDING_UNFREEZE'),
+  z.literal('PENDING_FOR_PAYMENT'),
+]);
+
+const cardStatusSchema = z.union([
+  cardPendingStatusSchema,
+  z.literal('PENDING_CARD'),
+  z.literal('PENDING_CARD_ISSUE'),
+  z.literal('PENDING_CONTRACT'),
+  z.literal('WAITING_FOR_PAYMENT'),
+  z.literal('ACTIVE'),
+  z.literal('BLOCKED'),
+  z.literal('FROZEN'),
+  z.literal('CLOSED'),
+]);
+
+const personalizationCodeSchema = z.union([
+  z.literal('classic'),
+  z.literal('whales'),
+  z.literal('black-pro'),
+  z.literal('trust-classic'),
+  z.literal('trust-pro'),
+]);
+
 const cardSchema = z.object({
   id: z.string(),
-  createAt: z.number(),
-  fiatCurrency: z.string(),
-  lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
-  leftToPay: z.string(),
-  personalizationCode: z.string(),
-  productId: z.string(),
-  seed: z.string(),
-  status: z.string(),
-  updatedAt: z.number(),
   walletId: z.string(),
+  fiatCurrency: z.string(),
+  lastFourDigits: z.string().nullable().optional(),
+  leftToPay: z.string(),
+  personalizationCode: personalizationCodeSchema,
+  productId: z.string(),
+  seed: z.string().nullable().optional(),
+  status: cardStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
+
+const cryptoCurrencyTicker = z.union([
+  z.literal('TON'),
+  z.literal('USDT'),
+  z.literal('EURT'),
+]);
 
 const accountSchema = z.object({
   id: z.string(),
   address: z.string(),
-  name: z.string(),
-  seed: z.string(),
+  name: z.string().nullable().optional(),
+  seed: z.string().nullable(),
   state: z.string(),
   balance: z.string(),
   tzOffset: z.number(),
-  partner: z.string(),
   contract: z.string(),
+  partner: z.string(),
   network: networksSchema,
   ownerAddress: z.string(),
+
   cryptoCurrency: z.object({
     decimals: z.number(),
-    ticker: z.string(),
-    tokenContract: z.string(),
+    ticker: cryptoCurrencyTicker,
+    tokenContract: z.string().nullable().optional(),
   }),
+
   limits: accountLimitsSchema,
   cards: z.array(cardSchema),
 });
 
-export const cardsListResCodec = z.union([
+export const accountsListResCodec = z.union([
   z.object({
     ok: z.literal(true),
-    accounts: z.array(accountSchema),
+    list: z.array(accountSchema),
   }),
   z.object({
     ok: z.literal(false),
@@ -168,12 +201,13 @@ export const cardsListResCodec = z.union([
   }),
 ]);;
 
-export const generalAccountSchema = z.intersection(cardSchema, accountPublicSchema);
-export type HoldersAccount = z.infer<typeof generalAccountSchema>;
+export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
+export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
+export type HoldersAccount = z.infer<typeof accountSchema>;
 
 export async function fetchCardsList(token: string) {
   let res = await axios.post(
-    'https://' + holdersEndpoint + '/card/list',
+    'https://' + holdersEndpoint + '/v2/account/list',
     { token },
     {
       headers: {
@@ -193,9 +227,9 @@ export async function fetchCardsList(token: string) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  if (!cardsListResCodec.safeParse(res.data).success) {
+  if (!accountsListResCodec.safeParse(res.data).success) {
     throw Error("Invalid card list response");
   }
 
-  return res.data.list as HoldersAccount[];
+  return res.data.list as GeneralHoldersAccount[];
 }

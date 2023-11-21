@@ -115,6 +115,7 @@ export const TransferSingleView = memo(({
                                 fontSize: 14,
                                 fontWeight: '600',
                                 flexShrink: 1,
+                                color: theme.textPrimary
                             }}>
                                 {t('transfer.requestsToSign', { app: order.app.title })}
                             </Text>

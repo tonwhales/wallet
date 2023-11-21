@@ -32,7 +32,7 @@ import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
-import { useHoldersCards } from '../../../engine/hooks';
+import { useHoldersAccounts } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { useKeyboard } from '@react-native-community/hooks';
@@ -221,7 +221,7 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(props.endpoint), []);
 
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
-    const cards = useHoldersCards(acc.address.toString({ testOnly: isTestnet })).data;
+    const cards = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
     const domainKey = getDomainKey(domain);
 
     const webRef = useRef<WebView>(null);

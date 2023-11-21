@@ -16,7 +16,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
@@ -33,7 +33,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const address = props.selectedAcc.address;
     const account = props.wallet;
     const staking = useStaking();
-    const holdersCards = useHoldersCards(address).data;
+    const holdersCards = useHoldersAccounts(address).data?.accounts;
 
     const { start, visible } = useCopilot();
 

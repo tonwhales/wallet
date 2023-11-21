@@ -29,11 +29,19 @@ export function useHoldersAccounts(address: string | Address) {
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         queryFn: async () => {
+            let accounts;
+            let type = 'public';
             if (token) {
-                return await fetchCardsList(token);
+                accounts = await fetchCardsList(token);
+                type = 'private';
+            } else {
+                accounts = await fetchAccountsPublic(addressString, isTestnet);
+                type = 'public';
             }
 
-            return await fetchAccountsPublic(addressString, isTestnet);
+            const filtered = accounts?.filter((a) => a.cryptoCurrency.ticker === 'TON');
+
+            return { accounts: filtered, type };
         },
 
     });

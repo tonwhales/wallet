@@ -128,16 +128,25 @@ export const WalletSecureComponent = memo((props: {
                             textAlign: 'center',
                             marginTop: 26,
                             color: theme.textPrimary
-                        }}>
+                        }}
+                            minimumFontScale={0.8}
+                            adjustsFontSizeToFit
+                            numberOfLines={1}
+                        >
                             {title}
                         </Text>
-                        <Text style={{
-                            textAlign: 'center',
-                            color: theme.textSecondary,
-                            fontSize: 17, lineHeight: 24,
-                            marginTop: 12,
-                            flexShrink: 1,
-                        }}>
+                        <Text
+                            style={{
+                                textAlign: 'center',
+                                color: theme.textSecondary,
+                                fontSize: 17, lineHeight: 24,
+                                marginTop: 12,
+                                flexShrink: 1,
+                            }}
+                            minimumFontScale={0.9}
+                            adjustsFontSizeToFit
+                            numberOfLines={3}
+                        >
                             {text}
                         </Text>
                     </View>

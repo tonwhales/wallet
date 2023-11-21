@@ -21,6 +21,7 @@ import { useNetwork, useTheme } from '../../engine/hooks';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { StatusBar } from 'expo-status-bar';
+import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -35,6 +36,7 @@ export const WalletBackupFragment = systemFragment(() => {
     const address = useMemo(() => getBackup(), []);
     const authContext = useKeysAuth();
     const toaster = useToaster();
+    const [walletSettings, setSettings] = useWalletSettings(address.address);
 
     const onComplete = useCallback(() => {
         let state = getAppState();
@@ -168,6 +170,7 @@ export const WalletBackupFragment = systemFragment(() => {
                         }}>
                             <Avatar
                                 id={address.address.toString({ testOnly: network.isTestnet })}
+                                hash={walletSettings.avatar}
                                 size={77}
                                 borderColor={theme.elevation}
                                 borderWith={3}

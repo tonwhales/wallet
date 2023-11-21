@@ -19,6 +19,7 @@ import { NominatorPeriod } from "../../engine/api/fetchStakingNominator";
 
 import IcGrowth from "@assets/ic-growth.svg";
 import { StatusBar } from "expo-status-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 type Dataset = {
     /** The data corresponding to the x-axis label. */
@@ -144,6 +145,7 @@ const extractLabels = (points: any[], timeLine: NominatorPeriod) => {
 
 export const StakingAnalyticsFragment = fragment(() => {
     const { pool } = useParams<{ pool: Address }>();
+    const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const dimensions = useDimensions();
@@ -229,7 +231,7 @@ export const StakingAnalyticsFragment = fragment(() => {
             }
         };
         return {
-            data: newPoints.map(p => p.value),
+            data: newPoints.length === 0 ? [0] : newPoints.map(p => p.value),
             labels: extractLabels(newPoints, timespan)
         }
     }, [data, loading, timespan]);
@@ -280,6 +282,7 @@ export const StakingAnalyticsFragment = fragment(() => {
             <ScreenHeader
                 title={t('products.staking.analytics.analyticsTitle')}
                 onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
             <View style={{
                 backgroundColor: theme.surfaceOnElevation,

@@ -213,7 +213,7 @@ export const WalletWordsComponent = React.memo((props: {
                 <Animated.ScrollView
                     style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - 8) : safeArea.bottom /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - 32) : safeArea.bottom /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                     contentInsetAdjustmentBehavior="never"
                     keyboardShouldPersistTaps="always"
                     keyboardDismissMode="none"
@@ -246,7 +246,10 @@ export const WalletWordsComponent = React.memo((props: {
                     <RoundButton
                         title={t('common.continue')}
                         action={onSubmitEnd}
-                        style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
+                        style={[
+                            { alignSelf: 'stretch', marginTop: 30 },
+                            Platform.select({ android: { marginBottom: 16 + safeArea.bottom } })
+                        ]}
                     />
                 </Animated.ScrollView>
             </View>

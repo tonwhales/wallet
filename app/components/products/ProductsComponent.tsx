@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useNetwork, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -26,6 +26,7 @@ import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
     const cards = useHoldersCards(selected.address).data ?? [];
@@ -190,13 +191,14 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     )}
                 </View>
 
-                {holdersAccounts?.length === 0 && (
+                {holdersAccounts?.length === 0 && isTestnet && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
                             subtitle={t('products.holders.card.defaultSubtitle')}
                             onPress={onHoldersPress}
                             illustration={require('@assets/banners/banner-holders.png')}
+                            reverse
                         />
                     </View>
                 )}

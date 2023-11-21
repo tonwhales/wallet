@@ -16,6 +16,8 @@ import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHa
 import { useTheme } from '../../engine/hooks';
 import { mnemonicValidate } from '@ton/crypto';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import { useParams } from '../../utils/useParams';
+import { StatusBar } from 'expo-status-bar';
 
 export const wordsTrie = WordsListTrie();
 
@@ -231,6 +233,7 @@ export const WordInput = memo(forwardRef((props: {
 export const WalletImportFragment = systemFragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const { additionalWallet } = useParams<{ additionalWallet?: boolean }>();
     const [state, setState] = useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
@@ -249,6 +252,7 @@ export const WalletImportFragment = systemFragment(() => {
                 }),
             }}
         >
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!state && (
                 <Animated.View
                     style={{
@@ -272,6 +276,7 @@ export const WalletImportFragment = systemFragment(() => {
                         mnemonics={state.mnemonics}
                         import={true}
                         onBack={() => setState(null)}
+                        additionalWallet={additionalWallet}
                     />
                 </Animated.View>
             )}

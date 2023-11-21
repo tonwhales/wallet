@@ -18,26 +18,25 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { mnemonicNew } from "@ton/crypto";
+import { StatusBar } from 'expo-status-bar';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
-    const { mnemonics } = useParams<{ mnemonics?: string }>();
-    const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(null);
+    const { mnemonics, additionalWallet } = useParams<{ mnemonics?: string, additionalWallet?: boolean }>();
+    const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(mnemonics ? { mnemonics } : null);
 
     useEffect(() => {
-        if (mnemonics) {
-            setState({ mnemonics });
-            return;
-        }
-        (async () => {
-            const mnemonics = await mnemonicNew();
+        if (!mnemonics) {
+            (async () => {
+                const mnemonics = await mnemonicNew();
 
-            // Persist state
-            setState({ mnemonics: mnemonics.join(' ') });
-        })()
+                // Persist state
+                setState({ mnemonics: mnemonics.join(' ') });
+            })();
+        }
     }, []);
 
     const onBack = useCallback((e: any) => {
@@ -88,6 +87,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 Platform.select({ android: { paddingBottom: safeArea.bottom + 16 } }),
             ]}
         >
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!state && (
                 <Animated.View
                     style={{
@@ -194,6 +194,7 @@ export const WalletCreateFragment = systemFragment(() => {
                     <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={false}
+                        additionalWallet={additionalWallet}
                         onBack={() => setState({ ...state, saved: false })}
                     />
                 </Animated.View>

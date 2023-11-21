@@ -23,6 +23,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
     import: boolean,
     onBack?: () => void,
+    additionalWallet?: boolean,
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -219,54 +220,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
 
     return (
         <View style={{ flexGrow: 1, width: '100%', paddingTop: 32 }}>
-            {!state && !loading && (
-                <Animated.View
-                    style={[
-                        { flex: 1 },
-                        Platform.select({ android: { paddingTop: 0, paddingBottom: 16 }, ios: { paddingBottom: undefined } })
-                    ]}
-                >
-                    <PasscodeSetup
-                        style={props.import ? { backgroundColor: theme.backgroundPrimary } : undefined}
-                        onReady={onConfirmed}
-                        onBack={() => {
-                            if (props.onBack) {
-                                resetConfirmedAddressState();
-                                props.onBack();
-                            } else {
-                                navigation.goBack();
-                            }
-                        }}
-                        description={t('secure.passcodeSetupDescription')}
-                        screenHeaderStyle={props.import ? { paddingHorizontal: 16 } : undefined}
-                    />
-                </Animated.View>
-            )}
-
-            {state && !loading && (
-                <Animated.View
-                    style={{ justifyContent: 'center', flexGrow: 1 }}
-                    key={'content'}
-                    entering={FadeIn}
-                >
-                    <WalletSecureComponent
-                        deviceEncryption={state.deviceEncryption}
-                        passcode={state.passcode}
-                        import={props.import}
-                        callback={(res: boolean) => {
-                            if (res) {
-                                onComplete();
-                            } else {
-                                resetConfirmedAddressState();
-                                setState(undefined);
-                            }
-                        }}
-                        onLater={onComplete}
-                    />
-                </Animated.View>
-            )}
-
-            {loading && (
+            {(loading || props.additionalWallet) ? (
                 <Animated.View
                     style={{
                         position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
@@ -277,6 +231,51 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 >
                     <LoadingIndicator simple />
                 </Animated.View>
+            ) : (
+                !state ? (
+                    <Animated.View
+                        style={[
+                            { flex: 1 },
+                            Platform.select({ android: { paddingTop: 0, paddingBottom: 16 }, ios: { paddingBottom: undefined } })
+                        ]}
+                    >
+                        <PasscodeSetup
+                            style={props.import ? { backgroundColor: theme.backgroundPrimary } : undefined}
+                            onReady={onConfirmed}
+                            onBack={() => {
+                                if (props.onBack) {
+                                    resetConfirmedAddressState();
+                                    props.onBack();
+                                } else {
+                                    navigation.goBack();
+                                }
+                            }}
+                            description={t('secure.passcodeSetupDescription')}
+                            screenHeaderStyle={props.import ? { paddingHorizontal: 16 } : undefined}
+                        />
+                    </Animated.View>
+                ) : (
+                    <Animated.View
+                        style={{ justifyContent: 'center', flexGrow: 1 }}
+                        key={'content'}
+                        entering={FadeIn}
+                    >
+                        <WalletSecureComponent
+                            deviceEncryption={state.deviceEncryption}
+                            passcode={state.passcode}
+                            import={props.import}
+                            callback={(res: boolean) => {
+                                if (res) {
+                                    onComplete();
+                                } else {
+                                    resetConfirmedAddressState();
+                                    setState(undefined);
+                                }
+                            }}
+                            onLater={onComplete}
+                        />
+                    </Animated.View>
+                )
             )}
         </View>
     );

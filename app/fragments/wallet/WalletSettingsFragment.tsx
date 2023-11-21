@@ -69,6 +69,10 @@ export const WalletSettingsFragment = fragment(() => {
                         style={({ pressed }) => {
                             return {
                                 opacity: pressed ? 0.5 : 1,
+                                backgroundColor: theme.surfaceOnElevation,
+                                borderRadius: 100,
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingVertical: 4, paddingHorizontal: 12,
                             }
                         }}
                         onPress={onSave}
@@ -80,7 +84,7 @@ export const WalletSettingsFragment = fragment(() => {
                         }
                     >
                         <Text style={{
-                            color: hasChanges ? theme.accent : theme.textSecondary,
+                            color: hasChanges ? theme.textPrimary : theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                         }}>

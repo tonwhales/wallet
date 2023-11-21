@@ -53,6 +53,9 @@ export const ProductBanner = React.memo((props: {
                                 flex: 1, flexShrink: 1
                             }}
                             ellipsizeMode={'tail'}
+                            numberOfLines={2}
+                            adjustsFontSizeToFit={true}
+                            minimumFontScale={0.95}
                         >
                             {props.subtitle}
                         </Text>

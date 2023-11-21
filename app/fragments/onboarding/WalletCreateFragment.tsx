@@ -56,6 +56,9 @@ export const WalletCreateFragment = systemFragment(() => {
         } else {
             ScreenCapture.allowScreenCaptureAsync('words-screen');
         }
+        return () => {
+            ScreenCapture.allowScreenCaptureAsync('words-screen');
+        }
     }, [state]);
 
     useLayoutEffect(() => {

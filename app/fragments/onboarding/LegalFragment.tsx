@@ -88,14 +88,16 @@ export const LegalFragment = systemFragment(() => {
                     }}>
                         {isCreate ? t('legal.create') : t('legal.title')}
                     </Text>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '400',
-                        flexShrink: 1,
-                        color: theme.textSecondary,
-                        marginBottom: 24
-                    }}>
+                    <Text
+                        style={{
+                            textAlign: 'center',
+                            fontSize: 17,
+                            fontWeight: '400',
+                            flexShrink: 1,
+                            color: theme.textSecondary,
+                            marginBottom: 24
+                        }}
+                    >
                         {t('legal.createSubtitle')}
                     </Text>
                     <View style={{
@@ -113,7 +115,7 @@ export const LegalFragment = systemFragment(() => {
             </ScrollView>
             <View style={{ flexGrow: 1 }} />
             <Pressable
-                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24 }}
+                style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, marginBottom: 24, marginTop: 8 }}
                 onPress={onToggleAccept}
             >
                 <View style={{
@@ -128,15 +130,17 @@ export const LegalFragment = systemFragment(() => {
                 <Text
                     style={{
                         flexShrink: 1,
-                        fontSize: 15, lineHeight: 20,
+                        fontSize: 15,
                         fontWeight: '500',
                         textAlign: 'left'
                     }}
+                    numberOfLines={2}
+                    adjustsFontSizeToFit={true}
                 >
                     <Text style={{
                         color: theme.textSecondary,
                     }}>
-                        {t('legal.subtitle')}
+                        {t('legal.subtitle') + ' '}
                     </Text>
                     <Text
                         style={{ color: theme.accent }}

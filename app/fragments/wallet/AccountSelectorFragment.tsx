@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo } from "react";
 import { Platform, Pressable, ScrollView, View, useWindowDimensions, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -13,6 +12,8 @@ import { useAppState, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { useParams } from "../../utils/useParams";
 import { Address } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
+import { ScreenHeader } from "../../components/ScreenHeader";
 
 export const AccountSelectorFragment = fragment(() => {
     const theme = useTheme();
@@ -85,8 +86,18 @@ export const AccountSelectorFragment = fragment(() => {
             paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom,
             backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar />
+
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            {Platform.OS === 'android' && (
+                <ScreenHeader
+                    title={t('common.wallets')}
+                    onBackPressed={navigation.goBack}
+                    style={{ paddingHorizontal: 16 }}
+                />
+            )}
             {Platform.OS === 'ios' && (
                 <Pressable
                     onPress={navigation.goBack}
@@ -101,7 +112,7 @@ export const AccountSelectorFragment = fragment(() => {
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     paddingBottom: safeArea.bottom + 16
                 }}>
-                    <Text style={{
+                    {Platform.OS === 'ios' && <Text style={{
                         marginHorizontal: 16,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
@@ -109,7 +120,7 @@ export const AccountSelectorFragment = fragment(() => {
                         marginTop: Platform.OS === 'ios' ? 32 : 0,
                     }}>
                         {t('common.wallets')}
-                    </Text>
+                    </Text>}
                     <ScrollView
                         style={{
                         }}
@@ -139,14 +150,15 @@ export const AccountSelectorFragment = fragment(() => {
                     padding: 16,
                     paddingBottom: safeArea.bottom + 16
                 }}>
-                    <Text style={{
+                    {Platform.OS === 'ios' && <Text style={{
+                        marginHorizontal: 16,
                         fontSize: 17, lineHeight: 24,
                         fontWeight: '600',
                         color: theme.textPrimary,
-                        marginBottom: 16, marginTop: Platform.OS === 'ios' ? 16 : 0,
+                        marginTop: Platform.OS === 'ios' ? 32 : 0,
                     }}>
                         {t('common.wallets')}
-                    </Text>
+                    </Text>}
                     <WalletSelector onSelect={callback} />
                     {!callback && (<RoundButton
                         style={{ marginVertical: 16 }}

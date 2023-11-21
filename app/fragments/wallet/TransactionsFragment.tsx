@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useMemo, useState } from "react";
-import { View, Text } from "react-native";
+import { View } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
@@ -12,11 +12,9 @@ import { useClient4 } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { useRoute } from "@react-navigation/native";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
-import { TransactionsEmptyState } from "./views/TransactionsEmptyStateView";
 import { PressableChip } from "../../components/PressableChip";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { PendingTransactions } from "./views/PendingTransactions";
@@ -155,16 +153,9 @@ export const TransactionsFragment = fragment(() => {
 
     useTrackScreen(isLedger ? 'LedgerHistory' : 'History', isTestnet);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    });
-
     if (!account) {
         return (
             <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
-                <StatusBar style={'dark'} />
                 <TabHeader title={t('transactions.history')} />
                 <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <LoadingIndicator />

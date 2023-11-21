@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, ScrollView, Image } from "react-native";
+import { View, Text, Pressable, ScrollView, Image, Platform } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -19,6 +19,7 @@ import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 import Chevron from '@assets/ic_chevron_forward.svg';
+import { StatusBar } from "expo-status-bar";
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
@@ -79,9 +80,14 @@ export const ReceiveFragment = fragment(() => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
             }}
-            collapsable={false}>
+            collapsable={false}
+        >
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <ScreenHeader
-                style={{ opacity: isSharing ? 0 : 1, flex: 1, minHeight: safeArea.bottom === 0 ? 60 : undefined }}
+                style={[
+                    { opacity: isSharing ? 0 : 1, flex: 1, minHeight: safeArea.bottom === 0 ? 60 : undefined },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
                 title={t('receive.title')}
                 onClosePressed={navigation.goBack}
             />

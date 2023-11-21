@@ -2,13 +2,11 @@ import * as React from 'react';
 import { Image, Platform, Pressable, ScrollView, Text, View } from 'react-native';
 import { nullTransfer, useTypedNavigation } from '../../utils/useTypedNavigation';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ValueComponent } from '../../components/ValueComponent';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
 import { Suspense, memo, useCallback, useEffect, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
-import { setStatusBarStyle } from 'expo-status-bar';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
 import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
@@ -18,7 +16,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useFocusEffect } from '@react-navigation/native';
 import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
@@ -27,6 +24,7 @@ import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
+import { StatusBar } from 'expo-status-bar';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -166,7 +164,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                     <View style={{ paddingHorizontal: 16 }}>
                         <View style={{
                             backgroundColor: theme.backgroundUnchangeable,
-                            position: 'absolute', top: 0, left: 0, right: 0,
+                            position: 'absolute', top: Platform.OS === 'android' ? -1 : 0, left: 0, right: 0,
                             height: '50%',
                             borderBottomLeftRadius: 20,
                             borderBottomRightRadius: 20,
@@ -313,14 +311,9 @@ export const WalletFragment = fragment(() => {
     const accountLite = useAccountLite(selectedAcc?.address);
     useTrackScreen('Wallet', isTestnet);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle('light');
-        }, 10);
-    });
-
     return (
         <>
+            <StatusBar style={'light'} />
             <PerformanceMeasureView
                 interactive={accountLite !== undefined && selectedAcc !== undefined}
                 screenName={'Wallet'}

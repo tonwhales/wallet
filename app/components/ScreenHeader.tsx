@@ -1,6 +1,5 @@
-import { StatusBar, StatusBarStyle } from "expo-status-bar";
 import React, { ReactNode, memo, useEffect } from "react"
-import { Platform, View, Text, StyleProp, ViewStyle } from "react-native"
+import { View, Text, StyleProp, ViewStyle } from "react-native"
 import { CloseButton } from "./navigation/CloseButton";
 import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
@@ -72,7 +71,6 @@ export function useScreenHeader(
                             onClosePressed={options.onClosePressed}
                             rightButton={options.rightButton}
                             leftButton={options.leftButton}
-                            statusBarStyle={options.statusBarStyle}
                         />
                     );
                 },
@@ -90,7 +88,6 @@ export type ScreenHeaderProps = {
     rightButton?: ReactNode,
     leftButton?: ReactNode,
     titleComponent?: ReactNode,
-    statusBarStyle?: StatusBarStyle,
     options?: NativeStackNavigationOptions
 }
 
@@ -105,7 +102,6 @@ export const ScreenHeader = memo((
         leftButton,
         rightButton,
         titleComponent,
-        statusBarStyle,
         options
     }: {
         style?: StyleProp<ViewStyle>,
@@ -117,7 +113,6 @@ export const ScreenHeader = memo((
         rightButton?: ReactNode,
         leftButton?: ReactNode,
         titleComponent?: ReactNode,
-        statusBarStyle?: StatusBarStyle,
         options?: NativeStackNavigationOptions
     }
 ) => {
@@ -133,7 +128,6 @@ export const ScreenHeader = memo((
 
     return (
         <View style={[{ width: '100%' }, style]}>
-            <StatusBar style={statusBarStyle || (Platform.OS === 'ios' ? 'light' : 'dark')} />
             <View style={{
                 flexDirection: 'row', alignItems: 'center',
                 height: 44,

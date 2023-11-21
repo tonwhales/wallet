@@ -27,7 +27,6 @@ import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { confirmAlert } from '../../utils/confirmAlert';
 import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
-import { setStatusBarStyle } from 'expo-status-bar';
 import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
 import { TonTransport } from '@ton-community/ton-ledger';
 import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useTheme } from '../../engine/hooks';
@@ -462,24 +461,10 @@ export const LedgerSignTransferFragment = fragment(() => {
         };
     }, [netConfig]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'light'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1 }}>
             <ScreenHeader
                 style={{ paddingLeft: 16 }}
-                statusBarStyle={Platform.select({
-                    ios: 'dark',
-                    android: theme.style === 'dark' ? 'light' : 'dark'
-                })}
                 onBackPressed={navigation.goBack}
                 onClosePressed={() => navigation.navigateAndReplaceAll('LedgerHome')}
                 titleComponent={!!loadedProps && (

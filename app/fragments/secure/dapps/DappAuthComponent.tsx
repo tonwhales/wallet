@@ -13,13 +13,14 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-import { useFocusEffect } from "@react-navigation/native";
-import { setStatusBarStyle } from "expo-status-bar";
-import { CheckBox } from "../../../components/CheckBox";
 import { useNetwork, useTheme } from "../../../engine/hooks";
+import { CheckBox } from "../../../components/CheckBox";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
+import { StatusBar } from "expo-status-bar";
+import { ScreenHeader } from "../../../components/ScreenHeader";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -65,6 +66,7 @@ export const DappAuthComponent = memo(({
     addExtension?: boolean,
     setAddExtension?: (add: boolean) => void,
 }) => {
+    const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const network = useNetwork();
@@ -163,19 +165,16 @@ export const DappAuthComponent = memo(({
         }
     }, [state, domain, addressString]);
 
-
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'light'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            {Platform.OS === 'android' && (
+                <ScreenHeader
+                    onClosePressed={onCancel}
+                    onBackPressed={!onCancel ? navigation.goBack : undefined}
+                    style={{ paddingTop: safeArea.top }}
+                />
+            )}
             <View style={{ flexGrow: 1 }} />
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
@@ -186,7 +185,7 @@ export const DappAuthComponent = memo(({
                 padding: 16,
                 paddingBottom: safeArea.bottom + 16
             }}>
-                <View>
+                <View style={Platform.select({ android: { flexGrow: 1 } })}>
                     <View style={{
                         borderRadius: 20,
                         backgroundColor: theme.surfaceOnElevation,
@@ -285,6 +284,9 @@ export const DappAuthComponent = memo(({
                                 />
                             )}
                         </>
+                    )}
+                    {Platform.OS === 'android' && (
+                        <View style={{ flexGrow: 1 }} />
                     )}
                     <View style={{ flexDirection: 'row', width: '100%' }}>
                         <RoundButton

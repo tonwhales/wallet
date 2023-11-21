@@ -1,9 +1,7 @@
-import { StatusBar } from "expo-status-bar";
 import React, { memo, useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { RoundButton } from "../../components/RoundButton";
@@ -17,6 +15,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
 
@@ -178,7 +177,7 @@ export const NeocryptoFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             {!accepted && (
                 <>
                     <ScreenHeader onClosePressed={navigation.goBack} title={'Neocrypto'} />

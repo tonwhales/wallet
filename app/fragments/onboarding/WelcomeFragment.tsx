@@ -3,12 +3,10 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar } from 'expo-status-bar';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { useTheme } from '../../engine/hooks';
 import { isTermsAccepted } from '../../storage/terms';
-import { ThemeStyle } from '../../engine/state/theme';
 import { useCallback } from 'react';
 import { WelcomeSlider } from '../../components/slider/WelcomeSlider';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -34,7 +32,6 @@ export const WelcomeFragment = systemFragment(() => {
             flex: 1,
             backgroundColor: theme.backgroundPrimary,
         }}>
-            <StatusBar style={theme.style === ThemeStyle.Dark ? 'light' : 'dark'} />
             <ScrollView bounces={false}>
                 <WelcomeSlider style={{ paddingTop: safeArea.top }} />
             </ScrollView>

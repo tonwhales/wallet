@@ -1,4 +1,3 @@
-import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,7 +17,7 @@ import { parseAmountToBn } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { formatCurrency } from '../../utils/formatCurrency';
@@ -27,6 +26,7 @@ import { useAccountLite, useNetwork, usePrice, useSelectedAccount, useStakingPoo
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { AboutIconButton } from '../../components/AboutIconButton';
+import { StatusBar } from 'expo-status-bar';
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
@@ -340,22 +340,16 @@ export const StakingTransferFragment = fragment(() => {
         );
     }, [validAmount, price, currency]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'light'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={title}
                 onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}

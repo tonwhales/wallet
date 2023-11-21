@@ -22,6 +22,7 @@ import { useAccountLite, useClient4, useNetwork, useSelectedAccount, useTheme } 
 import { beginCell, internal, storeMessage, external, Address, SendMode, toNano } from "@ton/core";
 import { getLastBlock } from "../engine/accountWatcher";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
+import { StatusBar } from "expo-status-bar";
 
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
@@ -259,11 +260,14 @@ export const DeleteAccountFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('settings.deleteAccount')}
                 onBackPressed={navigation.goBack}
                 style={{ paddingLeft: 16 }}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             <View style={{ flexGrow: 1, paddingHorizontal: 16, marginTop: 16 }}>
                 <View style={{

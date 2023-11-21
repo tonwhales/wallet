@@ -28,6 +28,7 @@ import { StoredTxBody, TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -248,6 +249,7 @@ export const TransactionPreviewFragment = fragment(() => {
             alignItems: 'center',
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             <ScreenHeader
                 onClosePressed={navigation.goBack}
             />

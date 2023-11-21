@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, KeyboardAvoidingView, Alert, Pressable } from 'react-native';
+import { ActivityIndicator, Platform, View, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -7,8 +7,6 @@ import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { StatusBar } from 'expo-status-bar';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useParams } from '../../utils/useParams';
 import { HoldersAppParams } from './HoldersAppFragment';
@@ -27,6 +25,7 @@ import { getCurrentAddress } from '../../storage/appState';
 import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { normalizePath } from './components/HoldersAppComponent';
+import { StatusBar } from 'expo-status-bar';
 
 export const HoldersLandingFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -221,6 +220,7 @@ export const HoldersLandingFragment = fragment(() => {
             paddingTop: 36,
             backgroundColor: theme.surfaceOnBg
         }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView

@@ -76,7 +76,6 @@ export const LegalFragment = systemFragment(() => {
             <ScreenHeader
                 style={[{ paddingLeft: 16 }, Platform.select({ ios: { paddingTop: 16 } })]}
                 onBackPressed={navigation.goBack}
-                statusBarStyle={Platform.select({ ios: theme.style === 'dark' ? 'light' : 'dark', android: 'light' })}
             />
             <ScrollView style={{ width: '100%', height: dimensions.window.height - (Platform.OS === 'android' ? safeArea.top : 32) - 224 }}>
                 <View style={{ justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16 }}>

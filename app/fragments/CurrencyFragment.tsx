@@ -1,5 +1,4 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useLayoutEffect } from "react";
+import React, { useCallback } from "react";
 import { Platform, View, Text, ScrollView, Pressable } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../fragment";
@@ -10,6 +9,7 @@ import Animated from "react-native-reanimated";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { usePrimaryCurrency, useTheme } from "../engine/hooks";
 import { CurrencySymbols, PrimaryCurrency } from "../utils/formatCurrency";
+import { StatusBar } from "expo-status-bar";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -34,7 +34,10 @@ export const CurrencyFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'android' ? 'dark' : 'light'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('settings.primaryCurrency')}
                 onClosePressed={navigation.goBack}

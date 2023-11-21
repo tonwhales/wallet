@@ -9,14 +9,13 @@ import { ValueComponent } from "../../components/ValueComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { setStatusBarStyle } from "expo-status-bar";
-import { useFocusEffect } from "@react-navigation/native";
 import { NominatorOperation } from "../../engine/api/fetchStakingNominator";
 import { useNetwork, useNominatorInfo, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { Address } from "@ton/core";
 
 import IcDeposit from "@assets/ic-top-up.svg";
 import IcWithdraw from "@assets/ic-tx-in.svg";
-import { Address } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
 
 export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation & { type: 'withdraw' | 'deposit' } }) => {
     const theme = useTheme();
@@ -145,18 +144,12 @@ export const StakingOperationsFragment = fragment(() => {
         return data;
     }, [operations]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(Platform.select({
-                ios: 'light',
-                android: theme.style === 'dark' ? 'light' : 'dark',
-                default: 'light',
-            }));
-        }, 10);
-    });
-
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('products.staking.analytics.operations')}
                 onClosePressed={() => navigation.goBack()}

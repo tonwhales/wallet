@@ -6,13 +6,14 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
 import { Avatar, avatarImages } from "../../components/Avatar";
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
-import { setStatusBarStyle } from "expo-status-bar";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { ATextInput } from "../../components/ATextInput";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
+import { StatusBar } from "expo-status-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const WalletSettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -22,6 +23,7 @@ export const WalletSettingsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const address = selected!.address;
+    const safeArea = useSafeAreaInsets();
 
     const [walletSettings, setSettings] = useWalletSettings(address);
 
@@ -49,17 +51,18 @@ export const WalletSettingsFragment = fragment(() => {
         navigation.navigate('AvatarPicker', { callback, hash: avatar });
     }, []);
 
-    useLayoutEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
-        }, 10);
-    }, [theme.style]);
-
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 onBackPressed={() => navigation.goBack()}
-                style={{ paddingHorizontal: 16 }}
+                style={[
+                    { paddingHorizontal: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } }),
+                ]}
                 title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}
                 rightButton={
                     <Pressable

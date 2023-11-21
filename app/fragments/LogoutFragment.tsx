@@ -12,6 +12,7 @@ import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
 import { useTheme } from "../engine/hooks";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
+import { StatusBar } from "expo-status-bar";
 
 import IcLogout from '@assets/ic-alert-red.svg';
 import Support from '@assets/ic-support.svg';
@@ -93,6 +94,10 @@ export const LogoutFragment = fragment(() => {
             flexGrow: 1,
             paddingBottom: safeArea.bottom
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('common.logout')}
                 onBackPressed={navigation.goBack}
@@ -100,7 +105,6 @@ export const LogoutFragment = fragment(() => {
                     { paddingHorizontal: 16 },
                     Platform.select({ android: { marginTop: safeArea.top } })
                 ]}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             <View style={{ paddingHorizontal: 16, flexGrow: 1, marginTop: 16 }}>
                 <View style={{

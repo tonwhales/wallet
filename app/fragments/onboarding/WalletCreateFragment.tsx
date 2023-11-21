@@ -115,7 +115,6 @@ export const WalletCreateFragment = systemFragment(() => {
                             }
                         }}
                         style={[{ paddingLeft: 16, paddingTop: safeArea.top }, Platform.select({ ios: { paddingTop: 32 } })]}
-                        statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
                     />
                     <ScrollView
                         alwaysBounceVertical={false}

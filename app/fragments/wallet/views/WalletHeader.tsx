@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { Pressable, View, Text, Image } from "react-native";
+import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -48,7 +48,7 @@ export const WalletHeader = memo(() => {
         <View
             style={{
                 backgroundColor: theme.backgroundUnchangeable,
-                paddingTop: safeArea.top,
+                paddingTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
                 paddingHorizontal: 16
             }}
             collapsable={false}

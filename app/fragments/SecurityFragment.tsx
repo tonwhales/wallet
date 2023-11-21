@@ -18,6 +18,7 @@ import { useBiometricsState } from '../engine/hooks'
 import { useSetBiometricsState } from "../engine/hooks/appstate/useSetBiometricsState"
 import { ScreenHeader } from "../components/ScreenHeader"
 import { useLockAppWithAuthState } from "../engine/hooks/settings"
+import { StatusBar } from "expo-status-bar"
 
 import TouchAndroid from '@assets/ic_touch_and.svg';
 import FaceIos from '@assets/ic_face_id.svg';
@@ -93,10 +94,13 @@ export const SecurityFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('security.title')}
                 onClosePressed={navigation.goBack}
-                statusBarStyle={Platform.select({ ios: 'light', android: theme.style === 'dark' ? 'light' : 'dark' })}
             />
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

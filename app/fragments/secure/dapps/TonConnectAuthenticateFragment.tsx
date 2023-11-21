@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Platform, Linking } from "react-native";
+import { Linking } from "react-native";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { StatusBar } from 'expo-status-bar';
 import { getAppInstanceKeyPair, getCurrentAddress } from '../../../storage/appState';
 import { contractFromPublicKey, walletConfigFromContract } from '../../../engine/contractFromPublicKey';
 import { beginCell, safeSign, storeStateInit } from '@ton/core';
@@ -311,10 +310,5 @@ export const TonConnectAuthenticateFragment = fragment(() => {
         }
     }, []);
 
-    return (
-        <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <SignStateLoader connectProps={props} />
-        </>
-    );
+    return (<SignStateLoader connectProps={props} />);
 });

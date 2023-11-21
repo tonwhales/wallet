@@ -1,8 +1,6 @@
 import * as React from 'react';
 import { useRoute } from "@react-navigation/native";
-import { Platform } from "react-native";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { StatusBar } from 'expo-status-bar';
 import { backoff } from '../../../utils/time';
 import axios from 'axios';
 import { addConnectionReference, addPendingGrant, getAppInstanceKeyPair, getCurrentAddress, removePendingGrant } from '../../../storage/appState';
@@ -260,12 +258,9 @@ export const AuthenticateFragment = fragment(() => {
     } = useRoute().params as any;
 
     return (
-        <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <SignStateLoader
-                session={params.session}
-                endpoint={params.endpoint || 'connect.tonhubapi.com'}
-            />
-        </>
+        <SignStateLoader
+            session={params.session}
+            endpoint={params.endpoint || 'connect.tonhubapi.com'}
+        />
     );
 });

@@ -100,7 +100,6 @@ export const WalletSecureComponent = memo((props: {
                     props.callback(false);
                 }}
                 style={[{ zIndex: 100, paddingHorizontal: 16, paddingTop: 8 }]}
-                statusBarStyle={theme.style === 'dark' ? 'light' : 'dark'}
             />
             <ScrollView
                 bounces={false}

@@ -1,5 +1,4 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -19,6 +18,7 @@ import { usePrice, useStakingPool, useTheme } from "../../engine/hooks";
 import { Address, fromNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
+import { StatusBar } from "expo-status-bar";
 
 export const StakingCalculatorFragment = fragment(() => {
     const theme = useTheme();
@@ -89,22 +89,16 @@ export const StakingCalculatorFragment = fragment(() => {
         );
     }, [amount, price, currency]);
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'light'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
-
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('products.staking.calc.text')}
                 onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}

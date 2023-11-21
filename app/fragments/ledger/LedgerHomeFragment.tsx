@@ -5,7 +5,6 @@ import React, { useCallback, useEffect, useMemo } from "react";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Pressable, View, Image, Text, Platform } from "react-native";
-import { StatusBar } from "expo-status-bar";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
 import { WalletAddress } from "../../components/WalletAddress";
@@ -14,6 +13,7 @@ import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
+import { StatusBar } from "expo-status-bar";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();

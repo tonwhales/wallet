@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
@@ -12,6 +11,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { getDomainKey } from '../../engine/state/domainKeys';
+import { StatusBar } from 'expo-status-bar';
 
 export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
 
@@ -62,8 +62,7 @@ export const HoldersAppFragment = fragment(() => {
             paddingTop: safeArea.top,
             backgroundColor: theme.surfaceOnBg
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {needsEnrollment ? null : (
                 <HoldersAppComponent
                     title={t('products.holders.title')}

@@ -16,15 +16,13 @@ import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { setStatusBarStyle } from "expo-status-bar";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
 import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
-
-// import InfoIcon from '@assets/ic-info-staking.svg';
+import { StatusBar } from "expo-status-bar";
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -143,18 +141,9 @@ export const StakingFragment = fragment(() => {
         + (member?.withdraw || 0n)
         > 0n;
 
-    useFocusEffect(() => {
-        setTimeout(() => {
-            setStatusBarStyle(
-                Platform.OS === 'ios'
-                    ? 'dark'
-                    : theme.style === 'dark' ? 'light' : 'dark'
-            )
-        }, 10);
-    });
-
     return (
         <View style={{ flex: 1 }}>
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ScreenHeader
                 style={{ marginTop: 32, paddingHorizontal: 16 }}
                 onBackPressed={navigation.goBack}

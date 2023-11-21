@@ -1,5 +1,4 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { StatusBar } from "expo-status-bar";
 import React, { RefObject, createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, Image, Alert, Keyboard, Pressable, TextInput } from "react-native";
 import Animated, { runOnUI, useAnimatedRef, useSharedValue, measure, scrollTo } from "react-native-reanimated";
@@ -20,6 +19,7 @@ import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
 import { useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -213,7 +213,10 @@ export const ContactFragment = fragment(() => {
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={'dark'} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
             <ScreenHeader
                 title={t('contacts.title')}
                 style={{ paddingLeft: 16 }}

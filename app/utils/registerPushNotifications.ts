@@ -24,7 +24,7 @@ export const registerForPushNotificationsAsync = async () => {
         if (finalStatus !== 'granted') {
             return null;
         }
-        // return (await Notifications.getExpoPushTokenAsync()).data;
+        return (await Notifications.getExpoPushTokenAsync()).data;
     } else {
         return null;
     }

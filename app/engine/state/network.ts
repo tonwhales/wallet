@@ -9,7 +9,6 @@ export const isTestnetKey = 'isTestnet';
 export const IS_SANDBOX = Application.applicationId === 'com.tonhub.app.testnet' ||
     Application.applicationId === 'com.tonhub.app.debug.testnet' ||
     Application.applicationId === 'com.tonhub.wallet.testnet' ||
-    Application.applicationId === 'com.tonhub.wallet.testnet.dev' ||
     Application.applicationId === 'com.tonhub.wallet.testnet.debug';
 
 const isTestnetAtom = atom({

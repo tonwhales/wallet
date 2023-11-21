@@ -948,7 +948,6 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}
                                 inputStyle={{
                                     fontSize: 17, fontWeight: '400',
-                                    textAlignVertical: 'top',
                                     color: amountError ? theme.accentRed : theme.textPrimary,
                                     width: 'auto',
                                     flexShrink: 1

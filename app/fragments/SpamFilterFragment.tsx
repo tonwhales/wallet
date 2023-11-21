@@ -154,7 +154,6 @@ export const SpamFilterFragment = fragment(() => {
                                 }}
                                 inputStyle={{
                                     fontSize: 17, fontWeight: '400',
-                                    textAlignVertical: 'top',
                                     color: theme.textPrimary,
                                     width: 'auto',
                                     flexShrink: 1

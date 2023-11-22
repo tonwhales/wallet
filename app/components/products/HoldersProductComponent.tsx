@@ -1,18 +1,13 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react"
-import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { extractDomain } from "../../engine/utils/extractDomain";
+import React, { memo, useMemo } from "react"
 import { HoldersAccountItem } from "./HoldersAccountItem";
 import { View } from "react-native";
-import { interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
-import { useHoldersAccountStatus, useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useStaking } from "../../engine/hooks";
-import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { getDomainKey } from "../../engine/state/domainKeys";
+import { useHoldersAccountStatus, useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount } from "../../engine/hooks";
+import { HoldersAccountState } from "../../engine/api/holders/fetchAccountState";
 
 import Hide from '@assets/ic-hide.svg';
 
 export const HoldersProductComponent = memo(() => {
     const network = useNetwork();
-    const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
@@ -23,51 +18,12 @@ export const HoldersProductComponent = memo(() => {
         });
     }, [hiddenCards, accounts]);
 
-    const staking = useStaking();
-
-    const [collapsed, setCollapsed] = useState(true);
-
-    const rotation = useSharedValue(0);
-
-    const animatedChevron = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${interpolate(rotation.value, [0, 1], [0, -180])}deg` }],
-        }
-    }, []);
-
-    useEffect(() => {
-        rotation.value = withTiming(collapsed ? 0 : 1, { duration: 150 });
-    }, [collapsed])
-
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
         return false;
     }, [holdersAccStatus]);
-
-    const collapsedBorderStyle = useAnimatedStyle(() => {
-        return {
-            borderBottomEndRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
-            borderBottomStartRadius: withTiming((collapsed ? 20 : 0), { duration: 250 }),
-        }
-    });
-
-    const onPress = useCallback(() => {
-        const domain = extractDomain(holdersUrl);
-        const domainKey = getDomainKey(domain);
-        if (needsEnrolment || !domainKey) {
-            navigation.navigate(
-                'HoldersLanding',
-                {
-                    endpoint: holdersUrl,
-                    onEnrollType: { type: 'account' }
-                }
-            );
-            return;
-        }
-        navigation.navigateHolders({ type: 'account' });
-    }, [needsEnrolment]);
 
     if (!network.isTestnet) {
         return null;
@@ -78,7 +34,7 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginVertical: 16 }}>
             {visibleList.map((item, index) => {
                 return (
                     <HoldersAccountItem

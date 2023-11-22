@@ -189,7 +189,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     )}
                 </View>
 
-                {holdersAccounts?.accounts?.length === 0 && isTestnet && (
+                {(holdersAccounts?.accounts?.length ?? 0) === 0 && isTestnet && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
@@ -205,7 +205,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <HoldersProductComponent key={'holders'} />
 
-                <View style={{ marginTop: 16, paddingHorizontal: 16 }}>
+                <View style={{ paddingHorizontal: 16 }}>
                     <StakingProductComponent key={'pool'} />
                 </View>
 

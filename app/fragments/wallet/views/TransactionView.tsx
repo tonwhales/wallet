@@ -48,7 +48,7 @@ export function TransactionView(props: {
     const item = operation.items[0];
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
-    const opAddress = tx.base.parsed.resolvedAddress;
+    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
@@ -229,6 +229,7 @@ export function TransactionView(props: {
                                 id={opAddress}
                                 borderWith={0}
                                 spam={spam}
+                                markContact={!!known}
                             />
                         )}
                     </View>

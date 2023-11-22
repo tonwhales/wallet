@@ -45,6 +45,7 @@ export function ProductButton(props: ProductButtonProps) {
                 },
                 props.style
             ]}
+            underlayColor={theme.surfaceOnBg}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
                 <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>

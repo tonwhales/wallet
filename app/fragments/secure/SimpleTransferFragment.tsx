@@ -82,7 +82,6 @@ export const SimpleTransferFragment = fragment(() => {
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
     const account = isLedger ? ledgerLite : accountLite;
-    console.log({ account, ledgerAddress })
 
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
         addressInputReducer(),
@@ -545,7 +544,6 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
-    const contact = useContact(target);
 
     const doSend = useCallback(async () => {
         let address: Address;
@@ -778,7 +776,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
                 title={header.title}
                 onBackPressed={header?.onBackPressed}

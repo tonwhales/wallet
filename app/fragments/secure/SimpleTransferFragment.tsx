@@ -82,7 +82,6 @@ export const SimpleTransferFragment = fragment(() => {
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
 
     const account = isLedger ? ledgerLite : accountLite;
-    console.log({ account, ledgerAddress })
 
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
         addressInputReducer(),

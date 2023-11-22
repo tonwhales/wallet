@@ -1,4 +1,4 @@
-import { StyleProp, Text, TextStyle, View } from "react-native";
+import { StyleProp, Text, TextStyle } from "react-native";
 import { fromBnWithDecimals } from "../utils/withDecimals";
 
 export function ValueComponent(props: {
@@ -47,7 +47,7 @@ export function ValueComponent(props: {
     r = parts.join(' ');
 
     const precision = !!props.decimals
-        ? r.length > 2 ? 2 : props.decimals
+        ? r.length > 1 ? 2 : props.decimals
         : props.precision
             ? props.precision
             : r.length > 2 ? 2 : p[1].length
@@ -61,7 +61,7 @@ export function ValueComponent(props: {
             <Text style={[props.centFontStyle]}>
                 .{p[1].substring(
                     0,
-                    precision // Show only the last two decimal places
+                    precision // Show only the last decimal places
                 )}
                 {props.suffix}
             </Text>

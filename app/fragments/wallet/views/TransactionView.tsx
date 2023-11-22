@@ -17,6 +17,7 @@ import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatDate, formatTime } from '../../../utils/dates';
 import { PerfText } from '../../../components/basic/PerfText';
+import { AppState } from '../../../storage/appState';
 
 export function TransactionView(props: {
     own: Address,
@@ -33,6 +34,7 @@ export function TransactionView(props: {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
+    appState?: AppState
 }) {
     const {
         theme, navigation,
@@ -49,6 +51,7 @@ export function TransactionView(props: {
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.addressString === opAddress) >= 0;
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
@@ -230,6 +233,7 @@ export function TransactionView(props: {
                                 borderWith={0}
                                 spam={spam}
                                 markContact={!!known}
+                                isOwn={isOwn}
                             />
                         )}
                     </View>

@@ -10,10 +10,11 @@ import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { useAppState, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
+import { AppState } from "../../../storage/appState";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -42,6 +43,7 @@ type TransactionListItemProps = {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
+    appState: AppState
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -94,6 +96,7 @@ export const WalletTransactions = memo((props: {
     const [dontShowComments,] = useDontShowComments();
     const [addressBook, updateAddressBook] = useAddressBook();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
+    const appState = useAppState();
 
     const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
         let addr = '';
@@ -185,6 +188,7 @@ export const WalletTransactions = memo((props: {
                     contacts={addressBook.contacts}
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
+                    appState={appState}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

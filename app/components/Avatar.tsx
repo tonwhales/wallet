@@ -71,6 +71,7 @@ export const Avatar = memo((props: {
     borderColor?: string,
     borderWith?: number,
     backgroundColor?: string,
+    isOwn?: boolean,
     icPosition?: 'top' | 'bottom' | 'left' | 'right'
 }) => {
     const theme = useTheme();
@@ -126,6 +127,65 @@ export const Avatar = memo((props: {
             icPosition = { bottom: -icSize / 2 };
             break;
     }
+    let ic = null;
+    if (props.markContact) {
+        ic = (
+            <View style={[
+                {
+                    justifyContent: 'center', alignItems: 'center',
+                    height: icSize, width: icSize,
+                    borderRadius: icSize / 2,
+                    backgroundColor: theme.surfaceOnElevation,
+                    position: 'absolute',
+                },
+                icPosition
+            ]}>
+                <Image
+                    source={require('@assets/ic-contact.png')}
+                    style={{
+                        width: icSize - Math.round(icSize * 0.03),
+                        height: icSize - Math.round(icSize * 0.03),
+                        tintColor: theme.iconPrimary
+                    }}
+                />
+            </View>
+        );
+    } else if ((!!known || props.verified) && !props.dontShowVerified && !spam) {
+        ic = (
+            <Image
+                source={require('@assets/ic-verified.png')}
+                style={[{ position: 'absolute', width: icSize, height: icSize }, icPosition]}
+            />
+        );
+    }
+
+    if (props.isOwn) {
+        ic = (
+            <View style={[
+                {
+                    justifyContent: 'center', alignItems: 'center',
+                    height: icSize, width: icSize,
+                    borderRadius: Math.round(icSize / 2),
+                    backgroundColor: theme.surfaceOnElevation,
+                    position: 'absolute',
+                },
+                icPosition
+            ]}>
+                <Image
+                    source={require('@assets/ic-my-wallet.png')}
+                    style={{
+                        width: icSize,
+                        height: icSize,
+                        tintColor: theme.iconPrimary
+                    }}
+                />
+            </View>
+        );
+    }
+
+    if (spam) {
+        ic = null;
+    }
 
     return (
         <View>
@@ -141,36 +201,7 @@ export const Avatar = memo((props: {
                 <View style={{ opacity: props.spam ? .5 : 1 }}>
                     {img}
                 </View>
-                {props.markContact ? (
-                    !spam && (
-                        <View style={[
-                            {
-                                justifyContent: 'center', alignItems: 'center',
-                                height: icSize, width: icSize,
-                                borderRadius: icSize / 2,
-                                backgroundColor: theme.surfaceOnElevation,
-                                position: 'absolute',
-                            },
-                            icPosition
-                        ]}>
-                            <Image
-                                source={require('@assets/ic-contact.png')}
-                                style={{
-                                    width: icSize - Math.floor(icSize * 0.03),
-                                    height: icSize - Math.floor(icSize * 0.03),
-                                    tintColor: theme.iconPrimary
-                                }}
-                            />
-                        </View>
-                    )
-                ) : (
-                    (!!known || props.verified) && !props.dontShowVerified && !spam && (
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={[{ position: 'absolute', width: icSize, height: icSize }, icPosition]}
-                        />
-                    )
-                )}
+                {ic}
             </View>
             {spam && (
                 <View style={{ borderRadius: 100, padding: 2, backgroundColor: theme.surfaceOnElevation }}>

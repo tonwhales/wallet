@@ -21,7 +21,7 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AddressComponent } from "../../components/address/AddressComponent";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
@@ -41,6 +41,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
     const ledgerContext = useLedgerTransport();
+    const appState = useAppState();
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {
             try {
@@ -65,6 +66,9 @@ export const TransactionPreviewFragment = fragment(() => {
     const item = operation.items[0];
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const fees = BigInt(tx.base.fees);
+    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} ${formatTime(tx.base.time)}`;
+    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    const isOwn = appState.addresses.findIndex((a) => a.addressString === opAddress) >= 0;
 
     const feesPrise = useMemo(() => {
         if (!price) {
@@ -260,9 +264,6 @@ export const TransactionPreviewFragment = fragment(() => {
         return () => subscription?.remove();
     }, [tonhubLink]);
 
-    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} ${formatTime(tx.base.time)}`;
-    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
-
     return (
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
@@ -305,6 +306,7 @@ export const TransactionPreviewFragment = fragment(() => {
                         backgroundColor={theme.backgroundPrimary}
                         markContact={!!contact}
                         icPosition={'bottom'}
+                        isOwn={isOwn}
                     />
                     <Text
                         style={{
@@ -569,7 +571,7 @@ export const TransactionPreviewFragment = fragment(() => {
                     <AboutIconButton
                         title={t('txPreview.blockchainFee')}
                         description={t('txPreview.blockchainFeeDescription')}
-                        style={{ height: 24, width: 24, position: undefined }}
+                        style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
                         size={20}
                     />
                 </View>

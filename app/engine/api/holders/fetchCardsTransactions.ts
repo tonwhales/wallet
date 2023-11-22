@@ -226,9 +226,6 @@ export async function fetchCardsTransactions(
         throw Error('Error fetching events');
     }
 
-    console.log('fetchCardsTransactions', res.data.data);
-
-
     return {
         hasMore: (res.data.data.more || false) as boolean,
         lastCursor: res.data.data.cursor as string,

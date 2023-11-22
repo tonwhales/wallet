@@ -2,7 +2,6 @@ import { CardNotification } from "../../engine/api/holders/fetchCardsTransaction
 import { t } from "../../i18n/t";
 
 export const notificationTypeFormatter = (event: CardNotification) => {
-    console.log('notificationTypeFormatter', event.type)
     if (event.type === 'charge' || event.type === 'charge_failed') {
         const { merchantInfo } = event.data;
         return merchantInfo?.dirtyName || merchantInfo?.cleanName || t('products.holders.card.notifications.type.charge');

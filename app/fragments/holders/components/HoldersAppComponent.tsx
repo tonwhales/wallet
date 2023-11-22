@@ -338,6 +338,7 @@ export const HoldersAppComponent = memo((
             suspended = (status as any).suspended;
         }
 
+        // TODO: add accounts state
         const initialState = {
             ...status
                 ? {

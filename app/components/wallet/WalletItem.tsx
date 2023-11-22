@@ -5,8 +5,7 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useAppState, useNetwork, useSetAppState, useTheme } from "../../engine/hooks";
-import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
+import { useAppState, useNetwork, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 
 import IcCheck from "@assets/ic-check.svg";
 

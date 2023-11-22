@@ -152,33 +152,6 @@ export const AddressDomainInput = memo(forwardRef(({
         return { suffix, textInput };
     }, [resolving, isKnown, contact, focused, target, input, domain]);
 
-    const showWallets = appState.addresses.length > 0 || !!ledgerContext.addr?.address;
-    const showContacts = Object.keys(contacts).length > 0;
-
-    const openContacts = useCallback(() => {
-        const callback = (address: Address) => {
-            navigation.goBack();
-            dispatch({
-                type: InputActionType.InputTarget,
-                input: address.toString({ testOnly: network.isTestnet }),
-                target: address.toString({ testOnly: network.isTestnet })
-            });
-        }
-        navigation.navigate('Contacts', { callback });
-    }, [dispatch, navigation]);
-
-    const openWallets = useCallback(() => {
-        const callback = (address: Address) => {
-            navigation.goBack();
-            dispatch({
-                type: InputActionType.InputTarget,
-                input: address.toString({ testOnly: network.isTestnet }),
-                target: address.toString({ testOnly: network.isTestnet })
-            });
-        }
-        navigation.navigate('AccountSelector', { callback });
-    }, [dispatch, navigation]);
-
     const actionsRight = useMemo(() => {
         if (resolving) {
             return (
@@ -196,30 +169,10 @@ export const AddressDomainInput = memo(forwardRef(({
             return (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
                     <View style={{ flexDirection: 'row' }}>
-                        {showContacts && (
-                            <Pressable
-                                onPress={openContacts}
-                                style={{ height: 24, width: 24 }}
-                            >
-                                <Image source={require('@assets/ic-contact-tx.png')}
-                                    style={{ height: 24, width: 24 }}
-                                />
-                            </Pressable>
-                        )}
-                        {showWallets && (
-                            <Pressable
-                                onPress={openWallets}
-                                style={{ height: 24, width: 24, marginLeft: showContacts ? 16 : undefined }}
-                            >
-                                <Image source={require('@assets/ic-wallet-tx.png')}
-                                    style={{ height: 24, width: 24 }}
-                                />
-                            </Pressable>
-                        )}
                         {!!onQRCodeRead && (
                             <Pressable
                                 onPress={openScanner}
-                                style={{ height: 24, width: 24, marginLeft: (showContacts || showWallets) ? 16 : undefined }}
+                                style={{ height: 24, width: 24, marginLeft: undefined }}
                             >
                                 <Image source={require('@assets/ic-scan-tx.png')}
                                     style={{ height: 24, width: 24 }}
@@ -245,10 +198,10 @@ export const AddressDomainInput = memo(forwardRef(({
                 </Pressable>
             </Animated.View>
         )
-    }, [resolving, input, onQRCodeRead, openScanner, openWallets, openContacts, showWallets, showContacts]);
+    }, [resolving, input, onQRCodeRead, openScanner]);
 
     const actionsWidth = input.length === 0
-        ? 124 - (showContacts ? 0 : 40) - (showWallets ? 0 : 40) - (!!onQRCodeRead ? 0 : 40)
+        ? 44 - (!!onQRCodeRead ? 0 : 40)
         : 24
 
     return (

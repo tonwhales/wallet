@@ -7,3 +7,5 @@ export { useSetAppState } from './useSetAppState';
 export { useSetBiometricsState } from './useSetBiometricsState';
 export { useSetNetwork } from './useSetNetwork';
 export { useAppState } from './useAppState';
+export { useWalletsSettings } from './useWalletsSettings';
+export { useWalletSettings } from './useWalletSettings';

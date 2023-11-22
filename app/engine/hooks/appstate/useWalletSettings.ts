@@ -1,7 +1,8 @@
 import { Address } from "@ton/core";
 import { useNetwork } from "../network";
-import { WalletSettings, walletSettingsAtom } from "../../state/walletSettings";
+import { WalletSettings, walletsSettingsAtom } from "../../state/walletSettings";
 import { useRecoilState } from "recoil";
+import { useWalletsSettings } from ".";
 
 export function useWalletSettings(address?: string | Address | null): [WalletSettings, (settings: WalletSettings) => void] {
     const { isTestnet } = useNetwork();
@@ -9,7 +10,7 @@ export function useWalletSettings(address?: string | Address | null): [WalletSet
         ? address.toString({ testOnly: isTestnet })
         : address;
 
-    const [state, update] = useRecoilState(walletSettingsAtom);
+    const [state, update] = useWalletsSettings();
 
     if (!addressString) {
         return [{} as WalletSettings, () => { }];

@@ -70,6 +70,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         assets: 'Assets',
         message: 'Message',
         airdrop: 'Airdrop',
+        myWallets: 'My wallets',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -779,7 +780,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     contacts: {
         title: 'Contacts',
         contact: 'Contact',
-        unknown: 'Recent',
+        unknown: 'Unknown',
         contacts: 'My contacts',
         name: 'Name',
         lastName: 'Last name',

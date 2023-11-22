@@ -71,6 +71,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         assets: 'Активы',
         message: 'Сообщение',
         airdrop: 'Airdrop',
+        myWallets: 'Мои кошельки',
     },
     syncStatus: {
         connecting: 'Идет подключение',
@@ -780,7 +781,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     contacts: {
         title: 'Контакты',
         contact: 'Контакт',
-        unknown: 'Недавний',
+        unknown: 'Неизвестный',
         contacts: 'Мои контакты',
         name: 'Имя',
         lastName: 'Фамилия',

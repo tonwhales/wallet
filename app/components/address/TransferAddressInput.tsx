@@ -248,13 +248,13 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     <ScrollView
                         contentInset={{
                             top: 16,
-                            bottom: keyboard.keyboardHeight + safeArea.bottom + 16 + 56,
+                            bottom: keyboard.keyboardHeight + safeArea.bottom + 16 + 56 + 332,
                         }}
                         contentContainerStyle={[
                             { marginHorizontal: 16, borderRadius: 20 },
                             Platform.select({ android: { paddingTop: 32 } }),
                         ]}
-                        style={{ flexGrow: 1, minHeight: 256, marginTop: 16 }}
+                        style={{ flexGrow: 1, minHeight: 1000, marginTop: 16 }}
                         contentInsetAdjustmentBehavior={'never'}
                         keyboardShouldPersistTaps={'always'}
                         keyboardDismissMode={'none'}
@@ -268,7 +268,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                     target: item.address.toString({ testOnly: props.isTestnet })
                                 })
                             }}
-                            query={props.input}
+                            query={props.input.toLowerCase()}
                             transfer
                         />
                     </ScrollView>

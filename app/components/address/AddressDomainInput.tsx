@@ -189,7 +189,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 <Pressable
                     onPress={() => dispatch({ type: InputActionType.Clear })}
                     style={{ height: 24, width: 24 }}
-                    hitSlop={16}
+                    hitSlop={36}
                 >
                     <Image
                         source={require('@assets/ic-clear.png')}

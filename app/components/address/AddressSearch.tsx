@@ -156,7 +156,7 @@ export const AddressSearch = memo(({
     }
 
     return (
-        <View>
+        <View style={{ marginTop: 16 }}>
             {filtered.recent.length > 0 && (
                 <View style={transfer ? {
                     borderRadius: 20,

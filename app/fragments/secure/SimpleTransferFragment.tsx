@@ -833,7 +833,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 alignItems: 'center',
                                 justifyContent: 'space-between'
                             }}>
-                                <View style={{ flexDirection: 'row' }}>
+                                <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'hidden' }}>
                                     <View style={{
                                         height: 46, width: 46,
                                         justifyContent: 'center', alignItems: 'center',
@@ -860,7 +860,7 @@ export const SimpleTransferFragment = fragment(() => {
                                             />
                                         )}
                                     </View>
-                                    <View style={{ justifyContent: 'space-between' }}>
+                                    <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
                                         <Text style={{
                                             fontSize: 17,
                                             color: theme.textPrimary,
@@ -870,16 +870,21 @@ export const SimpleTransferFragment = fragment(() => {
                                             {symbol}
                                         </Text>
                                         <Text
-                                            style={{
-                                                fontSize: 15,
-                                                fontWeight: '400',
-                                                lineHeight: 20,
-                                                color: theme.textSecondary,
-                                            }}
-                                            selectable={false}
-                                            ellipsizeMode={'middle'}
+                                            style={{ flexShrink: 1 }}
+                                            numberOfLines={4}
+                                            ellipsizeMode={'tail'}
                                         >
-                                            {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                            <Text
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '400',
+                                                    lineHeight: 20,
+                                                    color: theme.textSecondary,
+                                                }}
+                                                selectable={false}
+                                            >
+                                                {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                            </Text>
                                         </Text>
                                     </View>
                                 </View>

@@ -282,6 +282,9 @@ export const StakingFragment = fragment(() => {
                             fontFamily: undefined
                         }}
                         limitActions
+                        disableContextMenu
+                        copyOnPress
+                        copyToastProps={{ marginBottom: 16 }}
                     />
                 </View>
                 <View

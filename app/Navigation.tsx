@@ -376,7 +376,7 @@ export const Navigation = memo(() => {
     usePendingWatcher();
 
     return (
-        <View style={{ flexGrow: 1, alignItems: 'stretch' }}>
+        <View style={{ flexGrow: 1, alignItems: 'stretch', backgroundColor: navigationTheme.colors.background }}>
             <NavigationContainer
                 theme={navigationTheme}
                 onReady={onMounted}

@@ -70,6 +70,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         assets: 'Assets',
         message: 'Message',
         airdrop: 'Airdrop',
+        myWallets: 'My wallets',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -470,6 +471,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             hiddenCards: 'Hidden cards',
             card: {
+                card: 'Card',
                 cards: 'Holders cards',
                 title: 'Tonhub card {{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',
@@ -615,7 +617,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         secureStorageError: {
             title: 'Secure storage error',
-            message: 'unfortunately we are unable to save data. Please, restart your phone.'
+            message: 'Unfortunately we are unable to save data.'
         },
         title: 'Ooops',
         invalidNumber: 'Nope, this is not a real number. Please, check your input and try again.',
@@ -779,7 +781,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     contacts: {
         title: 'Contacts',
         contact: 'Contact',
-        unknown: 'Recent',
+        unknown: 'Unknown',
         contacts: 'My contacts',
         name: 'Name',
         lastName: 'Last name',

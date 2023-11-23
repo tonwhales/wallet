@@ -1,7 +1,7 @@
 export { useCardTransactions } from './useCardTransactions';
 export { useClearHolders } from './useClearHolders';
 export { useHoldersAccountStatus } from './useHoldersAccountStatus';
-export { useHoldersCards } from './useHoldersCards';
+export { useHoldersAccounts } from './useHoldersAccounts';
 export { useHoldersEnroll } from './useHoldersEnroll';
 export { useOfflineApp } from './useOfflineApp';
-export { useHoldersHiddenCards } from './useHoldersHiddenCards';
+export { useHoldersHiddenAccounts } from './useHoldersHiddenAccounts';

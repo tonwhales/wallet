@@ -28,7 +28,7 @@ export const WalletSecureComponent = memo((props: {
         (async () => {
             setLoading(true);
             try {
-                encryptAndStoreAppKeyWithBiometrics(props.passcode);
+                await encryptAndStoreAppKeyWithBiometrics(props.passcode);
                 // Save default state to Use biometrics
                 storeBiometricsState(BiometricsState.InUse);
 
@@ -36,7 +36,6 @@ export const WalletSecureComponent = memo((props: {
             } catch (e) {
                 warn('Failed to generate new key');
                 Alert.alert(t('errors.secureStorageError.title'), t('errors.secureStorageError.message'));
-                props.callback(false);
             } finally {
                 setLoading(false);
             }

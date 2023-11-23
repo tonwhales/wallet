@@ -1,4 +1,4 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from "react"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
 import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
@@ -7,16 +7,13 @@ import { Address } from "@ton/core";
 import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { ATextInput, ATextInputRef } from "../ATextInput";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppState, useClient4, useContacts, useNetwork, useTheme } from "../../engine/hooks";
+import { useClient4, useConfig, useNetwork, useTheme } from "../../engine/hooks";
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from "../../utils/dns/dns";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
-import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
-
-const tonDnsRootAddress = Address.parse('Ef_lZ1T4NCb2mwkme9h2rJfESCE0W34ma9lWp7-_uY3zXDvq');
 
 export const AddressDomainInput = memo(forwardRef(({
     style,
@@ -53,9 +50,7 @@ export const AddressDomainInput = memo(forwardRef(({
     const theme = useTheme();
     const network = useNetwork();
     const client = useClient4(network.isTestnet);
-    const appState = useAppState();
-    const ledgerContext = useLedgerTransport();
-    const contacts = useContacts();
+    const netConfig = useConfig();
 
     const [focused, setFocused] = useState<boolean>(false);
     const [resolving, setResolving] = useState<boolean>();
@@ -79,52 +74,53 @@ export const AddressDomainInput = memo(forwardRef(({
         },
     }));
 
-    const onResolveDomain = useCallback(
-        async (toResolve: string, zone: '.t.me' | '.ton') => {
+    const onResolveDomain = useCallback(async (
+        toResolve: string, zone: '.t.me' | '.ton',
+        rootDnsAddress: Address
+    ) => {
+        let domain = zone === '.ton'
+            ? toResolve.slice(0, toResolve.length - 4)
+            : toResolve.slice(0, toResolve.length - 5);
 
-            let domain = zone === '.ton'
-                ? toResolve.slice(0, toResolve.length - 4)
-                : toResolve.slice(0, toResolve.length - 5);
+        const valid = validateDomain(domain);
 
-            const valid = validateDomain(domain);
+        if (!valid) {
+            Alert.alert(t('transfer.error.invalidDomainString'));
+            return;
+        }
 
-            if (!valid) {
-                Alert.alert(t('transfer.error.invalidDomainString'));
-                return;
+        if (!domain) {
+            return;
+        }
+
+        setResolving(true);
+        try {
+            const resolvedDomainWallet = await resolveDomain(client, rootDnsAddress, toResolve, DNS_CATEGORY_WALLET);
+            if (!resolvedDomainWallet) {
+                throw Error('Error resolving domain wallet');
             }
 
-            if (!domain) {
-                return;
+            if (resolvedDomainWallet instanceof Address) {
+                const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
+                dispatch({
+                    type: InputActionType.DomainTarget,
+                    domain: `${domain}${zone}`,
+                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                });
+            } else {
+                const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
+                dispatch({
+                    type: InputActionType.DomainTarget,
+                    domain: `${domain}${zone}`,
+                    target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
+                });
             }
-
-            setResolving(true);
-            try {
-                const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, toResolve, DNS_CATEGORY_WALLET);
-                if (!resolvedDomainWallet) {
-                    throw Error('Error resolving domain wallet');
-                }
-
-                if (resolvedDomainWallet instanceof Address) {
-                    const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
-                    dispatch({
-                        type: InputActionType.DomainTarget,
-                        domain: toResolve,
-                        target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
-                    });
-                } else {
-                    const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
-                    dispatch({
-                        type: InputActionType.DomainTarget,
-                        domain: toResolve,
-                        target: resolvedWalletAddress.toString({ testOnly: network.isTestnet })
-                    });
-                }
-            } catch (e) {
-                Alert.alert(t('transfer.error.invalidDomain'));
-                warn(e);
-            }
-            setResolving(false);
-        }, []);
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidDomain'));
+            warn(e);
+        }
+        setResolving(false);
+    }, []);
 
     const { suffix, textInput } = useMemo(() => {
         let suffix = undefined;
@@ -152,33 +148,6 @@ export const AddressDomainInput = memo(forwardRef(({
         return { suffix, textInput };
     }, [resolving, isKnown, contact, focused, target, input, domain]);
 
-    const showWallets = appState.addresses.length > 0 || !!ledgerContext.addr?.address;
-    const showContacts = Object.keys(contacts).length > 0;
-
-    const openContacts = useCallback(() => {
-        const callback = (address: Address) => {
-            navigation.goBack();
-            dispatch({
-                type: InputActionType.InputTarget,
-                input: address.toString({ testOnly: network.isTestnet }),
-                target: address.toString({ testOnly: network.isTestnet })
-            });
-        }
-        navigation.navigate('Contacts', { callback });
-    }, [dispatch, navigation]);
-
-    const openWallets = useCallback(() => {
-        const callback = (address: Address) => {
-            navigation.goBack();
-            dispatch({
-                type: InputActionType.InputTarget,
-                input: address.toString({ testOnly: network.isTestnet }),
-                target: address.toString({ testOnly: network.isTestnet })
-            });
-        }
-        navigation.navigate('AccountSelector', { callback });
-    }, [dispatch, navigation]);
-
     const actionsRight = useMemo(() => {
         if (resolving) {
             return (
@@ -196,30 +165,11 @@ export const AddressDomainInput = memo(forwardRef(({
             return (
                 <Animated.View entering={FadeIn} exiting={FadeOut}>
                     <View style={{ flexDirection: 'row' }}>
-                        {showContacts && (
-                            <Pressable
-                                onPress={openContacts}
-                                style={{ height: 24, width: 24 }}
-                            >
-                                <Image source={require('@assets/ic-contact-tx.png')}
-                                    style={{ height: 24, width: 24 }}
-                                />
-                            </Pressable>
-                        )}
-                        {showWallets && (
-                            <Pressable
-                                onPress={openWallets}
-                                style={{ height: 24, width: 24, marginLeft: showContacts ? 16 : undefined }}
-                            >
-                                <Image source={require('@assets/ic-wallet-tx.png')}
-                                    style={{ height: 24, width: 24 }}
-                                />
-                            </Pressable>
-                        )}
                         {!!onQRCodeRead && (
                             <Pressable
                                 onPress={openScanner}
-                                style={{ height: 24, width: 24, marginLeft: (showContacts || showWallets) ? 16 : undefined }}
+                                style={{ height: 24, width: 24, marginLeft: undefined }}
+                                hitSlop={36}
                             >
                                 <Image source={require('@assets/ic-scan-tx.png')}
                                     style={{ height: 24, width: 24 }}
@@ -236,7 +186,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 <Pressable
                     onPress={() => dispatch({ type: InputActionType.Clear })}
                     style={{ height: 24, width: 24 }}
-                    hitSlop={16}
+                    hitSlop={36}
                 >
                     <Image
                         source={require('@assets/ic-clear.png')}
@@ -245,11 +195,22 @@ export const AddressDomainInput = memo(forwardRef(({
                 </Pressable>
             </Animated.View>
         )
-    }, [resolving, input, onQRCodeRead, openScanner, openWallets, openContacts, showWallets, showContacts]);
+    }, [resolving, input, onQRCodeRead, openScanner]);
 
     const actionsWidth = input.length === 0
-        ? 124 - (showContacts ? 0 : 40) - (showWallets ? 0 : 40) - (!!onQRCodeRead ? 0 : 40)
+        ? 44 - (!!onQRCodeRead ? 0 : 40)
         : 24
+
+    useEffect(() => {
+        if (!netConfig) {
+            return;
+        }
+        if (textInput.endsWith('.ton')) {
+            onResolveDomain(textInput, '.ton', Address.parse(netConfig.rootDnsAddress));
+        } else if (textInput.endsWith('.t.me')) {
+            onResolveDomain(textInput, '.t.me', Address.parse(netConfig.rootDnsAddress));
+        }
+    }, [textInput, netConfig]);
 
     return (
         <View>
@@ -271,11 +232,6 @@ export const AddressDomainInput = memo(forwardRef(({
                             type: InputActionType.Input,
                             input: value
                         });
-                    }
-                    if (value.endsWith('.ton')) {
-                        onResolveDomain(value, '.ton');
-                    } else if (value.endsWith('.t.me')) {
-                        onResolveDomain(value, '.t.me');
                     }
                 }}
                 placeholder={t('common.domainOrAddressOrContact')}

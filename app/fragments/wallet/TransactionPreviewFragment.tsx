@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { View, Platform, Text, Pressable, ScrollView, Share } from "react-native";
+import { View, Platform, Text, Pressable, ScrollView, Share, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -21,14 +21,15 @@ import { ItemGroup } from "../../components/ItemGroup";
 import { AddressComponent } from "../../components/address/AddressComponent";
 import { AboutIconButton } from "../../components/AboutIconButton";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
-import { StoredTxBody, TransactionDescription } from "../../engine/types";
+import { TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
@@ -40,6 +41,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
     const ledgerContext = useLedgerTransport();
+    const appState = useAppState();
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {
             try {
@@ -55,29 +57,51 @@ export const TransactionPreviewFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
 
     const [walletSettings,] = useWalletSettings(address);
+    const [price, currency] = usePrice();
 
     const params = useParams<{ transaction: TransactionDescription }>();
-    let transaction = params.transaction;
-    let operation = transaction.base.operation;
+    const tx = params.transaction;
+    const operation = tx.base.operation;
+    const kind = tx.base.parsed.kind;
+    const item = operation.items[0];
+    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    const fees = BigInt(tx.base.fees);
+    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} ${formatTime(tx.base.time)}`;
+    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    const isOwn = appState.addresses.findIndex((a) => a.addressString === opAddress) >= 0;
 
-    let friendlyAddress = transaction.base.parsed.resolvedAddress;
-    let item = transaction.base.operation.items[0];
-    let jetton = transaction.masterMetadata;
+    const feesPrise = useMemo(() => {
+        if (!price) {
+            return undefined;
+        }
+
+        const isNeg = fees < 0n;
+        const abs = isNeg ? -fees : fees;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
+            currency,
+            isNeg
+        );
+    }, [price, currency, fees]);
+
+
+    let jetton = tx.masterMetadata;
     let op: string;
-    if (transaction.op) {
-        op = transaction.op;
+    if (tx.op) {
+        op = tx.op;
         if (op === 'airdrop') {
             op = t('tx.airdrop');
         }
     } else {
-        if (transaction.base.parsed.kind === 'out') {
-            if (transaction.base.parsed.status === 'pending') {
+        if (tx.base.parsed.kind === 'out') {
+            if (tx.base.parsed.status === 'pending') {
                 op = t('tx.sending');
             } else {
                 op = t('tx.sent');
             }
-        } else if (transaction.base.parsed.kind === 'in') {
-            if (transaction.base.parsed.bounced) {
+        } else if (tx.base.parsed.kind === 'in') {
+            if (tx.base.parsed.bounced) {
                 op = '⚠️ ' + t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -87,22 +111,20 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
-    const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[friendlyAddress];
-
-    let body: StoredTxBody | null = transaction.base.parsed.body;
+    const verified = !!tx.verified
+        || !!KnownJettonMasters(isTestnet)[opAddress];
 
     const txId = useMemo(() => {
-        if (!transaction.base.lt) {
+        if (!tx.base.lt) {
             return null;
         }
-        if (!transaction.base.hash) {
+        if (!tx.base.hash) {
             return null;
         }
-        return transaction.base.lt +
+        return tx.base.lt +
             '_' +
-            transaction.base.hash
-    }, [transaction]);
+            tx.base.hash
+    }, [tx]);
 
     const tonhubLink = useMemo(() => {
         if (!txId) {
@@ -110,47 +132,46 @@ export const TransactionPreviewFragment = fragment(() => {
         }
         return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
             + `${selected.addressString}/`
-            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
+            + `${tx.base.lt}_${encodeURIComponent(tx.base.hash)}`
     }, [txId]);
 
-    const contact = useContact(friendlyAddress);
+    const contact = useContact(opAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[friendlyAddress]) {
-        known = KnownWallets(isTestnet)[friendlyAddress];
-    } else if (operation.op) {
-        known = { name: t(operation.op.res, operation.op.options) };
-    } else if (!!contact) { // Resolve contact known wallet
+    if (KnownWallets(isTestnet)[opAddress]) {
+        known = KnownWallets(isTestnet)[opAddress];
+    }
+    if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const isSpam = useDenyAddress(friendlyAddress);
+    const isSpam = useDenyAddress(opAddress);
 
-    let spam = useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(opAddress)
         || isSpam
         || (
-            BigMath.abs(BigInt(transaction.base.parsed.amount)) < spamMinAmount
-            && transaction.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[friendlyAddress]
+            BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
+            && tx.base.parsed.body?.type === 'comment'
+            && !KnownWallets(isTestnet)[opAddress]
             && !isTestnet
-        ) && transaction.base.parsed.kind !== 'out';
+        ) && tx.base.parsed.kind !== 'out';
 
     const participants = useMemo(() => {
         const appState = getAppState();
         const index = isLedger
             ? 'Ledger'
             : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
-        if (transaction.base.parsed.kind === 'out') {
+        if (tx.base.parsed.kind === 'out') {
             return {
                 from: {
                     address: address,
                     name: walletSettings?.name || `${t('common.wallet')} ${index}`
                 },
                 to: {
-                    address: Address.parse(operation.address),
+                    address: Address.parse(opAddress),
                     name: known?.name
                 }
             }
@@ -158,7 +179,7 @@ export const TransactionPreviewFragment = fragment(() => {
 
         return {
             from: {
-                address: Address.parse(operation.address),
+                address: Address.parse(opAddress),
                 name: known?.name
             },
             to: {
@@ -166,7 +187,7 @@ export const TransactionPreviewFragment = fragment(() => {
                 name: walletSettings?.name || `${t('common.wallet')} ${index}`
             }
         }
-    }, [operation, walletSettings, transaction]);
+    }, [opAddress, walletSettings, tx, known]);
 
     const onCopy = useCallback((text: string) => {
         copyText(text);
@@ -249,14 +270,20 @@ export const TransactionPreviewFragment = fragment(() => {
             alignItems: 'center',
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })}
+            />
             <ScreenHeader
                 onClosePressed={navigation.goBack}
+                title={dateStr}
             />
             <ScrollView
-                style={{ flexGrow: 1, alignSelf: 'stretch', }}
+                style={{ flexGrow: 1, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 automaticallyAdjustContentInsets={false}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
             >
                 <View style={{
                     backgroundColor: theme.surfaceOnElevation,
@@ -269,60 +296,94 @@ export const TransactionPreviewFragment = fragment(() => {
                     <View style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     <Avatar
                         size={68}
-                        id={friendlyAddress}
-                        address={friendlyAddress}
-                        image={transaction.icon ? transaction.icon : undefined}
+                        id={opAddress}
+                        address={opAddress}
                         spam={spam}
                         showSpambadge
                         verified={verified}
                         borderWith={2}
                         borderColor={theme.surfaceOnElevation}
                         backgroundColor={theme.backgroundPrimary}
+                        markContact={!!contact}
+                        icPosition={'bottom'}
+                        isOwn={isOwn}
                     />
                     <Text
                         style={{
                             color: theme.textPrimary,
-                            fontWeight: '600',
-                            fontSize: 17,
-                            marginTop: 8,
-                            marginBottom: 12,
+                            fontWeight: '600', fontSize: 17, lineHeight: 24,
+                            marginTop: (spam || !!contact || verified) ? 16 : 8
                         }}
                         numberOfLines={1}
                         ellipsizeMode="tail"
                     >
                         {op}
                     </Text>
-                    {transaction.base.parsed.status === 'failed' ? (
+                    {!!known?.name ? (
+                        <Text
+                            style={{
+                                color: theme.textSecondary,
+                                fontWeight: '400', fontSize: 15, lineHeight: 20,
+                                marginTop: 2
+                            }}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {known.name}
+                        </Text>
+                    ) : (
+                        !!operation.op && (
+                            <Text
+                                style={{
+                                    color: theme.textSecondary,
+                                    fontWeight: '400', fontSize: 15, lineHeight: 20,
+                                    marginTop: 2
+                                }}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                {t(operation.op.res, operation.op.options)}
+                            </Text>
+                        )
+                    )}
+                    {tx.base.parsed.status === 'failed' ? (
                         <Text style={{
                             color: theme.accentRed,
-                            fontWeight: '800',
-                            fontSize: 38
+                            fontWeight: '600',
+                            fontSize: 27,
+                            marginTop: 12
                         }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
                         <>
                             <Text
+                                minimumFontScale={0.4}
+                                adjustsFontSizeToFit={true}
+                                numberOfLines={1}
                                 style={{
-                                    color: BigInt(item.amount) > 0
-                                        ? theme.accentGreen
+                                    color: kind === 'in'
+                                        ? spam
+                                            ? theme.textPrimary
+                                            : theme.accentGreen
                                         : theme.textPrimary,
-                                    fontWeight: '800',
-                                    fontSize: 38,
+                                    fontWeight: '600',
+                                    fontSize: 27,
+                                    marginTop: 12,
+                                    lineHeight: 32
                                 }}
                             >
-                                {BigInt(item.amount) > 0 && '+'}
                                 <ValueComponent
                                     value={item.amount}
                                     decimals={item.kind === 'token' && jetton ? jetton.decimals : undefined}
-                                    precision={3}
-                                />
-                                <Text style={{ fontSize: 32 }}>
-                                    {item.kind === 'token' && jetton
+                                    precision={9}
+                                    centFontStyle={{ fontSize: 24 }}
+                                    prefix={kind === 'in' ? '+' : ''}
+                                    suffix={item.kind === 'token' && jetton
                                         ? ' ' + jetton.symbol
                                         : ' TON'
                                     }
-                                </Text>
+                                />
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
@@ -331,8 +392,10 @@ export const TransactionPreviewFragment = fragment(() => {
                                         paddingHorizontal: 0,
                                         alignSelf: 'center',
                                         paddingVertical: 0,
-                                        height: 'auto'
+                                        height: 'auto',
+                                        paddingLeft: 0
                                     }}
+                                    prefix={kind === 'in' ? '+' : ''}
                                     textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17 }}
                                     amount={BigInt(item.amount)}
                                 />
@@ -340,38 +403,65 @@ export const TransactionPreviewFragment = fragment(() => {
                         </>
                     )}
                 </View>
-                <Text style={{ color: theme.textSecondary, fontSize: 13, marginVertical: 8, alignSelf: 'center' }}>
-                    {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
-                </Text>
-                <ItemGroup style={{ marginBottom: 16 }}>
-                    {!!participants.from.address && (
-                        <Pressable
-                            onPress={() => onCopyAddress(participants.from.address!)}
-                            style={({ pressed }) => ({ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center', opacity: pressed ? 0.5 : 1 })}
-                        >
+                {!(dontShowComments && isSpam) && (!!operation.comment) && (
+                    <ItemGroup style={{ marginTop: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
                                 color: theme.textSecondary,
                             }}>
+                                {t('common.message')}
+                            </Text>
+                            <View style={{ alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {operation.comment}
+                                </Text>
+                            </View>
+                        </View>
+                    </ItemGroup>
+                )}
+                <ItemGroup style={{ marginVertical: 16 }}>
+                    {!!participants.from.address && (
+                        <Pressable
+                            onPress={() => onCopyAddress(participants.from.address!)}
+                            style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
+                        >
+                            <Text style={{
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
                                 {t('common.from')}
                             </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                    <AddressComponent address={participants.from.address} end={4} />
+                            <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {kind === 'in' ? (
+                                        <Text>
+                                            {participants.from.address.toString({ testOnly: isTestnet })}
+                                        </Text>
+                                    ) : (
+                                        <>
+                                            {!!participants.from.name && (
+                                                <Text
+                                                    style={{
+                                                        fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                                        color: theme.textPrimary,
+                                                        flexShrink: 1
+                                                    }}
+                                                    numberOfLines={1}
+                                                    ellipsizeMode={'tail'}
+                                                >
+                                                    {participants.from.name + ' '}
+                                                </Text>
+                                            )}
+                                            <Text style={{ color: !!participants.from.name ? theme.textSecondary : theme.textPrimary, }}>
+                                                <AddressComponent
+                                                    address={participants.from.address}
+                                                    end={4}
+                                                />
+                                            </Text>
+                                        </>
+                                    )}
                                 </Text>
-                                {!!participants.from.name && (
-                                    <Text
-                                        style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        {participants.from.name}
-                                    </Text>
-                                )}
                             </View>
                         </Pressable>
                     )}
@@ -380,24 +470,21 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                             <Pressable
                                 onPress={() => onCopyAddress(participants.to.address!)}
-                                style={({ pressed }) => ({ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center', opacity: pressed ? 0.5 : 1 })}
+                                style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
                             >
                                 <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                    fontSize: 13, lineHeight: 18, fontWeight: '400',
                                     color: theme.textSecondary,
                                 }}>
                                     {t('common.to')}
                                 </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        <AddressComponent address={participants.to.address} end={4} />
-                                    </Text>
-                                    {!!participants.to.name && (
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    {!!participants.to.name && kind === 'in' && (
                                         <Text
                                             style={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1
+                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                                color: theme.textPrimary,
+                                                flexShrink: 1, marginRight: 6
                                             }}
                                             numberOfLines={1}
                                             ellipsizeMode={'tail'}
@@ -405,6 +492,21 @@ export const TransactionPreviewFragment = fragment(() => {
                                             {participants.to.name}
                                         </Text>
                                     )}
+                                    <Text style={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                    }}>
+                                        {kind === 'in' ? (
+                                            <AddressComponent
+                                                address={participants.to.address}
+                                                end={4}
+                                            />
+                                        ) : (
+                                            <Text style={{ color: theme.textPrimary }}>
+                                                {participants.to.address.toString({ testOnly: isTestnet })}
+                                            </Text>
+                                        )}
+                                    </Text>
                                 </View>
                             </Pressable>
                         </>
@@ -415,100 +517,87 @@ export const TransactionPreviewFragment = fragment(() => {
                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                             <Pressable
                                 onPress={onTxIdPress}
-                                style={({ pressed }) => ({ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center', opacity: pressed ? 0.5 : 1 })}
+                                style={({ pressed }) => ({ paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', opacity: pressed ? 0.5 : 1 })}
                             >
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('common.tx')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
+                                <View>
+                                    <Text style={{
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: theme.textSecondary,
+                                    }}>
+                                        {t('common.tx')}
+                                    </Text>
                                     <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
                                         {txId.slice(0, 6) + '...' + txId.slice(txId.length - 4)}
                                     </Text>
                                 </View>
+                                <Image
+                                    source={require('@assets/ic-explorer.png')}
+                                    style={{
+                                        tintColor: theme.iconPrimary,
+                                        height: 24, width: 24
+                                    }}
+                                />
                             </Pressable>
                         </>
                     )}
-                    {!(dontShowComments && isSpam) && (!!operation.comment) && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('common.message')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-start' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {operation.comment}
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    )}
                 </ItemGroup>
-                <ItemGroup style={{ marginBottom: 16 }}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', width: '100%', paddingHorizontal: 10 }}>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 15,
-                            color: theme.textSecondary
-                        }}>
-                            {t('txPreview.blockchainFee')}
-                            <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
-                                <AboutIconButton
-                                    title={t('txPreview.blockchainFee')}
-                                    description={t('txPreview.blockchainFeeDescription')}
-                                    style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
-                                />
-                            </View>
-                        </Text>
-                        <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 17,
-                                lineHeight: 20,
-                                color: theme.textPrimary,
+                <View style={{
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 20, borderRadius: 20,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center'
+                }}>
+                    <View>
+                        <Text
+                            style={{
+                                color: theme.textSecondary,
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                marginBottom: 2
                             }}>
-                                {fromNano(transaction.base.fees) + ' TON'}
-                            </Text>
-                            <PriceComponent
-                                amount={BigInt(transaction.base.fees)}
-                                style={{
-                                    backgroundColor: theme.transparent,
-                                    paddingHorizontal: 0,
-                                    paddingVertical: 0,
-                                    height: 'auto',
-                                    paddingLeft: 0,
-                                    alignSelf: 'flex-end'
-                                }}
-                                textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
-                            />
-                        </View>
+                            {t('txPreview.blockchainFee')}
+                        </Text>
+                        <Text style={{
+                            color: theme.textPrimary,
+                            fontSize: 17, lineHeight: 24, fontWeight: '400'
+                        }}>
+                            {tx.base.fees
+                                ? <>
+                                    {`${fromNano(fees)}`}
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {` ${feesPrise}`}
+                                    </Text>
+                                </>
+                                : '...'
+                            }
+                        </Text>
                     </View>
-                </ItemGroup>
-            </ScrollView>
-            {transaction.base.parsed.kind === 'out' && (transaction.base.parsed.body?.type !== 'payload') && !isLedger && (
-                <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
-                    <RoundButton
-                        title={t('txPreview.sendAgain')}
-                        style={{ flexGrow: 1 }}
-                        onPress={() => navigation.navigateSimpleTransfer({
-                            target: transaction.base.parsed.resolvedAddress,
-                            comment: transaction.base.parsed.body && transaction.base.parsed.body.type === 'comment' ? transaction.base.parsed.body.comment : null,
-                            amount: BigInt(transaction.base.parsed.amount) > 0n ? BigInt(transaction.base.parsed.amount) : -BigInt(transaction.base.parsed.amount),
-                            job: null,
-                            stateInit: null,
-                            jetton: null,
-                            callback: null
-                        })}
-                        display={'secondary'}
+                    <AboutIconButton
+                        title={t('txPreview.blockchainFee')}
+                        description={t('txPreview.blockchainFeeDescription')}
+                        style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
+                        size={20}
                     />
                 </View>
-            )}
-        </View>
+            </ScrollView>
+            {
+                tx.base.parsed.kind === 'out' && (tx.base.parsed.body?.type !== 'payload') && !isLedger && (
+                    <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
+                        <RoundButton
+                            title={t('txPreview.sendAgain')}
+                            style={{ flexGrow: 1 }}
+                            onPress={() => navigation.navigateSimpleTransfer({
+                                target: tx.base.parsed.resolvedAddress,
+                                comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
+                                amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
+                                job: null,
+                                stateInit: null,
+                                jetton: null,
+                                callback: null
+                            })}
+                        />
+                    </View>
+                )
+            }
+        </View >
     );
 });

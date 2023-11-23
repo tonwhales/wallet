@@ -8,6 +8,7 @@ import { HoldersNotificationIcon } from "./HoldersNotificationIcon";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { useTheme } from "../../../engine/hooks";
+import { PerfText } from "../../../components/basic/PerfText";
 
 export const HoldersCardNotification = memo(({ notification }: { notification: CardNotification }) => {
     const theme = useTheme();
@@ -27,29 +28,32 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
             }}>
                 <HoldersNotificationIcon notification={notification} />
                 <View style={{ flex: 1, marginRight: 4 }}>
-                    <Text
+                    <PerfText
                         style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                         ellipsizeMode={'tail'}
                         numberOfLines={1}
                     >
                         {notificationTypeFormatter(notification)}
-                    </Text>
-                    <Text
-                        style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
-                        ellipsizeMode="middle"
-                        numberOfLines={1}
+                    </PerfText>
+                    <PerfText
+                        style={{
+                            color: theme.textSecondary,
+                            fontSize: 15, fontWeight: '400', lineHeight: 20,
+                            marginRight: 8, marginTop: 2
+                        }}
                     >
                         {notificationCategoryFormatter(notification) + ' • ' + formatDate(notification.time / 1000) + ' • ' + formatTime(notification.time / 1000)}
-                    </Text>
+                    </PerfText>
                 </View>
                 <View>
                     {(notification.type === 'deposit' ||
                         notification.type === 'charge' ||
                         notification.type === 'charge_failed' ||
                         notification.type === 'card_paid' ||
+                        notification.type === 'crypto_account_withdraw' ||
                         notification.type === 'card_withdraw') ? (
                         <View style={{ alignItems: 'flex-end' }}>
-                            <Text
+                            <PerfText
                                 style={{
                                     color: notification.type === 'deposit'
                                         ? theme.accentGreen
@@ -67,7 +71,7 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                                     precision={3}
                                 />
                                 {' TON'}
-                            </Text>
+                            </PerfText>
                             <PriceComponent
                                 amount={BigInt(notification.data.amount)}
                                 prefix={notification.type === 'deposit' ? '+' : '-'}

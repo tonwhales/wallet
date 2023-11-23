@@ -115,9 +115,8 @@ export const TransferSingle = memo((props: Props) => {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[friendlyTarget]) {
         known = KnownWallets(isTestnet)[friendlyTarget];
-    } else if (operation.op) {
-        known = { name: t(operation.op.res, operation.op.options) };
-    } else if (!!contact) { // Resolve contact known wallet
+    }
+    if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
@@ -273,7 +272,7 @@ export const TransferSingle = memo((props: Props) => {
             jettonAmountString={jettonAmountString}
             target={target}
             fees={fees}
-            jettonMaster={null}
+            jettonMaster={jettonMaster}
             doSend={doSend}
             walletSettings={walletSettings}
             text={text}

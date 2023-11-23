@@ -2,13 +2,13 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersCards, useNetwork, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, useSelectedAccount, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
 import { StakingProductComponent } from "./StakingProductComponent"
 import { JettonsProductComponent } from "./JettonsProductComponent"
-import { HoldersHiddenCards } from "./HoldersHiddenCards"
+import { HoldersHiddenAccounts } from "./HoldersHiddenCards"
 import { JettonsHiddenComponent } from "./JettonsHiddenComponent"
 import { SelectedAccount } from "../../engine/types"
 import { DappsRequests } from "../../fragments/wallet/products/DappsRequests"
@@ -23,16 +23,14 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
-
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
-    const cards = useHoldersCards(selected.address).data ?? [];
     const totalStaked = useStaking().total;
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
-    const holdersAccounts = useHoldersCards(selected!.address).data;
+    const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
 
     const needsEnrolment = useMemo(() => {
@@ -74,12 +72,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 'HoldersLanding',
                 {
                     endpoint: holdersUrl,
-                    onEnrollType: { type: 'account' }
+                    onEnrollType: { type: 'create' }
                 }
             );
             return;
         }
-        navigation.navigateHolders({ type: 'account' });
+        navigation.navigateHolders({ type: 'create' });
     }, [needsEnrolment]);
 
     const tonItem = useMemo(() => {
@@ -87,7 +85,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, paddingHorizontal: 16 }}
+                style={{ flex: 1, paddingHorizontal: 16, marginBottom: 16 }}
                 onPress={onTonPress}
             >
                 <Animated.View style={[
@@ -170,7 +168,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     }}>
                         {t('common.products')}
                     </Text>
-                    {!(cards.length === 0 && totalStaked === 0n) && (
+                    {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (
                         <Pressable
                             style={({ pressed }) => {
                                 return {
@@ -191,7 +189,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     )}
                 </View>
 
-                {holdersAccounts?.length === 0 && isTestnet && (
+                {(holdersAccounts?.accounts?.length ?? 0) === 0 && isTestnet && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
                         <ProductBanner
                             title={t('products.holders.card.defaultTitle')}
@@ -207,15 +205,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 <HoldersProductComponent key={'holders'} />
 
-                <View style={{ marginTop: 16, paddingHorizontal: 16 }}>
-                    <StakingProductComponent key={'pool'} />
-                </View>
+                <StakingProductComponent key={'pool'} />
 
-                <View style={{ marginTop: 16 }}>
-                    <JettonsProductComponent key={'jettons'} />
-                </View>
+                <JettonsProductComponent key={'jettons'} />
 
-                <HoldersHiddenCards key={'holders-hidden'} />
+                <HoldersHiddenAccounts key={'holders-hidden'} />
+
                 <JettonsHiddenComponent key={'jettons-hidden'} />
             </View>
         </View>

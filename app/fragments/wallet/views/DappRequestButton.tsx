@@ -14,6 +14,7 @@ import { getConnectionReferences } from "../../../storage/appState";
 import { useConnectAppByClientSessionId, useConnectCallback, useNetwork, usePrepareConnectRequest, useTheme } from "../../../engine/hooks";
 import { t } from "../../../i18n/t";
 import { View } from "react-native";
+import { WImage } from "../../../components/WImage";
 
 type DappRequestButtonProps = ({
     type: 'ton-x',
@@ -139,6 +140,26 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
         }
     }, [prepareConnectRequest, props, connectCallback]);
 
+    const icon = (
+        <View>
+            <WImage
+                src={image}
+                width={46}
+                heigh={46}
+                borderRadius={23}
+            />
+            <View style={{
+                height: 10, width: 10,
+                backgroundColor: theme.surfaceOnBg,
+                borderRadius: 5,
+                position: 'absolute', top: 0, right: 0,
+                justifyContent: 'center', alignItems: 'center'
+            }}>
+                <View style={{ backgroundColor: theme.accentRed, height: 8, width: 8, borderRadius: 4 }} />
+            </View>
+        </View>
+    )
+
     return (
         <>
             <AnimatedProductButton
@@ -146,12 +167,12 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
                 exiting={FadeOutDown}
                 name={title ?? 'Unknown'}
                 subtitle={subtitle}
-                image={image}
+                iconComponent={icon}
                 value={null}
                 // TODO: add onLongPress={() => {}} to remove request
                 onPress={onPress}
                 extension={true}
-                style={{ marginVertical: 4, marginHorizontal: 10  }}
+                style={{ marginVertical: 4, marginHorizontal: 10 }}
             />
             {props.divider && (
                 <View style={{

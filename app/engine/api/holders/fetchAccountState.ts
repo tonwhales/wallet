@@ -2,7 +2,7 @@ import axios from 'axios';
 import { z } from 'zod';
 
 export const holdersEndpoint = 'card-staging.whales-api.com';
-export const holdersUrl = 'https://stage.zenpay.org';
+export const holdersUrl = 'https://tonhub.holders.io';
 
 export type AccountState = z.infer<typeof accountStateCodec>;
 

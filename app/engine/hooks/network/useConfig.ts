@@ -1,4 +1,4 @@
-import { StoragePrices, TonClient4, configParse18, configParseGasLimitsPrices, configParseMasterAddress, configParseMsgPrices, loadConfigParamsAsSlice } from '@ton/ton';
+import { Address, StoragePrices, TonClient4, configParse18, configParseGasLimitsPrices, configParseMasterAddress, configParseMsgPrices, loadConfigParamsAsSlice, parseFullConfig } from '@ton/ton';
 import { getLastBlock } from '../../accountWatcher';
 import { useQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
@@ -11,7 +11,7 @@ function fetchConfigQueryFn(client: TonClient4, isTestnet: boolean) {
         let blockSeqno = await getLastBlock();
         let configRaw = await client.getConfig(blockSeqno, [4, 18, 20, 21, 24, 25]);
         let config = loadConfigParamsAsSlice(configRaw.config.cell);
-    
+
         // Config values
         const storagePrices = configParse18(config.get(18));
         let gasPrices = {
@@ -66,6 +66,9 @@ export function useConfig() {
     const query = useQuery({
         queryKey: Queries.Config(),
         queryFn: fetchConfigQueryFn(client, isTestnet),
+        refetchOnMount: true,
+        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 60, // 1 hour
     });
 
     return query.data || null;

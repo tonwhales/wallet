@@ -4,13 +4,19 @@ import { ThemeStyle } from '../../state/theme';
 import { useTheme } from './useTheme';
 import { DefaultTheme } from '@react-navigation/native';
 import { Theme as NavigationThemeType } from '@react-navigation/native';
+import * as SystemUI from 'expo-system-ui';
+import { useThemeStyle } from './useThemeStyle';
 
 export function useNavigationTheme(): NavigationThemeType {
     const theme = useTheme();
+    const [themeStyle,] = useThemeStyle();
 
     useEffect(() => {
         changeNavBarColor(theme.surfaceOnBg);
-    }, [theme]);
+        if (themeStyle !== ThemeStyle.System) {
+            SystemUI.setBackgroundColorAsync(theme.backgroundPrimary);
+        }
+    }, [theme, themeStyle]);
 
     return {
         dark: theme.style === ThemeStyle.Dark,

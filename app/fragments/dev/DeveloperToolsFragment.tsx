@@ -26,7 +26,7 @@ import i18n from 'i18next';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
 import { getCurrentAddress } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
-import { useHoldersCards } from '../../engine/hooks';
+import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -42,7 +42,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
-    const cards = useHoldersCards(acc.address);
+    const cards = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
 
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);

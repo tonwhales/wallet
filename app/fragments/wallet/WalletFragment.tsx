@@ -16,7 +16,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
 import { StakingPoolsFragment } from '../staking/StakingPoolsFragment';
-import { useAccountLite, useHoldersCards, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
+import { useAccountLite, useHoldersAccounts, useNetwork, useSelectedAccount, useStaking, useTheme } from '../../engine/hooks';
 import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
@@ -24,7 +24,8 @@ import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -33,7 +34,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const address = props.selectedAcc.address;
     const account = props.wallet;
     const staking = useStaking();
-    const holdersCards = useHoldersCards(address).data;
+    const holdersCards = useHoldersAccounts(address).data?.accounts;
 
     const { start, visible } = useCopilot();
 
@@ -364,6 +365,10 @@ const navigation = (safeArea: EdgeInsets) => [
 export const WalletNavigationStack = memo(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+
+    useFocusEffect(() => {
+        setStatusBarStyle('light');
+    });
 
     return (
         <Stack.Navigator

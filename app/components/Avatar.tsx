@@ -8,6 +8,7 @@ import { memo } from 'react';
 import { useNetwork, useTheme } from '../engine/hooks';
 
 import ContactIcon from '@assets/ic_contacts.svg';
+import { PerfText } from './basic/PerfText';
 
 export const avatarImages = [
     require('@assets/avatars/0.webp'),
@@ -69,13 +70,14 @@ export const Avatar = memo((props: {
     dontShowVerified?: boolean,
     borderColor?: string,
     borderWith?: number,
-    backgroundColor?: string
+    backgroundColor?: string,
+    isOwn?: boolean,
+    icPosition?: 'top' | 'bottom' | 'left' | 'right'
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
 
     let known = props.address ? KnownWallets(isTestnet)[props.address] : undefined;
-    let verifiedSize = Math.floor(props.size * 0.35);
 
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
@@ -108,6 +110,83 @@ export const Avatar = memo((props: {
         backgroundColor = theme.white;
     }
 
+    let icSize = Math.floor(props.size * 0.35);
+    let icPosition: {} = { bottom: -2, right: -2 };
+    let spam = props.showSpambadge && props.spam;
+    switch (props.icPosition) {
+        case 'top':
+            icPosition = { top: -icSize / 2 };
+            break;
+        case 'left':
+            icPosition = { bottom: -2, left: -2 };
+            break;
+        case 'right':
+            icPosition = { bottom: -2, right: -2 };
+            break;
+        case 'bottom':
+            icPosition = { bottom: -icSize / 2 };
+            break;
+    }
+    let ic = null;
+    if (props.markContact) {
+        ic = (
+            <View style={[
+                {
+                    justifyContent: 'center', alignItems: 'center',
+                    height: icSize, width: icSize,
+                    borderRadius: icSize / 2,
+                    backgroundColor: theme.surfaceOnElevation,
+                    position: 'absolute',
+                },
+                icPosition
+            ]}>
+                <Image
+                    source={require('@assets/ic-contact.png')}
+                    style={{
+                        width: icSize - Math.round(icSize * 0.03),
+                        height: icSize - Math.round(icSize * 0.03),
+                        tintColor: theme.iconPrimary
+                    }}
+                />
+            </View>
+        );
+    } else if ((!!known || props.verified) && !props.dontShowVerified && !spam) {
+        ic = (
+            <Image
+                source={require('@assets/ic-verified.png')}
+                style={[{ position: 'absolute', width: icSize, height: icSize }, icPosition]}
+            />
+        );
+    }
+
+    if (props.isOwn) {
+        ic = (
+            <View style={[
+                {
+                    justifyContent: 'center', alignItems: 'center',
+                    height: icSize, width: icSize,
+                    borderRadius: Math.round(icSize / 2),
+                    backgroundColor: theme.surfaceOnElevation,
+                    position: 'absolute',
+                },
+                icPosition
+            ]}>
+                <Image
+                    source={require('@assets/ic-my-wallet.png')}
+                    style={{
+                        width: icSize,
+                        height: icSize,
+                        tintColor: theme.iconPrimary
+                    }}
+                />
+            </View>
+        );
+    }
+
+    if (spam) {
+        ic = null;
+    }
+
     return (
         <View>
             <View style={{
@@ -122,42 +201,30 @@ export const Avatar = memo((props: {
                 <View style={{ opacity: props.spam ? .5 : 1 }}>
                     {img}
                 </View>
-                {(!!known || props.verified) && !props.markContact && !props.dontShowVerified && (
-                    <Image
-                        source={require('@assets/ic-verified.png')}
-                        style={{ position: 'absolute', bottom: -2, right: -2, width: verifiedSize, height: verifiedSize }}
-                        height={verifiedSize}
-                        width={verifiedSize}
-                    />
-                )}
-                {props.markContact && (
-                    <ContactIcon
-                        style={{ position: 'absolute', top: -1, right: -4 }}
-                        height={verifiedSize}
-                        width={verifiedSize}
-                    />
-                )}
+                {ic}
             </View>
-            {(props.showSpambadge && props.spam) && (
-                <View style={{
-                    backgroundColor: theme.backgroundPrimaryInverted,
-                    borderRadius: 100,
-                    height: 15,
-                    paddingHorizontal: 5,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    alignSelf: 'center',
-                    position: 'absolute', bottom: 0,
-                    width: 40
-                }}>
-                    <Text style={{
-                        fontSize: 10,
-                        fontWeight: '500',
-                        color: theme.textPrimaryInverted,
-                        flexShrink: 1
+            {spam && (
+                <View style={{ borderRadius: 100, padding: 2, backgroundColor: theme.surfaceOnElevation }}>
+                    <View style={{
+                        backgroundColor: theme.backgroundPrimaryInverted,
+                        borderRadius: 100,
+                        height: 15,
+                        paddingHorizontal: 5,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        alignSelf: 'center',
+                        position: 'absolute', bottom: 0,
+                        width: 40,
                     }}>
-                        {'SPAM'}
-                    </Text>
+                        <PerfText style={{
+                            fontSize: 10,
+                            fontWeight: '500',
+                            color: theme.textPrimaryInverted,
+                            flexShrink: 1
+                        }}>
+                            {'SPAM'}
+                        </PerfText>
+                    </View>
                 </View>
             )}
         </View>

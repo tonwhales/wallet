@@ -30,7 +30,6 @@ export function useCardTransactions(address: string, id: string) {
                 }
             }
             return null;
-        },
-        staleTime: Infinity,
+        }
     });
 }

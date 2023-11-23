@@ -2,7 +2,6 @@ import * as React from 'react';
 import { Platform, View, Text, ToastAndroid, Alert, ScrollView } from 'react-native';
 import Animated, { FadeIn, FadeOutDown, FadeOutRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { FragmentMediaContent } from '../../components/FragmentMediaContent';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
@@ -19,6 +18,7 @@ import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { mnemonicNew } from "@ton/crypto";
 import { StatusBar } from 'expo-status-bar';
+import { LoadingIndicator } from '../../components/LoadingIndicator';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
@@ -62,11 +62,13 @@ export const WalletCreateFragment = systemFragment(() => {
 
     useLayoutEffect(() => {
         let subscription: ScreenCapture.Subscription;
-        subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigateScreenCapture({
-                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+        if (!state?.saved) {
+            subscription = ScreenCapture.addScreenshotListener(() => {
+                navigation.navigateScreenCapture({
+                    callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+                });
             });
-        });
+        }
 
         if (Platform.OS === 'android') {
             navigation.base.addListener('beforeRemove', onBack);
@@ -78,7 +80,7 @@ export const WalletCreateFragment = systemFragment(() => {
                 navigation.base.removeListener('beforeRemove', onBack);
             }
         }
-    }, [navigation]);
+    }, [navigation, state]);
 
     return (
         <View
@@ -99,9 +101,9 @@ export const WalletCreateFragment = systemFragment(() => {
                 >
                     <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
                         <View style={{ flexGrow: 1 }} />
-                        <FragmentMediaContent
-                            animation={require('@assets/animations/clock.json')}
-                            title={t('create.inProgress')}
+                        <LoadingIndicator
+                            simple
+                            style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </View>

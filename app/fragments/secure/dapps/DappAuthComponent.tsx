@@ -167,7 +167,7 @@ export const DappAuthComponent = memo(({
 
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             {Platform.OS === 'android' && (
                 <ScreenHeader
                     onClosePressed={onCancel}

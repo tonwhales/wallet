@@ -175,6 +175,10 @@ export const TransferFragment = fragment(() => {
                             throw Error('Error resolving domain wallet');
                         }
 
+                        if (!resolvedDomainWallet) {
+                            throw Error('Error resolving domain wallet');
+                        }
+
                         if (
                             !resolvedDomainWallet
                             || !Address.isAddress(resolvedDomainWallet)
@@ -432,7 +436,7 @@ export const TransferFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
                 style={[{ paddingLeft: 16 }, Platform.select({ android: { paddingTop: safeArea.top } })]}
                 onBackPressed={navigation.goBack}

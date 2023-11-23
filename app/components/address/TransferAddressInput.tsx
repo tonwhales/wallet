@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
-import { Platform, Pressable, ScrollView, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -8,8 +8,6 @@ import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { useContact, useTheme } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { useKeyboard } from "@react-native-community/hooks";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AddressSearch } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
@@ -124,8 +122,6 @@ export function addressInputReducer() {
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
     const contact = useContact(props.target);
-    const keyboard = useKeyboard();
-    const safeArea = useSafeAreaInsets();
     const theme = useTheme();
 
     const select = useCallback(() => {
@@ -141,8 +137,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     return (
         <View>
             <View
-                style={props.isSelected ? { opacity: 0, height: 0, width: 0 } : undefined}
-                pointerEvents={!props.isSelected ? 'box-none' : 'none'}
+                style={[props.isSelected ? { opacity: 0, height: 0, width: 0 } : undefined]}
+                pointerEvents={!props.isSelected ? undefined : 'none'}
             >
                 <Pressable
                     style={{
@@ -186,8 +182,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 </Pressable>
             </View>
             <View
-                style={!props.isSelected ? { opacity: 0, height: 0, width: 0 } : { marginTop: -16 }}
-                pointerEvents={props.isSelected ? 'box-none' : 'none'}
+                style={[!props.isSelected ? { opacity: 0, height: 0, width: 0 } : { marginTop: -16 }]}
+                pointerEvents={props.isSelected ? undefined : 'none'}
             >
                 <View style={{
                     backgroundColor: props.theme.surfaceOnElevation,
@@ -244,35 +240,18 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         </PerfText>
                     </Animated.View>
                 )}
-                <View style={{ marginHorizontal: -16 }}>
-                    <ScrollView
-                        contentInset={{
-                            top: 16,
-                            bottom: keyboard.keyboardHeight + safeArea.bottom + 16 + 56,
-                        }}
-                        contentContainerStyle={[
-                            { marginHorizontal: 16, borderRadius: 20 },
-                            Platform.select({ android: { paddingTop: 32 } }),
-                        ]}
-                        style={{ flexGrow: 1, minHeight: 256, marginTop: 16 }}
-                        contentInsetAdjustmentBehavior={'never'}
-                        keyboardShouldPersistTaps={'always'}
-                        keyboardDismissMode={'none'}
-                    >
-                        <AddressSearch
-                            account={props.acc}
-                            onSelect={(item) => {
-                                props.dispatch({
-                                    type: InputActionType.InputTarget,
-                                    input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),
-                                    target: item.address.toString({ testOnly: props.isTestnet })
-                                })
-                            }}
-                            query={props.input}
-                            transfer
-                        />
-                    </ScrollView>
-                </View>
+                <AddressSearch
+                    account={props.acc}
+                    onSelect={(item) => {
+                        props.dispatch({
+                            type: InputActionType.InputTarget,
+                            input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),
+                            target: item.address.toString({ testOnly: props.isTestnet })
+                        })
+                    }}
+                    query={props.input.toLowerCase()}
+                    transfer
+                />
             </View>
         </View>
     )

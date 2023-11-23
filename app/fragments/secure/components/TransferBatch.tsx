@@ -20,7 +20,7 @@ import { WImage } from "../../../components/WImage";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useClient4, useCommitCommand, useContacts, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
 import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
@@ -29,7 +29,7 @@ import { getAccountLite } from "../../../engine/getters/getAccountLite";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { StoredOperation } from "../../../engine/types";
-import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
+import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
 import { OrderMessage } from "../TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
@@ -76,6 +76,10 @@ export const TransferBatch = memo((props: Props) => {
     const commitCommand = useCommitCommand();
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
+    const [addressBook,] = useAddressBook();
+    const contacts = addressBook.contacts;
+    const denyList = addressBook.denyList;
+    const serverConfig = useServerConfig();
 
     const {
         text,
@@ -156,20 +160,19 @@ export const TransferBatch = memo((props: Props) => {
                 account: message.addr.address,
             }, isTestnet);
 
-            // const contact = contacts[operation.address.toString({ testOnly: isTestnet })];
             const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
+            const contact = contacts[operation.address];
+
             let known: KnownWallet | undefined = undefined;
+
             if (KnownWallets(isTestnet)[friendlyTarget]) {
                 known = KnownWallets(isTestnet)[friendlyTarget];
-            } else if (operation.op) {
-                known = { name: t(operation.op.res, operation.op.options) };
             }
-            // } else if (!!contact) { // Resolve contact known wallet
-            //     known = { name: contact.name }
-            // }
-            // const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toString({ testOnly: isTestnet })];
-            // const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
-            const spam = false;
+            if (!!contact) { // Resolve contact known wallet
+                known = { name: contact.name }
+            }
+            const isSpam = !!(denyList ?? {})[operation.address];
+            const spam = !!serverConfig.data?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
 
             temp.push({
                 message,
@@ -382,6 +385,7 @@ export const TransferBatch = memo((props: Props) => {
                                 fontSize: 14,
                                 fontWeight: '600',
                                 flexShrink: 1,
+                                color: theme.textPrimary
                             }}>
                                 {t('transfer.requestsToSign', { app: order.app.title })}
                             </Text>
@@ -405,18 +409,37 @@ export const TransferBatch = memo((props: Props) => {
                     )}
                     <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
                         <View style={{
-                            backgroundColor: theme.accent,
+                            backgroundColor: theme.divider,
                             height: 54,
                             position: 'absolute', left: 0, right: 0
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 34 * (totalJettons.size + 2), flexDirection: 'row', height: 68 }}>
+                                <View style={{
+                                    backgroundColor: theme.surfaceOnElevation,
+                                    height: 68, width: 68,
+                                    borderRadius: 34,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    position: 'absolute',
+                                    left: 0,
+                                }}>
+                                    <View style={{
+                                        backgroundColor: theme.ton,
+                                        height: 64, width: 64,
+                                        borderRadius: 32,
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                    }}>
+                                        <TonSign height={26} width={26} color={'white'} />
+                                    </View>
+                                </View>
                                 {totalJettons.size > 0 && (
                                     Array.from(totalJettons).map((value, index) => {
                                         return (
                                             <View
                                                 style={{
-                                                    backgroundColor: 'white',
+                                                    backgroundColor: theme.surfaceOnElevation,
                                                     height: 68, width: 68,
                                                     borderRadius: 34,
                                                     justifyContent: 'center',
@@ -437,25 +460,6 @@ export const TransferBatch = memo((props: Props) => {
                                         )
                                     })
                                 )}
-                                <View style={{
-                                    backgroundColor: 'white',
-                                    height: 68, width: 68,
-                                    borderRadius: 34,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    left: 0,
-                                }}>
-                                    <View style={{
-                                        backgroundColor: theme.ton,
-                                        height: 64, width: 64,
-                                        borderRadius: 32,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <TonSign height={26} width={26} color={'white'} />
-                                    </View>
-                                </View>
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -486,7 +490,7 @@ export const TransferBatch = memo((props: Props) => {
                                                 color: theme.textPrimary
                                             }}
                                         >
-                                            {index !== totalJettons.size - 1 ? ' • ' : ''}
+                                            {index !== totalJettons.size ? ' • ' : ''}
                                             {fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals) + ' ' + value[1].jettonMaster.symbol}
                                         </Text>
                                     </>
@@ -498,7 +502,8 @@ export const TransferBatch = memo((props: Props) => {
                             style={{
                                 backgroundColor: theme.transparent,
                                 paddingHorizontal: 0, marginTop: 2,
-                                alignSelf: 'center'
+                                alignSelf: 'center',
+                                paddingLeft: 0
                             }}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
                         />
@@ -599,7 +604,7 @@ export const TransferBatch = memo((props: Props) => {
                                     }}
                                     title={t('common.transaction') + ` #${index + 1}`}
                                 >
-                                    <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
                                             color: theme.textSecondary,
@@ -631,7 +636,7 @@ export const TransferBatch = memo((props: Props) => {
                                         </View>
                                     </View>
                                     <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                                    <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                         <Text style={{
                                             fontSize: 15, lineHeight: 20, fontWeight: '400',
                                             color: theme.textSecondary,
@@ -640,7 +645,7 @@ export const TransferBatch = memo((props: Props) => {
                                         </Text>
                                         <View style={{ alignItems: 'flex-end' }}>
                                             <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                                <AddressComponent address={Address.parse(i.operation.address)} end={4} />
+                                                <AddressComponent address={Address.parse(i.operation.address)} start={10} end={4} />
                                             </Text>
                                             {i.known && (
                                                 <View style={{ flexDirection: 'row' }}>
@@ -700,7 +705,7 @@ export const TransferBatch = memo((props: Props) => {
                                     {!!i.jettonAmount && (
                                         <>
                                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
                                                     color: theme.textSecondary,
@@ -731,7 +736,7 @@ export const TransferBatch = memo((props: Props) => {
                                     {!!i.operation.op && (
                                         <>
                                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
                                                     color: theme.textSecondary,
@@ -749,7 +754,7 @@ export const TransferBatch = memo((props: Props) => {
                                     {!!i.operation.comment && (
                                         <>
                                             <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                                 <Text style={{
                                                     fontSize: 15, lineHeight: 20, fontWeight: '400',
                                                     color: theme.textSecondary,

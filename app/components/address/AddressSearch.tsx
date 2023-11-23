@@ -1,13 +1,21 @@
 import React from "react";
 import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
-import { ScrollView, Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useClient4, useContacts, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
+import { WalletSettings } from "../../engine/state/walletSettings";
 
-export type AddressSearchItem = { address: Address, title: string, searchable: string, type: 'contact' | 'known' | 'unknown', icon?: string };
+export type AddressSearchItem = {
+    address: Address,
+    title: string,
+    searchable: string,
+    type: 'contact' | 'known' | 'unknown' | 'my-wallets',
+    icon?: string,
+    walletSettings?: WalletSettings
+};
 
 export const AddressSearch = memo(({
     account,
@@ -23,8 +31,16 @@ export const AddressSearch = memo(({
     const theme = useTheme();
     const network = useNetwork();
     const contacts = useContacts();
+    const appState = useAppState();
+    const selectedIndex = appState.selected;
+    const myWallets = appState.addresses.map((acc, index) => ({
+        address: acc.address,
+        addressString: acc.address.toString({ testOnly: network.isTestnet }),
+        index: index
+    })).filter((acc) => acc.index !== selectedIndex);
     const client = useClient4(network.isTestnet);
     const knownWallets = KnownWallets(network.isTestnet);
+    const [walletsSettings,] = useWalletsSettings();
 
     const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet }))?.data;
 
@@ -77,7 +93,7 @@ export const AddressSearch = memo(({
                 return {
                     address: address,
                     title,
-                    searchable: `${title} ${key}`,
+                    searchable: `${title} ${key}`.toLowerCase(),
                     type: 'contact'
                 }
             }),
@@ -93,9 +109,25 @@ export const AddressSearch = memo(({
                 return {
                     address: address,
                     title,
-                    searchable: `${title} ${key}`,
+                    searchable: `${title} ${key}`.toLowerCase(),
                     type: 'known',
                     icon: known.ic
+                }
+            }),
+            ...myWallets.map((acc) => {
+                const settings = walletsSettings[acc.addressString];
+                let title = `${t('common.wallet')} ${acc.index + 1}`;
+
+                if (settings?.name) {
+                    title = settings.name;
+                }
+
+                return {
+                    address: acc.address,
+                    title: title,
+                    searchable: `${title} ${acc.addressString}`.toLowerCase(),
+                    type: 'my-wallets',
+                    walletSettings: settings
                 }
             })
         ].filter((i) => !!i) as AddressSearchItem[];
@@ -105,25 +137,26 @@ export const AddressSearch = memo(({
         if (!query || query.length === 0) {
             return {
                 recent: lastTxs,
-                searchRes: searchItems.slice(0, 5).filter((i) => i.type !== 'known')
+                searchRes: searchItems.filter((i) => i.type === 'contact' || i.type === 'unknown'),
+                myWallets: searchItems.filter((i) => i.type === 'my-wallets')
             };
         }
+
+        const searchRes = searchItems.filter((i) => i.searchable.includes(query));
+
         return {
-            recent: lastTxs.filter((a) => a.toString({ testOnly: network.isTestnet }).toLowerCase().includes(query.toLowerCase())),
-            searchRes: searchItems.filter((i) => i.searchable.toLowerCase().includes(query.toLowerCase()))
+            recent: lastTxs.filter((a) => a.toString({ testOnly: network.isTestnet }).includes(query)),
+            searchRes: searchRes.filter((i) => i.type !== 'my-wallets'),
+            myWallets: searchRes.filter((i) => i.type === 'my-wallets')
         };
     }, [searchItems, lastTxs, query]);
 
-    if ((filtered.searchRes.length === 0) && filtered.recent.length === 0) {
+    if ((filtered.searchRes.length === 0) && filtered.recent.length === 0 && filtered.myWallets.length === 0) {
         return null;
     }
 
     return (
-        <ScrollView
-            style={{ flexGrow: 1 }}
-            keyboardShouldPersistTaps={'always'}
-            keyboardDismissMode={'none'}
-        >
+        <View style={{ marginTop: 16 }}>
             {filtered.recent.length > 0 && (
                 <View style={transfer ? {
                     borderRadius: 20,
@@ -203,6 +236,44 @@ export const AddressSearch = memo(({
                     </View>
                 </View>
             )}
-        </ScrollView>
+            {filtered.myWallets.length > 0 && (
+                <View style={transfer ? {
+                    borderRadius: 20,
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 2,
+                    marginTop: filtered.recent.length > 0 || filtered.searchRes.length > 0 ? 24 : 0
+                } : undefined}>
+                    <Text style={{
+                        fontSize: 17, fontWeight: '600',
+                        lineHeight: 24,
+                        color: theme.textPrimary,
+                        marginBottom: 8,
+                        marginLeft: transfer ? 16 : 0,
+                        marginTop: transfer ? 16 : 0
+                    }}>
+                        {t('common.myWallets')}
+                    </Text>
+                    <View style={transfer ? {
+                        backgroundColor: theme.elevation,
+                        borderRadius: 18,
+                        paddingHorizontal: 16,
+                        paddingVertical: 8
+                    } : undefined}>
+                        {filtered.myWallets.map((item, index) => {
+                            return (
+                                <AddressSearchItemView
+                                    key={index}
+                                    item={item}
+                                    onPress={onSelect}
+                                />
+                            );
+                        })}
+                    </View>
+                </View>
+            )}
+            {Platform.OS === 'android' && (
+                <View style={{ height: 56 }} />
+            )}
+        </View>
     );
 });

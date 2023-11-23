@@ -55,7 +55,7 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
             >
                 <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
                     <Canvas style={{ flexGrow: 1 }}>
-                        <Rect x={0} y={0} width={dimentions.width - 32} height={200}>
+                        <Rect x={0} y={0} width={dimentions.width - 32} height={350}>
                             <LinearGradient
                                 start={vec(-350, 0)}
                                 end={vec(dimentions.width - 32, 0)}

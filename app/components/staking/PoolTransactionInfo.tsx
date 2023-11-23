@@ -117,7 +117,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                         <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
                             <AboutIconButton
                                 title={t('products.staking.info.depositFee')}
-                                description={t('products.staking.info.depositFeeDescription')}
+                                description={t('products.staking.info.depositFeeDescription', { amount: fromNano(depositFee) })}
                                 style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
                             />
                         </View>

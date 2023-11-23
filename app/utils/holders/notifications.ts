@@ -11,6 +11,9 @@ export const notificationTypeFormatter = (event: CardNotification) => {
         }
         return t('products.holders.card.notifications.type.limits_change.completed');
     }
+    if (event.type === 'crypto_account_withdraw') {
+        return t('products.holders.card.notifications.type.card_withdraw');
+    }
     return t(`products.holders.card.notifications.type.${event.type as
         | 'card_ready'
         | 'deposit'

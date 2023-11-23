@@ -177,7 +177,7 @@ export const NeocryptoFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             {!accepted && (
                 <>
                     <ScreenHeader onClosePressed={navigation.goBack} title={'Neocrypto'} />

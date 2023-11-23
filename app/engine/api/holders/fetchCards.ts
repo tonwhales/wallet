@@ -3,26 +3,40 @@ import { Address } from "@ton/core";
 import { z } from "zod";
 import { holdersEndpoint } from "./fetchAccountState";
 
-const publicCardSchema = z.object({
+const networksSchema = z.union([
+  z.literal('ton-mainnet'),
+  z.literal('ton-testnet'),
+  z.literal('tron'),
+  z.literal('polygon'),
+  z.literal('ether'),
+  z.literal('solana')
+]);
+
+const cardPublicSchema = z.object({
+  lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
+  productId: z.string(),
+  personalizationCode: z.string(),
+  provider: z.string(),
+  kind: z.string(),
+});
+
+const accountPublicSchema = z.object({
   id: z.string(),
   address: z.nullable(z.string()),
   state: z.string(),
+  name: z.string(),
   balance: z.string(),
-  card: z.object({
-    lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
-    productId: z.string(),
-    personalizationCode: z.string(),
-    provider: z.string(),
-    kind: z.string(),
-    tzOffset: z.number()
-  }),
-  contract: z.string()
+  partner: z.string(),
+  tzOffset: z.number(),
+  cards: z.array(cardPublicSchema),
+  contract: z.string(),
+  network: networksSchema,
 });
 
-export const cardListPublicSchema = z.union([
+export const accoutnsListPublicSchema = z.union([
   z.object({
     ok: z.literal(true),
-    accounts: z.array(publicCardSchema),
+    accounts: z.array(accountPublicSchema),
   }),
   z.object({
     ok: z.literal(false),
@@ -30,9 +44,9 @@ export const cardListPublicSchema = z.union([
   }),
 ]);
 
-export async function fetchCardsPublic(address: string | Address, isTestnet: boolean) {
+export async function fetchAccountsPublic(address: string | Address, isTestnet: boolean) {
   let res = await axios.post(
-    'https://' + holdersEndpoint + '/public/cards',
+    'https://' + holdersEndpoint + '/v2/public/accounts',
     {
       walletKind: 'tonhub',
       network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
@@ -52,15 +66,15 @@ export async function fetchCardsPublic(address: string | Address, isTestnet: boo
     return null;
   }
 
-  if (!cardListPublicSchema.safeParse(res.data).success) {
-    throw Error("Invalid card list response");
+  if (!accoutnsListPublicSchema.safeParse(res.data).success) {
+    throw Error("Invalid public card list response");
   }
 
   if (!res.data.ok) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  return res.data.accounts as HoldersCard[];
+  return res.data.accounts as GeneralHoldersAccount[];
 }
 
 export enum CardStatus {
@@ -95,7 +109,7 @@ const cardDeliverySchema = z.object({
   deliveryMethod: z.string()
 });
 
-const cardLimitsSchema = z.object({
+const accountLimitsSchema = z.object({
   tzOffset: z.number(),
   onetime: z.string(),
   daily: z.string(),
@@ -106,36 +120,94 @@ const cardLimitsSchema = z.object({
   monthlyDeadline: z.number()
 });
 
+const cardPendingStatusSchema = z.union([
+  z.literal('PENDING_BLOCK'),
+  z.literal('PENDING_FREEZE'),
+  z.literal('PENDING_UNFREEZE'),
+  z.literal('PENDING_FOR_PAYMENT'),
+]);
+
+const cardStatusSchema = z.union([
+  cardPendingStatusSchema,
+  z.literal('PENDING_CARD'),
+  z.literal('PENDING_CARD_ISSUE'),
+  z.literal('PENDING_CONTRACT'),
+  z.literal('WAITING_FOR_PAYMENT'),
+  z.literal('ACTIVE'),
+  z.literal('BLOCKED'),
+  z.literal('FROZEN'),
+  z.literal('CLOSED'),
+]);
+
+const personalizationCodeSchema = z.union([
+  z.literal('classic'),
+  z.literal('whales'),
+  z.literal('black-pro'),
+  z.literal('trust-classic'),
+  z.literal('trust-pro'),
+]);
+
 const cardSchema = z.object({
   id: z.string(),
-  address: z.string(),
-  state: z.string(),
-  balance: z.string(),
-  card: z.object({
-    lastFourDigits: z.union([z.string(), z.undefined(), z.null()]),
-    productId: z.string(),
-    personalizationCode: z.string(),
-    provider: z.string(),
-    kind: z.string(),
-    tzOffset: z.number()
-  }),
-  contract: z.string(),
-  limits: cardLimitsSchema,
-  delivery: z.union([cardDeliverySchema, z.null()])
+  walletId: z.string(),
+  fiatCurrency: z.string(),
+  lastFourDigits: z.string().nullable().optional(),
+  leftToPay: z.string(),
+  personalizationCode: personalizationCodeSchema,
+  productId: z.string(),
+  seed: z.string().nullable().optional(),
+  status: cardStatusSchema,
+  createdAt: z.string(),
+  updatedAt: z.string(),
 });
 
-const cardsListSchema = z.object({ accounts: z.array(cardSchema) });
+const cryptoCurrencyTicker = z.union([
+  z.literal('TON'),
+  z.literal('USDT'),
+  z.literal('EURT'),
+]);
 
-export type CardsList = z.infer<typeof cardsListSchema>;
+const accountSchema = z.object({
+  id: z.string(),
+  address: z.string(),
+  name: z.string().nullable().optional(),
+  seed: z.string().nullable(),
+  state: z.string(),
+  balance: z.string(),
+  tzOffset: z.number(),
+  contract: z.string(),
+  partner: z.string(),
+  network: networksSchema,
+  ownerAddress: z.string(),
 
-export const cardsListResCodec = z.intersection(z.object({ ok: z.literal(true) }), cardsListSchema);
+  cryptoCurrency: z.object({
+    decimals: z.number(),
+    ticker: cryptoCurrencyTicker,
+    tokenContract: z.string().nullable().optional(),
+  }),
 
-export const generalCardSchema = z.intersection(cardSchema, publicCardSchema);
-export type HoldersCard = z.infer<typeof generalCardSchema>;
+  limits: accountLimitsSchema,
+  cards: z.array(cardSchema),
+});
+
+export const accountsListResCodec = z.union([
+  z.object({
+    ok: z.literal(true),
+    list: z.array(accountSchema),
+  }),
+  z.object({
+    ok: z.literal(false),
+    error: z.string(),
+  }),
+]);;
+
+export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
+export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
+export type HoldersAccount = z.infer<typeof accountSchema>;
 
 export async function fetchCardsList(token: string) {
   let res = await axios.post(
-    'https://' + holdersEndpoint + '/card/list',
+    'https://' + holdersEndpoint + '/v2/account/list',
     { token },
     {
       headers: {
@@ -155,9 +227,9 @@ export async function fetchCardsList(token: string) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  if (!cardsListResCodec.safeParse(res.data).success) {
+  if (!accountsListResCodec.safeParse(res.data).success) {
     throw Error("Invalid card list response");
   }
 
-  return res.data.accounts as HoldersCard[];
+  return res.data.list as GeneralHoldersAccount[];
 }

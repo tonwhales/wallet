@@ -28,7 +28,6 @@ import { normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 
 export const HoldersLandingFragment = fragment(() => {
-    const safeArea = useSafeAreaInsets();
     const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
     const webRef = useRef<WebView>(null);

@@ -16,7 +16,7 @@ const walletSettingsSchema = z.record(
     })
 );
 
-export function setWalletsSettings(walletsSettings: WalletSettings) {
+export function setWalletsSettings(walletsSettings: { [key: string]: WalletSettings }) {
     sharedStoragePersistence.set(walletSettingsKey, JSON.stringify(walletsSettings));
 }
 
@@ -32,7 +32,14 @@ function getWalletsSettings(): z.infer<typeof walletSettingsSchema> {
     return {};
 }
 
-export const walletSettingsAtom = atom({
+export const walletsSettingsAtom = atom({
     key: 'wallet/settings',
     default: getWalletsSettings(),
+    effects: [
+        ({ onSet }) => {
+            onSet((newWalletSettings) => {
+                setWalletsSettings(newWalletSettings);
+            });
+        }
+    ]
 });

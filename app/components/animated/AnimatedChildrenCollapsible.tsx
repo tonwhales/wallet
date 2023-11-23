@@ -24,7 +24,7 @@ export const AnimatedChildrenCollapsible = memo(({
     divider?: any,
     additionalFirstItem?: ReactNode,
 }) => {
-    const theme  = useTheme();
+    const theme = useTheme();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
     const sharedHeight = useSharedValue(collapsed ? 0 : items.length * itemHeight);
     const animStyle = useAnimatedStyle(() => {

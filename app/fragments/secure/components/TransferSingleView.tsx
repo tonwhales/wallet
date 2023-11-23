@@ -1,29 +1,29 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { memo, useCallback } from "react";
 import { ScrollView, View, Text, Pressable, Image } from "react-native";
 import { RoundButton } from "../../../components/RoundButton";
 import { t } from "../../../i18n/t";
 import { ItemGroup } from "../../../components/ItemGroup";
 import { PriceComponent } from "../../../components/PriceComponent";
-import { ValueComponent } from "../../../components/ValueComponent";
 import { extractDomain } from "../../../engine/utils/extractDomain";
-import { WImage } from "../../../components/WImage";
 import { LedgerOrder, Order } from "../ops/Order";
 import { KnownWallet } from "../../../secure/KnownWallets";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useSelectedAccount, useTheme } from "../../../engine/hooks";
+import { useAppState, useNetwork, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
+import { AboutIconButton } from "../../../components/AboutIconButton";
+import { formatCurrency } from "../../../utils/formatCurrency";
+import { Avatar } from "../../../components/Avatar";
+import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 
-import TonSign from '@assets/ic_ton_sign.svg';
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
-import IcInfo from '@assets/ic-info.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
 
 export const TransferSingleView = memo(({
@@ -40,7 +40,8 @@ export const TransferSingleView = memo(({
     known,
     isSpam,
     isWithStateInit,
-    isLedger
+    isLedger,
+    contact
 }: {
     operation: StoredOperation,
     order: Order | LedgerOrder,
@@ -61,14 +62,52 @@ export const TransferSingleView = memo(({
     known: KnownWallet | undefined,
     isSpam: boolean,
     isWithStateInit?: boolean,
-    isLedger?: boolean
+    isLedger?: boolean,
+    contact?: AddressContact | null,
 }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const ledgerContext = useLedgerTransport();
+    const appState = useAppState();
+    const [walletsSettings,] = useWalletsSettings();
+    const [price, currency] = usePrice();
 
-    const from = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
+    console.log({ jettonMaster })
+
+    const feesPrise = useMemo(() => {
+        if (!price) {
+            return undefined;
+        }
+
+        const isNeg = fees < 0n;
+        const abs = isNeg ? -fees : fees;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
+            currency,
+            isNeg
+        );
+    }, [price, currency, fees]);
+
+    const fromAddress = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
+    const name = isLedger
+        ? 'Ledger'
+        : `${t('common.wallet')} ${appState.addresses.findIndex((a) => fromAddress?.equals(a.address)) + 1}`;
+
+    const from = {
+        address: fromAddress,
+        name: walletSettings?.name || name
+    }
+
+    const to = {
+        address: target.address,
+        name: walletsSettings[target.address.toString({ testOnly: isTestnet })]?.name
+            || known?.name
+            || target.domain
+            || null
+    }
 
     const inactiveAlert = useCallback(() => {
         navigation.navigateAlert({
@@ -145,44 +184,19 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                {!!jettonAmountString && (
-                                    <View
-                                        style={{
-                                            backgroundColor: 'white',
-                                            height: 68, width: 68,
-                                            borderRadius: 34,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}
-                                    >
-                                        <WImage
-                                            src={jettonMaster?.image?.preview256}
-                                            blurhash={jettonMaster?.image?.blurhash}
-                                            width={64}
-                                            heigh={64}
-                                            borderRadius={32}
-                                        />
-                                    </View>
-                                )}
-                                {!jettonAmountString && (
-                                    <View style={{
-                                        backgroundColor: 'white',
-                                        height: 68, width: 68,
-                                        borderRadius: 34,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <View style={{
-                                            backgroundColor: theme.ton,
-                                            height: 64, width: 64,
-                                            borderRadius: 32,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                            <TonSign height={26} width={26} color={'white'} />
-                                        </View>
-                                    </View>
-                                )}
+                                <Avatar
+                                    size={68}
+                                    id={to.address.toString({ testOnly: isTestnet })}
+                                    address={to.address.toString({ testOnly: isTestnet })}
+                                    hash={walletsSettings[to.address.toString({ testOnly: isTestnet })]?.avatar}
+                                    spam={isSpam}
+                                    showSpambadge
+                                    borderWith={2}
+                                    borderColor={theme.surfaceOnElevation}
+                                    backgroundColor={theme.backgroundPrimary}
+                                    markContact={!!contact}
+                                    icPosition={'bottom'}
+                                />
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -193,28 +207,33 @@ export const TransferSingleView = memo(({
                             }}>
                                 {t('common.send')}
                             </Text>
+                            <Text style={{
+                                fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                color: theme.textPrimary,
+                                marginTop: 2
+                            }}>
+                                <AddressComponent address={target.address} end={4} />
+                            </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
-                            {!jettonAmountString && (
-                                <Text style={{
+                            <Text
+                                minimumFontScale={0.4}
+                                adjustsFontSizeToFit={true}
+                                numberOfLines={1}
+                                style={{
+                                    color: theme.textPrimary,
                                     fontWeight: '600',
-                                    fontSize: 32, lineHeight: 38,
-                                    color: theme.textPrimary
-                                }}>
-                                    {fromNano(amount) + ' TON'}
-                                </Text>
-                            )}
-                            {!!jettonAmountString && (
-                                <Text
-                                    style={{
-                                        fontWeight: '600',
-                                        fontSize: 32, lineHeight: 38,
-                                        color: theme.textPrimary
-                                    }}
-                                >
-                                    {`${jettonAmountString} ${jettonMaster?.symbol ?? ''}`}
-                                </Text>
-                            )}
+                                    fontSize: 27,
+                                    marginTop: 12,
+                                    lineHeight: 32
+                                }}
+                            >
+                                {'-' +
+                                    (!jettonAmountString
+                                        ? (fromNano(amount) + ' TON')
+                                        : (`${jettonAmountString} ${jettonMaster?.symbol ?? ''}`))
+                                }
+                            </Text>
                         </View>
                         {!jettonAmountString && (
                             <PriceComponent
@@ -222,123 +241,70 @@ export const TransferSingleView = memo(({
                                 style={{
                                     backgroundColor: theme.transparent,
                                     paddingHorizontal: 0, marginTop: 2,
-                                    alignSelf: 'center'
+                                    alignSelf: 'center',
+                                    paddingLeft: 0
                                 }}
-                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                                prefix={'-'}
+                                textStyle={{
+                                    color: theme.textSecondary,
+                                    fontWeight: '400',
+                                    fontSize: 17,
+                                    lineHeight: 24,
+                                }}
                             />
                         )}
                     </ItemGroup>
 
                     <ItemGroup style={{ marginBottom: 16 }}>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
                                 color: theme.textSecondary,
                             }}>
                                 {t('common.from')}
                             </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                    <AddressComponent address={from} end={4} />
-                                </Text>
-                                {walletSettings?.name && (
-                                    <Text
-                                        style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        {walletSettings.name}
+                            <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {!!from.name && (
+                                        <Text
+                                            style={{
+                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                                color: theme.textPrimary,
+                                                flexShrink: 1
+                                            }}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {from.name + ' '}
+                                        </Text>
+                                    )}
+                                    <Text style={{ color: from.name ? theme.textSecondary : theme.textPrimary, }}>
+                                        <AddressComponent
+                                            address={fromAddress}
+                                            end={4}
+                                        />
                                     </Text>
-                                )}
+
+                                </Text>
                             </View>
                         </View>
                         <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
                                 color: theme.textSecondary,
                             }}>
                                 {t('common.to')}
                             </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                    <AddressComponent address={target.address} end={4} />
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text style={{
+                                    fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                    color: theme.textSecondary,
+                                }}>
+                                    <Text style={{ color: theme.textPrimary }}>
+                                        {to.address.toString({ testOnly: isTestnet })}
+                                    </Text>
                                 </Text>
-                                <View style={{ flexDirection: 'row' }}>
-                                    {!!known && (
-                                        <>
-                                            <Text
-                                                style={{
-                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                    color: theme.textSecondary,
-                                                    flexShrink: 1
-                                                }}
-                                                numberOfLines={1}
-                                                ellipsizeMode={'tail'}
-                                            >
-                                                {known?.name.length > 16 ? known?.name.slice(0, 16) + '...' : known?.name}
-                                            </Text>
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 18, width: 18,
-                                                    marginLeft: 6
-                                                }}
-                                            />
-                                        </>
-                                    )}
-                                    {!!order.domain && (
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1
-                                            }}
-                                            numberOfLines={1}
-                                            ellipsizeMode={'tail'}
-                                        >
-                                            {`${!!known ? ' • ' : ''}${order.domain.length > 16 ? order.domain.slice(0, 16) + '...' : order.domain}`}
-                                        </Text>
-                                    )}
-                                </View>
-                                {(!target.active && !isWithStateInit) && (
-                                    <Pressable
-                                        style={{ flexDirection: 'row' }}
-                                        onPress={inactiveAlert}
-                                    >
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1
-                                            }}
-                                            numberOfLines={1}
-                                            ellipsizeMode={'tail'}
-                                        >
-                                            {t('transfer.addressNotActive')}
-                                        </Text>
-                                        <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                    </Pressable>
-                                )}
-                                {isSpam && (
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text
-                                            style={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1
-                                            }}
-                                            numberOfLines={1}
-                                            ellipsizeMode={'tail'}
-                                        >
-                                            {'SPAM'}
-                                        </Text>
-                                    </View>
-                                )}
                             </View>
                         </View>
                         {!!operation.op && !jettonAmountString && (
@@ -447,24 +413,6 @@ export const TransferSingleView = memo(({
                                 </View>
                             </>
                         )}
-                        {!!text && (
-                            <>
-                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                                <View style={{ flexDirection: 'column', paddingHorizontal: 10 }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
-                                        {t('transfer.comment')}
-                                    </Text>
-                                    <View style={{ alignItems: 'flex-start', flexShrink: 1, marginTop: 2 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary, textAlign: 'right' }}>
-                                            {text}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </>
-                        )}
                         {!!jettonAmountString && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
@@ -512,45 +460,53 @@ export const TransferSingleView = memo(({
                             </>
                         )}
                     </ItemGroup>
-                    <ItemGroup>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Pressable
-                                onPress={feesAlert}
-                                style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}
-                            >
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('transfer.feeTitle')}
+                    <ItemGroup style={{ marginBottom: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('common.message')}
+                            </Text>
+                            <View style={{ alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {text}
                                 </Text>
-                                <IcInfo
-                                    height={16} width={16}
-                                    style={{ height: 16, width: 16, marginLeft: 10 }}
-                                    color={theme.iconPrimary} />
-                            </Pressable>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                    <ValueComponent
-                                        value={fees}
-                                        precision={6} />
-                                    {' TON'}
-                                </Text>
-                                <PriceComponent
-                                    amount={fees}
-                                    style={{
-                                        backgroundColor: theme.transparent,
-                                        paddingHorizontal: 0,
-                                        alignSelf: 'flex-end'
-                                    }}
-                                    textStyle={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                        flexShrink: 1
-                                    }} />
                             </View>
                         </View>
                     </ItemGroup>
+                    <View style={{
+                        backgroundColor: theme.surfaceOnElevation,
+                        padding: 20, borderRadius: 20,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center'
+                    }}>
+                        <View>
+                            <Text
+                                style={{
+                                    color: theme.textSecondary,
+                                    fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                    marginBottom: 2
+                                }}>
+                                {t('txPreview.blockchainFee')}
+                            </Text>
+                            <Text style={{
+                                color: theme.textPrimary,
+                                fontSize: 17, lineHeight: 24, fontWeight: '400'
+                            }}>
+                                {`${fromNano(fees)}`}
+                                <Text style={{ color: theme.textSecondary }}>
+                                    {` ${feesPrise}`}
+                                </Text>
+                            </Text>
+                        </View>
+                        <AboutIconButton
+                            title={t('txPreview.blockchainFee')}
+                            description={t('txPreview.blockchainFeeDescription')}
+                            style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
+                            size={20}
+                        />
+                    </View>
                     <View style={{ height: 54 }} />
                 </View>
             </ScrollView>

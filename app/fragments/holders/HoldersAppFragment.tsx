@@ -13,7 +13,7 @@ import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchA
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { StatusBar } from 'expo-status-bar';
 
-export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
+export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
@@ -60,7 +60,7 @@ export const HoldersAppFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: safeArea.top,
-            backgroundColor: theme.surfaceOnBg
+            backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {needsEnrollment ? null : (

@@ -47,12 +47,12 @@ export const HoldersAccountItem = memo((props: {
                 'HoldersLanding',
                 {
                     endpoint: holdersUrl,
-                    onEnrollType: props.account ? { type: 'card', id: props.account.id } : { type: 'account' }
+                    onEnrollType: props.account ? { type: 'account', id: props.account.id } : { type: 'create' }
                 }
             );
             return;
         }
-        navigation.navigateHolders(props.account ? { type: 'card', id: props.account.id } : { type: 'account' });
+        navigation.navigateHolders(props.account ? { type: 'account', id: props.account.id } : { type: 'create' });
     }, [props.account, needsEnrolment]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();

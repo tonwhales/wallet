@@ -72,12 +72,12 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 'HoldersLanding',
                 {
                     endpoint: holdersUrl,
-                    onEnrollType: { type: 'account' }
+                    onEnrollType: { type: 'create' }
                 }
             );
             return;
         }
-        navigation.navigateHolders({ type: 'account' });
+        navigation.navigateHolders({ type: 'create' });
     }, [needsEnrolment]);
 
     const tonItem = useMemo(() => {

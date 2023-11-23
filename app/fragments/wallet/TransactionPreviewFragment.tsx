@@ -27,7 +27,7 @@ import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings
 import { TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Address, fromNano, toNano } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { formatCurrency } from "../../utils/formatCurrency";
 
@@ -79,7 +79,7 @@ export const TransactionPreviewFragment = fragment(() => {
         const abs = isNeg ? -fees : fees;
 
         return formatCurrency(
-            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
             currency,
             isNeg
         );
@@ -562,7 +562,10 @@ export const TransactionPreviewFragment = fragment(() => {
                         }}>
                             {tx.base.fees
                                 ? <>
-                                    {`${fromNano(fees)} (${feesPrise})`}
+                                    {`${fromNano(fees)}`}
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {` ${feesPrise}`}
+                                    </Text>
                                 </>
                                 : '...'
                             }

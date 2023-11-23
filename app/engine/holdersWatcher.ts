@@ -2,11 +2,11 @@ import { useEffect } from "react";
 import { useHoldersAccountStatus } from "./hooks/holders/useHoldersAccountStatus";
 import { useSelectedAccount } from "./hooks/appstate/useSelectedAccount";
 import { HoldersAccountState } from "./api/holders/fetchAccountState";
-import { useHoldersAccounts } from "./hooks/holders/useHoldersCards";
 import { useNetwork } from "./hooks/network/useNetwork";
 import { watchHoldersAccountUpdates } from './holders/watchHoldersAccountUpdates';
 import { queryClient } from "./clients";
 import { Queries } from "./queries";
+import { useHoldersAccounts } from "./hooks";
 
 export function useHoldersWatcher() {
     const account = useSelectedAccount();

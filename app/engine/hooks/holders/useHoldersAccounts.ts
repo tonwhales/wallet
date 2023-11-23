@@ -28,6 +28,7 @@ export function useHoldersAccounts(address: string | Address) {
         queryKey: Queries.Holders(addressString).Cards(!!token ? 'private' : 'public'),
         refetchOnWindowFocus: true,
         refetchOnMount: true,
+        refetchInterval: 35000,
         queryFn: async () => {
             let accounts;
             let type = 'public';

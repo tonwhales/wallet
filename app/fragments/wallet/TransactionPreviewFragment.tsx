@@ -378,7 +378,7 @@ export const TransactionPreviewFragment = fragment(() => {
                                     decimals={item.kind === 'token' && jetton ? jetton.decimals : undefined}
                                     precision={9}
                                     centFontStyle={{ fontSize: 24 }}
-                                    prefix={kind === 'in' ? '+' : '-'}
+                                    prefix={kind === 'in' ? '+' : ''}
                                     suffix={item.kind === 'token' && jetton
                                         ? ' ' + jetton.symbol
                                         : ' TON'

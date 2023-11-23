@@ -175,6 +175,10 @@ export const TransferFragment = fragment(() => {
                             throw Error('Error resolving domain wallet');
                         }
 
+                        if (!resolvedDomainWallet) {
+                            throw Error('Error resolving domain wallet');
+                        }
+
                         if (
                             !resolvedDomainWallet
                             || !Address.isAddress(resolvedDomainWallet)

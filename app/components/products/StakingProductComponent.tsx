@@ -51,7 +51,9 @@ export const StakingProductComponent = memo(() => {
     return (
         <View style={{
             backgroundColor: theme.surfaceOnBg,
-            borderRadius: 20
+            borderRadius: 20,
+            marginHorizontal: 16,
+            marginBottom: 16
         }}>
             {!!active && active.map((p, i) => (
                 <View key={`active-${p.address.toString()}`}>

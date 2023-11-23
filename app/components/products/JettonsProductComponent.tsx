@@ -14,7 +14,7 @@ export const JettonsProductComponent = memo(() => {
     const visibleList = jettons.filter((j) => !j.disabled);
 
     return (
-        <View>
+        <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
             {visibleList.map((j, index) => {
                 return (
                     <JettonProductItem

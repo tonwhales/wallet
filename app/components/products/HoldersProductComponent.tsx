@@ -2,7 +2,6 @@ import React, { memo, useMemo } from "react"
 import { HoldersAccountItem } from "./HoldersAccountItem";
 import { View } from "react-native";
 import { useHoldersAccountStatus, useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount } from "../../engine/hooks";
-import { HoldersAccountState } from "../../engine/api/holders/fetchAccountState";
 
 import Hide from '@assets/ic-hide.svg';
 
@@ -18,13 +17,6 @@ export const HoldersProductComponent = memo(() => {
         });
     }, [hiddenCards, accounts]);
 
-    const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
-            return true;
-        }
-        return false;
-    }, [holdersAccStatus]);
-
     if (!network.isTestnet) {
         return null;
     }
@@ -34,7 +26,7 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View>
+        <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
             {visibleList.map((item, index) => {
                 return (
                     <HoldersAccountItem

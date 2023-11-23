@@ -203,24 +203,15 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 {tonItem}
 
-                <View style={{ marginBottom: 16 }}>
-                    <HoldersProductComponent key={'holders'} />
-                </View>
+                <HoldersProductComponent key={'holders'} />
 
-                <View style={{ marginBottom: 16, paddingHorizontal: 16 }}>
-                    <StakingProductComponent key={'pool'} />
-                </View>
+                <StakingProductComponent key={'pool'} />
 
-                <View style={{ marginBottom: 16 }}>
-                    <JettonsProductComponent key={'jettons'} />
-                </View>
+                <JettonsProductComponent key={'jettons'} />
 
-                <View style={{ marginBottom: 16 }}>
-                    <HoldersHiddenAccounts key={'holders-hidden'} />
-                </View>
-                <View style={{ marginBottom: 16 }}>
-                    <JettonsHiddenComponent key={'jettons-hidden'} />
-                </View>
+                <HoldersHiddenAccounts key={'holders-hidden'} />
+
+                <JettonsHiddenComponent key={'jettons-hidden'} />
             </View>
         </View>
     );

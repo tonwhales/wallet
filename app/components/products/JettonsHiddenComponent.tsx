@@ -21,7 +21,7 @@ export const JettonsHiddenComponent = memo(() => {
     }
 
     return (
-        <View>
+        <View style={{ marginBottom: 16 }}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',

@@ -616,7 +616,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         secureStorageError: {
             title: 'Secure storage error',
-            message: 'unfortunately we are unable to save data. Please, restart your phone.'
+            message: 'Unfortunately we are unable to save data.'
         },
         title: 'Ooops',
         invalidNumber: 'Nope, this is not a real number. Please, check your input and try again.',

@@ -37,7 +37,7 @@ export const ItemCollapsible = React.memo((
 
     return (
         <View style={[
-            { padding: 20, backgroundColor: theme.border, borderRadius: 20 },
+            { padding: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20 },
             style
         ]}>
             <Pressable

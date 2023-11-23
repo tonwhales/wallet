@@ -353,7 +353,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             buttonTitle: 'cтейкинг',
             balanceTitle: 'Стейкинг Баланс',
             actions: {
-                deposit: 'Внести',
+                deposit: 'Пополнение',
                 top_up: 'Пополнить',
                 withdraw: 'Вывести',
                 calc: 'Калькулятор',
@@ -382,7 +382,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             empty: {
                 message: 'У вас нет транзакций'
             },
-            pending: 'Ожидает',
+            pending: 'В процессе',
             withdrawStatus: {
                 pending: 'Вывод ожидает',
                 ready: 'Готово к выводу',

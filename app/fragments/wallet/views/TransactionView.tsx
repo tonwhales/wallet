@@ -15,7 +15,7 @@ import { TransactionDescription } from '../../../engine/types';
 import { useCallback, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
-import { formatDate, formatTime } from '../../../utils/dates';
+import { formatTime } from '../../../utils/dates';
 import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 

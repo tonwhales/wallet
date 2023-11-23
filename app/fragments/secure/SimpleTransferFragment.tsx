@@ -761,7 +761,10 @@ export const SimpleTransferFragment = fragment(() => {
             />
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
-                contentContainerStyle={{ marginHorizontal: 16 }}
+                contentContainerStyle={[
+                    { marginHorizontal: 16 },
+                    Platform.select({ android: { minHeight: addressInputHeight } })
+                ]}
                 contentInset={{
                     bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight + addressInputHeight) : 0.1 /* Some weird bug on iOS */,
                     top: 0.1 /* Some weird bug on iOS */
@@ -770,6 +773,7 @@ export const SimpleTransferFragment = fragment(() => {
                 keyboardShouldPersistTaps={'always'}
                 keyboardDismissMode={'none'}
                 automaticallyAdjustContentInsets={false}
+                nestedScrollEnabled={true}
             >
                 <Animated.View
                     layout={Layout.duration(300)}

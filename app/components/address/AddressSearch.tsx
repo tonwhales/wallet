@@ -1,7 +1,7 @@
 import React from "react";
 import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
-import { Text, View } from "react-native";
+import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
 import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
@@ -270,6 +270,9 @@ export const AddressSearch = memo(({
                         })}
                     </View>
                 </View>
+            )}
+            {Platform.OS === 'android' && (
+                <View style={{ height: 56 }} />
             )}
         </View>
     );

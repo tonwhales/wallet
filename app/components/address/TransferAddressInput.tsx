@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, ScrollView, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -135,7 +135,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     }, [select, ref]);
 
     return (
-        <View >
+        <View>
             <View
                 style={[props.isSelected ? { opacity: 0, height: 0, width: 0 } : undefined]}
                 pointerEvents={!props.isSelected ? 'box-none' : 'none'}

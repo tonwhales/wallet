@@ -7,7 +7,7 @@ import { WImage } from "./WImage";
 import Animated from "react-native-reanimated";
 import { isUrl } from "../utils/resolveUrl";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
-import { Swipeable } from "react-native-gesture-handler";
+import { Swipeable, TouchableHighlight } from "react-native-gesture-handler";
 import { useAppData, useAppManifest, useTheme } from "../engine/hooks";
 import { useExtensionStats } from "../engine/hooks/dapps/useExtensionStats";
 
@@ -65,40 +65,43 @@ export const ConnectionButton = memo((
     }, [appData, appManifest, tonconnect]);
 
     return (
-        <Pressable
-            onPressIn={(!!onPress || !!onLongPress) ? onPressIn : undefined}
-            onPressOut={(!!onPress || !!onLongPress) ? onPressOut : undefined}
-            onPress={onPress}
-            onLongPress={onLongPress}
+        <Swipeable
+            containerStyle={{ flex: 1, paddingHorizontal: 16 }}
+            renderRightActions={!!onRevoke ? () => {
+                return (
+                    <Pressable style={({ pressed }) => {
+                        return {
+                            height: '100%',
+                            paddingHorizontal: 24,
+                            borderRadius: 20,
+                            marginRight: 16,
+                            backgroundColor: theme.accentRed,
+                            justifyContent: 'center', alignItems: 'center',
+                            opacity: pressed ? 0.5 : 1
+                        }
+                    }}
+                        onPress={onRevoke}
+                    >
+                        <Delete color={'white'} height={24} width={24} style={{ height: 24, width: 24 }} />
+                    </Pressable>
+                )
+            } : undefined}
         >
-            <Swipeable
-                containerStyle={{ flex: 1, paddingHorizontal: 16 }}
-                renderRightActions={!!onRevoke ? () => {
-                    return (
-                        <Pressable style={({ pressed }) => {
-                            return {
-                                height: '100%',
-                                paddingHorizontal: 24,
-                                borderRadius: 20,
-                                marginRight: 16,
-                                backgroundColor: theme.accentRed,
-                                justifyContent: 'center', alignItems: 'center',
-                                opacity: pressed ? 0.5 : 1
-                            }
-                        }}
-                            onPress={onRevoke}
-                        >
-                            <Delete color={'white'} height={24} width={24} style={{ height: 24, width: 24 }} />
-                        </Pressable>
-                    )
-                } : undefined}
+            <TouchableHighlight
+                onPressIn={(!!onPress || !!onLongPress) ? onPressIn : undefined}
+                onPressOut={(!!onPress || !!onLongPress) ? onPressOut : undefined}
+                onPress={onPress}
+                onLongPress={onLongPress}
+                underlayColor={theme.surfaceOnBg}
+                style={{
+                    padding: 20,
+                    borderRadius: 20,
+                    backgroundColor: theme.surfaceOnBg,
+                }}
             >
                 <Animated.View style={[
                     {
-                        flex: 1,
-                        padding: 20,
-                        borderRadius: 20,
-                        backgroundColor: theme.border, flexDirection: 'row',
+                        flex: 1, flexDirection: 'row',
                         alignItems: 'center', justifyContent: 'center',
                     },
                     animatedStyle
@@ -168,7 +171,7 @@ export const ConnectionButton = memo((
                         )}
                     </View>
                 </Animated.View>
-            </Swipeable>
-        </Pressable>
+            </TouchableHighlight>
+        </Swipeable>
     );
 })

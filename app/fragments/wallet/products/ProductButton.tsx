@@ -12,6 +12,7 @@ export type ProductButtonProps = {
     name: string,
     subtitle: string,
     icon?: React.FC<SvgProps>,
+    iconComponent?: React.ReactNode,
     image?: string,
     requireSource?: ImageRequireSource,
     blurhash?: string,
@@ -33,6 +34,33 @@ export function ProductButton(props: ProductButtonProps) {
     const dimentions = useWindowDimensions();
     const fontScaleNormal = dimentions.fontScale <= 1;
 
+    let icon = null;
+    if (Icon && !props.image) {
+        icon = (
+            <View style={[
+                { backgroundColor: theme.accent, borderRadius: 23, width: 46, height: 46, alignItems: 'center', justifyContent: 'center' },
+                props.iconViewStyle
+            ]}>
+                <Icon width={props.iconProps?.width ?? 46} height={props.iconProps?.height ?? 46} color={props.iconProps?.color ?? 'white'} />
+            </View>
+        )
+    } else if (props.image || !Icon || props.requireSource) {
+        icon = (
+            <WImage
+                src={props.image}
+                requireSource={props.requireSource}
+                blurhash={props.blurhash}
+                width={46}
+                heigh={46}
+                borderRadius={props.extension ? 8 : 23}
+            />
+        )
+    }
+
+    if (props.iconComponent) {
+        icon = props.iconComponent;
+    }
+
     return (
         <TouchableHighlight
             onPress={props.onPress}
@@ -48,32 +76,15 @@ export function ProductButton(props: ProductButtonProps) {
             underlayColor={theme.surfaceOnBg}
         >
             <View style={{ alignSelf: 'stretch', flexDirection: 'row', minHeight: fontScaleNormal ? undefined : 62 }}>
-                <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
-                    {Icon && !props.image && (
-                        <View style={[
-                            { backgroundColor: theme.accent, borderRadius: 21, width: 42, height: 42, alignItems: 'center', justifyContent: 'center' },
-                            props.iconViewStyle
-                        ]}>
-                            <Icon width={props.iconProps?.width ?? 42} height={props.iconProps?.height ?? 42} color={props.iconProps?.color ?? 'white'} />
-                        </View>
-                    )}
-                    {(props.image || !Icon || props.requireSource) && (
-                        <WImage
-                            src={props.image}
-                            requireSource={props.requireSource}
-                            blurhash={props.blurhash}
-                            width={42}
-                            heigh={42}
-                            borderRadius={props.extension ? 8 : 21}
-                        />
-                    )}
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+                    {icon}
                     {!!props.known && (
                         <Verified
                             style={{
                                 position: 'absolute', top: -1, right: -4
                             }}
-                            height={Math.floor(42 * 0.35)}
-                            width={Math.floor(42 * 0.35)}
+                            height={Math.floor(46 * 0.35)}
+                            width={Math.floor(46 * 0.35)}
                         />
                     )}
                 </View>

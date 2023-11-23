@@ -12,7 +12,7 @@ import { useClient4 } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
 import { useTrackScreen } from "../../analytics/mixpanel";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../components/PressableChip";
@@ -22,6 +22,7 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 import { HoldersAccount } from "../../engine/api/holders/fetchCards";
+import { setStatusBarStyle } from "expo-status-bar";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
     const theme = useTheme();
@@ -156,6 +157,10 @@ export const TransactionsFragment = fragment(() => {
     }, [selected, ledgerContext?.addr]);
 
     useTrackScreen(isLedger ? 'LedgerHistory' : 'History', isTestnet);
+
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
 
     if (!account) {
         return (

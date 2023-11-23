@@ -21,6 +21,7 @@ import { ConnectionButton } from '../../components/ConnectionButton';
 import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useTheme, useTonConnectExtensions } from '../../engine/hooks';
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { getCachedAppData } from '../../engine/getters/getAppData';
+import { setStatusBarStyle } from 'expo-status-bar';
 
 import Scanner from '@assets/ic-scanner-accent.svg';
 
@@ -164,6 +165,7 @@ export const ConnectionsFragment = fragment(() => {
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     }, []));
 
     return (

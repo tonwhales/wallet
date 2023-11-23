@@ -17,6 +17,8 @@ import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyn
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -29,7 +31,6 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
-import { StatusBar } from 'expo-status-bar';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -94,6 +95,10 @@ export const SettingsFragment = fragment(() => {
     }, []);
 
     useTrackScreen('More', network.isTestnet);
+
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
 
     return (
         <View style={{ flexGrow: 1 }}>

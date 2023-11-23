@@ -24,7 +24,8 @@ import { SelectedAccount } from '../../engine/types';
 import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
+import { useFocusEffect } from '@react-navigation/native';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -364,6 +365,10 @@ const navigation = (safeArea: EdgeInsets) => [
 export const WalletNavigationStack = memo(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
+
+    useFocusEffect(() => {
+        setStatusBarStyle('light');
+    });
 
     return (
         <Stack.Navigator

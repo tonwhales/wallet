@@ -2,8 +2,7 @@ import axios from 'axios';
 import { z } from 'zod';
 
 export const holdersEndpoint = 'card-staging.whales-api.com';
-// export const holdersUrl = 'https://tonhub.holders.io';
-export const holdersUrl = 'https://holders-dapp-git-feat-new-accounts-whales.vercel.app';
+export const holdersUrl = 'https://tonhub.holders.io';
 
 export type AccountState = z.infer<typeof accountStateCodec>;
 

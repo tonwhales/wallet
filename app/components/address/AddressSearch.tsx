@@ -1,13 +1,21 @@
 import React from "react";
 import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
-import { ScrollView, Text, View } from "react-native";
+import { Text, View } from "react-native";
 import { Address } from "@ton/core";
 import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
+import { WalletSettings } from "../../engine/state/walletSettings";
 
-export type AddressSearchItem = { address: Address, title: string, searchable: string, type: 'contact' | 'known' | 'unknown' | 'my-wallets', icon?: string };
+export type AddressSearchItem = {
+    address: Address,
+    title: string,
+    searchable: string,
+    type: 'contact' | 'known' | 'unknown' | 'my-wallets',
+    icon?: string,
+    walletSettings?: WalletSettings
+};
 
 export const AddressSearch = memo(({
     account,
@@ -118,7 +126,8 @@ export const AddressSearch = memo(({
                     address: acc.address,
                     title: title,
                     searchable: `${title} ${acc.addressString}`.toLowerCase(),
-                    type: 'my-wallets'
+                    type: 'my-wallets',
+                    walletSettings: settings
                 }
             })
         ].filter((i) => !!i) as AddressSearchItem[];

@@ -139,7 +139,7 @@ function HoldersPlaceholder() {
     );
 }
 
-function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
+function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -189,7 +189,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
                 <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
             </View>
-            {type === 'card' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
+            {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
             {Platform.OS === 'ios' && showClose && (
                 <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
                     <Pressable
@@ -221,7 +221,7 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(props.endpoint), []);
 
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
-    const cards = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
+    const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
     const domainKey = getDomainKey(domain);
 
     const webRef = useRef<WebView>(null);
@@ -248,7 +248,7 @@ export const HoldersAppComponent = memo((
             onPress: undefined,
         }
     );
-    
+
     const [holdersParams, setHoldersParams] = useState<Omit<HoldersParams, 'openEnrollment' | 'openUrl' | 'closeApp'>>({
         backPolicy: 'back',
         showKeyboardAccessoryView: false,
@@ -257,10 +257,10 @@ export const HoldersAppComponent = memo((
 
     const source = useMemo(() => {
         let route = '';
-        if (props.variant.type === 'account') {
-            route = status?.state === HoldersAccountState.Ok ? '/create' : '/';
-        } else if (props.variant.type === 'card') {
-            route = `/card/${props.variant.id}`;
+        if (props.variant.type === 'create') {
+            route = status?.state === HoldersAccountState.Ok ? '/create' : '';
+        } else if (props.variant.type === 'account') {
+            route = `/account/${props.variant.id}`;
         }
 
         const queryParams = new URLSearchParams({
@@ -334,7 +334,7 @@ export const HoldersAppComponent = memo((
 
         let suspended = false;
 
-        if (!!status && typeof (status as any).suspended === 'boolean' ) {
+        if (!!status && typeof (status as any).suspended === 'boolean') {
             suspended = (status as any).suspended;
         }
 
@@ -342,17 +342,17 @@ export const HoldersAppComponent = memo((
         const initialState = {
             ...status
                 ? {
-                    account: {
+                    user: {
                         status: {
                             state: status.state,
                             kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
-                            suspended: !!(status as { suspended: boolean | undefined }).suspended,
+                            suspended: (status as { suspended: boolean | undefined }).suspended === true,
                         },
                         token: status.state === HoldersAccountState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
                     }
                 }
                 : {},
-            ...cards ? { cardsList: cards } : {},
+            ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts } : {},
         }
 
         const initialInjection = `
@@ -392,7 +392,7 @@ export const HoldersAppComponent = memo((
             initialInjection,
             true
         );
-    }, []);
+    }, [status, accountsStatus]);
 
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
@@ -549,7 +549,7 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <View style={{ backgroundColor: theme.surfaceOnBg, flex: 1 }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView
                         key={`offline-rendered-${offlineRender}`}
@@ -559,7 +559,7 @@ export const HoldersAppComponent = memo((
                         initialRoute={source.initialRoute}
                         queryParams={source.queryParams}
                         style={{
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.backgroundPrimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -18,13 +18,13 @@ import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createS
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
-import { useAccountLite, useClient4, useCommitCommand, useConfig, useContact, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { useLedgerTransport } from '../ledger/components/TransportContext';
 import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
@@ -36,6 +36,7 @@ import { TransferAddressInput, addressInputReducer } from '../../components/addr
 import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
+import { ScrollView } from 'react-native-gesture-handler';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -504,6 +505,8 @@ export const SimpleTransferFragment = fragment(() => {
         return r;
     }, []);
 
+    const scrollRef = useRef<ScrollView>(null);
+
     const [addressInputHeight, setAddressInputHeight] = useState(0);
     const keyboard = useKeyboard();
 
@@ -746,6 +749,12 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [selected]);
 
+    useEffect(() => {
+        if (selected === 'address') {
+            scrollRef.current?.scrollTo({ y: 0, animated: true });
+        }
+    }, [selected, addressDomainInput]);
+
     return (
         <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -759,11 +768,12 @@ export const SimpleTransferFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <Animated.ScrollView
+            <ScrollView
+                ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={[
                     { marginHorizontal: 16 },
-                    Platform.select({ android: { minHeight: addressInputHeight } })
+                    Platform.select({ android: { minHeight: addressInputHeight } }),
                 ]}
                 contentInset={{
                     bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight + addressInputHeight) : 0.1 /* Some weird bug on iOS */,
@@ -777,7 +787,7 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 <Animated.View
                     layout={Layout.duration(300)}
-                    style={[seletectInputStyles.address, { flex: 1 }]}
+                    style={[seletectInputStyles.address, { flex: 1, zIndex: 1 }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
@@ -1033,7 +1043,7 @@ export const SimpleTransferFragment = fragment(() => {
                     </Animated.View>
                 )}
                 <View style={{ height: 56 }} />
-            </Animated.ScrollView>
+            </ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 style={[

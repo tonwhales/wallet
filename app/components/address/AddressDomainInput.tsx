@@ -169,6 +169,7 @@ export const AddressDomainInput = memo(forwardRef(({
                             <Pressable
                                 onPress={openScanner}
                                 style={{ height: 24, width: 24, marginLeft: undefined }}
+                                hitSlop={36}
                             >
                                 <Image source={require('@assets/ic-scan-tx.png')}
                                     style={{ height: 24, width: 24 }}

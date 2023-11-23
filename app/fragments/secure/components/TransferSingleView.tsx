@@ -74,8 +74,6 @@ export const TransferSingleView = memo(({
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
 
-    console.log({ jettonMaster })
-
     const feesPrise = useMemo(() => {
         if (!price) {
             return undefined;

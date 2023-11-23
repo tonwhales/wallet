@@ -20,6 +20,7 @@ export function useNominatorInfo(
                 timeout: 120_000
             });
         },
-        queryKey: Queries.Account(pool.toString()).StakingPool().Chart(pool.toString(), fixedPeriod),
+        staleTime: 1000 * 60 * 60,
+        queryKey: Queries.StakingChart(pool.toString(), fixedPeriod, nominator.toString({ testOnly: isTestnet })),
     });
 }

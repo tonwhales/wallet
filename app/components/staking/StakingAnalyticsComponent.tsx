@@ -21,37 +21,33 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
 
     return (
         <View style={{ flexDirection: 'row', marginBottom: 20, minHeight: 126 }}>
-            {((nominatorInfo.nominator?.deposits.length ?? 0) + (nominatorInfo.nominator?.withdraws.length ?? 0)) > 0 ? (
-                <Pressable
-                    style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
-                    onPress={() => navigation.navigate('StakingOperations', { pool })}
-                >
-                    <View style={{
-                        flex: 1,
-                        backgroundColor: theme.surfaceOnElevation,
-                        borderRadius: 20,
-                        padding: 20, marginRight: 16,
-                        minHeight: 126
+            <Pressable
+                style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
+                onPress={() => navigation.navigate('StakingOperations', { pool })}
+            >
+                <View style={{
+                    flex: 1,
+                    backgroundColor: theme.surfaceOnElevation,
+                    borderRadius: 20,
+                    padding: 20, marginRight: 16,
+                    minHeight: 126
+                }}>
+                    <Text style={{
+                        color: theme.textPrimary,
+                        fontWeight: '600',
+                        fontSize: 17, lineHeight: 24
                     }}>
-                        <Text style={{
-                            color: theme.textPrimary,
-                            fontWeight: '600',
-                            fontSize: 17, lineHeight: 24
-                        }}>
-                            {t('products.staking.analytics.operations')}
-                        </Text>
-                        <Text style={{
-                            color: theme.textSecondary,
-                            fontWeight: '600',
-                            fontSize: 15, lineHeight: 20, marginTop: 2
-                        }}>
-                            {t('products.staking.analytics.operationsDescription')}
-                        </Text>
-                    </View>
-                </Pressable>
-            ) : (
-                <View style={{ flex: 1 }} />
-            )}
+                        {t('products.staking.analytics.operations')}
+                    </Text>
+                    <Text style={{
+                        color: theme.textSecondary,
+                        fontWeight: '600',
+                        fontSize: 15, lineHeight: 20, marginTop: 2
+                    }}>
+                        {t('products.staking.analytics.operationsDescription')}
+                    </Text>
+                </View>
+            </Pressable>
             <Pressable
                 style={({ pressed }) => ({ opacity: pressed ? .5 : 1, flex: 1 })}
                 onPress={() => navigation.navigate('StakingAnalytics', { pool })}

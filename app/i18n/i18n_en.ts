@@ -471,6 +471,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             },
             hiddenCards: 'Hidden cards',
             card: {
+                card: 'Card',
                 cards: 'Holders cards',
                 title: 'Tonhub card {{cardNumber}}',
                 defaultSubtitle: 'Pay in TON, convert to EUR with 0% commission',

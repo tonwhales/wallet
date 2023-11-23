@@ -472,6 +472,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             },
             hiddenCards: 'Скрытые карты',
             card: {
+                card: 'Карта',
                 cards: 'Карты Holders',
                 title: 'Tonhub card {{cardNumber}}',
                 defaultSubtitle: 'Платите в TON, конвертация в EUR с комиссией 0%',

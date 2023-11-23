@@ -61,7 +61,7 @@ export const HoldersAccountItem = memo((props: {
         ? props.account.name
         : t('products.holders.card.defaultTitle');
     const subtitle = props.account
-        ? props.account.cards.map((card, index) => card.lastFourDigits).join(', ')
+        ? `${t('products.holders.card.card')} ${props.account.cards.map((card, index) => card.lastFourDigits).join(', ')}`
         : t('products.holders.card.defaultSubtitle');
 
     const Wrapper = props.hidden ? View : TouchableHighlight;

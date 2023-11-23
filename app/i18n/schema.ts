@@ -473,6 +473,7 @@ export type LocalizationSchema = {
             },
             hiddenCards: string,
             card: {
+                card: string,
                 cards: string,
                 title: string,
                 defaultSubtitle: string,

@@ -28,7 +28,7 @@ export const WalletSecureComponent = memo((props: {
         (async () => {
             setLoading(true);
             try {
-                encryptAndStoreAppKeyWithBiometrics(props.passcode);
+                await encryptAndStoreAppKeyWithBiometrics(props.passcode);
                 // Save default state to Use biometrics
                 storeBiometricsState(BiometricsState.InUse);
 

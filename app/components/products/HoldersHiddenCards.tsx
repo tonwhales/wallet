@@ -40,7 +40,6 @@ export const HoldersHiddenAccounts = memo(() => {
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',
-                marginTop: 20,
                 paddingVertical: 12,
                 marginBottom: 4,
                 paddingHorizontal: 16

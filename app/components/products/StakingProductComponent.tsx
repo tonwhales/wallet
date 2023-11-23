@@ -1,16 +1,12 @@
 import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
-import { PriceComponent } from "../PriceComponent";
 import { t } from "../../i18n/t";
-import { ValueComponent } from "../ValueComponent";
-import { useStaking, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
-import { getCurrentAddress } from "../../storage/appState";
+import { useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { StakingPool } from "../../fragments/staking/components/StakingPool";
+import { ItemDivider } from "../ItemDivider";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { StakingPool } from "../../fragments/staking/components/StakingPool";
-import { Address } from "@ton/core";
-import { ItemDivider } from "../ItemDivider";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -43,7 +39,6 @@ const subtitleStyle: StyleProp<TextStyle> = {
 export const StakingProductComponent = memo(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const totalStaked = useStaking().total;
     const active = useStakingActive();
 
     const apy = useStakingApy()?.apy;

@@ -85,7 +85,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, paddingHorizontal: 16 }}
+                style={{ flex: 1, paddingHorizontal: 16, marginBottom: 16 }}
                 onPress={onTonPress}
             >
                 <Animated.View style={[
@@ -203,18 +203,24 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
 
                 {tonItem}
 
-                <HoldersProductComponent key={'holders'} />
+                <View style={{ marginBottom: 16 }}>
+                    <HoldersProductComponent key={'holders'} />
+                </View>
 
-                <View style={{ paddingHorizontal: 16 }}>
+                <View style={{ marginBottom: 16, paddingHorizontal: 16 }}>
                     <StakingProductComponent key={'pool'} />
                 </View>
 
-                <View style={{ marginTop: 16 }}>
+                <View style={{ marginBottom: 16 }}>
                     <JettonsProductComponent key={'jettons'} />
                 </View>
 
-                <HoldersHiddenAccounts key={'holders-hidden'} />
-                <JettonsHiddenComponent key={'jettons-hidden'} />
+                <View style={{ marginBottom: 16 }}>
+                    <HoldersHiddenAccounts key={'holders-hidden'} />
+                </View>
+                <View style={{ marginBottom: 16 }}>
+                    <JettonsHiddenComponent key={'jettons-hidden'} />
+                </View>
             </View>
         </View>
     );

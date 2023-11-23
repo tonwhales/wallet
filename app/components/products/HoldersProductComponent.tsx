@@ -34,7 +34,7 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View style={{ marginVertical: 16 }}>
+        <View>
             {visibleList.map((item, index) => {
                 return (
                     <HoldersAccountItem

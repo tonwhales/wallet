@@ -152,10 +152,11 @@ export const WalletHeader = memo(() => {
                         onPress={openScanner}
                     >
                         <Image
-                            source={require('@assets/ic-scan.png')}
+                            source={require('@assets/ic-scan-main.png')}
                             style={{
-                                height: 19,
-                                width: 19,
+                                height: 22,
+                                width: 22,
+                                tintColor: theme.iconUnchangeable
                             }}
                         />
                     </Pressable>

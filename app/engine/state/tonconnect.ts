@@ -40,6 +40,7 @@ const connectItemReplyCodec = z.union([
     address: z.string(),
     network: z.union([z.literal(CHAIN.MAINNET), z.literal(CHAIN.TESTNET)]),
     walletStateInit: z.string(),
+    publicKey: z.string(),
   }),
   tonProofItemReplyCodec,
 ]);

@@ -1,4 +1,4 @@
-import { DisconnectEvent, SessionCrypto } from "@tonconnect/protocol";
+import { DisconnectEvent, SessionCrypto, WalletEvent, WalletResponse } from "@tonconnect/protocol";
 import { useConnectApp } from "../../hooks/dapps/useConnectApp";
 import { useAppConnections } from "../../hooks/dapps/useAppConnections";
 import { extensionKey } from "./useAddExtension";
@@ -13,7 +13,7 @@ export function useDisconnectApp() {
     const removeConnectedApp = useRemoveConnectApp();
     const [, update] = useConnectPendingRequests();
 
-    return (endpoint: string) => {
+    return (endpoint: string, eventId: number | string) => {
         const app = getConnectApp(endpoint);
 
         if (!app) {
@@ -28,13 +28,13 @@ export function useDisconnectApp() {
         remoteConnections.forEach((connection) => {
             // Send disconnect event
             const sessionCrypto = new SessionCrypto(connection.sessionKeyPair);
-            const event: DisconnectEvent = { event: 'disconnect', payload: {} };
+            const event: WalletResponse<'disconnect'> = { result: {}, id: eventId.toString() };
             sendTonConnectResponse({ response: event, sessionCrypto, clientSessionId: connection.clientSessionId });
         });
 
         update((prev) => {
             const temp = [...prev];
-            
+
             remoteConnections.forEach((connection) => {
                 const index = temp.findIndex((item) => item.from === connection.clientSessionId);
                 if (index !== -1) {

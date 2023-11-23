@@ -2,7 +2,7 @@ import { AppRequest, Base64, RpcMethod, SEND_TRANSACTION_ERROR_CODES, SessionCry
 import { MessageEvent } from 'react-native-sse';
 import { sendTonConnectResponse } from '../../api/sendTonConnectResponse';
 import { warn } from '../../../utils/log';
-import { useConnectAppByClientSessionId } from '../../hooks';
+import { useConnectAppByClientSessionId, useDisconnectApp } from '../../hooks';
 import { getTimeSec } from '../../../utils/getTimeSec';
 import { useConnectPendingRequests } from '../../hooks';
 import { transactionRpcRequestCodec } from '../../tonconnect/codecs';
@@ -15,6 +15,7 @@ export function useHandleMessage(
 ) {
     const [, update] = useConnectPendingRequests();
     const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
+    const disconnectApp = useDisconnectApp();
 
     return async (event: MessageEvent) => {
         logger.log(`sse connect message: type ${event}`);
@@ -118,6 +119,8 @@ export function useHandleMessage(
 
                     return temp;
                 });
+            } else if (request.method === 'disconnect') {
+                disconnectApp(connectedApp!.url, request.id);
             } else {
                 callback({
                     error: {

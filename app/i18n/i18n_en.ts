@@ -529,10 +529,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
                 buttonSub: 'KYC and card issue takes ~5 min',
-                // failed: 'Не удалось авторизовать',
-                failed: 'Failed to authorize',
-                // failedDescription: 'Пожалуйста, попробуйте еще раз или свяжитесь с нами',
-                failedDescription: 'Please try again or contact us',
+                failed: {
+                    title: 'Failed to authorize',
+                    noAppData: 'No app data',
+                    noDomainKey: 'No domain key',
+                    createDomainKey: 'During domain key creation',
+                    fetchToken: 'During token fetching',
+                    createSignature: 'During signature creation',
+                },
             }
         }
     },

@@ -232,7 +232,7 @@ export function TransactionView(props: {
                                 id={opAddress}
                                 borderWith={0}
                                 spam={spam}
-                                markContact={!!known}
+                                markContact={!!contact}
                                 isOwn={isOwn}
                             />
                         )}

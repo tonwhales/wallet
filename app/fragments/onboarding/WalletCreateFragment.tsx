@@ -70,15 +70,8 @@ export const WalletCreateFragment = systemFragment(() => {
             });
         }
 
-        if (Platform.OS === 'android') {
-            navigation.base.addListener('beforeRemove', onBack);
-        }
-
         return () => {
             subscription?.remove();
-            if (Platform.OS === 'android') {
-                navigation.base.removeListener('beforeRemove', onBack);
-            }
         }
     }, [navigation, state]);
 

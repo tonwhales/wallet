@@ -856,7 +856,7 @@ export const SimpleTransferFragment = fragment(() => {
                                                 source={require('@assets/ic-verified.png')}
                                                 style={{
                                                     height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: -2,
+                                                    position: 'absolute', right: -2, bottom: 0
                                                 }}
                                             />
                                         )}

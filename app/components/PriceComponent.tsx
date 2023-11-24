@@ -43,7 +43,7 @@ export const PriceComponent = memo((
             currencyCode || currency,
             isNeg
         )}${suffix ?? ''}`
-    }, [amount, price, currencyCode, currency]);
+    }, [amount, price, currencyCode, currency, prefix, suffix]);
 
     const decimalPoint = fullText.match(/[.,]/)?.[0];
     const parts = fullText.split(decimalPoint ?? /[.,]/);

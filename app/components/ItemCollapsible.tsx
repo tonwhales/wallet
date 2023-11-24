@@ -9,12 +9,14 @@ import Chevron from '@assets/ic_chevron_down.svg'
 export const ItemCollapsible = React.memo((
     {
         title,
+        titleComponent,
         children,
         hideDivider,
         style,
         titleStyle
     }: {
         title?: string,
+        titleComponent?: React.ReactNode,
         children?: any,
         hideDivider?: boolean,
         style?: StyleProp<ViewStyle>,
@@ -52,15 +54,19 @@ export const ItemCollapsible = React.memo((
                     setCollapsed(!collapsed)
                 }}
             >
-                {!!title && (
-                    <Text style={[{
-                        fontWeight: '400',
-                        fontSize: 16,
-                        color: theme.textPrimary,
-                        alignSelf: 'center'
-                    }, titleStyle]}>
-                        {title}
-                    </Text>
+                {titleComponent ? (
+                    titleComponent
+                ) : (
+                    !!title && (
+                        <Text style={[{
+                            fontWeight: '400',
+                            fontSize: 16,
+                            color: theme.textPrimary,
+                            alignSelf: 'center'
+                        }, titleStyle]}>
+                            {title}
+                        </Text>
+                    )
                 )}
                 <View style={{ flexGrow: 1 }} />
                 <Animated.View style={[

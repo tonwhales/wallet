@@ -156,7 +156,7 @@ export const AppComponent = memo((props: {
             }
         });
     }, [domainKey]);
-    const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
+    const injectionEngine = useInjectEngine(domain, props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

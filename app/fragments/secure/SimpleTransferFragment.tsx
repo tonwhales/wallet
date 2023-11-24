@@ -52,7 +52,8 @@ export type SimpleTransferParams = {
     back?: number,
     app?: {
         domain: string,
-        title: string
+        title: string,
+        url: string,
     }
 }
 

@@ -1,28 +1,28 @@
-import { StatusBar } from "expo-status-bar";
 import { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../components/CloseButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import TonIcon from '../../../assets/ic_ton_account.svg';
+import TonIcon from '../../../assets/ic-ton-acc.svg';
 import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
-import { useJettons } from '../../engine/hooks';
+import { useJettons, useTheme } from '../../engine/hooks';
 import { useAccountLite } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
+import { CloseButton } from "../../components/navigation/CloseButton";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
-    const { addr } = useTransport();
+    const { addr } = useLedgerTransport();
     const addressParsed = useMemo(() => Address.parse(addr!.address), [addr]);
     const address = useMemo(() => addressParsed.toString({ testOnly: false }), [addressParsed]);
     const jettons = useJettons(address);
@@ -52,7 +52,6 @@ export const LedgerAssetsFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar pageTitle={t('products.accounts')} />
             {Platform.OS === 'ios' && (
                 <View style={{
@@ -61,7 +60,8 @@ export const LedgerAssetsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
                     </Text>

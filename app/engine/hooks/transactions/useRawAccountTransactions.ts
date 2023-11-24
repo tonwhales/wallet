@@ -189,13 +189,16 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
 }
 
 
+const TRANSACTIONS_LENGTH = 16;
+
 export function useRawAccountTransactions(client: TonClient4, account: string) {
     const { isTestnet } = useNetwork();
+
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),
         getNextPageParam: (last) => {
-            if (!last || !last[last.length - 1]) {
-                return null;
+            if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
+                return undefined;
             }
 
             return {
@@ -222,17 +225,62 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
                 hash = accountLite.account.last.hash;
             }
 
-            log(`[txns-query] fetching ${lt}_${hash}`);
+            log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
             let txs = await client.getAccountTransactions(accountAddr, BigInt(lt), Buffer.from(hash, 'base64'));
             if (sliceFirst) {
                 txs = txs.slice(1);
             }
 
             let converted = txs.map(r => rawTransactionToStoredTransaction(r.tx, r.tx.hash().toString('base64'), accountAddr, isTestnet));
-            log(`[txns-query] fetched ${lt}_${hash}`);
+            log(`[txns-query] fetched ${lt}_${hash} ${converted.length} txns`);
             return converted;
         },
-        staleTime: Infinity,
+        structuralSharing: (old, next) => {
+            let firstOld = old?.pages[0];
+            let firstNext = next?.pages[0];
+
+            // If something absent
+            if (!firstOld || !firstNext) {
+                return next;
+            }
+
+            if (firstOld.length < 1 || firstNext.length < 1) {
+                return next;
+            }
+
+            // If first elements are equal
+            if (firstOld[0]?.lt === firstNext[0]?.lt && firstOld[0]?.hash === firstNext[0]?.hash) {
+                return next;
+            }
+
+            // Something changed, rebuild the list
+            let offset = firstNext.findIndex(a => a.lt === firstOld![0].lt && a.hash === firstOld![0].hash);
+
+            // If not found, we need to invalidate the whole list
+            if (offset === -1) {
+                return {
+                    pageParams: [next.pageParams[0]],
+                    pages: [next.pages[0]],
+                };
+            }
+
+            // If found, we need to shift pages and pageParams
+            let pages: StoredTransaction[][] = [next.pages[0]];
+            let pageParams: ({ lt: string, hash: string } | undefined)[] = [next.pageParams[0] as any];
+            let tail = old!.pages[0].slice(TRANSACTIONS_LENGTH - offset);
+            let nextPageParams = { hash: next.pages[0][next.pages[0].length - 1].hash, lt: next.pages[0][next.pages[0].length - 1].lt };
+
+            for (let page of old!.pages.slice(1)) {
+                let newPage = tail.concat(page.slice(0, TRANSACTIONS_LENGTH - 1 - offset));
+                pageParams.push(nextPageParams);
+                pages.push(newPage);
+
+                tail = page.slice(TRANSACTIONS_LENGTH - 1 - offset);
+                nextPageParams = { hash: newPage[newPage.length - 1].hash, lt: newPage[newPage.length - 1].lt };
+            }
+
+            return { pages, pageParams };
+        },
     });
 
     if (!query.data) {

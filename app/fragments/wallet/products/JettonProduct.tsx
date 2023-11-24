@@ -1,7 +1,5 @@
-import BN from 'bn.js';
 import * as React from 'react';
 import { FadeInUp, FadeOutDown } from 'react-native-reanimated';
-import { Address } from '@ton/core';
 import { KnownJettonMasters } from '../../../secure/KnownWallets';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { AnimatedProductButton } from './AnimatedProductButton';
@@ -10,6 +8,7 @@ import { Alert } from 'react-native';
 import { t } from '../../../i18n/t';
 import { Jetton } from '../../../engine/types';
 import { useMarkJettonDisabled } from '../../../engine/hooks/jettons/useMarkJettonDisabled';
+import { memo, useCallback } from 'react';
 
 export async function confirmJettonAction(disable: boolean, symbol: string) {
     return await new Promise<boolean>(resolve => {
@@ -33,7 +32,7 @@ export async function confirmJettonAction(disable: boolean, symbol: string) {
     });
 }
 
-export const JettonProduct = React.memo((props: {
+export const JettonProduct = memo((props: {
     navigation: TypedNavigation,
     jetton: Jetton,
     onPress?: () => void
@@ -45,7 +44,7 @@ export const JettonProduct = React.memo((props: {
     const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
     const markJettonDisabled = useMarkJettonDisabled();
 
-    const promptDisable = React.useCallback(async () => {
+    const promptDisable = useCallback(async () => {
         const c = await confirmJettonAction(true, props.jetton.symbol);
         if (c) markJettonDisabled(props.jetton.master);
     }, [markJettonDisabled]);
@@ -70,7 +69,7 @@ export const JettonProduct = React.memo((props: {
                     amount: null,
                     target: null,
                     comment: null,
-                    jetton: props.jetton.wallet.toString({ testOnly: isTestnet }),
+                    jetton: props.jetton.wallet,
                     stateInit: null,
                     job: null,
                     callback: null

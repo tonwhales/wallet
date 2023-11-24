@@ -129,7 +129,7 @@ export const ScannerFragment = systemFragment(() => {
                 <Text style={{
                     fontWeight: '600',
                     fontSize: 32, lineHeight: 38,
-                    color: theme.textColor,
+                    color: theme.textPrimary,
                     textAlign: 'center'
                 }}
                 >
@@ -183,7 +183,7 @@ export const ScannerFragment = systemFragment(() => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style='light' />
+            {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
 
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <Camera
@@ -259,7 +259,7 @@ export const ScannerFragment = systemFragment(() => {
             </View>
             <ScreenHeader
                 tintColor={'white'}
-                style={{ position: 'absolute', top: 0, left: 16, right: 0 }}
+                style={{ position: 'absolute', top: Platform.OS === 'android'? 32: 0, left: 16, right: 0 }}
                 onBackPressed={() => {
                     setActive(false);
                     setTimeout(() => {

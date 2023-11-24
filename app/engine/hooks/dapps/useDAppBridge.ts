@@ -3,7 +3,7 @@ import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { useConnectApp } from './useConnectApp';
 import { AppRequest, CONNECT_EVENT_ERROR_CODES, ConnectEvent, RpcMethod, SEND_TRANSACTION_ERROR_CODES, WalletEvent, WalletResponse } from '@tonconnect/protocol';
 import { getAppManifest } from '../../getters/getAppManifest';
-import { TonConnectAuthResult } from '../../../fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthResult } from '../../../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { useSaveAppConnection } from './useSaveAppConnection';
 import { useAutoConnect } from './useAutoConnect';
 import { useRemoveInjectedConnection } from './useRemoveInjectedConnection';
@@ -184,6 +184,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                         navigation.navigateTransfer({
                             text: null,
                             order: {
+                                type: 'order',
                                 messages: params.messages.map((msg) => {
                                     return {
                                         amount: toNano(fromNano(msg.amount)),
@@ -196,6 +197,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                 app: app ? {
                                     title: app.name,
                                     domain: extractDomain(app.url),
+                                    url: app.url
                                 } : undefined
                             },
                             job: null,

@@ -1,18 +1,19 @@
-import React, { useCallback, useEffect } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { View, Image } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
 import { StatusBar } from "expo-status-bar";
-import { useTheme } from "../engine/hooks/theme/useTheme";
+import { useTheme } from "../engine/hooks";
 
-export const Splash = React.memo(({ hide }: { hide: boolean }) => {
-    const [visible, setVisible] = React.useState(true);
+export const Splash = memo(({ hide }: { hide: boolean }) => {
     const theme = useTheme();
+    const [visible, setVisible] = useState(true);
     const sharedOpacity = useSharedValue(1);
 
     const onStarted = useCallback(() => {
-        SplashScreen.hideAsync();
-        setVisible(false);
+        setTimeout(() => {
+            SplashScreen.hideAsync();
+        }, 100)
     }, []);
 
     useEffect(() => {
@@ -23,7 +24,12 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
                 (finished, _) => {
                     if (finished) {
                         runOnJS(onStarted)();
-                        sharedOpacity.value = withTiming(0, { duration: 500 });
+                        sharedOpacity.value = withTiming(0, { duration: 350 }, (finished, _) => {
+                            if (finished) {
+                                runOnJS(setVisible)(false);
+                                // setVisible(false);
+                            }
+                        });
                     }
                 }
             );
@@ -46,19 +52,19 @@ export const Splash = React.memo(({ hide }: { hide: boolean }) => {
                     position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    backgroundColor: theme.background,
+                    backgroundColor: theme.backgroundPrimary,
                 },
                 animatedStyle
             ]}
             pointerEvents={'none'}
         >
             <View style={{
-                width: 256, height: 416,
+                width: 147, height: 175,
                 alignItems: 'center'
             }}>
                 <Image
-                    style={{ width: 256, height: 256 }}
-                    source={require('../../assets/splash_icon.png')}
+                    style={{ width: 147, height: 175 }}
+                    source={theme.style === 'dark' ? require('@assets/ic-splash-dark.png') : require('@assets/ic-splash.png')}
                 />
             </View>
         </Animated.View>

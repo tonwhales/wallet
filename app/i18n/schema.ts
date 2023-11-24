@@ -14,8 +14,10 @@ export type LocalizationSchema = {
         logout: string,
         cancel: string,
         balance: string,
+        totalBalance: string,
         walletAddress: string,
-        recepientAddress: string,
+        recipientAddress: string,
+        recipient: string,
         copy: string,
         copiedAlert: string,
         copied: string,
@@ -36,6 +38,7 @@ export type LocalizationSchema = {
         delete: string,
         apply: string,
         domainOrAddress: string,
+        domainOrAddressOrContact: string,
         domain: string,
         search: string,
         termsOfService: string,
@@ -47,12 +50,29 @@ export type LocalizationSchema = {
         gotIt: string,
         error: string,
         wallet: string,
+        wallets: string,
         later: string,
+        select: string,
+        showAll: string,
+        hideAll: string,
+        done: string,
+        mainWallet: string,
+        walletName: string,
+        from: string,
+        to: string,
+        transaction: string,
         somethingWentWrong: string,
         checkInternetConnection: string,
         reload: string,
         errorOccurred: string,
-        airdrop: string
+        recent: string, 
+        ok: string,
+        attention: string,
+        save: string,
+        assets: string,
+        message: string,
+        airdrop: string,
+        myWallets: string,
     },
     syncStatus: {
         connecting: string,
@@ -60,8 +80,10 @@ export type LocalizationSchema = {
         online: string
     },
     home: {
-        wallet: string,
-        settings: string
+        home: string,
+        history: string,
+        browser: string,
+        more: string
     }
     settings: {
         title: string,
@@ -71,9 +93,23 @@ export type LocalizationSchema = {
         privacyPolicy: string,
         developerTools: string,
         spamFilter: string,
-        logoutDescription: string,
         primaryCurrency: string,
-        experimental: string
+        experimental: string,
+        support: {
+            title: string,
+            telegram: string,
+            form: string
+        },
+        telegram: string,
+        rateApp: string,
+        deleteAccount: string,
+        theme: string
+    },
+    theme: {
+        title: string,
+        light: string,
+        dark: string,
+        system: string,
     },
     wallet: {
         sync: string,
@@ -85,7 +121,8 @@ export type LocalizationSchema = {
         },
         empty: {
             message: string,
-            receive: string
+            receive: string,
+            description: string,
         },
         pendingTransactions: string
     },
@@ -105,7 +142,8 @@ export type LocalizationSchema = {
     },
     txPreview: {
         sendAgain: string,
-        blockchainFee: string
+        blockchainFee: string,
+        blockchainFeeDescription: string,
     },
     receive: {
         title: string,
@@ -136,10 +174,12 @@ export type LocalizationSchema = {
         scanQR: string,
         sendTo: string,
         fee: string,
+        feeEmpty: string,
         feeTitle: string,
         feeTotalTitle: string,
         purpose: string,
         comment: string,
+        commentDescription: string,
         commentRequired: string,
         commentLabel: string,
         checkComment: string,
@@ -164,6 +204,8 @@ export type LocalizationSchema = {
         wrongJettonMessage: string,
         notEnoughJettonsTitle: string,
         notEnoughJettonsMessage: string,
+        aboutFees: string,
+        aboutFeesDescription: string,
     },
     auth: {
         phoneVerify: string,
@@ -182,6 +224,7 @@ export type LocalizationSchema = {
         completed: string,
         authorized: string,
         authorizedDescription: string,
+        noExtensions: string,
         noApps: string,
         name: string,
         yourWallet: string,
@@ -217,10 +260,7 @@ export type LocalizationSchema = {
         subtitle: string,
         inProgress: string,
         transfer: string,
-        check: string,
-        keyStoreTitle: string,
-        keyStoreSubtitle: string,
-        failed: string,
+        check: string
     },
     qr: {
         title: string,
@@ -230,6 +270,7 @@ export type LocalizationSchema = {
         failedToReadFromImage: string
     },
     products: {
+        addNew: string,
         tonConnect: {
             errors: {
                 connection: string
@@ -268,8 +309,10 @@ export type LocalizationSchema = {
                 top_up: string,
                 deposit: string,
                 withdraw: string,
+                calc: string,
             },
             pools: {
+                title: string,
                 active: string,
                 best: string,
                 alternatives: string,
@@ -314,6 +357,7 @@ export type LocalizationSchema = {
                 restrictedMessage: string,
                 notEnoughCoinsFee: string,
                 notEnoughCoins: string,
+                ledgerSignText: string
             },
             join: {
                 title: string,
@@ -339,10 +383,7 @@ export type LocalizationSchema = {
             empty: {
                 message: string
             },
-            pending: {
-                deposit: string,
-                withdraw: string
-            },
+            pending: string,
             withdrawStatus: {
                 pending: string,
                 ready: string,
@@ -368,7 +409,8 @@ export type LocalizationSchema = {
                 yearlyTopUp: string,
                 yearlyTotal: string,
                 yearlyCurrent: string,
-                topUpTitle: string
+                topUpTitle: string,
+                goToTopUp: string,
             },
             info: {
                 rate: string,
@@ -382,11 +424,16 @@ export type LocalizationSchema = {
                 withdrawFee: string,
                 withdrawRequestFee: string,
                 withdrawCompleteFee: string,
+                depositFeeDescription: string,
+                withdrawFeeDescription: string,
+                withdrawCompleteDescription: string,
                 blockchainFee: string,
                 cooldownTitle: string,
                 cooldownActive: string,
                 cooldownInactive: string,
                 cooldownDescription: string,
+                cooldownAlert: string,
+                lockedAlert: string
             },
             minAmountWarning: string,
             tryAgainLater: string,
@@ -394,9 +441,22 @@ export type LocalizationSchema = {
                 estimatedEarnings: string,
                 estimatedEarningsDev: string,
                 message: string
+            },
+            activePools: string,
+            analytics: {
+                operations: string,
+                operationsDescription: string,
+                analyticsTitle: string,
+                analyticsSubtitle: string,
+                labels: {
+                    week: string,
+                    month: string,
+                    year: string,
+                    allTime: string
+                }
             }
         },
-        zenPay: {
+        holders: {
             title: string,
             pageTitles: {
                 general: string,
@@ -411,13 +471,53 @@ export type LocalizationSchema = {
                 setUpCard: string,
                 pin: string
             },
+            hiddenCards: string,
             card: {
+                card: string,
+                cards: string,
                 title: string,
                 defaultSubtitle: string,
                 defaultTitle: string,
+                eurSubtitle: string,
                 type: {
                     physical: string,
                     virtual: string,
+                },
+                notifications: {
+                    type: {
+                        card_ready: string,
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        limits_change: {
+                            pending: string,
+                            completed: string,
+                        },
+                        card_withdraw: string,
+                        contract_closed: string,
+                        card_block: string,
+                        card_freeze: string,
+                        card_unfreeze: string,
+                        card_paid: string,
+                    },
+                    category: {
+                        deposit: string,
+                        charge: string,
+                        charge_failed: string,
+                        card_withdraw: string,
+                        other: string,
+                    },
+                    status: {
+                        charge_failed: {
+                            limit: {
+                                onetime: string,
+                                daily: string,
+                                monthly: string,
+                            },
+                            failed: string,
+                        },
+                        completed: string,
+                    }
                 }
             },
             confirm: {
@@ -430,7 +530,9 @@ export type LocalizationSchema = {
                 description_2: string,
                 description_3: string,
                 moreInfo: string,
-                buttonSub: string
+                buttonSub: string,
+                failed: string,
+                failedDescription: string,
             }
         }
     }
@@ -440,16 +542,37 @@ export type LocalizationSchema = {
         subtitle: string,
         subtitleDev: string,
         createWallet: string,
-        importWallet: string
+        importWallet: string,
+        slogan: string,
+        sloganDev: string,
+        slide_1: {
+            title: string,
+            subtitle: string,
+        },
+        slide_2: {
+            title: string,
+            subtitle: string,
+        },
+        slide_3: {
+            title: string,
+            subtitle: string,
+        },
     },
     legal: {
         title: string,
         subtitle: string,
+        create: string,
+        createSubtitle: string,
         privacyPolicy: string,
         termsOfService: string
     },
     create: {
-        inProgress: string
+        addNew: string,
+        inProgress: string,
+        backupTitle: string,
+        backupSubtitle: string,
+        okSaved: string,
+        copy: string
     },
     import: {
         title: string,
@@ -475,7 +598,10 @@ export type LocalizationSchema = {
         onLaterTitle: string,
         onLaterMessage: string,
         onLaterButton: string,
-        onBiometricsError: string
+        onBiometricsError: string,
+        lockAppWithAuth: string,
+        methodPasscode: string,
+        passcodeSetupDescription: string
     },
     backup: {
         title: string,
@@ -539,7 +665,10 @@ export type LocalizationSchema = {
         tokenReceived: string
     },
     jetton: {
-        token: string
+        token: string,
+        productButtonTitle: string,
+        productButtonSubtitle: string,
+        hidden: string
     },
     connections: {
         extensions: string,
@@ -582,6 +711,34 @@ export type LocalizationSchema = {
             enterCurrent: string,
             enterPrevious: string,
             enterNewDescription: string,
+            changeLength: string,
+            forgotPasscode: string,
+            logoutAndReset: string,
+        }
+        auth: {
+            biometricsPermissionCheck: {
+                title: string,
+                message: string,
+                openSettings: string,
+                authenticate: string,
+            },
+            biometricsSetupAgain: {
+                title: string,
+                message: string,
+                setup: string,
+                authenticate: string,
+            },
+            biometricsCooldown: {
+                title: string,
+                message: string,
+            },
+            biometricsCorrupted: {
+                title: string,
+                message: string,
+                messageLogout: string,
+                logout: string,
+                restore: string,
+            }
         }
     },
     report: {
@@ -601,6 +758,7 @@ export type LocalizationSchema = {
         review: string,
         heading: string,
         posted: string,
+        postedDescription: string,
         error: string
     },
     deleteAccount: {
@@ -616,11 +774,19 @@ export type LocalizationSchema = {
         confirm: {
             title: string,
             message: string
-        }
+        },
+        checkRecipient: string,
+        checkRecipientDescription: string,
+    },
+    logout: {
+        title: string,
+        logoutDescription: string,
     },
     contacts: {
         title: string,
         contact: string,
+        contacts: string,
+        unknown: string,
         name: string,
         lastName: string,
         company: string,
@@ -638,6 +804,8 @@ export type LocalizationSchema = {
         empty: string,
         description: string,
         contactAddress: string,
+        search: string,
+        new: string
     },
     currency: {
         USD: string,
@@ -658,6 +826,7 @@ export type LocalizationSchema = {
         addressMarkSpam: string
         txShare: string,
         txRepeat: string,
+        view: string,
         share: {
             address: string,
             transaction: string
@@ -667,8 +836,7 @@ export type LocalizationSchema = {
         ledger: string,
         title: string,
         description: string,
-        installationIOS: string,
-        installationAndroid: string,
+        installation: string,
         installationGuide: string,
         connectionDescriptionAndroid: string,
         connectionDescriptionIOS: string,
@@ -682,6 +850,7 @@ export type LocalizationSchema = {
         chooseAccountDescription: string,
         openAppVerifyAddress: string,
         devices: string,
+        connection: string,
         actions: {
             connect: string,
             selectAccount: string,
@@ -709,6 +878,8 @@ export type LocalizationSchema = {
             transactionRejected: string,
             transferFailed: string,
             permissions: string,
+            unknown: string,
+            reboot: string,
         },
         moreAbout: string
     },
@@ -723,11 +894,37 @@ export type LocalizationSchema = {
         copySeedAlertAction: string,
         holdersOfflineApp: string,
     },
+    wallets: {
+        switchToAlertTitle: string,
+        switchToAlertMessage: string,
+        switchToAlertAction: string,
+        addNewTitle: string,
+        addNewAlertTitle: string,
+        addNewAlertMessage: string,
+        addNewAlertAction: string,
+        alreadyExistsAlertTitle: string,
+        alreadyExistsAlertMessage: string,
+        settings: {
+            changeAvatar: string
+        }
+    },
     webView: {
-        noInternet: string,
+        checkInternetAndReload: string,
         contactSupportOrTryToReload: string,
         contactSupport: string,
-        checkInternetAndReload: string,
+    },
+    appAuth: {
+        description: string,
+    },
+    screenCapture: {
+        title: string,
+        description: string,
+        action: string,
+    },
+    onboarding: {
+        avatar: string,
+        wallet: string,
+        price: string
     }
 };
 

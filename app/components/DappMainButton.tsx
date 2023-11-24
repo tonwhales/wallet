@@ -138,11 +138,11 @@ export const DappMainButton = React.memo((
     const theme = useTheme();
 
     const bgColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? theme.disabled : (props.isActive ? props.color : (props.disabledColor ?? theme.disabled)));
+        return withTiming(props.isProgressVisible ? theme.surfaceOnElevation : (props.isActive ? props.color : (props.disabledColor ?? theme.surfaceOnElevation)));
     }, [props.color, props.disabledColor, props.isActive]);
 
     const textColor = useDerivedValue(() => {
-        return withTiming(props.isProgressVisible ? theme.disabled : props.textColor);
+        return withTiming(props.isProgressVisible ? theme.surfaceOnElevation : props.textColor);
     }, [props.textColor]);
 
     const animatedBgStyle = useAnimatedStyle(() => {

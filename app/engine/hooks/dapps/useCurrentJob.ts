@@ -6,6 +6,8 @@ import { Address, Cell } from "@ton/core";
 import { queryClient } from "../../clients";
 import { z } from 'zod';
 import { parseJob } from '../../apps/parseJob';
+import { useNetwork, useSelectedAccount } from "..";
+import { useMemo } from "react";
 
 export type Job = {
     type: 'transaction',
@@ -69,15 +71,28 @@ export async function fetchJob(): Promise<string | null> {
 }
 
 export function useCurrentJob(): [ParsedJob | null, (job: ParsedJob | null) => void] {
+    let { isTestnet } = useNetwork();
+    let selected = useSelectedAccount();
+
+    let addressString = useMemo(() => {
+        if (!selected?.address) {
+            return '';
+        }
+        if (selected.address instanceof Address) {
+            return selected.address.toString({ testOnly: isTestnet });
+        }
+        return '';
+    }, [selected, isTestnet]);
+
     const query = useQuery({
-        queryKey: Queries.Job(),
+        queryKey: Queries.Job(addressString),
         queryFn: fetchJob,
         suspense: true,
         refetchInterval: 1000 * 3,
     });
 
     const update = (job: ParsedJob | null) => {
-        queryClient.setQueryData(Queries.Job(), job?.jobRaw || null);
+        queryClient.setQueryData(Queries.Job(addressString), job?.jobRaw || null);
     }
 
     if (!query.data) {

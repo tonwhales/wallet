@@ -1,14 +1,9 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, Image, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeIn, FadeOut, useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, fromNano, loadStateInit, SendMode, comment, toNano, internal, MessageRelaxed, external, storeMessage, storeMessageRelaxed } from '@ton/core';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
+import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
-import { CloseButton } from '../../components/CloseButton';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { resolveUrl } from '../../utils/resolveUrl';
@@ -17,33 +12,34 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { AsyncLock } from 'teslabot';
 import { getCurrentAddress } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import MessageIcon from '../../../assets/ic_message.svg';
-import { KnownWallets } from '../../secure/KnownWallets';
+import { KnownJettonMasters, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
-import { createJettonOrder, createSimpleOrder } from './ops/Order';
+import { LedgerOrder, Order, createJettonOrder, createLedgerJettonOrder, createSimpleLedgerOrder, createSimpleOrder } from './ops/Order';
 import { useLinkNavigator } from "../../useLinkNavigator";
-import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
-import { AddressDomainInput } from '../../components/AddressDomainInput';
 import { useParams } from '../../utils/useParams';
-import { useAccountLite } from '../../engine/hooks';
-import { useJettonWallet } from '../../engine/hooks';
-import { useJettonMaster } from '../../engine/hooks';
-import { useConfig } from '../../engine/hooks';
-import { useContact } from '../../engine/hooks';
-import { useNetwork } from '../../engine/hooks';
-import { useTheme } from '../../engine/hooks';
-import { useSelectedAccount } from '../../engine/hooks';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { WImage } from '../../components/WImage';
+import { Avatar } from '../../components/Avatar';
+import { formatCurrency } from '../../utils/formatCurrency';
+import { ValueComponent } from '../../components/ValueComponent';
+import { useRoute } from '@react-navigation/native';
+import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useLedgerTransport } from '../ledger/components/TransportContext';
+import { fromBnWithDecimals, toBnWithDecimals } from '../../utils/withDecimals';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
-import { useClient4 } from '../../engine/hooks';
 import { getLastBlock } from '../../engine/accountWatcher';
-import { useCommitCommand } from '../../engine/hooks';
-import { RefObject, createRef, useCallback, useEffect, useMemo, useState } from 'react';
+import { MessageRelaxed, loadStateInit, comment, internal, external, fromNano, Cell, Address, toNano, SendMode, storeMessage, storeMessageRelaxed } from '@ton/core';
 import { estimateFees } from '../../utils/estimateFees';
+import { resolveLedgerPayload } from '../ledger/utils/resolveLedgerPayload';
+import { TransferAddressInput, addressInputReducer } from '../../components/address/TransferAddressInput';
+import { ItemDivider } from '../../components/ItemDivider';
+import { AboutIconButton } from '../../components/AboutIconButton';
+import { StatusBar } from 'expo-status-bar';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    fontSize: 17
-};
+import IcTonIcon from '@assets/ic-ton-acc.svg';
+import IcChevron from '@assets/ic_chevron_forward.svg';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -51,45 +47,169 @@ export type SimpleTransferParams = {
     amount?: bigint | null,
     stateInit?: Cell | null,
     job?: string | null,
-    jetton?: string | null,
+    jetton?: Address | null,
     callback?: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
     app?: {
         domain: string,
-        title: string
+        title: string,
+        url: string,
     }
 }
 
 export const SimpleTransferFragment = fragment(() => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const network = useNetwork();
     const navigation = useTypedNavigation();
     const params: SimpleTransferParams | undefined = useParams();
-    const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.address)!;
-    const tonClient4 = useClient4(isTestnet);
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerSimpleTransfer';
     const safeArea = useSafeAreaInsets();
+    const acc = useSelectedAccount();
+    const client = useClient4(network.isTestnet);
+    const [price, currency] = usePrice();
 
-    const [target, setTarget] = useState(params?.target || '');
-    const [addressDomainInput, setAddressDomainInput] = useState(target);
-    const [domain, setDomain] = useState<string>();
-    const [text, setComment] = useState(params?.comment || '');
+    // Ledger
+    const ledgerContext = useLedgerTransport();
+    const addr = ledgerContext?.addr;
+    const ledgerAddress = useMemo(() => {
+        if (addr && isLedger) {
+            try {
+                return Address.parse(addr.address);
+            } catch { }
+        }
+    }, [addr]);
+
+    const ledgerLite = useAccountLite(ledgerAddress);
+    const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
+
+    const account = isLedger ? ledgerLite : accountLite;
+
+    const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
+        addressInputReducer(),
+        {
+            input: params?.target || '',
+            target: params?.target || '',
+            domain: undefined
+        }
+    );
+
+    const { target, input: addressDomainInput, domain } = addressDomainInputState;
+
+    const [commentString, setComment] = useState(params?.comment || '');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [stateInit, setStateInit] = useState<Cell | null>(params?.stateInit || null);
     const [estimation, setEstimation] = useState<bigint | null>(null);
-    const acc = useMemo(() => getCurrentAddress(), []);
-    const jettonWallet = useJettonWallet(params.jetton, true);
+    const [jetton, setJetton] = useState<Address | null>(params?.jetton || null);
+
+    const jettonWallet = useJettonWallet(jetton?.toString({ testOnly: network.isTestnet }), true);
     const jettonMaster = useJettonMaster(jettonWallet?.master!);
     const symbol = jettonMaster ? jettonMaster.symbol! : 'TON'
-    const balance: bigint = useMemo(() => {
-        let value;
-        if (jettonWallet) {
-            value = BigInt(jettonWallet.balance);
+
+    const targetAddressValid = useMemo(() => {
+        if (target.length > 48) {
+            return null;
+        }
+        try {
+            return Address.parseFriendly(target);
+        } catch {
+            return null;
+        }
+    }, [target]);
+
+    const jettonState = useMemo(() => {
+        if (!jetton) {
+            return null;
+        }
+
+        if (!jettonWallet || !jettonMaster) {
+            return null;
+        }
+        return { wallet: jettonWallet, master: jettonMaster, walletAddress: jetton };
+    }, [jetton, jettonMaster, jettonWallet]);
+
+    const validAmount = useMemo(() => {
+        let value: bigint | null = null;
+        try {
+            const valid = amount.replace(',', '.');
+            // Manage jettons with decimals
+            if (jettonState) {
+                value = toBnWithDecimals(valid, jettonState.master.decimals ?? 9);
+            } else {
+                value = toNano(valid);
+            }
+            return value;
+        } catch {
+            return null;
+        }
+    }, [amount, jettonState]);
+
+    const priceText = useMemo(() => {
+        if (!price || jettonState || !validAmount) {
+            return undefined;
+        }
+
+        const isNeg = validAmount < 0n;
+        const abs = isNeg ? -validAmount : validAmount;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [jettonState, validAmount, price, currency]);
+
+    const estimationPrise = useMemo(() => {
+        if (!estimation || !price || !validAmount) {
+            return undefined;
+        }
+
+        const isNeg = estimation < 0n;
+        const abs = isNeg ? -estimation : estimation;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [price, currency, estimation]);
+
+    const isVerified = useMemo(() => {
+        if (!jettonState || !jettonState.wallet.master) {
+            return true;
+        }
+        return !!KnownJettonMasters(network.isTestnet)[jettonState.wallet.master];
+    }, [jettonState]);
+
+    const balance = useMemo(() => {
+        let value: bigint;
+        if (jettonState) {
+            value = BigInt(jettonState.wallet.balance);
         } else {
-            value = account.balance;
+            value = account?.balance || 0n;
         }
         return value;
-    }, [jettonWallet, jettonMaster, account.balance]);
+    }, [jettonState, account?.balance, isLedger]);
+
+    const amountError = useMemo(() => {
+        if (amount.length === 0) {
+            return undefined;
+        }
+        if (!validAmount) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount < 0n) {
+            return t('transfer.error.invalidAmount');
+        }
+        if (validAmount > balance) {
+            return t('transfer.error.notEnoughCoins');
+        }
+        if (validAmount === 0n) {
+            return t('transfer.error.zeroCoins');
+        }
+
+        return undefined;
+    }, [validAmount, balance, amount]);
 
     const commitCommand = useCommitCommand();
     const callback: ((ok: boolean, result: Cell | null) => void) | null = params && params.callback ? params.callback : null;
@@ -108,137 +228,76 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Resolve order
     const order = useMemo(() => {
+        if (!validAmount) {
+            return null
+        }
 
-        // Parse value
-        let value: bigint;
         try {
-            const validAmount = amount.replace(',', '.').trim();
-            // Manage jettons with decimals
-            if (jettonMaster?.decimals) {
-                value = toBnWithDecimals(validAmount, jettonMaster.decimals);
-            } else {
-                value = toNano(validAmount);
-            }
+            Address.parseFriendly(target);
         } catch (e) {
             return null;
         }
 
-        // Parse address
-        let address: Address;
-        try {
-            let parsed = Address.parseFriendly(target);
-            address = parsed.address;
-        } catch (e) {
-            return null;
+        if (isLedger && ledgerAddress) {
+            // Resolve jetton order
+            if (jettonState) {
+                return createLedgerJettonOrder({
+                    wallet: params!.jetton!,
+                    target: target,
+                    domain: domain,
+                    responseTarget: ledgerAddress,
+                    text: commentString,
+                    amount: validAmount,
+                    tonAmount: toNano(0.1),
+                    txAmount: toNano(0.2),
+                    payload: null
+                }, network.isTestnet);
+            }
+
+            // Resolve order
+            return createSimpleLedgerOrder({
+                target: target,
+                domain: domain,
+                text: commentString,
+                payload: null,
+                amount: account?.balance === validAmount ? toNano('0') : validAmount,
+                amountAll: account?.balance === validAmount ? true : false,
+                stateInit
+            });
         }
 
         // Resolve jetton order
-        if (jettonWallet) {
+        if (jettonState) {
             return createJettonOrder({
-                wallet: Address.parse(params!.jetton!),
+                wallet: jettonState.walletAddress,
                 target: target,
                 domain: domain,
-                responseTarget: acc.address,
-                text: text,
-                amount: value,
+                responseTarget: acc!.address,
+                text: commentString,
+                amount: validAmount,
                 tonAmount: toNano(0.1),
                 txAmount: toNano(0.2),
                 payload: null
-            }, isTestnet);
+            }, network.isTestnet);
         }
 
         // Resolve order
         return createSimpleOrder({
             target: target,
             domain: domain,
-            text: text,
+            text: commentString,
             payload: null,
-            amount: (value === account.balance) ? toNano('0') : value,
-            amountAll: value === account.balance,
+            amount: (validAmount === account?.balance) ? toNano('0') : validAmount,
+            amountAll: validAmount === account?.balance,
             stateInit,
             app: params?.app
         });
 
-    }, [amount, target, domain, text, stateInit, jettonWallet, jettonMaster, params?.app]);
-
-    const doSend = useCallback(async () => {
-
-        let address: Address;
-        let isTestOnly: boolean;
-        let value: bigint;
-
-        try {
-            let parsed = Address.parseFriendly(target);
-            address = parsed.address;
-            isTestOnly = parsed.isTestOnly;
-        } catch (e) {
-            Alert.alert(t('transfer.error.invalidAddress'));
-            return;
-        }
-
-        try {
-            const validAmount = amount.replace(',', '.');
-            // Manage jettons with decimals
-            if (jettonMaster?.decimals) {
-                value = toBnWithDecimals(validAmount, jettonMaster.decimals);
-            } else {
-                value = toNano(validAmount);
-            }
-        } catch (e) {
-            console.warn(e);
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        if (value < 0n) {
-            Alert.alert(t('transfer.error.invalidAmount'));
-            return;
-        }
-
-        // Might not happen
-        if (!order) {
-            return;
-        }
-
-        // Load contract
-        const contract = await contractFromPublicKey(acc.publicKey);
-
-        // Check if same address
-        if (address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
-        }
-
-        // Check amount
-        if (value !== balance && balance < value) {
-            Alert.alert(t('transfer.error.notEnoughCoins'));
-            return;
-        }
-        if (value === 0n) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
-        }
-
-        // Dismiss keyboard for iOS
-        if (Platform.OS === 'ios') {
-            Keyboard.dismiss();
-        }
-
-        // Navigate to transaction confirmation
-        navigation.navigateTransfer({
-            text: text,
-            order,
-            job: params && params.job ? params.job : null,
-            callback,
-            back: params && params.back ? params.back + 1 : undefined
-        })
-    }, [amount, target, domain, text, stateInit, order, callback, jettonWallet, jettonMaster]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app]);
 
     // Estimate fee
     const config = useConfig();
-    const lock = useMemo(() => {
-        return new AsyncLock();
-    }, []);
+    const lock = useMemo(() => new AsyncLock(), []);
     useEffect(() => {
         let ended = false;
         lock.inLock(async () => {
@@ -250,22 +309,30 @@ export const SimpleTransferFragment = fragment(() => {
                 // Load app state
                 const currentAddress = getCurrentAddress();
 
-                let seqno = await fetchSeqno(tonClient4, await getLastBlock(), currentAddress.address);
+                let seqno = await fetchSeqno(client, await getLastBlock(), ledgerAddress ?? currentAddress.address);
 
                 // Parse order
                 let intMessage: MessageRelaxed;
                 let sendMode: number = SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY;
 
-                let storageStats = [];
+                let storageStats: ({
+                    lastPaid: number;
+                    duePayment: string | null;
+                    used: {
+                        bits: number;
+                        cells: number;
+                        publicCells: number;
+                    }
+                } | null)[] = [];
 
-                const block = await backoff('transfer', () => tonClient4.getLastBlock());
+                const block = await backoff('transfer', () => client.getLastBlock());
 
                 if (!order) {
                     const internalStateInit = !!stateInit
                         ? loadStateInit(stateInit.asSlice())
                         : null;
 
-                    const body = comment(text);
+                    const body = comment(commentString);
 
                     intMessage = internal({
                         to: currentAddress.address,
@@ -275,28 +342,47 @@ export const SimpleTransferFragment = fragment(() => {
                         body,
                     });
 
-                    const state = await backoff('transfer', () => tonClient4.getAccount(block.last.seqno, currentAddress.address));
+                    const state = await backoff('transfer', () => client.getAccount(block.last.seqno, currentAddress.address));
                     storageStats = state.account.storageStat ? [state.account.storageStat] : [];
                 } else {
-                    const internalStateInit = !!order.messages[0].stateInit
-                        ? loadStateInit(order.messages[0].stateInit.asSlice())
-                        : null;
+                    if (order.type === 'order') {
+                        const internalStateInit = !!order.messages[0].stateInit
+                            ? loadStateInit(order.messages[0].stateInit.asSlice())
+                            : null;
 
-                    const body = order.messages[0].payload ? order.messages[0].payload : null;
+                        const body = order.messages[0].payload ? order.messages[0].payload : null;
 
-                    intMessage = internal({
-                        to: Address.parse(order.messages[0].target),
-                        value: 0n,
-                        init: internalStateInit,
-                        bounce: false,
-                        body,
-                    });
+                        intMessage = internal({
+                            to: Address.parse(order.messages[0].target),
+                            value: 0n,
+                            init: internalStateInit,
+                            bounce: false,
+                            body,
+                        });
 
-                    const state = await backoff('transfer', () => tonClient4.getAccount(block.last.seqno, Address.parse(order.messages[0].target)));
-                    storageStats = state.account.storageStat ? [state.account.storageStat] : [];
+                        const state = await backoff('transfer', () => client.getAccount(block.last.seqno, Address.parse(order.messages[0].target)));
+                        storageStats = state.account.storageStat ? [state.account.storageStat] : [];
 
-                    if (order.messages[0].amountAll) {
-                        sendMode = SendMode.CARRY_ALL_REMAINING_BALANCE;
+                        if (order.messages[0].amountAll) {
+                            sendMode = SendMode.CARRY_ALL_REMAINING_BALANCE;
+                        }
+                    } else {
+                        const internalStateInit = !!stateInit
+                            ? loadStateInit(stateInit.asSlice())
+                            : null;
+
+                        const body = order.payload ? resolveLedgerPayload(order.payload) : comment(commentString);
+
+                        intMessage = internal({
+                            to: currentAddress.address,
+                            value: 0n,
+                            init: internalStateInit,
+                            bounce: false,
+                            body,
+                        });
+
+                        const state = await backoff('transfer', () => client.getAccount(block.last.seqno, currentAddress.address));
+                        storageStats = state.account.storageStat ? [state.account.storageStat] : [];
                     }
                 }
 
@@ -338,41 +424,79 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, account, tonClient4, config, text]);
+    }, [order, account, client, config, commentString, ledgerAddress]);
 
-    const linkNavigator = useLinkNavigator(isTestnet);
+    const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
-        let res = resolveUrl(src, isTestnet);
+        let res = resolveUrl(src, network.isTestnet);
         if (res && res.type === 'transaction') {
             if (res.payload) {
-                navigation.goBack();
                 linkNavigator(res);
             } else {
-                setAddressDomainInput(res.address.toString({ testOnly: isTestnet }));
-                if (res.amount) {
-                    setAmount(fromNano(res.amount));
+                let mComment = commentString;
+                let mTarget = target;
+                let mAmount = validAmount;
+                let mStateInit = stateInit;
+                let mJetton = jetton;
+
+                try {
+                    mAmount = toNano(amount);
+                } catch {
+                    mAmount = null;
                 }
+
+                if (res.address) {
+                    mTarget = res.address.toString({ testOnly: network.isTestnet });
+                }
+
+                if (res.amount) {
+                    mAmount = res.amount;
+                }
+
                 if (res.comment) {
-                    setComment(res.comment);
+                    mComment = res.comment;
                 }
                 if (res.stateInit) {
-                    setStateInit(res.stateInit);
+                    mStateInit = res.stateInit;
                 } else {
-                    setStateInit(null);
+                    mStateInit = null;
                 }
+
+                if (isLedger) {
+                    navigation.navigateLedgerTransfer({
+                        target: mTarget,
+                        comment: mComment,
+                        amount: mAmount,
+                        stateInit: mStateInit,
+                        jetton: mJetton,
+                    });
+                    return;
+                }
+
+                navigation.navigateSimpleTransfer({
+                    target: mTarget,
+                    comment: mComment,
+                    amount: mAmount,
+                    stateInit: mStateInit,
+                    jetton: mJetton,
+                });
             }
         }
-    }, []);
+    }, [commentString, target, validAmount, stateInit, jetton,]);
 
     const onAddAll = useCallback(() => {
-        setAmount(jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance));
-    }, [balance, jettonWallet, jettonMaster]);
+        setAmount(
+            jettonState
+                ? fromBnWithDecimals(balance, jettonState.master.decimals)
+                : fromNano(balance)
+        );
+    }, [balance, jettonState]);
 
     //
     // Scroll state tracking
     //
 
-    const [selectedInput, setSelectedInput] = useState(0);
+    const [selectedInput, setSelectedInput] = useState<number | null>(0);
 
     const refs = useMemo(() => {
         let r: RefObject<ATextInputRef>[] = [];
@@ -382,265 +506,574 @@ export const SimpleTransferFragment = fragment(() => {
         return r;
     }, []);
 
+    const scrollRef = useRef<ScrollView>(null);
+
+    const [addressInputHeight, setAddressInputHeight] = useState(0);
     const keyboard = useKeyboard();
-    const scrollRef = useAnimatedRef<Animated.ScrollView>();
-    const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = useCallback((index: number) => {
-        'worklet';
+    const onAssetSelected = useCallback((selected?: { master: Address, wallet: Address }) => {
+        if (selected) {
+            setJetton(selected.wallet);
+            return;
+        }
+        setJetton(null);
+    }, []);
 
-        if (index === 0) {
-            scrollTo(scrollRef, 0, 0, true);
+    const isKnown: boolean = !!KnownWallets(network.isTestnet)[target];
+
+    const doSend = useCallback(async () => {
+        let address: Address;
+        let isTestOnly: boolean;
+
+        try {
+            let parsed = Address.parseFriendly(target);
+            address = parsed.address;
+            isTestOnly = parsed.isTestOnly;
+        } catch (e) {
+            Alert.alert(t('transfer.error.invalidAddress'));
             return;
         }
 
-        let container = measure(containerRef);
-        if (Platform.OS !== 'android' && container) {
-            scrollTo(scrollRef, 0, container.height, true);
+        if (!validAmount) {
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
         }
-        if (Platform.OS === 'android') {
-            scrollTo(scrollRef, 0, 400, true);
-        }
-        return;
 
-    }, []);
-
-    const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    useEffect(() => {
-        keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
-        if (keyboard.keyboardShown) {
-            runOnUI(scrollToInput)(selectedInput);
+        if (validAmount < 0n) {
+            Alert.alert(t('transfer.error.invalidAmount'));
+            return;
         }
-    }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
+
+        // Might not happen
+        if (!order) {
+            return;
+        }
+
+        // Load contract
+        const contract = await contractFromPublicKey(acc!.publicKey);
+
+        // Check if same address
+        if (isLedger) {
+            if (!ledgerAddress) {
+                return;
+            }
+            if (address.equals(ledgerAddress)) {
+                Alert.alert(t('transfer.error.sendingToYourself'));
+                return;
+            }
+        } else {
+            if (address.equals(contract.address)) {
+                Alert.alert(t('transfer.error.sendingToYourself'));
+                return;
+            }
+        }
+
+        // Check amount
+        if (validAmount !== balance && balance < validAmount) {
+            Alert.alert(t('transfer.error.notEnoughCoins'));
+            return;
+        }
+        if (validAmount === 0n) {
+            Alert.alert(t('transfer.error.zeroCoins'));
+            return;
+        }
+
+        setSelectedInput(null);
+        // Dismiss keyboard for iOS
+        if (Platform.OS === 'ios') {
+            Keyboard.dismiss();
+        }
+
+        if (isLedger) {
+            navigation.replace('LedgerSignTransfer', {
+                text: null,
+                order: order as LedgerOrder,
+            });
+            return;
+        }
+
+        // Navigate to transaction confirmation
+        navigation.navigateTransfer({
+            text: commentString,
+            order: order as Order,
+            job: params && params.job ? params.job : null,
+            callback,
+            back: params && params.back ? params.back + 1 : undefined
+        })
+    }, [amount, target, domain, commentString, account, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
 
     const onFocus = useCallback((index: number) => {
-        runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, []);
 
     const onSubmit = useCallback((index: number) => {
-        let next = refs[index + 1].current;
-        if (next) {
-            next.focus();
-        }
+        setSelectedInput(null);
     }, []);
 
-    const isKnown: boolean = !!KnownWallets(isTestnet)[target];
-    const contact = useContact(target);
+    const resetInput = useCallback(() => {
+        Keyboard.dismiss();
+        setSelectedInput(null);
+    }, []);
 
-    return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.title', { symbol })} />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 17,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('transfer.title', { symbol })}</Text>
-                </View>
-            )}
-            <Animated.ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
-                automaticallyAdjustContentInsets={false}
-                ref={scrollRef}
-                scrollEventThrottle={16}
-            >
-                <View
-                    ref={containerRef}
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
-                >
+    const { selected, onNext, header } = useMemo<{
+        selected: 'amount' | 'address' | 'comment' | null,
+        onNext: (() => void) | null,
+        header: {
+            onBackPressed?: () => void,
+            title?: string,
+            rightButton?: ReactNode,
+            titleComponent?: ReactNode,
+        }
+    }>(() => {
 
-                    <View style={{
-                        marginBottom: 16,
-                        backgroundColor: theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 15
-                    }}>
-                        <ATextInput
-                            index={0}
-                            ref={refs[0]}
-                            onFocus={onFocus}
-                            value={amount}
-                            onValueChange={setAmount}
-                            placeholder={'0'}
-                            keyboardType={'numeric'}
-                            textAlign={'center'}
-                            style={{ backgroundColor: theme.transparent }}
-                            fontWeight={'800'}
-                            fontSize={30}
-                            preventDefaultHeight
-                            preventDefaultLineHeight
-                            preventDefaultValuePadding
-                            blurOnSubmit={false}
+        if (selectedInput === null) {
+            return {
+                selected: null,
+                onNext: null,
+                header: { title: t('transfer.title'), onBackPressed: () => refs[1]?.current?.focus(), }
+            }
+        }
+
+        const addressFriendly = targetAddressValid?.address.toString({ testOnly: network.isTestnet });
+
+        const headertitle = addressFriendly
+            ? {
+                titleComponent: (
+                    <Animated.View
+                        entering={FadeInDown} exiting={FadeOutDown}
+                        style={{
+                            backgroundColor: theme.border,
+                            borderRadius: 100,
+                            maxWidth: '70%',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            marginLeft: -16,
+                            paddingLeft: 6, paddingRight: 12,
+                            paddingVertical: 6
+                        }}
+                    >
+                        <Avatar
+                            size={24}
+                            id={addressFriendly}
+                            address={addressFriendly}
+                            borderWith={0}
                         />
                         <Text style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                            color: theme.priceSecondary,
-                            marginBottom: 5
+                            fontSize: 17, lineHeight: 24,
+                            color: theme.textPrimary,
+                            fontWeight: '500',
+                            marginLeft: 6,
+                            minHeight: 24
                         }}>
-                            {jettonWallet ? fromBnWithDecimals(balance, jettonMaster?.decimals) : fromNano(balance)} {symbol}
+                            {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
                         </Text>
-                    </View>
-                    <View style={{ flexDirection: 'row' }} collapsable={false}>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginRight: 7, backgroundColor: theme.item, borderRadius: 14 }}>
+                    </Animated.View>
+                )
+            }
+            : {
+                title: t('transfer.title'),
+            }
+
+        if (selectedInput === 1) {
+            return {
+                selected: 'amount',
+                onNext: (validAmount && !amountError)
+                    ? () => refs[2]?.current?.focus()
+                    : null,
+                header: {
+                    onBackPressed: () => refs[0]?.current?.focus(),
+                    ...headertitle
+                }
+            }
+        }
+
+        if (selectedInput === 0) {
+            return {
+                selected: 'address',
+                onNext: !!targetAddressValid
+                    ? () => refs[1]?.current?.focus()
+                    : null,
+                header: {
+                    title: t('common.recipient'),
+                    titleComponent: undefined,
+                }
+            }
+        }
+
+        if (selectedInput === 2) {
+            return {
+                selected: 'comment',
+                onNext: resetInput,
+                header: {
+                    ...headertitle,
+                    onBackPressed: () => refs[1]?.current?.focus(),
+                }
+            }
+        }
+
+        // Default
+        return { selected: null, onNext: null, header: { onBackPressed: navigation.goBack, ...headertitle } };
+    }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
+
+    const seletectInputStyles = useMemo<{
+        amount: StyleProp<ViewStyle>,
+        address: StyleProp<ViewStyle>,
+        comment: StyleProp<ViewStyle>,
+    }>(() => {
+        switch (selected) {
+            case 'amount':
+                return {
+                    amount: { position: 'absolute', top: 0, left: 0, right: 0 },
+                    address: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                }
+            case 'address':
+                return {
+                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    address: { position: 'absolute', top: 16, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                }
+
+            case 'comment':
+                return {
+                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    address: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    comment: { position: 'absolute', top: 0, left: 0, right: 0 },
+                }
+            default:
+                return {
+                    amount: {},
+                    address: {},
+                    comment: {}
+                }
+        }
+    }, [selected]);
+
+    useEffect(() => {
+        if (selected === 'address') {
+            scrollRef.current?.scrollTo({ y: 0, animated: true });
+        }
+    }, [selected, addressDomainInput]);
+
+    return (
+        <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
+            <ScreenHeader
+                title={header.title}
+                onBackPressed={header?.onBackPressed}
+                titleComponent={header.titleComponent}
+                onClosePressed={navigation.goBack}
+                style={[
+                    { paddingLeft: 16 },
+                    Platform.select({ android: { paddingTop: safeArea.top } })
+                ]}
+            />
+            <ScrollView
+                ref={scrollRef}
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
+                contentContainerStyle={[
+                    { marginHorizontal: 16 },
+                    Platform.select({ android: { minHeight: addressInputHeight } }),
+                ]}
+                contentInset={{
+                    bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight + addressInputHeight) : 0.1 /* Some weird bug on iOS */,
+                    top: 0.1 /* Some weird bug on iOS */
+                }}
+                contentInsetAdjustmentBehavior={'never'}
+                keyboardShouldPersistTaps={'always'}
+                keyboardDismissMode={'none'}
+                automaticallyAdjustContentInsets={false}
+                nestedScrollEnabled={true}
+            >
+                <Animated.View
+                    layout={Layout.duration(300)}
+                    style={[seletectInputStyles.address, { flex: 1, zIndex: 1 }]}
+                    onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
+                >
+                    <TransferAddressInput
+                        ref={refs[0]}
+                        acc={ledgerAddress ?? acc!.address}
+                        theme={theme}
+                        target={target}
+                        input={addressDomainInput}
+                        domain={domain}
+                        validAddress={targetAddressValid?.address}
+                        isTestnet={network.isTestnet}
+                        index={0}
+                        onFocus={onFocus}
+                        dispatch={dispatchAddressDomainInput}
+                        onSubmit={onSubmit}
+                        onQRCodeRead={onQRCodeRead}
+                        isSelected={selected === 'address'}
+                    />
+                </Animated.View>
+                <Animated.View
+                    layout={Layout.duration(300)}
+                    style={[seletectInputStyles.amount, { flex: 1 }]}
+                >
+                    <View
+                        style={{
+                            marginTop: !selected ? 16 : 0,
+                            marginBottom: amountError ? 0 : 16,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                            padding: 20
+                        }}
+                    >
+                        <Pressable
+                            style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                            onPress={() => navigation.navigate(
+                                'Assets',
+                                { callback: onAssetSelected, selectedJetton: jettonState?.master }
+                            )}
+                        >
+                            <View style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}>
+                                <View style={{ flexDirection: 'row', flexShrink: 1, overflow: 'hidden' }}>
+                                    <View style={{
+                                        height: 46, width: 46,
+                                        justifyContent: 'center', alignItems: 'center',
+                                        marginRight: 12
+                                    }}>
+                                        {!!jettonState && (
+                                            <WImage
+                                                src={jettonState.master.image?.preview256}
+                                                blurhash={jettonState.master.image?.blurhash}
+                                                width={46}
+                                                heigh={46}
+                                                borderRadius={23}
+                                                lockLoading
+                                            />
+                                        )}
+                                        {!jettonState && (<IcTonIcon width={46} height={46} />)}
+                                        {isVerified && (
+                                            <Image
+                                                source={require('@assets/ic-verified.png')}
+                                                style={{
+                                                    height: 16, width: 16,
+                                                    position: 'absolute', right: -2, bottom: 0
+                                                }}
+                                            />
+                                        )}
+                                    </View>
+                                    <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
+                                        <Text style={{
+                                            fontSize: 17,
+                                            color: theme.textPrimary,
+                                            fontWeight: '600',
+                                            lineHeight: 24
+                                        }}>
+                                            {symbol}
+                                        </Text>
+                                        <Text
+                                            style={{ flexShrink: 1 }}
+                                            numberOfLines={4}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            <Text
+                                                style={{
+                                                    fontSize: 15,
+                                                    fontWeight: '400',
+                                                    lineHeight: 20,
+                                                    color: theme.textSecondary,
+                                                }}
+                                                selectable={false}
+                                            >
+                                                {`${jettonState?.master.description ?? 'The Open Network'}`}
+                                            </Text>
+                                        </Text>
+                                    </View>
+                                </View>
+                                <IcChevron style={{ height: 12, width: 12 }} height={12} width={12} />
+                            </View>
+                        </Pressable>
+                        <ItemDivider marginHorizontal={0} />
+                        <View style={{
+                            flexDirection: 'row',
+                            marginBottom: 12,
+                            justifyContent: 'space-between'
+                        }}>
+                            <Text style={{
+                                fontWeight: '400',
+                                fontSize: 15, lineHeight: 20,
+                                color: theme.textSecondary,
+                            }}>
+                                {`${t('common.balance')}: `}
+                                <ValueComponent
+                                    precision={4}
+                                    value={balance}
+                                    decimals={jettonState ? jettonState.master.decimals : undefined}
+                                />
+                                {jettonState ? ` ${jettonState.master.symbol}` : ''}
+                            </Text>
                             <Pressable
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                                 onPress={onAddAll}
-                                style={({ pressed }) => [
-                                    {
-                                        backgroundColor: pressed
-                                            ? theme.selector
-                                            : theme.item,
-                                    },
-                                    { borderRadius: 14 }
-                                ]}
                             >
-                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                    <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Image source={require('../../../assets/ic_all_coins.png')} />
-                                    </View>
-                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.sendAll')}</Text>
-                                </View>
+                                <Text style={{
+                                    fontWeight: '500',
+                                    fontSize: 15, lineHeight: 20,
+                                    color: theme.accent,
+                                }}>
+                                    {t('transfer.sendAll')}
+                                </Text>
                             </Pressable>
                         </View>
-                        <View style={{ flexGrow: 1, flexBasis: 0, marginLeft: 7, backgroundColor: theme.item, borderRadius: 14 }}>
-                            <Pressable
-                                onPress={() => navigation.navigate('Scanner', { callback: onQRCodeRead })}
-                                style={({ pressed }) => [
-                                    {
-                                        backgroundColor: pressed
-                                            ? theme.selector
-                                            : theme.item,
-                                    },
-                                    { borderRadius: 14 }
-                                ]}
-                            >
-                                <View style={{ justifyContent: 'center', alignItems: 'center', height: 66, borderRadius: 14 }}>
-                                    <View style={{ backgroundColor: theme.accent, width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' }}>
-                                        <Image source={require('../../../assets/ic_scan_qr.png')} />
-                                    </View>
-                                    <Text style={{ fontSize: 13, color: theme.accentText, marginTop: 4 }}>{t('transfer.scanQR')}</Text>
-                                </View>
-                            </Pressable>
-                        </View>
-                    </View>
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        backgroundColor: theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <AddressDomainInput
-                            input={addressDomainInput}
-                            onInputChange={setAddressDomainInput}
-                            target={target}
+                        <ATextInput
                             index={1}
                             ref={refs[1]}
                             onFocus={onFocus}
-                            onTargetChange={setTarget}
-                            onDomainChange={setDomain}
+                            value={amount}
+                            onValueChange={setAmount}
+                            keyboardType={'numeric'}
                             style={{
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: 0,
-                                marginHorizontal: 16,
+                                backgroundColor: theme.backgroundPrimary,
+                                paddingHorizontal: 16, paddingVertical: 14,
+                                borderRadius: 16,
                             }}
-                            isKnown={isKnown}
-                            onSubmit={onSubmit}
-                            contact={contact}
+                            inputStyle={{
+                                fontSize: 17, fontWeight: '400',
+                                color: amountError ? theme.accentRed : theme.textPrimary,
+                                width: 'auto',
+                                flexShrink: 1
+                            }}
+                            suffix={priceText}
+                            hideClearButton
+                            prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                         />
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 }} />
+                    </View>
+                    {amountError && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Text style={{
+                                color: theme.accentRed,
+                                fontSize: 13,
+                                lineHeight: 18,
+                                marginTop: 8,
+                                marginBottom: 16,
+                                marginLeft: 20,
+                                fontWeight: '400'
+                            }}>
+                                {amountError}
+                            </Text>
+                        </Animated.View>
+                    )}
+                </Animated.View>
+                <Animated.View
+                    layout={Layout.duration(300)}
+                    style={[
+                        { backgroundColor: theme.elevation, flex: 1 },
+                        seletectInputStyles.comment
+                    ]}
+                >
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: theme.surfaceOnElevation,
+                        paddingVertical: 26, paddingHorizontal: 10,
+                        width: '100%', borderRadius: 20,
+                    }}>
                         <ATextInput
-                            value={text}
+                            value={commentString}
                             index={2}
                             ref={refs[2]}
                             onFocus={onFocus}
                             onValueChange={setComment}
                             placeholder={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
-                            keyboardType="default"
-                            autoCapitalize="sentences"
-                            style={{ backgroundColor: theme.transparent, paddingHorizontal: 0, marginHorizontal: 16 }}
-                            preventDefaultHeight
+                            keyboardType={'default'}
+                            autoCapitalize={'sentences'}
+                            label={isKnown ? t('transfer.commentRequired') : t('transfer.comment')}
+                            style={{ paddingHorizontal: 16 }}
+                            inputStyle={{
+                                flexShrink: 1,
+                                fontSize: 17,
+                                fontWeight: '400', color: theme.textPrimary,
+                                textAlignVertical: 'center',
+                            }}
                             multiline
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: theme.label,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('transfer.commentLabel')}
-                                    </Text>
-                                    {isKnown && (
-                                        <Animated.View
-                                            style={{
-                                                flexDirection: 'row',
-                                                justifyContent: 'center',
-                                                alignItems: 'center'
-                                            }}
-                                            entering={FadeIn.duration(150)}
-                                            exiting={FadeOut.duration(150)}
-                                        >
-                                            <MessageIcon
-                                                width={12}
-                                                height={12}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 12,
-                                                color: theme.labelSecondary,
-                                                alignSelf: 'flex-start',
-                                            }}>
-                                                {t('transfer.checkComment')}
-                                            </Text>
-                                        </Animated.View>
-                                    )}
-                                </View>
-                            }
                         />
                     </View>
-                    <Text style={{ color: theme.priceSecondary, marginLeft: 16, fontSize: 13 }}>{t('transfer.fee', { fee: estimation ? fromNano(estimation) : '...' })}</Text>
-                </View>
-            </Animated.ScrollView>
+                    {selected === 'comment' && (
+                        <Animated.View layout={Layout.duration(300)}>
+                            <Text style={{
+                                color: theme.textSecondary,
+                                fontSize: 13, lineHeight: 18,
+                                fontWeight: '400',
+                                paddingHorizontal: 16,
+                                marginTop: 2
+                            }}>
+                                {t('transfer.commentDescription')}
+                            </Text>
+                        </Animated.View>
+                    )}
+                </Animated.View>
+                {selectedInput === null && (
+                    <Animated.View layout={Layout.duration(300)} style={{ flex: 1 }}>
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            padding: 20, borderRadius: 20, marginTop: 16,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                        }}>
+                            <View>
+                                <Text
+                                    style={{
+                                        color: theme.textSecondary,
+                                        fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                        marginBottom: 2
+                                    }}>
+                                    {t('txPreview.blockchainFee')}
+                                </Text>
+                                <Text style={{
+                                    color: theme.textPrimary,
+                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
+                                }}>
+                                    {estimation
+                                        ? <>
+                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                        </>
+                                        : '...'
+                                    }
+                                </Text>
+                            </View>
+                            <AboutIconButton
+                                title={t('txPreview.blockchainFee')}
+                                description={t('txPreview.blockchainFeeDescription')}
+                                style={{ height: 24, width: 24, position: undefined }}
+                                size={20}
+                            />
+                        </View>
+                    </Animated.View>
+                )}
+                <View style={{ height: 56 }} />
+            </ScrollView>
             <KeyboardAvoidingView
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginHorizontal: 16, marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+                style={[
+                    { marginHorizontal: 16, marginTop: 16, },
+                    Platform.select({
+                        android: { marginBottom: safeArea.bottom + 16 },
+                        ios: { marginBottom: safeArea.bottom + 32 }
+                    })
+                ]}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
             >
-                <RoundButton
-                    title={t('common.continue')}
-                    action={doSend}
-                />
-            </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
+                {!!selected
+                    ? <RoundButton
+                        title={t('common.continue')}
+                        disabled={!onNext}
+                        onPress={onNext ? onNext : undefined}
                     />
-                )
-            }
-        </>
+                    : <RoundButton
+                        disabled={!order}
+                        title={t('common.send')}
+                        action={doSend}
+                    />
+                }
+            </KeyboardAvoidingView>
+        </Animated.View>
     );
 });

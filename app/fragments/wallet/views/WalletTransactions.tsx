@@ -3,32 +3,27 @@ import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets, Rect } from "react-native-safe-area-context";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, useWindowDimensions, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
+import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
+import { useAppState, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
+import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
+import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
+import { AppState } from "../../../storage/appState";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
-        <View
-            style={{
-                backgroundColor: theme.background,
-                justifyContent: 'flex-end',
-                paddingBottom: 2,
-                paddingTop: 12,
-                marginHorizontal: 16,
-                marginVertical: 8,
-            }}
-        >
-            <Text
-                style={{
-                    fontSize: 18,
-                    fontWeight: '700',
-                    color: theme.textColor
-                }}
-            >
+        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
+            <Text style={{
+                fontSize: 20,
+                fontWeight: '600',
+                lineHeight: 28, color: theme.textPrimary
+            }}>
                 {title}
             </Text>
         </View>
@@ -39,34 +34,42 @@ type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
     onPress: (tx: TransactionDescription) => void,
-    fontScaleNormal: boolean,
+    ledger?: boolean,
+    navigation: TypedNavigation,
+    addToDenyList: (address: string | Address, reason: string) => void,
+    spamMinAmount: bigint,
+    dontShowComments: boolean,
+    denyList: { [key: string]: { reason: string | null } },
+    contacts: { [key: string]: AddressContact },
+    isTestnet: boolean,
+    spamWallets: string[],
+    appState: AppState
 }
+
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
     return (
-        <View style={[
-            {
-                marginHorizontal: 16,
-                overflow: 'hidden',
-            },
-            index === 0 ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
-            section.data[index + 1] === undefined ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
-        ]}>
-            <TransactionView
-                own={props.address}
-                tx={item}
-                separator={section.data[index + 1] !== undefined}
-                onPress={props.onPress}
-                theme={theme}
-                fontScaleNormal={props.fontScaleNormal}
-            />
-        </View>
+        <TransactionView
+            own={props.address}
+            tx={item}
+            separator={section.data[index + 1] !== undefined}
+            theme={theme}
+            ledger={props.ledger}
+            {...props}
+        />
     );
-}, (prevProps, nextProps) => {
-    return prevProps.item.id === nextProps.item.id 
-            && prevProps.fontScaleNormal === nextProps.fontScaleNormal 
-            && prevProps.theme === nextProps.theme 
-            && nextProps.index === prevProps.index
-            && (prevProps.section.data[prevProps.index + 1] === nextProps.section.data[nextProps.index + 1]);
+}, (prev, next) => {
+    return prev.item.id === next.item.id
+        && prev.isTestnet === next.isTestnet
+        && prev.dontShowComments === next.dontShowComments
+        && prev.spamMinAmount === next.spamMinAmount
+        && prev.address === next.address
+        && prev.theme === next.theme
+        && prev.section === next.section
+        && prev.index === next.index
+        && prev.addToDenyList === next.addToDenyList
+        && prev.denyList === next.denyList
+        && prev.contacts === next.contacts
+        && prev.spamWallets === next.spamWallets;
 });
 
 export const WalletTransactions = memo((props: {
@@ -87,8 +90,25 @@ export const WalletTransactions = memo((props: {
     ledger?: boolean,
 }) => {
     const theme = useTheme();
-    const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
+    const navigation = props.navigation;
+    const { isTestnet } = useNetwork();
+    const [spamMinAmount,] = useSpamMinAmount();
+    const [dontShowComments,] = useDontShowComments();
+    const [addressBook, updateAddressBook] = useAddressBook();
+    const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
+    const appState = useAppState();
+
+    const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
+        let addr = '';
+
+        if (address instanceof Address) {
+            addr = address.toString({ testOnly: isTestnet });
+        } else {
+            addr = address;
+        }
+
+        return updateAddressBook((doc) => doc.denyList[addr] = { reason });
+    }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
         let sectioned: { title: string, data: TransactionDescription[] }[] = [];
@@ -122,42 +142,50 @@ export const WalletTransactions = memo((props: {
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
 
-    const headerComponent = useMemo(() => {
-        if (!props.header) {
-            return Platform.OS === 'ios' ? (<View style={{ height: props.safeArea.top }} />) : undefined;
-        }
-        return props.header;
-    }, [props.header]);
-
     return (
         <SectionList
+            style={{ flexGrow: 1 }}
             contentContainerStyle={[
-                {
-                    paddingTop: Platform.OS === 'android'
-                        ? props.safeArea.top + 44
-                        : undefined,
-                },
                 props.sectionedListProps?.contentContainerStyle
             ]}
             sections={transactionsSectioned}
-            contentInset={props.sectionedListProps?.contentInset || { top: 44, bottom: 52 }}
-            contentOffset={props.sectionedListProps?.contentOffset || { y: -(44 + props.safeArea.top), x: 0 }}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
-            initialNumToRender={300}
-            maxToRenderPerBatch={20}
-            updateCellsBatchingPeriod={100}
-            getItemLayout={(data, index) => ({ index: index, length: 62, offset: 62 * index })}
+            initialNumToRender={20}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
-            ListHeaderComponent={headerComponent}
+            ListHeaderComponent={props.header}
             ListFooterComponent={props.hasNext ? (
                 <View style={{ height: 64, justifyContent: 'center', alignItems: 'center', width: '100%' }}>
-                    <LoadingIndicator simple />
+                    <ReAnimatedCircularProgress
+                        size={24}
+                        color={theme.iconPrimary}
+                        reverse
+                        infinitRotate
+                        progress={0.8}
+                    />
                 </View>
             ) : null}
-            renderItem={(item) => <TransactionListItem {...item} address={props.address} theme={theme} onPress={navigateToPreview} fontScaleNormal={fontScaleNormal} />}
+            ListEmptyComponent={props.loading ? <TransactionsSkeleton /> : <TransactionsEmptyState isLedger={props.ledger} />}
+            renderItem={(item) => (
+                <TransactionListItem
+                    {...item}
+                    address={props.address}
+                    theme={theme}
+                    onPress={navigateToPreview}
+                    ledger={props.ledger}
+                    navigation={navigation}
+                    addToDenyList={addToDenyList}
+                    spamMinAmount={spamMinAmount}
+                    dontShowComments={dontShowComments}
+                    denyList={addressBook.denyList}
+                    contacts={addressBook.contacts}
+                    isTestnet={isTestnet}
+                    spamWallets={spamWallets}
+                    appState={appState}
+                />
+            )}
             onEndReached={() => props.onLoadMore()}
             onEndReachedThreshold={1}
             keyExtractor={(item) => 'tx-' + item.id}

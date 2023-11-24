@@ -43,10 +43,10 @@ export const DevStorageFragment = fragment(() => {
 
     return (
         <ScrollView style={{ flexGrow: 1 }}>
-            <View style={{ backgroundColor: theme.background, flexGrow: 1, paddingHorizontal: 16 }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, paddingHorizontal: 16 }}>
                 <ItemGroup style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfaceOnBg,
                     borderRadius: 16,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -65,7 +65,7 @@ export const DevStorageFragment = fragment(() => {
 
                 <ItemGroup style={{
                     marginBottom: 16,
-                    backgroundColor: theme.item,
+                    backgroundColor: theme.surfaceOnBg,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

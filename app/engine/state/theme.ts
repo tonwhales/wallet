@@ -11,114 +11,126 @@ export enum ThemeStyle {
 
 export type ThemeType = {
     style: Exclude<ThemeStyle, ThemeStyle.System>,
-    textColor: string,
-    textSecondary: string,
-    textSubtitle: string,
-    loader: string,
-    background: string,
-    item: string,
+
+    backgroundPrimary: string,
+    backgroundPrimaryInverted: string,
+    backgroundUnchangeable: string,
+
+    elevation: string,
+
+    surfaceOnBg: string,
+    surfaceOnElevation: string,
+    surfaceOnDark: string,
+    surfaceTab: string,
+
+    overlay: string,
 
     accent: string,
-    accentDark: string,
-    accentText: string,
+    accentDisabled: string,
+    accentRed: string,
+    accentGreen: string,
+    accentBlue: string,
 
-    warningText: string,
-    warningSecondary: string,
-    warningSecondaryBorder: string,
+    textPrimary: string,
+    textSecondary: string,
+    textPrimaryInverted: string,
+    textOnsurfaceOnDark: string,
+    textUnchangeable: string,
+    textThird: string,
 
-    linkText: string,
-
+    iconPrimary: string,
+    iconUnchangeable: string,
+    iconNav: string,
+    
     divider: string,
-    headerDivider: string,
+    border: string,
 
-    scoreGold: string,
-    selector: string,
-    secondaryButton: string,
-    secondaryButtonText: string,
-    success: string,
-    failed: string,
-    dangerZone: string,
-    delete: string,
-    qrCode: string,
-    label: string,
-    placeholder: string,
-    labelSecondary: string,
-    transparent: string,
-    contactBorder: string,
-    textSecondaryBorder: string,
-    disabled: string,
-    pressedRoundButton: string,
+    ton: string,
     telegram: string,
 
-    price: string,
-    priceSecondary: string,
-    pricePositive: string,
-    priceNegative: string,
+    transparent: string,
+    white: string,
+    black: string,
 
-    unchecked: string,
-    contactIcon: string,
-    operationIcon: string
+    cardBackground: string,
+    warning: string
 };
 
-export const baseTheme = {
+export const baseTheme: ThemeType = {
     style: ThemeStyle.Light,
-    textColor: '#000',
-    textSecondary: '#8E8E92',
-    textSubtitle: '#8E979D',
-    loader: '#367CDE',
-    background: '#F2F2F6',
-    item: 'white',
 
-    accent: '#47A9F1',
-    accentDark: '#288FD8',
-    accentText: '#1C8FE3',
+    backgroundPrimary: '#FFFFFF',
+    backgroundPrimaryInverted: '#000000',
+    backgroundUnchangeable: '#000000',
 
-    warningText: '#DE641F',
-    warningSecondary: '#E19626',
-    warningSecondaryBorder: '#FFC165',
+    elevation: '#FFFFFF',
 
-    linkText: '#42A3EB',
+    surfaceOnBg: '#F7F8F9',
+    surfaceOnElevation: '#F7F8F9',
+    surfaceOnDark: '#2C2C2D',
+    surfaceTab: '#FFFFFF',
 
-    divider: '#E4E4E5',
-    headerDivider: '#000',
+    overlay: 'rgba(0, 0, 0, 0.6)',
 
-    scoreGold: '#DAA520',
-    selector: 'rgba(179, 179, 193, 0.3)',
-    secondaryButton: '#E5E5E7',
-    secondaryButtonText: '#798287',
-    success: '#4DC47D',
-    failed: 'orange',
-    dangerZone: '#FF0000',
-    delete: '#CF3535',
-    qrCode: '#303757',
-    label: '#7D858A',
-    placeholder: '#9D9FA3',
-    labelSecondary: '#858B93',
-    transparent: 'transparent',
-    contactBorder: '#DEDEDE',
-    textSecondaryBorder: '#ADB6BE',
-    disabled: '#9EA6AB',
-    pressedRoundButton: 'rgba(0,0,0,0.3)',
+    accent: '#564CE2',
+    accentDisabled: '#AAA5F0',
+    accentRed: '#FF415C',
+    accentGreen: '#00BE80',
+    accentBlue: '#61BDFF',
+
+    textPrimary: '#000',
+    textSecondary: '#838D99',
+    textPrimaryInverted: '#FFFFFF',
+    textOnsurfaceOnDark: '#FFFFFF',
+    textUnchangeable: '#FFFFFF',
+    textThird: '#564CE2',
+
+    iconPrimary: '#AAB4BF',
+    iconUnchangeable: '#FFFFFF',
+    iconNav: '#838D99',
+
+    divider: '#E4E6EA',
+    border: '#F7F8F9',
+
+    ton: '#0098EA',
     telegram: '#59ADE7',
 
-    price: '#787F83',
-    priceSecondary: '#6D6D71',
-    pricePositive: '#4FAE42',
-    priceNegative: '#FF0000',
+    transparent: 'transparent',
+    white: 'white',
+    black: 'black',
 
-    unchecked: '#B6B6BF',
-    contactIcon: '#EDA652',
-    operationIcon: '#60C75E',
+    cardBackground: '#181524',
+    warning: '#FF9A50'
 }
 
 export const darkTheme: ThemeType = {
     ...baseTheme,
+
     style: ThemeStyle.Dark,
-    textColor: '#fff',
-    textSecondary: '#ccc',
-    textSubtitle: '#ddd',
-    background: '#222',
-    item: '#333',
+
+    backgroundPrimary: '#000000',
+    backgroundPrimaryInverted: '#FFFFFF',
+
+    elevation: '#1C1C1E',
+
+    surfaceOnBg: '#1C1C1E',
+    surfaceOnElevation: '#2C2C2D',
+    surfaceTab: '#6A6A6C',
+
+    accent: '#5E54F2',
+    accentDisabled: '#7F7BBB',
+
+    textPrimary: '#FFFFFF',
+    textSecondary: '#9398A1',
+    textPrimaryInverted: '#000000',
+    textThird: '#FFFFFF',
+
+    iconPrimary: '#828B96',
+    iconNav: '#A3A3AA',
+
+    divider: '#444446',
+
+    border: '#1C1C1E',
 }
 
 export const initialNavigationTheme: NavigationThemeType = {
@@ -126,14 +138,14 @@ export const initialNavigationTheme: NavigationThemeType = {
     colors: {
         ...DefaultTheme.colors,
         primary: baseTheme.accent,
-        background: baseTheme.background,
-        card: baseTheme.background
+        background: baseTheme.backgroundPrimary,
+        card: baseTheme.backgroundPrimary
     }
 };
 
 const themeStyleKey = 'themeStyle';
 
-function getThemeStyleState() {
+export function getThemeStyleState() {
     const res = storagePersistence.getString(themeStyleKey);
 
     if (z.union([z.literal('light'), z.literal('dark'), z.literal('system')]).safeParse(res).success) {

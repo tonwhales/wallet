@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View } from 'react-native';
+import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View, Image } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
@@ -12,7 +11,6 @@ import { createInjectSource, dispatchResponse } from './inject/createInjectSourc
 import { useInjectEngine } from './inject/useInjectEngine';
 import { contractFromPublicKey, walletConfigFromContract } from '../../../engine/contractFromPublicKey';
 import { protectNavigation } from './protect/protectNavigation';
-import { RoundButton } from '../../../components/RoundButton';
 import { t } from '../../../i18n/t';
 import MoreIcon from '../../../../assets/ic_more.svg';
 import { generateAppLink } from '../../../utils/generateAppLink';
@@ -23,9 +21,10 @@ import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { useDomainKey } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
-import { DomainSubkey } from '../../../engine/state/domainKeys';
+import { DomainSubkey, getDomainKey } from '../../../engine/state/domainKeys';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -38,8 +37,7 @@ export const AppComponent = memo((props: {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const domain = useMemo(() => extractDomain(props.endpoint), []);
-
-    const domainKey = useDomainKey(domain);
+    const domainKey = getDomainKey(domain);
     //
     // Track events
     //
@@ -74,10 +72,7 @@ export const AppComponent = memo((props: {
         navigation.navigateReview({ type: 'report', url: props.endpoint });
     }, [props]);
 
-    //
     // View
-    //
-
     const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = useState(false);
     const webRef = useRef<WebView>(null);
@@ -161,7 +156,7 @@ export const AppComponent = memo((props: {
             }
         });
     }, [domainKey]);
-    const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
+    const injectionEngine = useInjectEngine(domain, props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -202,13 +197,44 @@ export const AppComponent = memo((props: {
 
     return (
         <>
-            <View style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <View style={{ height: safeArea.top }} />
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+                <ScreenHeader
+                    style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                    onBackPressed={close}
+                    rightButton={(
+                        <ContextMenu
+                            style={{ height: 30 }}
+                            dropdownMenuMode
+                            onPress={handleAction}
+                            actions={[
+                                { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
+                                { title: t('review.title'), systemIcon: Platform.OS === 'ios' ? 'star' : undefined },
+                                { title: t('report.title'), systemIcon: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, destructive: true },
+                            ]}
+                        >
+                            <View style={{
+                                height: 30, width: 30,
+                                justifyContent: 'center', alignItems: 'center',
+                                backgroundColor: theme.surfaceOnElevation, borderRadius: 15
+                            }}>
+                                <Image
+                                    style={{
+                                        height: 26, width: 26,
+                                        tintColor: theme.textSecondary,
+                                    }}
+                                    source={require('@assets/ic-more.png')}
+                                />
+                            </View>
+                            <MoreIcon color={'black'} height={30} width={30} />
+                        </ContextMenu>
+                    )}
+                    title={props.title}
+                />
                 <WebView
                     ref={webRef}
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: props.color, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;
@@ -223,47 +249,6 @@ export const AppComponent = memo((props: {
                     onShouldStartLoadWithRequest={loadWithRequest}
                     onMessage={handleWebViewMessage}
                 />
-
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <ActivityIndicator size="large" color={props.foreground} />
-                </Animated.View>
-
-            </View>
-            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom, backgroundColor: props.color }}>
-                <RoundButton
-                    title={t('common.close')}
-                    display="secondary"
-                    size="normal"
-                    style={{ paddingHorizontal: 8 }}
-                    onPress={close}
-                />
-                <ContextMenu
-                    style={{
-                        position: 'absolute',
-                        top: 8, right: 16,
-                        height: 32
-                    }}
-                    dropdownMenuMode
-                    onPress={handleAction}
-                    actions={[
-                        { title: t('report.title'), systemIcon: Platform.OS === 'ios' ? 'exclamationmark.triangle' : undefined, destructive: true },
-                        { title: t('review.title'), systemIcon: Platform.OS === 'ios' ? 'star' : undefined },
-                        { title: t('common.share'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined },
-                    ]}
-                >
-                    <MoreIcon color={'black'} height={30} width={30} />
-                </ContextMenu>
-                <View style={{
-                    position: 'absolute',
-                    top: 0.5, left: 0, right: 0,
-                    height: 0.5,
-                    width: '100%',
-                    backgroundColor: theme.headerDivider,
-                    opacity: 0.08
-                }} />
             </View>
         </>
     );

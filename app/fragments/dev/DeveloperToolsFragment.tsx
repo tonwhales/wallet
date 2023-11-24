@@ -6,8 +6,6 @@ import { fragment } from '../../fragment';
 import { storagePersistence, storageQuery } from '../../storage/storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { StatusBar } from 'expo-status-bar';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import * as Application from 'expo-application';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -28,8 +26,10 @@ import i18n from 'i18next';
 import { onAccountTouched } from '../../engine/effects/onAccountTouched';
 import { getCurrentAddress } from '../../storage/appState';
 import { useClearHolders } from '../../engine/hooks';
-import { useHoldersCards } from '../../engine/hooks';
+import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
+import { KeyboardAvoidingView } from 'react-native';
+import { ScreenHeader } from '../../components/ScreenHeader';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -42,7 +42,7 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const acc = useMemo(() => getCurrentAddress(), []);
 
-    const cards = useHoldersCards(acc.address);
+    const cards = useHoldersAccounts(acc.address);
     const holdersStatus = useHoldersAccountStatus(acc.address);
 
     const [counter, setCounter] = useCloudValue<{ counter: number }>('counter', (t) => t.counter = 0);
@@ -66,12 +66,12 @@ export const DeveloperToolsFragment = fragment(() => {
     // }, [offlineApp]);
 
     const reboot = useReboot();
-    const clearHolders = useClearHolders(acc.address.toString({ testOnly: isTestnet }));
+    const clearHolders = useClearHolders();
 
     const resetCache = useCallback(async () => {
         storagePersistence.clearAll();
         storageQuery.clearAll();
-        await clearHolders();
+        await clearHolders(acc.address.toString({ testOnly: isTestnet }));
         await onAccountTouched(acc.address.toString({ testOnly: isTestnet }), isTestnet);
         reboot();
     }, [isTestnet, clearHolders]);
@@ -96,7 +96,7 @@ export const DeveloperToolsFragment = fragment(() => {
     const copySeed = useCallback(async () => {
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ backgroundColor: theme.item });
+            walletKeys = await authContext.authenticate({ backgroundColor: theme.surfaceOnBg });
             const body = walletKeys.mnemonics.join(' ');
 
             if (Platform.OS === 'android') {
@@ -131,160 +131,159 @@ export const DeveloperToolsFragment = fragment(() => {
     }, []);
 
     return (
-        <View style={{
-            flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-        }}>
-            <StatusBar style={'dark'} />
-            <AndroidToolbar pageTitle={'Dev Tools'} />
-            <ScrollView style={{ backgroundColor: theme.background, flexGrow: 1, flexBasis: 0, paddingHorizontal: 16, marginTop: 0 }}>
+        <View style={{ flexGrow: 1, paddingTop: 32 }}>
+            <ScreenHeader style={{ paddingHorizontal: 16 }} onBackPressed={navigation.goBack} title={'Dev Tools'} />
+            <KeyboardAvoidingView
+                style={{
+                    flex: 1,
+                    flexGrow: 1,
+                }}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+            >
+                <ScrollView
+                    style={{
+                        flexGrow: 1, flexBasis: 0,
+                        paddingHorizontal: 16, marginTop: 0
+                    }}
+                    contentInset={{
+                        bottom: safeArea.bottom + 44,
+                    }}
+                >
+                    <View style={{
+                        marginBottom: 16, marginTop: 17,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton leftIcon={require('../../../assets/ic_backup.png')} title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
+                        </View>
 
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
+                        </View>
 
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_backup.png')} title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
+                        {!(
+                            Application.applicationId === 'com.tonhub.app.testnet' ||
+                            Application.applicationId === 'com.tonhub.app.debug.testnet' ||
+                            Application.applicationId === 'com.tonhub.wallet.testnet' ||
+                            Application.applicationId === 'com.tonhub.wallet.testnet.debug'
+                        ) && (
+                                <View style={{ marginHorizontal: 16, width: '100%' }}>
+                                    <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
+                                </View>
+                            )}
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
-                    </View>
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp.version ? offlineApp.version : 'Not loaded'} />
+                        </View>
 
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Storage Status"} onPress={() => navigation.navigate('DeveloperToolsStorage')} />
-                    </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
-                    </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
+                        </View>
 
-                    {!(
-                        Application.applicationId === 'com.tonhub.app.testnet' ||
-                        Application.applicationId === 'com.tonhub.app.debug.testnet' ||
-                        Application.applicationId === 'com.tonhub.wallet.testnet' ||
-                        Application.applicationId === 'com.tonhub.wallet.testnet.debug'
-                    ) && (
-                            <View style={{ marginHorizontal: 16, width: '100%' }}>
-                                <ItemButton title={t('devTools.switchNetwork')} onPress={switchNetwork} hint={isTestnet ? 'Testnet' : 'Mainnet'} />
-                            </View>
-                        )}
-                </View>
-                <View style={{
-                    marginTop: 16,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={t('devTools.holdersOfflineApp')} hint={offlineApp ? offlineApp.version : 'Not loaded'} />
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
+                        </View>
                     </View>
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Theme'}
+                                hint={themeStyle}
+                                onPress={() => {
+                                    if (theme.style === ThemeStyle.Light) {
+                                        setThemeStyle(ThemeStyle.Dark);
+                                        return;
+                                    }
 
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={'Offline integrity:'} hint={offlineAppReady ? 'Ready' : 'Not ready'} />
-                    </View>
-
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={t('devTools.holdersOfflineApp') + ' (Prev.)'} hint={prevOfflineVersion ? `Ready: ${prevOfflineVersion.version}` : 'Not ready'} />
-                    </View>
-
-                    {/* <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton title={'Resync Offline App'} dangerZone onPress={async () => {
-                            const app = engine.persistence.holdersOfflineApp.item().value;
-                            if (app) {
-                                engine.products.holders.cleanupPrevOfflineRes(app);
-                            }
-                            engine.persistence.holdersOfflineApp.item().update(() => null);
-                            await engine.products.holders.forceSyncOfflineApp();
-                        }} />
-                    </View> */}
-                </View>
-                <View style={{
-                    marginTop: 16,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={'Theme'}
-                            hint={themeStyle}
-                            onPress={() => {
-                                if (theme.style === ThemeStyle.Light) {
-                                    setThemeStyle(ThemeStyle.Dark);
+                                    setThemeStyle(ThemeStyle.Light);
                                     return;
-                                }
-
-                                setThemeStyle(ThemeStyle.Light);
-                                return;
-                            }}
-                        />
+                                }}
+                            />
+                        </View>
                     </View>
-                </View>
-                <View style={{
-                    marginTop: 16,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={'Language'}
-                            hint={i18n.language}
-                            onPress={async () => {
-                                if (i18n.language === 'en') {
-                                    await i18n.changeLanguage('ru');
-                                    setLang('ru');
-                                } else {
-                                    await i18n.changeLanguage('en');
-                                    setLang('en');
-                                }
-                                setTimeout(() => reboot(), 100);
-                            }}
-                        />
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Language'}
+                                hint={i18n.language}
+                                onPress={async () => {
+                                    if (i18n.language === 'en') {
+                                        await i18n.changeLanguage('ru');
+                                        setLang('ru');
+                                    } else {
+                                        await i18n.changeLanguage('en');
+                                        setLang('en');
+                                    }
+                                    setTimeout(() => reboot(), 100);
+                                }}
+                            />
+                        </View>
                     </View>
-                </View>
-                <View style={{
-                    marginTop: 16,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    overflow: 'hidden',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexShrink: 1,
-                }}>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={'Refetch cards'}
-                            onPress={() => {
-                                cards.refetch();
-                            }}
-                        />
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Refetch cards'}
+                                onPress={() => {
+                                    cards.refetch();
+                                }}
+                            />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Refetch status'}
+                                hint={holdersStatus.data?.state}
+                                onPress={() => {
+                                    holdersStatus.refetch();
+                                }}
+                            />
+                        </View>
                     </View>
-                    <View style={{ marginHorizontal: 16, width: '100%' }}>
-                        <ItemButton
-                            title={'Refetch status'}
-                            hint={holdersStatus.data?.state}
-                            onPress={() => {
-                                holdersStatus.refetch();
-                            }}
-                        />
-                    </View>
-                </View>
-            </ScrollView>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 });

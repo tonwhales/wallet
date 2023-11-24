@@ -1,4 +1,3 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Platform, Pressable, Linking } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -56,7 +55,7 @@ export const BinanceBuyFragment = fragment(() => {
                 alignItems: 'center'
             }}>
                 <Text style={{
-                    color: theme.textColor
+                    color: theme.textPrimary
                 }}>
                     {'Binance Pay service availible only on testnet'}
                 </Text>
@@ -71,7 +70,6 @@ export const BinanceBuyFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <View style={{ width: '100%', flexDirection: 'row' }}>
                 <View style={{ flexGrow: 1 }} />
                 <Pressable

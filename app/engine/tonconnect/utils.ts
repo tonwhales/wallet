@@ -2,13 +2,16 @@ import { ConnectRequest } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
 import { WebViewBridgeMessageType } from './types';
 import { storage } from '../../storage/storage';
+import { getCurrentAddress } from '../../storage/appState';
 
 export function setLastEventId(lastEventId: string) {
-  storage.set('connect_last_event_id', lastEventId);
+  const selected = getCurrentAddress().addressString;
+  storage.set(`${selected}/connect_last_event_id`, lastEventId);
 }
 
 export function getLastEventId() {
-  return storage.getString('connect_last_event_id');
+  const selected = getCurrentAddress().addressString;
+  return storage.getString(`${selected}/connect_last_event_id`);
 }
 
 export function isHexString(str: string): boolean {

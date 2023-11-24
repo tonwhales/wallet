@@ -150,6 +150,17 @@ export type NotificationWithdrawalT = {
     };
 };
 
+export type NotificationWithdrawaAcclT = {
+    type: 'crypto_account_withdraw';
+    id: string;
+    cardId: string;
+    time: number;
+    data: {
+        amount: string;
+        accountId: string;
+    };
+};
+
 export type NotificationFreezeT = {
     type: 'card_freeze';
     id: string;
@@ -192,7 +203,8 @@ export type CardNotification =
     | NotificationCloseAccountT
     | NotificationFreezeT
     | NotificationUnFreezeT
-    | NotificationCommitedT;
+    | NotificationCommitedT
+    | NotificationWithdrawaAcclT;
 
 
 export async function fetchCardsTransactions(
@@ -202,7 +214,7 @@ export async function fetchCardsTransactions(
     cursor?: string | undefined,
     order?: 'asc' | 'desc'
 ) {
-    const res = await axios.post(`https://${holdersEndpoint}/card/events`, {
+    const res = await axios.post(`https://${holdersEndpoint}/v2/card/events`, {
         cardId: id,
         token,
         cursor,
@@ -213,6 +225,7 @@ export async function fetchCardsTransactions(
     if (!res.data.ok) {
         throw Error('Error fetching events');
     }
+
     return {
         hasMore: (res.data.data.more || false) as boolean,
         lastCursor: res.data.data.cursor as string,

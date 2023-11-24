@@ -1,13 +1,16 @@
 import { warn } from "../../utils/log";
 import { BackPolicy, HoldersQueryParams } from "./types";
 
-export function extractHoldersQueryParams(url: string): {
-    closeApp: boolean,
-    openUrl: string | null,
+export type HoldersParams = {
+    closeApp?: boolean,
+    openUrl?: string | null,
     backPolicy: BackPolicy,
-    openEnrollment: boolean,
-    showKeyboardAccessoryView: boolean,
-} {
+    openEnrollment?: boolean,
+    showKeyboardAccessoryView?: boolean,
+    lockScroll?: boolean,
+}
+
+export function extractHoldersQueryParams(url: string): HoldersParams {
     try {
         const query = url.split('?')[1];
         const params = new URLSearchParams(query);
@@ -16,6 +19,7 @@ export function extractHoldersQueryParams(url: string): {
         let backPolicy: BackPolicy = 'close';
         let openEnrollment = false;
         let showKeyboardAccessoryView = false;
+        let lockScroll = undefined;
 
         if (params.has(HoldersQueryParams.CloseApp)) {
             const queryValue = params.get(HoldersQueryParams.CloseApp);
@@ -52,21 +56,25 @@ export function extractHoldersQueryParams(url: string): {
             }
         }
 
+        if (params.has(HoldersQueryParams.LockScroll)) {
+            const queryValue = params.get(HoldersQueryParams.LockScroll);
+            if (queryValue === 'false') {
+                lockScroll = false;
+            } else if (queryValue === 'true') {
+                lockScroll = true;
+            }
+        }
+
         return {
             closeApp,
             openUrl,
-            backPolicy: backPolicy,
+            backPolicy,
             openEnrollment,
             showKeyboardAccessoryView,
+            lockScroll
         }
     } catch (error) {
         warn(error);
-        return {
-            closeApp: false,
-            openUrl: null,
-            backPolicy: 'close',
-            openEnrollment: false,
-            showKeyboardAccessoryView: false,
-        }
+        return { backPolicy: 'close' }
     }
 }

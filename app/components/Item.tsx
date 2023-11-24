@@ -1,13 +1,31 @@
 import * as React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp, TextStyle } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useTheme } from '../engine/hooks';
 
 export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const theme = useTheme();
     return (
-        <Pressable style={({ pressed }) => ({ height: 44, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, backgroundColor: pressed ? theme.background : props.backgroundColor || theme.item, justifyContent: 'center' })} disabled={!props.onPress} onPress={props.onPress}>
-            <Text style={{ fontSize: 18, color: props.onPress ? props.textColor || theme.accentDark : props.textColor || theme.textColor, flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
+        <Pressable
+            style={({ pressed }) => ({
+                height: 44,
+                flexDirection: 'row', alignItems: 'center',
+                paddingHorizontal: 16,
+                backgroundColor: pressed
+                    ? theme.backgroundPrimary
+                    : (props.backgroundColor || theme.surfaceOnBg)
+                , justifyContent: 'center'
+            })}
+            disabled={!props.onPress}
+            onPress={props.onPress}
+        >
+            <Text style={{
+                fontSize: 18,
+                color: props.onPress
+                    ? (props.textColor || theme.accent)
+                    : (props.textColor || theme.textPrimary),
+                flexGrow: 1, flexBasis: 0
+            }}>{props.title}</Text>
             {!!props.hint && (
                 <View style={{ flexGrow: 0, flexShrink: 0, paddingLeft: 8 }}>
                     <Text style={{ height: 24, fontSize: 17, textAlignVertical: 'center', color: theme.textSecondary }}>{props.hint}</Text>
@@ -17,16 +35,57 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
     )
 });
 
-export const ItemSwitch = React.memo((props: { title?: string, value: boolean, onChange: (value: boolean) => void }) => {
+export const ItemSwitch = React.memo((props: {
+    title?: string,
+    value: boolean,
+    onChange: (value: boolean) => void,
+    leftIcon?: ImageSourcePropType,
+    leftIconComponent?: any,
+    titleStyle?: StyleProp<TextStyle>
+}) => {
     const theme = useTheme();
     return (
-        <View style={{ height: 44, paddingHorizontal: 16, backgroundColor: theme.item, alignItems: 'center', flexDirection: 'row' }}>
-            <Text style={{ fontSize: 18, color: theme.textColor, flexGrow: 1, flexBasis: 0 }}>{props.title}</Text>
+        <Pressable
+            onPress={() => {
+                props.onChange(!props.value);
+            }}
+            style={{
+                flexGrow: 1,
+                alignItems: 'center', justifyContent: 'space-between',
+                flexDirection: 'row',
+                padding: 20,
+            }}
+        >
+            <View style={{ flexDirection: 'row', flexShrink: 1, alignItems: 'center' }}>
+                {props.leftIcon && (<Image style={{ height: 24, width: 24, marginRight: 13 }} source={props.leftIcon} />)}
+                {!!props.leftIconComponent && (
+                    <View style={{ height: 24, width: 24, justifyContent: 'center', alignItems: 'center', marginRight: 13 }}>
+                        {props.leftIconComponent}
+                    </View>
+                )}
+                <Text
+                    style={[
+                        {
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '600',
+                            textAlignVertical: 'center',
+                            flexShrink: 1, color: theme.textPrimary, marginRight: 4,
+                        },
+                        props.titleStyle
+                    ]}
+                >
+                    {props.title}
+                </Text>
+            </View>
             <Switch
-                // trackColor={theme.accent}
+                trackColor={{
+                    false: theme.divider,
+                    true: theme.accent,
+                }}
+                thumbColor={(Platform.OS === 'android' && props.value) ? theme.textSecondary : undefined}
                 value={props.value}
                 onValueChange={props.onChange}
             />
-        </View>
+        </Pressable>
     )
 });

@@ -13,7 +13,7 @@ export function useHandleMessage(
     connections: ConnectedAppConnectionRemote[],
     logger: { log: (src: any) => void; warn: (src: any) => void; }
 ) {
-    const [pendingRequests, update] = useConnectPendingRequests();
+    const [, update] = useConnectPendingRequests();
     const findConnectedAppByClientSessionId = useConnectAppByClientSessionId();
 
     return async (event: MessageEvent) => {
@@ -45,22 +45,6 @@ export function useHandleMessage(
             }
 
             const request = parsed as AppRequest<RpcMethod>;
-
-            if (!!pendingRequests.find((r) => r.from === from)) {
-                await sendTonConnectResponse({
-                    response: {
-                        error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-                            message: 'User has already opened previous request',
-                        },
-                        id: request.id.toString(),
-                    },
-                    sessionCrypto,
-                    clientSessionId: from,
-                });
-
-                return;
-            }
 
             const callback = (response: WalletResponse<RpcMethod>) => {
                 sendTonConnectResponse({ response, sessionCrypto, clientSessionId: from });
@@ -110,39 +94,40 @@ export function useHandleMessage(
                     return;
                 }
 
-                const found = pendingRequests.find((item) => item.from === from);
-                if (found) {
-                    callback({
-                        error: {
-                            code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-                            message: `Request already pending`,
-                        },
-                        id: request.id.toString(),
-                    });
-                    return;
-                }
+                update((prev) => {
+                    const temp = [...prev];
 
-                const temp = [...pendingRequests];
+                    const found = temp.find((item) => item.from === from);
 
-                temp.push({
-                    from: from,
-                    id: request.id.toString(),
-                    params: request.params,
-                    method: 'sendTransaction'
+                    if (!!found) {
+                        callback({
+                            error: {
+                                code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
+                                message: `Request already pending`,
+                            },
+                            id: request.id.toString(),
+                        });
+                    } else {
+                        temp.push({
+                            from: from,
+                            id: request.id.toString(),
+                            params: request.params,
+                            method: 'sendTransaction'
+                        });
+                    }
+
+                    return temp;
                 });
-
-                update(temp);
-
-                return;
+            } else {
+                callback({
+                    error: {
+                        code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
+                        message: `Method "${request.method}" is not supported by the wallet app`,
+                    },
+                    id: request.id.toString(),
+                });
             }
 
-            callback({
-                error: {
-                    code: SEND_TRANSACTION_ERROR_CODES.BAD_REQUEST_ERROR,
-                    message: `Method "${request.method}" is not supported by the wallet app`,
-                },
-                id: request.id.toString(),
-            });
         } catch (e) {
             warn('Failed to handle message');
         }

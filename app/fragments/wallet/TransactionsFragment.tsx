@@ -1,181 +1,181 @@
-import React, { } from "react";
-import { Platform, View, Text, Pressable } from "react-native";
+import React, { Suspense, useCallback, useMemo, useState } from "react";
+import { View } from "react-native";
 import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { BlurView } from 'expo-blur';
 import { t } from "../../i18n/t";
-import { RoundButton } from "../../components/RoundButton";
-import LottieView from "lottie-react-native";
-import { useTheme } from '../../engine/hooks';
+import { useHoldersAccounts, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useAccountTransactions } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
-import { usePendingTransactions } from "../../engine/hooks/transactions/usePendingTransactions";
+import { useTrackScreen } from "../../analytics/mixpanel";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { TabHeader } from "../../components/topbar/TabHeader";
+import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
+import { PressableChip } from "../../components/PressableChip";
+import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
 import { PendingTransactions } from "./views/PendingTransactions";
-import { SelectedAccount } from '../../engine/types';
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { Address } from "@ton/core";
+import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
+import { HoldersAccount } from "../../engine/api/holders/fetchCards";
+import { setStatusBarStyle } from "expo-status-bar";
 
-function TransactionsComponent(props: { account: SelectedAccount }) {
+function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
-    const animRef = React.useRef<LottieView>(null);
-    const client = useClient4(useNetwork().isTestnet);
-    const txs = useAccountTransactions(client, props.account.addressString);
+    const { isTestnet } = useNetwork();
+    const address = props.account;
+    const client = useClient4(isTestnet);
+    const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
+    const holdersAccounts = useHoldersAccounts(address).data;
+    const holdersCards = holdersAccounts?.type === 'private'
+        ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()
+        : [];
     const transactions = txs?.data;
-    const address = props.account.address;
 
-    const onReachedEnd = React.useCallback(() => {
-        if (txs?.hasNext) {
+    const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
+
+    const hasTxs = useMemo(() => {
+        return (holdersCards?.length ?? 0) > 0;
+    }, [transactions?.length, holdersCards]);
+
+    const routes = useMemo(() => {
+        return [
+            { key: 'main', title: t('common.mainWallet') },
+            ...(holdersCards ?? []).map((card) => {
+                return {
+                    key: card.id,
+                    title: t('products.holders.card.title', { cardNumber: card.lastFourDigits ?? '' })
+                };
+            }).filter((x) => !!x) as { key: string; title: string; }[]
+        ]
+    }, [holdersCards]);
+
+    const onReachedEnd = useCallback(() => {
+        if (txs?.hasNext && !txs?.loading) {
             txs?.next();
         }
-    }, [txs?.next, txs?.hasNext]);
-
-    if (!transactions) {
-        return (
-            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <LoadingIndicator />
-            </View>
-        );
-    }
+    }, [txs?.next, txs?.hasNext, txs?.loading]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
-            {transactions.length === 0 && (
-                <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1 }}>
-                    <Pressable
-                        onPress={() => {
-                            animRef.current?.play();
-                        }}>
-                        <LottieView
-                            ref={animRef}
-                            source={require('../../../assets/animations/duck.json')}
-                            autoPlay={true}
-                            loop={false}
-                            progress={0.2}
-                            style={{ width: 192, height: 192 }}
+        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
+            <TabHeader title={t('transactions.history')} />
+            <TabView
+                tabBarPosition={'top'}
+                renderTabBar={(props) => {
+                    if (!hasTxs) {
+                        return null;
+                    }
+
+                    return (
+                        <TabBar
+                            {...props}
+                            scrollEnabled={true}
+                            style={{ backgroundColor: theme.transparent, paddingVertical: 8 }}
+                            contentContainerStyle={{ marginLeft: 16 }}
+                            indicatorStyle={{ backgroundColor: theme.transparent }}
+                            renderTabBarItem={(tabItemProps) => {
+                                const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
+                                return (
+                                    <PressableChip
+                                        key={`selector-${tabItemProps.route.key}`}
+                                        onPress={tabItemProps.onPress}
+                                        style={{ backgroundColor: focused ? theme.accent : theme.border }}
+                                        textStyle={{ color: focused ? theme.white : theme.textPrimary, }}
+                                        text={tabItemProps.route.title}
+                                    />
+                                );
+                            }}
                         />
-                    </Pressable>
-                    <Text style={{ fontSize: 16, color: theme.label }}>
-                        {t('wallet.empty.message')}
-                    </Text>
-                    <RoundButton
-                        title={t('wallet.empty.receive')}
-                        size="normal"
-                        display="text"
-                        onPress={() => navigation.navigate('Receive')}
-                    />
-                </View>
-            )}
-            {transactions.length > 0 && (
-                <WalletTransactions
-                    txs={transactions}
-                    address={address}
-                    navigation={navigation}
-                    safeArea={safeArea}
-                    onLoadMore={onReachedEnd}
-                    hasNext={txs.hasNext}
-                    frameArea={frameArea}
-                    loading={txs.loading}
-                    header={<PendingTransactions />}
-                />
-            )}
-            {/* iOS Toolbar */}
-            {
-                Platform.OS === 'ios' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                    }}>
-                        <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
-                        <BlurView style={{
-                            position: 'absolute',
-                            top: 0, left: 0, right: 0, bottom: 0,
-                            paddingTop: safeArea.top,
-                            flexDirection: 'row',
-                            overflow: 'hidden'
-                        }}
-                        >
-                            <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
-                                <Text style={[
-                                    {
-                                        fontSize: 22,
-                                        color: theme.textColor,
-                                        fontWeight: '700',
-                                        position: 'relative'
-                                    }
-                                ]}>
-                                    {t('transactions.history')}
-                                </Text>
-                            </View>
-                        </BlurView>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View >
-                )
-            }
-            {/* Android Toolbar */}
-            {
-                Platform.OS === 'android' && (
-                    <View style={{
-                        position: 'absolute',
-                        top: 0, left: 0, right: 0,
-                        height: safeArea.top + 44,
-                        backgroundColor: theme.background,
-                        paddingTop: safeArea.top,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}>
-                        <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                            <Text style={[
-                                {
-                                    fontSize: 22,
-                                    color: theme.textColor,
-                                    fontWeight: '700',
-                                    position: 'relative'
-                                },
-                            ]}>
-                                {t('transactions.history')}
-                            </Text>
-                        </View>
-                        <View style={{
-                            position: 'absolute',
-                            bottom: 0.5, left: 0, right: 0,
-                            height: 0.5,
-                            width: '100%',
-                            backgroundColor: theme.headerDivider,
-                            opacity: 0.08
-                        }} />
-                    </View>
-                )
-            }
-        </View >
+                    );
+                }}
+                onIndexChange={(index: number) => {
+                    setTab({ prev: tab.current, current: index });
+                }}
+                lazy={true}
+                renderLazyPlaceholder={() => <TransactionsSkeleton />}
+                navigationState={{ index: tab.current, routes }}
+                offscreenPageLimit={2}
+                renderScene={(sceneProps: SceneRendererProps & { route: { key: string; title: string; } }) => {
+                    if (sceneProps.route.key === 'main') {
+                        return (
+                            <WalletTransactions
+                                txs={transactions ?? []}
+                                address={address}
+                                navigation={navigation}
+                                safeArea={safeArea}
+                                onLoadMore={onReachedEnd}
+                                hasNext={txs?.hasNext === true}
+                                frameArea={frameArea}
+                                loading={txs?.loading === true}
+                                ledger={props.isLedger}
+                                header={props.isLedger ? undefined : <PendingTransactions />}
+                            />
+                        )
+                    } else {
+                        return (
+                            <HoldersCardTransactions
+                                key={`card-${sceneProps.route.key}`}
+                                id={sceneProps.route.key}
+                                address={address}
+                            />
+                        )
+                    }
+                }}
+            />
+        </View>
     );
 }
 
 export const TransactionsFragment = fragment(() => {
-    const account = useSelectedAccount();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerTransactions';
+    const ledgerContext = useLedgerTransport();
+    const selected = useSelectedAccount();
+
+    const account = useMemo(() => {
+        if (isLedger) {
+            if (!ledgerContext?.addr) {
+                return undefined;
+            }
+            try {
+                return Address.parse(ledgerContext.addr.address);
+            } catch {
+
+            }
+        } else {
+            return selected?.address;
+        }
+    }, [selected, ledgerContext?.addr]);
+
+    useTrackScreen(isLedger ? 'LedgerHistory' : 'History', isTestnet);
+
+    useFocusEffect(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    });
 
     if (!account) {
         return (
-            <View style={{ flexGrow: 1, flexBasis: 0, justifyContent: 'center', alignItems: 'center' }}>
-                <LoadingIndicator />
+            <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
+                <TabHeader title={t('transactions.history')} />
+                <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <LoadingIndicator />
+                </View>
             </View>
         );
     } else {
         return (
-            <TransactionsComponent account={account} />
+            <Suspense fallback={<TransactionsSkeleton />}>
+                <TransactionsComponent isLedger={isLedger} account={account} />
+            </Suspense>
         )
     }
 }, true);

@@ -4,9 +4,9 @@ import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 
 export function useSaveAppConnection() {
-    const [extensions, update] = useTonConnectExtensions();
+    const [, updateExtensions] = useTonConnectExtensions();
     const setConnections = useSetAppsConnectionsState();
-    return async ({
+    return (async ({
         app,
         connection
     }: {
@@ -14,11 +14,10 @@ export function useSaveAppConnection() {
         connection: ConnectedAppConnection
     }) => {
         let key = extensionKey(app.url);
-        const connected = extensions[key];
-        if (!!connected) {
-            update((doc) => {
-                let temp = { ...doc };
 
+        updateExtensions((doc) => {
+            let temp = { ...doc };
+            if (!!doc[key]) {
                 temp[key].iconUrl = app.iconUrl;
                 temp[key].name = app.name;
                 temp[key].date = Date.now();
@@ -26,11 +25,7 @@ export function useSaveAppConnection() {
                 temp[key].manifestUrl = app.manifestUrl;
 
                 return temp;
-            });
-        } else {
-            await update((doc) => {
-                let temp = { ...doc };
-
+            } else {
                 delete temp[key];
                 temp[key] = {
                     url: app.url,
@@ -42,8 +37,8 @@ export function useSaveAppConnection() {
                 }
 
                 return temp;
-            });
-        }
+            }
+        });
 
         setConnections((prev) => {
             if (prev[key]) {
@@ -57,6 +52,5 @@ export function useSaveAppConnection() {
                 [key]: [connection]
             }
         });
-    }
-
+    });
 }

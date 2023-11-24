@@ -40,7 +40,7 @@ function parseString(slice: Slice) {
     return res;
 }
 
-export function useInjectEngine(domain: string, name: string, isTestnet: boolean) {
+export function useInjectEngine(domain: string, name: string, isTestnet: boolean, url: string) {
     const navigation = useTypedNavigation();
     return React.useMemo(() => {
         const inj = new InjectEngine();
@@ -66,6 +66,7 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
             if (src.payload) {
                 navigation.navigateTransfer({
                     order: {
+                        type: 'order',
                         messages: [{
                             target: src.to.toString({ testOnly: isTestnet }),
                             amount: src.value,
@@ -75,7 +76,8 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                         }],
                         app: {
                             domain,
-                            title: name
+                            title: name,
+                            url
                         }
                     },
                     text: src.text ? src.text : null,
@@ -95,7 +97,8 @@ export function useInjectEngine(domain: string, name: string, isTestnet: boolean
                     back: 1,
                     app: {
                         domain,
-                        title: name
+                        title: name,
+                        url
                     }
                 });
             }

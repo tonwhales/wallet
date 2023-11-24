@@ -22,7 +22,7 @@ export const WalletCreatedFragment = systemFragment(() => {
             flexGrow: 1,
             flexDirection: 'column',
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfaceOnBg,
             paddingHorizontal: 16,
         }}>
             <View style={{ flexGrow: 1 }} />
@@ -39,7 +39,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         marginTop: 20,
                         marginVertical: 16,
                         borderRadius: 14,
-                        backgroundColor: theme.background,
+                        backgroundColor: theme.backgroundPrimary,
                         paddingHorizontal: 16,
                         paddingVertical: 15
                     }}
@@ -56,7 +56,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={loose ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={loose ? theme.accent : theme.unchecked}
+                            color={loose ? theme.accent : theme.iconPrimary}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -79,7 +79,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={share ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={share ? theme.accent : theme.unchecked}
+                            color={share ? theme.accent : theme.iconPrimary}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1
@@ -101,7 +101,7 @@ export const WalletCreatedFragment = systemFragment(() => {
                         <Ionicons
                             name={responsibility ? 'checkmark-circle' : 'ellipse-outline'}
                             size={20}
-                            color={responsibility ? theme.accent : theme.unchecked}
+                            color={responsibility ? theme.accent : theme.iconPrimary}
                             style={{
                                 marginRight: 11,
                                 marginLeft: 1

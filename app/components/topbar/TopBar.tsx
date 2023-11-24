@@ -39,19 +39,19 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                         )}
                         {!!title && (
                             <Text style={[
-                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>
                         )}
                     </View>
-                    <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
+                    <View style={{ backgroundColor: theme.backgroundPrimary, opacity: 0.9, flexGrow: 1 }} />
                     <View style={{
                         position: 'absolute',
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </BlurView>
@@ -66,7 +66,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                     {!!title && (
                         <View style={{ width: '100%', height: 44, alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={[
-                                { fontSize: 17, color: theme.textColor, fontWeight: '600' },
+                                { fontSize: 17, color: theme.textPrimary, fontWeight: '600' },
                             ]}>
                                 {title}
                             </Text>
@@ -81,7 +81,7 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                                 onPress={() => {
                                     navigation.goBack();
                                 }}
-                                background={TouchableNativeFeedback.Ripple(theme.selector, true, 24)}
+                                background={TouchableNativeFeedback.Ripple(theme.surfaceOnElevation, true, 24)}
                                 hitSlop={{ top: 8, left: 8, bottom: 0, right: 8 }}
                             >
                                 <View style={{ width: 28, height: 28, alignItems: 'center', justifyContent: 'center' }}>
@@ -90,13 +90,13 @@ export const TopBar = React.memo(({ title, showBack }: { title?: string, showBac
                             </TouchableNativeFeedback>
                         </View>
                     )}
-                    <View style={{ backgroundColor: theme.background, opacity: 0.9, flexGrow: 1 }} />
+                    <View style={{ backgroundColor: theme.backgroundPrimary, opacity: 0.9, flexGrow: 1 }} />
                     <View style={{
                         position: 'absolute',
                         bottom: 0.5, left: 0, right: 0,
                         height: 0.5,
                         width: '100%',
-                        backgroundColor: theme.headerDivider,
+                        backgroundColor: theme.black,
                         opacity: 0.08
                     }} />
                 </View>

@@ -1,46 +1,48 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersStatus } from '../../engine/hooks';
-import { useTheme } from '../../engine/hooks';
-import { useDomainKey } from '../../engine/hooks';
-import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
+import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
+import { getDomainKey } from '../../engine/state/domainKeys';
+import { StatusBar } from 'expo-status-bar';
 
-export type HoldersAppParams = { type: 'card'; id: string; } | { type: 'account' };
+export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
+    const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
-    const status = useHoldersStatus();
-    const domain = extractDomain(holdersUrl);
-    const domainKey = useDomainKey(domain);
+    const status = useHoldersAccountStatus(selected!.address).data;
 
     const needsEnrollment = useMemo(() => {
         try {
-            if (!domain) {
-                return; // Shouldn't happen
-            }
+            const domain = extractDomain(holdersUrl);
+            const domainKey = getDomainKey(domain);
+
             if (!domainKey) {
                 return true;
             }
-            if (status.state === 'need-enrollment') {
+
+            if (!status) {
+                return true;
+            }
+            if (status.state === HoldersAccountState.NeedEnrollment) {
                 return true;
             }
         } catch (error) {
             return true;
         }
         return false;
-    }, [status, domainKey]);
+    }, [status]);
 
     useEffect(() => {
         if (needsEnrollment) {
@@ -51,21 +53,18 @@ export const HoldersAppFragment = fragment(() => {
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: theme.item
+            paddingTop: safeArea.top,
+            backgroundColor: theme.backgroundPrimary
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-
-            <HoldersAppComponent
-                title={t('products.zenPay.title')}
-                variant={params}
-                token={(
-                    status as { state: 'need-phone', token: string }
-                    | { state: 'need-kyc', token: string }
-                    | { state: 'ready', token: string }
-                ).token}
-                endpoint={holdersUrl}
-            />
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
+            {needsEnrollment ? null : (
+                <HoldersAppComponent
+                    title={t('products.holders.title')}
+                    variant={params}
+                    token={(status as { token: string }).token}
+                    endpoint={holdersUrl}
+                />
+            )}
         </View>
     );
 });

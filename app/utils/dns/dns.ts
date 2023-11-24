@@ -1,4 +1,3 @@
-import BN from "bn.js";
 import { Address, Cell, TupleItem, beginCell } from "@ton/core";
 import { sha256 } from "@ton/crypto";
 import { bytesToHex } from "./bytesToHex";
@@ -175,7 +174,7 @@ function parseNextResolverRecord(cell: Cell) {
     return parseSmartContractAddressImpl(cell, 0xba, 0x93);
 }
 
-async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress: Address, rawDomainBytes: Uint8Array, category?: string, oneStep?: boolean): Promise<Address | Cell | BN | null> {
+async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress: Address, rawDomainBytes: Uint8Array, category?: string, oneStep?: boolean): Promise<Address | Cell | bigint | null> {
     const len = rawDomainBytes.length * 8;
 
     const domainCell = beginCell();

@@ -1,24 +1,21 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, Alert, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano, toNano } from "@ton/core";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
 import { ATextInput } from "../components/ATextInput";
-import { CheckBox } from "../components/CheckBox";
-import { CloseButton } from "../components/CloseButton";
 import { RoundButton } from "../components/RoundButton";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { confirmAlert } from "../utils/confirmAlert";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { ProductButton } from "./wallet/products/ProductButton";
-import SpamIcon from '../../assets/known/spam_icon.svg';
-import { useTheme } from '../engine/hooks';
-import { useDontShowComments } from '../engine/hooks';
-import { useSpamMinAmount } from '../engine/hooks';
-import { useDenyList } from '../engine/hooks';
-import { useRemoveFromDenyList } from "../engine/hooks/spam/useRemoveFromDenyList";
+import { ScreenHeader } from "../components/ScreenHeader";
+import { ItemSwitch } from "../components/Item";
+import { ContactItemView } from "../components/Contacts/ContactItemView";
+import { useDenyList, useDontShowComments, useRemoveFromDenyList, useSpamMinAmount, useTheme } from "../engine/hooks";
+import { Address, fromNano, toNano } from "@ton/core";
+import { confirmAlert } from "../utils/confirmAlert";
+import { StatusBar } from "expo-status-bar";
+
+import IcSpamNonen from '@assets/ic-spam-none.svg';
+import IcInfo from '@assets/ic-info.svg';
 
 export type SpamFilterConfig = {
     minAmount: bigint | null,
@@ -29,37 +26,34 @@ export const SpamFilterFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [dontShow, setDontShow] = useDontShowComments();
-    const [min, setMinAmount] = useSpamMinAmount();
     const denyMap = useDenyList();
-    const denyList = React.useMemo(() => {
+
+    const removeFromDenyList = useRemoveFromDenyList();
+    const [minAmount, updateMinAmount] = useSpamMinAmount();
+    const [dontShow, updateDontshow] = useDontShowComments();
+
+    const denyList = useMemo(() => {
         return Object.keys(denyMap);
     }, [denyMap]);
 
     const [dontShowComments, setDontShowComments] = useState<boolean>(dontShow);
-    const [minValue, setMinValue] = useState<string>(fromNano(min));
-
-    const removeFromDenyList = useRemoveFromDenyList();
+    const [minValue, setMinValue] = useState<string>(fromNano(minAmount));
 
     const onUnblock = useCallback(async (addr: string) => {
         const confirmed = await confirmAlert('spamFilter.unblockConfirm');
-        if (confirmed) {
-            try {
-                let parsed = Address.parseFriendly(addr);
-                removeFromDenyList(parsed.address);
-            } catch {
-                Alert.alert(t('transfer.error.invalidAddress'));
-                return;
-            }
+        if (!confirmed) {
+            return;
         }
-    }, [removeFromDenyList]);
+        try {
+            let parsed = Address.parseFriendly(addr);
+            removeFromDenyList(parsed.address);
+        } catch {
+            Alert.alert(t('transfer.error.invalidAddress'));
+            return;
+        }
+    }, [denyList]);
 
-    const setSpamFilter = useCallback(({ minAmount, dontShowComments }: { minAmount: bigint, dontShowComments: boolean }) => {
-        setMinAmount(minAmount);
-        setDontShowComments(dontShowComments);
-    }, [setDontShow, setMinAmount]);
-
-    const onApply = useCallback(() => {
+    useEffect(() => {
         let value: bigint
         try {
             const validAmount = minValue.replace(',', '.');
@@ -68,179 +62,146 @@ export const SpamFilterFragment = fragment(() => {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
-        setSpamFilter({
-            minAmount: value,
-            dontShowComments: dontShowComments
-        });
-    }, [dontShowComments, minValue, min, denyList, dontShow]);
+        updateMinAmount(value);
+    }, [minValue]);
 
     useEffect(() => {
-        setMinValue(fromNano(min));
-    }, [min]);
-
-    useEffect(() => {
-        setDontShowComments(dontShow);
-    }, [dontShow]);
-
-
-    const hasChanges = useMemo(() => {
-        return (dontShowComments !== dontShow)
-            || (minValue !== fromNano(min));
-    }, [dontShowComments, minValue, min, dontShow]);
+        updateDontshow(dontShowComments);
+    }, [dontShowComments]);
 
     return (
         <View style={{
-            flex: 1,
+            flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 32
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('settings.spamFilter')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('settings.spamFilter')}
-                    </Text>
-                </View>
-            )}
-            <ScrollView>
-                <View style={{
-                    marginBottom: 16, marginTop: 17,
-                    borderRadius: 14,
-                    paddingHorizontal: 16
-                }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            <ScreenHeader
+                title={t('settings.spamFilter')}
+                onClosePressed={navigation.goBack}
+            />
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'height' : undefined}
+            >
+                <ScrollView
+                    style={{ flexGrow: 1 }}
+                    contentInset={{ bottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 32 }}
+                >
                     <View style={{
-                        marginTop: 16,
-                        backgroundColor: theme.item,
+                        marginBottom: 16, marginTop: 22,
                         borderRadius: 14,
-                        justifyContent: 'center',
-                        paddingVertical: 10,
+                        paddingHorizontal: 16
                     }}>
-                        <ATextInput
-                            index={0}
-                            value={minValue}
-                            onValueChange={setMinValue}
-                            placeholder={'0.05'}
-                            keyboardType={'numeric'}
-                            preventDefaultHeight
-                            preventDefaultLineHeight
-                            preventDefaultValuePadding
-                            blurOnSubmit={false}
-                            style={{
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: 0,
-                                paddingVertical: 0,
-                                marginHorizontal: 16
-                            }}
-                            label={
-                                <View style={{
-                                    flexDirection: 'row',
-                                    width: '100%',
-                                    alignItems: 'center',
-                                    justifyContent: 'space-between',
-                                    overflow: 'hidden',
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '500',
-                                        fontSize: 12,
-                                        color: theme.label,
-                                        alignSelf: 'flex-start',
-                                    }}>
-                                        {t('spamFilter.minAmount')}
-                                    </Text>
-                                </View>
-                            }
-                        />
-                        <Text style={{
-                            fontWeight: '500',
-                            fontSize: 12,
-                            color: theme.label,
-                            alignSelf: 'flex-start',
-                            marginTop: 8,
-                            marginHorizontal: 16
-                        }}>
-                            {t('spamFilter.minAmountDescription', { amount: fromNano(min) })}
-                        </Text>
-                        <View style={{ height: 1, marginVertical: 16, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 16 + 24 }} />
-                        <CheckBox
-                            checked={!dontShowComments}
-                            onToggle={() => {
-                                setDontShowComments(!dontShowComments);
-                            }}
-                            text={t('spamFilter.dontShowComments')}
-                            style={{ marginHorizontal: 16 }}
-                        />
-                    </View>
-                    <View style={{ marginTop: 8, backgroundColor: theme.background }} collapsable={false}>
-                        <Text style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginVertical: 8,
-                            color: theme.textColor
-                        }}>
-                            {t('spamFilter.denyList')}
-                        </Text>
                         {denyList.length <= 0 && (
-                            <>
-                                <Text style={{
-                                    fontSize: 16,
-                                    fontWeight: '700',
-                                    marginVertical: 8,
-                                    color: theme.textSecondary
-                                }}>
+                            <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 36 }}>
+                                <IcSpamNonen
+                                    height={68}
+                                    width={68}
+                                    style={{
+                                        height: 68,
+                                        width: 68,
+                                        marginBottom: 32
+                                    }}
+                                />
+                                <Text
+                                    style={{
+                                        fontSize: 32,
+                                        fontWeight: '600',
+                                        marginVertical: 16,
+                                        color: theme.textPrimary,
+                                        textAlign: 'center'
+                                    }}
+                                >
                                     {t('spamFilter.denyListEmpty')}
                                 </Text>
                                 <Text style={{
-                                    fontSize: 16,
-                                    color: theme.priceSecondary,
-                                    marginVertical: 8,
+                                    fontSize: 17,
+                                    color: theme.textSecondary,
+                                    marginTop: 16,
+                                    textAlign: 'center'
                                 }}>
                                     {t('spamFilter.description')}
                                 </Text>
-                            </>
+                            </View>
                         )}
-                    </View>
-                    {denyList.map((d) => {
-                        return (
-                            <ProductButton
-                                key={`blocked-${d}`}
-                                name={d.slice(0, 10) + '...' + d.slice(d.length - 6)}
-                                subtitle={''}
-                                icon={SpamIcon}
-                                value={null}
-                                onPress={() => onUnblock(d)}
-                                style={{ marginVertical: 4, marginHorizontal: 0 }}
+                        <View style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            marginTop: 20,
+                            paddingVertical: 20,
+                            paddingHorizontal: 20,
+                            width: '100%', borderRadius: 20
+                        }}>
+                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                <IcInfo
+                                    height={16} width={16}
+                                    style={{ height: 16, width: 16, marginRight: 12 }}
+                                />
+                                <Text style={{ fontSize: 17, fontWeight: '600', lineHeight: 24, color: theme.textPrimary }}>
+                                    {t('spamFilter.minAmount')}
+                                </Text>
+                            </View>
+                            <ATextInput
+                                value={minValue}
+                                onValueChange={setMinValue}
+                                keyboardType={'numeric'}
+                                style={{
+                                    backgroundColor: theme.backgroundPrimary,
+                                    paddingHorizontal: 16, paddingVertical: 14,
+                                    borderRadius: 16,
+                                }}
+                                inputStyle={{
+                                    fontSize: 17, fontWeight: '400',
+                                    color: theme.textPrimary,
+                                    width: 'auto',
+                                    flexShrink: 1
+                                }}
+                                hideClearButton
+                                prefix={'TON'}
                             />
-                        );
-                    })}
-                </View>
-            </ScrollView>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                keyboardVerticalOffset={16}
-            >
-                <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                    <RoundButton
-                        title={t('common.apply')}
-                        onPress={onApply}
-                        disabled={!hasChanges}
-                        display={!hasChanges ? 'secondary' : 'default'}
-                    />
-                </View>
+                            <Text style={{
+                                fontWeight: '500',
+                                fontSize: 12,
+                                color: theme.textSecondary,
+                                alignSelf: 'flex-start',
+                                marginTop: 4,
+                            }}>
+                                {t('spamFilter.minAmountDescription', { amount: fromNano(minAmount) })}
+                            </Text>
+                        </View>
+                        <View style={{
+                            marginTop: 16,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                        }}>
+                            <ItemSwitch
+                                title={t('spamFilter.dontShowComments')}
+                                value={!dontShowComments}
+                                onChange={() => {
+                                    setDontShowComments(!dontShowComments)
+                                }}
+                                titleStyle={{
+                                    fontSize: 17, fontWeight: '400'
+                                }}
+                            />
+                        </View>
+                        <View style={{ marginTop: 16, paddingBottom: 56 }}>
+                            {denyList.map((d) => {
+                                return (
+                                    <ContactItemView
+                                        key={`contact-${d[0]}`}
+                                        addr={d}
+                                        action={() => onUnblock(d)}
+                                    />
+                                );
+                            })}
+                        </View>
+                    </View>
+                </ScrollView>
             </KeyboardAvoidingView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </View>
     );
 });

@@ -11,11 +11,9 @@ import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { ValueComponent } from '../../components/ValueComponent';
 import { WalletAddress } from '../../components/WalletAddress';
-import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
-import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
@@ -27,6 +25,8 @@ import { useClient4 } from '../../engine/hooks';
 import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2 } from '@ton/ton';
 import { getLastBlock } from '../../engine/accountWatcher';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { StatusBar } from 'expo-status-bar';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -122,11 +122,10 @@ const MigrationProcessFragment = fragment(() => {
 
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
-                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textColor, textAlign: 'center' }}>{status}</Text>
+                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textPrimary, textAlign: 'center' }}>{status}</Text>
             </View>
         </>
     );
@@ -152,22 +151,14 @@ export const MigrationFragment = systemFragment(() => {
     if (!confirm) {
         return (
             <>
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <AndroidToolbar style={{ marginTop: safeArea.top }} />
-                {Platform.OS === 'ios' && (
-                    <View style={{
-                        paddingTop: 12,
-                        paddingBottom: 17
-                    }}>
-                        <Text style={[{
-                            fontWeight: '600',
-                            marginLeft: 17,
-                            fontSize: 17
-                        }, { textAlign: 'center' }]}>{t('migrate.title')}</Text>
-                    </View>
-                )}
+                <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+                <ScreenHeader
+                    title={t('migrate.title')}
+                    onClosePressed={() => navigation.goBack()}
+                    style={Platform.select({ android: { marginTop: safeArea.top } })}
+                />
                 <ScrollView
-                    style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
+                    style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}
                     contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
                     alwaysBounceVertical={false}
                 >
@@ -191,7 +182,7 @@ export const MigrationFragment = systemFragment(() => {
                             textAlign: 'center',
                             marginTop: 26,
                             marginBottom: 10,
-                            color: theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.title')}
@@ -202,7 +193,7 @@ export const MigrationFragment = systemFragment(() => {
                             fontSize: 16,
                             textAlign: 'center',
                             marginBottom: 10,
-                            color: theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.subtitle')}
@@ -210,10 +201,10 @@ export const MigrationFragment = systemFragment(() => {
 
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
-                        marginHorizontal: 16, backgroundColor: theme.item,
+                        marginHorizontal: 16, backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 14,
+                        padding: 16
                     }}>
-
                         {state.accounts.map((v, i) => {
                             if (!v) {
                                 return null;
@@ -221,22 +212,28 @@ export const MigrationFragment = systemFragment(() => {
                             return (
                                 <>
                                     {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
-                                    <View key={v.address.toString()}
+                                    <View
+                                        key={v.address.toString()}
                                         style={{
                                             flexDirection: 'row',
                                             alignSelf: 'flex-start',
                                             height: 40,
                                             alignItems: 'center',
-                                            marginHorizontal: 8
-                                        }}>
+                                            marginHorizontal: 8,
+                                            marginVertical: 4
+                                        }}
+                                    >
                                         <WalletAddress
                                             address={v.address}
-                                            elipsise
+                                            elipsise={{ start: 4, end: 10 }}
                                             value={v?.address.toString({ testOnly: isTestnet })}
                                             style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
                                         />
-                                        <Text>
-                                            <ValueComponent value={v.account.balance.coins} /> TON
+                                        <Text style={{ color: theme.textPrimary }}>
+                                            <ValueComponent
+                                                value={v.data?.balance.coins ?? 0n}
+                                                precision={4}
+                                            /> TON
                                         </Text>
                                     </View>
                                 </>
@@ -253,14 +250,6 @@ export const MigrationFragment = systemFragment(() => {
                         display={s <= BigInt(0) ? 'secondary' : 'default'}
                     />
                 </View>
-                {Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )}
             </>
         );
     }

@@ -1,7 +1,15 @@
 import { StyleProp, Text, TextStyle } from "react-native";
 import { fromBnWithDecimals } from "../utils/withDecimals";
 
-export function ValueComponent(props: { value: bigint | string, centFontStyle?: StyleProp<TextStyle>, precision?: number, decimals?: number | null }) {
+export function ValueComponent(props: {
+    value: bigint | string,
+    fontStyle?: StyleProp<TextStyle>,
+    centFontStyle?: StyleProp<TextStyle>,
+    precision?: number,
+    decimals?: number | null,
+    suffix?: string,
+    prefix?: string,
+}) {
     let t: string;
     t = fromBnWithDecimals(props.value, props.decimals);
 
@@ -39,19 +47,23 @@ export function ValueComponent(props: { value: bigint | string, centFontStyle?: 
     r = parts.join(' ');
 
     const precision = !!props.decimals
-        ? r.length > 2 ? 2 : props.decimals
+        ? r.length > 1 ? 2 : props.decimals
         : props.precision
             ? props.precision
             : r.length > 2 ? 2 : p[1].length
 
     return (
-        <Text>
-            <Text>{r}</Text>
+        <Text style={props.fontStyle}>
+            <Text>
+                {props.prefix}
+                {r}
+            </Text>
             <Text style={[props.centFontStyle]}>
                 .{p[1].substring(
                     0,
-                    precision // Show only the last two decimal places
+                    precision // Show only the last decimal places
                 )}
+                {props.suffix}
             </Text>
         </Text>
     );

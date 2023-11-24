@@ -1,69 +1,107 @@
-import React, { useEffect, useMemo } from "react";
-import { View, Platform, Text, Pressable, ScrollView, NativeSyntheticEvent, Share } from "react-native";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { View, Platform, Text, Pressable, ScrollView, Share, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { CloseButton } from "../../components/CloseButton";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { getAppState } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
-import { Address, fromNano } from "@ton/core";
 import { ValueComponent } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { WalletAddress } from "../../components/WalletAddress";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
-import { StatusBar } from "expo-status-bar";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import ContactIcon from '../../../assets/ic_contacts.svg';
-import CopyIcon from '../../../assets/ic_copy.svg';
-import ExplorerIcon from '../../../assets/ic_explorer.svg';
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
-import ContextMenu, { ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
 import { copyText } from "../../utils/copyText";
 import * as ScreenCapture from 'expo-screen-capture';
-import { useTheme } from '../../engine/hooks';
-import { useSpamMinAmount } from '../../engine/hooks';
-import { useDontShowComments } from '../../engine/hooks';
-import { useDenyAddress } from '../../engine/hooks';
-import { useIsSpamWallet } from '../../engine/hooks';
-import { useNetwork } from '../../engine/hooks';
-import { useSelectedAccount } from '../../engine/hooks';
-import { BigMath } from '../../utils/BigMath';
-import { useContact } from '../../engine/hooks';
-import { StoredTxBody, TransactionDescription, TxBody } from '../../engine/types';
+import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { ItemGroup } from "../../components/ItemGroup";
+import { AddressComponent } from "../../components/address/AddressComponent";
+import { AboutIconButton } from "../../components/AboutIconButton";
+import { useActionSheet } from "@expo/react-native-action-sheet";
+import { useAppState, useContact, useDenyAddress, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useRoute } from "@react-navigation/native";
+import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
+import { TransactionDescription } from "../../engine/types";
+import { BigMath } from "../../utils/BigMath";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { Address, fromNano } from "@ton/core";
+import { StatusBar } from "expo-status-bar";
+import { formatCurrency } from "../../utils/formatCurrency";
 
 export const TransactionPreviewFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerTransactionPreview';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const address = useSelectedAccount()!;
+    const selected = useSelectedAccount()!;
+    const toaster = useToaster();
+    const ledgerContext = useLedgerTransport();
+    const appState = useAppState();
+    const address = useMemo(() => {
+        if (isLedger && !!ledgerContext?.addr?.address) {
+            try {
+                return Address.parse(ledgerContext.addr.address);
+            } catch {
+                return null;
+            }
+        } else {
+            return selected.address;
+        }
+    }, [ledgerContext?.addr?.address, selected]);
+
+    const { showActionSheetWithOptions } = useActionSheet();
+
+    const [walletSettings,] = useWalletSettings(address);
+    const [price, currency] = usePrice();
 
     const params = useParams<{ transaction: TransactionDescription }>();
-    let transaction = params.transaction;
-    let operation = transaction.base.operation;
+    const tx = params.transaction;
+    const operation = tx.base.operation;
+    const kind = tx.base.parsed.kind;
+    const item = operation.items[0];
+    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    const fees = BigInt(tx.base.fees);
+    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} ${formatTime(tx.base.time)}`;
+    dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+    const isOwn = appState.addresses.findIndex((a) => a.addressString === opAddress) >= 0;
 
-    let friendlyAddress = transaction.base.parsed.resolvedAddress;
-    let item = transaction.base.operation.items[0];
-    let jetton = transaction.masterMetadata;
+    const feesPrise = useMemo(() => {
+        if (!price) {
+            return undefined;
+        }
+
+        const isNeg = fees < 0n;
+        const abs = isNeg ? -fees : fees;
+
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currency]).toFixed(3),
+            currency,
+            isNeg
+        );
+    }, [price, currency, fees]);
+
+
+    let jetton = tx.masterMetadata;
     let op: string;
-    if (transaction.op) {
-        op = transaction.op;
+    if (tx.op) {
+        op = tx.op;
         if (op === 'airdrop') {
             op = t('tx.airdrop');
         }
     } else {
-        if (transaction.base.parsed.kind === 'out') {
-            if (transaction.base.parsed.status === 'pending') {
+        if (tx.base.parsed.kind === 'out') {
+            if (tx.base.parsed.status === 'pending') {
                 op = t('tx.sending');
             } else {
                 op = t('tx.sent');
             }
-        } else if (transaction.base.parsed.kind === 'in') {
-            if (transaction.base.parsed.bounced) {
+        } else if (tx.base.parsed.kind === 'in') {
+            if (tx.base.parsed.bounced) {
                 op = '⚠️ ' + t('tx.bounced');
             } else {
                 op = t('tx.received');
@@ -73,84 +111,145 @@ export const TransactionPreviewFragment = fragment(() => {
         }
     }
 
-    const verified = !!transaction.verified
-        || !!KnownJettonMasters(isTestnet)[friendlyAddress];
-
-    let body: StoredTxBody | null = transaction.base.parsed.body;
+    const verified = !!tx.verified
+        || !!KnownJettonMasters(isTestnet)[opAddress];
 
     const txId = useMemo(() => {
-        if (!transaction.base.lt) {
+        if (!tx.base.lt) {
             return null;
         }
-        if (!transaction.base.hash) {
+        if (!tx.base.hash) {
             return null;
         }
-        return transaction.base.lt +
+        return tx.base.lt +
             '_' +
-            transaction.base.hash
-    }, [transaction]);
-
-    const explorerLink = useMemo(() => {
-        if (!txId) {
-            return null;
-        }
-        return isTestnet ? 'https://test.tonwhales.com' : 'https://tonwhales.com'
-            + '/explorer/address/' +
-            address.addressString +
-            '/' + txId
-    }, [txId]);
+            tx.base.hash
+    }, [tx]);
 
     const tonhubLink = useMemo(() => {
         if (!txId) {
             return null;
         }
         return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${address.addressString}/`
-            + `${transaction.base.lt}_${encodeURIComponent(transaction.base.hash)}`
+            + `${selected.addressString}/`
+            + `${tx.base.lt}_${encodeURIComponent(tx.base.hash)}`
     }, [txId]);
 
-    const contact = useContact(friendlyAddress);
+    const contact = useContact(opAddress);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[friendlyAddress]) {
-        known = KnownWallets(isTestnet)[friendlyAddress];
-    } else if (operation.op) {
-        known = { name: t(operation.op.res, operation.op.options) };
-    } else if (!!contact) { // Resolve contact known wallet
+    if (KnownWallets(isTestnet)[opAddress]) {
+        known = KnownWallets(isTestnet)[opAddress];
+    }
+    if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    const isSpam = useDenyAddress(friendlyAddress);
+    const isSpam = useDenyAddress(opAddress);
 
-    let spam = useIsSpamWallet(friendlyAddress)
+    let spam = useIsSpamWallet(opAddress)
         || isSpam
         || (
-            BigMath.abs(BigInt(transaction.base.parsed.amount)) < spamMinAmount
-            && transaction.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[friendlyAddress]
+            BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
+            && tx.base.parsed.body?.type === 'comment'
+            && !KnownWallets(isTestnet)[opAddress]
             && !isTestnet
-        ) && transaction.base.parsed.kind !== 'out';
+        ) && tx.base.parsed.kind !== 'out';
 
-    const onCopy = React.useCallback((text: string) => {
+    const participants = useMemo(() => {
+        const appState = getAppState();
+        const index = isLedger
+            ? 'Ledger'
+            : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
+        if (tx.base.parsed.kind === 'out') {
+            return {
+                from: {
+                    address: address,
+                    name: walletSettings?.name || `${t('common.wallet')} ${index}`
+                },
+                to: {
+                    address: Address.parse(opAddress),
+                    name: known?.name
+                }
+            }
+        }
+
+        return {
+            from: {
+                address: Address.parse(opAddress),
+                name: known?.name
+            },
+            to: {
+                address: address,
+                name: walletSettings?.name || `${t('common.wallet')} ${index}`
+            }
+        }
+    }, [opAddress, walletSettings, tx, known]);
+
+    const onCopy = useCallback((text: string) => {
         copyText(text);
     }, []);
 
-    const handleCommentAction = React.useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-        if (e.nativeEvent.name === t('common.copy')) {
-            if (!operation.comment && body?.type === 'comment' && body.comment) {
-                onCopy(body.comment);
-                return;
-            }
-
-            if (!(body?.type === 'comment' && body.comment) && operation.comment) {
-                onCopy(operation.comment);
-                return;
-            }
+    const onTxIdPress = useCallback(() => {
+        if (!tonhubLink) {
+            return;
         }
-    }, [operation, body]);
+        const options = [
+            t('common.cancel'),
+            t('txActions.view'),
+            t('common.copy'),
+            t('common.share')
+        ];
+        const cancelButtonIndex = 0;
+
+        showActionSheetWithOptions({
+            title: t('common.tx'),
+            message: (txId?.slice(0, 6) + '...' + txId?.slice(-4)) || undefined,
+            options,
+            cancelButtonIndex,
+        }, (selectedIndex?: number) => {
+            switch (selectedIndex) {
+                case 1:
+                    openWithInApp(tonhubLink);
+                    break;
+                case 2:
+                    onCopy(tonhubLink);
+                    toaster.show(
+                        {
+                            message: t('common.copiedAlert'),
+                            type: 'default',
+                            duration: ToastDuration.SHORT,
+                        }
+                    );
+                    break;
+                case 3:
+                    if (Platform.OS === 'ios') {
+                        Share.share({ title: t('receive.share.title'), url: tonhubLink });
+                    } else {
+                        Share.share({ title: t('receive.share.title'), message: tonhubLink });
+                    }
+                    break;
+                case cancelButtonIndex:
+                // Canceled
+                default:
+                    break;
+            }
+        });
+    }, [tonhubLink]);
+
+    const onCopyAddress = useCallback((address: Address) => {
+        onCopy(address.toString({ testOnly: isTestnet }));
+        toaster.show(
+            {
+                message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
+                type: 'default',
+                duration: ToastDuration.SHORT,
+            }
+        );
+    }, []);
 
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
@@ -169,400 +268,336 @@ export const TransactionPreviewFragment = fragment(() => {
         <View style={{
             alignSelf: 'stretch', flexGrow: 1, flexBasis: 0,
             alignItems: 'center',
-            backgroundColor: theme.background,
             paddingTop: Platform.OS === 'android' ? safeArea.top + 24 : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar style={{ position: 'absolute', top: safeArea.top, left: 0 }} pageTitle={op} />
-            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                {Platform.OS === 'ios' && (
-                    <Text style={{ color: theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 17, marginHorizontal: 32 }} numberOfLines={1} ellipsizeMode="tail">
-                        {op}
-                    </Text>
-                )}
-            </View>
-            <Text style={{ color: theme.textSecondary, fontSize: 13, marginTop: Platform.OS === 'ios' ? 6 : 32, marginBottom: spam ? 0 : 8 }}>
-                {`${formatDate(transaction.base.time, 'dd.MM.yyyy')} ${formatTime(transaction.base.time)}`}
-            </Text>
-            {spam && (
-                <View style={{
-                    borderColor: theme.textSecondaryBorder,
-                    borderWidth: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    borderRadius: 4,
-                    marginTop: 13,
-                    paddingHorizontal: 4,
-                    marginBottom: 8
-                }}>
-                    <Text style={{ color: theme.textSecondary, fontSize: 13 }}>{'SPAM'}</Text>
-                </View>
-            )}
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })}
+            />
+            <ScreenHeader
+                onClosePressed={navigation.goBack}
+                title={dateStr}
+            />
             <ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
+                style={{ flexGrow: 1, alignSelf: 'stretch', marginTop: 16 }}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
                 automaticallyAdjustContentInsets={false}
+                contentInset={{ bottom: safeArea.bottom + 16 }}
             >
                 <View style={{
-                    marginTop: 44,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center', alignItems: 'center',
-                    paddingHorizontal: 16, paddingTop: 38, paddingBottom: 16,
-                    width: '100%'
+                    backgroundColor: theme.surfaceOnElevation,
+                    borderRadius: 20,
+                    padding: 20,
+                    width: '100%',
+                    overflow: 'hidden',
+                    justifyContent: 'center', alignItems: 'center'
                 }}>
-                    <View style={{
-                        width: 60, height: 60,
-                        borderRadius: 60, borderWidth: 4, borderColor: theme.item,
-                        alignItems: 'center', justifyContent: 'center',
-                        position: 'absolute', top: -28,
-                    }}>
-                        <Avatar
-                            address={friendlyAddress}
-                            id={friendlyAddress}
-                            size={56}
-                            image={transaction.icon ? transaction.icon : undefined}
-                            spam={spam}
-                            verified={verified}
-                        />
-                    </View>
-                    {transaction.base.parsed.status === 'failed' ? (
-                        <Text style={{ color: theme.failed, fontWeight: '600', fontSize: 16, marginRight: 2 }}>
+                    <View style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
+                    <Avatar
+                        size={68}
+                        id={opAddress}
+                        address={opAddress}
+                        spam={spam}
+                        showSpambadge
+                        verified={verified}
+                        borderWith={2}
+                        borderColor={theme.surfaceOnElevation}
+                        backgroundColor={theme.backgroundPrimary}
+                        markContact={!!contact}
+                        icPosition={'bottom'}
+                        isOwn={isOwn}
+                    />
+                    <Text
+                        style={{
+                            color: theme.textPrimary,
+                            fontWeight: '600', fontSize: 17, lineHeight: 24,
+                            marginTop: (spam || !!contact || verified) ? 16 : 8
+                        }}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                    >
+                        {op}
+                    </Text>
+                    {!!known?.name ? (
+                        <Text
+                            style={{
+                                color: theme.textSecondary,
+                                fontWeight: '400', fontSize: 15, lineHeight: 20,
+                                marginTop: 2
+                            }}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                        >
+                            {known.name}
+                        </Text>
+                    ) : (
+                        !!operation.op && (
+                            <Text
+                                style={{
+                                    color: theme.textSecondary,
+                                    fontWeight: '400', fontSize: 15, lineHeight: 20,
+                                    marginTop: 2
+                                }}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                {t(operation.op.res, operation.op.options)}
+                            </Text>
+                        )
+                    )}
+                    {tx.base.parsed.status === 'failed' ? (
+                        <Text style={{
+                            color: theme.accentRed,
+                            fontWeight: '600',
+                            fontSize: 27,
+                            marginTop: 12
+                        }}>
                             {t('tx.failed')}
                         </Text>
                     ) : (
                         <>
                             <Text
-                                style={{
-                                    color: BigInt(item.amount) >= BigInt(0)
-                                        ? spam
-                                            ? theme.textColor
-                                            : theme.pricePositive
-                                        : '#000000',
-                                    fontWeight: '800',
-                                    fontSize: 36,
-                                    marginRight: 2,
-                                }}
+                                minimumFontScale={0.4}
+                                adjustsFontSizeToFit={true}
                                 numberOfLines={1}
+                                style={{
+                                    color: kind === 'in'
+                                        ? spam
+                                            ? theme.textPrimary
+                                            : theme.accentGreen
+                                        : theme.textPrimary,
+                                    fontWeight: '600',
+                                    fontSize: 27,
+                                    marginTop: 12,
+                                    lineHeight: 32
+                                }}
                             >
                                 <ValueComponent
                                     value={item.amount}
-                                    decimals={item.kind === 'token' ? jetton!.decimals : undefined}
-                                    precision={5}
+                                    decimals={item.kind === 'token' && jetton ? jetton.decimals : undefined}
+                                    precision={9}
+                                    centFontStyle={{ fontSize: 24 }}
+                                    prefix={kind === 'in' ? '+' : ''}
+                                    suffix={item.kind === 'token' && jetton
+                                        ? ' ' + jetton.symbol
+                                        : ' TON'
+                                    }
                                 />
-                                {item.kind === 'token' ? ' ' + jetton!.symbol : ''}
-                                {(item.kind === 'ton' && !isTestnet) ? ' ' + 'TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{
                                         backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
-                                        alignSelf: 'center'
+                                        alignSelf: 'center',
+                                        paddingVertical: 0,
+                                        height: 'auto',
+                                        paddingLeft: 0
                                     }}
-                                    textStyle={{ color: theme.price, fontWeight: '400', fontSize: 16 }}
+                                    prefix={kind === 'in' ? '+' : ''}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17 }}
                                     amount={BigInt(item.amount)}
                                 />
                             )}
                         </>
                     )}
                 </View>
-                {(!!operation.comment && body?.type === 'comment' && body.comment) && !(spam && !dontShowComments) && (
-                    <View style={{
-                        marginTop: 14,
-                        backgroundColor: theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        width: '100%'
-                    }}>
-                        <ContextMenu
-                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
-                            onPress={handleCommentAction}
-                        >
-                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
-                                    {t('common.comment')}
-                                </Text>
-                                <Text
-                                    style={{
-                                        marginTop: 5,
-                                        textAlign: 'left',
-                                        fontWeight: '600',
-                                        fontSize: 16,
-                                        lineHeight: 20
-                                    }}
-                                >
-                                    {body.comment}
-                                </Text>
-                            </View>
-                        </ContextMenu>
-                    </View>
-                )}
-                {(!(body?.type === 'comment' && body.comment) && operation.comment) && !(spam && !dontShowComments) && (
-                    <View style={{
-                        marginTop: 14,
-                        backgroundColor: theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        width: '100%'
-                    }}>
-                        <ContextMenu
-                            actions={[{ title: t('common.copy'), systemIcon: Platform.OS === 'ios' ? 'doc.on.doc' : undefined }]}
-                            onPress={handleCommentAction}
-                        >
-                            <View style={{ paddingVertical: 16, paddingHorizontal: 16 }}>
-                                <Text style={{ fontWeight: '400', color: theme.textSubtitle, fontSize: 12 }}>
-                                    {t('common.comment')}
-                                </Text>
-                                <Text
-                                    style={{
-                                        marginTop: 5,
-                                        textAlign: 'left',
-                                        fontWeight: '400',
-                                        fontSize: 16,
-                                        lineHeight: 20
-                                    }}
-                                >
+                {!(dontShowComments && isSpam) && (!!operation.comment) && (
+                    <ItemGroup style={{ marginTop: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('common.message')}
+                            </Text>
+                            <View style={{ alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
                                     {operation.comment}
                                 </Text>
                             </View>
-                        </ContextMenu>
-                    </View>
+                        </View>
+                    </ItemGroup>
                 )}
-                <View style={{
-                    marginBottom: 16, marginTop: 14,
-                    backgroundColor: theme.item,
-                    borderRadius: 14,
-                    justifyContent: 'center',
-                    width: '100%'
-                }}>
-                    <View style={{ marginTop: 10, marginBottom: 13, paddingHorizontal: 16 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            width: '100%',
-                            alignItems: 'center',
-                            marginBottom: 6
-                        }}>
+                <ItemGroup style={{ marginVertical: 16 }}>
+                    {!!participants.from.address && (
+                        <Pressable
+                            onPress={() => onCopyAddress(participants.from.address!)}
+                            style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
+                        >
                             <Text style={{
-                                marginTop: 5,
-                                fontWeight: '400',
-                                color: theme.textSubtitle,
-                                marginRight: 16, flexGrow: 1,
-                                fontSize: 12
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                color: theme.textSecondary,
                             }}>
-                                {t('common.walletAddress')}
+                                {t('common.from')}
                             </Text>
-                            {!!known && (
-                                <Pressable
-                                    style={({ pressed }) => {
-                                        return [{
-                                            opacity: pressed && contact ? 0.3 : 1,
-                                        }]
-                                    }}
-                                    onPress={() => {
-                                        if (contact) {
-                                            navigation.navigate(
-                                                'Contact',
-                                                { address: friendlyAddress }
-                                            );
-                                        }
-                                    }}
-                                >
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            justifyContent: 'flex-end',
-                                            alignItems: 'center',
-                                            marginTop: 5,
-                                            flex: 1
-                                        }}
-                                    >
-                                        {!contact && (
-                                            <VerifiedIcon
-                                                width={14}
-                                                height={14}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                        )}
-                                        {!!contact && (
-                                            <ContactIcon
-                                                width={14}
-                                                height={14}
-                                                style={{ alignSelf: 'center', marginRight: 4 }}
-                                            />
-                                        )}
+                            <View style={{ alignItems: 'center', flexDirection: 'row', }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {kind === 'in' ? (
+                                        <Text>
+                                            {participants.from.address.toString({ testOnly: isTestnet })}
+                                        </Text>
+                                    ) : (
+                                        <>
+                                            {!!participants.from.name && (
+                                                <Text
+                                                    style={{
+                                                        fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                                        color: theme.textPrimary,
+                                                        flexShrink: 1
+                                                    }}
+                                                    numberOfLines={1}
+                                                    ellipsizeMode={'tail'}
+                                                >
+                                                    {participants.from.name + ' '}
+                                                </Text>
+                                            )}
+                                            <Text style={{ color: !!participants.from.name ? theme.textSecondary : theme.textPrimary, }}>
+                                                <AddressComponent
+                                                    address={participants.from.address}
+                                                    end={4}
+                                                />
+                                            </Text>
+                                        </>
+                                    )}
+                                </Text>
+                            </View>
+                        </Pressable>
+                    )}
+                    {!!participants.to.address && (
+                        <>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
+                            <Pressable
+                                onPress={() => onCopyAddress(participants.to.address!)}
+                                style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
+                            >
+                                <Text style={{
+                                    fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                    color: theme.textSecondary,
+                                }}>
+                                    {t('common.to')}
+                                </Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                    {!!participants.to.name && kind === 'in' && (
                                         <Text
                                             style={{
-                                                fontWeight: '400',
-                                                fontSize: 12,
-                                                color: theme.textSubtitle,
-                                                alignSelf: 'flex-start',
+                                                fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                                color: theme.textPrimary,
+                                                flexShrink: 1, marginRight: 6
                                             }}
                                             numberOfLines={1}
                                             ellipsizeMode={'tail'}
                                         >
-                                            {known.name}
+                                            {participants.to.name}
                                         </Text>
-                                    </View>
-                                </Pressable>
-                            )}
-                        </View>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                            <WalletAddress
-                                address={Address.parse(friendlyAddress)}
-                                textProps={{ numberOfLines: undefined }}
-                                textStyle={{
-                                    textAlign: 'left',
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    lineHeight: 20
-                                }}
-                                spam={spam}
-                                known={!!known}
-                                style={{
-                                    width: undefined,
-                                    marginTop: undefined,
-                                }}
-                                previewBackgroundColor={theme.item}
-                            />
-                            <View style={{ flexGrow: 1 }} />
-                            <Pressable
-                                style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                onPress={() => onCopy(friendlyAddress)}
-                            >
-                                <CopyIcon />
+                                    )}
+                                    <Text style={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                    }}>
+                                        {kind === 'in' ? (
+                                            <AddressComponent
+                                                address={participants.to.address}
+                                                end={4}
+                                            />
+                                        ) : (
+                                            <Text style={{ color: theme.textPrimary }}>
+                                                {participants.to.address.toString({ testOnly: isTestnet })}
+                                            </Text>
+                                        )}
+                                    </Text>
+                                </View>
                             </Pressable>
-                        </View>
-                    </View>
-                    {txId && explorerLink && (
+                        </>
+                    )}
+
+                    {txId && (
                         <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
-                            <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 10, paddingHorizontal: 16 }}>
+                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
+                            <Pressable
+                                onPress={onTxIdPress}
+                                style={({ pressed }) => ({ paddingHorizontal: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', opacity: pressed ? 0.5 : 1 })}
+                            >
                                 <View>
                                     <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 12,
-                                        lineHeight: 14,
-                                        color: theme.textSubtitle
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: theme.textSecondary,
                                     }}>
                                         {t('common.tx')}
                                     </Text>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 16,
-                                        lineHeight: 20,
-                                        marginTop: 6,
-                                        color: theme.textColor,
-                                        justifyContent: 'center',
-                                        alignItems: 'center'
-                                    }}>
-                                        {txId.slice(0, 10) + '...' + txId.slice(txId.length - 6)}
+                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                        {txId.slice(0, 6) + '...' + txId.slice(txId.length - 4)}
                                     </Text>
                                 </View>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                    <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1 }; }}
-                                        onPress={() => openWithInApp(explorerLink)}
-                                    >
-                                        <ExplorerIcon />
-                                    </Pressable>
-                                    <Pressable
-                                        style={({ pressed }) => { return { opacity: pressed ? 0.3 : 1, marginLeft: 24 }; }}
-                                        onPress={() => onCopy(explorerLink)}
-                                    >
-                                        <CopyIcon />
-                                    </Pressable>
-                                </View>
-                            </View>
+                                <Image
+                                    source={require('@assets/ic-explorer.png')}
+                                    style={{
+                                        tintColor: theme.iconPrimary,
+                                        height: 24, width: 24
+                                    }}
+                                />
+                            </Pressable>
                         </>
                     )}
-                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginLeft: 15 }} />
-                    <View style={{ width: '100%', paddingVertical: 10, paddingHorizontal: 16 }}>
-                        <Text style={{
-                            fontWeight: '400',
-                            fontSize: 12,
-                            lineHeight: 14,
-                            color: theme.textSubtitle
-                        }}>
+                </ItemGroup>
+                <View style={{
+                    backgroundColor: theme.surfaceOnElevation,
+                    padding: 20, borderRadius: 20,
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center'
+                }}>
+                    <View>
+                        <Text
+                            style={{
+                                color: theme.textSecondary,
+                                fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                marginBottom: 2
+                            }}>
                             {t('txPreview.blockchainFee')}
                         </Text>
-                        <View style={{
-                            flexDirection: 'row',
-                            marginTop: 6,
-                            alignItems: 'center'
+                        <Text style={{
+                            color: theme.textPrimary,
+                            fontSize: 17, lineHeight: 24, fontWeight: '400'
                         }}>
-                            <Text style={{
-                                fontWeight: '400',
-                                fontSize: 16,
-                                lineHeight: 20,
-                                color: theme.textColor,
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                {fromNano(transaction.base.fees)}
-                                {!isTestnet && (' TON (')}
-                            </Text>
-                            <PriceComponent
-                                amount={BigInt(transaction.base.fees)}
-                                style={{
-                                    backgroundColor: theme.transparent,
-                                    paddingHorizontal: 0,
-                                    paddingVertical: 0,
-                                    justifyContent: 'center',
-                                    height: undefined
-                                }}
-                                textStyle={{ color: theme.textColor, fontSize: 16, lineHeight: 20, fontWeight: '400' }}
-                            />
-                            {!isTestnet && (
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    lineHeight: 20,
-                                    color: theme.textColor,
-                                    justifyContent: 'center',
-                                    alignItems: 'center'
-                                }}>
-                                    {')'}
-                                </Text>
-                            )}
-                        </View>
+                            {tx.base.fees
+                                ? <>
+                                    {`${fromNano(fees)}`}
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {` ${feesPrise}`}
+                                    </Text>
+                                </>
+                                : '...'
+                            }
+                        </Text>
                     </View>
+                    <AboutIconButton
+                        title={t('txPreview.blockchainFee')}
+                        description={t('txPreview.blockchainFeeDescription')}
+                        style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
+                        size={20}
+                    />
                 </View>
             </ScrollView>
-            <View style={{ paddingHorizontal: 16 }}>
-                {transaction.base.parsed.kind === 'out' && (transaction.base.parsed.body === null || transaction.base.parsed.body.type !== 'payload') && (
-                    <View style={{ flexDirection: 'row', width: '100%', marginBottom: 8 }}>
+            {
+                tx.base.parsed.kind === 'out' && (tx.base.parsed.body?.type !== 'payload') && !isLedger && (
+                    <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
                         <RoundButton
                             title={t('txPreview.sendAgain')}
                             style={{ flexGrow: 1 }}
                             onPress={() => navigation.navigateSimpleTransfer({
-                                target: transaction.base.parsed.resolvedAddress,
-                                comment: transaction.base.parsed.body && transaction.base.parsed.body.type === 'comment' ? transaction.base.parsed.body.comment : null,
-                                amount: BigMath.abs(BigInt(transaction.base.parsed.amount)),
+                                target: tx.base.parsed.resolvedAddress,
+                                comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
+                                amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
                                 job: null,
                                 stateInit: null,
                                 jetton: null,
                                 callback: null
                             })}
-                            display={'secondary'}
                         />
                     </View>
-                )}
-                <View style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, }}>
-                    <RoundButton
-                        title={t('common.close')}
-                        style={{ flexGrow: 1 }}
-                        onPress={navigation.goBack}
-                        display={'default'}
-                    />
-                </View>
-            </View>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={navigation.goBack}
-                />
-            )}
-        </View>
+                )
+            }
+        </View >
     );
 });

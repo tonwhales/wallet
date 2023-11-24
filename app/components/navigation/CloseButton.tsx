@@ -1,9 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from "../../engine/hooks/theme/useTheme";
 
-export const CloseButton = React.memo((props: {
+export const CloseButton = memo((props: {
     onPress?: () => void,
     style?: StyleProp<ViewStyle>,
 }) => {
@@ -15,7 +15,7 @@ export const CloseButton = React.memo((props: {
             style={({ pressed }) => [
                 {
                     opacity: pressed ? 0.5 : 1,
-                    backgroundColor: theme.unchecked,
+                    backgroundColor: theme.surfaceOnElevation,
                     borderRadius: 32,
                     height: 32, width: 32,
                     justifyContent: 'center', alignItems: 'center',
@@ -28,11 +28,11 @@ export const CloseButton = React.memo((props: {
         >
             <Image
                 style={{
-                    tintColor: theme.textSecondary,
+                    tintColor: theme.iconNav,
                     height: 24, width: 24,
                     justifyContent: 'center', alignItems: 'center',
                 }}
-                source={require('../../../assets/ic-nav-close.png')}
+                source={require('@assets/ic-nav-close.png')}
             />
         </Pressable>
     )

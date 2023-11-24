@@ -13,34 +13,37 @@ import { createInjectSource, dispatchResponse } from '../../apps/components/inje
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { extractHoldersQueryParams } from '../utils';
+import { HoldersParams, extractHoldersQueryParams } from '../utils';
 import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { getLocales } from 'react-native-localize';
 import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import { OfflineWebView } from './OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import { BackPolicy } from '../types';
 import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import IcHolders from '../../../../assets/ic_holders.svg';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
-import { usePrimaryCurrency } from '../../../engine/hooks';
-import { useHoldersStatus } from '../../../engine/hooks';
+import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
-import { ConfigStore } from '../../../utils/ConfigStore';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
 import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
-import { useDomainKey } from '../../../engine/hooks';
-import { useHoldersCards } from '../../../engine/hooks';
+import { useHoldersAccounts } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
+import { useKeyboard } from '@react-native-community/hooks';
+import { OfflineWebView } from './OfflineWebView';
+
+export function normalizePath(path: string) {
+    return path.replaceAll('.', '_');
+}
+
+import IcHolders from '../../../../assets/ic_holders.svg';
+import { getDomainKey } from '../../../engine/state/domainKeys';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -136,7 +139,7 @@ function HoldersPlaceholder() {
     );
 }
 
-function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'account' }) {
+function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
@@ -151,7 +154,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.item,
+            backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -186,7 +189,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'card' | 'acco
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
                 <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
             </View>
-            {type === 'card' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
+            {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
             {Platform.OS === 'ios' && showClose && (
                 <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
                     <Pressable
@@ -218,49 +221,62 @@ export const HoldersAppComponent = memo((
     const domain = useMemo(() => extractDomain(props.endpoint), []);
 
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
-    const cards = useHoldersCards(acc.address.toString({ testOnly: isTestnet })).data;
-    const domainKey = useDomainKey(domain);
+    const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
+    const domainKey = getDomainKey(domain);
 
     const webRef = useRef<WebView>(null);
     const navigation = useTypedNavigation();
     const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
-    // const stableOfflineV = engine.products.holders.stableOfflineVersion;
+    const keyboard = useKeyboard();
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
     // TODO
-    const useOfflineApp = false;
+    const stableOfflineV = useOfflineApp().stableOfflineV;
 
     const [mainButton, dispatchMainButton] = React.useReducer(
         reduceMainButton(),
         {
             text: '',
-            textColor: theme.item,
+            textColor: theme.surfaceOnBg,
             color: theme.accent,
-            disabledColor: theme.disabled,
+            disabledColor: theme.surfaceOnElevation,
             isVisible: false,
             isActive: false,
             isProgressVisible: false,
             onPress: undefined,
         }
     );
-    const [backPolicy, setBackPolicy] = useState<BackPolicy>('back');
-    const [hideKeyboardAccessoryView, setHideKeyboardAccessoryView] = useState(true);
+
+    const [holdersParams, setHoldersParams] = useState<Omit<HoldersParams, 'openEnrollment' | 'openUrl' | 'closeApp'>>({
+        backPolicy: 'back',
+        showKeyboardAccessoryView: false,
+        lockScroll: true
+    });
 
     const source = useMemo(() => {
         let route = '';
-        if (props.variant.type === 'account') {
-            route = status?.state === HoldersAccountState.Ok ? '/create' : '/';
-        } else if (props.variant.type === 'card') {
-            route = `/card/${props.variant.id}`;
+        if (props.variant.type === 'create') {
+            route = status?.state === HoldersAccountState.Ok ? '/create' : '';
+        } else if (props.variant.type === 'account') {
+            route = `/account/${props.variant.id}`;
         }
 
-        return {
-            url: `${props.endpoint}${route}?lang=${lang}&currency=${currency}`,
-            initialRoute: `${route}?lang=${lang}&currency=${currency}`,
-        };
-    }, [props, lang, currency, status]);
+        const queryParams = new URLSearchParams({
+            lang: lang,
+            currency: currency,
+            theme: 'holders',
+            'theme-style': theme.style === 'dark' ? 'dark' : 'light',
+        });
+
+        const url = `${props.endpoint}${route}?${queryParams.toString()}`;
+        const initialRoute = `${route}?${queryParams.toString()}`;
+
+        queryParams.append('initial-route', route);
+
+        return { url, initialRoute, queryParams: queryParams.toString() };
+    }, [props, lang, currency, status, theme]);
 
     // 
     // Track events
@@ -318,28 +334,34 @@ export const HoldersAppComponent = memo((
 
         let suspended = false;
 
-        if (!!status && typeof (status as any).suspended === 'boolean' ) {
+        if (!!status && typeof (status as any).suspended === 'boolean') {
             suspended = (status as any).suspended;
         }
 
+        // TODO: add accounts state
         const initialState = {
             ...status
                 ? {
-                    account: {
+                    user: {
                         status: {
                             state: status.state,
-                            kycStatus: status.state === HoldersAccountState.NeedKyc ? status.kycStatus : null,
-                            suspended
+                            kycStatus: status.state === 'need-kyc' ? status.kycStatus : null,
+                            suspended: (status as { suspended: boolean | undefined }).suspended === true,
                         },
                         token: status.state === HoldersAccountState.Ok ? status.token : getHoldersToken(acc.address.toString({ testOnly: isTestnet })),
                     }
                 }
                 : {},
-            ...cards ? { cardsList: cards } : {},
+            ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts } : {},
         }
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
+        window['tonhub'] = (() => {
+            const obj = {};
+            Object.freeze(obj);
+            return obj;
+        })();
         `;
 
         if (!domainKey) {
@@ -370,9 +392,9 @@ export const HoldersAppComponent = memo((
             initialInjection,
             true
         );
-    }, []);
+    }, [status, accountsStatus]);
 
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -467,29 +489,36 @@ export const HoldersAppComponent = memo((
             onCloseApp();
             return;
         }
-        setHideKeyboardAccessoryView(!params.showKeyboardAccessoryView);
-        setBackPolicy(params.backPolicy);
-        if (params.openUrl) {
+        setHoldersParams((prev) => {
+            const newValue = {
+                ...prev,
+                ...Object.fromEntries(
+                    Object.entries(params).filter(([, value]) => value !== undefined)
+                )
+            }
+            return newValue;
+        });
+        if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, []);
+    }, [setHoldersParams]);
 
     const onHardwareBackPress = useCallback(() => {
-        if (backPolicy === 'lock') {
+        if (holdersParams.backPolicy === 'lock') {
             return true;
         }
-        if (backPolicy === 'back') {
+        if (holdersParams.backPolicy === 'back') {
             if (webRef.current) {
                 webRef.current.goBack();
             }
             return true;
         }
-        if (backPolicy === 'close') {
+        if (holdersParams.backPolicy === 'close') {
             navigation.goBack();
             return true;
         }
         return false;
-    }, [backPolicy]);
+    }, [holdersParams.backPolicy]);
 
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
@@ -520,68 +549,17 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <View style={{ backgroundColor: theme.item, flex: 1 }}>
-                {useOfflineApp ? ( // TODO
-                    <>
-                        {/* <OfflineWebView
-                            key={`offline-rendered-${offlineRender}`}
-                            ref={webRef}
-                            uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
-                            baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                            initialRoute={source.initialRoute}
-                            style={{
-                                backgroundColor: theme.item,
-                                flexGrow: 1, flexBasis: 0, height: '100%',
-                                alignSelf: 'stretch',
-                                marginTop: Platform.OS === 'ios' ? 0 : 8,
-                            }}
-                            onLoadEnd={onLoadEnd}
-                            onLoadProgress={(event) => {
-                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                    // Searching for supported query
-                                    onNavigation(event.nativeEvent.url);
-                                }
-                            }}
-                            onNavigationStateChange={(event: WebViewNavigation) => {
-                                // Searching for supported query
-                                onNavigation(event.url);
-                            }}
-                            // Locking scroll, it's handled within the Web App
-                            scrollEnabled={false}
-                            contentInset={{ top: 0, bottom: 0 }}
-                            autoManageStatusBarEnabled={false}
-                            decelerationRate="normal"
-                            allowsInlineMediaPlayback={true}
-                            injectedJavaScriptBeforeContentLoaded={injectSource}
-                            onShouldStartLoadWithRequest={loadWithRequest}
-                            // In case of iOS blank WebView
-                            onContentProcessDidTerminate={onContentProcessDidTerminate}
-                            // In case of Android blank WebView
-                            onRenderProcessGone={onContentProcessDidTerminate}
-                            onMessage={handleWebViewMessage}
-                            keyboardDisplayRequiresUserAction={false}
-                            hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                            renderError={(errorDomain, errorCode, errorDesc) => {
-                                return (
-                                    <WebViewErrorComponent
-                                        onReload={onContentProcessDidTerminate}
-                                        errorDomain={errorDomain}
-                                        errorCode={errorCode}
-                                        errorDesc={errorDesc}
-                                    />
-                                )
-                            }}
-                            bounces={false}
-                            startInLoadingState={true}
-                        /> */}
-                    </>
-                ) : (
-                    <WebView
+            <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
+                {!!stableOfflineV ? (
+                    <OfflineWebView
+                        key={`offline-rendered-${offlineRender}`}
                         ref={webRef}
-                        source={{ uri: source.url }}
-                        startInLoadingState={true}
+                        uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
+                        baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
+                        initialRoute={source.initialRoute}
+                        queryParams={source.queryParams}
                         style={{
-                            backgroundColor: theme.item,
+                            backgroundColor: theme.backgroundPrimary,
                             flexGrow: 1, flexBasis: 0, height: '100%',
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
@@ -598,11 +576,9 @@ export const HoldersAppComponent = memo((
                             onNavigation(event.url);
                         }}
                         // Locking scroll, it's handled within the Web App
-                        scrollEnabled={false}
+                        scrollEnabled={!holdersParams.lockScroll}
                         contentInset={{ top: 0, bottom: 0 }}
                         autoManageStatusBarEnabled={false}
-                        allowFileAccessFromFileURLs={false}
-                        allowUniversalAccessFromFileURLs={false}
                         decelerationRate="normal"
                         allowsInlineMediaPlayback={true}
                         injectedJavaScriptBeforeContentLoaded={injectSource}
@@ -613,8 +589,7 @@ export const HoldersAppComponent = memo((
                         onRenderProcessGone={onContentProcessDidTerminate}
                         onMessage={handleWebViewMessage}
                         keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={hideKeyboardAccessoryView}
-                        bounces={false}
+                        hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
                         renderError={(errorDomain, errorCode, errorDesc) => {
                             return (
                                 <WebViewErrorComponent
@@ -625,23 +600,78 @@ export const HoldersAppComponent = memo((
                                 />
                             )
                         }}
+                        bounces={false}
+                        startInLoadingState={true}
                     />
+                ) : (
+                    <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <WebView
+                            ref={webRef}
+                            source={{ uri: source.url }}
+                            startInLoadingState={true}
+                            style={{
+                                backgroundColor: theme.surfaceOnBg,
+                                flexGrow: 1, flexBasis: 0, height: '100%',
+                                alignSelf: 'stretch',
+                                marginTop: Platform.OS === 'ios' ? 0 : 8,
+                            }}
+                            onLoadEnd={onLoadEnd}
+                            onLoadProgress={(event) => {
+                                if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                                    // Searching for supported query
+                                    onNavigation(event.nativeEvent.url);
+                                }
+                            }}
+                            onNavigationStateChange={(event: WebViewNavigation) => {
+                                // Searching for supported query
+                                onNavigation(event.url);
+                            }}
+                            // Locking scroll, it's handled within the Web App
+                            scrollEnabled={!holdersParams.lockScroll}
+                            contentInset={{ top: 0, bottom: 0 }}
+                            autoManageStatusBarEnabled={false}
+                            allowFileAccessFromFileURLs={false}
+                            allowUniversalAccessFromFileURLs={false}
+                            decelerationRate="normal"
+                            allowsInlineMediaPlayback={true}
+                            injectedJavaScriptBeforeContentLoaded={injectSource}
+                            onShouldStartLoadWithRequest={loadWithRequest}
+                            // In case of iOS blank WebView
+                            onContentProcessDidTerminate={onContentProcessDidTerminate}
+                            // In case of Android blank WebView
+                            onRenderProcessGone={onContentProcessDidTerminate}
+                            onMessage={handleWebViewMessage}
+                            keyboardDisplayRequiresUserAction={false}
+                            hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
+                            bounces={false}
+                            renderError={(errorDomain, errorCode, errorDesc) => {
+                                return (
+                                    <WebViewErrorComponent
+                                        onReload={onContentProcessDidTerminate}
+                                        errorDomain={errorDomain}
+                                        errorCode={errorCode}
+                                        errorDesc={errorDesc}
+                                    />
+                                )
+                            }}
+                        />
+                    </Animated.View>
                 )}
                 <WebViewLoader type={props.variant.type} loaded={loaded} />
                 {mainButton && mainButton.isVisible && (
                     <KeyboardAvoidingView
                         style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                         behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: (safeArea.bottom === 0 ? 16 : safeArea.bottom) }}
+                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
                         keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin
+                            ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
                             : undefined
                         }
                     >
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }
-                                : { marginBottom: 16 }
+                                : { marginBottom: 32 }
                             }
                             entering={FadeInDown}
                             exiting={FadeOutDown}

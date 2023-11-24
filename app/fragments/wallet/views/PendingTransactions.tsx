@@ -1,5 +1,6 @@
+import React from "react";
 import { memo } from "react";
-import { TouchableHighlight, View, Text, Image, Platform } from "react-native";
+import { View, Text } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
@@ -9,12 +10,11 @@ import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { t } from "../../../i18n/t";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { useJettonContent } from "../../../engine/hooks/jettons/useJettonContent";
-import { knownAddressLabel } from "./TransactionView";
-import { AddressComponent } from "../../../components/AddressComponent";
-import { formatTime } from "../../../utils/dates";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useContact } from "../../../engine/hooks/contacts/useContact";
+import { AddressComponent } from "../../../components/address/AddressComponent";
+import { Address } from "@ton/core";
+import { PriceComponent } from "../../../components/PriceComponent";
 
 const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean }) => {
     const theme = useTheme();
@@ -35,116 +35,144 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         <Animated.View
             entering={FadeInDown}
             exiting={FadeOutUp}
-            style={[
-                { backgroundColor: theme.item, overflow: 'hidden' },
-                first ? { borderTopStartRadius: 21, borderTopEndRadius: 21 } : {},
-                last ? { borderBottomStartRadius: 21, borderBottomEndRadius: 21 } : {},
-            ]}
+            style={{
+                paddingHorizontal: 16, paddingVertical: 20, paddingBottom: tx.body?.type === 'comment' ? 0 : undefined
+            }}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: 62 }}>
-                <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+            <View style={{
+                alignSelf: 'stretch',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <View style={{
+                    width: 46, height: 46,
+                    borderRadius: 23,
+                    borderWidth: 0, marginRight: 10,
+                    justifyContent: 'center', alignItems: 'center',
+                    backgroundColor: theme.border
+                }}>
                     <PendingTransactionAvatar
+                        kind={'out'}
                         address={targetFriendly}
-                        avatarId={targetFriendly || ''}
+                        avatarId={targetFriendly ?? 'batch'}
                     />
                 </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', marginTop: 10, marginRight: 10 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            flexGrow: 1, flexBasis: 0, marginRight: 16,
-                        }}>
-                            <Text
-                                style={{ color: theme.textColor, fontSize: 16, fontWeight: '600', flexShrink: 1 }}
-                                ellipsizeMode="tail"
-                                numberOfLines={1}>
-                                {t('tx.sending')}
-                            </Text>
-                        </View>
+                <View style={{ flex: 1, marginRight: 4 }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <Text
-                            style={{
-                                color: theme.priceNegative,
-                                fontWeight: '400',
-                                fontSize: 16,
-                                marginRight: 2,
-                            }}>
-                            <ValueComponent
-                                value={tx.amount}
-                                decimals={jettonMaster ? jettonMaster.decimals : undefined}
-                            />
-                            {jettonMaster ? ' ' + jettonMaster.symbol : ''}
+                            style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                            ellipsizeMode={'tail'}
+                            numberOfLines={1}
+                        >
+                            {t('tx.sending')}
                         </Text>
                     </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10 }}>
-                        {targetFriendly
-                            ? (
-                                <Text
-                                    style={{ color: theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                                    ellipsizeMode="middle"
-                                    numberOfLines={1}
-                                >
-                                    {known ?
-                                        knownAddressLabel(known, isTestnet, targetFriendly)
-                                        : <AddressComponent address={targetFriendly} />
-                                    }
-                                </Text>
-                            )
-                            : (
-                                <Text
-                                    style={{ color: theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                                    ellipsizeMode="middle"
-                                    numberOfLines={1}
-                                >
-                                    {t('tx.batch')}
-                                </Text>
-                            )}
-                        {tx.body?.type === 'comment'
-                            ? <Image source={require('../../../../assets/comment.png')} style={{ marginRight: 4, transform: [{ translateY: 1.5 }] }} />
-                            : null
-                        }
-                        <Text style={{ color: theme.textSecondary, fontSize: 12, marginTop: 4 }}>{formatTime(tx.time)}</Text>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
-                    {!last && <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider }} />}
+                    {known ? (
+                        <Text
+                            style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {known.name}
+                        </Text>
+                    ) : (
+                        <Text
+                            style={{ color: theme.textSecondary, fontSize: 15, marginRight: 8, lineHeight: 20, fontWeight: '400', marginTop: 2 }}
+                            ellipsizeMode="middle"
+                            numberOfLines={1}
+                        >
+                            {targetFriendly ? <AddressComponent address={Address.parse(targetFriendly)} /> : t('tx.batch')}
+                        </Text>
+                    )}
+                </View>
+                <View style={{ alignItems: 'flex-end' }}>
+                    <Text
+                        style={{
+                            color: theme.textPrimary,
+                            fontWeight: '600',
+                            lineHeight: 24,
+                            fontSize: 17,
+                            marginRight: 2,
+                        }}
+                        numberOfLines={1}
+                    >
+                        {'-'}
+                        <ValueComponent
+                            value={tx.amount > 0n ? tx.amount : -tx.amount}
+                            decimals={jettonMaster ? jettonMaster.decimals : undefined}
+                            precision={3}
+                        />
+                        {jettonMaster ? ' ' + jettonMaster.symbol : ' TON'}
+                    </Text>
+                    {tx.body?.type !== 'token' && (
+                        <PriceComponent
+                            amount={tx.amount > 0n ? tx.amount : -tx.amount}
+                            prefix={'-'}
+                            style={{
+                                height: undefined,
+                                backgroundColor: theme.transparent,
+                                paddingHorizontal: 0, paddingVertical: 0,
+                                alignSelf: 'flex-end',
+                            }}
+                            textStyle={{
+                                color: theme.textSecondary,
+                                fontWeight: '400',
+                                fontSize: 15, lineHeight: 20
+                            }}
+                        />
+                    )}
                 </View>
             </View>
+            {tx.body?.type === 'comment' && (
+                <View style={{
+                    flexShrink: 1, alignSelf: 'flex-start',
+                    backgroundColor: theme.border,
+                    marginTop: 8,
+                    paddingHorizontal: 10, paddingVertical: 8,
+                    borderRadius: 10, marginLeft: 46 + 10, height: 36
+                }}>
+                    <Text
+                        numberOfLines={1}
+                        ellipsizeMode={'tail'}
+                        style={{ color: theme.textPrimary, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
+                    >
+                        {tx.body.comment}
+                    </Text>
+                </View>
+            )}
         </Animated.View>
     )
 });
 
 export const PendingTransactions = memo(() => {
     const pending = usePendingTransactions();
-    const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     return (
-        <View style={{ marginTop: Platform.OS === 'ios' ? safeArea.top : undefined }}>
+        <View>
             {pending.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}
                     exiting={FadeOutUp}
                     style={{
-                        backgroundColor: theme.background,
+                        backgroundColor: theme.backgroundPrimary,
                         justifyContent: 'flex-end',
                         paddingBottom: 2,
                         paddingTop: 12,
                         marginVertical: 8,
+                        paddingHorizontal: 16
                     }}
                 >
-                    <Text
-                        style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginHorizontal: 16,
-                            marginVertical: 8,
-                            color: theme.textColor
-                        }}
-                    >
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                        lineHeight: 24, color: theme.textPrimary
+                    }}>
                         {t('wallet.pendingTransactions')}
                     </Text>
                 </Animated.View>
             )}
             <View style={{
-                marginHorizontal: 16,
                 overflow: 'hidden',
             }}>
                 {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} first={i === 0} last={i === pending.length - 1} />)}

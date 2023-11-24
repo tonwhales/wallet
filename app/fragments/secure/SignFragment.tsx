@@ -1,26 +1,19 @@
 import { useRoute } from '@react-navigation/native';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View } from 'react-native';
+import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { beginCell, Cell, safeSign } from '@ton/core';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { WalletKeys } from '../../storage/walletKeys';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { CloseButton } from '../../components/CloseButton';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
 import { useTheme } from '../../engine/hooks';
 import { useCommitCommand } from '../../engine/hooks';
 import { useCallback, useEffect } from 'react';
-
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    marginLeft: 17,
-    fontSize: 17
-};
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { StatusBar } from 'expo-status-bar';
 
 export const SignFragment = fragment(() => {
     const theme = useTheme();
@@ -80,33 +73,19 @@ export const SignFragment = fragment(() => {
 
     return (
         <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('sign.title')} />
-            <StatusBar style="dark" />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center' }]}>{t('sign.title')}</Text>
-                </View>
-            )}
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+            <ScreenHeader
+                title={t('sign.title')}
+                onClosePressed={navigation.goBack}
+            />
 
             <View style={{ flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{t('sign.message')}</Text>
-                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textColor, marginBottom: 32 }}>{params.text}</Text>
+                <Text style={{ fontSize: 28, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 8, fontWeight: '500' }}>{params.name}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{t('sign.message')}</Text>
+                <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textPrimary, marginBottom: 32 }}>{params.text}</Text>
                 <Text style={{ fontSize: 18, marginHorizontal: 32, textAlign: 'center', color: theme.textSecondary, marginBottom: 32 }}>{t('sign.hint')}</Text>
                 <RoundButton title={t('sign.action')} action={approve} size="large" style={{ width: 200 }} />
             </View>
-            {/* <SignStateLoader session={params.session} endpoint={params.endpoint || 'connect.tonhubapi.com'} /> */}
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
-                />
-            )}
         </>
     );
 });

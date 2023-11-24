@@ -1,3 +1,4 @@
+import React from "react";
 import { memo, useCallback, useMemo } from "react";
 import { AnimatedProductButton } from "./AnimatedProductButton";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
@@ -9,9 +10,9 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Alert } from "react-native";
 import { t } from "../../../i18n/t";
 import { useRemoveExtension } from "../../../engine/hooks/dapps/useRemoveExtension";
-import { useDomainKey } from "../../../engine/hooks/dapps/useDomainKey";
 import { useTonConnectExtensions } from "../../../engine/hooks/dapps/useTonConnectExtenstions";
 import { useRemoveConnectApp } from "../../../engine/hooks/dapps/useRemoveConnectApp";
+import { getDomainKey } from "../../../engine/state/domainKeys";
 
 export const DappButton = memo(({
     appKey,
@@ -33,7 +34,7 @@ export const DappButton = memo(({
     const appData = useAppData(url);
     const appManifest = useAppManifest(manifestUrl ?? '');
     const domain = extractDomain(url);
-    const domainKey = useDomainKey(domain);
+    const domainKey = getDomainKey(domain);
 
     const removeConnectApp = useRemoveConnectApp();
     const removeExtension = useRemoveExtension();

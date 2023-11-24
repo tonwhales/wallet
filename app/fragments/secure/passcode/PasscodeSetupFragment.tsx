@@ -1,8 +1,6 @@
-import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../../components/CloseButton";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
 import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -16,10 +14,14 @@ import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
 import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
 import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
+import { CloseButton } from "../../../components/navigation/CloseButton";
+import { StatusBar } from "expo-status-bar";
+import { useTheme } from "../../../engine/hooks";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();
     const route = useRoute();
+    const theme = useTheme();
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -63,8 +65,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 ? safeArea.top
                 : undefined,
         }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
             {!init && (<AndroidToolbar />)}
-            <StatusBar style={(Platform.OS === 'ios' && !init) ? 'light' : 'dark'} />
             <PasscodeSetup
                 description={init ? t('security.passcodeSettings.enterNewDescription') : undefined}
                 onReady={onPasscodeConfirmed}

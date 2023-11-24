@@ -1,4 +1,3 @@
-import { AppData, fetchAppData } from "../api/fetchAppData";
 import { AppManifest, fetchManifest } from "../api/fetchManifest";
 import { queryClient } from "../clients";
 import { Queries } from "../queries";

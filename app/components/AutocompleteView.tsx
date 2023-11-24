@@ -32,7 +32,7 @@ function WordComponent(props: {
                     flexBasis: 0,
                     backgroundColor: props.text && props.highlight ? props.theme.divider : undefined
                 }}>
-                    <Text style={{ fontSize: 16 }}>
+                    <Text style={{ fontSize: 16, color: props.theme.textPrimary }}>
                         {props.text}
                     </Text>
                 </View>
@@ -71,7 +71,7 @@ export const AutocompleteView = React.memo((props: {
         <View
             style={{
                 height: height,
-                backgroundColor: theme.item,
+                backgroundColor: theme.surfaceOnBg,
                 flexDirection: 'row',
                 alignSelf: 'stretch',
                 alignItems: 'stretch',

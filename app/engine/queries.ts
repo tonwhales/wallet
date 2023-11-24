@@ -8,15 +8,17 @@ export const Queries = {
             Status: () => ['account', address, 'staking', 'status'],
             Params: () => ['account', address, 'staking', 'params'],
             Member: (member: string) => ['account', address, 'staking', 'member', member],
-            Chart: (member: string) => ['account', address, 'staking', 'chart', member],
         }),
     }),
-    
+    Job: (address: string) => (['job', address]),
+
+    StakingChart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime', member: string) => ['staking', 'chart', pool, fixedPeriod, member, 'askdjsd'],
+
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
         Status: () => ['holders', address, 'status'],
-        Cards: () => ['holders', address, 'cards'],
-        Notifications: (id: string) => ['holders', address, 'notifications', id],
+        Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
+        Notifications: (id: string) => ['holders', address, 'events', id],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
@@ -38,7 +40,7 @@ export const Queries = {
     Apps: (url: string) => ({
         Manifest: () => ['apps', url, 'manifest'],
         AppData: () => ['apps', url, 'appData'],
+        Stats: () => ['apps', url, 'stats'],
     }),
-    Job: () => (['job']),
     APY: () => (['staking', 'apy']),
 }

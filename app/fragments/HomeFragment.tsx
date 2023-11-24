@@ -1,11 +1,8 @@
 import * as React from 'react';
-import { Image, Platform, Pressable, Text, View } from 'react-native';
+import { Image, View } from 'react-native';
 import { fragment } from "../fragment";
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { WalletFragment } from './wallet/WalletFragment';
+import { WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
-import { StatusBar } from 'expo-status-bar';
-import { BlurView } from 'expo-blur';
 import { CachedLinking } from '../utils/CachedLinking';
 import { resolveUrl } from '../utils/resolveUrl';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
@@ -15,35 +12,50 @@ import { useGlobalLoader } from '../components/useGlobalLoader';
 import { backoff } from '../utils/time';
 import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
-import { useTrackScreen } from '../analytics/mixpanel';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
-import { useTheme } from '../engine/hooks';
-import { useNetwork } from '../engine/hooks';
-import { useCurrentJob } from '../engine/hooks';
-import { warn } from '../utils/log';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { ConnectionsFragment } from './connections/ConnectionsFragment';
+import DeviceInfo from 'react-native-device-info';
+import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
+import { Platform } from 'react-native';
+import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks';
+import { fetchJob, useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
+import { parseJob } from '../engine/apps/parseJob';
+import { Cell } from '@ton/core';
+
+const Tab = createBottomTabNavigator();
 
 export const HomeFragment = fragment(() => {
-    const safeArea = useSafeAreaInsets();
+    const network = useNetwork();
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
-    const [tab, setTab] = React.useState(0);
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
-    const linkNavigator = useLinkNavigator(isTestnet);
-    let [currentJob, _] = useCurrentJob();
+    const [tonXRequest,] = useCurrentJob();
+    const [tonconnectRequests,] = useConnectPendingRequests();
+    const linkNavigator = useLinkNavigator(network.isTestnet);
+
+    const [curve, setCurve] = useState<number | undefined>(undefined);
 
     // Subscribe for links
-    React.useEffect(() => {
+    useEffect(() => {
         return CachedLinking.setListener((link: string) => {
             if (link === '/job') {
                 let canceller = loader.show();
                 (async () => {
                     try {
                         await backoff('home', async () => {
-                            let existing = currentJob;
-                            if (!existing) {
+                            let fetchedJob = await fetchJob();
+                            if (!fetchedJob) {
                                 return;
                             }
+                            let jobCell = Cell.fromBoc(Buffer.from(fetchedJob, 'base64'))[0];
+                            let parsed = parseJob(jobCell.beginParse());
+                            if (!parsed) {
+                                return;
+                            }
+
+                            const existing = { ...parsed, jobCell, jobRaw: fetchedJob }
 
                             if (existing.job.type === 'transaction') {
                                 try {
@@ -54,8 +66,9 @@ export const HomeFragment = fragment(() => {
                                 if (existing.job.payload) {
                                     navigation.navigateTransfer({
                                         order: {
+                                            type: 'order',
                                             messages: [{
-                                                target: existing.job.target.toString({ testOnly: isTestnet }),
+                                                target: existing.job.target.toString({ testOnly: network.isTestnet }),
                                                 amount: existing.job.amount,
                                                 amountAll: false,
                                                 payload: existing.job.payload,
@@ -68,7 +81,7 @@ export const HomeFragment = fragment(() => {
                                     });
                                 } else {
                                     navigation.navigateSimpleTransfer({
-                                        target: existing.job.target.toString({ testOnly: isTestnet }),
+                                        target: existing.job.target.toString({ testOnly: network.isTestnet }),
                                         comment: existing.job.text,
                                         amount: existing.job.amount,
                                         stateInit: existing.job.stateInit,
@@ -98,139 +111,131 @@ export const HomeFragment = fragment(() => {
                     }
                 })()
             } else {
-                let resolved = resolveUrl(link, isTestnet);
+                let resolved = resolveUrl(link, network.isTestnet);
                 if (resolved) {
                     try {
                         SplashScreen.hideAsync();
                     } catch (e) {
                         // Ignore
                     }
-                    linkNavigator(resolved).catch((e) => warn('Failed to navigate: ' + e));
+                    linkNavigator(resolved);
                 }
             }
         });
-    }, [currentJob]);
+    }, []);
 
-    if (tab === 0) {
-        useTrackScreen('Wallet', isTestnet);
-    } else if (tab === 1) {
-        useTrackScreen('Transactions', isTestnet);
-    } else if (tab === 2) {
-        useTrackScreen('Settings', isTestnet);
-    }
+    const onBlur = useCallback(() => {
+        // Setting backdrop screens curve to device curve if we are navigating 
+        // to a specefic 'short' modal screen
+        const status = navigation.base.getState();
+        const selectorOrLogout = status.routes.find((r: { key: string, name: string }) => {
+            return r.name === 'AccountSelector' || r.name === 'StakingPoolSelector';
+        });
+        if (selectorOrLogout) {
+            const deviceId = DeviceInfo.getDeviceId();
+            const dCurve = getDeviceScreenCurve(deviceId);
+            setCurve(dCurve);
+        } else {
+            setCurve(undefined);
+        }
+    }, []);
+
+    useLayoutEffect(() => {
+        if (Platform.OS === 'ios') {
+            navigation.base.addListener('blur', onBlur);
+
+            return () => {
+                navigation.base.removeListener('blur', onBlur);
+            }
+        }
+    }, []);
 
     return (
-        <View style={{ flexGrow: 1 }}>
-            <View style={{ flexGrow: 1 }} />
-            <StatusBar style={'dark'} />
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 0 ? 1 : 0 }} pointerEvents={tab === 0 ? 'box-none' : 'none'}>
-                <WalletFragment />
-            </View>
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 1 ? 1 : 0 }} pointerEvents={tab === 1 ? 'box-none' : 'none'}>
-                <TransactionsFragment />
-            </View>
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: tab === 2 ? 1 : 0 }} pointerEvents={tab === 2 ? 'box-none' : 'none'}>
-                <SettingsFragment />
-            </View>
-            <View style={{ height: 52 + safeArea.bottom, }}>
-                {Platform.OS === 'ios' && (
-                    <BlurView
-                        style={{
-                            height: 52 + safeArea.bottom,
-                            paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                            flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        }}
-                    >
-                        <View
-                            style={{
-                                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                                backgroundColor: theme.background,
-                                opacity: 0.9
-                            }}
-                        />
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={tab === 0 ? require('../../assets/ic_home_selected.png') : require('../../assets/ic_home.png')}
-                                style={{ tintColor: tab === 0 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? theme.accent : theme.textSecondary }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? theme.accent : theme.textSecondary }}
-                            >
-                                {t('transactions.history')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? theme.accent : theme.textSecondary }}
-                            >
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </BlurView>
-                )}
-                {Platform.OS === 'android' && (
-                    <View style={{
-                        height: 52 + safeArea.bottom,
-                        paddingBottom: safeArea.bottom, paddingHorizontal: 16,
-                        flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-                        backgroundColor: theme.item
-                    }}>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(0)}>
-                            <Image
-                                source={tab === 0 ? require('../../assets/ic_wallet_selected.png') : require('../../assets/ic_wallet.png')}
-                                style={{ tintColor: tab === 0 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text
-                                style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 0 ? theme.accent : theme.textSecondary }}
-                            >
-                                {t('home.wallet')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(1)}>
-                            <Image
-                                source={tab === 1 ? require('../../assets/ic_history_selected.png') : require('../../assets/ic_history.png')}
-                                style={{ tintColor: tab === 1 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 1 ? theme.accent : theme.textSecondary }}>
-                                {t('transactions.history')}
-                            </Text>
-                        </Pressable>
-                        <Pressable style={{ height: 52, flexGrow: 1, flexBasis: 0, alignItems: 'center', justifyContent: 'center' }} onPress={() => setTab(2)}>
-                            <Image
-                                source={tab === 2 ? require('../../assets/ic_settings_selected.png') : require('../../assets/ic_settings.png')}
-                                style={{ tintColor: tab === 2 ? theme.accent : theme.textSecondary }}
-                            />
-                            <Text style={{ fontSize: 10, fontWeight: '600', marginTop: 5, color: tab === 2 ? theme.accent : theme.textSecondary }}>
-                                {t('home.settings')}
-                            </Text>
-                        </Pressable>
-                    </View>
-                )}
-                <View
-                    style={{
-                        position: 'absolute',
-                        top: 0.5, left: 0, right: 0,
-                        height: 0.5,
-                        width: '100%',
-                        backgroundColor: theme.headerDivider,
-                        opacity: 0.08
-                    }}
-                />
+        <View style={{
+            flexGrow: 1,
+            backgroundColor: theme.black,
+        }}>
+            <View style={{
+                flexGrow: 1,
+                borderTopEndRadius: curve,
+                borderTopStartRadius: curve,
+                overflow: 'hidden'
+            }}>
+                <Tab.Navigator
+                    initialRouteName={'Wallet-Stack'}
+                    screenOptions={({ route }) => ({
+                        headerShown: false,
+                        header: undefined,
+                        unmountOnBlur: false,
+                        freezeOnBlur: route.name === 'Transactions',
+                        tabBarStyle: {
+                            backgroundColor: theme.surfaceOnBg,
+                            borderTopColor: theme.border,
+                        },
+                        tabBarActiveTintColor: theme.accent,
+                        tabBarInactiveTintColor: theme.iconPrimary,
+                        tabBarIcon: ({ focused }) => {
+                            let source = require('@assets/ic-home.png');
+
+                            if (route.name === 'Wallet-Stack') {
+                                if (!!tonXRequest || tonconnectRequests.length > 0) {
+                                    source = focused
+                                        ? require('@assets/ic-home-active-badge.png')
+                                        : require('@assets/ic-home-badge.png');
+                                    return (
+                                        <Image
+                                            source={source}
+                                            style={{ height: 24, width: 24 }}
+                                        />
+                                    )
+                                }
+                            }
+
+                            if (route.name === 'Transactions') {
+                                source = require('@assets/ic-history.png');
+                            }
+
+                            if (route.name === 'Browser') {
+                                source = require('@assets/ic-services.png');
+                            }
+
+                            if (route.name === 'More') {
+                                source = require('@assets/ic-settings.png');
+                            }
+
+                            return (
+                                <Image
+                                    source={source}
+                                    style={{
+                                        tintColor: focused ? theme.accent : theme.iconPrimary,
+                                        height: 24, width: 24
+                                    }}
+                                />
+                            )
+                        }
+                    })}
+                >
+                    <Tab.Screen
+                        options={{ title: t('home.home') }}
+                        name={'Wallet-Stack'}
+                        component={WalletNavigationStack}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.history') }}
+                        name={'Transactions'}
+                        component={TransactionsFragment}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.browser') }}
+                        name={'Browser'}
+                        component={ConnectionsFragment}
+                    />
+                    <Tab.Screen
+                        options={{ title: t('home.more') }}
+                        name={'More'}
+                        component={SettingsFragment}
+                    />
+                </Tab.Navigator>
             </View>
         </View>
     );

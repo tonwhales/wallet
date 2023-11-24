@@ -53,9 +53,11 @@ export function resolveOperation(args: {
                 }
                 let amount = parsedBody.data.amount;
                 items.unshift({ kind: 'token', amount: amount.toString(10) });
-                let body = parseBody(parsedBody.data.forwardPayload);
-                if (body && body.type === 'comment') {
-                    comment = body.comment;
+                if (!!parsedBody.data.forwardPayload) {
+                    let body = parseBody(parsedBody.data.forwardPayload);
+                    if (body && body.type === 'comment') {
+                        comment = body.comment;
+                    }
                 }
             }
         }

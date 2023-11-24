@@ -4,7 +4,7 @@ import { PriceComponent } from "../PriceComponent";
 import TransferToArrow from '../../../assets/ic_transfer_to.svg';
 import Question from '../../../assets/ic_question.svg';
 import { Address, Cell, fromNano } from "@ton/core";
-import { AddressComponent } from "../AddressComponent";
+import { AddressComponent } from "../address/AddressComponent";
 import { ContractMetadata } from "../../engine/metadata/Metadata";
 import { KnownWallet } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
@@ -61,7 +61,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                 }}
             >
                 <Text style={{
-                    color: theme.textSubtitle,
+                    color: theme.textThird,
                     fontSize: 14,
                     marginRight: 14,
                     marginTop: 2,
@@ -76,7 +76,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 17,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     includeFontPadding: false,
                                 }}>
                                     {`${fromNano(amount)} TON`}
@@ -88,7 +88,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                         paddingHorizontal: 0,
                                         marginTop: 4
                                     }}
-                                    textStyle={{ color: theme.textColor, fontWeight: '400', fontSize: 14 }}
+                                    textStyle={{ color: theme.textPrimary, fontWeight: '400', fontSize: 14 }}
                                 />
                             </View>
                         )}
@@ -97,7 +97,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                 <Text style={{
                                     fontWeight: '700',
                                     fontSize: 17,
-                                    color: theme.textColor,
+                                    color: theme.textPrimary,
                                     includeFontPadding: false,
                                 }}>
                                     {`${fromBnWithDecimals(transfer.jettonAmount, transfer.jettonMaster.decimals)} ${transfer.jettonMaster.symbol}`}
@@ -122,7 +122,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                             <Text style={{
                                                 fontWeight: '700',
                                                 fontSize: 17,
-                                                color: theme.textColor,
+                                                color: theme.textPrimary,
                                                 includeFontPadding: false,
                                             }}
                                                 numberOfLines={1}
@@ -133,7 +133,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                         <Text style={{
                                             fontWeight: '400',
                                             fontSize: 14,
-                                            color: theme.labelSecondary,
+                                            color: theme.textSecondary,
                                             marginTop: 4,
                                             includeFontPadding: false,
                                         }}>
@@ -152,7 +152,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                                             alignSelf: 'flex-start',
                                                             flexDirection: 'row',
                                                             borderRadius: 6, borderWidth: 1,
-                                                            borderColor: theme.warningSecondaryBorder,
+                                                            borderColor: theme.warning,
                                                             paddingHorizontal: 8, paddingVertical: 4,
                                                             marginTop: 4,
                                                             justifyContent: 'center', alignItems: 'center',
@@ -163,7 +163,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                                     <Text style={{
                                                         fontSize: 14,
                                                         fontWeight: '400',
-                                                        color: theme.warningSecondary
+                                                        color: theme.warning
                                                     }}>
                                                         {t('transfer.addressNotActive')}
                                                     </Text>
@@ -175,7 +175,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                             <View style={{
                                                 alignSelf: 'flex-start',
                                                 borderRadius: 6, borderWidth: 1,
-                                                borderColor: theme.contactBorder,
+                                                borderColor: theme.accentBlue,
                                                 paddingHorizontal: 8, paddingVertical: 4,
                                                 marginTop: 8
                                             }}>
@@ -191,7 +191,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                         <Text style={{
                                             fontWeight: '700',
                                             fontSize: 17,
-                                            color: theme.textColor,
+                                            color: theme.textPrimary,
                                             includeFontPadding: false,
                                         }}>
                                             <AddressComponent
@@ -209,7 +209,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                                             alignSelf: 'flex-start',
                                                             flexDirection: 'row',
                                                             borderRadius: 6, borderWidth: 1,
-                                                            borderColor: theme.warningSecondaryBorder,
+                                                            borderColor: theme.warning,
                                                             paddingHorizontal: 8, paddingVertical: 4,
                                                             marginTop: 6,
                                                             justifyContent: 'center', alignItems: 'center',
@@ -220,7 +220,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                                                     <Text style={{
                                                         fontSize: 14,
                                                         fontWeight: '400',
-                                                        color: theme.warningSecondary
+                                                        color: theme.warning
                                                     }}>
                                                         {t('transfer.addressNotActive')}
                                                     </Text>
@@ -236,7 +236,7 @@ export const TransferComponent = memo(({ transfer, last, first, index }: {
                     {!!transfer.operation.comment && transfer.operation.comment.length > 0 && (
                         <View style={{ alignItems: 'baseline' }}>
                             <View style={{
-                                backgroundColor: theme.background,
+                                backgroundColor: theme.backgroundPrimary,
                                 padding: 10,
                                 borderRadius: 6,
                                 marginTop: 8,

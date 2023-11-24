@@ -6,15 +6,10 @@ import { getSecureRandomBytes, keyPairFromSeed } from '@ton/crypto';
 import { warn } from '../utils/log';
 import { loadWalletKeys } from './walletKeys';
 import { deriveUtilityKey } from './utilityKeys';
+import { SelectedAccount } from '../engine/types';
 
 export type AppState = {
-    addresses: {
-        address: Address,
-        addressString: string,
-        publicKey: Buffer,
-        secretKeyEnc: Buffer,
-        utilityKey: Buffer
-    }[],
+    addresses: SelectedAccount[],
     selected: number
 }
 
@@ -192,6 +187,14 @@ export function getAppState(): AppState {
     };
 }
 
+export function getCurrentAddressNullable() {
+    const state = getAppState();
+    if (state.selected < 0) {
+        return null;
+    }
+    return state.addresses[state.selected];
+}
+
 export function getCurrentAddress() {
     const state = getAppState();
     if (state.selected < 0) {
@@ -226,8 +229,9 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
     throw Error('No keys');
 }
 
-export function markAddressSecured(src: Address, isTestnet: boolean) {
-    storage.set('backup_' + src.toString({ testOnly: isTestnet }), true);
+export function markAddressSecured(src: Address) {
+    storage.set('backup_' + src.toString({ testOnly: true }), true);
+    storage.set('backup_' + src.toString({ testOnly: false }), true);
 }
 
 export function isAddressSecured(src: Address, isTestnet: boolean) {

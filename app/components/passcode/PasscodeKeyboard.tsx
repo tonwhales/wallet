@@ -1,17 +1,19 @@
-import React, { } from "react"
+import React, { memo } from "react"
 import { View, Pressable } from "react-native"
 import { PasscodeKey, PasscodeKeyButton } from "./PasscodeKeyButton";
+import { useTheme } from "../../engine/hooks";
 
-export const PasscodeKeyboard = React.memo(({
+export const PasscodeKeyboard = memo(({
     onKeyPress,
     leftIcon
 }: {
     onKeyPress: (key: PasscodeKey) => void,
     leftIcon?: any,
 }) => {
+    const theme = useTheme();
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
             <View style={{ flexDirection: 'row' }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.One}
@@ -68,7 +70,11 @@ export const PasscodeKeyboard = React.memo(({
                     <Pressable
                         onPress={() => onKeyPress(PasscodeKey.LeftActionKey)}
                         style={({ pressed }) => {
-                            return { opacity: pressed ? 0.5 : 1, height: 60, width: 100, justifyContent: 'center', alignItems: 'center' }
+                            return {
+                                height: 60, width: 100,
+                                justifyContent: 'center', alignItems: 'center',
+                                backgroundColor: pressed ? theme.border : undefined,
+                            }
                         }}
                     >
                         {leftIcon}

@@ -530,8 +530,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 description_3: 'Вы действительно владеете своими деньгами',
                 moreInfo: 'Подробнее о Holders',
                 buttonSub: 'KYC и выпуск карты занимает ~5 минут',
-                failed: 'Не удалось авторизовать',
-                failedDescription: 'Пожалуйста, попробуйте еще раз или свяжитесь с нами',
+                failed: {
+                    title: 'Не удалось авторизоваться',
+                    noAppData: 'Нет данных приложения',
+                    noDomainKey: 'Отсутствует ключ домена',
+                    createDomainKey: 'Во время создания ключа домена',
+                    fetchToken: 'Во время получения токена',
+                    createSignature: 'Во время создания подписи',
+                }
             }
         },
     },

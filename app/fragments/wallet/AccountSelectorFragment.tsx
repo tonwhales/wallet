@@ -153,6 +153,7 @@ export const AccountSelectorFragment = fragment(() => {
                     {Platform.OS === 'ios' && <Text style={{
                         marginHorizontal: 16,
                         fontSize: 17, lineHeight: 24,
+                        marginBottom: 16,
                         fontWeight: '600',
                         color: theme.textPrimary,
                         marginTop: Platform.OS === 'ios' ? 32 : 0,

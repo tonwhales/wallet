@@ -463,8 +463,6 @@ export const TransferBatch = memo((props: Props) => {
         )
     }
 
-    console.log({ totalJettons: Array.from(totalJettons) })
-
     return (
         <>
             <ScrollView

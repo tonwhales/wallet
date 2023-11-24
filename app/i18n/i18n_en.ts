@@ -528,7 +528,11 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 description_2: 'No one except you has access to your funds',
                 description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
-                buttonSub: 'KYC and card issue takes ~5 min'
+                buttonSub: 'KYC and card issue takes ~5 min',
+                // failed: 'Не удалось авторизовать',
+                failed: 'Failed to authorize',
+                // failedDescription: 'Пожалуйста, попробуйте еще раз или свяжитесь с нами',
+                failedDescription: 'Please try again or contact us',
             }
         }
     },

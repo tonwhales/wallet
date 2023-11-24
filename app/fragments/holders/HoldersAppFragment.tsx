@@ -50,12 +50,6 @@ export const HoldersAppFragment = fragment(() => {
         }
     }, [needsEnrollment]);
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerShown: false
-        });
-    }, [navigation]);
-
     return (
         <View style={{
             flex: 1,

@@ -26,6 +26,7 @@ import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
+import { openWithInApp } from '../../utils/openWithInApp';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
@@ -101,7 +102,17 @@ export const HoldersLandingFragment = fragment(() => {
 
             const res = await enroll();
             if (!res) {
-                Alert.alert(t('auth.failed'));
+                Alert.alert(
+                    t('products.holders.enroll.failed'),
+                    t('products.holders.enroll.failedDescription'),
+                    [
+                        { text: t('common.cancel') },
+                        {
+                            text: t('webView.contactSupport'),
+                            onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                        }
+                    ]
+                );
                 authOpacity.value = 0;
                 setAuth(false)
                 return;
@@ -112,11 +123,20 @@ export const HoldersLandingFragment = fragment(() => {
 
             authOpacity.value = 0;
             setAuth(false);
-        } catch (error) {
+        } catch {
             authOpacity.value = 0;
             setAuth(false);
-            Alert.alert(t('auth.failed'));
-            warn(error);
+            Alert.alert(
+                t('products.holders.enroll.failed'),
+                t('products.holders.enroll.failedDescription'),
+                [
+                    { text: t('common.cancel') },
+                    {
+                        text: t('webView.contactSupport'),
+                        onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                    }
+                ]
+            );
         }
     }, [auth, enroll]);
 

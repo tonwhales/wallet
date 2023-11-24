@@ -38,7 +38,6 @@ export function useHoldersEnroll(
             // Check holders token cloud value
             // 
 
-            
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
             if (existingToken && existingToken.toString().length > 0) {
@@ -52,6 +51,7 @@ export function useHoldersEnroll(
                     let contract = contractFromPublicKey(acc.publicKey);
                     let config = walletConfigFromContract(contract);
                     let signed = createDomainSignature(domain, existingKey);
+
                     let token = await fetchAccountToken({
                         address: contract.address.toString({ testOnly: isTestnet }),
                         walletConfig: config.walletConfig,
@@ -62,8 +62,7 @@ export function useHoldersEnroll(
                     }, isTestnet);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
-                } catch (e) {
-                    console.warn(e);
+                } catch {
                     deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }));
                     throw Error('Failed to create signature and fetch token');
                 }

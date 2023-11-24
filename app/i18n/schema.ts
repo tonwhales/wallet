@@ -530,7 +530,9 @@ export type LocalizationSchema = {
                 description_2: string,
                 description_3: string,
                 moreInfo: string,
-                buttonSub: string
+                buttonSub: string,
+                failed: string,
+                failedDescription: string,
             }
         }
     }

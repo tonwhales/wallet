@@ -33,7 +33,7 @@ const accountPublicSchema = z.object({
   network: networksSchema,
 });
 
-export const accoutnsListPublicSchema = z.union([
+export const accountsListPublicSchema = z.union([
   z.object({
     ok: z.literal(true),
     accounts: z.array(accountPublicSchema),
@@ -49,7 +49,7 @@ export async function fetchAccountsPublic(address: string | Address, isTestnet: 
     'https://' + holdersEndpoint + '/v2/public/accounts',
     {
       walletKind: 'tonhub',
-      network: isTestnet ? 'ton:testnet' : 'ton:mainnet',
+      network: isTestnet ? 'ton-testnet' : 'ton-mainnet',
       address: (address instanceof Address) ? address.toString({ testOnly: isTestnet }) : address
     },
     {
@@ -66,7 +66,7 @@ export async function fetchAccountsPublic(address: string | Address, isTestnet: 
     return null;
   }
 
-  if (!accoutnsListPublicSchema.safeParse(res.data).success) {
+  if (!accountsListPublicSchema.safeParse(res.data).success) {
     throw Error("Invalid public card list response");
   }
 

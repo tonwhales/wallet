@@ -15,7 +15,7 @@ export async function fetchAccountToken(config: {
     }
 }, isTestnet: boolean): Promise<string> {
     let res = await axios.post(
-        'https://' + holdersEndpoint +'/account/connect',
+        'https://' + holdersEndpoint +'/v2/user/wallet/connect',
         {
             stack: 'ton',
             network: isTestnet ? 'ton-testnet' : 'ton-mainnet',

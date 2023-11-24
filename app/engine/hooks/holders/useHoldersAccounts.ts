@@ -29,6 +29,7 @@ export function useHoldersAccounts(address: string | Address) {
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         refetchInterval: 35000,
+        staleTime: 35000,
         queryFn: async () => {
             let accounts;
             let type = 'public';

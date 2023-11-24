@@ -524,12 +524,14 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 message: 'Это отменит все ваши изменения'
             },
             enroll: {
-                poweredBy: 'Based on TON, powered by ZenPay',
+                poweredBy: 'Based on TON, powered by Holders',
                 description_1: 'Только вы управляете смарт-контрактом',
                 description_2: 'Никто, кроме вас, не имеет доступа к вашим средствам',
                 description_3: 'Вы действительно владеете своими деньгами',
-                moreInfo: 'Подробнее о ZenPay Card',
-                buttonSub: 'KYC и выпуск карты занимает ~5 минут'
+                moreInfo: 'Подробнее о Holders',
+                buttonSub: 'KYC и выпуск карты занимает ~5 минут',
+                failed: 'Не удалось авторизовать',
+                failedDescription: 'Пожалуйста, попробуйте еще раз или свяжитесь с нами',
             }
         },
     },

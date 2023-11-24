@@ -41,12 +41,12 @@ export const ProductsFragment = fragment(() => {
                     'HoldersLanding',
                     {
                         endpoint: holdersUrl,
-                        onEnrollType: { type: 'account' }
+                        onEnrollType: { type: 'create' }
                     }
                 );
                 return;
             }
-            navigation.navigate('Holders', { type: 'account' });
+            navigation.navigate('Holders', { type: 'create' });
         },
         [needsEnrolment],
     );

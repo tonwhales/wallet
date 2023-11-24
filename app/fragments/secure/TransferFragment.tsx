@@ -78,7 +78,8 @@ export type ConfirmLoadedProps = {
         messages: OrderMessage[],
         app?: {
             domain: string,
-            title: string
+            title: string,
+            url: string
         }
     },
     fees: bigint,

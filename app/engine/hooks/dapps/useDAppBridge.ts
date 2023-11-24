@@ -197,6 +197,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                 app: app ? {
                                     title: app.name,
                                     domain: extractDomain(app.url),
+                                    url: app.url
                                 } : undefined
                             },
                             job: null,

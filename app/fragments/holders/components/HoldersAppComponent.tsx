@@ -394,7 +394,7 @@ export const HoldersAppComponent = memo((
         );
     }, [status, accountsStatus]);
 
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 

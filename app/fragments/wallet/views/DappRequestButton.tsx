@@ -131,6 +131,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
                         app: (prepared.app && prepared.app) ? {
                             title: prepared.app.name,
                             domain: extractDomain(prepared.app.url),
+                            url: prepared.app.url,
                         } : undefined
                     },
                     job: null,

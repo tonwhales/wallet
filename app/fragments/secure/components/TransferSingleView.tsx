@@ -114,13 +114,6 @@ export const TransferSingleView = memo(({
         });
     }, []);
 
-    const feesAlert = useCallback(() => {
-        navigation.navigateAlert({
-            title: t('transfer.aboutFees', { amount: fromNano(fees) }),
-            message: t('transfer.aboutFeesDescription')
-        });
-    }, []);
-
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
         navigation.navigateAlert({
@@ -404,7 +397,7 @@ export const TransferSingleView = memo(({
                                         {t('transfer.purpose')}
                                     </Text>
                                     <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary, textAlign: 'right' }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary, textAlign: 'right' }}>
                                             {t(operation.op.res, operation.op.options)}
                                         </Text>
                                     </View>
@@ -414,20 +407,24 @@ export const TransferSingleView = memo(({
                         {!!jettonAmountString && (
                             <>
                                 <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                                <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                        color: theme.textSecondary,
-                                    }}>
-                                        {t('transfer.gasFee')}
-                                    </Text>
-                                    <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
-                                        <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                            {fromNano(amount) + ' TON'}
+                                <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                        }}>
+                                            {t('transfer.gasFee')}
                                         </Text>
+                                        <View style={{ alignItems: 'flex-end', flexShrink: 1, marginLeft: 8 }}>
+                                            <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                                {fromNano(amount) + ' TON'}
+                                            </Text>
+                                        </View>
                                     </View>
 
-                                    {(amount > toNano('0.2')) && (
+                                    {/* {(amount > toNano('0.2')) && ( */}
+                                    {(amount > toNano('0.0001')) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}
                                             style={({ pressed }) => {
@@ -458,21 +455,23 @@ export const TransferSingleView = memo(({
                             </>
                         )}
                     </ItemGroup>
-                    <ItemGroup style={{ marginBottom: 16 }}>
-                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
-                            <Text style={{
-                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                color: theme.textSecondary,
-                            }}>
-                                {t('common.message')}
-                            </Text>
-                            <View style={{ alignItems: 'flex-start' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
-                                    {text}
+                    {text && text.length > 0 && (
+                        <ItemGroup style={{ marginBottom: 16 }}>
+                            <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                                <Text style={{
+                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                    color: theme.textSecondary,
+                                }}>
+                                    {t('common.message')}
                                 </Text>
+                                <View style={{ alignItems: 'flex-start' }}>
+                                    <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                        {text}
+                                    </Text>
+                                </View>
                             </View>
-                        </View>
-                    </ItemGroup>
+                        </ItemGroup>
+                    )}
                     <View style={{
                         backgroundColor: theme.surfaceOnElevation,
                         padding: 20, borderRadius: 20,

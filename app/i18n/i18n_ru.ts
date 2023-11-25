@@ -456,7 +456,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             }
         },
         holders: {
-            title: 'Tonhub Bank card',
+            title: 'Банковский счет',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',

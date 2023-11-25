@@ -455,7 +455,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         holders: {
-            title: 'Tonhub Bank card',
+            title: 'Bank account',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',

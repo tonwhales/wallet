@@ -41,7 +41,7 @@ export function useHoldersAccounts(address: string | Address) {
                 type = 'public';
             }
 
-            const filtered = accounts?.filter((a) => a.cryptoCurrency.ticker === 'TON');
+            const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
 
             return { accounts: filtered, type };
         },

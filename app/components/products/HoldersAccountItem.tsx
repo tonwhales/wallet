@@ -59,7 +59,7 @@ export const HoldersAccountItem = memo((props: {
 
     const title = props.account?.name
         ? props.account.name
-        : t('products.holders.card.defaultTitle');
+        : t('products.holders.title');
     const subtitle = props.account
         ? `${t('products.holders.card.card')} ${props.account.cards.map((card, index) => card.lastFourDigits).join(', ')}`
         : t('products.holders.card.defaultSubtitle');

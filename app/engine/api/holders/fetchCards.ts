@@ -24,7 +24,7 @@ const accountPublicSchema = z.object({
   id: z.string(),
   address: z.nullable(z.string()),
   state: z.string(),
-  name: z.string(),
+  name: z.string().nullable().optional(),
   balance: z.string(),
   partner: z.string(),
   tzOffset: z.number(),

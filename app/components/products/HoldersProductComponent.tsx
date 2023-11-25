@@ -1,14 +1,13 @@
 import React, { memo, useMemo } from "react"
 import { HoldersAccountItem } from "./HoldersAccountItem";
 import { View } from "react-native";
-import { useHoldersAccountStatus, useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount } from "../../engine/hooks";
+import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount } from "../../engine/hooks";
 
 import Hide from '@assets/ic-hide.svg';
 
 export const HoldersProductComponent = memo(() => {
     const network = useNetwork();
     const selected = useSelectedAccount();
-    const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
     const [hiddenCards, markCard] = useHoldersHiddenAccounts(selected!.address);
     const visibleList = useMemo(() => {
@@ -21,7 +20,7 @@ export const HoldersProductComponent = memo(() => {
         return null;
     }
 
-    if (accounts?.length === 0) {
+    if (!accounts || accounts?.length === 0) {
         return null;
     }
 

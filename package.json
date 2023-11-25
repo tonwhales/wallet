@@ -16,6 +16,7 @@
     "@babel/plugin-proposal-private-methods": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@craftzdog/react-native-buffer": "^6.0.5",
+    "@dedust/sdk": "^0.8.6",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@ledgerhq/hw-transport": "^6.28.8",
     "@ledgerhq/react-native-hid": "^6.30.0",

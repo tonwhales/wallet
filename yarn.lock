@@ -1567,6 +1567,11 @@
     ieee754 "^1.2.1"
     react-native-quick-base64 "^2.0.5"
 
+"@dedust/sdk@^0.8.6":
+  version "0.8.6"
+  resolved "https://registry.yarnpkg.com/@dedust/sdk/-/sdk-0.8.6.tgz#55b201ad051e4595b0f9763ee267e1b12d42eb3f"
+  integrity sha512-EfFZLRhEMxqZqtXQvHRbFDwlGjmWFhaB1LaZRH6Uj19y2j7S0e5HPbbq6g43x0UInwUJsw7l7JJeOn17pdtYUg==
+
 "@egjs/hammerjs@^2.0.17":
   version "2.0.17"
   resolved "https://registry.yarnpkg.com/@egjs/hammerjs/-/hammerjs-2.0.17.tgz#5dc02af75a6a06e4c2db0202cae38c9263895124"

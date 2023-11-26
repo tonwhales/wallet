@@ -169,7 +169,7 @@ const cryptoCurrencyTicker = z.union([
 
 const accountSchema = z.object({
   id: z.string(),
-  address: z.string(),
+  address: z.string().optional().nullable(),
   name: z.string().nullable().optional(),
   seed: z.string().nullable(),
   state: z.string(),
@@ -227,7 +227,9 @@ export async function fetchCardsList(token: string) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  if (!accountsListResCodec.safeParse(res.data).success) {
+  let parseResult = accountsListResCodec.safeParse(res.data);
+  if (!parseResult.success) {
+    console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid card list response");
   }
 

@@ -25,9 +25,11 @@ import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
 import * as Sentry from '@sentry/react-native';
 
-Sentry.init({
-  dsn: 'https://11b74fcdccf8b7578f81eb424b1f999d@o4504887465869312.ingest.sentry.io/4506297188220928',
-});
+if (!__DEV__) {
+  Sentry.init({
+    dsn: 'https://11b74fcdccf8b7578f81eb424b1f999d@o4504887465869312.ingest.sentry.io/4506297188220928',
+  });
+}
 
 const style = getThemeStyleState();
 const scheme = Appearance.getColorScheme();

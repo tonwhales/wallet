@@ -142,6 +142,7 @@
     "@babel/core": "^7.12.9",
     "@babel/runtime": "^7.16.5",
     "@react-native/metro-config": "0.72.11",
+    "@sentry/cli": "^2.22.2",
     "@tsconfig/react-native": "^3.0.2",
     "@types/bn.js": "^5.1.0",
     "@types/color": "^3.0.3",

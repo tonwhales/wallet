@@ -479,6 +479,13 @@ PODS:
     - React-Core
   - react-native-pager-view (6.2.2):
     - React-Core
+  - react-native-quick-base64 (2.0.7):
+    - React-Core
+  - react-native-quick-crypto (0.6.1):
+    - OpenSSL-Universal
+    - React
+    - React-callinvoker
+    - React-Core
   - react-native-safe-area-context (4.6.3):
     - RCT-Folly
     - RCTRequired
@@ -768,6 +775,8 @@ DEPENDENCIES:
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
+  - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
+  - react-native-quick-crypto (from `../node_modules/react-native-quick-crypto`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-segmented-control (from `../node_modules/@react-native-segmented-control/segmented-control`)"
   - "react-native-skia (from `../node_modules/@shopify/react-native-skia`)"
@@ -949,6 +958,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-mmkv"
   react-native-pager-view:
     :path: "../node_modules/react-native-pager-view"
+  react-native-quick-base64:
+    :path: "../node_modules/react-native-quick-base64"
+  react-native-quick-crypto:
+    :path: "../node_modules/react-native-quick-crypto"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-segmented-control:
@@ -1101,6 +1114,8 @@ SPEC CHECKSUMS:
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-pager-view: 02a5c4962530f7efc10dd51ee9cdabeff5e6c631
+  react-native-quick-base64: a5dbe4528f1453e662fcf7351029500b8b63e7bb
+  react-native-quick-crypto: 455c1b411db006dba1026a30681ececb19180187
   react-native-safe-area-context: 36cc67648134e89465663b8172336a19eeda493d
   react-native-segmented-control: 2221962f5073e2e809aa3691e8e410fc10b60578
   react-native-skia: 73b15a92d31e322fd25e5bb7feff226c0a25215e

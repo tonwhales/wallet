@@ -1,8 +1,3 @@
-// Crypto
-global.Buffer = global.Buffer || require('@craftzdog/react-native-buffer').Buffer;
-import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
-polyfillWebCrypto();
-
 // Set up an PRNG for nacl with expo-crypto
 import nacl from 'tweetnacl';
 import { getRandomBytes } from 'expo-crypto'

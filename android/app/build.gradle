@@ -65,6 +65,7 @@ def versionCodeValue = Integer.parseInt(file('../../VERSION_CODE').text)
 def username = System.properties['user.name']
 def keystorePass = project.hasProperty('TONHUB_UPLOAD_STORE_PASSWORD') ? getPassword(username, TONHUB_UPLOAD_STORE_PASSWORD): null
 
+apply from: new File(["node", "--print", "require.resolve('@sentry/react-native/package.json')"].execute().text.trim(), "../sentry.gradle")
 android {
     ndkVersion rootProject.ext.ndkVersion
 

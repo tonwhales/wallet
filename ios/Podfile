@@ -45,6 +45,8 @@ target 'WhalesApp' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'OpenSSL-Universal', :modular_headers => true, :configurations => ['Release', 'Release Testnet']
+
   post_install do |installer|
     react_native_post_install(
       installer,

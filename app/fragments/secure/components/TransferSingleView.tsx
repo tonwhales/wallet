@@ -423,8 +423,7 @@ export const TransferSingleView = memo(({
                                         </View>
                                     </View>
 
-                                    {/* {(amount > toNano('0.2')) && ( */}
-                                    {(amount > toNano('0.0001')) && (
+                                    {(amount > toNano('0.2')) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}
                                             style={({ pressed }) => {

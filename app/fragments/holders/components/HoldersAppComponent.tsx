@@ -258,7 +258,7 @@ export const HoldersAppComponent = memo((
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'create') {
-            route = status?.state === HoldersAccountState.Ok ? '/create' : '';
+            route = '/create';
         } else if (props.variant.type === 'account') {
             route = `/account/${props.variant.id}`;
         }

@@ -149,7 +149,6 @@ const personalizationCodeSchema = z.union([
 
 const cardSchema = z.object({
   id: z.string(),
-  walletId: z.string(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
   leftToPay: z.string(),

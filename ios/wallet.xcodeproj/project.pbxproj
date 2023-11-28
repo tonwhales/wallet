@@ -158,7 +158,6 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				621A4FF48A8D689C72AD3486 /* [CP] Embed Pods Frameworks */,
 				A6B1758D2E02A173CB09C45E /* [CP] Copy Pods Resources */,
-				181062843D37460A8EB04611 /* Upload Debug Symbols to Sentry */,
 			);
 			buildRules = (
 			);
@@ -229,20 +228,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "export NODE_BINARY=node\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\nexport SENTRY_DIST=$CI_BUILD_NUMBER\n\n`node --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n";
-		};
-		181062843D37460A8EB04611 /* Upload Debug Symbols to Sentry */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Upload Debug Symbols to Sentry";
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "/bin/sh ../node_modules/@sentry/react-native/scripts/sentry-xcode-debug-files.sh";
 		};
 		3EEC3091B79AA725BF4566B6 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

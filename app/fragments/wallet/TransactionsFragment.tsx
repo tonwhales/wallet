@@ -58,10 +58,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [holdersCards]);
 
     const onReachedEnd = useCallback(() => {
-        if (txs?.hasNext && !txs?.loading) {
+        if (txs?.hasNext) {
             txs?.next();
         }
-    }, [txs?.next, txs?.hasNext, txs?.loading]);
+    }, [txs?.next, txs?.hasNext]);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>

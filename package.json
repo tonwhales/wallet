@@ -66,7 +66,7 @@
     "expo-notifications": "~0.20.1",
     "expo-random": "~13.2.0",
     "expo-screen-capture": "~5.3.0",
-    "expo-secure-store": "~12.3.1",
+    "expo-secure-store": "~12.5.0",
     "expo-splash-screen": "~0.20.5",
     "expo-status-bar": "~1.6.0",
     "expo-store-review": "^6.6.0",

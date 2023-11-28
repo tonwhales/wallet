@@ -5544,10 +5544,10 @@ expo-screen-capture@~5.3.0:
   resolved "https://registry.yarnpkg.com/expo-screen-capture/-/expo-screen-capture-5.3.0.tgz#c28586eaefccadb48e65dbdc05d5edef31c1094b"
   integrity sha512-+4JUbwcqiwrwV1xdmfeDI2xdrTh62e34XqBad2waQrZ6d+P7TRx8xGPauOPUyEjUSghgGJvvgkQmaL2HMTKv9w==
 
-expo-secure-store@~12.3.1:
-  version "12.3.1"
-  resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-12.3.1.tgz#7e5ba94f6e7374f132108c9feb5cc811568f3db6"
-  integrity sha512-XLIgWDiIuiR0c+AA4NCWWibAMHCZUyRcy+lQBU49U6rvG+xmd3YrBJfQjfqAPyLroEqnLPGTWUX57GyRsfDOQw==
+expo-secure-store@~12.5.0:
+  version "12.5.0"
+  resolved "https://registry.yarnpkg.com/expo-secure-store/-/expo-secure-store-12.5.0.tgz#f52456e15315d64d1e9000384d4a837eea9dbb1f"
+  integrity sha512-Ow2ei+SB1w4zPLxmOg2PVPf2i45Eii0T9KUaER5iRLJAMcBWN4nyGCxzESOoN3OrvxVadP0hAn6RVE1G3gdD+Q==
 
 expo-splash-screen@~0.15.0:
   version "0.15.1"

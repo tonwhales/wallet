@@ -48,7 +48,7 @@ PODS:
     - ExpoModulesCore
   - ExpoRandom (13.2.0):
     - ExpoModulesCore
-  - ExpoSecureStore (12.3.1):
+  - ExpoSecureStore (12.5.0):
     - ExpoModulesCore
   - ExpoStoreReview (6.6.0):
     - ExpoModulesCore
@@ -1063,7 +1063,7 @@ SPEC CHECKSUMS:
   ExpoModulesCore: c480fd4e3c7c8e81f0a6ba3a7c56869f25fe016d
   ExpoNetwork: 1a591f426290be254a8ceaf56fd2a5b7c00111e1
   ExpoRandom: 4f2bba684312acd6c0700528ae62f85265776c84
-  ExpoSecureStore: 57db3b6da8b59046e2057e95bf7738a8027b47c3
+  ExpoSecureStore: 5372610a4bbcf5e50fafbe6f38f8d9c22edf8253
   ExpoStoreReview: 6a63b9ae177bc6b46ec1679eb800ecc8a83a649a
   ExpoSystemUI: e4afa05539f42fe3be09d21a6498e5495019a5b2
   ExpoWebBrowser: 2c788f9c07718a780fe6d8bf2f6195c47609faaa

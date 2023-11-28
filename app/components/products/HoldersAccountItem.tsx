@@ -10,7 +10,7 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Swipeable, TouchableHighlight } from "react-native-gesture-handler";
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { GeneralHoldersAccount } from "../../engine/api/holders/fetchCards";
+import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
 

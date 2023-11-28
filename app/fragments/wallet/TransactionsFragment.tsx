@@ -21,7 +21,7 @@ import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
-import { HoldersAccount } from "../../engine/api/holders/fetchCards";
+import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {

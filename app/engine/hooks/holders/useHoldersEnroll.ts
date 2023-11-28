@@ -7,6 +7,7 @@ import { useNetwork } from "../network/useNetwork";
 import { useCreateDomainKeyIfNeeded } from "../dapps/useCreateDomainKeyIfNeeded";
 import { createDomainSignature } from "../../utils/createDomainSignature";
 import { DomainSubkey } from "../../state/domainKeys";
+import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -33,7 +34,6 @@ export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType
 export function useHoldersEnroll({ acc, domain, authContext, authStyle }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
-    const status = useHoldersAccountStatus(acc.address);
     return (async () => {
         let res = await (async () => {
             //
@@ -97,7 +97,7 @@ export function useHoldersEnroll({ acc, domain, authContext, authStyle }: Holder
         })();
 
         // Refetch state
-        await status.refetch();
+        await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
 
         return res as HoldersEnrollResult;
     })

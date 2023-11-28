@@ -204,7 +204,7 @@ export const generalAccountSchema = z.intersection(accountSchema, accountPublicS
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
 
-export async function fetchCardsList(token: string) {
+export async function fetchAccountsList(token: string) {
   let res = await axios.post(
     'https://' + holdersEndpoint + '/v2/account/list',
     { token },

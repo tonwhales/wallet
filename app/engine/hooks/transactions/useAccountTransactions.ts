@@ -106,9 +106,11 @@ export function useAccountTransactions(client: TonClient4, account: string): {
     return {
         data: txs,
         next: () => {
-            raw!.fetchNextPage();
+            if (!raw?.isFetchingNextPage && !raw?.isFetching && raw?.hasNextPage) {
+                raw!.fetchNextPage();
+            }
         },
         hasNext: !!raw.hasNextPage,
-        loading: raw.isFetching
+        loading: raw.isFetching || raw.isFetchingNextPage || raw.isLoading || raw.isStale
     }
 }

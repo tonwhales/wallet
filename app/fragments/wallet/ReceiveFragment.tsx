@@ -231,7 +231,6 @@ export const ReceiveFragment = fragment(() => {
                     />
                     <ShareButton
                         style={{
-                            marginRight: 8,
                             backgroundColor: theme.surfaceOnElevation,
                             borderWidth: 0,
                             height: 56,

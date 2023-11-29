@@ -19,7 +19,6 @@ import Support from '@assets/ic-support.svg';
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
-    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -51,11 +50,6 @@ export const LogoutFragment = fragment(() => {
     const [isShown, setIsShown] = useState(false);
 
     const onLogout = useCallback(async () => {
-        try {
-            await authContext.authenticate({ cancelable: true, showResetOnMaxAttempts: true });
-        } catch (e) {
-            return;
-        }
         onAccountDeleted();
     }, [onAccountDeleted]);
 

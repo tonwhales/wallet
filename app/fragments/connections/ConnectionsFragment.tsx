@@ -194,12 +194,17 @@ export const ConnectionsFragment = fragment(() => {
                         />
                     </Pressable>
                 }
+                style={{ marginBottom: 8 }}
             />
             <SegmentedControl
                 values={[t('connections.extensions'), t('connections.connections')]}
                 selectedIndex={isExtensions ? 0 : 1}
+                appearance={theme.style === 'dark' ? 'dark' : 'light'}
                 onChange={(event) => setIsExtensions(event.nativeEvent.selectedSegmentIndex === 0)}
                 style={{ marginHorizontal: 16 }}
+                backgroundColor={theme.backgroundPrimary}
+                fontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
+                activeFontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
             />
             <Animated.ScrollView
                 entering={FadeIn}

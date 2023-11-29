@@ -1082,7 +1082,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     : <RoundButton
                         disabled={!order}
-                        title={t('common.send')}
+                        title={t('common.continue')}
                         action={doSend}
                     />
                 }

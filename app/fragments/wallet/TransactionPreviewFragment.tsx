@@ -66,7 +66,7 @@ export const TransactionPreviewFragment = fragment(() => {
     const item = operation.items[0];
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const fees = BigInt(tx.base.fees);
-    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} ${formatTime(tx.base.time)}`;
+    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
     const isOwn = appState.addresses.findIndex((a) => a.addressString === opAddress) >= 0;
 
@@ -278,6 +278,9 @@ export const TransactionPreviewFragment = fragment(() => {
             <ScreenHeader
                 onClosePressed={navigation.goBack}
                 title={dateStr}
+                titleStyle={{
+                    fontWeight: '400', fontSize: 15, lineHeight: 20,
+                }}
             />
             <ScrollView
                 style={{ flexGrow: 1, alignSelf: 'stretch', marginTop: 16 }}

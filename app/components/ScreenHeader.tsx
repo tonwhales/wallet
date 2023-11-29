@@ -1,5 +1,5 @@
 import React, { ReactNode, memo, useEffect } from "react"
-import { View, Text, StyleProp, ViewStyle } from "react-native"
+import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { CloseButton } from "./navigation/CloseButton";
 import { TypedNavigation, useTypedNavigation } from "../utils/useTypedNavigation";
 import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
@@ -95,6 +95,7 @@ export const ScreenHeader = memo((
     {
         style,
         title,
+        titleStyle,
         textColor,
         tintColor,
         onBackPressed,
@@ -106,6 +107,7 @@ export const ScreenHeader = memo((
     }: {
         style?: StyleProp<ViewStyle>,
         title?: string,
+        titleStyle?: StyleProp<TextStyle>,
         textColor?: string,
         tintColor?: string,
         onBackPressed?: () => void,
@@ -138,13 +140,13 @@ export const ScreenHeader = memo((
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     {!!title && !titleComponent && (
-                        <Text style={{
+                        <Text style={[{
                             color: textColor ?? theme.textPrimary,
                             fontWeight: '600',
                             fontSize: 17,
                             lineHeight: 24,
                             maxWidth: '60%'
-                        }}
+                        }, titleStyle]}
                             ellipsizeMode={'tail'}
                         >
                             {title}

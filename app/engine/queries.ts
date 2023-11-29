@@ -3,6 +3,7 @@ export const Queries = {
     Account: (address: string) => ({
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
+        WalletV4: () => ['account', address, 'wallet-v4'],
         JettonWallet: () => ['account', address, 'jettonWallet'],
         StakingPool: () => ({
             Status: () => ['account', address, 'staking', 'status'],

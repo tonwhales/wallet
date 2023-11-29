@@ -72,6 +72,7 @@ export const Avatar = memo((props: {
     borderWith?: number,
     backgroundColor?: string,
     isOwn?: boolean,
+    icBorderWidth?: number,
     icPosition?: 'top' | 'bottom' | 'left' | 'right'
 }) => {
     const theme = useTheme();
@@ -129,7 +130,10 @@ export const Avatar = memo((props: {
     }
     let ic = null;
     if (props.markContact) {
-        const icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
+        let icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
+        if (props.icBorderWidth) {
+            icOutline = props.icBorderWidth;
+        }
         ic = (
             <View style={[
                 {
@@ -144,8 +148,8 @@ export const Avatar = memo((props: {
                 <Image
                     source={require('@assets/ic-contact.png')}
                     style={{
-                        width: icSize - 2,
-                        height: icSize - 2,
+                        width: icSize - icOutline,
+                        height: icSize - icOutline,
                         tintColor: theme.iconPrimary
                     }}
                 />

@@ -306,10 +306,11 @@ export const TransactionPreviewFragment = fragment(() => {
                         verified={verified}
                         borderWith={2}
                         borderColor={theme.surfaceOnElevation}
-                        backgroundColor={theme.backgroundPrimary}
+                        backgroundColor={theme.elevation}
                         markContact={!!contact}
                         icPosition={'bottom'}
                         isOwn={isOwn}
+                        icBorderWidth={4}
                     />
                     <Text
                         style={{
@@ -382,11 +383,9 @@ export const TransactionPreviewFragment = fragment(() => {
                                     precision={9}
                                     centFontStyle={{ fontSize: 24 }}
                                     prefix={kind === 'in' ? '+' : ''}
-                                    suffix={item.kind === 'token' && jetton
-                                        ? ' ' + jetton.symbol
-                                        : ' TON'
-                                    }
+                                    suffix={(item.kind === 'token' && !!jetton?.symbol) ? jetton.symbol : undefined}
                                 />
+                                {item.kind === 'ton' ? ' TON' : ''}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent

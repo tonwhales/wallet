@@ -23,6 +23,7 @@ import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig,
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -34,6 +35,7 @@ export const StakingFragment = fragment(() => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -192,6 +194,7 @@ export const StakingFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
                 style={{ flexGrow: 1 }}
                 scrollEventThrottle={16}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
                 <View
                     style={{

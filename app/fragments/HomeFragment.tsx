@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, StyleSheet } from 'react-native';
 import { fragment } from "../fragment";
 import { WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
@@ -23,6 +23,7 @@ import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks
 import { fetchJob, useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
 import { parseJob } from '../engine/apps/parseJob';
 import { Cell } from '@ton/core';
+import { BlurView } from 'expo-blur';
 
 const Tab = createBottomTabNavigator();
 
@@ -169,9 +170,25 @@ export const HomeFragment = fragment(() => {
                         unmountOnBlur: false,
                         freezeOnBlur: route.name === 'Transactions',
                         tabBarStyle: {
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.transparent,
                             borderTopColor: theme.border,
+                            ...Platform.select({
+                                ios: {
+                                    backgroundColor: theme.transparent,
+                                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                                },
+                                android: { backgroundColor: theme.surfaceOnBg }
+                            })
                         },
+                        tabBarBackground: Platform.OS === 'ios' ? () => {
+                            return (
+                                <BlurView
+                                    tint={theme.style === 'light' ? 'light' : 'dark'}
+                                    intensity={80}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                            )
+                        } : undefined,
                         tabBarActiveTintColor: theme.accent,
                         tabBarInactiveTintColor: theme.iconPrimary,
                         tabBarIcon: ({ focused }) => {

@@ -22,6 +22,7 @@ import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useThe
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { getCachedAppData } from '../../engine/getters/getAppData';
 import { setStatusBarStyle } from 'expo-status-bar';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import Scanner from '@assets/ic-scanner-accent.svg';
 
@@ -61,6 +62,7 @@ export const ConnectionsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const window = useWindowDimensions();
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
@@ -196,97 +198,96 @@ export const ConnectionsFragment = fragment(() => {
                 onChange={(event) => setIsExtensions(event.nativeEvent.selectedSegmentIndex === 0)}
                 style={{ marginHorizontal: 16 }}
             />
-            {isExtensions
-                ? (
-                    <Animated.ScrollView
-                        entering={FadeIn}
-                        exiting={FadeOut}
-                        style={{ flexGrow: 1, marginTop: 24, }}
-                    >
-                        <View style={{
-                            marginBottom: 16, marginTop: 0,
-                            borderRadius: 14,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                        }}>
-                            {(extensions.length === 0 && tonconnectApps.length === 0) && (
-                                <Text style={{
-                                    fontSize: 32,
-                                    fontWeight: '600',
-                                    marginHorizontal: 24,
-                                    textAlign: 'center',
-                                    color: theme.textPrimary,
-                                    marginTop: (window.height / 4) + safeArea.top,
-                                }}>
-                                    {t('auth.noExtensions')}
-                                </Text>
-                            )}
-                            {extensions.map((app) => (
-                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
-                                    <ConnectionButton
-                                        onPress={() => openExtension(app.url)}
-                                        onRevoke={() => onRemoveExtension(app.url)}
-                                        onLongPress={() => onRemoveExtension(app.url)}
-                                        url={app.url}
-                                        name={app.title}
-                                    />
-                                </View>
-                            ))}
-                            {tonconnectApps.map((app) => (
-                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
-                                    <ConnectionButton
-                                        onRevoke={() => disconnectConnectApp(app.url)}
-                                        onPress={() => navigation.navigate('ConnectApp', { url: app.url })}
-                                        url={app.url}
-                                        name={app.name}
-                                        tonconnect
-                                    />
-                                </View>
-                            ))}
-                        </View>
-                        <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
-                    </Animated.ScrollView>
-                )
-                : (
-                    <Animated.ScrollView
-                        entering={FadeIn}
-                        exiting={FadeOut}
-                        style={{ flexGrow: 1, marginTop: 24, }}
-                    >
-                        <View style={{
-                            marginBottom: 16, marginTop: 0,
-                            borderRadius: 14,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexShrink: 1,
-                        }}>
-                            {apps.length === 0 && (
-                                <Text style={{
-                                    fontSize: 32,
-                                    fontWeight: '600',
-                                    marginHorizontal: 24,
-                                    textAlign: 'center',
-                                    color: theme.textPrimary,
-                                    marginTop: (window.height / 4) + safeArea.top,
-                                }}>
-                                    {t('auth.noApps')}
-                                </Text>
-                            )}
-                            {apps.map((app) => (
-                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
-                                    <ConnectionButton
-                                        onRevoke={() => onDisconnectApp(app.url)}
-                                        url={app.url}
-                                        name={app.name}
-                                    />
-                                </View>
-                            ))}
-                        </View>
-                        <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
-                    </Animated.ScrollView>
-                )
-            }
+            <Animated.ScrollView
+                entering={FadeIn}
+                exiting={FadeOut}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+                style={{ flexGrow: 1, marginTop: 24, }}
+            >
+                {isExtensions
+                    ? (
+                        <>
+                            <View style={{
+                                marginBottom: 16, marginTop: 0,
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexShrink: 1,
+                            }}>
+                                {(extensions.length === 0 && tonconnectApps.length === 0) && (
+                                    <Text style={{
+                                        fontSize: 32,
+                                        fontWeight: '600',
+                                        marginHorizontal: 24,
+                                        textAlign: 'center',
+                                        color: theme.textPrimary,
+                                        marginTop: (window.height / 4) + safeArea.top,
+                                    }}>
+                                        {t('auth.noExtensions')}
+                                    </Text>
+                                )}
+                                {extensions.map((app) => (
+                                    <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                                        <ConnectionButton
+                                            onPress={() => openExtension(app.url)}
+                                            onRevoke={() => onRemoveExtension(app.url)}
+                                            onLongPress={() => onRemoveExtension(app.url)}
+                                            url={app.url}
+                                            name={app.title}
+                                        />
+                                    </View>
+                                ))}
+                                {tonconnectApps.map((app) => (
+                                    <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                                        <ConnectionButton
+                                            onRevoke={() => disconnectConnectApp(app.url)}
+                                            onPress={() => navigation.navigate('ConnectApp', { url: app.url })}
+                                            url={app.url}
+                                            name={app.name}
+                                            tonconnect
+                                        />
+                                    </View>
+                                ))}
+                            </View>
+                            <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
+                        </>
+                    )
+                    : (
+                        <>
+                            <View style={{
+                                marginBottom: 16, marginTop: 0,
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                flexShrink: 1,
+                            }}>
+                                {apps.length === 0 && (
+                                    <Text style={{
+                                        fontSize: 32,
+                                        fontWeight: '600',
+                                        marginHorizontal: 24,
+                                        textAlign: 'center',
+                                        color: theme.textPrimary,
+                                        marginTop: (window.height / 4) + safeArea.top,
+                                    }}>
+                                        {t('auth.noApps')}
+                                    </Text>
+                                )}
+                                {apps.map((app) => (
+                                    <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                                        <ConnectionButton
+                                            onRevoke={() => onDisconnectApp(app.url)}
+                                            url={app.url}
+                                            name={app.name}
+                                        />
+                                    </View>
+                                ))}
+                            </View>
+                            <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
+                        </>
+                    )
+                }
+            </Animated.ScrollView>
         </View>
     );
 });

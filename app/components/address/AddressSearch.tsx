@@ -42,7 +42,7 @@ export const AddressSearch = memo(({
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
 
-    const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet }))?.data;
+    const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet })).data;
 
     const lastTxs = useMemo(() => {
         // first two txs

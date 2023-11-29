@@ -283,9 +283,5 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
         },
     });
 
-    if (!query.data) {
-        return null;
-    }
-
     return query;
 }

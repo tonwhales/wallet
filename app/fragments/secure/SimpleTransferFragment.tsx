@@ -852,13 +852,17 @@ export const SimpleTransferFragment = fragment(() => {
                                         )}
                                         {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                         {isVerified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: 0
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: 0,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                     <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
@@ -1033,7 +1037,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                            {`${fromNano(estimation)}${!!estimationPrise ? `(${estimationPrise})` : ''}`}
                                         </>
                                         : '...'
                                     }

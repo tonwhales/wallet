@@ -1,5 +1,6 @@
 import { StyleProp, Text, TextStyle } from "react-native";
 import { fromBnWithDecimals } from "../utils/withDecimals";
+import { getNumberFormatSettings } from "react-native-localize";
 
 export function ValueComponent(props: {
     value: bigint | string,
@@ -11,6 +12,7 @@ export function ValueComponent(props: {
     prefix?: string,
 }) {
     let t: string;
+    const { decimalSeparator } = getNumberFormatSettings();
     t = fromBnWithDecimals(props.value, props.decimals);
 
     let parts: string[] = [];
@@ -59,7 +61,7 @@ export function ValueComponent(props: {
                 {r}
             </Text>
             <Text style={[props.centFontStyle]}>
-                .{p[1].substring(
+                {decimalSeparator === ',' ? ',' : '.'}{p[1].substring(
                     0,
                     precision // Show only the last decimal places
                 )}

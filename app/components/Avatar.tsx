@@ -72,6 +72,7 @@ export const Avatar = memo((props: {
     borderWith?: number,
     backgroundColor?: string,
     isOwn?: boolean,
+    icBorderWidth?: number,
     icPosition?: 'top' | 'bottom' | 'left' | 'right'
 }) => {
     const theme = useTheme();
@@ -110,7 +111,7 @@ export const Avatar = memo((props: {
         backgroundColor = theme.white;
     }
 
-    let icSize = Math.floor(props.size * 0.35);
+    let icSize = Math.floor(props.size * 0.43);
     let icPosition: {} = { bottom: -2, right: -2 };
     let spam = props.showSpambadge && props.spam;
     switch (props.icPosition) {
@@ -129,6 +130,10 @@ export const Avatar = memo((props: {
     }
     let ic = null;
     if (props.markContact) {
+        let icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
+        if (props.icBorderWidth) {
+            icOutline = props.icBorderWidth;
+        }
         ic = (
             <View style={[
                 {
@@ -143,8 +148,8 @@ export const Avatar = memo((props: {
                 <Image
                     source={require('@assets/ic-contact.png')}
                     style={{
-                        width: icSize - Math.round(icSize * 0.03),
-                        height: icSize - Math.round(icSize * 0.03),
+                        width: icSize - icOutline,
+                        height: icSize - icOutline,
                         tintColor: theme.iconPrimary
                     }}
                 />
@@ -152,10 +157,17 @@ export const Avatar = memo((props: {
         );
     } else if ((!!known || props.verified) && !props.dontShowVerified && !spam) {
         ic = (
-            <Image
-                source={require('@assets/ic-verified.png')}
-                style={[{ position: 'absolute', width: icSize, height: icSize }, icPosition]}
-            />
+            <View style={[{
+                position: 'absolute',
+                justifyContent: 'center', alignItems: 'center',
+                width: icSize, height: icSize, borderRadius: icSize,
+                backgroundColor: theme.surfaceOnBg
+            }, icPosition]}>
+                <Image
+                    source={require('@assets/ic-verified.png')}
+                    style={{ height: icSize, width: icSize }}
+                />
+            </View>
         );
     }
 
@@ -165,7 +177,7 @@ export const Avatar = memo((props: {
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
-                    borderRadius: Math.round(icSize / 2),
+                    borderRadius: Math.round(icSize / 4),
                     backgroundColor: theme.surfaceOnElevation,
                     position: 'absolute',
                 },

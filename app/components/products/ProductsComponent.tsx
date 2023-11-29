@@ -101,13 +101,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 ]}>
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <IcTonIcon width={46} height={46} />
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{
-                                height: 16, width: 16,
-                                position: 'absolute', right: -2, bottom: -2,
-                            }}
-                        />
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: 20, width: 20, borderRadius: 10,
+                            position: 'absolute', right: -2, bottom: -2,
+                            backgroundColor: theme.surfaceOnBg
+                        }}>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                     </View>
                     <View style={{ marginLeft: 12, flexShrink: 1 }}>
                         <Text
@@ -161,10 +165,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     paddingHorizontal: 16
                 }}>
                     <Text style={{
-                        fontSize: 17,
+                        fontSize: 20,
                         fontWeight: '600',
                         color: theme.textPrimary,
-                        lineHeight: 24,
+                        lineHeight: 28,
                     }}>
                         {t('common.products')}
                     </Text>

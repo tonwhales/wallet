@@ -14,6 +14,7 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
 import { StatusBar } from "expo-status-bar";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -21,6 +22,7 @@ export const LedgerHomeFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const address = useMemo(() => {
         if (!ledgerContext?.addr) {
@@ -116,6 +118,7 @@ export const LedgerHomeFragment = fragment(() => {
             <Animated.ScrollView
                 style={[{ flexBasis: 0 }, scrollStyle]}
                 contentContainerStyle={{ paddingBottom: 16 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 showsVerticalScrollIndicator={false}
                 onScroll={onScroll}
                 scrollEventThrottle={16}

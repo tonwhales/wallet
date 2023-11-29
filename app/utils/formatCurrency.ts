@@ -14,16 +14,16 @@ export const PrimaryCurrency: { [key: string]: string } = {
 }
 
 export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, label: string } } = {
-    [PrimaryCurrency.Usd]: { symbol: '$', label: 'U.S. Dollar' },
+    [PrimaryCurrency.Usd]: { symbol: '$', end: true, label: 'U.S. Dollar' },
     [PrimaryCurrency.Eur]: { symbol: '€', end: true, label: 'Euro' },
     [PrimaryCurrency.Rub]: { symbol: '₽', end: true, label: 'Russian Ruble' },
-    [PrimaryCurrency.Gbp]: { symbol: '£', label: 'British Pound' },
-    [PrimaryCurrency.Chf]: { symbol: '₣', label: 'Swiss Franc' },
-    [PrimaryCurrency.Cny]: { symbol: '¥', label: 'Chinese Yuan' },
-    [PrimaryCurrency.Krw]: { symbol: '₩', label: 'South Korean Won' },
+    [PrimaryCurrency.Gbp]: { symbol: '£', end: true, label: 'British Pound' },
+    [PrimaryCurrency.Chf]: { symbol: '₣', end: true, label: 'Swiss Franc' },
+    [PrimaryCurrency.Cny]: { symbol: '¥', end: true, label: 'Chinese Yuan' },
+    [PrimaryCurrency.Krw]: { symbol: '₩', end: true, label: 'South Korean Won' },
     [PrimaryCurrency.Idr]: { symbol: 'Rp', end: true, label: 'Indonesian Rupiah' },
-    [PrimaryCurrency.Inr]: { symbol: '₹', label: 'Indian Rupee' },
-    [PrimaryCurrency.Jpy]: { symbol: '¥', label: 'Japanese Yen' },
+    [PrimaryCurrency.Inr]: { symbol: '₹', end: true, label: 'Indian Rupee' },
+    [PrimaryCurrency.Jpy]: { symbol: '¥', end: true, label: 'Japanese Yen' },
 };
 
 function toLocaleNumber(value: string) {
@@ -40,7 +40,7 @@ export function formatCurrency(amount: string, currency: string, neg?: boolean):
     }
 
     if (!symbols.end) {
-        return `${neg ? '-' : ''}${symbols.symbol}${toLocaleNumber(amount)}`;
+        return `${neg ? '-' : ''}${symbols.symbol} ${toLocaleNumber(amount)}`;
     }
-    return `${neg ? '-' : ''}${toLocaleNumber(amount)}${symbols.symbol}`;
+    return `${neg ? '-' : ''}${toLocaleNumber(amount)} ${symbols.symbol}`;
 }

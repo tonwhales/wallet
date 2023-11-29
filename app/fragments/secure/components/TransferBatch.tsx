@@ -764,13 +764,17 @@ export const TransferBatch = memo((props: Props) => {
                                                     >
                                                         {i.known?.name}
                                                     </Text>
-                                                    <Image
-                                                        source={require('@assets/ic-verified.png')}
-                                                        style={{
-                                                            height: 18, width: 18,
-                                                            marginLeft: 6
-                                                        }}
-                                                    />
+                                                    <View style={{
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        height: 18, width: 18, borderRadius: 9,
+                                                        marginLeft: 6,
+                                                        backgroundColor: theme.surfaceOnBg
+                                                    }}>
+                                                        <Image
+                                                            source={require('@assets/ic-verified.png')}
+                                                            style={{ height: 18, width: 18 }}
+                                                        />
+                                                    </View>
                                                 </View>
                                             )}
                                             {(!i.message.addr.active) && (

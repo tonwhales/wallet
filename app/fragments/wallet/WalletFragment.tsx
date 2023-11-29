@@ -26,6 +26,7 @@ import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -35,6 +36,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const account = props.wallet;
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const { start, visible } = useCopilot();
 
@@ -74,6 +76,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
             <WalletHeader />
             <ScrollView
                 style={{ flexBasis: 0 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}

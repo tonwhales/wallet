@@ -173,7 +173,11 @@ export const TransactionsFragment = fragment(() => {
         );
     } else {
         return (
-            <Suspense fallback={<TransactionsSkeleton />}>
+            <Suspense fallback={
+                <View style={{ paddingTop: 166 }}>
+                    <TransactionsSkeleton />
+                </View>
+            }>
                 <TransactionsComponent isLedger={isLedger} account={account} />
             </Suspense>
         )

@@ -167,7 +167,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -228,7 +228,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -263,7 +263,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>

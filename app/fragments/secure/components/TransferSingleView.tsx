@@ -517,9 +517,11 @@ export const TransferSingleView = memo(({
                                 fontSize: 17, lineHeight: 24, fontWeight: '400'
                             }}>
                                 {`${fromNano(fees)}`}
-                                <Text style={{ color: theme.textSecondary }}>
-                                    {` ${feesPrise}`}
-                                </Text>
+                                {feesPrise && (
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {` ${feesPrise}`}
+                                    </Text>
+                                )}
                             </Text>
                         </View>
                         <AboutIconButton

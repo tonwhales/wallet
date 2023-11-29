@@ -1037,7 +1037,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                            {`${fromNano(estimation)}${!!estimationPrise ? `(${estimationPrise})` : ''}`}
                                         </>
                                         : '...'
                                     }

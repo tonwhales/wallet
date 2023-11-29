@@ -37,7 +37,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     const holdersCards = holdersAccounts?.type === 'private'
         ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()
         : [];
-    const transactions = txs?.data;
+    const transactions = txs.data;
 
     const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
 
@@ -58,10 +58,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [holdersCards]);
 
     const onReachedEnd = useCallback(() => {
-        if (txs?.hasNext) {
-            txs?.next();
+        if (txs.hasNext) {
+            txs.next();
         }
-    }, [txs?.next, txs?.hasNext]);
+    }, [txs.next, txs.hasNext]);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -111,9 +111,9 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 navigation={navigation}
                                 safeArea={safeArea}
                                 onLoadMore={onReachedEnd}
-                                hasNext={txs?.hasNext === true}
+                                hasNext={txs.hasNext === true}
                                 frameArea={frameArea}
-                                loading={txs?.loading === true}
+                                loading={txs.loading}
                                 ledger={props.isLedger}
                                 header={props.isLedger ? undefined : <PendingTransactions />}
                             />

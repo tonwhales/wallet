@@ -27,7 +27,7 @@ export const ContactsFragment = fragment(() => {
     const contacts = useContacts();
     const account = useSelectedAccount();
     const client = useClient4(isTestnet);
-    const transactions = useAccountTransactions(client, account?.addressString ?? '')?.data ?? [];
+    const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];
 
     const [search, setSearch] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);

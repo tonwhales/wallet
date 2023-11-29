@@ -102,7 +102,7 @@ export const TransactionPreviewFragment = fragment(() => {
             }
         } else if (tx.base.parsed.kind === 'in') {
             if (tx.base.parsed.bounced) {
-                op = '⚠️ ' + t('tx.bounced');
+                op = t('tx.bounced');
             } else {
                 op = t('tx.received');
             }

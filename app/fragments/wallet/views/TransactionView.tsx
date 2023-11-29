@@ -69,7 +69,7 @@ export function TransactionView(props: {
                 }
             } else if (parsed.kind === 'in') {
                 if (parsed.bounced) {
-                    return '⚠️ ' + t('tx.bounced');
+                    return t('tx.bounced');
                 } else {
                     return t('tx.received');
                 }

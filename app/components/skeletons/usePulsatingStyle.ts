@@ -5,7 +5,7 @@ export function usePulsatingStyle(progress: SharedValue<number>) {
         const opacity = interpolate(
             progress.value,
             [0, 1],
-            [1, 0.75],
+            [1, 0.85],
             Extrapolate.CLAMP
         );
         const scale = interpolate(

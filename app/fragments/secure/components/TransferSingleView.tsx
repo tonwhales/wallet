@@ -288,15 +288,41 @@ export const TransferSingleView = memo(({
                                 {t('common.to')}
                             </Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 17, fontWeight: '400', lineHeight: 24,
-                                    color: theme.textSecondary,
-                                }}>
+                                <Text
+                                    style={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                    }}
+                                >
                                     <Text style={{ color: theme.textPrimary }}>
-                                        {to.address.toString({ testOnly: isTestnet })}
+                                        {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
                                     </Text>
                                 </Text>
                             </View>
+                            {target.active && (
+                                <Pressable
+                                    style={({ pressed }) => ({ flexDirection: 'row', marginTop: 4, opacity: pressed ? 0.5 : 1 })}
+                                    onPress={() => {
+                                        navigation.navigateAlert({
+                                            title: t('transfer.error.addressIsNotActive'),
+                                            message: t('transfer.error.addressIsNotActiveDescription')
+                                        })
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                            flexShrink: 1
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        {t('transfer.addressNotActive')}
+                                    </Text>
+                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                </Pressable>
+                            )}
                         </View>
                         {!!operation.op && !jettonAmountString && (
                             <>

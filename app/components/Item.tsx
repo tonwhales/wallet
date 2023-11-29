@@ -82,6 +82,7 @@ export const ItemSwitch = React.memo((props: {
                     false: theme.divider,
                     true: theme.accent,
                 }}
+                pointerEvents={'none'}
                 thumbColor={(Platform.OS === 'android' && props.value) ? theme.textSecondary : undefined}
                 value={props.value}
                 onValueChange={props.onChange}

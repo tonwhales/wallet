@@ -299,7 +299,7 @@ export const TransferSingleView = memo(({
                                     </Text>
                                 </Text>
                             </View>
-                            {target.active && (
+                            {!target.active && (
                                 <Pressable
                                     style={({ pressed }) => ({ flexDirection: 'row', marginTop: 4, opacity: pressed ? 0.5 : 1 })}
                                     onPress={() => {

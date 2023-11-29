@@ -6,7 +6,6 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";

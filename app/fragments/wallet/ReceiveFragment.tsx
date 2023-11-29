@@ -200,7 +200,10 @@ export const ReceiveFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </View>
-                                <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
                             </View>
                         </Pressable>
                     </View>

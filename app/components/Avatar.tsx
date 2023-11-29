@@ -152,10 +152,17 @@ export const Avatar = memo((props: {
         );
     } else if ((!!known || props.verified) && !props.dontShowVerified && !spam) {
         ic = (
-            <Image
-                source={require('@assets/ic-verified.png')}
-                style={[{ position: 'absolute', width: icSize, height: icSize }, icPosition]}
-            />
+            <View style={[{
+                position: 'absolute',
+                justifyContent: 'center', alignItems: 'center',
+                width: icSize, height: icSize, borderRadius: icSize,
+                backgroundColor: theme.surfaceOnBg
+            }, icPosition]}>
+                <Image
+                    source={require('@assets/ic-verified.png')}
+                    style={{ height: icSize, width: icSize }}
+                />
+            </View>
         );
     }
 

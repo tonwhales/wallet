@@ -1037,10 +1037,19 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)}${!!estimationPrise ? `(${estimationPrise})` : ''}`}
+                                            {`${fromNano(estimation)} TON`}
                                         </>
                                         : '...'
                                     }
+                                    {!!estimationPrise && (
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                        }}>
+                                            {` (${estimationPrise})`}
+                                        </Text>
+
+                                    )}
                                 </Text>
                             </View>
                             <AboutIconButton

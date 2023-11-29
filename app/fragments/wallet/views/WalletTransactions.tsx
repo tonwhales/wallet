@@ -15,6 +15,7 @@ import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -89,6 +90,7 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
 }) => {
+    const bottomBarHeight = useBottomTabBarHeight();
     const theme = useTheme();
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
@@ -148,6 +150,7 @@ export const WalletTransactions = memo((props: {
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}
+            contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}
             removeClippedSubviews={true}

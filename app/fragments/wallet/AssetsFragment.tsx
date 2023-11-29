@@ -138,13 +138,17 @@ export const AssetsFragment = fragment(() => {
                         icon={
                             <View style={{ width: 46, height: 46 }}>
                                 <TonIcon width={46} height={46} />
-                                <Image
-                                    source={require('@assets/ic-verified.png')}
-                                    style={{
-                                        height: 16, width: 16,
-                                        position: 'absolute', right: -2, bottom: -2,
-                                    }}
-                                />
+                                <View style={{
+                                    justifyContent: 'center', alignItems: 'center',
+                                    height: 20, width: 20, borderRadius: 10,
+                                    position: 'absolute', right: -2, bottom: -2,
+                                    backgroundColor: theme.surfaceOnBg
+                                }}>
+                                    <Image
+                                        source={require('@assets/ic-verified.png')}
+                                        style={{ height: 20, width: 20 }}
+                                    />
+                                </View>
                             </View>
                         }
                         selected={!selectedJetton}
@@ -168,13 +172,17 @@ export const AssetsFragment = fragment(() => {
                                             borderRadius={23}
                                         />
                                         {verified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: -2,
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: -2,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                 }

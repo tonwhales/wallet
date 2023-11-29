@@ -234,8 +234,8 @@ export const ConnectionsFragment = fragment(() => {
                                         {t('auth.noExtensions')}
                                     </Text>
                                 )}
-                                {extensions.map((app) => (
-                                    <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                                {extensions.map((app, index) => (
+                                    <View key={`app-${app.url}`} style={{ width: '100%', marginTop: index === 0 ? 0 : 8, marginBottom: 8 }}>
                                         <ConnectionButton
                                             onPress={() => openExtension(app.url)}
                                             onRevoke={() => onRemoveExtension(app.url)}
@@ -245,8 +245,11 @@ export const ConnectionsFragment = fragment(() => {
                                         />
                                     </View>
                                 ))}
-                                {tonconnectApps.map((app) => (
-                                    <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                                {tonconnectApps.map((app, index) => (
+                                    <View
+                                        key={`app-${app.url}`}
+                                        style={{ width: '100%', marginTop: (index === 0 && extensions.length === 0) ? 0 : 8, marginBottom: 8 }}
+                                    >
                                         <ConnectionButton
                                             onRevoke={() => disconnectConnectApp(app.url)}
                                             onPress={() => navigation.navigate('ConnectApp', { url: app.url })}

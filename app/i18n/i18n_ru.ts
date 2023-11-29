@@ -154,7 +154,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
             "invalidTransaction": "Неверная транзакция"
         },
-        "sendAll": "Отправить все",
+        "sendAll": "Max",
         "scanQR": "Считать QR код",
         "sendTo": "Получатель",
         "fee": "Комиссия сети: {{fee}}",

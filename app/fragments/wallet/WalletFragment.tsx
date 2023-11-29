@@ -162,7 +162,10 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             }}
                             disableContextMenu
                             copyOnPress
-                            copyToastProps={{ marginBottom: 16 }}
+                            copyToastProps={Platform.select({
+                                ios: { marginBottom: 24 + bottomBarHeight, },
+                                android: { marginBottom: 16, }
+                            })}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>

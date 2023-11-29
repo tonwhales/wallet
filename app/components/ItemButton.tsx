@@ -3,9 +3,9 @@ import { Pressable, View, Text, Image, ImageSourcePropType } from 'react-native'
 import Animated from 'react-native-reanimated';
 import { useAnimatedPressedInOut } from '../utils/useAnimatedPressedInOut';
 import { useTheme } from '../engine/hooks';
+import { memo } from 'react';
 
 import Chevron from '@assets/ic-chevron-down.svg';
-import { memo } from 'react';
 
 export const ItemButton = memo((props: {
     title?: string,
@@ -52,6 +52,7 @@ export const ItemButton = memo((props: {
                                 textAlignVertical: 'center',
                                 color: props.dangerZone ? theme.accentRed : theme.textPrimary,
                                 marginLeft: (props.leftIcon || props.leftIconComponent) ? 13 : 0,
+                                paddingRight: 8,
                             }}
                             numberOfLines={1}
                             ellipsizeMode={'tail'}

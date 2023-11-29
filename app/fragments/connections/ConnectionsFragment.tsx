@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as React from 'react';
 import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { Alert, Platform, Pressable, Text, View, useWindowDimensions, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
@@ -176,18 +176,21 @@ export const ConnectionsFragment = fragment(() => {
                 title={t('home.browser')}
                 rightAction={
                     <Pressable
-                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1,
+                            backgroundColor: theme.surfaceOnBg,
+                            height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 16
+                        })}
                         onPress={openScanner}
                     >
-                        <Scanner
+                        <Image
+                            source={require('@assets/ic-scan-main.png')}
                             style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
+                                height: 22,
+                                width: 22,
+                                tintColor: theme.iconPrimary
                             }}
-                            height={24}
-                            width={24}
-                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 }

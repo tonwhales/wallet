@@ -20,11 +20,12 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
-import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { ConfirmLoadedPropsSingle } from "../TransferFragment";
+import { PendingTransactionBody } from "../../../engine/state/pending";
 
 export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
@@ -232,6 +233,22 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             amount = BigInt(-1) * account!.balance;
         }
 
+        let body: PendingTransactionBody | null = order.messages[0].payload
+            ? { type: 'payload', cell: order.messages[0].payload }
+            : (text && text.length > 0
+                ? { type: 'comment', comment: text }
+                : null
+            );
+
+        if (jettonTarget && jettonMaster && jettonAmountString) {
+            body = {
+                type: 'token',
+                master: jettonMaster,
+                target: jettonTarget.address,
+                amount: toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9),
+            }
+        }
+
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
@@ -239,7 +256,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             amount: amount,
             address: target.address,
             seqno: seqno,
-            body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+            body: body,
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),
         });

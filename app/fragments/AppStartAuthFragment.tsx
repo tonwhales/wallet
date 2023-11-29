@@ -65,22 +65,10 @@ export const AppStartAuthFragment = fragment(() => {
         });
     }, [onFullReset]);
 
-    const onConfurmend = useCallback(() => {
+    const onConfirmed = useCallback(() => {
         const route = resolveOnboarding(network.isTestnet, false);;
         navigation.navigateAndReplaceAll(route);
     }, []);
-
-    // useEffect(() => {
-    //     (async () => {
-    //         try {
-    //             const acc = getCurrentAddress();
-    //             await loadWalletKeys(acc.secretKeyEnc);
-    //             onConfurmend();
-    //         } catch { } // ignore
-    //     })();
-    //     // setTimeout(() => {
-    //     // }, 100);
-    // }, []);
 
     return (
         <View
@@ -107,7 +95,7 @@ export const AppStartAuthFragment = fragment(() => {
                     }
                     try {
                         await loadWalletKeys(acc.secretKeyEnc, pass);
-                        onConfurmend();
+                        onConfirmed();
                     } catch {
                         setAttempts(attempts + 1);
                         throw Error('Failed to load keys');
@@ -118,7 +106,7 @@ export const AppStartAuthFragment = fragment(() => {
                         try {
                             const acc = getCurrentAddress();
                             await loadWalletKeys(acc.secretKeyEnc);
-                            onConfurmend();
+                            onConfirmed();
                         } catch { } // ignore
                     }
                     : undefined}
@@ -136,7 +124,7 @@ export const AppStartAuthFragment = fragment(() => {
                             try {
                                 const acc = getCurrentAddress();
                                 await loadWalletKeys(acc.secretKeyEnc);
-                                onConfurmend()
+                                onConfirmed()
                             } catch {
                                 Alert.alert(t('secure.onBiometricsError'));
                                 warn('Failed to load wallet keys');

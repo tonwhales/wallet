@@ -21,16 +21,20 @@ export async function onHoldersEnroll(account: string, isTestnet: boolean) {
     const status = { ...fetched, token };
     queryClient.setQueryData(Queries.Holders(address).Status(), () => status);
 
-    let accounts;
-    let type = 'public';
-    if (token) {
-        accounts = await fetchAccountsList(token);
-        type = 'private';
-    } else {
-        accounts = await fetchAccountsPublic(address, isTestnet);
-        type = 'public';
+    if (status.state === HoldersAccountState.Ok) {
+        let accounts;
+        let type = 'public';
+
+        if (token) {
+            accounts = await fetchAccountsList(token);
+            type = 'private';
+        } else {
+            accounts = await fetchAccountsPublic(address, isTestnet);
+            type = 'public';
+        }
+
+        const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
+        const accountsData = { accounts: filtered, type };
+        queryClient.setQueryData(Queries.Holders(address).Cards(!!token ? 'private' : 'public'), () => accountsData);
     }
-    const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
-    const accountsData = { accounts: filtered, type };
-    queryClient.setQueryData(Queries.Holders(address).Cards(!!token ? 'private' : 'public'), () => accountsData);
 }

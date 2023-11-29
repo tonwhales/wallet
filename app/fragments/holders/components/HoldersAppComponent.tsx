@@ -44,6 +44,7 @@ export function normalizePath(path: string) {
 
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { getDomainKey } from '../../../engine/state/domainKeys';
+import { ScreenHeader } from '../../../components/ScreenHeader';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -142,6 +143,7 @@ function HoldersPlaceholder() {
 function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
 
     const [animationPlayed, setAnimationPlayed] = useState(loaded);
     const [showClose, setShowClose] = useState(false);
@@ -154,7 +156,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'c
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.surfaceOnBg,
+            backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -186,22 +188,12 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'c
         <Animated.View
             style={animatedStyles}
         >
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-            </View>
+            <ScreenHeader
+                onBackPressed={showClose ? navigation.goBack : undefined}
+                style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
+            />
             {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
-            {Platform.OS === 'ios' && showClose && (
-                <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
-                    <Pressable
-                        onPress={() => {
-                            navigation.goBack();
-                        }} >
-                        <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                            {t('common.close')}
-                        </Text>
-                    </Pressable>
-                </Animated.View>
-            )}
+
         </Animated.View>
     );
 }

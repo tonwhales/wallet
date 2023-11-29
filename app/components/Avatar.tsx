@@ -110,7 +110,7 @@ export const Avatar = memo((props: {
         backgroundColor = theme.white;
     }
 
-    let icSize = Math.floor(props.size * 0.35);
+    let icSize = Math.floor(props.size * 0.43);
     let icPosition: {} = { bottom: -2, right: -2 };
     let spam = props.showSpambadge && props.spam;
     switch (props.icPosition) {
@@ -129,6 +129,7 @@ export const Avatar = memo((props: {
     }
     let ic = null;
     if (props.markContact) {
+        const icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
         ic = (
             <View style={[
                 {
@@ -143,8 +144,8 @@ export const Avatar = memo((props: {
                 <Image
                     source={require('@assets/ic-contact.png')}
                     style={{
-                        width: icSize - Math.round(icSize * 0.03),
-                        height: icSize - Math.round(icSize * 0.03),
+                        width: icSize - 2,
+                        height: icSize - 2,
                         tintColor: theme.iconPrimary
                     }}
                 />
@@ -172,7 +173,7 @@ export const Avatar = memo((props: {
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
-                    borderRadius: Math.round(icSize / 2),
+                    borderRadius: Math.round(icSize / 4),
                     backgroundColor: theme.surfaceOnElevation,
                     position: 'absolute',
                 },

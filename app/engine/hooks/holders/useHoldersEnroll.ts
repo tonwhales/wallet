@@ -2,7 +2,7 @@ import { Address } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { fetchAccountToken } from "../../api/holders/fetchAccountToken";
 import { contractFromPublicKey, walletConfigFromContract } from "../../contractFromPublicKey";
-import { deleteHoldersToken, getHoldersToken, setHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { useNetwork } from "../network/useNetwork";
 import { useCreateDomainKeyIfNeeded } from "../dapps/useCreateDomainKeyIfNeeded";
 import { createDomainSignature } from "../../utils/createDomainSignature";
@@ -26,7 +26,8 @@ export enum HoldersEnrollErrorType {
     NoDomainKey = 'NoDomainKey',
     DomainKeyFailed = 'DomainKeyFailed',
     FetchTokenFailed = 'FetchTokenFailed',
-    CreateSignatureFailed = 'CreateSignatureFailed'
+    CreateSignatureFailed = 'CreateSignatureFailed',
+    AfterEnrollFailed = 'AfterEnrollFailed'
 }
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
@@ -96,8 +97,15 @@ export function useHoldersEnroll({ acc, domain, authContext, authStyle }: Holder
             return { type: 'success' };
         })();
 
+        //
         // Refetch state
-        await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+        //
+
+        try {
+            await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+        } catch {
+            console.warn(HoldersEnrollErrorType.AfterEnrollFailed);
+        }
 
         return res as HoldersEnrollResult;
     })

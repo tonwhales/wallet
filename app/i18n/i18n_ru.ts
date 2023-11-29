@@ -795,7 +795,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "name": "Имя",
         "lastName": "Фамилия",
         "company": "Компания",
-        "add": "Добавить Контакт",
+        "add": "Добавить контакт",
         "edit": "Редактировать",
         "save": "Сохранить",
         "notes": "Заметки",

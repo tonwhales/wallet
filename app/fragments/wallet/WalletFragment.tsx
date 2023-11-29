@@ -315,7 +315,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 }
 
 const skeleton = (
-    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+    <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
         <WalletSkeleton />
     </View>
 )

@@ -43,7 +43,8 @@ export const WalletSkeleton = memo(() => {
                     <View
                         style={{
                             backgroundColor: theme.backgroundUnchangeable,
-                            height: 260,
+                            height: 360,
+                            paddingTop: 100,
                             position: 'absolute',
                             top: -10,
                             left: 0,
@@ -88,16 +89,15 @@ export const WalletSkeleton = memo(() => {
                             borderRadius: 20,
                             marginTop: 86,
                             position: 'absolute',
-                            top: 130,
+                            top: 230,
                             left: 16, right: 16,
                         }}
                     />
                     <View style={{
                         position: 'absolute',
-                        top: 388,
+                        top: 488,
                         left: 16, right: 16,
                     }}>
-
                         <View
                             style={{
                                 backgroundColor: theme.surfaceOnBg,

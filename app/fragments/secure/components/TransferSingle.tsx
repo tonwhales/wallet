@@ -24,27 +24,9 @@ import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
+import { ConfirmLoadedPropsSingle } from "../TransferFragment";
 
-type Props = {
-    target: {
-        isTestOnly: boolean;
-        address: Address;
-        balance: bigint,
-        active: boolean,
-        domain?: string
-    },
-    text: string | null,
-    order: Order,
-    job: string | null,
-    fees: bigint,
-    metadata: ContractMetadata,
-    restricted: boolean,
-    jettonMaster: JettonMasterState | null
-    callback: ((ok: boolean, result: Cell | null) => void) | null
-    back?: number
-}
-
-export const TransferSingle = memo((props: Props) => {
+export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
@@ -55,9 +37,10 @@ export const TransferSingle = memo((props: Props) => {
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
 
-    const {
+    let {
         restricted,
         target,
+        jettonTarget,
         text,
         order,
         job,
@@ -107,9 +90,13 @@ export const TransferSingle = memo((props: Props) => {
         }
     }, []);
 
+    if (jettonTarget) {
+        target = jettonTarget;
+    }
+
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = useContact(operation.address);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -120,16 +107,14 @@ export const TransferSingle = memo((props: Props) => {
         known = { name: contact.name }
     }
 
-    const isSpam = useDenyAddress(operation.address);
-    let spam = useIsSpamWallet(friendlyTarget) || isSpam
-
+    const isSpam = useDenyAddress(friendlyTarget);
+    const spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
-
 
         // Check if same address
         if (target.address.equals(contract.address)) {

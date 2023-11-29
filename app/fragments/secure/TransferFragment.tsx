@@ -52,7 +52,7 @@ export type OrderMessage = {
     stateInit: Cell | null,
 }
 
-export type ConfirmLoadedProps = {
+export type ConfirmLoadedPropsSingle = {
     type: 'single',
     target: {
         isTestOnly: boolean;
@@ -60,6 +60,13 @@ export type ConfirmLoadedProps = {
         balance: bigint,
         active: boolean,
         domain?: string
+    },
+    jettonTarget?: {
+        isTestOnly: boolean;
+        address: Address;
+        balance: bigint;
+        active: boolean;
+        domain?: string | undefined;
     },
     text: string | null,
     order: Order,
@@ -70,7 +77,9 @@ export type ConfirmLoadedProps = {
     jettonMaster: JettonMasterState | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
-} | {
+}
+
+export type ConfirmLoadedPropsBatch = {
     type: 'batch',
     text: string | null,
     job: string | null,
@@ -87,6 +96,9 @@ export type ConfirmLoadedProps = {
     back?: number,
     totalAmount: bigint
 };
+
+
+export type ConfirmLoadedProps = ConfirmLoadedPropsSingle | ConfirmLoadedPropsBatch;
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
@@ -166,7 +178,8 @@ export const TransferFragment = fragment(() => {
                 ]);
 
                 let jettonMaster: JettonMasterState | null = null;
-                let jettonTarget: Address | null = null;
+                let jettonTarget: typeof target | null = null;
+                let jettonTargetState: typeof state | null = null;
 
                 // Read jetton master
                 if (metadata.jettonWallet) {
@@ -181,12 +194,22 @@ export const TransferFragment = fragment(() => {
                                 if (op === OperationType.JettonTransfer) {
                                     let queryId = sc.loadUint(64);
                                     let amount = sc.loadCoins();
-                                    jettonTarget = sc.loadAddress();
+                                    let jettonTargetAddress = sc.loadAddress();
+
+                                    if (jettonTargetAddress) {
+                                        jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet }));
+                                    }
+
                                     jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
                                 }
                             }
                         }
                     }
+                }
+
+                if (jettonTarget) {
+                    let block = await backoff('transfer', () => client.getLastBlock());
+                    jettonTargetState = await backoff('transfer', () => client.getAccount(block.last.seqno, target.address));
                 }
 
                 if (order.domain) {
@@ -225,7 +248,7 @@ export const TransferFragment = fragment(() => {
                             || !Address.isAddress(resolvedDomainWallet)
                             || (
                                 !!jettonTarget
-                                    ? !resolvedDomainWallet.equals(jettonTarget)
+                                    ? !resolvedDomainWallet.equals(jettonTarget.address)
                                     : !resolvedDomainWallet.equals(target!.address)
                             )
                         ) {
@@ -304,6 +327,13 @@ export const TransferFragment = fragment(() => {
                         active: state.account.state.type === 'active',
                         domain: order.domain
                     },
+                    jettonTarget: !!jettonTarget ? {
+                        isTestOnly: jettonTarget.isTestOnly,
+                        address: jettonTarget.address,
+                        balance: BigInt(jettonTargetState!.account.balance.coins),
+                        active: jettonTargetState!.account.state.type === 'active',
+                        domain: order.domain
+                    } : undefined,
                     order,
                     text,
                     job,

@@ -227,11 +227,16 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         success.current = true;
         trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
 
+        let amount = order.messages[0].amount * (BigInt(-1));
+        if (order.messages[0].amountAll) {
+            amount = BigInt(-1) * account!.balance;
+        }
+
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
             fees: fees,
-            amount: order.messages[0].amount * (BigInt(-1)),
+            amount: amount,
             address: target.address,
             seqno: seqno,
             body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),

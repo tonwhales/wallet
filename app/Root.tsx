@@ -13,7 +13,7 @@ import { memo, useCallback, useState } from 'react';
 import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
 
-const PERSISTANCE_VERSION = '14';
+const PERSISTANCE_VERSION = '15';
 
 LogBox.ignoreAllLogs()
 

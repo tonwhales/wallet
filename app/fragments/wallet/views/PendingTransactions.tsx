@@ -31,6 +31,8 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         known = { name: contact.name }
     }
 
+    const amount = tx.amount > 0n ? tx.amount : -tx.amount;
+
     return (
         <Animated.View
             entering={FadeInDown}
@@ -99,7 +101,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     >
                         {'-'}
                         <ValueComponent
-                            value={tx.amount > 0n ? tx.amount : -tx.amount}
+                            value={amount}
                             decimals={jettonMaster ? jettonMaster.decimals : undefined}
                             precision={3}
                         />
@@ -107,7 +109,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     </Text>
                     {tx.body?.type !== 'token' && (
                         <PriceComponent
-                            amount={tx.amount > 0n ? tx.amount : -tx.amount}
+                            amount={amount}
                             prefix={'-'}
                             style={{
                                 height: undefined,

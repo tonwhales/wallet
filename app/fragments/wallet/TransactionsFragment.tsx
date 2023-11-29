@@ -80,6 +80,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                             style={{ backgroundColor: theme.transparent, paddingVertical: 8 }}
                             contentContainerStyle={{ marginLeft: 16 }}
                             indicatorStyle={{ backgroundColor: theme.transparent }}
+                            gap={16}
+                            tabStyle={{ marginRight: 90 }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
                                 return (

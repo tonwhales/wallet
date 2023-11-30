@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView } from "react-native";
+import { Platform, ScrollView, Text } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
-import { ValueComponent } from "../../components/ValueComponent";
+import { ValueComponent, valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../../components/Avatar";
@@ -48,7 +48,7 @@ const TransactionPreview = () => {
     const [price, currency] = usePrice();
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
-    
+
     const isLedger = route.name === 'LedgerTransactionPreview';
 
     const address = useMemo(() => {
@@ -182,6 +182,12 @@ const TransactionPreview = () => {
         });
     }, []);
 
+    const stringText = valueText({
+        value: item.amount,
+        precision: 9,
+        decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
+    });
+
     return (
         <PerfView
             style={{
@@ -269,7 +275,7 @@ const TransactionPreview = () => {
                         </PerfText>
                     ) : (
                         <>
-                            <PerfText
+                            <Text
                                 minimumFontScale={0.4}
                                 adjustsFontSizeToFit={true}
                                 numberOfLines={1}
@@ -285,16 +291,8 @@ const TransactionPreview = () => {
                                     Typography.semiBold27_32
                                 ]}
                             >
-                                <ValueComponent
-                                    value={item.amount}
-                                    decimals={item.kind === 'token' && jetton ? jetton.decimals : undefined}
-                                    precision={9}
-                                    centFontStyle={{ fontSize: 24 }}
-                                    prefix={kind === 'in' ? '+' : ''}
-                                    suffix={(item.kind === 'token' && !!jetton?.symbol) ? jetton.symbol : undefined}
-                                />
-                                {item.kind === 'ton' ? ' TON' : ''}
-                            </PerfText>
+                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                            </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{

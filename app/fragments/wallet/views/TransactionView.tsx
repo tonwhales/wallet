@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
@@ -19,6 +19,7 @@ import { formatTime } from '../../../utils/dates';
 import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
+import { Typography } from '../../../components/styles';
 
 export function TransactionView(props: {
     own: Address,
@@ -162,41 +163,38 @@ export function TransactionView(props: {
         { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
     ];
 
-    const handleAction = useCallback(
-        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-            switch (e.nativeEvent.name) {
-                case t('txActions.addressShare'): {
-                    onShare(addressLink);
-                    break;
-                }
-                case t('txActions.addressContact'): {
-                    onAddressContact(Address.parse(opAddress));
-                    break;
-                }
-                case t('txActions.addressContactEdit'): {
-                    onAddressContact(Address.parse(opAddress));
-                    break;
-                }
-                case t('txActions.addressMarkSpam'): {
-                    onMarkAddressSpam();
-                    break;
-                }
-                case t('txActions.txRepeat'): {
-                    onRepeatTx();
-                    break;
-                }
-                case t('txActions.txShare'): {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink);
-                    }
-                    break;
-                }
-                default:
-                    break;
+    const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        switch (e.nativeEvent.name) {
+            case t('txActions.addressShare'): {
+                onShare(addressLink);
+                break;
             }
-        },
-        [addressLink, explorerTxLink, onShare, onMarkAddressSpam, onAddressContact],
-    );
+            case t('txActions.addressContact'): {
+                onAddressContact(Address.parse(opAddress));
+                break;
+            }
+            case t('txActions.addressContactEdit'): {
+                onAddressContact(Address.parse(opAddress));
+                break;
+            }
+            case t('txActions.addressMarkSpam'): {
+                onMarkAddressSpam();
+                break;
+            }
+            case t('txActions.txRepeat'): {
+                onRepeatTx();
+                break;
+            }
+            case t('txActions.txShare'): {
+                if (explorerTxLink) {
+                    onShare(explorerTxLink);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }, [addressLink, explorerTxLink, onShare, onMarkAddressSpam, onAddressContact]);
 
     return (
         <ContextMenu
@@ -299,18 +297,18 @@ export function TransactionView(props: {
                                 {t('tx.failed')}
                             </PerfText>
                         ) : (
-                            <PerfText
-                                style={{
-                                    color: kind === 'in'
-                                        ? spam
-                                            ? theme.textPrimary
-                                            : theme.accentGreen
-                                        : theme.textPrimary,
-                                    fontWeight: '600',
-                                    lineHeight: 24,
-                                    fontSize: 17,
-                                    marginRight: 2,
-                                }}
+                            <Text
+                                style={[
+                                    {
+                                        color: kind === 'in'
+                                            ? spam
+                                                ? theme.textPrimary
+                                                : theme.accentGreen
+                                            : theme.textPrimary,
+                                        marginRight: 2,
+                                    },
+                                    Typography.semiBold17_24
+                                ]}
                                 numberOfLines={1}
                             >
                                 {kind === 'in' ? '+' : '-'}
@@ -318,9 +316,12 @@ export function TransactionView(props: {
                                     value={absAmount}
                                     decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
                                     precision={3}
+                                    centFontStyle={{ fontSize: 15 }}
                                 />
-                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
-                            </PerfText>
+                                <Text style={{ fontSize: 15 }}>
+                                    {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                </Text>
+                            </Text>
                         )}
                         {item.kind !== 'token' && (
                             <PriceComponent

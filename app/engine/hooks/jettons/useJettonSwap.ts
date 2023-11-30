@@ -20,7 +20,10 @@ function jettonSwapQueryFn(client4: TonClient4, master: string, isTestnet: boole
 
         // Check if pool exists:
         if ((await pool.getReadinessStatus()) !== ReadinessStatus.READY) {
-            return null;
+            pool = client4.open(await factory.getPool(PoolType.STABLE, [TON, masterJetton]));
+            if ((await pool.getReadinessStatus()) !== ReadinessStatus.READY) {
+                return null;
+            }
         }
 
         // Check if vault exits:
@@ -46,7 +49,7 @@ export function useJettonSwap(master: string) {
     }
 
     return useQuery({
-        queryKey: Queries.Jettons().Swap(master + 'ksdjkljsldk'),
+        queryKey: Queries.Jettons().Swap(master),
         queryFn: jettonSwapQueryFn(client4, master, isTestnet),
         refetchInterval: 1000 * 60 * 5,
         staleTime: 1000 * 60,

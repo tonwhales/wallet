@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share, View } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';

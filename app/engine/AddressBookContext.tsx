@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, memo, useContext } from "react";
 import { AddressBook, AddressContact, useAddressBook } from "./hooks/contacts/useAddressBook";
 
 export const AddressBookContext = createContext<
@@ -11,7 +11,7 @@ export const AddressBookContext = createContext<
     | null
 >(null);
 
-export const AddressBookLoader = ({ children }: { children: React.ReactNode }) => {
+export const AddressBookLoader = memo(({ children }: { children: React.ReactNode }) => {
     const [state, update] = useAddressBook();
 
     const asContact = (addressString?: string | null) => {
@@ -39,7 +39,7 @@ export const AddressBookLoader = ({ children }: { children: React.ReactNode }) =
             {children}
         </AddressBookContext.Provider>
     );
-}
+})
 
 export function useAddressBookContext() {
     const context = useContext(AddressBookContext);

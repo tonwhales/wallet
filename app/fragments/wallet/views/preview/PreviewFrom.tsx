@@ -39,7 +39,7 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                 <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                     {kind === 'in' ? (
                         <PerfText>
-                            {from.address.toString({ testOnly: isTestnet })}
+                            {from.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
                         </PerfText>
                     ) : (
                         <>

@@ -73,7 +73,7 @@ const TransactionPreview = () => {
     const item = operation.items[0];
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const fees = BigInt(tx.base.fees);
-    const isOwn = appState.addresses.findIndex((a) => a.addressString === opAddress) >= 0;
+    const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[opAddress];
@@ -379,8 +379,8 @@ const TransactionPreview = () => {
                     <AboutIconButton
                         title={t('txPreview.blockchainFee')}
                         description={t('txPreview.blockchainFeeDescription')}
-                        style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
-                        size={20}
+                        style={{ height: 24, width: 24, position: undefined, marginRight: 8 }}
+                        size={24}
                     />
                 </PerfView>
             </ScrollView>

@@ -790,7 +790,7 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 <Animated.View
                     layout={Layout.duration(300)}
-                    style={[seletectInputStyles.address, { flex: 1, zIndex: 1 }]}
+                    style={[seletectInputStyles.address, { flex: 1, zIndex: selected === 'address' ? 1 : undefined }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
@@ -812,7 +812,7 @@ export const SimpleTransferFragment = fragment(() => {
                 </Animated.View>
                 <Animated.View
                     layout={Layout.duration(300)}
-                    style={[seletectInputStyles.amount, { flex: 1 }]}
+                    style={[seletectInputStyles.amount, { flex: 1, zIndex: selected === 'amount' ? 1 : undefined }]}
                 >
                     <View
                         style={{
@@ -972,14 +972,15 @@ export const SimpleTransferFragment = fragment(() => {
                 <Animated.View
                     layout={Layout.duration(300)}
                     style={[
-                        { backgroundColor: theme.elevation, flex: 1 },
+                        { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined },
                         seletectInputStyles.comment
                     ]}
                 >
                     <View style={{
                         flex: 1,
                         backgroundColor: theme.surfaceOnElevation,
-                        paddingVertical: 26, paddingHorizontal: 10,
+                        paddingVertical: 20,
+                        paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                         width: '100%', borderRadius: 20,
                     }}>
                         <ATextInput
@@ -1058,7 +1059,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 title={t('txPreview.blockchainFee')}
                                 description={t('txPreview.blockchainFeeDescription')}
                                 style={{ height: 24, width: 24, position: undefined }}
-                                size={20}
+                                size={24}
                             />
                         </View>
                     </Animated.View>

@@ -78,6 +78,7 @@ export const Avatar = memo((props: {
     isOwn?: boolean,
     icBorderWidth?: number,
     icPosition?: 'top' | 'bottom' | 'left' | 'right',
+    icBackgroundColor?: string,
     theme: ThemeType, 
     isTestnet: boolean,
 }) => {
@@ -146,7 +147,7 @@ export const Avatar = memo((props: {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: icSize / 2,
-                    backgroundColor: theme.surfaceOnElevation,
+                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
                     position: 'absolute',
                 },
                 icPosition
@@ -167,7 +168,7 @@ export const Avatar = memo((props: {
                 position: 'absolute',
                 justifyContent: 'center', alignItems: 'center',
                 width: icSize, height: icSize, borderRadius: icSize,
-                backgroundColor: theme.surfaceOnBg
+                backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation
             }, icPosition]}>
                 <Image
                     source={verifiedSource}
@@ -184,7 +185,7 @@ export const Avatar = memo((props: {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: Math.round(icSize / 4),
-                    backgroundColor: theme.surfaceOnElevation,
+                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
                     position: 'absolute',
                 },
                 icPosition

@@ -1,4 +1,3 @@
-import { string } from "io-ts";
 import { LocalizationSchema, PrepareSchema } from "./schema";
 
 const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
@@ -19,7 +18,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "recipient": "Получатель",
         "copy": "Скопировать",
         "copiedAlert": "Скопировано в буфер обмена",
-        "copied": "Скопировано",
+        "copied": "Скопирован",
         "share": "Поделиться",
         "send": "Отправить",
         "yes": "Да",
@@ -437,7 +436,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "minAmountWarning": "Минимальное количество {{minAmount}} TON",
             "tryAgainLater": "Пожалуйста, повторите попытку позже",
             "banner": {
-                "estimatedEarnings": "Ваш предполагаемый годовой доход уменьшится на {{amount}} TON (${{price}})",
+                "estimatedEarnings": "Ваш предполагаемый годовой доход уменьшится на {{amount}} TON (${{price}})",
                 "estimatedEarningsDev": "Ваш предполагаемый годовой доход уменьшится",
                 "message": "Уверены, что хотите вывести?"
             },

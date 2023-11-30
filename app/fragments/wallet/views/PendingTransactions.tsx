@@ -36,7 +36,11 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         }
     }
 
-    const amount = tx.amount > 0n ? tx.amount : -tx.amount;
+    const amount = body?.type === 'token'
+        ? body.amount
+        : tx.amount > 0n
+            ? tx.amount
+            : -tx.amount
 
     return (
         <Animated.View
@@ -106,7 +110,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     >
                         {'-'}
                         <ValueComponent
-                            value={body?.type === 'token' ? body.amount :amount}
+                            value={amount}
                             decimals={(body?.type === 'token' && body.master.decimals) ? body.master.decimals : undefined}
                             precision={3}
                         />

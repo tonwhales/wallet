@@ -32,7 +32,7 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
                         isTestnet={network.isTestnet}
                     />
                 </View>
-                <View style={{ flexGrow: 1, justifyContent: 'center' }}>
+                <View style={{ flexShrink: 1, justifyContent: 'center' }}>
                     <Text
                         style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                         ellipsizeMode={'tail'}

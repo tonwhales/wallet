@@ -979,7 +979,8 @@ export const SimpleTransferFragment = fragment(() => {
                     <View style={{
                         flex: 1,
                         backgroundColor: theme.surfaceOnElevation,
-                        paddingVertical: 26, paddingHorizontal: 10,
+                        paddingVertical: 20,
+                        paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                         width: '100%', borderRadius: 20,
                     }}>
                         <ATextInput

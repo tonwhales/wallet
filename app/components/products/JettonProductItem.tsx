@@ -11,6 +11,9 @@ import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
+import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
+import { PriceComponent } from '../PriceComponent';
+import { fromNano, toNano } from '@ton/core';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -23,8 +26,13 @@ export const JettonProductItem = memo((props: {
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const swap = useJettonSwap(props.jetton.master.toString({ testOnly: isTestnet }));
     const navigation = useTypedNavigation();
     const balance = props.jetton.balance;
+    const balanceNum = Number(fromNano(balance));
+    const swapAmount = (!!swap && balance > 0n)
+        ?  Number(fromNano(swap)) * balanceNum
+        : null;
     const swipableRef = useRef<Swipeable>(null);
 
     const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
@@ -162,7 +170,19 @@ export const JettonProductItem = memo((props: {
                                         {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
                                     </Text>
                                 </PerfText>
-                                <View style={{ flexGrow: 1 }} />
+                                {!!swapAmount && (
+                                    <PriceComponent
+                                        amount={toNano(swapAmount)}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            paddingHorizontal: 0, paddingVertical: 0,
+                                            alignSelf: 'flex-end',
+                                            height: undefined
+                                        }}
+                                        textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                    />
+                                )}
+                                {/* <View style={{ flexGrow: 1 }} /> */}
                             </View>
                         </View>
                     </Wrapper>

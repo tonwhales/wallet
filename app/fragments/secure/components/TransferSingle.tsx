@@ -177,7 +177,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 : text ? comment(text) : null;
 
             let intMessage = internal({
-                to: target.address,
+                to: order.messages[0].target,
                 value: order.messages[0].amount,
                 init: internalStateInit,
                 bounce,

@@ -6,9 +6,9 @@ import { KnownAvatar } from './KnownAvatar';
 import FastImage from 'react-native-fast-image';
 import { memo } from 'react';
 import { useNetwork, useTheme } from '../engine/hooks';
-
-import ContactIcon from '@assets/ic_contacts.svg';
 import { PerfText } from './basic/PerfText';
+import { PerfView } from './basic/PerfView';
+import { ThemeType } from '../engine/state/theme';
 
 export const avatarImages = [
     require('@assets/avatars/0.webp'),
@@ -45,6 +45,10 @@ export const avatarImages = [
     require('@assets/avatars/31.webp'),
 ];
 
+const myWalletSource = require('@assets/ic-my-wallet.png');
+const verifiedSource = require('@assets/ic-verified.png');
+const contactSource = require('@assets/ic-contact.png');
+
 export const avatarColors = [
     '#294659',
     '#e56555',
@@ -73,10 +77,13 @@ export const Avatar = memo((props: {
     backgroundColor?: string,
     isOwn?: boolean,
     icBorderWidth?: number,
-    icPosition?: 'top' | 'bottom' | 'left' | 'right'
+    icPosition?: 'top' | 'bottom' | 'left' | 'right',
+    icBackgroundColor?: string,
+    theme: ThemeType, 
+    isTestnet: boolean,
 }) => {
-    const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const theme = props.theme;
+    const isTestnet = props.isTestnet;
 
     let known = props.address ? KnownWallets(isTestnet)[props.address] : undefined;
 
@@ -135,63 +142,63 @@ export const Avatar = memo((props: {
             icOutline = props.icBorderWidth;
         }
         ic = (
-            <View style={[
+            <PerfView style={[
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: icSize / 2,
-                    backgroundColor: theme.surfaceOnElevation,
+                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
                     position: 'absolute',
                 },
                 icPosition
             ]}>
                 <Image
-                    source={require('@assets/ic-contact.png')}
+                    source={contactSource}
                     style={{
                         width: icSize - icOutline,
                         height: icSize - icOutline,
                         tintColor: theme.iconPrimary
                     }}
                 />
-            </View>
+            </PerfView>
         );
     } else if ((!!known || props.verified) && !props.dontShowVerified && !spam) {
         ic = (
-            <View style={[{
+            <PerfView style={[{
                 position: 'absolute',
                 justifyContent: 'center', alignItems: 'center',
                 width: icSize, height: icSize, borderRadius: icSize,
-                backgroundColor: theme.surfaceOnBg
+                backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation
             }, icPosition]}>
                 <Image
-                    source={require('@assets/ic-verified.png')}
+                    source={verifiedSource}
                     style={{ height: icSize, width: icSize }}
                 />
-            </View>
+            </PerfView>
         );
     }
 
     if (props.isOwn) {
         ic = (
-            <View style={[
+            <PerfView style={[
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: Math.round(icSize / 4),
-                    backgroundColor: theme.surfaceOnElevation,
+                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
                     position: 'absolute',
                 },
                 icPosition
             ]}>
                 <Image
-                    source={require('@assets/ic-my-wallet.png')}
+                    source={myWalletSource}
                     style={{
                         width: icSize,
                         height: icSize,
                         tintColor: theme.iconPrimary
                     }}
                 />
-            </View>
+            </PerfView>
         );
     }
 
@@ -200,8 +207,8 @@ export const Avatar = memo((props: {
     }
 
     return (
-        <View>
-            <View style={{
+        <PerfView>
+            <PerfView style={{
                 width: props.size,
                 height: props.size,
                 borderRadius: props.size / 2,
@@ -210,14 +217,14 @@ export const Avatar = memo((props: {
                 borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
                 alignItems: 'center', justifyContent: 'center',
             }}>
-                <View style={{ opacity: props.spam ? .5 : 1 }}>
+                <PerfView style={{ opacity: props.spam ? .5 : 1 }}>
                     {img}
-                </View>
+                </PerfView>
                 {ic}
-            </View>
+            </PerfView>
             {spam && (
-                <View style={{ borderRadius: 100, padding: 2, backgroundColor: theme.surfaceOnElevation }}>
-                    <View style={{
+                <PerfView style={{ borderRadius: 100, padding: 2, backgroundColor: theme.surfaceOnElevation }}>
+                    <PerfView style={{
                         backgroundColor: theme.backgroundPrimaryInverted,
                         borderRadius: 100,
                         height: 15,
@@ -236,9 +243,10 @@ export const Avatar = memo((props: {
                         }}>
                             {'SPAM'}
                         </PerfText>
-                    </View>
-                </View>
+                    </PerfView>
+                </PerfView>
             )}
-        </View>
+        </PerfView>
     );
 });
+Avatar.displayName = 'AvatarView';

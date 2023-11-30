@@ -7,6 +7,7 @@ import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwor
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 export type AddressSearchItem = {
     address: Address,
@@ -30,7 +31,8 @@ export const AddressSearch = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const contacts = useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
     const appState = useAppState();
     const selectedIndex = appState.selected;
     const myWallets = appState.addresses.map((acc, index) => ({
@@ -50,11 +52,15 @@ export const AddressSearch = memo(({
 
         let addresses: Address[] = [];
         if (!!two && two.length > 1) {
-            const first = Address.parse(two[0].base.parsed.resolvedAddress);
-            const second = Address.parse(two[1].base.parsed.resolvedAddress);
-            if (first && second && first.equals(second)) {
+            const firstAddr = two[0].base.operation.items[0].kind === 'token' ? two[0].base.operation.address : two[0].base.parsed.resolvedAddress;
+            const secondAddr = two[1].base.operation.items[0].kind === 'token' ? two[1].base.operation.address : two[1].base.parsed.resolvedAddress;
+
+            const first = Address.parse(firstAddr);
+            const second = Address.parse(secondAddr);
+
+            if (!!first && !!second && first.equals(second)) {
                 addresses = [first];
-            } else if (first && second && !first.equals(second)) {
+            } else if (!!first && !!second && !first.equals(second)) {
                 addresses = [first, second];
             } else if (first) {
                 addresses = [first];
@@ -62,18 +68,6 @@ export const AddressSearch = memo(({
                 addresses = [second];
             }
         }
-
-        // filter contacts
-        addresses = addresses.filter((a) => {
-            return !Object.keys(contacts).find((key) => {
-                try {
-                    const address = Address.parse(key);
-                    return address.equals(a);
-                } catch {
-                    return false;
-                }
-            });
-        });
 
         return addresses;
     }, [txs, contacts]);

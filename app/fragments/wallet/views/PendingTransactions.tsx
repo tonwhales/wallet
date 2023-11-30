@@ -36,7 +36,11 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         }
     }
 
-    const amount = tx.amount > 0n ? tx.amount : -tx.amount;
+    const amount = body?.type === 'token'
+        ? body.amount
+        : tx.amount > 0n
+            ? tx.amount
+            : -tx.amount
 
     return (
         <Animated.View

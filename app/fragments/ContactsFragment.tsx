@@ -16,6 +16,7 @@ import { useParams } from "../utils/useParams";
 import { StatusBar } from "expo-status-bar";
 
 import IcSpamNonen from '@assets/ic-spam-none.svg';
+import { useAddressBookContext } from "../engine/AddressBookContext";
 
 
 export const ContactsFragment = fragment(() => {
@@ -24,7 +25,8 @@ export const ContactsFragment = fragment(() => {
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const contacts = useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
     const account = useSelectedAccount();
     const client = useClient4(isTestnet);
     const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];

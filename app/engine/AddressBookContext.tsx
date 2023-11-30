@@ -5,8 +5,8 @@ export const AddressBookContext = createContext<
     {
         state: AddressBook,
         update: (updater: (value: AddressBook) => void) => Promise<void>,
-        useContact: (addressString?: string | null) => AddressContact | null,
-        useDenyAddress: (addressString?: string | null) => boolean
+        asContact: (addressString?: string | null) => AddressContact | null,
+        isDenyAddress: (addressString?: string | null) => boolean
     }
     | null
 >(null);
@@ -14,7 +14,7 @@ export const AddressBookContext = createContext<
 export const AddressBookLoader = ({ children }: { children: React.ReactNode }) => {
     const [state, update] = useAddressBook();
 
-    const useContact = (addressString?: string | null) => {
+    const asContact = (addressString?: string | null) => {
         if (!addressString) {
             return null;
         }
@@ -25,7 +25,7 @@ export const AddressBookLoader = ({ children }: { children: React.ReactNode }) =
         return null;
     }
 
-    const useDenyAddress = (addressString?: string | null) => {
+    const isDenyAddress = (addressString?: string | null) => {
         if (!addressString) {
             return false;
         }
@@ -35,7 +35,7 @@ export const AddressBookLoader = ({ children }: { children: React.ReactNode }) =
     }
 
     return (
-        <AddressBookContext.Provider value={{ state, update, useContact, useDenyAddress }}>
+        <AddressBookContext.Provider value={{ state, update, asContact, isDenyAddress }}>
             {children}
         </AddressBookContext.Provider>
     );
@@ -44,7 +44,7 @@ export const AddressBookLoader = ({ children }: { children: React.ReactNode }) =
 export function useAddressBookContext() {
     const context = useContext(AddressBookContext);
     if (context === null) {
-        throw new Error('useHooks must be used within a HooksProvider');
+        throw new Error('useAddressBookContext must be used within a AddressBookLoader');
     }
     return context;
 }

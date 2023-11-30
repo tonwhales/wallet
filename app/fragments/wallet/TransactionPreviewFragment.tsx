@@ -78,8 +78,8 @@ const TransactionPreview = () => {
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[opAddress];
 
-    const contact = addressBook.useContact(opAddress);
-    const isSpam = addressBook.useDenyAddress(opAddress);
+    const contact = addressBook.asContact(opAddress);
+    const isSpam = addressBook.isDenyAddress(opAddress);
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);

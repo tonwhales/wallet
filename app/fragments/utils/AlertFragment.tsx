@@ -39,7 +39,7 @@ export const AlertFragment = fragment(() => {
                 {
                     flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                     flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.surfaceOnElevation,
+                    backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : theme.elevation,
                     borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                     borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
                     padding: 16,

@@ -108,7 +108,7 @@ export const LegalFragment = systemFragment(() => {
                         <Image
                             resizeMode={'contain'}
                             style={{ width: dimensions.screen.width - 32 }}
-                            source={require('@assets/banner_backup.webp')}
+                            source={theme.style === 'dark' ? require('@assets/banner_backup_dark.webp') : require('@assets/banner_backup.webp')}
                         />
                     </View>
                 </View>

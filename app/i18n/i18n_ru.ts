@@ -154,7 +154,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "addressIsNotActiveDescription": "С данного кошелька не было совершено ни одной исходящей транзакции",
             "invalidTransaction": "Неверная транзакция"
         },
-        "sendAll": "Отправить все",
+        "sendAll": "Max",
         "scanQR": "Считать QR код",
         "sendTo": "Получатель",
         "fee": "Комиссия сети: {{fee}}",
@@ -576,7 +576,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "inProgress": "Создаем...",
         "backupTitle": "Ваш секретный ключ",
         "backupSubtitle": "Запишите эти слова в том же порядке и сохраните их в надежном месте",
-        "okSaved": "Ок, всё записано",
+        "okSaved": "ОК, всё записано",
         "copy": "Скопировать в буфер обмена"
     },
     "import": {
@@ -924,7 +924,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "screenCapture": {
         "title": "Вау, крутой скриншот, но это не безопасно",
         "description": "Незашифрованные цифровые копии вашей SEED-фразы НЕ рекомендуются. Примеры включают сохранение копий на компьютере, в онлайн-аккаунтах или путем создания скриншотов",
-        "action": "Ок, я рискну"
+        "action": "ОК, я рискну"
     },
     "onboarding": {
         "avatar": "Здесь вы можете изменить аватар и имя своего кошелька",

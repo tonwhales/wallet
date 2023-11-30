@@ -222,7 +222,7 @@ export const StakingPool = memo((props: {
                                         value={props.balance}
                                         centFontStyle={{ opacity: 0.5 }}
                                     />
-                                    <Text style={{ opacity: 0.5 }}>
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                         {' TON'}
                                     </Text>
                                 </Text>

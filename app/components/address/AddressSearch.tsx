@@ -167,7 +167,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -182,8 +182,24 @@ export const AddressSearch = memo(({
                         {filtered.recent.map((address, index) => {
                             const contact = contacts[address.toString({ testOnly: network.isTestnet })];
                             const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
-                            const type = contact ? 'contact' : known ? 'known' : 'unknown';
-                            const title = contact ? contact.name : known ? known.name : t('contacts.unknown');
+                            const ownIndex = myWallets.findIndex((acc) => acc.address.equals(address));
+                            let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
+                            let title = t('contacts.unknown');
+                            if (contact) {
+                                type = 'contact';
+                                title = contact.name;
+                            } else if (known) {
+                                type = 'known';
+                                title = known.name;
+                            } else if (ownIndex >= 0) {
+                                type = 'my-wallets';
+                                const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
+                                if (settings?.name) {
+                                    title = settings.name;
+                                } else {
+                                    title = `${t('common.wallet')} ${ownIndex + 1}`;
+                                }
+                            }
 
                             return (
                                 <AddressSearchItemView
@@ -212,7 +228,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -247,7 +263,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>

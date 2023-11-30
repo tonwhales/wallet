@@ -190,7 +190,8 @@ export const HomeFragment = fragment(() => {
                             )
                         } : undefined,
                         tabBarActiveTintColor: theme.accent,
-                        tabBarInactiveTintColor: theme.iconPrimary,
+                        tabBarInactiveTintColor: theme.textSecondary,
+                        tabBarLabelStyle: { marginTop: -4 },
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 

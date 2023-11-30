@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KnownJettonMasters } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { WImage } from '../WImage';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
@@ -157,7 +157,10 @@ export const JettonProductItem = memo((props: {
                                     <ValueComponent
                                         value={balance}
                                         decimals={props.jetton.decimals}
-                                    />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    />
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                        {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    </Text>
                                 </PerfText>
                                 <View style={{ flexGrow: 1 }} />
                             </View>
@@ -229,7 +232,10 @@ export const JettonProductItem = memo((props: {
                             <ValueComponent
                                 value={balance}
                                 decimals={props.jetton.decimals}
-                            />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            />
+                            <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            </Text>
                         </PerfText>
                         <View style={{ flexGrow: 1 }} />
                     </View>

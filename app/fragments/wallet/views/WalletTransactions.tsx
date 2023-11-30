@@ -70,7 +70,8 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
-        && prev.spamWallets === next.spamWallets;
+        && prev.spamWallets === next.spamWallets
+        && prev.appState === next.appState;
 });
 
 export const WalletTransactions = memo((props: {

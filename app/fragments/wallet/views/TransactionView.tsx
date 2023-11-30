@@ -53,7 +53,7 @@ export function TransactionView(props: {
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-    const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.addressString === opAddress) >= 0;
+    const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;

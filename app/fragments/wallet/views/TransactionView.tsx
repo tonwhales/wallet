@@ -83,9 +83,11 @@ export function TransactionView(props: {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[opAddress]) {
         known = KnownWallets(isTestnet)[opAddress];
-    } else if (tx.title) {
+    } 
+    if (tx.title) {
         known = { name: tx.title };
-    } else if (!!contact) { // Resolve contact known wallet
+    } 
+    if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 

@@ -22,6 +22,7 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -156,6 +157,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 backgroundColor: theme.backgroundPrimary,
             }}>
                 <DappsRequests />
+                <PendingTransactions />
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',

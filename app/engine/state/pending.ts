@@ -1,10 +1,11 @@
 import { atom } from "recoil";
 import { Address, Cell } from "@ton/core";
+import { JettonMasterState } from "../metadata/fetchJettonMasterContent";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell }
     | { type: 'comment', comment: string }
-    | { type: 'token', amount: bigint, master: Address }
+    | { type: 'token', amount: bigint, master: JettonMasterState, target: Address }
     | { type: 'batch' };
 
 export type PendingTransaction = {

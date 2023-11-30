@@ -117,7 +117,6 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 frameArea={frameArea}
                                 loading={txs.loading}
                                 ledger={props.isLedger}
-                                header={props.isLedger ? undefined : <PendingTransactions />}
                             />
                         )
                     } else {

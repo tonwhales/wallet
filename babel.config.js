@@ -17,6 +17,8 @@ module.exports = function (api) {
       {
         alias: {
           '@assets': './assets',
+          'crypto': 'react-native-quick-crypto',
+          'buffer': '@craftzdog/react-native-buffer'
         },
       },
     ],

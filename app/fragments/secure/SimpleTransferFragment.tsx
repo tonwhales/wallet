@@ -658,6 +658,8 @@ export const SimpleTransferFragment = fragment(() => {
                             id={addressFriendly}
                             address={addressFriendly}
                             borderWith={0}
+                            theme={theme}
+                            isTestnet={network.isTestnet}
                         />
                         <Text style={{
                             fontSize: 17, lineHeight: 24,
@@ -852,13 +854,17 @@ export const SimpleTransferFragment = fragment(() => {
                                         )}
                                         {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                         {isVerified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: 0
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: 0,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                     <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
@@ -1033,10 +1039,19 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                            {`${fromNano(estimation)} TON`}
                                         </>
                                         : '...'
                                     }
+                                    {!!estimationPrise && (
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                        }}>
+                                            {` (${estimationPrise})`}
+                                        </Text>
+
+                                    )}
                                 </Text>
                             </View>
                             <AboutIconButton
@@ -1069,7 +1084,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     : <RoundButton
                         disabled={!order}
-                        title={t('common.send')}
+                        title={t('common.continue')}
                         action={doSend}
                     />
                 }

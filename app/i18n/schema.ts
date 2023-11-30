@@ -531,8 +531,14 @@ export type LocalizationSchema = {
                 description_3: string,
                 moreInfo: string,
                 buttonSub: string,
-                failed: string,
-                failedDescription: string,
+                failed: {
+                    title: string,
+                    noAppData: string,
+                    noDomainKey: string,
+                    createDomainKey: string,
+                    fetchToken: string,
+                    createSignature: string,
+                },
             }
         }
     }

@@ -22,6 +22,7 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -101,13 +102,17 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 ]}>
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <IcTonIcon width={46} height={46} />
-                        <Image
-                            source={require('@assets/ic-verified.png')}
-                            style={{
-                                height: 16, width: 16,
-                                position: 'absolute', right: -2, bottom: -2,
-                            }}
-                        />
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            height: 20, width: 20, borderRadius: 10,
+                            position: 'absolute', right: -2, bottom: -2,
+                            backgroundColor: theme.surfaceOnBg
+                        }}>
+                            <Image
+                                source={require('@assets/ic-verified.png')}
+                                style={{ height: 20, width: 20 }}
+                            />
+                        </View>
                     </View>
                     <View style={{ marginLeft: 12, flexShrink: 1 }}>
                         <Text
@@ -128,7 +133,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                         <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
                             <ValueComponent value={balance} precision={2} />
-                            <Text style={{ opacity: 0.5 }}>{' TON'}</Text>
+                            <Text style={{ color: theme.textSecondary, fontSize: 15 }}>{' TON'}</Text>
                         </Text>
                         <PriceComponent
                             amount={balance}
@@ -152,6 +157,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                 backgroundColor: theme.backgroundPrimary,
             }}>
                 <DappsRequests />
+                <PendingTransactions />
                 <View style={{
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',
@@ -161,10 +167,10 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     paddingHorizontal: 16
                 }}>
                     <Text style={{
-                        fontSize: 17,
+                        fontSize: 20,
                         fontWeight: '600',
                         color: theme.textPrimary,
-                        lineHeight: 24,
+                        lineHeight: 28,
                     }}>
                         {t('common.products')}
                     </Text>

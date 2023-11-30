@@ -3,6 +3,7 @@ export const Queries = {
     Account: (address: string) => ({
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
+        WalletV4: () => ['account', address, 'wallet-v4'],
         JettonWallet: () => ['account', address, 'jettonWallet'],
         StakingPool: () => ({
             Status: () => ['account', address, 'staking', 'status'],
@@ -16,6 +17,7 @@ export const Queries = {
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
+        All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],

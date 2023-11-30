@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KnownJettonMasters } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { WImage } from '../WImage';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
@@ -120,13 +120,17 @@ export const JettonProductItem = memo((props: {
                                     borderRadius={23}
                                 />
                                 {isKnown && (
-                                    <Image
-                                        source={require('@assets/ic-verified.png')}
-                                        style={{
-                                            height: 16, width: 16,
-                                            position: 'absolute', right: -2, bottom: -2,
-                                        }}
-                                    />
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 20, width: 20, borderRadius: 10,
+                                        position: 'absolute', right: -2, bottom: -2,
+                                        backgroundColor: theme.surfaceOnBg
+                                    }}>
+                                        <Image
+                                            source={require('@assets/ic-verified.png')}
+                                            style={{ height: 20, width: 20 }}
+                                        />
+                                    </View>
                                 )}
                             </View>
                             <View style={{ marginLeft: 12, flex: 1 }}>
@@ -153,7 +157,10 @@ export const JettonProductItem = memo((props: {
                                     <ValueComponent
                                         value={balance}
                                         decimals={props.jetton.decimals}
-                                    />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    />
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                        {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    </Text>
                                 </PerfText>
                                 <View style={{ flexGrow: 1 }} />
                             </View>
@@ -188,13 +195,17 @@ export const JettonProductItem = memo((props: {
                             borderRadius={23}
                         />
                         {isKnown && (
-                            <Image
-                                source={require('@assets/ic-verified.png')}
-                                style={{
-                                    height: 16, width: 16,
-                                    position: 'absolute', right: -2, bottom: -2,
-                                }}
-                            />
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'center',
+                                height: 20, width: 20, borderRadius: 10,
+                                position: 'absolute', right: -2, bottom: -2,
+                                backgroundColor: theme.surfaceOnBg
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-verified.png')}
+                                    style={{ height: 20, width: 20 }}
+                                />
+                            </View>
                         )}
                     </View>
                     <View style={{ marginLeft: 12, flex: 1 }}>
@@ -221,7 +232,10 @@ export const JettonProductItem = memo((props: {
                             <ValueComponent
                                 value={balance}
                                 decimals={props.jetton.decimals}
-                            />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            />
+                            <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            </Text>
                         </PerfText>
                         <View style={{ flexGrow: 1 }} />
                     </View>

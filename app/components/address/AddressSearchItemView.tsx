@@ -28,6 +28,8 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
                         markContact={item.type === 'contact'}
                         isOwn={item.type === 'my-wallets'}
                         hash={item.walletSettings?.avatar}
+                        theme={theme}
+                        isTestnet={network.isTestnet}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>

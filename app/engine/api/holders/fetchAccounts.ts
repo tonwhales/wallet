@@ -24,7 +24,7 @@ const accountPublicSchema = z.object({
   id: z.string(),
   address: z.nullable(z.string()),
   state: z.string(),
-  name: z.string(),
+  name: z.string().nullable().optional(),
   balance: z.string(),
   partner: z.string(),
   tzOffset: z.number(),
@@ -149,7 +149,6 @@ const personalizationCodeSchema = z.union([
 
 const cardSchema = z.object({
   id: z.string(),
-  walletId: z.string(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
   leftToPay: z.string(),
@@ -169,7 +168,7 @@ const cryptoCurrencyTicker = z.union([
 
 const accountSchema = z.object({
   id: z.string(),
-  address: z.string(),
+  address: z.string().optional().nullable(),
   name: z.string().nullable().optional(),
   seed: z.string().nullable(),
   state: z.string(),
@@ -205,7 +204,7 @@ export const generalAccountSchema = z.intersection(accountSchema, accountPublicS
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
 
-export async function fetchCardsList(token: string) {
+export async function fetchAccountsList(token: string) {
   let res = await axios.post(
     'https://' + holdersEndpoint + '/v2/account/list',
     { token },
@@ -227,7 +226,9 @@ export async function fetchCardsList(token: string) {
     throw Error(`Error fetching card list: ${res.data.error}`);
   }
 
-  if (!accountsListResCodec.safeParse(res.data).success) {
+  let parseResult = accountsListResCodec.safeParse(res.data);
+  if (!parseResult.success) {
+    console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid card list response");
   }
 

@@ -10,7 +10,7 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Swipeable, TouchableHighlight } from "react-native-gesture-handler";
 import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
-import { GeneralHoldersAccount } from "../../engine/api/holders/fetchCards";
+import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
 
@@ -59,7 +59,7 @@ export const HoldersAccountItem = memo((props: {
 
     const title = props.account?.name
         ? props.account.name
-        : t('products.holders.card.defaultTitle');
+        : t('products.holders.title');
     const subtitle = props.account
         ? `${t('products.holders.card.card')} ${props.account.cards.map((card, index) => card.lastFourDigits).join(', ')}`
         : t('products.holders.card.defaultSubtitle');
@@ -152,12 +152,12 @@ export const HoldersAccountItem = memo((props: {
                             </View>
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <PerfText style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                                    <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
                                         <ValueComponent value={props.account.balance} precision={2} />
-                                        <PerfText style={{ opacity: 0.5 }}>
+                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                             {' TON'}
-                                        </PerfText>
-                                    </PerfText>
+                                        </Text>
+                                    </Text>
                                     <PriceComponent
                                         amount={BigInt(props.account.balance)}
                                         style={{

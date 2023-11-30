@@ -1,5 +1,5 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { StyleProp, View, ViewStyle, Text, Platform, Pressable } from "react-native";
+import { StyleProp, View, ViewStyle, Text, Platform, Pressable, Image } from "react-native";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
@@ -10,9 +10,7 @@ import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEn
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from "../../engine/hooks";
 
-import TouchIos from '@assets/ic_touch_ios.svg';
 import TouchAndroid from '@assets/ic_touch_and.svg';
-import FaceIos from '@assets/ic_face_id.svg';
 
 export const PasscodeInput = memo((
     {
@@ -20,6 +18,7 @@ export const PasscodeInput = memo((
         description,
         style,
         onRetryBiometrics,
+        onMount,
         onEntered,
         passcodeLength = 6,
         onPasscodeLengthChange,
@@ -29,6 +28,7 @@ export const PasscodeInput = memo((
         description?: string,
         style?: StyleProp<ViewStyle>,
         onRetryBiometrics?: () => void,
+        onMount?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
         passcodeLength?: number,
         onPasscodeLengthChange?: (length: number) => void,
@@ -103,18 +103,42 @@ export const PasscodeInput = memo((
         }
     }, []);
 
+    useEffect(() => {
+        if (!!onMount) {
+            setTimeout(() => {
+                onMount();
+            }, 500) // to call pin pad has been rendred for user, some weird bug
+        }
+    }, []);
+
     const deviceEncryptionIcon = useMemo(() => {
         let icon: any | undefined;
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos color={theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    ? (
+                        <View style={{ height: 60, width: 60, justifyContent: 'center', alignItems: 'center' }}>
+                            <Image
+                                style={{ height: 32, width: 32 }}
+                                resizeMode={'cover'}
+                                source={require('@assets/ic-secure-face.png')}
+                            />
+                        </View>
+                    )
                     : <TouchAndroid color={theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos color={theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    ? (
+                        <View style={{ height: 60, width: 60, justifyContent: 'center', alignItems: 'center' }}>
+                            <Image
+                                style={{ height: 32, width: 32 }}
+                                resizeMode={'cover'}
+                                source={require('@assets/ic-touch-id.png')}
+                            />
+                        </View>
+                    )
                     : <TouchAndroid color={theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'passcode':

@@ -30,6 +30,7 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
+import * as Sentry from '@sentry/react-native';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -170,6 +171,9 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
+                        </View>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton title={"Test Sentry events"} onPress={() => Sentry.captureException(new Error('First error'))} />
                         </View>
 
                         {!(

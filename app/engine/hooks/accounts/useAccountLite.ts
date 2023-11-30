@@ -9,6 +9,10 @@ import { useMemo } from 'react';
 export type AccountLite = {
     address: string,
     balance: bigint,
+    last: {
+        hash: string,
+        lt: string,
+    } | null,
 }
 
 export function useAccountLite(address?: Address | null): AccountLite | null {
@@ -43,5 +47,6 @@ export function useAccountLite(address?: Address | null): AccountLite | null {
     return {
         address: addressString,
         balance: query.data.account.balance.coins ? BigInt(query.data?.account.balance.coins) : BigInt(0),
+        last: query.data.account.last,
     }
 }

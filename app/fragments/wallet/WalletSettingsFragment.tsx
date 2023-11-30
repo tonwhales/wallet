@@ -117,6 +117,8 @@ export const WalletSettingsFragment = fragment(() => {
                             borderColor={theme.surfaceOnElevation}
                             id={''}
                             hash={avatar}
+                            theme={theme}
+                            isTestnet={isTestnet}
                         />
                         <Text style={{
                             color: theme.accent,

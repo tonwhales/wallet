@@ -9,8 +9,8 @@ import { ThemeType } from "../../engine/state/theme";
 const SectionHeader = memo(({ theme }: { theme: ThemeType }) => {
     const rndmWith = Math.floor(Math.random() * 100) + 100;
     return (
-        <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16 }}>
-            <View style={{ borderRadius: 12, height: 24, width: rndmWith, backgroundColor: theme.divider }} />
+        <View style={{ width: '100%', paddingVertical: 8, opacity: 0.3 }}>
+            <View style={{ borderRadius: 12, height: 24, width: rndmWith, backgroundColor: theme.textSecondary }} />
         </View>
     )
 });
@@ -35,7 +35,7 @@ export const TransactionsSkeleton = memo(() => {
 
     const components = Array.from({ length: 20 }).map((_, index) => {
         const right = Math.random() * 50;
-        const left = Math.random() * 100;
+        const left = Math.max(Math.random() * 100, 50);
 
         const rndmShoHeader = index === 0 || (Math.floor(Math.random() * 4) + index % 3) > 3;
 
@@ -47,43 +47,44 @@ export const TransactionsSkeleton = memo(() => {
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    paddingHorizontal: 16, paddingVertical: 20,
+                    paddingHorizontal: 0, paddingVertical: 20,
+                    opacity: 0.3
                 }}>
                     <View style={{
                         width: 46, height: 46,
                         borderRadius: 23,
                         borderWidth: 0, marginRight: 10,
                         justifyContent: 'center', alignItems: 'center',
-                        backgroundColor: theme.border
+                        backgroundColor: theme.textSecondary,
                     }} />
                     <View style={{ flex: 1, marginRight: 4 }}>
                         <View style={{
                             height: 24, width: left + 28,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 12,
-                            borderTopRightRadius: 12,
+                            borderTopLeftRadius: 8,
+                            borderTopRightRadius: 8,
                         }} />
                         <View style={{
                             height: 20, width: left + 56,
                             backgroundColor: theme.textSecondary,
-                            borderTopRightRadius: 12,
-                            borderBottomLeftRadius: 12,
-                            borderBottomRightRadius: 12,
+                            borderTopRightRadius: 8,
+                            borderBottomLeftRadius: 8,
+                            borderBottomRightRadius: 8,
                         }} />
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <View style={{
                             height: 20, width: right + 32,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 12,
-                            borderTopRightRadius: 12,
+                            borderTopLeftRadius: 8,
+                            borderTopRightRadius: 8,
                         }} />
                         <View style={{
                             height: 18, width: right + 64,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 12,
-                            borderBottomLeftRadius: 12,
-                            borderBottomRightRadius: 12,
+                            borderTopLeftRadius: 8,
+                            borderBottomLeftRadius: 8,
+                            borderBottomRightRadius: 8,
                         }} />
                     </View>
                 </View>

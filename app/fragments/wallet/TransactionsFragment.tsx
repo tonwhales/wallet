@@ -21,7 +21,7 @@ import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
-import { HoldersAccount } from "../../engine/api/holders/fetchCards";
+import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
@@ -37,7 +37,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     const holdersCards = holdersAccounts?.type === 'private'
         ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()
         : [];
-    const transactions = txs?.data;
+    const transactions = txs.data;
 
     const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
 
@@ -58,10 +58,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [holdersCards]);
 
     const onReachedEnd = useCallback(() => {
-        if (txs?.hasNext && !txs?.loading) {
-            txs?.next();
+        if (txs.hasNext) {
+            txs.next();
         }
-    }, [txs?.next, txs?.hasNext, txs?.loading]);
+    }, [txs.next, txs.hasNext]);
 
     return (
         <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -80,6 +80,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                             style={{ backgroundColor: theme.transparent, paddingVertical: 8 }}
                             contentContainerStyle={{ marginLeft: 16 }}
                             indicatorStyle={{ backgroundColor: theme.transparent }}
+                            gap={16}
+                            tabStyle={{ marginRight: 90 }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
                                 return (
@@ -111,11 +113,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 navigation={navigation}
                                 safeArea={safeArea}
                                 onLoadMore={onReachedEnd}
-                                hasNext={txs?.hasNext === true}
+                                hasNext={txs.hasNext === true}
                                 frameArea={frameArea}
-                                loading={txs?.loading === true}
+                                loading={txs.loading}
                                 ledger={props.isLedger}
-                                header={props.isLedger ? undefined : <PendingTransactions />}
                             />
                         )
                     } else {
@@ -173,7 +174,11 @@ export const TransactionsFragment = fragment(() => {
         );
     } else {
         return (
-            <Suspense fallback={<TransactionsSkeleton />}>
+            <Suspense fallback={
+                <View style={{ paddingTop: 166 }}>
+                    <TransactionsSkeleton />
+                </View>
+            }>
                 <TransactionsComponent isLedger={isLedger} account={account} />
             </Suspense>
         )

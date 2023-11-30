@@ -20,7 +20,7 @@ import { WImage } from "../../../components/WImage";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { useAppData, useAppManifest, useClient4, useCommitCommand, useContacts, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
+import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
 import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
@@ -764,13 +764,17 @@ export const TransferBatch = memo((props: Props) => {
                                                     >
                                                         {i.known?.name}
                                                     </Text>
-                                                    <Image
-                                                        source={require('@assets/ic-verified.png')}
-                                                        style={{
-                                                            height: 18, width: 18,
-                                                            marginLeft: 6
-                                                        }}
-                                                    />
+                                                    <View style={{
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        height: 18, width: 18, borderRadius: 9,
+                                                        marginLeft: 6,
+                                                        backgroundColor: theme.surfaceOnBg
+                                                    }}>
+                                                        <Image
+                                                            source={require('@assets/ic-verified.png')}
+                                                            style={{ height: 18, width: 18 }}
+                                                        />
+                                                    </View>
                                                 </View>
                                             )}
                                             {(!i.message.addr.active) && (

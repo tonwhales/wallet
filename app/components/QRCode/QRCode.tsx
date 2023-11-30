@@ -110,7 +110,7 @@ export const QRCode = memo((props: {
                 }
 
                 const matrixCenter = Math.floor(matrix.size / 2);
-                const circleRadius = Math.floor(34 / (dotSize));
+                const circleRadius = Math.floor(36 / (dotSize));
 
                 if (isPointInCircle(x, y, matrixCenter, matrixCenter, circleRadius)) {
                     continue;

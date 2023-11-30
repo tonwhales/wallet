@@ -46,6 +46,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                         id={addr}
                         size={46}
                         borderWith={0}
+                        theme={theme}
+                        isTestnet={isTestnet}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>

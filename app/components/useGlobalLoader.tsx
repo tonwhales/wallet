@@ -76,3 +76,4 @@ export const GlobalLoaderProvider = React.memo((props: { children?: any }) => {
         </GlobalLoaderContext.Provider>
     )
 })
+GlobalLoaderProvider.displayName = 'GlobalLoaderProvider';

@@ -174,6 +174,8 @@ export const WalletBackupFragment = systemFragment(() => {
                                 size={77}
                                 borderColor={theme.elevation}
                                 borderWith={3}
+                                theme={theme}
+                                isTestnet={network.isTestnet}
                             />
                         </View>
                     )}

@@ -6,6 +6,8 @@ import { NativeStackNavigationOptions } from "@react-navigation/native-stack";
 import { BackButton } from "./navigation/BackButton";
 import { ThemeType } from "../engine/state/theme";
 import { useTheme } from "../engine/hooks";
+import { PerfText } from "./basic/PerfText";
+import { Typography } from "./styles";
 
 export function useScreenHeader(
     navigation: TypedNavigation,
@@ -140,17 +142,11 @@ export const ScreenHeader = memo((
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     {!!title && !titleComponent && (
-                        <Text style={[{
-                            color: textColor ?? theme.textPrimary,
-                            fontWeight: '600',
-                            fontSize: 17,
-                            lineHeight: 24,
-                            maxWidth: '60%'
-                        }, titleStyle]}
+                        <PerfText style={[{ color: textColor ?? theme.textPrimary, maxWidth: '60%' }, Typography.semiBold17_24, titleStyle]}
                             ellipsizeMode={'tail'}
                         >
                             {title}
-                        </Text>
+                        </PerfText>
                     )}
                     {titleComponent}
                 </View>
@@ -177,3 +173,4 @@ export const ScreenHeader = memo((
         </View>
     );
 });
+ScreenHeader.displayName = 'ScreenHeader';

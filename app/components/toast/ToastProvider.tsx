@@ -227,6 +227,7 @@ export const ToastProvider = memo((props: { children: React.ReactNode }) => {
         </ToastContext.Provider>
     );
 });
+ToastProvider.displayName = 'ToastProvider';
 
 export function useToaster() {
     const context = useContext(ToastContext);

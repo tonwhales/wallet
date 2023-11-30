@@ -85,6 +85,8 @@ export const WalletHeader = memo(() => {
                                 borderWith={0}
                                 hash={walletSettings?.avatar}
                                 backgroundColor={theme.iconUnchangeable}
+                                theme={theme}
+                                isTestnet={network.isTestnet}
                             />
                         </OnboadingView>
                     </CopilotStep>

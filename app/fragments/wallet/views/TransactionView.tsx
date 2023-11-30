@@ -18,6 +18,7 @@ import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatTime } from '../../../utils/dates';
 import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
+import { PerfView } from '../../../components/basic/PerfView';
 
 export function TransactionView(props: {
     own: Address,
@@ -83,10 +84,10 @@ export function TransactionView(props: {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[opAddress]) {
         known = KnownWallets(isTestnet)[opAddress];
-    } 
+    }
     if (tx.title) {
         known = { name: tx.title };
-    } 
+    }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
@@ -207,13 +208,13 @@ export function TransactionView(props: {
                 style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
-                <View style={{
+                <PerfView style={{
                     alignSelf: 'stretch',
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <View style={{
+                    <PerfView style={{
                         width: 46, height: 46,
                         borderRadius: 23,
                         position: 'relative',
@@ -236,11 +237,13 @@ export function TransactionView(props: {
                                 spam={spam}
                                 markContact={!!contact}
                                 isOwn={isOwn}
+                                theme={theme}
+                                isTestnet={isTestnet}
                             />
                         )}
-                    </View>
-                    <View style={{ flex: 1, marginRight: 4 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    </PerfView>
+                    <PerfView style={{ flex: 1, marginRight: 4 }}>
+                        <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <PerfText
                                 style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                                 ellipsizeMode={'tail'}
@@ -249,7 +252,7 @@ export function TransactionView(props: {
                                 {op}
                             </PerfText>
                             {spam && (
-                                <View style={{
+                                <PerfView style={{
                                     backgroundColor: theme.backgroundUnchangeable,
                                     borderWidth: 1,
                                     justifyContent: 'center',
@@ -268,9 +271,9 @@ export function TransactionView(props: {
                                     >
                                         {'SPAM'}
                                     </PerfText>
-                                </View>
+                                </PerfView>
                             )}
-                        </View>
+                        </PerfView>
                         <PerfText
                             style={{
                                 color: theme.textSecondary,
@@ -289,8 +292,8 @@ export function TransactionView(props: {
                             }
                             {` • ${formatTime(tx.base.time)}`}
                         </PerfText>
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
+                    </PerfView>
+                    <PerfView style={{ alignItems: 'flex-end' }}>
                         {parsed.status === 'failed' ? (
                             <PerfText style={{ color: theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}
@@ -316,7 +319,7 @@ export function TransactionView(props: {
                                     decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
                                     precision={3}
                                 />
-                                {item.kind === 'token' ? ' ' + tx.masterMetadata?.symbol : ' TON'}
+                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
                             </PerfText>
                         )}
                         {item.kind !== 'token' && (
@@ -336,10 +339,10 @@ export function TransactionView(props: {
                                 }}
                             />
                         )}
-                    </View>
-                </View>
+                    </PerfView>
+                </PerfView>
                 {!!operation.comment && !(spam && dontShowComments) && (
-                    <View style={{
+                    <PerfView style={{
                         flexShrink: 1, alignSelf: 'flex-start',
                         backgroundColor: theme.border,
                         marginTop: 8,
@@ -353,7 +356,7 @@ export function TransactionView(props: {
                         >
                             {operation.comment}
                         </PerfText>
-                    </View>
+                    </PerfView>
                 )}
             </Pressable>
         </ContextMenu>

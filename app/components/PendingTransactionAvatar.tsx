@@ -64,6 +64,8 @@ export const PendingTransactionAvatar = memo(({
                     hash={walletSettings.avatar}
                     borderWith={0}
                     backgroundColor={theme.backgroundPrimary}
+                    theme={theme}
+                    isTestnet={network.isTestnet}
                 />
             </View>
             <Animated.View style={[

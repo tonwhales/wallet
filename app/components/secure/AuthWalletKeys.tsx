@@ -415,6 +415,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         </AuthWalletKeysContext.Provider>
     );
 });
+AuthWalletKeysContextProvider.displayName = 'AuthWalletKeysContextProvider';
 
 export function useKeysAuth() {
     const context = useContext(AuthWalletKeysContext);

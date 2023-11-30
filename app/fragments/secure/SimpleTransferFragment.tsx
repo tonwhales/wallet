@@ -658,6 +658,8 @@ export const SimpleTransferFragment = fragment(() => {
                             id={addressFriendly}
                             address={addressFriendly}
                             borderWith={0}
+                            theme={theme}
+                            isTestnet={network.isTestnet}
                         />
                         <Text style={{
                             fontSize: 17, lineHeight: 24,

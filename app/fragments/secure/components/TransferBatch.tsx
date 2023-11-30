@@ -20,7 +20,7 @@ import { WImage } from "../../../components/WImage";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { useAppData, useAppManifest, useClient4, useCommitCommand, useContacts, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
+import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
 import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";

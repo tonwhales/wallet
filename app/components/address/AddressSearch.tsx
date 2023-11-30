@@ -7,6 +7,7 @@ import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwor
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 export type AddressSearchItem = {
     address: Address,
@@ -30,7 +31,8 @@ export const AddressSearch = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const contacts = useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
     const appState = useAppState();
     const selectedIndex = appState.selected;
     const myWallets = appState.addresses.map((acc, index) => ({

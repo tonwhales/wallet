@@ -28,7 +28,7 @@ import { StatusBar } from "expo-status-bar";
 import { formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
-import { useAddressBookHooks } from "../../engine/AddressBookContext";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { PerfView } from "../../components/basic/PerfView";
 import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
@@ -38,17 +38,18 @@ const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const route = useRoute();
-    const isLedger = route.name === 'LedgerTransactionPreview';
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
     const ledgerContext = useLedgerTransport();
     const appState = useAppState();
-    const hooks = useAddressBookHooks();
+    const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
+    
+    const isLedger = route.name === 'LedgerTransactionPreview';
 
     const address = useMemo(() => {
         if (isLedger && !!ledgerContext?.addr?.address) {
@@ -77,8 +78,8 @@ const TransactionPreview = () => {
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[opAddress];
 
-    const contact = hooks.useContact(opAddress);
-    const isSpam = hooks.useDenyAddress(opAddress);
+    const contact = addressBook.useContact(opAddress);
+    const isSpam = addressBook.useDenyAddress(opAddress);
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);

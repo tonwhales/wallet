@@ -3,7 +3,8 @@ import { AddressBook, AddressContact, useAddressBook } from "./hooks/contacts/us
 
 export const AddressBookContext = createContext<
     {
-        addressBook: [AddressBook, (updater: (value: AddressBook) => void) => Promise<void>],
+        state: AddressBook,
+        update: (updater: (value: AddressBook) => void) => Promise<void>,
         useContact: (addressString?: string | null) => AddressContact | null,
         useDenyAddress: (addressString?: string | null) => boolean
     }
@@ -11,13 +12,13 @@ export const AddressBookContext = createContext<
 >(null);
 
 export const AddressBookLoader = ({ children }: { children: React.ReactNode }) => {
-    const addressBook = useAddressBook();
+    const [state, update] = useAddressBook();
 
     const useContact = (addressString?: string | null) => {
         if (!addressString) {
             return null;
         }
-        const contact = addressBook[0].contacts[addressString];
+        const contact = state.contacts[addressString];
         if (!!contact) {
             return contact;
         }
@@ -29,18 +30,18 @@ export const AddressBookLoader = ({ children }: { children: React.ReactNode }) =
             return false;
         }
 
-        const denied = addressBook[0].denyList[addressString];
+        const denied = state.denyList[addressString];
         return !!denied;
     }
 
     return (
-        <AddressBookContext.Provider value={{ addressBook, useContact, useDenyAddress }}>
+        <AddressBookContext.Provider value={{ state, update, useContact, useDenyAddress }}>
             {children}
         </AddressBookContext.Provider>
     );
 }
 
-export function useAddressBookHooks() {
+export function useAddressBookContext() {
     const context = useContext(AddressBookContext);
     if (context === null) {
         throw new Error('useHooks must be used within a HooksProvider');

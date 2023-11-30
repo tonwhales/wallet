@@ -1,8 +1,7 @@
 import { memo, useCallback } from "react"
-import { Pressable, StyleProp, ViewStyle } from "react-native"
+import { Image, Pressable, StyleProp, ViewStyle } from "react-native"
 import { useTypedNavigation } from "../utils/useTypedNavigation"
-
-import IcInfo from '@assets/ic-info.svg'
+import { useTheme } from "../engine/hooks"
 
 export const AboutIconButton = memo(({
     title,
@@ -15,6 +14,7 @@ export const AboutIconButton = memo(({
     style: StyleProp<ViewStyle>,
     size?: number
 }) => {
+    const theme = useTheme();
     const navigation = useTypedNavigation();
 
     const onPressed = useCallback(() => {
@@ -32,9 +32,10 @@ export const AboutIconButton = memo(({
                 style
             ])}
         >
-            <IcInfo
+            <Image
+                source={require('@assets/ic-info-round.png')}
                 height={size} width={size}
-                style={{ height: size, width: size }}
+                style={{ height: size, width: size, tintColor: theme.iconPrimary }}
             />
         </Pressable>
     )

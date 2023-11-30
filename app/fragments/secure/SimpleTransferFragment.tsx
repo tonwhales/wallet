@@ -1058,7 +1058,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 title={t('txPreview.blockchainFee')}
                                 description={t('txPreview.blockchainFeeDescription')}
                                 style={{ height: 24, width: 24, position: undefined }}
-                                size={20}
+                                size={24}
                             />
                         </View>
                     </Animated.View>

@@ -379,8 +379,8 @@ const TransactionPreview = () => {
                     <AboutIconButton
                         title={t('txPreview.blockchainFee')}
                         description={t('txPreview.blockchainFeeDescription')}
-                        style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
-                        size={20}
+                        style={{ height: 24, width: 24, position: undefined, marginRight: 8 }}
+                        size={24}
                     />
                 </PerfView>
             </ScrollView>

@@ -530,7 +530,7 @@ export const TransferSingleView = memo(({
                             title={t('txPreview.blockchainFee')}
                             description={t('txPreview.blockchainFeeDescription')}
                             style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
-                            size={20}
+                            size={24}
                         />
                     </View>
                     <View style={{ height: 54 }} />

@@ -53,7 +53,7 @@ export const PreviewTo = memo((props: PreviewToProps) => {
                         />
                     ) : (
                         <PerfText style={{ color: theme.textPrimary }}>
-                            {to.address.toString({ testOnly: isTestnet })}
+                            {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
                         </PerfText>
                     )}
                 </PerfText>

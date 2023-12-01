@@ -46,6 +46,8 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                         id={addressFriendly}
                         size={46}
                         borderWith={0}
+                        theme={theme}
+                        isTestnet={network.isTestnet}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center', flexShrink: 1 }}>

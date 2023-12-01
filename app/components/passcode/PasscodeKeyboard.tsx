@@ -65,13 +65,14 @@ export const PasscodeKeyboard = memo(({
                     onPress={() => onKeyPress(PasscodeKey.Nine)}
                 />
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
-                {!!leftIcon && (
+            <View style={{ flexDirection: 'row', marginTop: 12 }}>
+                {!!leftIcon ? (
                     <Pressable
                         onPress={() => onKeyPress(PasscodeKey.LeftActionKey)}
                         style={({ pressed }) => {
                             return {
-                                height: 60, width: 100,
+                                height: 60, width: 60,
+                                marginHorizontal: 30, borderRadius: 30,
                                 justifyContent: 'center', alignItems: 'center',
                                 backgroundColor: pressed ? theme.border : undefined,
                             }
@@ -79,6 +80,8 @@ export const PasscodeKeyboard = memo(({
                     >
                         {leftIcon}
                     </Pressable>
+                ) : (
+                    <View style={{ flexGrow: 1 }} />
                 )}
                 <PasscodeKeyButton
                     key={PasscodeKey.Zero}

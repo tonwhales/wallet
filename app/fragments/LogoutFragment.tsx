@@ -6,7 +6,6 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { useActionSheet } from "@expo/react-native-action-sheet";
-import { useKeysAuth } from "../components/secure/AuthWalletKeys";
 import { ScreenHeader } from "../components/ScreenHeader";
 import { ItemButton } from "../components/ItemButton";
 import { openWithInApp } from "../utils/openWithInApp";
@@ -19,7 +18,6 @@ import Support from '@assets/ic-support.svg';
 
 export const LogoutFragment = fragment(() => {
     const theme = useTheme();
-    const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
@@ -51,11 +49,6 @@ export const LogoutFragment = fragment(() => {
     const [isShown, setIsShown] = useState(false);
 
     const onLogout = useCallback(async () => {
-        try {
-            await authContext.authenticate({ cancelable: true, showResetOnMaxAttempts: true });
-        } catch (e) {
-            return;
-        }
         onAccountDeleted();
     }, [onAccountDeleted]);
 

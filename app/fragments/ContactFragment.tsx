@@ -279,6 +279,8 @@ export const ContactFragment = fragment(() => {
                                 image={undefined}
                                 borderWith={2}
                                 borderColor={theme.surfaceOnElevation}
+                                theme={theme}
+                                isTestnet={isTestnet}
                             />
                         </View>
                         {!editing && (

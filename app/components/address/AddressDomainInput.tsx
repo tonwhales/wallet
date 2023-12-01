@@ -258,15 +258,15 @@ export const AddressDomainInput = memo(forwardRef(({
                     inputStyle,
                     {
                         marginLeft: (focused && input.length === 0) ? 0 : -8,
-                        flexShrink: suffix ? 1 : undefined,
+                        flex: suffix ? 1 : undefined,
                     }
                 ]}
                 suffixStyle={{
                     fontSize: 17, fontWeight: '400',
                     color: theme.textSecondary,
-                    textAlign: 'center',
-                    flexGrow: 1,
-                    minWidth: 104
+                    flexShrink: 1,
+                    textAlign: 'left',
+                    minWidth: 90
                 }}
                 textAlignVertical={'center'}
                 actionButtonRight={{

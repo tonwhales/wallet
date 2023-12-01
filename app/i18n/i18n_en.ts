@@ -161,7 +161,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'Unfortunately you can\'t send zero coins',
-            notEnoughCoins: 'You don\'t have enough coins on your balance',
+            notEnoughCoins: 'You don\'t have enough TON on your wallets balance',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
             addressIsNotActive: 'This wallet has no history',
@@ -455,7 +455,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         holders: {
-            title: 'Tonhub Bank card',
+            title: 'Bank account',
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
@@ -529,10 +529,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
                 buttonSub: 'KYC and card issue takes ~5 min',
-                // failed: 'Не удалось авторизовать',
-                failed: 'Failed to authorize',
-                // failedDescription: 'Пожалуйста, попробуйте еще раз или свяжитесь с нами',
-                failedDescription: 'Please try again or contact us',
+                failed: {
+                    title: 'Failed to authorize',
+                    noAppData: 'No app data',
+                    noDomainKey: 'No domain key',
+                    createDomainKey: 'During domain key creation',
+                    fetchToken: 'During token fetching',
+                    createSignature: 'During signature creation',
+                },
             }
         }
     },

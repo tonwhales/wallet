@@ -61,13 +61,13 @@ export const PriceComponent = memo((
             alignSelf: 'flex-start',
             paddingVertical: 4,
             paddingHorizontal: 12,
-            paddingLeft: showSign ? 4 : 12
+            paddingLeft: showSign ? 2 : 12
         }, style]}>
             {showSign && (
                 <View style={{
-                    height: 22, width: 22,
+                    height: 24, width: 24,
                     justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: '#1678EA', borderRadius: 12,
+                    backgroundColor: theme.ton, borderRadius: 12,
                     marginRight: 6
                 }}>
                     <TonSign

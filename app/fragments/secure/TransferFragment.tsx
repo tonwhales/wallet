@@ -52,7 +52,7 @@ export type OrderMessage = {
     stateInit: Cell | null,
 }
 
-export type ConfirmLoadedProps = {
+export type ConfirmLoadedPropsSingle = {
     type: 'single',
     target: {
         isTestOnly: boolean;
@@ -60,6 +60,13 @@ export type ConfirmLoadedProps = {
         balance: bigint,
         active: boolean,
         domain?: string
+    },
+    jettonTarget?: {
+        isTestOnly: boolean;
+        address: Address;
+        balance: bigint;
+        active: boolean;
+        domain?: string | undefined;
     },
     text: string | null,
     order: Order,
@@ -70,7 +77,9 @@ export type ConfirmLoadedProps = {
     jettonMaster: JettonMasterState | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
-} | {
+}
+
+export type ConfirmLoadedPropsBatch = {
     type: 'batch',
     text: string | null,
     job: string | null,
@@ -87,6 +96,9 @@ export type ConfirmLoadedProps = {
     back?: number,
     totalAmount: bigint
 };
+
+
+export type ConfirmLoadedProps = ConfirmLoadedPropsSingle | ConfirmLoadedPropsBatch;
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
@@ -149,6 +161,57 @@ export const TransferFragment = fragment(() => {
                     Address.parse(params.order.messages[0].target).toString({ testOnly: isTestnet })
                 );
 
+                // Fetch data
+                const [
+                    config,
+                    [metadata, state, seqno]
+                ] = await Promise.all([
+                    backoff('transfer', () => fetchConfig()),
+                    backoff('transfer', async () => {
+                        let block = await backoff('transfer', () => client.getLastBlock());
+                        return Promise.all([
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
+                            backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
+                        ])
+                    }),
+                ]);
+
+                let jettonMaster: JettonMasterState | null = null;
+                let jettonTarget: typeof target | null = null;
+                let jettonTargetState: typeof state | null = null;
+
+                // Read jetton master
+                if (metadata.jettonWallet) {
+                    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
+                    if (body && body.type === 'payload') {
+                        const temp = order.messages[0].payload;
+                        let sc = temp?.beginParse();
+                        if (sc) {
+                            if (sc.remainingBits > 32) {
+                                let op = sc.loadUint(32);
+                                // Jetton transfer op
+                                if (op === OperationType.JettonTransfer) {
+                                    let queryId = sc.loadUint(64);
+                                    let amount = sc.loadCoins();
+                                    let jettonTargetAddress = sc.loadAddress();
+
+                                    if (jettonTargetAddress) {
+                                        jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet }));
+                                    }
+
+                                    jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (jettonTarget) {
+                    let block = await backoff('transfer', () => client.getLastBlock());
+                    jettonTargetState = await backoff('transfer', () => client.getAccount(block.last.seqno, target.address));
+                }
+
                 if (order.domain) {
                     try {
                         const tonZoneMatch = order.domain.match(/\.ton$/);
@@ -183,7 +246,11 @@ export const TransferFragment = fragment(() => {
                         if (
                             !resolvedDomainWallet
                             || !Address.isAddress(resolvedDomainWallet)
-                            || !resolvedDomainWallet.equals(target!.address)
+                            || (
+                                !!jettonTarget
+                                    ? !resolvedDomainWallet.equals(jettonTarget.address)
+                                    : !resolvedDomainWallet.equals(target!.address)
+                            )
                         ) {
                             throw Error('Error resolving wallet address');
                         }
@@ -195,22 +262,6 @@ export const TransferFragment = fragment(() => {
                         return;
                     }
                 }
-
-                // Fetch data
-                const [
-                    config,
-                    [metadata, state, seqno]
-                ] = await Promise.all([
-                    backoff('transfer', () => fetchConfig()),
-                    backoff('transfer', async () => {
-                        let block = await backoff('transfer', () => client.getLastBlock());
-                        return Promise.all([
-                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
-                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
-                            backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
-                        ])
-                    }),
-                ]);
 
                 const internalStateInit = order.messages[0].stateInit
                     ? loadStateInit(order.messages[0].stateInit.asSlice())
@@ -251,25 +302,6 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
-                // Read jetton master
-                let jettonMaster: JettonMasterState | null = null;
-                if (metadata.jettonWallet) {
-                    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-                    if (body && body.type === 'payload') {
-                        const temp = order.messages[0].payload;
-                        let sc = temp?.beginParse();
-                        if (sc) {
-                            if (sc.remainingBits > 32) {
-                                let op = sc.loadUint(32);
-                                // Jetton transfer op
-                                if (op === OperationType.JettonTransfer) {
-                                    jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
-                                }
-                            }
-                        }
-                    }
-                }
-
                 const externalMessage = external({
                     to: contract.address,
                     body: transfer,
@@ -295,6 +327,13 @@ export const TransferFragment = fragment(() => {
                         active: state.account.state.type === 'active',
                         domain: order.domain
                     },
+                    jettonTarget: !!jettonTarget ? {
+                        isTestOnly: jettonTarget.isTestOnly,
+                        address: jettonTarget.address,
+                        balance: BigInt(jettonTargetState!.account.balance.coins),
+                        active: jettonTargetState!.account.state.type === 'active',
+                        domain: order.domain
+                    } : undefined,
                     order,
                     text,
                     job,

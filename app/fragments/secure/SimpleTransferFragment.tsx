@@ -658,6 +658,8 @@ export const SimpleTransferFragment = fragment(() => {
                             id={addressFriendly}
                             address={addressFriendly}
                             borderWith={0}
+                            theme={theme}
+                            isTestnet={network.isTestnet}
                         />
                         <Text style={{
                             fontSize: 17, lineHeight: 24,
@@ -788,7 +790,7 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 <Animated.View
                     layout={Layout.duration(300)}
-                    style={[seletectInputStyles.address, { flex: 1, zIndex: 1 }]}
+                    style={[seletectInputStyles.address, { flex: 1, zIndex: selected === 'address' ? 1 : undefined }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
@@ -810,7 +812,7 @@ export const SimpleTransferFragment = fragment(() => {
                 </Animated.View>
                 <Animated.View
                     layout={Layout.duration(300)}
-                    style={[seletectInputStyles.amount, { flex: 1 }]}
+                    style={[seletectInputStyles.amount, { flex: 1, zIndex: selected === 'amount' ? 1 : undefined }]}
                 >
                     <View
                         style={{
@@ -852,13 +854,17 @@ export const SimpleTransferFragment = fragment(() => {
                                         )}
                                         {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                         {isVerified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: 0
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: 0,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                     <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
@@ -966,14 +972,15 @@ export const SimpleTransferFragment = fragment(() => {
                 <Animated.View
                     layout={Layout.duration(300)}
                     style={[
-                        { backgroundColor: theme.elevation, flex: 1 },
+                        { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined },
                         seletectInputStyles.comment
                     ]}
                 >
                     <View style={{
                         flex: 1,
                         backgroundColor: theme.surfaceOnElevation,
-                        paddingVertical: 26, paddingHorizontal: 10,
+                        paddingVertical: 20,
+                        paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                         width: '100%', borderRadius: 20,
                     }}>
                         <ATextInput
@@ -1033,17 +1040,26 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                            {`${fromNano(estimation)} TON`}
                                         </>
                                         : '...'
                                     }
+                                    {!!estimationPrise && (
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                        }}>
+                                            {` (${estimationPrise})`}
+                                        </Text>
+
+                                    )}
                                 </Text>
                             </View>
                             <AboutIconButton
                                 title={t('txPreview.blockchainFee')}
                                 description={t('txPreview.blockchainFeeDescription')}
                                 style={{ height: 24, width: 24, position: undefined }}
-                                size={20}
+                                size={24}
                             />
                         </View>
                     </Animated.View>
@@ -1069,7 +1085,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     : <RoundButton
                         disabled={!order}
-                        title={t('common.send')}
+                        title={t('common.continue')}
                         action={doSend}
                     />
                 }

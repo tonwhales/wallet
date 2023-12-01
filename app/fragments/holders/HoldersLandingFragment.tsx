@@ -27,6 +27,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
+import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
@@ -44,7 +45,7 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
 
     const domain = extractDomain(endpoint);
-    const enroll = useHoldersEnroll(acc, domain, authContext, { paddingTop: 32 });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, authStyle: { paddingTop: 32 } });
     const lang = getLocales()[0].languageCode;
 
     // TODO
@@ -94,17 +95,9 @@ export const HoldersLandingFragment = fragment(() => {
         try {
             const data = await getAppData(endpoint);
             if (!data) {
-                Alert.alert(t('auth.failed'));
-                authOpacity.value = 0;
-                setAuth(false);
-                return;
-            }
-
-            const res = await enroll();
-            if (!res) {
                 Alert.alert(
-                    t('products.holders.enroll.failed'),
-                    t('products.holders.enroll.failedDescription'),
+                    t('products.holders.enroll.failed.title'),
+                    t('products.holders.enroll.failed.noAppData'),
                     [
                         { text: t('common.cancel') },
                         {
@@ -114,21 +107,59 @@ export const HoldersLandingFragment = fragment(() => {
                     ]
                 );
                 authOpacity.value = 0;
+                setAuth(false);
+                return;
+            }
+
+            const res = await enroll();
+
+            if (res.type === 'success') {
+                // Navigate to continue
+                navigation.replace('Holders', onEnrollType);
+
+                authOpacity.value = 0;
                 setAuth(false)
                 return;
             }
 
-            // Navigate to continue
-            navigation.replace('Holders', onEnrollType);
+            let message = ''
 
+            switch (res.error) {
+                case HoldersEnrollErrorType.NoDomainKey:
+                    message = t('products.holders.enroll.failed.noDomainKey');
+                    break;
+                case HoldersEnrollErrorType.CreateSignatureFailed:
+                    message = t('products.holders.enroll.failed.createSignature');
+                    break;
+                case HoldersEnrollErrorType.DomainKeyFailed:
+                    message = t('products.holders.enroll.failed.createDomainKey');
+                    break;
+                case HoldersEnrollErrorType.FetchTokenFailed:
+                    message = t('products.holders.enroll.failed.fetchToken');
+                    break;
+            }
+
+            Alert.alert(
+                t('products.holders.enroll.failed.title'),
+                message,
+                [
+                    { text: t('common.cancel') },
+                    {
+                        text: t('webView.contactSupport'),
+                        onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                    }
+                ]
+            );
             authOpacity.value = 0;
-            setAuth(false);
+            setAuth(false)
+            return;
         } catch {
             authOpacity.value = 0;
             setAuth(false);
+
             Alert.alert(
-                t('products.holders.enroll.failed'),
-                t('products.holders.enroll.failedDescription'),
+                t('products.holders.enroll.failed.title'),
+                undefined,
                 [
                     { text: t('common.cancel') },
                     {
@@ -237,7 +268,7 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: 36,
-            backgroundColor: theme.surfaceOnBg
+            backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>

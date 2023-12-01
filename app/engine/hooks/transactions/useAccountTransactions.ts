@@ -37,23 +37,23 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
 
 
 export function useAccountTransactions(client: TonClient4, account: string): {
-    data: TransactionDescription[],
+    data: TransactionDescription[] | null,
     next: () => void,
     hasNext: boolean,
     loading: boolean
-} | null {
+} {
     let raw = useRawAccountTransactions(client, account);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
     let { baseTxs, mentioned } = useMemo(() => {
-        let baseTxs = raw?.data.pages.flat();
+        let baseTxs = raw.data?.pages.flat();
         let mentioned = baseTxs ? Array.from(new Set([...baseTxs?.flatMap(tx => tx.parsed.mentioned)])) : [];
 
         return {
             baseTxs,
             mentioned,
         };
-    }, [raw?.data]);
+    }, [raw.data]);
 
     const metadatas = useContractMetadatas(mentioned);
     const { metadatasMap, jettonMasters } = useMemo(() => {
@@ -77,8 +77,8 @@ export function useAccountTransactions(client: TonClient4, account: string): {
         }
     }, [metadatas]);
 
-    const jettonMasterMetadatas = useJettonContents(jettonMasters);
 
+    const jettonMasterMetadatas = useJettonContents(jettonMasters);
     let txs = useMemo(() => {
         return baseTxs?.map<TransactionDescription>((base) => {
             const metadata = metadatasMap.get(base.parsed.resolvedAddress);
@@ -96,19 +96,17 @@ export function useAccountTransactions(client: TonClient4, account: string): {
                 op: null,
                 title: null,
             });
-        })
+        }) || null;
     }, [baseTxs, metadatasMap, jettonMasterMetadatas]);
-
-    if (!txs || !raw) {
-        return null;
-    }
 
     return {
         data: txs,
         next: () => {
-            raw!.fetchNextPage();
+            if (!raw.isFetchingNextPage && !raw.isFetching && raw.hasNextPage) {
+                raw.fetchNextPage();
+            }
         },
         hasNext: !!raw.hasNextPage,
-        loading: raw.isFetching
+        loading: raw.isFetching,
     }
 }

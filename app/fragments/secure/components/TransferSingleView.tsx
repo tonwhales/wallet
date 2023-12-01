@@ -187,6 +187,8 @@ export const TransferSingleView = memo(({
                                     backgroundColor={theme.backgroundPrimary}
                                     markContact={!!contact}
                                     icPosition={'bottom'}
+                                    theme={theme}
+                                    isTestnet={isTestnet}
                                 />
                             </View>
                         </View>
@@ -288,15 +290,41 @@ export const TransferSingleView = memo(({
                                 {t('common.to')}
                             </Text>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 17, fontWeight: '400', lineHeight: 24,
-                                    color: theme.textSecondary,
-                                }}>
+                                <Text
+                                    style={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                    }}
+                                >
                                     <Text style={{ color: theme.textPrimary }}>
-                                        {to.address.toString({ testOnly: isTestnet })}
+                                        {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
                                     </Text>
                                 </Text>
                             </View>
+                            {!target.active && (
+                                <Pressable
+                                    style={({ pressed }) => ({ flexDirection: 'row', marginTop: 4, opacity: pressed ? 0.5 : 1 })}
+                                    onPress={() => {
+                                        navigation.navigateAlert({
+                                            title: t('transfer.error.addressIsNotActive'),
+                                            message: t('transfer.error.addressIsNotActiveDescription')
+                                        })
+                                    }}
+                                >
+                                    <Text
+                                        style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                            flexShrink: 1
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        {t('transfer.addressNotActive')}
+                                    </Text>
+                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                </Pressable>
+                            )}
                         </View>
                         {!!operation.op && !jettonAmountString && (
                             <>
@@ -423,8 +451,7 @@ export const TransferSingleView = memo(({
                                         </View>
                                     </View>
 
-                                    {/* {(amount > toNano('0.2')) && ( */}
-                                    {(amount > toNano('0.0001')) && (
+                                    {(amount > toNano('0.2')) && (
                                         <Pressable
                                             onPress={jettonsGasAlert}
                                             style={({ pressed }) => {
@@ -492,16 +519,18 @@ export const TransferSingleView = memo(({
                                 fontSize: 17, lineHeight: 24, fontWeight: '400'
                             }}>
                                 {`${fromNano(fees)}`}
-                                <Text style={{ color: theme.textSecondary }}>
-                                    {` ${feesPrise}`}
-                                </Text>
+                                {feesPrise && (
+                                    <Text style={{ color: theme.textSecondary }}>
+                                        {` ${feesPrise}`}
+                                    </Text>
+                                )}
                             </Text>
                         </View>
                         <AboutIconButton
                             title={t('txPreview.blockchainFee')}
                             description={t('txPreview.blockchainFeeDescription')}
                             style={{ height: 24, width: 24, position: undefined, marginRight: 4 }}
-                            size={20}
+                            size={24}
                         />
                     </View>
                     <View style={{ height: 54 }} />

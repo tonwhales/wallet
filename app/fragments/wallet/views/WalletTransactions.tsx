@@ -15,6 +15,7 @@ import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -69,7 +70,8 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
-        && prev.spamWallets === next.spamWallets;
+        && prev.spamWallets === next.spamWallets
+        && prev.appState === next.appState;
 });
 
 export const WalletTransactions = memo((props: {
@@ -89,6 +91,7 @@ export const WalletTransactions = memo((props: {
     },
     ledger?: boolean,
 }) => {
+    const bottomBarHeight = useBottomTabBarHeight();
     const theme = useTheme();
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
@@ -148,6 +151,7 @@ export const WalletTransactions = memo((props: {
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}
+            contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}
             removeClippedSubviews={true}

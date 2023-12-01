@@ -5,6 +5,7 @@ import { formatDate } from "../../../utils/dates";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
 import { useCardTransactions, useNetwork, useTheme } from "../../../engine/hooks";
 import { Address } from "@ton/core";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export const HoldersCardTransactions = memo(({
     id,
@@ -15,6 +16,7 @@ export const HoldersCardTransactions = memo(({
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const bottomBarHeight = useBottomTabBarHeight();
     const notificationsState = useCardTransactions(address.toString({ testOnly: isTestnet }), id);
     const notifications = notificationsState?.data;
     const txs = notifications?.pages?.map((p) => p?.data).filter((d) => !!d).flat() as CardNotification[];
@@ -51,6 +53,7 @@ export const HoldersCardTransactions = memo(({
                         notification={item}
                     />
                 )}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 stickySectionHeadersEnabled={false}
                 onEndReachedThreshold={0.5}
                 refreshing={notificationsState.isLoading}

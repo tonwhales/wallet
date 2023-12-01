@@ -10,6 +10,7 @@ import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { StatusBar } from "expo-status-bar";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -18,6 +19,7 @@ export const ProductsFragment = fragment(() => {
     const apy = useStakingApy()?.apy;
     const seleted = useSelectedAccount();
     const status = useHoldersAccountStatus(seleted!.address).data;
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {
@@ -59,7 +61,12 @@ export const ProductsFragment = fragment(() => {
                 title={t('products.addNew')}
                 onBackPressed={navigation.goBack}
             />
-            <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
+            <ScrollView
+                style={{ marginTop: 24 }}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 16 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+            >
                 {network.isTestnet && (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}

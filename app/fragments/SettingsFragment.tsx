@@ -19,6 +19,7 @@ import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -37,6 +38,7 @@ export const SettingsFragment = fragment(() => {
     const [themeStyle,] = useThemeStyle();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
+    const bottomBarHeight = useBottomTabBarHeight();
     const { showActionSheetWithOptions } = useActionSheet();
     const currentWalletIndex = getAppState().selected;
     const seleted = useSelectedAccount();
@@ -153,6 +155,7 @@ export const SettingsFragment = fragment(() => {
                     paddingHorizontal: 16,
                     flexBasis: 0,
                 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
                 <View style={{
                     marginBottom: 16, marginTop: 16,

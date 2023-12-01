@@ -160,13 +160,17 @@ export const ReceiveFragment = fragment(() => {
                                             <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
                                         )}
                                         {isVerified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: -2,
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: -2,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                     <View style={{ justifyContent: 'space-between' }}>
@@ -196,7 +200,10 @@ export const ReceiveFragment = fragment(() => {
                                         </Text>
                                     </View>
                                 </View>
-                                <Chevron style={{ height: 16, width: 16 }} height={16} width={16} />
+                                <Image
+                                    source={require('@assets/ic-chevron-right.png')}
+                                    style={{ height: 16, width: 16, tintColor: theme.iconPrimary }}
+                                />
                             </View>
                         </Pressable>
                     </View>
@@ -224,7 +231,6 @@ export const ReceiveFragment = fragment(() => {
                     />
                     <ShareButton
                         style={{
-                            marginRight: 8,
                             backgroundColor: theme.surfaceOnElevation,
                             borderWidth: 0,
                             height: 56,

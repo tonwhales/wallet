@@ -9,34 +9,45 @@ import { useNetwork } from "../../../engine/hooks/network/useNetwork";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { t } from "../../../i18n/t";
 import { ValueComponent } from "../../../components/ValueComponent";
-import { useJettonContent } from "../../../engine/hooks/jettons/useJettonContent";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 import { useContact } from "../../../engine/hooks/contacts/useContact";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Address } from "@ton/core";
 import { PriceComponent } from "../../../components/PriceComponent";
+import { ItemDivider } from "../../../components/ItemDivider";
+import { single } from "rxjs";
+import { formatTime } from "../../../utils/dates";
 
-const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean }) => {
+const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean, single?: boolean }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const targetFriendly = tx.address?.toString({ testOnly: isTestnet });
-    const jettonMaster = useJettonContent(tx.body?.type === 'token' ? tx.body?.master.toString({ testOnly: isTestnet }) : null);
+    const body = tx.body;
+    const targetFriendly = body?.type === 'token' ? body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (targetFriendly && KnownWallets(isTestnet)[targetFriendly]) {
-        known = KnownWallets(isTestnet)[targetFriendly];
-    } else if (!!contact) { // Resolve contact known wallet
-        known = { name: contact.name }
+    if (targetFriendly) {
+        if (KnownWallets(isTestnet)[targetFriendly]) {
+            known = KnownWallets(isTestnet)[targetFriendly];
+        }
+        if (!!contact) { // Resolve contact known wallet
+            known = { name: contact.name }
+        }
     }
+
+    const amount = body?.type === 'token'
+        ? body.amount
+        : tx.amount > 0n
+            ? tx.amount
+            : -tx.amount
 
     return (
         <Animated.View
             entering={FadeInDown}
             exiting={FadeOutUp}
             style={{
-                paddingHorizontal: 16, paddingVertical: 20, paddingBottom: tx.body?.type === 'comment' ? 0 : undefined
+                paddingHorizontal: 20, paddingVertical: 20, paddingBottom: tx.body?.type === 'comment' ? 0 : undefined
             }}
         >
             <View style={{
@@ -50,7 +61,6 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     borderRadius: 23,
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
-                    backgroundColor: theme.border
                 }}>
                     <PendingTransactionAvatar
                         kind={'out'}
@@ -83,6 +93,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                             numberOfLines={1}
                         >
                             {targetFriendly ? <AddressComponent address={Address.parse(targetFriendly)} /> : t('tx.batch')}
+                            {` • ${formatTime(tx.time)}`}
                         </Text>
                     )}
                 </View>
@@ -99,15 +110,15 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     >
                         {'-'}
                         <ValueComponent
-                            value={tx.amount > 0n ? tx.amount : -tx.amount}
-                            decimals={jettonMaster ? jettonMaster.decimals : undefined}
+                            value={amount}
+                            decimals={(body?.type === 'token' && body.master.decimals) ? body.master.decimals : undefined}
                             precision={3}
                         />
-                        {jettonMaster ? ' ' + jettonMaster.symbol : ' TON'}
+                        {body?.type === 'token' && body.master.symbol ? ` ${body.master.symbol}` : ' TON'}
                     </Text>
                     {tx.body?.type !== 'token' && (
                         <PriceComponent
-                            amount={tx.amount > 0n ? tx.amount : -tx.amount}
+                            amount={amount}
                             prefix={'-'}
                             style={{
                                 height: undefined,
@@ -124,22 +135,8 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     )}
                 </View>
             </View>
-            {tx.body?.type === 'comment' && (
-                <View style={{
-                    flexShrink: 1, alignSelf: 'flex-start',
-                    backgroundColor: theme.border,
-                    marginTop: 8,
-                    paddingHorizontal: 10, paddingVertical: 8,
-                    borderRadius: 10, marginLeft: 46 + 10, height: 36
-                }}>
-                    <Text
-                        numberOfLines={1}
-                        ellipsizeMode={'tail'}
-                        style={{ color: theme.textPrimary, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
-                    >
-                        {tx.body.comment}
-                    </Text>
-                </View>
+            {!last && !single && (
+                <ItemDivider />
             )}
         </Animated.View>
     )
@@ -164,9 +161,10 @@ export const PendingTransactions = memo(() => {
                     }}
                 >
                     <Text style={{
-                        fontSize: 17,
+                        fontSize: 20,
                         fontWeight: '600',
-                        lineHeight: 24, color: theme.textPrimary
+                        color: theme.textPrimary,
+                        lineHeight: 28,
                     }}>
                         {t('wallet.pendingTransactions')}
                     </Text>
@@ -174,8 +172,17 @@ export const PendingTransactions = memo(() => {
             )}
             <View style={{
                 overflow: 'hidden',
+                backgroundColor: theme.surfaceOnBg,
+                marginHorizontal: 16, borderRadius: 20,
             }}>
-                {pending.map((tx, i) => <PendingTransactionView key={tx.id} tx={tx} first={i === 0} last={i === pending.length - 1} />)}
+                {pending.map((tx, i) => (
+                    <PendingTransactionView
+                        key={tx.id}
+                        tx={tx}
+                        first={i === 0}
+                        last={i === pending.length - 1}
+                    />
+                ))}
             </View>
         </View>
     );

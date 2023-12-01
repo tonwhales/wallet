@@ -12,8 +12,9 @@ import { PerformanceProfiler, RenderPassReport } from '@shopify/react-native-per
 import { memo, useCallback, useState } from 'react';
 import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
+import { AddressBookLoader } from './engine/AddressBookContext';
 
-const PERSISTANCE_VERSION = '14';
+const PERSISTANCE_VERSION = '15';
 
 LogBox.ignoreAllLogs()
 
@@ -48,9 +49,11 @@ export const Root = memo(() => {
                         client={queryClient}
                     >
                         <RecoilRoot>
-                            <LedgerTransportProvider>
-                                <Navigation />
-                            </LedgerTransportProvider>
+                            <AddressBookLoader>
+                                <LedgerTransportProvider>
+                                    <Navigation />
+                                </LedgerTransportProvider>
+                            </AddressBookLoader>
                         </RecoilRoot>
                     </PersistQueryClientProvider>
                 </RebootContext.Provider>

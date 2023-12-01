@@ -156,6 +156,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             address={props.validAddress.toString({ testOnly: props.isTestnet })}
                             backgroundColor={props.theme.elevation}
                             borderColor={props.theme.elevation}
+                            theme={theme}
+                            isTestnet={props.isTestnet}
                         />
                         : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
                     }
@@ -199,6 +201,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 address={props.validAddress.toString({ testOnly: props.isTestnet })}
                                 backgroundColor={props.theme.elevation}
                                 borderColor={props.theme.elevation}
+                                theme={theme}
+                                isTestnet={props.isTestnet}
                             />
                             : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
                         }

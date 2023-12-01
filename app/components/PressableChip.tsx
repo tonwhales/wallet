@@ -25,7 +25,6 @@ export const PressableChip = memo(({
         >
             <Animated.View style={[
                 {
-                    marginRight: 12,
                     paddingHorizontal: 16, paddingVertical: 6,
                     borderRadius: 100,
                     height: 32,

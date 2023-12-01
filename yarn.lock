@@ -2934,12 +2934,12 @@
   resolved "https://registry.yarnpkg.com/@shopify/react-native-performance/-/react-native-performance-4.1.2.tgz#bd111af291b85ee125feaccd54c8e5f237a76ce7"
   integrity sha512-1Xu2xo+hAxg75iuX5akVqAgc3h/J1ohfi7JKXlGsprP4ylpW7kHMfq/7AstL7FoUC8xcHsTUvUFhoZ94ot8g6Q==
 
-"@shopify/react-native-skia@0.1.196":
-  version "0.1.196"
-  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.196.tgz#f58be7cffd22d4e86f285b6d85c336188b3a61c7"
-  integrity sha512-MwL+X9XzwPdyp5juOel6pNkd7DoRfPSbjqlkOTs5C83HCdceZOO0x6DMK9uiZv/mVxQwOnexfNh5h06185qiow==
+"@shopify/react-native-skia@^0.1.224":
+  version "0.1.224"
+  resolved "https://registry.yarnpkg.com/@shopify/react-native-skia/-/react-native-skia-0.1.224.tgz#b237eb4f6ccaf9721aa80ccf9c52233fd594981c"
+  integrity sha512-Lg+avIZBniDfRmJ3gqdIlWn6v77Wv7FsVMHcjh9R4xs66B9BfXYaBmGt2HFXBFaGC113pJHd53DiNgEOc3Wc3w==
   dependencies:
-    canvaskit-wasm "0.38.0"
+    canvaskit-wasm "0.39.1"
     react-reconciler "^0.27.0"
 
 "@sideway/address@^4.1.3":
@@ -3455,6 +3455,11 @@
   dependencies:
     "@urql/core" ">=2.3.1"
     wonka "^4.0.14"
+
+"@webgpu/types@0.1.21":
+  version "0.1.21"
+  resolved "https://registry.yarnpkg.com/@webgpu/types/-/types-0.1.21.tgz#b181202daec30d66ccd67264de23814cfd176d3a"
+  integrity sha512-pUrWq3V5PiSGFLeLxoGqReTZmiiXwY3jRkIG5sLLKjyqNxrwm/04b4nw7LSmGWJcKk59XOM/YRTUwOzo4MMlow==
 
 "@xmldom/xmldom@^0.8.8":
   version "0.8.10"
@@ -4274,10 +4279,12 @@ caniuse-lite@^1.0.30001541:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001565.tgz#a528b253c8a2d95d2b415e11d8b9942acc100c4f"
   integrity sha512-xrE//a3O7TP0vaJ8ikzkD2c2NgcVUvsEe2IvFTntV4Yd1Z9FVzh+gW+enX96L0psrbaFMcVcH2l90xNuGDWc8w==
 
-canvaskit-wasm@0.38.0:
-  version "0.38.0"
-  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.38.0.tgz#83e6c46f3015c2ff3f6503157f47453af76a7be7"
-  integrity sha512-ZEG6lucpbQ4Ld+mY8C1Ng+PMLVP+/AX02jS0Sdl28NyMxuKSa9uKB8oGd1BYp1XWPyO2Jgr7U8pdyjJ/F3xR5Q==
+canvaskit-wasm@0.39.1:
+  version "0.39.1"
+  resolved "https://registry.yarnpkg.com/canvaskit-wasm/-/canvaskit-wasm-0.39.1.tgz#c3c8f3962cbabbedf246f7bcf90e859013c7eae9"
+  integrity sha512-Gy3lCmhUdKq+8bvDrs9t8+qf7RvcjuQn+we7vTVVyqgOVO1UVfHpsnBxkTZw+R4ApEJ3D5fKySl9TU11hmjl/A==
+  dependencies:
+    "@webgpu/types" "0.1.21"
 
 chalk@^2.0.1, chalk@^2.1.0, chalk@^2.4.2:
   version "2.4.2"

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ActivityIndicator, Platform, View, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
@@ -18,7 +17,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
-import { useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
+import { useNetwork, useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { getCurrentAddress } from '../../storage/appState';
@@ -32,6 +31,7 @@ import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnr
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -52,7 +52,7 @@ export const HoldersLandingFragment = fragment(() => {
     const stableOfflineV = useOfflineApp().stableOfflineV;
 
     // Anim
-    let [loaded, setLoaded] = React.useState(false);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -370,6 +370,7 @@ export const HoldersLandingFragment = fragment(() => {
                                         />
                                     )
                                 }}
+                                webviewDebuggingEnabled={isTestnet}
                             />
                         </Animated.View>
                     )

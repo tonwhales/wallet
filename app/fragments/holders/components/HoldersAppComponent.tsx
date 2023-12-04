@@ -646,20 +646,21 @@ export const HoldersAppComponent = memo((
                                     />
                                 )
                             }}
+                            webviewDebuggingEnabled={isTestnet}
                         />
                     </Animated.View>
                 )}
                 <WebViewLoader type={props.variant.type} loaded={loaded} />
-                {mainButton && mainButton.isVisible && (
-                    <KeyboardAvoidingView
-                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
-                        keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
-                            : undefined
-                        }
-                    >
+                <KeyboardAvoidingView
+                    style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+                    behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                    contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
+                    keyboardVerticalOffset={Platform.OS === 'ios'
+                        ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
+                        : undefined
+                    }
+                >
+                    {mainButton && mainButton.isVisible && (
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }
@@ -670,8 +671,8 @@ export const HoldersAppComponent = memo((
                         >
                             <DappMainButton {...mainButton} />
                         </Animated.View>
-                    </KeyboardAvoidingView>
-                )}
+                    )}
+                </KeyboardAvoidingView>
             </View>
         </>
     );

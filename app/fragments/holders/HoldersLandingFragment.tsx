@@ -18,7 +18,7 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
-import { useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
+import { useNetwork, useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { getCurrentAddress } from '../../storage/appState';
@@ -32,6 +32,7 @@ import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnr
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -370,6 +371,7 @@ export const HoldersLandingFragment = fragment(() => {
                                         />
                                     )
                                 }}
+                                webviewDebuggingEnabled={isTestnet}
                             />
                         </Animated.View>
                     )

@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ActivityIndicator, Platform, View, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
@@ -53,7 +52,7 @@ export const HoldersLandingFragment = fragment(() => {
     const stableOfflineV = useOfflineApp().stableOfflineV;
 
     // Anim
-    let [loaded, setLoaded] = React.useState(false);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {

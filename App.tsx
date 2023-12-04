@@ -24,9 +24,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
 import * as Sentry from '@sentry/react-native';
-import { enableScreens } from 'react-native-screens';
-
-enableScreens();
 
 if (!__DEV__) {
   Sentry.init({

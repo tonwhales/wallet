@@ -52,7 +52,7 @@ export type AuthWalletKeysType = {
     authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
 }
 
-async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
+export async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
     const storageType = loadKeyStorageType();
 
     if (storageType === 'local-authentication') {
@@ -85,9 +85,9 @@ async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
         if (faceIdSupported) {
             if (faceIdPemissionStatus === 'granted') {
                 return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
-            } else if (faceIdPemissionStatus === 'blocked') {
+            } else if (faceIdPemissionStatus === 'blocked' || faceIdPemissionStatus === 'unavailable') {
                 return 'biometrics-permission-check';
-            } else if (faceIdPemissionStatus === 'unavailable' || faceIdPemissionStatus === 'limited') {
+            } else if (faceIdPemissionStatus === 'limited') {
                 return 'biometrics-cooldown';
             } else {
                 const res = await request(PERMISSIONS.IOS.FACE_ID);

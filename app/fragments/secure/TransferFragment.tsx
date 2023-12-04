@@ -170,7 +170,7 @@ export const TransferFragment = fragment(() => {
                     backoff('transfer', async () => {
                         let block = await backoff('transfer', () => client.getLastBlock());
                         return Promise.all([
-                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet)),
                             backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
                             backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
                         ])
@@ -379,7 +379,7 @@ export const TransferFragment = fragment(() => {
 
                     // Fetch data
                     const [metadata, state] = await Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, to)),
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet)),
                         backoff('transfer', () => client.getAccount(block.last.seqno, to))
                     ]);
 

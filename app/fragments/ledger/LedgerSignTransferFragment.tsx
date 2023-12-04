@@ -400,7 +400,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                 backoff('transfer', async () => {
                     let block = await backoff('transfer', () => client.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, network.isTestnet)),
                         backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                     ])
                 }),

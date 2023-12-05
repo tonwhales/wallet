@@ -168,6 +168,7 @@ export const HoldersAccountItem = memo((props: {
                                         }}
                                         textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                                         currencyCode={'EUR'}
+                                        theme={theme}
                                     />
                                 </View>
                             )}
@@ -221,6 +222,7 @@ export const HoldersAccountItem = memo((props: {
                                 }}
                                 textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                                 currencyCode={'EUR'}
+                                theme={theme}
                             />
                         </View>
                     )}

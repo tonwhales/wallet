@@ -259,12 +259,14 @@ export const StakingFragment = fragment(() => {
                                 amount={member?.balance || 0n}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                 textStyle={{ color: theme.textUnchangeable }}
+                                theme={theme}
                             />
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
                                 textStyle={{ color: theme.textUnchangeable }}
+                                theme={theme}
                             />
                         </Pressable>
                     </View>

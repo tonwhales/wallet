@@ -7,7 +7,6 @@ export function usePrice(): [PriceState, string] {
     let price = useQuery({
         queryKey: Queries.TonPrice(),
         queryFn: fetchPrice,
-        suspense: true,
         refetchInterval: 1000 * 60,
         refetchOnWindowFocus: true,
     });

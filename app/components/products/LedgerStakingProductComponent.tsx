@@ -114,6 +114,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     height: 'auto'
                                 }}
                                 textStyle={{ color: theme.textSecondary, ...subtitleStyle }}
+                                theme={theme}
                             />
                         </View>
                     </View>

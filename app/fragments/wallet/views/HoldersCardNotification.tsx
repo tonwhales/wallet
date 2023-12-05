@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable } from "react-native";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
 import { memo } from "react";
 import { formatDate, formatTime } from "../../../utils/dates";
@@ -7,11 +7,17 @@ import { notificationCategoryFormatter, notificationTypeFormatter } from "../../
 import { HoldersNotificationIcon } from "./HoldersNotificationIcon";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
-import { useTheme } from "../../../engine/hooks";
 import { PerfText } from "../../../components/basic/PerfText";
+import { PerfView } from "../../../components/basic/PerfView";
+import { ThemeType } from "../../../engine/state/theme";
 
-export const HoldersCardNotification = memo(({ notification }: { notification: CardNotification }) => {
-    const theme = useTheme();
+export const HoldersCardNotification = memo(({
+    notification,
+    theme
+}: {
+    notification: CardNotification,
+    theme: ThemeType
+}) => {
 
     return (
         <Pressable
@@ -20,14 +26,14 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                 paddingVertical: 20
             }}
         >
-            <View style={{
+            <PerfView style={{
                 alignSelf: 'stretch',
                 flexDirection: 'row',
                 justifyContent: 'center',
                 alignItems: 'center',
             }}>
                 <HoldersNotificationIcon notification={notification} />
-                <View style={{ flex: 1, marginRight: 4 }}>
+                <PerfView style={{ flex: 1, marginRight: 4 }}>
                     <PerfText
                         style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                         ellipsizeMode={'tail'}
@@ -44,15 +50,15 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                     >
                         {notificationCategoryFormatter(notification) + ' • ' + formatDate(notification.time / 1000) + ' • ' + formatTime(notification.time / 1000)}
                     </PerfText>
-                </View>
-                <View>
+                </PerfView>
+                <PerfView>
                     {(notification.type === 'deposit' ||
                         notification.type === 'charge' ||
                         notification.type === 'charge_failed' ||
                         notification.type === 'card_paid' ||
                         notification.type === 'crypto_account_withdraw' ||
                         notification.type === 'card_withdraw') ? (
-                        <View style={{ alignItems: 'flex-end' }}>
+                        <PerfView style={{ alignItems: 'flex-end' }}>
                             <PerfText
                                 style={{
                                     color: notification.type === 'deposit'
@@ -81,14 +87,15 @@ export const HoldersCardNotification = memo(({ notification }: { notification: C
                                     alignSelf: 'flex-end',
                                     paddingHorizontal: 0, paddingVertical: 0,
                                 }}
+                                theme={theme}
                                 textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                             />
-                        </View>
+                        </PerfView>
                     ) : (
-                        <View style={{ flexGrow: 1 }} />
+                        <PerfView style={{ flexGrow: 1 }} />
                     )}
-                </View>
-            </View>
+                </PerfView>
+            </PerfView>
         </Pressable>
     )
 });

@@ -6,17 +6,14 @@ import { ContractMetadata } from "./Metadata";
 import { TonClient4 } from '@ton/ton';
 import { fetchContractMetadata } from "../api/fetchContractMetadata";
 
-export async function fetchMetadata(client: TonClient4, seqno: number, address: Address, isTestnet: boolean): Promise<ContractMetadata> {
-    let connectRes: ContractMetadata | null = null;
+export async function fetchMetadata(client: TonClient4, seqno: number, address: Address, isTestnet: boolean, useTonClient?: boolean): Promise<ContractMetadata> {
 
-    try {
-        connectRes = await fetchContractMetadata(address, isTestnet);
-    } catch {
-        console.warn('Failed to fetch metadata from connect')
-    }
-
-    if (!!connectRes) {
-        return connectRes;
+    if (!useTonClient) {
+        try {
+            return await fetchContractMetadata(address, isTestnet);
+        } catch {
+            console.warn('Failed to fetch metadata from connect')
+        }
     }
 
     let [

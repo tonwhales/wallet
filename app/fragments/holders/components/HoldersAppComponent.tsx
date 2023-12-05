@@ -45,6 +45,7 @@ export function normalizePath(path: string) {
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -452,7 +453,7 @@ export const HoldersAppComponent = memo((
     }, []);
 
     const onCloseApp = useCallback(() => {
-        // engine.products.holders.doSync();
+        onHoldersInvalidate(acc.addressString, isTestnet);
         navigation.goBack();
         trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, isTestnet);
     }, []);

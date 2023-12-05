@@ -4,8 +4,18 @@ import { tryFetchJettonWallet } from "./introspections/tryFetchJettonWallet";
 import { tryGetJettonWallet } from "./introspections/tryGetJettonWallet";
 import { ContractMetadata } from "./Metadata";
 import { TonClient4 } from '@ton/ton';
+import { fetchContractMetadata } from "../api/fetchContractMetadata";
 
-export async function fetchMetadata(client: TonClient4, seqno: number, address: Address): Promise<ContractMetadata> {
+export async function fetchMetadata(client: TonClient4, seqno: number, address: Address, isTestnet: boolean, useTonClient?: boolean): Promise<ContractMetadata> {
+
+    if (!useTonClient) {
+        try {
+            return await fetchContractMetadata(address, isTestnet);
+        } catch (e) {
+            console.warn('Failed to fetch metadata from connect: ', e)
+        }
+    }
+
     let [
         jettonWallet,
         jettonMaster

@@ -13,6 +13,7 @@ import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchA
 import { GeneralHoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
+import { Typography } from "../styles";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -136,7 +137,7 @@ export const HoldersAccountItem = memo((props: {
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <IcTonIcon width={46} height={46} />
                             </View>
-                            <View style={{ marginLeft: 12 }}>
+                            <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
                                     style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                     ellipsizeMode="tail"
@@ -144,7 +145,11 @@ export const HoldersAccountItem = memo((props: {
                                 >
                                     {title}
                                 </PerfText>
-                                <PerfText style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
+                                <PerfText
+                                    numberOfLines={1}
+                                    ellipsizeMode={'tail'}
+                                    style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
+                                >
                                     <PerfText style={{ flexShrink: 1 }}>
                                         {subtitle}
                                     </PerfText>
@@ -152,7 +157,7 @@ export const HoldersAccountItem = memo((props: {
                             </View>
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                                    <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent value={props.account.balance} precision={2} />
                                         <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                             {' TON'}
@@ -166,7 +171,7 @@ export const HoldersAccountItem = memo((props: {
                                             alignSelf: 'flex-end',
                                             height: undefined
                                         }}
-                                        textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         currencyCode={'EUR'}
                                         theme={theme}
                                     />
@@ -190,15 +195,19 @@ export const HoldersAccountItem = memo((props: {
                     <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                         <IcTonIcon width={46} height={46} />
                     </View>
-                    <View style={{ marginLeft: 12 }}>
+                    <View style={{ marginLeft: 12, flexShrink: 1 }}>
                         <PerfText
-                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
                             {title}
                         </PerfText>
-                        <PerfText style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}>
+                        <PerfText
+                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                            numberOfLines={1}
+                            ellipsizeMode={'tail'}
+                        >
                             <PerfText style={{ flexShrink: 1 }}>
                                 {subtitle}
                             </PerfText>
@@ -206,7 +215,7 @@ export const HoldersAccountItem = memo((props: {
                     </View>
                     {(!!props.account && props.account.balance) && (
                         <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                            <PerfText style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
+                            <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                 <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
                                 <PerfText style={{ opacity: 0.5 }}>
                                     {' TON'}
@@ -220,7 +229,7 @@ export const HoldersAccountItem = memo((props: {
                                     alignSelf: 'flex-end',
                                     height: undefined
                                 }}
-                                textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 currencyCode={'EUR'}
                                 theme={theme}
                             />

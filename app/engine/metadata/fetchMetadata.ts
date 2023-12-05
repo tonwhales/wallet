@@ -11,8 +11,8 @@ export async function fetchMetadata(client: TonClient4, seqno: number, address: 
     if (!useTonClient) {
         try {
             return await fetchContractMetadata(address, isTestnet);
-        } catch {
-            console.warn('Failed to fetch metadata from connect')
+        } catch (e) {
+            console.warn('Failed to fetch metadata from connect: ', e)
         }
     }
 

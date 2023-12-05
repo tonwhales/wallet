@@ -13,5 +13,5 @@ export async function fetchContractMetadata(address: Address | string, isTestnet
         return res.data as ContractMetadata;
     }
 
-    throw new Error('Failed to fetch contract metadata');
+    throw new Error(`Invalid response status: ${res.status} for ${addressString}`);
 }

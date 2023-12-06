@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
-import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -17,7 +17,6 @@ import { TabHeader } from "../../components/topbar/TabHeader";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../components/PressableChip";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
-import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
@@ -27,7 +26,6 @@ import { setStatusBarStyle } from "expo-status-bar";
 function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const address = props.account;
@@ -114,7 +112,6 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 safeArea={safeArea}
                                 onLoadMore={onReachedEnd}
                                 hasNext={txs.hasNext === true}
-                                frameArea={frameArea}
                                 loading={txs.loading}
                                 ledger={props.isLedger}
                             />

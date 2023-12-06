@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
-import { EdgeInsets, Rect } from "react-native-safe-area-context";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
@@ -82,7 +81,6 @@ export const WalletTransactions = memo((props: {
     address: Address,
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
-    frameArea: Rect,
     onLoadMore: () => void,
     loading: boolean,
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,

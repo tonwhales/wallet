@@ -618,10 +618,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     backupIntro: {
         title: 'Back up your wallet',
-        subtitle: 'In the next step you will see 24 secret words that allows you to recover a wallet',
-        clause1: 'If I lose recovery phrase, my funds will be lost forever.',
-        clause2: 'If I expose or share my recovery phrase to anybody, my funds can be stolen.',
-        clause3: 'It is my full responsibility to keep my recovery phrase secure.'
+        subtitle: 'Are you sure that you have saved your 24 secret words backed up?',
+        saved: 'Yes, I saved it',
+        goToBackup: 'No, Go to backup',
     },
     errors: {
         incorrectWords: {

@@ -1,11 +1,10 @@
 import * as React from 'react';
-import { View, Text, Image } from 'react-native';
+import { Image } from 'react-native';
 import { avatarHash } from '../utils/avatarHash';
 import { KnownWallets } from '../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 import FastImage from 'react-native-fast-image';
 import { memo } from 'react';
-import { useNetwork, useTheme } from '../engine/hooks';
 import { PerfText } from './basic/PerfText';
 import { PerfView } from './basic/PerfView';
 import { ThemeType } from '../engine/state/theme';

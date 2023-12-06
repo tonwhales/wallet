@@ -70,7 +70,7 @@ export const WalletSkeleton = memo(() => {
                             <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                                 <View style={{ backgroundColor: theme.divider, height: 32, width: 132, borderRadius: 20 }} />
                             </View>
-                            <View style={{ width: 24, height: 24 }} />
+                            <View style={{ width: 32, height: 32, }} />
                         </View>
                         <View
                             style={{

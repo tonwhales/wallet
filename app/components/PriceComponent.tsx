@@ -34,10 +34,6 @@ export const PriceComponent = memo((
 ) => {
     const [price, currency] = usePrice();
 
-    if (!price) {
-        return <></>;
-    }
-
     const isNeg = amount < 0;
     const abs = isNeg ? -amount : amount;
 
@@ -53,6 +49,10 @@ export const PriceComponent = memo((
     const parts = fullText.split(decimalPoint ?? /[.,]/);
     const integer = parts[0];
     const cents = parts[1];
+
+    if (!price) {
+        return <></>;
+    }
 
     return (
         <PerfView style={[{

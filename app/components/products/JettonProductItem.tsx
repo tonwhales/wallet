@@ -180,9 +180,9 @@ export const JettonProductItem = memo((props: {
                                             height: undefined
                                         }}
                                         textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                        theme={theme}
                                     />
                                 )}
-                                {/* <View style={{ flexGrow: 1 }} /> */}
                             </View>
                         </View>
                     </Wrapper>

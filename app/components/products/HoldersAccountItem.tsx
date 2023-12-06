@@ -173,6 +173,7 @@ export const HoldersAccountItem = memo((props: {
                                         }}
                                         textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         currencyCode={'EUR'}
+                                        theme={theme}
                                     />
                                 </View>
                             )}
@@ -230,6 +231,7 @@ export const HoldersAccountItem = memo((props: {
                                 }}
                                 textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 currencyCode={'EUR'}
+                                theme={theme}
                             />
                         </View>
                     )}

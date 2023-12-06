@@ -200,12 +200,14 @@ export const LedgerHomeFragment = fragment(() => {
                                     amount={BigInt(account?.balance.coins ?? 0)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                     textStyle={{ color: theme.textThird }}
+                                    theme={theme}
                                 />
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
                                     textStyle={{ color: theme.textThird }}
+                                    theme={theme}
                                 />
                             </Pressable>
                         </View>

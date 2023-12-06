@@ -499,6 +499,7 @@ export const StakingTransferFragment = fragment(() => {
                                                 alignSelf: 'flex-end',
                                                 height: 'auto'
                                             }}
+                                            theme={theme}
                                             textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
                                         />
                                     </View>

@@ -22,13 +22,14 @@ import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
 import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
+import { ThemeType } from "../../engine/state/theme";
 
-function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
-    const theme = useTheme();
+function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const address = props.account;
+    const theme = props.theme
     const client = useClient4(isTestnet);
     const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
     const holdersAccounts = useHoldersAccounts(address).data;
@@ -62,7 +63,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [txs.next, txs.hasNext]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
+        <View style={{ flex: 1, backgroundColor: props.theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -114,6 +115,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 hasNext={txs.hasNext === true}
                                 loading={txs.loading}
                                 ledger={props.isLedger}
+                                theme={theme}
                             />
                         )
                     } else {
@@ -122,6 +124,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 key={`card-${sceneProps.route.key}`}
                                 id={sceneProps.route.key}
                                 address={address}
+                                theme={theme}
+                                isTestnet={isTestnet}
                             />
                         )
                     }
@@ -176,7 +180,11 @@ export const TransactionsFragment = fragment(() => {
                     <TransactionsSkeleton />
                 </View>
             }>
-                <TransactionsComponent isLedger={isLedger} account={account} />
+                <TransactionsComponent
+                    theme={theme}
+                    isLedger={isLedger}
+                    account={account}
+                />
             </Suspense>
         )
     }

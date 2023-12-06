@@ -3,8 +3,11 @@ import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
 import { formatCurrency } from "../utils/formatCurrency"
 import { usePrice, useTheme } from "../engine/hooks";
 import { fromNano } from "@ton/core";
+import { ThemeType } from "../engine/state/theme";
 
 import TonSign from '@assets/ic_ton_sign.svg';
+import { PerfView } from "./basic/PerfView";
+import { PerfText } from "./basic/PerfText";
 
 export const PriceComponent = memo((
     {
@@ -15,7 +18,8 @@ export const PriceComponent = memo((
         prefix,
         suffix,
         currencyCode,
-        showSign
+        showSign,
+        theme
     }: {
         amount: bigint,
         style?: StyleProp<ViewStyle>,
@@ -24,10 +28,10 @@ export const PriceComponent = memo((
         prefix?: string,
         suffix?: string,
         currencyCode?: string,
-        showSign?: boolean
+        showSign?: boolean,
+        theme: ThemeType
     }
 ) => {
-    const theme = useTheme();
     const [price, currency] = usePrice();
 
     if (!price) {
@@ -38,11 +42,11 @@ export const PriceComponent = memo((
     const abs = isNeg ? -amount : amount;
 
     const fullText = useMemo(() => {
-        return `${prefix ?? ''}${formatCurrency(
-            (parseFloat(fromNano(abs)) * price.price.usd * price.price.rates[currencyCode || currency]).toFixed(2),
-            currencyCode || currency,
-            isNeg
-        )}${suffix ?? ''}`
+        const priceUSD = price.price.usd;
+        const rates = price.price.rates;
+        const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];
+        const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
+        return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
     }, [amount, price, currencyCode, currency, prefix, suffix]);
 
     const decimalPoint = fullText.match(/[.,]/)?.[0];
@@ -51,7 +55,7 @@ export const PriceComponent = memo((
     const cents = parts[1];
 
     return (
-        <View style={[{
+        <PerfView style={[{
             backgroundColor: theme.accent,
             borderRadius: 16,
             height: 28,
@@ -64,7 +68,7 @@ export const PriceComponent = memo((
             paddingLeft: showSign ? 2 : 12
         }, style]}>
             {showSign && (
-                <View style={{
+                <PerfView style={{
                     height: 24, width: 24,
                     justifyContent: 'center', alignItems: 'center',
                     backgroundColor: theme.ton, borderRadius: 12,
@@ -75,19 +79,19 @@ export const PriceComponent = memo((
                         width={12}
                         style={{ marginTop: 2, height: 12, width: 12 }}
                     />
-                </View>
+                </PerfView>
             )}
-            <Text style={[{
+            <PerfText style={[{
                 color: theme.surfaceOnBg,
                 fontSize: 15, fontWeight: '500',
                 textAlign: "center",
                 lineHeight: 20
             }, textStyle]}>
                 {`${integer}${decimalPoint ?? ','}`}
-                <Text style={centsTextStyle}>
+                <PerfText style={centsTextStyle}>
                     {cents}
-                </Text>
-            </Text>
-        </View>
+                </PerfText>
+            </PerfText>
+        </PerfView>
     )
 })

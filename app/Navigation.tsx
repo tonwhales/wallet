@@ -5,7 +5,6 @@ import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
-import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
@@ -83,6 +82,7 @@ import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAcco
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
+import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -174,9 +174,9 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('LegalImport', LegalFragment, safeArea, true),
     genericScreen('WalletImport', WalletImportFragment, safeArea, true),
     genericScreen('WalletCreate', WalletCreateFragment, safeArea, true),
-    genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
+    genericScreen('BackupIntro', BackupIntroFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),

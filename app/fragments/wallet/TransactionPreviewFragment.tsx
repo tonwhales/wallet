@@ -207,6 +207,7 @@ const TransactionPreview = () => {
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 automaticallyAdjustContentInsets={false}
                 contentInset={{ bottom: safeArea.bottom + 16 }}
+                alwaysBounceVertical={false}
             >
                 <PerfView style={{
                     backgroundColor: theme.surfaceOnElevation,

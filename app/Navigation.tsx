@@ -85,6 +85,7 @@ import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransfe
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 
 const Stack = createNativeStackNavigator();
+Stack.Navigator.displayName = 'MainStack';
 
 export function fullScreen(name: string, component: React.ComponentType<any>) {
     return (

@@ -98,6 +98,7 @@ export const StakingAnalyticsComponent = memo(({ pool }: { pool: Address }) => {
                                 height: undefined,
                             }}
                             amount={nominatorInfo.nominator?.profitAmount || 0n}
+                            theme={theme}
                         />
                     </View>
                 </View>

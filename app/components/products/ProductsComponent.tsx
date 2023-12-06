@@ -144,6 +144,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                                 height: undefined,
                             }}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                            theme={theme}
                         />
                     </View>
                 </Animated.View>

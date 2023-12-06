@@ -18,7 +18,7 @@ export function contractMetadataQueryFn(client: TonClient4, isTestnet: boolean, 
         log('[contract-metadata] fetching ' + addressString);
 
         let address = Address.parse(addressString);
-        let metadata = await fetchMetadata(client, await getLastBlock(), address);
+        let metadata = await fetchMetadata(client, await getLastBlock(), address, isTestnet);
 
         log('[contract-metadata] fetched ' + addressString);
         return {

@@ -207,6 +207,7 @@ const TransactionPreview = () => {
                 contentContainerStyle={{ paddingHorizontal: 16 }}
                 automaticallyAdjustContentInsets={false}
                 contentInset={{ bottom: safeArea.bottom + 16 }}
+                alwaysBounceVertical={false}
             >
                 <PerfView style={{
                     backgroundColor: theme.surfaceOnElevation,
@@ -303,6 +304,7 @@ const TransactionPreview = () => {
                                         height: 'auto',
                                         paddingLeft: 0
                                     }}
+                                    theme={theme}
                                     prefix={kind === 'in' ? '+' : ''}
                                     textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
                                     amount={BigInt(item.amount)}

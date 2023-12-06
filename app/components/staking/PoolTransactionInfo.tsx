@@ -134,6 +134,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                                 alignSelf: 'flex-end',
                             }}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
+                            theme={theme}
                         />
                     </View>
                 </View>
@@ -161,6 +162,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                                 alignSelf: 'flex-end',
                             }}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
+                            theme={theme}
                         />
                     </View>
                 </View>
@@ -190,6 +192,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                                 alignSelf: 'flex-end',
                             }}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
+                            theme={theme}
                         />
                     </View>
                 </View>
@@ -212,6 +215,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                                         alignSelf: 'flex-end'
                                     }}
                                     textStyle={{ color: theme.textSecondary, fontWeight: '400' }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>

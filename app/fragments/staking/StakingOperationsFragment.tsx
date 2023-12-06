@@ -94,6 +94,7 @@ export const StakingOperationComponent = memo(({ op }: { op: NominatorOperation 
                                 alignSelf: 'flex-end',
                                 paddingHorizontal: 0, paddingVertical: 0,
                             }}
+                            theme={theme}
                             textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
                         />
                     </View>

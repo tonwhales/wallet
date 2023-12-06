@@ -123,6 +123,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             centsTextStyle={{
                                 opacity: 0.5
                             }}
+                            theme={theme}
                         />
                         <Pressable
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
@@ -139,6 +140,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                         amount={toNano(1)}
                                         style={{ backgroundColor: theme.surfaceOnDark }}
                                         textStyle={{ color: theme.textOnsurfaceOnDark }}
+                                        theme={theme}
                                     />
                                 </OnboadingView>
                             </CopilotStep>
@@ -360,6 +362,7 @@ export const WalletFragment = fragment(() => {
 }, true);
 
 const Stack = createNativeStackNavigator();
+Stack.Navigator.displayName = 'WalletStack';
 
 const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),

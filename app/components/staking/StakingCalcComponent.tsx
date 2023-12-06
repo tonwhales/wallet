@@ -68,6 +68,7 @@ export const StakingCalcComponent = memo((
                                 amount={yearly}
                                 style={priceViewStyle(theme)}
                                 textStyle={priceTextStyle(theme)}
+                                theme={theme}
                             />
                         </View>
                     </View>
@@ -119,6 +120,7 @@ export const StakingCalcComponent = memo((
                                         amount={yearlyPlus}
                                         style={priceViewStyle(theme)}
                                         textStyle={priceTextStyle(theme)}
+                                        theme={theme}
                                     />
                                 </>
                             )
@@ -160,6 +162,7 @@ export const StakingCalcComponent = memo((
                         amount={yearly}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>
@@ -185,6 +188,7 @@ export const StakingCalcComponent = memo((
                         amount={monthly}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>
@@ -210,6 +214,7 @@ export const StakingCalcComponent = memo((
                         amount={daily}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>

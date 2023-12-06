@@ -51,6 +51,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         wallets: 'Wallets',
         later: 'Later',
         select: 'Select',
+        show: 'Show',
+        hide: 'Hide',
         showAll: 'Show all',
         hideAll: 'Hide all',
         done: 'Done',
@@ -258,7 +260,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',
         inProgress: 'Migrating old wallets...',
         transfer: 'Transfering coins from {{address}}',
-        check: 'Checking address {{address}}'
+        check: 'Checking address {{address}}',
+        keyStoreTitle: 'Transition to a new security method',
+        keyStoreSubtitle: 'We want your keys to always be secure, so we have updated the way we protect them. We need your permission to transfer your keys to a new secure storage.',
+        failed: 'Migration failed',
     },
     qr: {
         title: 'Point camera at QR code',

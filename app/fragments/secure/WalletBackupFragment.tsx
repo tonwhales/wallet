@@ -54,7 +54,9 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
         subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigate('ScreenCapture');
+            navigation.navigateScreenCapture({
+                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+            });
         });
 
         (async () => {
@@ -71,11 +73,8 @@ export const WalletBackupFragment = systemFragment(() => {
             }
         })();
 
-        // Keeping screen in awakened state
-        activateKeepAwakeAsync('WalletBackupFragment');
-        return function deactivate() {
+        return () => {
             subscription?.remove();
-            deactivateKeepAwake('WalletBackupFragment');
         };
     }, []);
 
@@ -159,6 +158,7 @@ export const WalletBackupFragment = systemFragment(() => {
                             paddingTop: init ? 16 : 46,
                             backgroundColor: !init ? theme.surfaceOnElevation : undefined
                         }}
+                        preventCapture={true}
                     />
                     {!init && (
                         <View style={{

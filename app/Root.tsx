@@ -14,7 +14,7 @@ import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
 
-const PERSISTANCE_VERSION = '15';
+const PERSISTANCE_VERSION = '16';
 
 LogBox.ignoreAllLogs()
 

@@ -508,6 +508,7 @@ export const TransferBatch = memo((props: Props) => {
                                     }}
                                     prefix={'-'}
                                     textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>
@@ -601,6 +602,7 @@ export const TransferBatch = memo((props: Props) => {
                                         color: theme.textSecondary,
                                         flexShrink: 1
                                     }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>
@@ -630,6 +632,7 @@ export const TransferBatch = memo((props: Props) => {
                                         color: theme.textSecondary,
                                         flexShrink: 1
                                     }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>
@@ -661,6 +664,7 @@ export const TransferBatch = memo((props: Props) => {
                                                 color: theme.textSecondary,
                                                 flexShrink: 1
                                             }}
+                                            theme={theme}
                                         />
                                     </View>
                                     {gas.unusual && (
@@ -735,6 +739,7 @@ export const TransferBatch = memo((props: Props) => {
                                                         color: theme.textSecondary,
                                                         flexShrink: 1
                                                     }}
+                                                    theme={theme}
                                                 />
                                             )}
                                         </View>
@@ -836,6 +841,7 @@ export const TransferBatch = memo((props: Props) => {
                                                             color: theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
+                                                        theme={theme}
                                                     />
                                                 </View>
                                             </View>

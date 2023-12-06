@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Platform, Image, Pressable } from "react-native";
-import Animated, { SensorType, useAnimatedSensor, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -53,17 +53,6 @@ export const StakingFragment = fragment(() => {
             ? ledgerAddress!.toString({ testOnly: network.isTestnet })
             : selected!.address.toString({ testOnly: network.isTestnet })
     )
-
-    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: withTiming(animSensor.sensor.value.y * 80) },
-                { translateY: withTiming(animSensor.sensor.value.x * 80) },
-            ]
-        }
-    });
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
@@ -230,23 +219,20 @@ export const StakingFragment = fragment(() => {
                             opacity: 0.5
                         }}>{' TON'}</Text>
                     </Text>
-                    <Animated.View
-                        style={[
-                            {
-                                position: 'absolute', top: 0, left: '50%',
-                                marginTop: -20, marginLeft: -20,
-                                height: 400, width: 400,
-                                overflow: 'hidden'
-                            },
-                            animatedStyle
-                        ]}
+                    <View
+                        style={{
+                            position: 'absolute', top: 0, left: '50%',
+                            marginTop: -20, marginLeft: -20,
+                            height: 400, width: 400,
+                            overflow: 'hidden'
+                        }}
                         pointerEvents={'none'}
                     >
                         <Image
                             source={require('@assets/shine-blur.webp')}
                             style={{ height: 400, width: 400 }}
                         />
-                    </Animated.View>
+                    </View>
                     <View style={{
                         flexDirection: 'row', alignItems: 'center',
                         marginTop: 10

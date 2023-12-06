@@ -618,8 +618,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     backupIntro: {
         title: 'Back up your wallet',
-        subtitle: 'Are you sure that you have saved your 24 secret words backed up?',
-        saved: 'Yes, I saved it',
+        subtitle: 'Are you sure that you have saved your 24 secret words?',
+        saved: 'Yes, I saved them',
         goToBackup: 'No, Go to backup',
     },
     errors: {

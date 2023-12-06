@@ -617,10 +617,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "subtitle": "Запишите эти 24 слова в том же порядке и сохраните их в надежном месте."
     },
     "backupIntro": {
-        "title": "Создайте резервную копию",
+        "title": "Вы сохранили SEED-фразу?",
         "subtitle": "Вы уверены, что сохранили 24 секретных слова?",
-        "saved": "Да, я записал",
-        "goToBackup": "Нет, перейти к резервной копии",
+        "saved": "Да, я сохранил",
+        "goToBackup": "Нет, вернуться к SEED-фразе",
     },
     "errors": {
         "incorrectWords": {

@@ -334,6 +334,7 @@ export function TransactionView(props: {
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
                                 }}
+                                theme={theme}
                                 textStyle={{
                                     color: theme.textSecondary,
                                     fontWeight: '400',

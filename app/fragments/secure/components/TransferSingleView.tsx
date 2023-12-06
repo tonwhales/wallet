@@ -244,6 +244,7 @@ export const TransferSingleView = memo(({
                                     fontSize: 17,
                                     lineHeight: 24,
                                 }}
+                                theme={theme}
                             />
                         )}
                     </ItemGroup>

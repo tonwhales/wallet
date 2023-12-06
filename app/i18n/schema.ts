@@ -619,9 +619,8 @@ export type LocalizationSchema = {
     backupIntro: {
         title: string,
         subtitle: string,
-        clause1: string,
-        clause2: string,
-        clause3: string
+        saved: string,
+        goToBackup: string,
     }
     errors: {
         incorrectWords: {

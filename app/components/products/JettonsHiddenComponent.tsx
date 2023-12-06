@@ -51,7 +51,7 @@ export const JettonsHiddenComponent = memo(() => {
                         lineHeight: 20,
                         color: theme.accent,
                     }}>
-                        {collapsed ? 'Show' : 'Hide'}
+                        {collapsed ? t('common.show') : t('common.hide')}
                     </Text>
                 </Pressable>
             </View>

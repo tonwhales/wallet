@@ -10,7 +10,7 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as ScreenCapture from 'expo-screen-capture';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -38,27 +38,6 @@ export const WalletCreateFragment = systemFragment(() => {
             })();
         }
     }, []);
-
-    const onBack = useCallback((e: any) => {
-        if (state?.saved) {
-            e.preventDefault();
-            setState({ ...state, saved: false });
-            return;
-        }
-
-        navigation.base.dispatch(e.data.action);
-    }, [state, navigation]);
-
-    useEffect(() => {
-        if (state) {
-            ScreenCapture.preventScreenCaptureAsync('words-screen');
-        } else {
-            ScreenCapture.allowScreenCaptureAsync('words-screen');
-        }
-        return () => {
-            ScreenCapture.allowScreenCaptureAsync('words-screen');
-        }
-    }, [state]);
 
     useLayoutEffect(() => {
         let subscription: ScreenCapture.Subscription;
@@ -138,7 +117,10 @@ export const WalletCreateFragment = systemFragment(() => {
                         }}>
                             {t('create.backupSubtitle')}
                         </Text>
-                        <MnemonicsView mnemonics={state.mnemonics} />
+                        <MnemonicsView
+                            mnemonics={state.mnemonics}
+                            preventCapture={true}
+                        />
                         {isTestnet && (
                             <RoundButton
                                 display={'text'}

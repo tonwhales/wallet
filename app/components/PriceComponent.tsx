@@ -38,6 +38,9 @@ export const PriceComponent = memo((
     const abs = isNeg ? -amount : amount;
 
     const fullText = useMemo(() => {
+        if (!price) {
+            return '';
+        }
         const priceUSD = price.price.usd;
         const rates = price.price.rates;
         const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];

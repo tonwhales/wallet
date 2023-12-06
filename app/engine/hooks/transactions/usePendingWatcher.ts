@@ -16,7 +16,7 @@ export function usePendingWatcher() {
     const firstTransaction = useRawAccountTransactions(client, account?.addressString || '').data?.pages[0]?.[0];
 
     useEffect(() => {
-        const transactionsInSync = firstTransaction?.hash === lite?.last?.hash;
+        const transactionsInSync = firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
 
         // transactions are not in sync - skip
         if (!transactionsInSync) {

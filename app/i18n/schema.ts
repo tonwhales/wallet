@@ -53,6 +53,8 @@ export type LocalizationSchema = {
         wallets: string,
         later: string,
         select: string,
+        show: string,
+        hide: string,
         showAll: string,
         hideAll: string,
         done: string,

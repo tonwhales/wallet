@@ -5,7 +5,6 @@ import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
-import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
@@ -174,7 +173,6 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('LegalImport', LegalFragment, safeArea, true),
     genericScreen('WalletImport', WalletImportFragment, safeArea, true),
     genericScreen('WalletCreate', WalletCreateFragment, safeArea, true),
-    genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),

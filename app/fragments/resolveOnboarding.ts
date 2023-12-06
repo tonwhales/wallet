@@ -9,7 +9,7 @@ function isPasscodeSetupShown(): boolean {
     return storage.getBoolean(wasPasscodeSetupShownKey) ?? false;
 }
 
-type OnboardingState = 'Welcome' | 'WalletUpgrade' | 'PasscodeSetupInit' | 'WalletCreated' | 'Home' | 'AppStartAuth' | 'KeyStoreMigration';
+type OnboardingState = 'Welcome' | 'WalletUpgrade' | 'PasscodeSetupInit' | 'WalletBackupInit' | 'Home' | 'AppStartAuth' | 'KeyStoreMigration';
 
 export function resolveOnboarding(isTestnet: boolean, appStart?: boolean): OnboardingState {
     const state = getAppState();
@@ -37,7 +37,7 @@ export function resolveOnboarding(isTestnet: boolean, appStart?: boolean): Onboa
         } else if (canUpgradeAppState()) {
             return 'WalletUpgrade'
         } else {
-            return 'WalletCreated';
+            return 'WalletBackupInit';
         }
     } else if (canUpgradeAppState()) {
         return 'WalletUpgrade';

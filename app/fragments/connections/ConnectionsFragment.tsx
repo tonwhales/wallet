@@ -1,6 +1,6 @@
 import axios from 'axios';
 import * as React from 'react';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Alert, Platform, Pressable, Text, View, useWindowDimensions, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
@@ -8,7 +8,6 @@ import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { backoff } from '../../utils/time';
 import { useTrackScreen } from '../../analytics/mixpanel';
-import LottieView from 'lottie-react-native';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useLinkNavigator } from '../../useLinkNavigator';
@@ -23,8 +22,6 @@ import { getDomainKey } from '../../engine/state/domainKeys';
 import { getCachedAppData } from '../../engine/getters/getAppData';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-
-import Scanner from '@assets/ic-scanner-accent.svg';
 
 type Item = {
     key: string;
@@ -138,18 +135,6 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, [disconnectConnect]);
 
-    // 
-    // Lottie animation
-    // 
-    const anim = useRef<LottieView>(null);
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            setTimeout(() => {
-                anim.current?.play()
-            }, 300);
-        }
-    }, []);
-
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src, network.isTestnet);
@@ -167,8 +152,12 @@ export const ConnectionsFragment = fragment(() => {
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
-        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+        
     }, []));
+    
+    useFocusEffect(useCallback(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    }, [theme.style]));
 
     return (
         <View style={{ flex: 1 }}>

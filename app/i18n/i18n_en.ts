@@ -461,6 +461,12 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         holders: {
             title: 'Bank account',
+            accounts: {
+                title: 'Accounts',
+                account: 'Account',
+                basicAccount: 'Basic account',
+                proAccount: 'Pro account',
+            },
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',

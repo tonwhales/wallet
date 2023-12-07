@@ -461,6 +461,12 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "holders": {
             "title": "Банковский счет",
+            "accounts": {
+                "title": 'Счета',
+                "account": 'Счет',
+                "basicAccount": 'Базовый счет',
+                "proAccount": 'Pro счет',
+            },
             "pageTitles": {
                 "general": "Tonhub Cards",
                 "card": "Tonhub Card",

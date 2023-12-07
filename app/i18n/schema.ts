@@ -463,6 +463,12 @@ export type LocalizationSchema = {
         },
         holders: {
             title: string,
+            accounts: {
+                title: string,
+                account: string,
+                basicAccount: string,
+                proAccount: string,
+            },
             pageTitles: {
                 general: string,
                 card: string,

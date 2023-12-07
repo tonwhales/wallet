@@ -16,10 +16,9 @@ import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
+import { StatusBar } from "expo-status-bar";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
-import Chevron from '@assets/ic_chevron_forward.svg';
-import { StatusBar } from "expo-status-bar";
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();

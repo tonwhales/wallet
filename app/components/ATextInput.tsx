@@ -152,7 +152,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         blur: () => {
             tref.current!.blur();
         }
-    }));
+    }), [ref, tref]);
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);

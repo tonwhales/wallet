@@ -202,19 +202,19 @@ export const DappAuthComponent = memo(({
                             src={iconUrl}
                             borderRadius={16}
                         />
-                        <View style={{ width: 80, height: 50 }}>
+                        <View style={{ width: 79, height: 51 }}>
                             <IcConnectLine
                                 height={50}
                                 width={80}
                                 style={{ width: 80, height: 50 }}
                             />
-                            <Canvas style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                            <Canvas style={{ position: 'absolute', top: -1, left: 0.2, right: 0, bottom: 0 }}>
                                 <ImageSVG
                                     svg={connectLineSvg}
                                     x={0}
                                     y={0}
-                                    width={80}
-                                    height={50}
+                                    width={79}
+                                    height={51}
                                 />
                             </Canvas>
                         </View>

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -745,7 +745,7 @@ export const SimpleTransferFragment = fragment(() => {
                 }
             default:
                 return {
-                    amount: {},
+                    amount: Platform.select({ android: { marginVertical: -80 }, ios: {} }),
                     address: {},
                     comment: {}
                 }
@@ -759,7 +759,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, [selected, addressDomainInput]);
 
     return (
-        <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
+        <Animated.View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
                 title={header.title}
@@ -775,7 +775,7 @@ export const SimpleTransferFragment = fragment(() => {
                 ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={[
-                    { marginHorizontal: 16 },
+                    { marginHorizontal: 16, flexGrow: 1 },
                     Platform.select({ android: { minHeight: addressInputHeight } }),
                 ]}
                 contentInset={{
@@ -789,7 +789,7 @@ export const SimpleTransferFragment = fragment(() => {
                 nestedScrollEnabled={true}
             >
                 <Animated.View
-                    layout={Layout.duration(300)}
+                    layout={LinearTransition.duration(300)}
                     style={[seletectInputStyles.address, { flex: 1, zIndex: selected === 'address' ? 1 : undefined }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
@@ -811,7 +811,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                 </Animated.View>
                 <Animated.View
-                    layout={Layout.duration(300)}
+                    layout={LinearTransition.duration(300)}
                     style={[seletectInputStyles.amount, { flex: 1, zIndex: selected === 'amount' ? 1 : undefined }]}
                 >
                     <View
@@ -970,7 +970,7 @@ export const SimpleTransferFragment = fragment(() => {
                     )}
                 </Animated.View>
                 <Animated.View
-                    layout={Layout.duration(300)}
+                    layout={LinearTransition.duration(300)}
                     style={[
                         { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined },
                         seletectInputStyles.comment

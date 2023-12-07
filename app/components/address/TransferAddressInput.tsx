@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
-import { Pressable, View } from "react-native";
+import { Platform, Pressable, View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -132,20 +132,25 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         if (props.isSelected) {
             select();
         }
-    }, [select, ref]);
+    }, [select]);
+
+    const isSelected = Platform.select({
+        ios: props.isSelected,
+        android: true,
+    });
 
     return (
         <View>
             <View
-                style={[props.isSelected ? { opacity: 0, height: 0, width: 0 } : undefined]}
-                pointerEvents={!props.isSelected ? undefined : 'none'}
+                style={[isSelected ? { opacity: 0, height: 0, width: 0 } : undefined]}
+                pointerEvents={!isSelected ? undefined : 'none'}
             >
                 <Pressable
                     style={{
                         backgroundColor: props.theme.surfaceOnElevation,
                         padding: 20,
                         width: '100%', borderRadius: 20,
-                        flexDirection: 'row', alignItems: 'center'
+                        flexDirection: 'row', alignItems: 'center',
                     }}
                     onPress={select}
                 >
@@ -184,8 +189,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 </Pressable>
             </View>
             <View
-                style={[!props.isSelected ? { opacity: 0, height: 0, width: 0 } : { marginTop: -16 }]}
-                pointerEvents={props.isSelected ? undefined : 'none'}
+                style={[!isSelected ? { opacity: 0, height: 0, width: 0 } : Platform.select({ ios: { marginTop: -16 } })]}
+                pointerEvents={isSelected ? undefined : 'none'}
             >
                 <View style={{
                     backgroundColor: props.theme.surfaceOnElevation,

@@ -1,5 +1,5 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Image } from "react-native"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
+import { ViewStyle, StyleProp, Alert, Pressable, TextStyle, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { View } from "react-native";
@@ -66,13 +66,6 @@ export const AddressDomainInput = memo(forwardRef(({
             navigation.navigateScanner({ callback: onQRCodeRead });
         })();
     }, [onQRCodeRead]);
-
-    const tref = useRef<TextInput>(null);
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            tref.current!.focus();
-        },
-    }));
 
     const onResolveDomain = useCallback(async (
         toResolve: string, zone: '.t.me' | '.ton',
@@ -218,7 +211,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 autoFocus={autoFocus}
                 value={textInput}
                 index={index}
-                ref={tref}
+                ref={ref}
                 maxLength={48}
                 onFocus={(index) => {
                     setFocused(true);

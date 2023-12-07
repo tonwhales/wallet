@@ -182,7 +182,8 @@ export const DappAuthComponent = memo(({
                 backgroundColor: theme.elevation,
                 borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
                 borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                padding: 16,
+                paddingHorizontal: 16,
+                paddingTop: Platform.OS === 'android' ? 0 : 40,
                 paddingBottom: safeArea.bottom + 16
             }}>
                 <View style={Platform.select({ android: { flexGrow: 1 } })}>

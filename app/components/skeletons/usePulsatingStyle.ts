@@ -1,4 +1,4 @@
-import { Extrapolate, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
+import { Extrapolation, SharedValue, interpolate, useAnimatedStyle } from "react-native-reanimated";
 
 export function usePulsatingStyle(progress: SharedValue<number>) {
     return useAnimatedStyle(() => {
@@ -6,13 +6,13 @@ export function usePulsatingStyle(progress: SharedValue<number>) {
             progress.value,
             [0, 1],
             [1, 0.85],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
         );
         const scale = interpolate(
             progress.value,
             [0, 1],
             [1, 1.005],
-            Extrapolate.CLAMP,
+            Extrapolation.CLAMP,
         )
         return {
             opacity: opacity,

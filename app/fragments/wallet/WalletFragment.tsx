@@ -210,7 +210,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                                 borderRadius: 16,
                                                 alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                                <Image source={require('@assets/ic_buy.png')} />
+                                                <Image source={require('@assets/ic-buy.png')} />
                                             </View>
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,

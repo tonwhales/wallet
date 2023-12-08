@@ -1,9 +1,7 @@
 import React, { memo, useMemo } from "react"
 import { HoldersAccountItem } from "./HoldersAccountItem";
 import { View, Text, Image } from "react-native";
-import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
-
-import Hide from '@assets/ic-hide.svg';
+import { useHoldersAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
@@ -16,17 +14,11 @@ export const HoldersProductComponent = memo(() => {
     const theme = useTheme();
     const selected = useSelectedAccount();
     const accounts = useHoldersAccounts(selected!.address).data?.accounts;
-    const [hiddenCards, markCard] = useHoldersHiddenAccounts(selected!.address);
-    const visibleList = useMemo(() => {
-        return (accounts ?? []).filter((item) => {
-            return !hiddenCards.includes(item.id);
-        });
-    }, [hiddenCards, accounts]);
     const totalBalance = useMemo(() => {
-        return visibleList.reduce((acc, item) => {
+        return accounts?.reduce((acc, item) => {
             return acc + BigInt(item.balance);
         }, BigInt(0));
-    }, [visibleList]);
+    }, [accounts]);
 
     if (!network.isTestnet) {
         return null;
@@ -36,10 +28,10 @@ export const HoldersProductComponent = memo(() => {
         return null;
     }
 
-    if (visibleList.length <= 3) {
+    if (accounts.length <= 3) {
         return (
-            <View style={{ marginBottom: 16 }}>
-                {visibleList.map((item, index) => {
+            <View style={{ marginBottom: 16, paddingHorizontal: 16 }}>
+                {accounts.map((item, index) => {
                     return (
                         <HoldersAccountItem
                             key={`card-${index}`}
@@ -52,10 +44,10 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
+        <View style={{ marginBottom: accounts.length > 0 ? 16 : 0 }}>
             <CollapsibleCards
                 title={t('products.holders.accounts.title')}
-                items={visibleList}
+                items={accounts}
                 renderItem={(item, index) => {
                     return (
                         <HoldersAccountItem

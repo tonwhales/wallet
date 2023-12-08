@@ -20,7 +20,7 @@ const CardItemWrapper = memo(({
         marginTop: interpolate(
             progress.value,
             [0, 1],
-            [-32 - 86 - 86 * index, 0],
+            [-16 - 86 - 86 * index, 16],
             Extrapolation.CLAMP
         ),
         height: interpolate(
@@ -32,7 +32,7 @@ const CardItemWrapper = memo(({
     }))
 
     return (
-        <Animated.View style={[{ zIndex: 98 - index }, animatedStyle]}>
+        <Animated.View style={[{ zIndex: 98 - index, marginTop: 16 }, animatedStyle]}>
             {item}
         </Animated.View>
     )
@@ -166,7 +166,7 @@ export const CollapsibleCards = memo(({
     const cardThirdItem = renderItem(items[2], 2);
 
     return (
-        <Animated.View>
+        <View>
             <Animated.View
                 style={[{
                     flexDirection: 'row',
@@ -261,7 +261,7 @@ export const CollapsibleCards = memo(({
                 </Animated.View>
             </View>
             <Animated.View
-                style={{ gap: 16, paddingHorizontal: 16, marginTop: 16 }}
+                style={{ paddingHorizontal: 16 }}
             >
                 {items.slice(3, undefined).map((item, index) => {
                     const itemView = renderItem(item, index);
@@ -276,6 +276,6 @@ export const CollapsibleCards = memo(({
                     )
                 })}
             </Animated.View>
-        </Animated.View>
+        </View>
     )
 });

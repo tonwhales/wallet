@@ -8,6 +8,8 @@ export type PendingTransactionBody =
     | { type: 'token', amount: bigint, master: JettonMasterState, target: Address }
     | { type: 'batch' };
 
+export type PendingTransactionStatus = 'pending' | 'sent';
+
 export type PendingTransaction = {
     id: string,
     fees: bigint,
@@ -17,6 +19,7 @@ export type PendingTransaction = {
     body: PendingTransactionBody | null,
     time: number,
     hash: Buffer,
+    status: PendingTransactionStatus
 };
 
 export const pendingTransactionsState = atom<PendingTransaction[]>({

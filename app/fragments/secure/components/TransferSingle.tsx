@@ -252,6 +252,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
+            status: 'pending',
             fees: fees,
             amount: amount,
             address: target.address,

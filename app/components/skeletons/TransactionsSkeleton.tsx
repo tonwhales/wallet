@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useEffect } from "react";
-import Animated, { Easing, FadeIn, FadeOut, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
+import Animated, { Easing, Extrapolation, FadeIn, FadeOut, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 import { usePulsatingStyle } from "./usePulsatingStyle";
 import { View } from "react-native";
 import { useTheme } from "../../engine/hooks";
@@ -31,7 +31,24 @@ export const TransactionsSkeleton = memo(() => {
             );
     }, []);
 
-    const animatedStyles = usePulsatingStyle(animation);
+    const animatedStyles = useAnimatedStyle(() => {
+        const opacity = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 0.85],
+            Extrapolation.CLAMP
+        );
+        const scale = interpolate(
+            animation.value,
+            [0, 1],
+            [1, 1.01],
+            Extrapolation.CLAMP,
+        )
+        return {
+            opacity: opacity,
+            transform: [{ scale: scale }],
+        };
+    }, []);
 
     const components = Array.from({ length: 20 }).map((_, index) => {
         const right = Math.random() * 50;
@@ -40,7 +57,10 @@ export const TransactionsSkeleton = memo(() => {
         const rndmShoHeader = index === 0 || (Math.floor(Math.random() * 4) + index % 3) > 3;
 
         return (
-            <View key={`tx-skeleton-${index}`}>
+            <Animated.View
+                key={`tx-skeleton-${index}`}
+                style={[animatedStyles]}
+            >
                 {rndmShoHeader && <SectionHeader theme={theme} />}
                 <View style={{
                     alignSelf: 'stretch',
@@ -61,34 +81,34 @@ export const TransactionsSkeleton = memo(() => {
                         <View style={{
                             height: 24, width: left + 28,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 8,
-                            borderTopRightRadius: 8,
+                            borderTopLeftRadius: 4,
+                            borderTopRightRadius: 4,
                         }} />
                         <View style={{
                             height: 20, width: left + 56,
                             backgroundColor: theme.textSecondary,
-                            borderTopRightRadius: 8,
-                            borderBottomLeftRadius: 8,
-                            borderBottomRightRadius: 8,
+                            borderTopRightRadius: 4,
+                            borderBottomLeftRadius: 4,
+                            borderBottomRightRadius: 4,
                         }} />
                     </View>
                     <View style={{ alignItems: 'flex-end' }}>
                         <View style={{
                             height: 20, width: right + 32,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 8,
-                            borderTopRightRadius: 8,
+                            borderTopLeftRadius: 4,
+                            borderTopRightRadius: 4,
                         }} />
                         <View style={{
                             height: 18, width: right + 64,
                             backgroundColor: theme.textSecondary,
-                            borderTopLeftRadius: 8,
-                            borderBottomLeftRadius: 8,
-                            borderBottomRightRadius: 8,
+                            borderTopLeftRadius: 4,
+                            borderBottomLeftRadius: 4,
+                            borderBottomRightRadius: 4,
                         }} />
                     </View>
                 </View>
-            </View>
+            </Animated.View>
         )
     })
 
@@ -104,7 +124,7 @@ export const TransactionsSkeleton = memo(() => {
                 },
             ]}
         >
-            <Animated.View style={[{ flexGrow: 1 }, animatedStyles]}>
+            <Animated.View style={{ flexGrow: 1 }}>
                 {components}
             </Animated.View>
         </Animated.View>

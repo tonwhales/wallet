@@ -313,7 +313,9 @@ export const StakingTransferFragment = fragment(() => {
                 - (pool?.params?.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
                 - (pool?.params?.receiptPrice || toNano('0.1'))
         }
-        onSetAmount(fromNano(addAmount));
+        if (addAmount > 0n) {
+            onSetAmount(fromNano(addAmount));
+        }
     }, [balance, params, pool]);
 
     useEffect(() => {

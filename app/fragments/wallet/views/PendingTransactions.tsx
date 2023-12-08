@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
 import { memo } from "react";
 import { View, Text } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
-import { PendingTransaction } from "../../../engine/state/pending";
+import { PendingTransaction, pendingTransactionsState } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/PendingTransactionAvatar";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
@@ -15,10 +15,23 @@ import { AddressComponent } from "../../../components/address/AddressComponent";
 import { Address } from "@ton/core";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
-import { single } from "rxjs";
 import { formatTime } from "../../../utils/dates";
+import { Avatar } from "../../../components/Avatar";
+import { useSetRecoilState } from "recoil";
 
-const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransaction, first?: boolean, last?: boolean, single?: boolean }) => {
+const PendingTransactionView = memo(({
+    tx,
+    first,
+    last,
+    single,
+    onRemove
+}: {
+    tx: PendingTransaction,
+    first?: boolean,
+    last?: boolean,
+    single?: boolean,
+    onRemove?: (id: string) => void,
+}) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const body = tx.body;
@@ -40,7 +53,15 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
         ? body.amount
         : tx.amount > 0n
             ? tx.amount
-            : -tx.amount
+            : -tx.amount;
+
+    useEffect(() => {
+        if (onRemove && tx.status === 'sent') {
+            setTimeout(() => {
+                onRemove(tx.id);
+            }, 15000);
+        }
+    }, [tx.status, onRemove]);
 
     return (
         <Animated.View
@@ -62,11 +83,24 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center',
                 }}>
-                    <PendingTransactionAvatar
-                        kind={'out'}
-                        address={targetFriendly}
-                        avatarId={targetFriendly ?? 'batch'}
-                    />
+                    {tx.status === 'pending' ? (
+                        <PendingTransactionAvatar
+                            kind={'out'}
+                            address={targetFriendly}
+                            avatarId={targetFriendly ?? 'batch'}
+                        />
+                    ) : (
+                        <Avatar
+                            address={targetFriendly}
+                            verified
+                            size={46}
+                            borderWith={0}
+                            id={targetFriendly ?? 'batch'}
+                            theme={theme}
+                            isTestnet={false}
+                            backgroundColor={theme.backgroundPrimary}
+                        />
+                    )}
                 </View>
                 <View style={{ flex: 1, marginRight: 4 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -75,7 +109,7 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
-                            {t('tx.sending')}
+                            {tx.status === 'pending' ? t('tx.sending') : t('tx.sent')}
                         </Text>
                     </View>
                     {known ? (
@@ -145,7 +179,15 @@ const PendingTransactionView = memo(({ tx, first, last }: { tx: PendingTransacti
 
 export const PendingTransactions = memo(() => {
     const pending = usePendingTransactions();
+    const setPending = useSetRecoilState(pendingTransactionsState);
     const theme = useTheme();
+
+    const removePending = useCallback((id: string) => {
+        setPending((prev) => {
+            return prev.filter((tx) => tx.id !== id);
+        });
+    }, [setPending]);
+
     return (
         <View>
             {pending.length > 0 && (
@@ -182,6 +224,7 @@ export const PendingTransactions = memo(() => {
                         tx={tx}
                         first={i === 0}
                         last={i === pending.length - 1}
+                        onRemove={() => removePending(tx.id)}
                     />
                 ))}
             </View>

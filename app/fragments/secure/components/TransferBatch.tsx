@@ -359,6 +359,7 @@ export const TransferBatch = memo((props: Props) => {
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
+            status: 'pending',
             fees: fees,
             amount: totalAmount * (BigInt(-1)),
             address: null,

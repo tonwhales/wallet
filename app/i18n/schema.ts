@@ -75,6 +75,7 @@ export type LocalizationSchema = {
         message: string,
         airdrop: string,
         myWallets: string,
+        showMore: string,
     },
     syncStatus: {
         connecting: string,
@@ -463,6 +464,12 @@ export type LocalizationSchema = {
         },
         holders: {
             title: string,
+            accounts: {
+                title: string,
+                account: string,
+                basicAccount: string,
+                proAccount: string,
+            },
             pageTitles: {
                 general: string,
                 card: string,

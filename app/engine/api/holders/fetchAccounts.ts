@@ -201,8 +201,11 @@ export const accountsListResCodec = z.union([
 ]);;
 
 export const generalAccountSchema = z.intersection(accountSchema, accountPublicSchema);
+export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
+
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
+export type GeneralHoldersCard = z.infer<typeof generalCardSchema>;
 
 export async function fetchAccountsList(token: string) {
   let res = await axios.post(

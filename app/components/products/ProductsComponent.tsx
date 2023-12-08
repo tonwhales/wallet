@@ -23,6 +23,7 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
+import { Typography } from "../styles"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -167,12 +168,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                     marginBottom: 4,
                     paddingHorizontal: 16
                 }}>
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        lineHeight: 28,
-                    }}>
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                         {t('common.products')}
                     </Text>
                     {!(holdersAccounts?.accounts?.length === 0 && totalStaked === 0n) && (

@@ -44,6 +44,9 @@ export const JettonsProductComponent = memo(() => {
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
                 renderItem={(j,) => {
+                    if (!j) {
+                        return null;
+                    }
                     return (
                         <JettonProductItem
                             key={'jt' + j.wallet.toString()}

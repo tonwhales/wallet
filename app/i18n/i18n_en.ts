@@ -274,7 +274,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
-        addNew: 'Add new',
+        addNew: 'Add new product',
         tonConnect: {
             errors: {
                 connection: 'Connection error',

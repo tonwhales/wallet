@@ -198,7 +198,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             title={t('products.holders.card.defaultTitle')}
                             subtitle={t('products.holders.card.defaultSubtitle')}
                             onPress={onHoldersPress}
-                            illustration={require('@assets/banners/banner-holders.png')}
+                            illustration={require('@assets/banners/banner-holders.webp')}
                             reverse
                         />
                     </View>

@@ -3,6 +3,7 @@ import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { t } from "../../i18n/t";
 import Animated, { Easing, Extrapolation, SharedValue, interpolate, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
+import { Typography } from "../styles";
 
 const CardItemWrapper = memo(({
     progress,
@@ -174,12 +175,7 @@ export const CollapsibleCards = memo(({
                     paddingHorizontal: 16
                 }, titleStyle,]}
             >
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                    color: theme.textPrimary,
-                    lineHeight: 24,
-                }}>
+                <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                     {title}
                 </Text>
                 <Pressable

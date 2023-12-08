@@ -31,6 +31,17 @@ export const HoldersProductComponent = memo(() => {
     if (accounts.length <= 3) {
         return (
             <View style={{ marginBottom: 16, paddingHorizontal: 16 }}>
+                <View
+                    style={[{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        marginBottom: 16
+                    }]}
+                >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('products.holders.accounts.title')}
+                    </Text>
+                </View>
                 {accounts.map((item, index) => {
                     return (
                         <HoldersAccountItem

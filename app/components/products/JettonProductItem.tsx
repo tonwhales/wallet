@@ -22,7 +22,8 @@ export const JettonProductItem = memo((props: {
     rightAction?: () => void
     rightActionIcon?: any,
     single?: boolean,
-    hidden?: boolean
+    hidden?: boolean,
+    card?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -31,7 +32,7 @@ export const JettonProductItem = memo((props: {
     const balance = props.jetton.balance;
     const balanceNum = Number(fromNano(balance));
     const swapAmount = (!!swap && balance > 0n)
-        ?  Number(fromNano(swap)) * balanceNum
+        ? Number(fromNano(swap)) * balanceNum
         : null;
     const swipableRef = useRef<Swipeable>(null);
 
@@ -55,16 +56,16 @@ export const JettonProductItem = memo((props: {
     const wrapperProps = props.hidden ? {} : {
         onPressIn: onPressIn,
         onPressOut: onPressOut,
-        onPress: onPress
+        onPress: onPress,
+        style: {
+            flexGrow: 1,
+        }
     }
 
     return (
         (props.rightAction) ? (
             <Animated.View style={[
-                {
-                    flex: 1, flexDirection: 'row',
-                    paddingHorizontal: 16
-                },
+                { flex: 1, flexDirection: 'row', paddingHorizontal: props.card ? 0 : 16 },
                 animatedStyle
             ]}>
                 <Swipeable
@@ -72,24 +73,40 @@ export const JettonProductItem = memo((props: {
                     overshootRight={false}
                     containerStyle={{ flex: 1 }}
                     useNativeAnimations={true}
-                    childrenContainerStyle={{
-                        flex: 1,
-                        borderTopLeftRadius: props.first ? 20 : 0,
-                        borderTopRightRadius: props.first ? 20 : 0,
-                        borderBottomLeftRadius: props.last ? 20 : 0,
-                        borderBottomRightRadius: props.last ? 20 : 0,
-                        overflow: 'hidden'
-                    }}
+                    childrenContainerStyle={[
+                        {
+                            flex: 1,
+                            overflow: 'hidden'
+                        },
+                        props.card
+                            ? { borderRadius: 20 }
+                            : {
+                                borderTopLeftRadius: props.first ? 20 : 0,
+                                borderTopRightRadius: props.first ? 20 : 0,
+                                borderBottomLeftRadius: props.last ? 20 : 0,
+                                borderBottomRightRadius: props.last ? 20 : 0,
+                            }
+                    ]}
                     renderRightActions={() => {
                         return (
                             <Pressable
-                                style={{
-                                    padding: 20,
-                                    justifyContent: 'center', alignItems: 'center',
-                                    borderTopRightRadius: props.first ? 20 : 0,
-                                    borderBottomRightRadius: props.last ? 20 : 0,
-                                    backgroundColor: props.single ? theme.transparent : theme.accent,
-                                }}
+                                style={[
+                                    {
+                                        padding: 20,
+                                        justifyContent: 'center', alignItems: 'center',
+                                        borderTopRightRadius: props.first ? 20 : 0,
+                                        borderBottomRightRadius: props.last ? 20 : 0,
+                                        backgroundColor: props.single ? theme.transparent : theme.accent,
+                                    },
+                                    props.card
+                                        ? {
+                                            borderTopRightRadius: 20,
+                                            borderBottomRightRadius: 20,
+                                        } : {
+                                            borderTopRightRadius: props.first ? 20 : 0,
+                                            borderBottomRightRadius: props.last ? 20 : 0,
+                                        }
+                                ]}
                                 onPress={() => {
                                     swipableRef.current?.close();
                                     if (props.rightAction) {
@@ -187,7 +204,7 @@ export const JettonProductItem = memo((props: {
                         </View>
                     </Wrapper>
                 </Swipeable>
-                {!props.last && (
+                {!props.last && !props.card && (
                     <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
                 )}
             </Animated.View>

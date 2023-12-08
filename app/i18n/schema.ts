@@ -75,6 +75,7 @@ export type LocalizationSchema = {
         message: string,
         airdrop: string,
         myWallets: string,
+        showMore: string,
     },
     syncStatus: {
         connecting: string,

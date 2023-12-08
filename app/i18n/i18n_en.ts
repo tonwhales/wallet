@@ -73,6 +73,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         message: 'Message',
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
+        showMore: 'Show more',
     },
     syncStatus: {
         connecting: 'Connecting',

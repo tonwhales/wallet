@@ -72,12 +72,13 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "assets": "Активы",
         "message": "Сообщение",
         "airdrop": "Airdrop",
-        "myWallets": "Мои кошельки"
+        "myWallets": "Мои кошельки",
+        "showMore": "Показать больше",
     },
     "syncStatus": {
         "connecting": "Идет подключение",
         "updating": "Обновление",
-        "online": "Подключен                           "
+        "online": "Подключен"
     },
     "home": {
         "home": "Главная",

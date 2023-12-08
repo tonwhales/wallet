@@ -55,7 +55,7 @@ export const HoldersProductComponent = memo(() => {
     }
 
     return (
-        <View style={{ marginBottom: accounts.length > 0 ? 16 : 0 }}>
+        <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('products.holders.accounts.title')}
                 items={accounts}
@@ -97,7 +97,7 @@ export const HoldersProductComponent = memo(() => {
                                     style={[{ flexShrink: 1, color: theme.textSecondary }, Typography.regular15_20]}
                                 >
                                     <PerfText style={{ flexShrink: 1 }}>
-                                        {'Show more'}
+                                        {t('common.showMore')}
                                     </PerfText>
                                 </PerfText>
                             </View>

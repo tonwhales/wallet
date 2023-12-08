@@ -83,6 +83,7 @@ import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
+import { ProductsFragment } from './fragments/wallet/ProductsFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -195,6 +196,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Receive', ReceiveFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+    transparentModalScreen('Products', ProductsFragment, safeArea),
 
     // dApps
     transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),

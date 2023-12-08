@@ -18,6 +18,10 @@ export const JettonsProductComponent = memo(() => {
     const jettons = useJettons(selected!.addressString);
     const visibleList = jettons.filter((j) => !j.disabled);
 
+    if (visibleList.length === 0) {
+        return null;
+    }
+
     if (visibleList.length <= 3) {
         <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
             {visibleList.map((j, index) => {
@@ -36,14 +40,15 @@ export const JettonsProductComponent = memo(() => {
         </View>
     }
 
-    // CollapsibleCards
-
     return (
         <View style={{ marginBottom: 16 }}>
             <CollapsibleCards
                 title={t('jetton.productButtonTitle')}
                 items={visibleList}
                 renderItem={(j,) => {
+                    if (!j) {
+                        return null;
+                    }
                     return (
                         <JettonProductItem
                             key={'jt' + j.wallet.toString()}

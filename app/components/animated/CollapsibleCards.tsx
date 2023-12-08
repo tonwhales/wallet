@@ -186,12 +186,7 @@ export const CollapsibleCards = memo(({
                     }}
                     onPress={() => setCollapsed(!collapsed)}
                 >
-                    <Text style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        lineHeight: 20,
-                        color: theme.accent,
-                    }}>
+                    <Text style={[{ color: theme.accent }, Typography.medium15_20]}>
                         {t('common.hide')}
                     </Text>
                 </Pressable>

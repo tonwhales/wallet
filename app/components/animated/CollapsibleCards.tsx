@@ -93,7 +93,7 @@ export const CollapsibleCards = memo(({
         marginTop: interpolate(
             progress.value,
             [0, 1],
-            [-66, 16 + 46],
+            [-66, 16 + 40],
             Extrapolation.CLAMP
         )
     }));

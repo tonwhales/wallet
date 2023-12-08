@@ -121,7 +121,7 @@ export const HoldersAccountItem = memo((props: {
             </Pressable>
             <ScrollView
                 horizontal={true}
-                style={{ height: 46, marginLeft: 20, marginTop: 10 }}
+                style={{ height: 46, marginLeft: 78, marginTop: 10 }}
                 contentContainerStyle={{ gap: 8 }}
                 showsHorizontalScrollIndicator={false}
             >

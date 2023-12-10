@@ -158,23 +158,9 @@ export const DeleteAccountFragment = fragment(() => {
 
                 // Check if same address
                 if (target.address.equals(contract.address)) {
-                    let allowSendingToYourself = await new Promise((resolve, reject) => {
-                        Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
-                            {
-                                onPress: () => resolve(true),
-                                text: t('transfer.continueAnyway')
-                            },
-                            {
-                                onPress: () => resolve(false),
-                                text: t('transfer.cancel'),
-                                isPreferred: true,
-                            }
-                        ]);
-                    });
-                    if (!allowSendingToYourself) {
-                        setStatus(undefined);
-                        return;
-                    }
+                    Alert.alert(t('transfer.error.sendingToYourself'));
+                    setStatus(undefined);
+                    return;
                 }
 
                 // Create transfer all & dstr transfer

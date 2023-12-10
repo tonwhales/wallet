@@ -112,6 +112,8 @@ export type LocalizationSchema = {
         title: string,
         titleAction: string,
         confirm: string,
+        continueAnyway: string,
+        cancel: string,
         error: {
             invalidAddress: string,
             invalidAmount: string,

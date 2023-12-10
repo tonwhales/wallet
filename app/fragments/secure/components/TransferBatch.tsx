@@ -219,8 +219,22 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Check if same address
             if (target.equals(contract.address)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
-                return;
+                let allowSendingToYourself = await new Promise((resolve, reject) => {
+                    Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                        {
+                            onPress: () => resolve(true),
+                            text: t('transfer.continueAnyway')
+                        },
+                        {
+                            onPress: () => resolve(false),
+                            text: t('transfer.cancel'),
+                            isPreferred: true,
+                        }
+                    ]);
+                });
+                if (!allowSendingToYourself) {
+                    return;
+                }
             }
 
             // Check if restricted

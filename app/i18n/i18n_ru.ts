@@ -98,6 +98,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         title: 'Отправить {{symbol}}',
         titleAction: 'Действие',
         confirm: 'Вы уверены что хотите продолжить?',
+        continueAnyway: 'Все равно продолжить',
+        cancel: 'Отменить',
         error: {
             invalidAddress: 'Неверный адрес',
             invalidDomain: 'Неверный домен',

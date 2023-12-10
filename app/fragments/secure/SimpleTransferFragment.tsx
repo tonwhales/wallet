@@ -192,8 +192,22 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Check if same address
         if (address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
+            let allowSendingToYourself = await new Promise((resolve, reject) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('transfer.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('transfer.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSendingToYourself) {
+                return;
+            }
         }
 
         // Check amount

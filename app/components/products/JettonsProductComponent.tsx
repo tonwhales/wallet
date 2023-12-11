@@ -23,21 +23,23 @@ export const JettonsProductComponent = memo(() => {
     }
 
     if (visibleList.length <= 3) {
-        <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
-            {visibleList.map((j, index) => {
-                return (
-                    <JettonProductItem
-                        key={'jt' + j.wallet.toString()}
-                        jetton={j}
-                        first={index === 0}
-                        last={index === visibleList.length - 1}
-                        rightAction={() => markJettonDisabled(j.master)}
-                        rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
-                        single={visibleList.length === 1}
-                    />
-                )
-            })}
-        </View>
+        return (
+            <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
+                {visibleList.map((j, index) => {
+                    return (
+                        <JettonProductItem
+                            key={'jt' + j.wallet.toString()}
+                            jetton={j}
+                            first={index === 0}
+                            last={index === visibleList.length - 1}
+                            rightAction={() => markJettonDisabled(j.master)}
+                            rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
+                            single={visibleList.length === 1}
+                        />
+                    )
+                })}
+            </View>
+        )
     }
 
     return (

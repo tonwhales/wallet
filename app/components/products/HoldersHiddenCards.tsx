@@ -74,6 +74,8 @@ export const HoldersHiddenAccounts = memo(() => {
                 showDivider={false}
                 collapsed={collapsed}
                 items={hiddenList}
+                itemHeight={126}
+                style={{ gap: 16, paddingHorizontal: 16 }}
                 renderItem={(item, index) => {
                     return (
                         <HoldersAccountItem

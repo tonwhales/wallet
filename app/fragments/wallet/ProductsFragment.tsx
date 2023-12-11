@@ -38,6 +38,7 @@ export const ProductsFragment = fragment(() => {
         () => {
             const domain = extractDomain(holdersUrl);
             const domainKey = getDomainKey(domain);
+            navigation.goBack();
             if (needsEnrolment || !domainKey) {
                 navigation.navigate(
                     'HoldersLanding',
@@ -96,7 +97,10 @@ export const ProductsFragment = fragment(() => {
                 )}
                 <View style={{ marginTop: network.isTestnet ? 16 : 0 }}>
                     <ProductBanner
-                        onPress={() => navigation.replace('StakingPools')}
+                        onPress={() => {
+                            navigation.goBack();
+                            navigation.navigate('StakingPools');
+                        }}
                         reverse
                         title={t('products.staking.title')}
                         subtitle={network.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}

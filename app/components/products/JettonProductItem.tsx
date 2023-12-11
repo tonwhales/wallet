@@ -120,7 +120,7 @@ export const JettonProductItem = memo((props: {
                                         position: 'absolute',
                                         top: 0, bottom: 0, left: -20,
                                         width: 20,
-                                        backgroundColor: theme.surfaceOnBg,
+                                        backgroundColor: theme.surfaceOnElevation,
                                     }}
                                 />}
                             </Pressable>
@@ -135,7 +135,7 @@ export const JettonProductItem = memo((props: {
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.surfaceOnElevation,
                         }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <WImage
@@ -149,7 +149,7 @@ export const JettonProductItem = memo((props: {
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
                                         position: 'absolute', right: -2, bottom: -2,
-                                        backgroundColor: theme.surfaceOnBg
+                                        backgroundColor: theme.surfaceOnElevation
                                     }}>
                                         <Image
                                             source={require('@assets/ic-verified.png')}
@@ -220,7 +220,7 @@ export const JettonProductItem = memo((props: {
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceOnBg
+                        backgroundColor: theme.surfaceOnElevation
                     },
                     animatedStyle
                 ]}>
@@ -236,7 +236,7 @@ export const JettonProductItem = memo((props: {
                                 justifyContent: 'center', alignItems: 'center',
                                 height: 20, width: 20, borderRadius: 10,
                                 position: 'absolute', right: -2, bottom: -2,
-                                backgroundColor: theme.surfaceOnBg
+                                backgroundColor: theme.surfaceOnElevation
                             }}>
                                 <Image
                                     source={require('@assets/ic-verified.png')}

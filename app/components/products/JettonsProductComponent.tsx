@@ -6,9 +6,9 @@ import { useJettons, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
 import { t } from "../../i18n/t";
+import { Typography } from "../styles";
 
 import IcHide from '@assets/ic-hide.svg';
-import { Typography } from "../styles";
 
 export const JettonsProductComponent = memo(() => {
     const theme = useTheme();
@@ -63,14 +63,22 @@ export const JettonsProductComponent = memo(() => {
                 }}
                 renderFace={() => {
                     return (
-                        <View style={{
-                            flexGrow: 1, flexDirection: 'row',
-                            padding: 20,
-                            marginHorizontal: 16,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: theme.surfaceOnBg,
-                        }}>
+                        <View style={[
+                            {
+                                flexGrow: 1, flexDirection: 'row',
+                                padding: 20,
+                                marginHorizontal: 16,
+                                borderRadius: 20,
+                                alignItems: 'center',
+                                backgroundColor: theme.surfaceOnElevation,
+                            },
+                            theme.style === 'dark' ? {
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.15,
+                                shadowRadius: 4,
+                            } : {}
+                        ]}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <Image
                                     source={require('@assets/ic-coins.png')}

@@ -19,11 +19,11 @@ import { ProductBanner } from "./ProductBanner"
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState"
 import { getDomainKey } from "../../engine/state/domainKeys"
 import { extractDomain } from "../../engine/utils/extractDomain"
+import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
+import { Typography } from "../styles"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
-import { Typography } from "../styles"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -95,7 +95,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceOnBg,
+                        backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 20,
                         overflow: 'hidden'
                     },
@@ -107,7 +107,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             justifyContent: 'center', alignItems: 'center',
                             height: 20, width: 20, borderRadius: 10,
                             position: 'absolute', right: -2, bottom: -2,
-                            backgroundColor: theme.surfaceOnBg
+                            backgroundColor: theme.surfaceOnElevation
                         }}>
                             <Image
                                 source={require('@assets/ic-verified.png')}

@@ -21,7 +21,7 @@ const CardItemWrapper = memo(({
         marginTop: interpolate(
             progress.value,
             [0, 1],
-            [-16 - 86 - 86 * index, 16],
+            [-16 - itemHeight * (index + 2), 16],
             Extrapolation.CLAMP
         ),
         height: interpolate(
@@ -30,7 +30,7 @@ const CardItemWrapper = memo(({
             [86, itemHeight],
             Extrapolation.CLAMP
         ),
-    }))
+    }));
 
     return (
         <Animated.View style={[
@@ -67,7 +67,7 @@ export const CollapsibleCards = memo(({
     useEffect(() => {
         progress.value = withTiming(collapsed ? 0 : 1, {
             duration: 300,
-            easing: Easing.cubic
+            easing: Easing.bezier(0.25, 0.1, 0.25, 1)
         });
     }, [collapsed]);
 
@@ -172,11 +172,14 @@ export const CollapsibleCards = memo(({
     return (
         <View>
             <Animated.View
-                style={[{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    paddingHorizontal: 16
-                }, titleStyle,]}
+                style={[
+                    {
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingHorizontal: 16
+                    },
+                    titleStyle
+                ]}
             >
                 <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
                     {title}
@@ -196,16 +199,17 @@ export const CollapsibleCards = memo(({
             </Animated.View>
             <View style={{ zIndex: 102 }}>
                 <View style={{ zIndex: 101 }}>
-                    <Animated.View style={faceStyle}>
-                        <Pressable
-                            onPress={() => setCollapsed(!collapsed)}
-                        >
+                    <Animated.View style={[
+                        faceStyle,
+                        { borderRadius: 20 }
+                    ]}>
+                        <Pressable onPress={() => setCollapsed(!collapsed)}>
                             {renderFace && renderFace()}
                         </Pressable>
                     </Animated.View>
                     <Animated.View style={[
                         { position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 },
-                        { paddingHorizontal: 16 },
+                        { paddingHorizontal: 16, borderRadius: 20 },
                         cardFirstLevelStyle
                     ]}>
                         {cardFirstItem}
@@ -218,18 +222,28 @@ export const CollapsibleCards = memo(({
                             marginHorizontal: 16,
                             borderRadius: 20,
                             overflow: 'hidden',
-                            alignSelf: 'center'
+                            alignSelf: 'center',
+                            backgroundColor: theme.surfaceOnElevation
                         },
                         cardSecondLevelStyle,
-                        { zIndex: 100 }
+                        { zIndex: 100 },
+                        theme.style === 'dark' ? {
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.15,
+                            shadowRadius: 4,
+                        } : {}
                     ]}
                 >
                     {cardSecondItem}
                     <Animated.View
-                        style={[{
-                            backgroundColor: theme.cardStackSecond,
-                            position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
-                        }, cardLevelOpacity]}
+                        style={[
+                            {
+                                backgroundColor: theme.cardStackSecond,
+                                position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+                            },
+                            cardLevelOpacity
+                        ]}
                     />
                 </Animated.View>
                 <Animated.View
@@ -247,16 +261,17 @@ export const CollapsibleCards = memo(({
                 >
                     {cardThirdItem}
                     <Animated.View
-                        style={[{
-                            backgroundColor: theme.cardStackThird,
-                            position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
-                        }, cardLevelOpacity]}
+                        style={[
+                            {
+                                backgroundColor: theme.cardStackThird,
+                                position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+                            },
+                            cardLevelOpacity
+                        ]}
                     />
                 </Animated.View>
             </View>
-            <Animated.View
-                style={{ paddingHorizontal: 16, overflow: 'hidden' }}
-            >
+            <Animated.View style={{ paddingHorizontal: 16, overflow: 'hidden' }}>
                 {items.slice(3, undefined).map((item, index) => {
                     const itemView = renderItem(item, index);
                     return (

@@ -33,7 +33,7 @@ export const DappsRequests = memo(() => {
             <View style={{
                 paddingVertical: 10,
                 borderRadius: 20,
-                backgroundColor: theme.surfaceOnBg,
+                backgroundColor: theme.surfaceOnElevation,
             }}>
                 {!!tonXRequest && (
                     <>

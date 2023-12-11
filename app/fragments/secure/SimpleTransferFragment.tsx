@@ -21,7 +21,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
-import { formatCurrency } from '../../utils/formatCurrency';
+import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
 import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -131,7 +131,7 @@ export const SimpleTransferFragment = fragment(() => {
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
         try {
-            const valid = amount.replace(',', '.');
+            const valid = amount.replace(',', '.').replaceAll(' ', '');
             // Manage jettons with decimals
             if (jettonState) {
                 value = toBnWithDecimals(valid, jettonState.master.decimals ?? 9);
@@ -935,7 +935,10 @@ export const SimpleTransferFragment = fragment(() => {
                             ref={refs[1]}
                             onFocus={onFocus}
                             value={amount}
-                            onValueChange={setAmount}
+                            onValueChange={(newVal) => {
+                                const formatted = formatInputAmount(newVal, jettonState?.master.decimals ?? 9);
+                                setAmount(formatted);
+                            }}
                             keyboardType={'numeric'}
                             style={{
                                 backgroundColor: theme.backgroundPrimary,

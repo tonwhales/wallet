@@ -26,6 +26,62 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
     [PrimaryCurrency.Jpy]: { symbol: '¥', end: true, label: 'Japanese Yen' },
 };
 
+export function formatInputAmount(
+    raw: string,
+    decimals: number,
+    skipFormatting?: boolean,
+    trimSeparator?: boolean,
+  ) {
+    const { decimalSeparator } = getNumberFormatSettings();
+  
+    if (raw.endsWith(',') || raw.endsWith('.')) {
+      raw = raw.slice(0, -1) + decimalSeparator;
+    }
+  
+    raw = raw.replaceAll(' ', '');
+  
+    if (decimalSeparator === ',') {
+      // remove non-numeric charsets
+      raw = raw.replace(/[^0-9\,]/g, '');
+      raw = raw.replace(/\,/g, '.');
+    } else {
+      // remove non-numeric charsets
+      raw = raw.replace(/[^0-9\.]/g, '');
+    }
+    // allow only one leading zero
+    raw = raw.replace(/^([0]+)/, '0');
+    // prepend zero before leading comma
+    raw = raw.replace(/^([\.]+)/, '0.');
+  
+    // allow only one comma
+    let commaFound = false;
+    raw = raw.replace(/\./g, () => {
+      if (!commaFound) {
+        commaFound = true;
+        return '.';
+      } else {
+        return '';
+      }
+    });
+  
+    // apply length limitations
+    const exp = raw.split('.');
+    if (!skipFormatting) {
+      exp[0] = exp[0].substring(0, 16);
+    }
+    let expNumLength = exp[0].length;
+    exp[0] = exp[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+    if (exp[1]) {
+      exp[1] = exp[1]
+        .substring(0, Math.min(decimals, !skipFormatting ? 16 - expNumLength : 255))
+        .trim();
+    }
+  
+    return trimSeparator && typeof exp[1] === 'string' && exp[1].length === 0
+      ? exp[0]
+      : exp.join(decimalSeparator);
+  }
+  
 function toLocaleNumber(value: string) {
     const { decimalSeparator } = getNumberFormatSettings();
     let parts = value.split('.');

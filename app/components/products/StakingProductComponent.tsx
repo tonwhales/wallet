@@ -74,7 +74,7 @@ export const StakingProductComponent = memo(() => {
                                 <Pressable
                                     onPress={() => navigation.navigate('StakingPools')}
                                     style={({ pressed }) => {
-                                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
+                                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnElevation }]
                                     }}
                                 >
                                     <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
@@ -112,7 +112,7 @@ export const StakingProductComponent = memo(() => {
                                 address={p.address}
                                 balance={p.balance}
                                 style={{
-                                    backgroundColor: theme.surfaceOnBg,
+                                    backgroundColor: theme.surfaceOnElevation,
                                     paddingHorizontal: 20
                                 }}
                                 hideCycle
@@ -122,14 +122,22 @@ export const StakingProductComponent = memo(() => {
                     theme={theme}
                     renderFace={() => {
                         return (
-                            <View style={{
-                                flexGrow: 1, flexDirection: 'row',
-                                padding: 20,
-                                marginHorizontal: 16,
-                                borderRadius: 20,
-                                alignItems: 'center',
-                                backgroundColor: theme.surfaceOnBg,
-                            }}>
+                            <View style={[
+                                {
+                                    flexGrow: 1, flexDirection: 'row',
+                                    padding: 20,
+                                    marginHorizontal: 16,
+                                    borderRadius: 20,
+                                    alignItems: 'center',
+                                    backgroundColor: theme.surfaceOnElevation,
+                                },
+                                theme.style === 'dark' ? {
+                                    shadowColor: '#000',
+                                    shadowOffset: { width: 0, height: 2 },
+                                    shadowOpacity: 0.15,
+                                    shadowRadius: 4,
+                                } : {}
+                            ]}>
                                 <View style={icStyle}>
                                     <View style={{ backgroundColor: theme.accent, ...icStyleInner }}>
                                         <StakingIcon width={32} height={32} color={'white'} />
@@ -186,7 +194,7 @@ export const StakingProductComponent = memo(() => {
 
     return (
         <View style={{
-            backgroundColor: theme.surfaceOnBg,
+            backgroundColor: theme.surfaceOnElevation,
             borderRadius: 20,
             marginHorizontal: 16,
             marginBottom: 16
@@ -197,7 +205,7 @@ export const StakingProductComponent = memo(() => {
                         address={p.address}
                         balance={p.balance}
                         style={{
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.surfaceOnElevation,
                             paddingHorizontal: 20
                         }}
                         hideCycle
@@ -210,7 +218,7 @@ export const StakingProductComponent = memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('StakingPools')}
                 style={({ pressed }) => {
-                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
+                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnElevation }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>

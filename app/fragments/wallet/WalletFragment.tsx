@@ -180,7 +180,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnBg,
+                                backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
                                 marginTop: 28,
                                 overflow: 'hidden'

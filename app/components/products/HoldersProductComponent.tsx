@@ -69,14 +69,22 @@ export const HoldersProductComponent = memo(() => {
                 }}
                 renderFace={() => {
                     return (
-                        <View style={{
-                            flexGrow: 1, flexDirection: 'row',
-                            padding: 20,
-                            marginHorizontal: 16,
-                            borderRadius: 20,
-                            alignItems: 'center',
-                            backgroundColor: theme.surfaceOnBg,
-                        }}>
+                        <View style={[
+                            {
+                                flexGrow: 1, flexDirection: 'row',
+                                padding: 20,
+                                marginHorizontal: 16,
+                                borderRadius: 20,
+                                alignItems: 'center',
+                                backgroundColor: theme.surfaceOnElevation,
+                            },
+                            theme.style === 'dark' ? {
+                                shadowColor: '#000',
+                                shadowOffset: { width: 0, height: 2 },
+                                shadowOpacity: 0.15,
+                                shadowRadius: 4,
+                            } : {}
+                        ]}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <Image
                                     source={require('@assets/ic-holders-accounts.png')}

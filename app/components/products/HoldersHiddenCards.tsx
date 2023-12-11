@@ -6,7 +6,6 @@ import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollaps
 import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 
 import Show from '@assets/ic-show.svg';
-import { CollapsibleCards } from "../animated/CollapsibleCards";
 
 export const holdersCardImageMap: { [key: string]: any } = {
     'classic': require('@assets/holders/classic.png'),

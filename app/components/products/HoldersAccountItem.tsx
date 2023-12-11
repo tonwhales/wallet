@@ -13,8 +13,9 @@ import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/hold
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
+import { Platform } from "react-native";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -63,77 +64,82 @@ export const HoldersAccountItem = memo((props: {
     const subtitle = t('products.holders.accounts.basicAccount');
 
     return (
+        // <Swipeable>
         <Animated.View style={[
-            { flex: 1, borderRadius: 20, backgroundColor: theme.surfaceOnBg, paddingVertical: 20 },
+            { flex: 1, borderRadius: 20, backgroundColor: theme.surfaceOnElevation, paddingVertical: 20 },
             animatedStyle
         ]}>
-            <Pressable
+            <TouchableOpacity
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
                 style={{ flexGrow: 1, }}
                 onPress={onPress}
             >
-                <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
-                    <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
-                        <IcTonIcon width={46} height={46} />
-                    </View>
-                    <View style={{ marginLeft: 12, flexShrink: 1 }}>
-                        <PerfText
-                            style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
-                            ellipsizeMode="tail"
-                            numberOfLines={1}
-                        >
-                            {title}
-                        </PerfText>
-                        <PerfText
-                            style={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                            numberOfLines={1}
-                            ellipsizeMode={'tail'}
-                        >
-                            <PerfText style={{ flexShrink: 1 }}>
-                                {subtitle}
+                <View>
+                    <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
+                        <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
+                            <IcTonIcon width={46} height={46} />
+                        </View>
+                        <View style={{ marginLeft: 12, flexShrink: 1 }}>
+                            <PerfText
+                                style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
+                                ellipsizeMode="tail"
+                                numberOfLines={1}
+                            >
+                                {title}
                             </PerfText>
-                        </PerfText>
-                    </View>
-                    {(!!props.account && props.account.balance) && (
-                        <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                            <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
-                                <PerfText style={{ opacity: 0.5 }}>
-                                    {' TON'}
+                            <PerfText
+                                style={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                            >
+                                <PerfText style={{ flexShrink: 1 }}>
+                                    {subtitle}
                                 </PerfText>
                             </PerfText>
-                            <PriceComponent
-                                amount={BigInt(props.account.balance)}
-                                style={{
-                                    backgroundColor: 'transparent',
-                                    paddingHorizontal: 0, paddingVertical: 0,
-                                    alignSelf: 'flex-end',
-                                    height: undefined
-                                }}
-                                textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
-                                currencyCode={'EUR'}
-                                theme={theme}
-                            />
                         </View>
-                    )}
+                        {(!!props.account && props.account.balance) && (
+                            <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
+                                <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                                    <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
+                                    <PerfText style={{ opacity: 0.5 }}>
+                                        {' TON'}
+                                    </PerfText>
+                                </PerfText>
+                                <PriceComponent
+                                    amount={BigInt(props.account.balance)}
+                                    style={{
+                                        backgroundColor: 'transparent',
+                                        paddingHorizontal: 0, paddingVertical: 0,
+                                        alignSelf: 'flex-end',
+                                        height: undefined
+                                    }}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
+                                    currencyCode={'EUR'}
+                                    theme={theme}
+                                />
+                            </View>
+                        )}
+                    </View>
+                    <ScrollView
+                        horizontal={true}
+                        style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
+                        contentContainerStyle={{ gap: 8 }}
+                        contentInset={Platform.select({ ios: { left: 78 } })}
+                        showsHorizontalScrollIndicator={false}
+                    >
+                        {props.account.cards.map((card,) => {
+                            return (
+                                <HoldersAccountCard
+                                    card={card as GeneralHoldersCard}
+                                    theme={theme}
+                                />
+                            )
+                        })}
+                    </ScrollView>
                 </View>
-            </Pressable>
-            <ScrollView
-                horizontal={true}
-                style={{ height: 46, marginLeft: 78, marginTop: 10 }}
-                contentContainerStyle={{ gap: 8 }}
-                showsHorizontalScrollIndicator={false}
-            >
-                {props.account.cards.map((card, index) => {
-                    return (
-                        <HoldersAccountCard
-                            card={card as GeneralHoldersCard}
-                            theme={theme}
-                        />
-                    )
-                })}
-            </ScrollView>
+            </TouchableOpacity>
         </Animated.View>
+        // </Swipeable>
     );
 });

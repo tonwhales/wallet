@@ -8,7 +8,7 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../navigation/CloseButton";
-import { ScreenHeader, ScreenHeaderProps } from "../ScreenHeader";
+import { ScreenHeader } from "../ScreenHeader";
 import { ThemeType } from "../../engine/state/theme";
 import { useTheme } from "../../engine/hooks";
 

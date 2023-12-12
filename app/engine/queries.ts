@@ -45,5 +45,5 @@ export const Queries = {
         AppData: () => ['apps', url, 'appData'],
         Stats: () => ['apps', url, 'stats'],
     }),
-    APY: () => (['staking', 'apy']),
+    APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
 }

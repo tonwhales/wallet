@@ -29,10 +29,13 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
 export function formatInputAmount(
     raw: string,
     decimals: number,
-    skipFormattingReal?: boolean,
-    skipFormattingDecimals?: boolean,
-    trimSeparator?: boolean,
+    formatting: {
+      skipFormattingReal?: boolean,
+      skipFormattingDecimals?: boolean,
+      trimSeparator?: boolean,
+    }
   ) {
+    const { skipFormattingReal, skipFormattingDecimals, trimSeparator } = formatting;
     const { decimalSeparator } = getNumberFormatSettings();
   
     if (raw.endsWith(',') || raw.endsWith('.')) {
@@ -74,7 +77,7 @@ export function formatInputAmount(
     exp[0] = exp[0].replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
     if (exp[1]) {
       exp[1] = exp[1]
-        .substring(0, Math.min(decimals, !skipFormattingDecimals ? 16 - expNumLength : 255))
+        .substring(0, Math.min(decimals, skipFormattingDecimals ? 255 : Math.max(16 - expNumLength, 0)))
         .trim();
     }
   

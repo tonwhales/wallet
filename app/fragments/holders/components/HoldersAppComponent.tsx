@@ -13,7 +13,7 @@ import { createInjectSource, dispatchResponse } from '../../apps/components/inje
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { HoldersParams, extractHoldersQueryParams, processHeaderMessage, reduceHeader } from '../utils';
+import { HoldersParams, extractHoldersQueryParams, processStatusBarMessage } from '../utils';
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import * as FileSystem from 'expo-file-system';
@@ -45,6 +45,7 @@ export function normalizePath(path: string) {
 }
 
 import IcHolders from '../../../../assets/ic_holders.svg';
+import { StatusBar, setStatusBarBackgroundColor, setStatusBarStyle } from 'expo-status-bar';
 
 function PulsingCardPlaceholder(theme: ThemeType) {
     const safeArea = useSafeAreaInsets();
@@ -315,37 +316,6 @@ export const HoldersAppComponent = memo((
         lockScroll: true
     });
 
-    const [headerColors, dispatchHeader] = useReducer(
-        reduceHeader(),
-        { prevColor: null, newColor: null }
-    );
-
-    const headerProgress = useSharedValue(0);
-
-    const headerAnimated = useAnimatedStyle(() => {
-        return {
-            backgroundColor: interpolateColor(
-                headerProgress.value,
-                [0, 1],
-                [headerColors.prevColor ?? theme.backgroundPrimary, headerColors.newColor ?? theme.backgroundPrimary],
-                'RGB'
-            ),
-        };
-    }, [headerColors, theme.style]);
-
-    useEffect(() => {
-        if (headerColors.newColor !== headerColors.prevColor) {
-            cancelAnimation(headerProgress);
-            headerProgress.value = 0;
-            headerProgress.value = withTiming(1, {
-                duration: 150,
-                easing: Easing.bezier(0.42, 0, 1, 1)
-            }, () => {
-                runOnJS(dispatchHeader)(({ type: 'setPrevColor' }));
-            });
-        }
-    }, [headerColors]);
-
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'create') {
@@ -481,6 +451,7 @@ export const HoldersAppComponent = memo((
                 }
             },
             initialInjection,
+            true,
             true
         );
     }, [status, accountsStatus]);
@@ -507,7 +478,7 @@ export const HoldersAppComponent = memo((
             }
 
             // Header API
-            processed = processHeaderMessage(parsed, dispatchHeader);
+            processed = processStatusBarMessage(parsed, setStatusBarStyle, setStatusBarBackgroundColor);
 
             if (processed) {
                 return;
@@ -647,13 +618,7 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <Animated.View style={[
-                {
-                    flex: 1,
-                    paddingTop: safeArea.top
-                },
-                headerAnimated
-            ]}>
+            <View style={{ flex: 1 }}>
                 {!!stableOfflineV ? (
                     <OfflineWebView
                         key={`offline-rendered-${offlineRender}`}
@@ -785,7 +750,7 @@ export const HoldersAppComponent = memo((
                         </Animated.View>
                     )}
                 </KeyboardAvoidingView>
-            </Animated.View>
+            </View>
         </>
     );
 });

@@ -1,6 +1,6 @@
+import { StatusBarStyle } from "expo-status-bar";
 import { warn } from "../../utils/log";
 import { BackPolicy, HoldersQueryParams } from "./types";
-import { Dispatch } from "react";
 
 export type HoldersParams = {
     closeApp?: boolean,
@@ -80,46 +80,31 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
     }
 }
 
-export type HeaderAction = { type: 'setColor', args: { color: string | null } } | { type: 'setPrevColor' } | { type: 'reset' }
-export type HeaderState = { newColor: string| null, prevColor: string | null }
-
-export function reduceHeader() {
-    return (state: HeaderState, action: HeaderAction) => {
-        switch (action.type) {
-            case 'setColor':
-                return {
-                    prevColor: state.prevColor,
-                    newColor: action.args.color
-                }
-            case 'setPrevColor':
-                return {
-                    prevColor: state.newColor,
-                    newColor: state.newColor
-                }
-            case 'reset':
-                return {
-                    prevColor: null,
-                    newColor: null
-                }
-            default:
-                return state;
-        }
-    }
-}
-
-export function processHeaderMessage(
+export function processStatusBarMessage(
     parsed: any,
-    dispatchHeader: Dispatch<HeaderAction>
+    setStatusBarStyle: (style: StatusBarStyle) => void,
+    setStatusBarBackgroundColor: (backgroundColor: string, animated: boolean) => void
 ) {
-    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-header') !== -1) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('status-bar') !== -1) {
         const actionType = parsed.data.name.split('.')[1];
 
         switch (actionType) {
-            case 'setColor':
-                dispatchHeader({ type: 'setColor', args: { color: parsed.data.args.color } });
+            case 'setStatusBarStyle':
+                const style = parsed.data.args[0];
+                if (style === 'dark') {
+                    setStatusBarStyle('dark');
+                } else if (style === 'light') {
+                    setStatusBarStyle('light');
+                } else {
+                    warn('Invalid status bar style');
+                }
+                break;
+            case 'setStatusBarBackgroundColor':
+                const backgroundColor = parsed.data.args[0];
+                setStatusBarBackgroundColor(backgroundColor, true);
                 break;
             default:
-                warn('Invalid main button action type');
+                warn('Invalid status bar action type');
         }
         return true;
     }

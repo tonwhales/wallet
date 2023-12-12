@@ -74,33 +74,30 @@ window['main-button'] = (() => {
 })();
 `
 
-const headerAPI = `
-window['main-header'] = (() => {
-    let __MAIN_HEADER_AVAILIBLE = true;
+const statusBarAPI = `
+window['status-bar'] = (() => {
+    let __STATUS_BAR_AVAILIBLE = true;
 
-    const setColor = (color) => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.setColor', args: { color } } }));
+    const setStatusBarStyle = (style) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarStyle', args: [style] } }));
     };
 
-    const setPrevColor = () => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.setPrevColor' } }));
+    const setStatusBarBackgroundColor = (backgroundColor) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarBackgroundColor', args: [backgroundColor] } }));
     };
 
-    const reset = () => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.reset' } }));
-    };
+    const obj = { setStatusBarStyle, setStatusBarBackgroundColor, __STATUS_BAR_AVAILIBLE };
 
-    const obj = { setColor, setPrevColor, reset, __MAIN_HEADER_AVAILIBLE };
     Object.freeze(obj);
     return obj;
 })();
 `
 
-export function createInjectSource(config: any, additionalInjections?: string, useMainButtonAPI?: boolean, useHeaderAPI?: boolean) {
+export function createInjectSource(config: any, additionalInjections?: string, useMainButtonAPI?: boolean, useStatusBarAPI?: boolean) {
     return `
     ${additionalInjections || ''}
     ${useMainButtonAPI ? mainButtonAPI : ''}
-    ${useHeaderAPI ? headerAPI : ''}
+    ${useStatusBarAPI ? statusBarAPI : ''}
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};

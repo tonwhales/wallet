@@ -1,4 +1,4 @@
-import { View, Platform, Text } from "react-native";
+import { View, Platform, Text, Pressable } from "react-native";
 import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -63,7 +63,7 @@ export const ProductsFragment = fragment(() => {
                     style={{ paddingTop: safeArea.top }}
                 />
             )}
-            <View style={{ flexGrow: 1 }} />
+            <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                 flexGrow: Platform.OS === 'ios' ? 0 : 1,

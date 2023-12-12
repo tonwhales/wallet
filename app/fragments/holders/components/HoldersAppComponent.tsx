@@ -450,6 +450,7 @@ export const HoldersAppComponent = memo((
                     signature: domainSign.subkey.signature
                 }
             },
+            safeArea,
             initialInjection,
             true,
             true

@@ -1,3 +1,4 @@
+import { EdgeInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 
 const mainButtonAPI = `
@@ -74,30 +75,33 @@ window['main-button'] = (() => {
 })();
 `
 
-const statusBarAPI = `
-window['status-bar'] = (() => {
-    let __STATUS_BAR_AVAILIBLE = true;
+const statusBarAPI = (safeArea: EdgeInsets) => {
+    return `
+    window['status-bar'] = (() => {
+        let __STATUS_BAR_AVAILIBLE = true;
+        const safeArea = ${JSON.stringify(safeArea)};
+    
+        const setStatusBarStyle = (style) => {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarStyle', args: [style] } }));
+        };
+    
+        const setStatusBarBackgroundColor = (backgroundColor) => {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarBackgroundColor', args: [backgroundColor] } }));
+        };
+    
+        const obj = { setStatusBarStyle, setStatusBarBackgroundColor, __STATUS_BAR_AVAILIBLE };
+    
+        Object.freeze(obj);
+        return obj;
+    })();
+    `
+}
 
-    const setStatusBarStyle = (style) => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarStyle', args: [style] } }));
-    };
-
-    const setStatusBarBackgroundColor = (backgroundColor) => {
-        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarBackgroundColor', args: [backgroundColor] } }));
-    };
-
-    const obj = { setStatusBarStyle, setStatusBarBackgroundColor, __STATUS_BAR_AVAILIBLE };
-
-    Object.freeze(obj);
-    return obj;
-})();
-`
-
-export function createInjectSource(config: any, additionalInjections?: string, useMainButtonAPI?: boolean, useStatusBarAPI?: boolean) {
+export function createInjectSource(config: any, safeArea: EdgeInsets, additionalInjections?: string, useMainButtonAPI?: boolean, useStatusBarAPI?: boolean) {
     return `
     ${additionalInjections || ''}
     ${useMainButtonAPI ? mainButtonAPI : ''}
-    ${useStatusBarAPI ? statusBarAPI : ''}
+    ${useStatusBarAPI ? statusBarAPI(safeArea) : ''}
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};

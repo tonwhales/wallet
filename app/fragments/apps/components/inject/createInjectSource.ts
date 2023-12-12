@@ -74,10 +74,33 @@ window['main-button'] = (() => {
 })();
 `
 
-export function createInjectSource(config: any, additionalInjections?: string, useMainButtonAPI?: boolean) {
+const headerAPI = `
+window['main-header'] = (() => {
+    let __MAIN_HEADER_AVAILIBLE = true;
+
+    const setColor = (color) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.setColor', args: { color } } }));
+    };
+
+    const setPrevColor = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.setPrevColor' } }));
+    };
+
+    const reset = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'main-header.reset' } }));
+    };
+
+    const obj = { setColor, setPrevColor, reset, __MAIN_HEADER_AVAILIBLE };
+    Object.freeze(obj);
+    return obj;
+})();
+`
+
+export function createInjectSource(config: any, additionalInjections?: string, useMainButtonAPI?: boolean, useHeaderAPI?: boolean) {
     return `
     ${additionalInjections || ''}
     ${useMainButtonAPI ? mainButtonAPI : ''}
+    ${useHeaderAPI ? headerAPI : ''}
     window['ton-x'] = (() => {
         let requestId = 0;
         let callbacks = {};

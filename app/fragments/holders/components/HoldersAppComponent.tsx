@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
+import { Linking, Platform, View, BackHandler, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -13,17 +13,15 @@ import { createInjectSource, dispatchResponse } from '../../apps/components/inje
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { HoldersParams, extractHoldersQueryParams } from '../utils';
-import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
+import { HoldersParams, extractHoldersQueryParams, processHeaderMessage, reduceHeader } from '../utils';
 import { getLocales } from 'react-native-localize';
-import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, Extrapolation, FadeIn, FadeInDown, FadeOutDown, cancelAnimation, interpolate, interpolateColor, runOnJS, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
@@ -37,25 +35,27 @@ import { createDomainSignature } from '../../../engine/utils/createDomainSignatu
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { useKeyboard } from '@react-native-community/hooks';
 import { OfflineWebView } from './OfflineWebView';
+import { getDomainKey } from '../../../engine/state/domainKeys';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
+import { ThemeType } from '../../../engine/state/theme';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
 import IcHolders from '../../../../assets/ic_holders.svg';
-import { getDomainKey } from '../../../engine/state/domainKeys';
-import { ScreenHeader } from '../../../components/ScreenHeader';
-import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 
-function PulsingCardPlaceholder() {
+function PulsingCardPlaceholder(theme: ThemeType) {
+    const safeArea = useSafeAreaInsets();
     const animation = useSharedValue(0);
 
     useEffect(() => {
         animation.value =
             withRepeat(
                 withTiming(1, {
-                    duration: 250,
-                    easing: Easing.linear,
+                    duration: 450,
+                    easing: Easing.bezier(0.42, 0, 1, 1)
                 }),
                 -1,
                 true,
@@ -63,35 +63,102 @@ function PulsingCardPlaceholder() {
     }, []);
 
     const animatedStyles = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 0.75],
-            Extrapolate.CLAMP
-        );
         const scale = interpolate(
             animation.value,
             [0, 1],
             [1, 1.03],
-            Extrapolate.CLAMP,
+            Extrapolation.CLAMP,
         )
         return {
-            width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
-            opacity: opacity,
             transform: [{ scale: scale }],
         };
     }, []);
 
     return (
-        <Animated.View style={animatedStyles}>
-            <View style={{ width: 90, height: 20, backgroundColor: 'white', top: 22, left: 16, borderRadius: 8 }} />
-            <View style={{ marginTop: 4, width: 60, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
-            <View style={{ display: 'flex', flexDirection: 'row', marginTop: 32 }}>
-                <View>
-                    <View style={{ width: 68, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
-                    <View style={{ marginTop: 4, width: 90, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+        <Animated.View style={[
+            { flexGrow: 1, width: '100%' },
+            {
+                opacity: interpolate(
+                    animation.value,
+                    [0, 1],
+                    [1, 0.75],
+                    Extrapolation.CLAMP
+                )
+            }
+        ]}>
+            <View
+                style={{
+                    backgroundColor: theme.backgroundUnchangeable,
+                    height: 324,
+                    position: 'absolute',
+                    top: -30 - safeArea.top - 44,
+                    left: -4,
+                    right: -4,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    paddingHorizontal: 20,
+                    borderBottomLeftRadius: 20,
+                    borderBottomRightRadius: 20,
+                }}
+            />
+            <Animated.View style={[
+                {
+                    height: 44,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    marginTop: 8 - safeArea.top,
+                    paddingHorizontal: 22
+                },
+                animatedStyles
+            ]}>
+                <View style={{
+                    width: 32, height: 32,
+                    backgroundColor: theme.textSecondary,
+                    borderRadius: 16
+                }} />
+                <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: theme.textSecondary, height: 28, width: 132, borderRadius: 20 }} />
                 </View>
-            </View>
+                <View style={{ width: 32, height: 32, }} />
+            </Animated.View>
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.textSecondary,
+                        height: 28,
+                        width: 142,
+                        borderRadius: 8,
+                        marginTop: 44,
+                        alignSelf: 'center'
+                    },
+                    animatedStyles
+                ]}
+            />
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.textSecondary,
+                        height: 26,
+                        width: 78,
+                        borderRadius: 20,
+                        marginTop: 24,
+                        alignSelf: 'center'
+                    },
+                    animatedStyles
+                ]}
+            />
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.surfaceOnBg,
+                        height: 96,
+                        borderRadius: 20,
+                        marginTop: 38,
+                        marginHorizontal: 20
+                    },
+                    animatedStyles
+                ]}
+            />
         </Animated.View>
     );
 }
@@ -116,13 +183,13 @@ function HoldersPlaceholder() {
             animation.value,
             [0, 1],
             [1, 0.8],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
         );
         const scale = interpolate(
             animation.value,
             [0, 1],
             [1, 1.01],
-            Extrapolate.CLAMP,
+            Extrapolation.CLAMP,
         )
         return {
             flex: 1,
@@ -193,7 +260,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'c
                 onBackPressed={showClose ? navigation.goBack : undefined}
                 style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
             />
-            {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
+            {type === 'account' ? <PulsingCardPlaceholder {...theme} /> : <HoldersPlaceholder />}
 
         </Animated.View>
     );
@@ -228,7 +295,7 @@ export const HoldersAppComponent = memo((
     // TODO
     const stableOfflineV = useOfflineApp().stableOfflineV;
 
-    const [mainButton, dispatchMainButton] = React.useReducer(
+    const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
         {
             text: '',
@@ -247,6 +314,37 @@ export const HoldersAppComponent = memo((
         showKeyboardAccessoryView: false,
         lockScroll: true
     });
+
+    const [headerColors, dispatchHeader] = useReducer(
+        reduceHeader(),
+        { prevColor: null, newColor: null }
+    );
+
+    const headerProgress = useSharedValue(0);
+
+    const headerAnimated = useAnimatedStyle(() => {
+        return {
+            backgroundColor: interpolateColor(
+                headerProgress.value,
+                [0, 1],
+                [headerColors.prevColor ?? theme.backgroundPrimary, headerColors.newColor ?? theme.backgroundPrimary],
+                'RGB'
+            ),
+        };
+    }, [headerColors, theme.style]);
+
+    useEffect(() => {
+        if (headerColors.newColor !== headerColors.prevColor) {
+            cancelAnimation(headerProgress);
+            headerProgress.value = 0;
+            headerProgress.value = withTiming(1, {
+                duration: 150,
+                easing: Easing.bezier(0.42, 0, 1, 1)
+            }, () => {
+                runOnJS(dispatchHeader)(({ type: 'setPrevColor' }));
+            });
+        }
+    }, [headerColors]);
 
     const source = useMemo(() => {
         let route = '';
@@ -397,12 +495,19 @@ export const HoldersAppComponent = memo((
         try {
             let parsed = JSON.parse(nativeEvent.data);
             // Main button API
-            const processed = processMainButtonMessage(
+            let processed = processMainButtonMessage(
                 parsed,
                 dispatchMainButton,
                 dispatchMainButtonResponse,
                 webRef
             );
+
+            if (processed) {
+                return;
+            }
+
+            // Header API
+            processed = processHeaderMessage(parsed, dispatchHeader);
 
             if (processed) {
                 return;
@@ -542,7 +647,13 @@ export const HoldersAppComponent = memo((
 
     return (
         <>
-            <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
+            <Animated.View style={[
+                {
+                    flex: 1,
+                    paddingTop: safeArea.top
+                },
+                headerAnimated
+            ]}>
                 {!!stableOfflineV ? (
                     <OfflineWebView
                         key={`offline-rendered-${offlineRender}`}
@@ -674,7 +785,7 @@ export const HoldersAppComponent = memo((
                         </Animated.View>
                     )}
                 </KeyboardAvoidingView>
-            </View>
+            </Animated.View>
         </>
     );
 });

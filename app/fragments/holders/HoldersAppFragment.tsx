@@ -1,11 +1,10 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
 import { View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useLayoutEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -20,7 +19,6 @@ export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
-    const safeArea = useSafeAreaInsets();
     const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const status = useHoldersAccountStatus(selected!.address).data;
@@ -61,11 +59,7 @@ export const HoldersAppFragment = fragment(() => {
     }, [selected, isTestnet]);
 
     return (
-        <View style={{
-            flex: 1,
-            paddingTop: safeArea.top,
-            backgroundColor: theme.backgroundPrimary
-        }}>
+        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {needsEnrollment ? null : (
                 <HoldersAppComponent

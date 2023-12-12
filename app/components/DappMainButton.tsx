@@ -6,6 +6,7 @@ import { warn } from '../utils/log';
 import WebView from "react-native-webview";
 import Animated, { useAnimatedStyle, useDerivedValue, withTiming } from 'react-native-reanimated';
 import { useTheme } from '../engine/hooks';
+import { memo } from 'react';
 
 export function processMainButtonMessage(
     parsed: any,
@@ -132,7 +133,7 @@ export type MainButtonProps = {
     onPress?: () => void,
 }
 
-export const DappMainButton = React.memo((
+export const DappMainButton = memo((
     props: { style?: StyleProp<ViewStyle> } & Omit<MainButtonProps, 'isVisible'>
 ) => {
     const theme = useTheme();

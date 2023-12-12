@@ -1,5 +1,6 @@
 import { warn } from "../../utils/log";
 import { BackPolicy, HoldersQueryParams } from "./types";
+import { Dispatch } from "react";
 
 export type HoldersParams = {
     closeApp?: boolean,
@@ -77,4 +78,50 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
         warn(error);
         return { backPolicy: 'close' }
     }
+}
+
+export type HeaderAction = { type: 'setColor', args: { color: string | null } } | { type: 'setPrevColor' } | { type: 'reset' }
+export type HeaderState = { newColor: string| null, prevColor: string | null }
+
+export function reduceHeader() {
+    return (state: HeaderState, action: HeaderAction) => {
+        switch (action.type) {
+            case 'setColor':
+                return {
+                    prevColor: state.prevColor,
+                    newColor: action.args.color
+                }
+            case 'setPrevColor':
+                return {
+                    prevColor: state.newColor,
+                    newColor: state.newColor
+                }
+            case 'reset':
+                return {
+                    prevColor: null,
+                    newColor: null
+                }
+            default:
+                return state;
+        }
+    }
+}
+
+export function processHeaderMessage(
+    parsed: any,
+    dispatchHeader: Dispatch<HeaderAction>
+) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('main-header') !== -1) {
+        const actionType = parsed.data.name.split('.')[1];
+
+        switch (actionType) {
+            case 'setColor':
+                dispatchHeader({ type: 'setColor', args: { color: parsed.data.args.color } });
+                break;
+            default:
+                warn('Invalid main button action type');
+        }
+        return true;
+    }
+    return false;
 }

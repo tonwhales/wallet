@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, View, Alert } from 'react-native';
+import { ActivityIndicator, Platform, View, Alert, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
@@ -322,7 +322,7 @@ export const HoldersLandingFragment = fragment(() => {
                     />
                 )
                     : (
-                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
+                        <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%' }} entering={FadeIn}>
                             <WebView
                                 ref={webRef}
                                 source={{ uri: source.url }}

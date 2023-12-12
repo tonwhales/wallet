@@ -11,6 +11,7 @@ import { CloseButton } from "../navigation/CloseButton";
 import { ScreenHeader } from "../ScreenHeader";
 import { ThemeType } from "../../engine/state/theme";
 import { useTheme } from "../../engine/hooks";
+import { ToastDuration, useToaster } from "../toast/ToastProvider";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -95,7 +96,8 @@ export const PasscodeSetup = memo((
         showSuccess,
         style,
         onBack,
-        screenHeaderStyle
+        screenHeaderStyle,
+        showToast,
     }: {
         description?: string,
         onReady?: (pass: string) => Promise<void>,
@@ -104,10 +106,12 @@ export const PasscodeSetup = memo((
         showSuccess?: boolean,
         style?: StyleProp<ViewStyle>,
         onBack?: () => void,
-        screenHeaderStyle?: StyleProp<ViewStyle>
+        screenHeaderStyle?: StyleProp<ViewStyle>,
+        showToast?: boolean,
     }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const toaster = useToaster();
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 4 });
 
@@ -238,7 +242,17 @@ export const PasscodeSetup = memo((
             {state.step === 'loading' && (
                 <SetupLoader
                     onLoadEnd={dispatch}
-                    load={async (pass) => { await onReady?.(pass) }}
+                    load={async (pass) => {
+                        await onReady?.(pass);
+                        if (showToast) {
+                            toaster.show({
+                                message: t('security.passcodeSettings.success'),
+                                type: 'default',
+                                duration: ToastDuration.SHORT,
+                                onDestroy: navigation.goBack
+                            });
+                        }
+                    }}
                     input={state.input}
                     theme={theme}
                 />

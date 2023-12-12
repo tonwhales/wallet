@@ -76,7 +76,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                         }
                         : undefined
                 }
-                showSuccess={!init}
+                showToast={true}
                 screenHeaderStyle={{ paddingHorizontal: 16 }}
             />
         </View>

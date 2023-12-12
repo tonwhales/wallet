@@ -28,14 +28,14 @@ export const AnimatedChildrenCollapsible = memo(({
 }) => {
     const theme = useTheme();
     const [itemsToRender, setItemsToRender] = useState<any[]>([]);
-    const sharedHeight = useSharedValue(collapsed ? 0 : items.length * (itemHeight + (style as any).gap ?? 0));
+    const sharedHeight = useSharedValue(collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0));
     const animStyle = useAnimatedStyle(() => {
         return { height: withTiming(sharedHeight.value, { duration: 250 }) };
     });
 
     useEffect(() => {
         setItemsToRender(collapsed ? [] : items);
-        sharedHeight.value = collapsed ? 0 : items.length * (itemHeight + (style as any).gap ?? 0);
+        sharedHeight.value = collapsed ? 0 : items.length * (itemHeight + (style as any)?.gap ?? 0);
     }, [collapsed, items]);
 
     return (

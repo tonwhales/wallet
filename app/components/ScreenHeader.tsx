@@ -83,6 +83,7 @@ export function useScreenHeader(
 export type ScreenHeaderProps = {
     style?: StyleProp<ViewStyle>,
     title?: string,
+    titleStyle?: StyleProp<TextStyle>,
     textColor?: string,
     tintColor?: string,
     onBackPressed?: () => void,
@@ -106,19 +107,7 @@ export const ScreenHeader = memo((
         rightButton,
         titleComponent,
         options
-    }: {
-        style?: StyleProp<ViewStyle>,
-        title?: string,
-        titleStyle?: StyleProp<TextStyle>,
-        textColor?: string,
-        tintColor?: string,
-        onBackPressed?: () => void,
-        onClosePressed?: () => void,
-        rightButton?: ReactNode,
-        leftButton?: ReactNode,
-        titleComponent?: ReactNode,
-        options?: NativeStackNavigationOptions
-    }
+    }: ScreenHeaderProps
 ) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();

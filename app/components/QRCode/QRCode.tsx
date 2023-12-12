@@ -5,7 +5,7 @@ import { QRMatrix, createQRMatrix } from './QRMatrix';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
 import { memo, useEffect, useState } from 'react';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import TonIcon from '@assets/ic-ton-qr.svg';
 
@@ -176,15 +176,22 @@ export const QRCode = memo((props: {
     }, [props.data]);
 
     return (
-        <Animated.View style={{
-            width: props.size,
-            height: props.size,
-            padding: padding,
-            flexWrap: 'wrap',
-            borderRadius: 20,
-        }}>
-            {matrix ? (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
+        <Animated.View
+            style={{
+                width: props.size,
+                height: props.size,
+                padding: padding,
+                flexWrap: 'wrap',
+                borderRadius: 20,
+            }}
+            layout={LinearTransition.duration(300)}
+        >
+            {!!matrix ? (
+                <Animated.View
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    style={{ height: props.size, width: props.size }}
+                >
                     <QRCodeCanvas
                         matrix={matrix}
                         color={props.color ?? 'black'}
@@ -195,9 +202,13 @@ export const QRCode = memo((props: {
                     />
                 </Animated.View>
             ) : (
-                <Animated.View entering={FadeIn} exiting={FadeOut}>
-                    <Image style={{ height: props.size, width: props.size }} source={require('@assets/ic-tonhub-qr.webp')} />
-                </Animated.View>
+                <Image
+                    style={{
+                        height: props.size, width: props.size,
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0
+                    }}
+                    source={require('@assets/ic-tonhub-qr.webp')}
+                />
             )}
             <View style={{
                 position: 'absolute',

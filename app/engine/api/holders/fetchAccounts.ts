@@ -66,7 +66,9 @@ export async function fetchAccountsPublic(address: string | Address, isTestnet: 
     return null;
   }
 
-  if (!accountsListPublicSchema.safeParse(res.data).success) {
+  const parseResult = accountsListPublicSchema.safeParse(res.data);
+  if (!parseResult.success) {
+    console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid public card list response");
   }
 
@@ -139,20 +141,12 @@ const cardStatusSchema = z.union([
   z.literal('CLOSED'),
 ]);
 
-const personalizationCodeSchema = z.union([
-  z.literal('classic'),
-  z.literal('whales'),
-  z.literal('black-pro'),
-  z.literal('trust-classic'),
-  z.literal('trust-pro'),
-]);
-
 const cardSchema = z.object({
   id: z.string(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
   leftToPay: z.string(),
-  personalizationCode: personalizationCodeSchema,
+  personalizationCode: z.string(),
   productId: z.string(),
   seed: z.string().nullable().optional(),
   status: cardStatusSchema,

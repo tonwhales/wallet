@@ -79,7 +79,7 @@ export const PasscodeChange = memo(() => {
     const safeArea = useSafeAreaInsets();
     const dimentions = useDimensions();
     const [isFirstRender, setFirstRender] = useState(true);
-    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
+    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 4;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
     const navigation = useTypedNavigation();
     const toaster = useToaster();
@@ -97,7 +97,7 @@ export const PasscodeChange = memo(() => {
                     style={{ height: dimentions.window.height - 156 }}
                 >
                     <PasscodeInput
-                        passcodeLength={passcodeLength}
+                        passcodeLength={state.passcodeLength}
                         title={t('security.passcodeSettings.enterPrevious')}
                         onEntered={async (pass) => {
                             if (!pass) {
@@ -106,6 +106,7 @@ export const PasscodeChange = memo(() => {
                             await loadWalletKeys(acc.secretKeyEnc, pass);
                             dispatch({ type: 'input', input: '', prev: pass });
                         }}
+                        onPasscodeLengthChange={(length) => dispatch({ type: 'passcode-length', length })}
                     />
                 </Animated.View>
             )}

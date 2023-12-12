@@ -108,7 +108,8 @@ export const ReceiveFragment = fragment(() => {
                         backgroundColor: theme.style === 'dark' ? theme.white : theme.surfaceOnElevation,
                         borderRadius: 20,
                         padding: 24,
-                        marginBottom: 16
+                        marginBottom: 16,
+                        overflow: 'hidden',
                     }}>
                         <View style={{ height: qrSize, justifyContent: 'center', alignItems: 'center' }}>
                             <QRCode

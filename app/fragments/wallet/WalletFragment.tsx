@@ -21,12 +21,12 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
-import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -103,28 +103,52 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         paddingHorizontal: 16,
                         backgroundColor: theme.backgroundUnchangeable
                     }}>
-                        <PriceComponent
-                            amount={balance}
-                            style={{
-                                alignSelf: 'center',
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: undefined,
-                                paddingVertical: undefined,
-                                paddingLeft: undefined,
-                                borderRadius: undefined,
-                                height: undefined,
-                            }}
-                            textStyle={{
-                                fontSize: 32,
-                                color: theme.textOnsurfaceOnDark,
-                                fontWeight: '500',
-                                lineHeight: 38,
-                            }}
-                            centsTextStyle={{
-                                opacity: 0.5
-                            }}
-                            theme={theme}
-                        />
+                        <View>
+                            <PriceComponent
+                                amount={balance}
+                                style={{
+                                    alignSelf: 'center',
+                                    backgroundColor: theme.transparent,
+                                    paddingHorizontal: undefined,
+                                    paddingVertical: undefined,
+                                    paddingLeft: undefined,
+                                    borderRadius: undefined,
+                                    height: undefined,
+                                }}
+                                textStyle={{
+                                    fontSize: 32,
+                                    color: theme.textOnsurfaceOnDark,
+                                    fontWeight: '500',
+                                    lineHeight: 38
+                                }}
+                                centsTextStyle={{ opacity: 0.5 }}
+                                theme={theme}
+                            />
+                            {!account && (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0, left: 0, right: 0, bottom: 0,
+                                        overflow: 'hidden',
+                                        borderRadius: 8,
+                                    }}
+                                >
+                                    {Platform.OS === 'android' ? (
+                                        <View
+                                            style={{
+                                                flexGrow: 1,
+                                                backgroundColor: theme.surfaceOnDark,
+                                            }}
+                                        />
+                                    ) : (
+                                        <BlurView
+                                            tint={theme.style === 'dark' ? 'dark' : 'light'}
+                                            style={{ flexGrow: 1 }}
+                                        />
+                                    )}
+                                </View>
+                            )}
+                        </View>
                         <Pressable
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                             onPress={navigateToCurrencySettings}
@@ -181,7 +205,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnBg,
+                                backgroundColor: theme.surfaceOnElevation,
                                 borderRadius: 20,
                                 marginTop: 28,
                                 overflow: 'hidden'
@@ -335,7 +359,7 @@ export const WalletFragment = fragment(() => {
                 interactive={accountLite !== undefined && selectedAcc !== undefined}
                 screenName={'Wallet'}
             >
-                {(!accountLite || !selectedAcc) ? (skeleton) : (
+                {!selectedAcc ? (skeleton) : (
                     <CopilotProvider
                         arrowColor={'#1F1E25'}
                         tooltipStyle={{
@@ -353,7 +377,6 @@ export const WalletFragment = fragment(() => {
                                 wallet={accountLite}
                             />
                         </Suspense>
-
                     </CopilotProvider>
                 )}
             </PerformanceMeasureView>
@@ -368,7 +391,6 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    fullScreen('Products', ProductsFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

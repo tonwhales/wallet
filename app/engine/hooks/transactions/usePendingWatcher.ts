@@ -1,4 +1,4 @@
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { useSetRecoilState } from "recoil";
 import { useAccountLite } from "../accounts/useAccountLite";
 import { useSelectedAccount } from "../appstate/useSelectedAccount";
 import { pendingTransactionsState } from "../../state/pending";
@@ -25,14 +25,19 @@ export function usePendingWatcher() {
 
         // do not clean pending while seqno is not ready
         if (!v4.data?.seqno) {
-           return;
+            return;
         }
 
         setPending((prev) => {
             if (prev.length === 0) {
                 return prev;
             }
-            return prev.filter(a => a.seqno >= v4.data!.seqno);
+            return prev.map((a) => {
+                if (a.seqno < v4.data!.seqno) {
+                    return { ...a, status: 'sent' };
+                }
+                return a;
+            });
         });
     }, [firstTransaction, lite, v4, setPending]);
 }

@@ -1,6 +1,6 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
-import { Alert, Platform, Pressable, StyleProp, ViewStyle, Image } from 'react-native';
+import { Alert, Platform, StyleProp, ViewStyle } from 'react-native';
 import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
@@ -181,7 +181,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 {
                                     text: t('security.auth.biometricsSetupAgain.setup'),
                                     onPress: () => {
-                                        resolve(true);
+                                        resolve(false);
                                         navigation.navigate('BiometricsSetup');
                                     }
                                 }

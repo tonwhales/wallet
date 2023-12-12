@@ -42,8 +42,14 @@ export function useHoldersAccounts(address: string | Address) {
             }
 
             const filtered = accounts?.filter((a) => a.network === (isTestnet ? 'ton-testnet' : 'ton-mainnet'));
+            
+            const sorted = filtered?.sort((a, b) => {
+                if (a.cards.length > b.cards.length) return -1;
+                if (a.cards.length < b.cards.length) return 1;
+                return 0;
+            });
 
-            return { accounts: filtered, type };
+            return { accounts: sorted, type };
         },
 
     });

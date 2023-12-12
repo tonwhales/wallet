@@ -24,12 +24,14 @@ import { fetchJob, useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
 import { parseJob } from '../engine/apps/parseJob';
 import { Cell } from '@ton/core';
 import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
 export const HomeFragment = fragment(() => {
     const network = useNetwork();
     const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const [tonXRequest,] = useCurrentJob();
@@ -180,6 +182,7 @@ export const HomeFragment = fragment(() => {
                                 android: { backgroundColor: theme.surfaceOnBg }
                             })
                         },
+                        tabBarItemStyle: { marginBottom: safeArea.bottom === 0 ? 8 : undefined },
                         tabBarBackground: Platform.OS === 'ios' ? () => {
                             return (
                                 <BlurView

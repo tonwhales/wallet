@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ImageSourcePropType, Image, Pressable } from "react-native";
+import { View, Text, ImageSourcePropType, Image, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useTheme } from "../../engine/hooks";
 
 export const ProductBanner = React.memo((props: {
@@ -7,7 +7,9 @@ export const ProductBanner = React.memo((props: {
     title: string,
     subtitle?: string,
     illustration?: ImageSourcePropType,
-    reverse?: boolean
+    reverse?: boolean,
+    style?: StyleProp<ViewStyle>,
+    illustrationStyle?: StyleProp<ViewStyle>,
 }) => {
     const theme = useTheme();
 
@@ -15,22 +17,26 @@ export const ProductBanner = React.memo((props: {
         <Pressable
             onPress={props.onPress}
             style={({ pressed }) => {
-                return {
-                    opacity: pressed ? 0.5 : 1,
-                    height: 106,
-                    backgroundColor: theme.surfaceOnBg,
-                    borderRadius: 20,
-                }
+                return [
+                    {
+                        opacity: pressed ? 0.5 : 1,
+                        height: 106,
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 20,
+                    },
+                    props.style
+                ]
             }}
         >
             <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingLeft: props.reverse ? 20 : 0, paddingRight: props.reverse ? 0 : 20 }}>
                 {(!!props.illustration && props.reverse) && (
-                    <View style={{
+                    <View style={[{
                         height: 74, width: 96,
                         justifyContent: 'center', alignItems: 'center',
                         overflow: 'hidden',
-                        backgroundColor: theme.surfaceOnBg
-                    }}>
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 10
+                    }, props.illustrationStyle]}>
                         <Image resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />
                     </View>
                 )}

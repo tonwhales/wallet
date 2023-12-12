@@ -19,9 +19,20 @@ const cardImages = {
 }
 
 export const HoldersAccountCard = memo(({ card, theme }: { card: GeneralHoldersCard, theme: ThemeType }) => {
-    let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic'
-    if (card.personalizationCode !== 'trust-classic' && card.personalizationCode !== 'trust-pro') {
-        imageType = card.personalizationCode
+    let imageType: 'holders' | 'classic' | 'whales' | 'black-pro' = 'classic';
+    switch (card.personalizationCode) {
+        case 'holders':
+            imageType = 'holders';
+            break;
+        case 'whales':
+            imageType = 'whales';
+            break;
+        case 'black-pro':
+            imageType = 'black-pro';
+            break;
+        default:
+            imageType = 'classic';
+            break;
     }
 
     return (

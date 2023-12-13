@@ -2,7 +2,7 @@ import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState, storePasscodeState } from "../../../storage/secureStorage";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
@@ -35,6 +35,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
         }
         try {
             setPasscodeState(PasscodeState.Set);
+            storePasscodeState(PasscodeState.Set); // Some wieird bug with useSetPasscodeState hook
             if (isLocalAuth) {
                 const ref = loadKeyStorageRef();
                 let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;

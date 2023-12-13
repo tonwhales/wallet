@@ -157,6 +157,24 @@ export const PasscodeSetup = memo((
                     }
                 }}
                 style={[Platform.select({ android: { paddingHorizontal: 16 } }), screenHeaderStyle]}
+                rightButton={state.step === 'input' && !!onLater && (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onLater}
+                    >
+                        <Text style={{
+                            color: theme.accent,
+                            fontSize: 17,
+                            fontWeight: '500',
+                        }}>
+                            {t('common.later')}
+                        </Text>
+                    </Pressable>
+                )}
             />
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>
@@ -172,25 +190,6 @@ export const PasscodeSetup = memo((
                         passcodeLength={state.passcodeLength}
                         onPasscodeLengthChange={(length) => dispatch({ type: 'passcode-length', length })}
                     />
-                    {!!onLater && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    position: 'absolute', top: 24, right: 16,
-                                    opacity: pressed ? 0.5 : 1,
-                                }
-                            }}
-                            onPress={onLater}
-                        >
-                            <Text style={{
-                                color: theme.accent,
-                                fontSize: 17,
-                                fontWeight: '500',
-                            }}>
-                                {t('common.later')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </Animated.View>
             )}
 
@@ -207,27 +206,6 @@ export const PasscodeSetup = memo((
                         }}
                         passcodeLength={state.passcodeLength}
                     />
-                    {!!initial && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    position: 'absolute', top: 24, right: 16,
-                                    opacity: pressed ? 0.5 : 1,
-                                }
-                            }}
-                            onPress={() => {
-                                dispatch({ type: 'input', input: '' });
-                            }}
-                        >
-                            <Text style={{
-                                color: theme.accent,
-                                fontSize: 17,
-                                fontWeight: '500',
-                            }}>
-                                {t('common.back')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </Animated.View>
             )}
             {state.step === 'success' && showSuccess && (

@@ -8,12 +8,13 @@ import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
 import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
-import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
+import { resolveOnboarding, wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useReboot } from "../../../utils/RebootContext";
 import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
 import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
 import { StatusBar } from "expo-status-bar";
-import { useTheme } from "../../../engine/hooks";
+import { useNetwork, usePasscodeState, useTheme } from "../../../engine/hooks";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const reboot = useReboot();
@@ -25,6 +26,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const isLocalAuth = storageType === 'local-authentication';
     const setBiometricsState = useSetBiometricsState();
     const setPasscodeState = useSetPasscodeState();
+    const network = useNetwork();
+    const navigation = useTypedNavigation();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
@@ -35,7 +38,6 @@ export const PasscodeSetupFragment = systemFragment(() => {
         }
         try {
             setPasscodeState(PasscodeState.Set);
-            storePasscodeState(PasscodeState.Set); // Some wieird bug with useSetPasscodeState hook
             if (isLocalAuth) {
                 const ref = loadKeyStorageRef();
                 let key = (!!storage.getString('ton-storage-kind')) ? 'ton-storage-key-' + ref : ref;
@@ -51,7 +53,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
         }
 
         if (init) {
-            reboot();
+            const route = resolveOnboarding(network.isTestnet, false);
+            navigation.navigateAndReplaceAll(route);
         }
     }, []);
 

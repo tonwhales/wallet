@@ -2,22 +2,20 @@ import { useCallback } from "react";
 import { Platform, View } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PasscodeSetup } from "../../../components/passcode/PasscodeSetup";
-import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState, storePasscodeState } from "../../../storage/secureStorage";
+import { BiometricsState, PasscodeState, encryptAndStoreAppKeyWithPasscode, loadKeyStorageRef, loadKeyStorageType, storeBiometricsState } from "../../../storage/secureStorage";
 import { warn } from "../../../utils/log";
 import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
 import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
 import { resolveOnboarding, wasPasscodeSetupShownKey } from "../../resolveOnboarding";
-import { useReboot } from "../../../utils/RebootContext";
 import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
 import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
 import { StatusBar } from "expo-status-bar";
-import { useNetwork, usePasscodeState, useTheme } from "../../../engine/hooks";
+import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const reboot = useReboot();
     const route = useRoute();
     const theme = useTheme();
     const init = route.name === 'PasscodeSetupInit';
@@ -76,7 +74,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
                         ? () => {
                             storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)
-                            reboot();
+                            const route = resolveOnboarding(network.isTestnet, false);
+                            navigation.navigateAndReplaceAll(route);
                         }
                         : undefined
                 }

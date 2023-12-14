@@ -75,7 +75,7 @@ window['main-button'] = (() => {
 })();
 `
 
-const statusBarAPI = (safeArea: EdgeInsets) => {
+export const statusBarAPI = (safeArea: EdgeInsets) => {
     return `
     window['tonhub'] = (() => {
         let __STATUS_BAR_AVAILIBLE = true;

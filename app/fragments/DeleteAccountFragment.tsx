@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Platform, View, Text, Alert } from "react-native";
+import { Platform, View, Text, Alert, Keyboard, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../components/ATextInput";
 import { LoadingIndicator } from "../components/LoadingIndicator";
@@ -27,6 +27,7 @@ import { StatusBar } from "expo-status-bar";
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
+import { useKeyboard } from "@react-native-community/hooks";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -43,6 +44,8 @@ export const DeleteAccountFragment = fragment(() => {
     const authContext = useKeysAuth();
     const selected = useSelectedAccount();
     const account = useAccountLite(selected!.address);
+    const keyboard = useKeyboard();
+    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
     const onAccountDeleted = useDeleteCurrentAccount();
 
@@ -375,14 +378,18 @@ export const DeleteAccountFragment = fragment(() => {
                 </View>
             </View>
             <View style={{ flexGrow: 1 }} />
-            <View style={{ marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
+            >
                 <RoundButton
                     title={t('settings.deleteAccount')}
                     onPress={onContinue}
                     display={'default'}
                     style={{ marginBottom: 16 }}
                 />
-            </View>
+            </KeyboardAvoidingView>
             {!!status && (status === 'deleted' || status === 'loading') && (
                 <View style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.2)' }}>
                     <View style={{ backgroundColor: theme.surfaceOnBg, padding: 16, borderRadius: 16 }}>

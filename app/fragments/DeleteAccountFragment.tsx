@@ -23,11 +23,11 @@ import { beginCell, internal, storeMessage, external, Address, SendMode, toNano 
 import { getLastBlock } from "../engine/accountWatcher";
 import { useDeleteCurrentAccount } from "../engine/hooks/appstate/useDeleteCurrentAccount";
 import { StatusBar } from "expo-status-bar";
+import { useKeyboard } from "@react-native-community/hooks";
 
 import IcDelete from '@assets/ic-delete-red.svg';
 import IcCheckAddress from '@assets/ic-check-recipient.svg';
 import IcSupport from '@assets/ic-support.svg';
-import { useKeyboard } from "@react-native-community/hooks";
 
 export const DeleteAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -339,6 +339,7 @@ export const DeleteAccountFragment = fragment(() => {
                                     fontWeight: '400', color: theme.textPrimary,
                                 }}
                                 label={t('common.recipientAddress')}
+                                blurOnSubmit={true}
                             />
                         </View>
                     </View>

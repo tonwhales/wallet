@@ -77,7 +77,7 @@ window['main-button'] = (() => {
 
 const statusBarAPI = (safeArea: EdgeInsets) => {
     return `
-    window['status-bar'] = (() => {
+    window['tonhub'] = (() => {
         let __STATUS_BAR_AVAILIBLE = true;
         const safeArea = ${JSON.stringify(safeArea)};
     
@@ -89,7 +89,7 @@ const statusBarAPI = (safeArea: EdgeInsets) => {
             window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarBackgroundColor', args: [backgroundColor] } }));
         };
     
-        const obj = { setStatusBarStyle, setStatusBarBackgroundColor, __STATUS_BAR_AVAILIBLE };
+        const obj = { __STATUS_BAR_AVAILIBLE, statusBar: { setStatusBarStyle, setStatusBarBackgroundColor }, safeArea };
     
         Object.freeze(obj);
         return obj;

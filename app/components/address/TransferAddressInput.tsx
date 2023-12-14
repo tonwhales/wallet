@@ -1,5 +1,5 @@
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Platform, Pressable, View, Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
 import { Avatar } from "../Avatar";
@@ -164,7 +164,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             theme={theme}
                             isTestnet={props.isTestnet}
                         />
-                        : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
+                        : <Image
+                            source={require('@assets/ic-contact.png')}
+                            style={{ height: 46, width: 46, tintColor: theme.iconPrimary }}
+                        />
                     }
                     <View style={{ paddingHorizontal: 12, flexGrow: 1 }}>
                         <PerfText style={{
@@ -209,7 +212,10 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 theme={theme}
                                 isTestnet={props.isTestnet}
                             />
-                            : <IcSpamNonen height={46} width={46} style={{ height: 46, width: 46 }} />
+                            : <Image
+                                source={require('@assets/ic-contact.png')}
+                                style={{ height: 46, width: 46, tintColor: theme.iconPrimary }}
+                            />
                         }
                     </View>
                     <View style={{ flexGrow: 1 }}>

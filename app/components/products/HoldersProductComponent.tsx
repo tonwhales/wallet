@@ -56,7 +56,7 @@ export const HoldersProductComponent = memo(() => {
                             account={item}
                             rightActionIcon={<IcHide height={36} width={36} style={{ width: 36, height: 36 }} />}
                             rightAction={() => markCard(item.id, true)}
-                            style={{ paddingVertical: 0, paddingTop: 20 }}
+                            style={{ paddingVertical: 0 }}
                         />
                     )
                 })}
@@ -146,7 +146,7 @@ export const HoldersProductComponent = memo(() => {
                         </View>
                     )
                 }}
-                itemHeight={126}
+                itemHeight={122}
                 theme={theme}
             />
         </View>

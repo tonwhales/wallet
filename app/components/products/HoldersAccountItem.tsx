@@ -70,7 +70,7 @@ export const HoldersAccountItem = memo((props: {
             ref={swipableRef}
             containerStyle={[{
                 flex: 1,
-                borderRadius: 20, paddingVertical: 20,
+                borderRadius: 20,
                 backgroundColor: theme.surfaceOnElevation
             }, props.style]}
             useNativeAnimations={true}
@@ -108,7 +108,7 @@ export const HoldersAccountItem = memo((props: {
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1 }}
+                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}

@@ -33,6 +33,8 @@ import { PerfView } from "../../components/basic/PerfView";
 import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
 import { TxInfo } from "./views/preview/TxInfo";
+import { View } from "react-native";
+import { AddressComponent } from "../../components/address/AddressComponent";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -252,13 +254,25 @@ const TransactionPreview = () => {
                         {op}
                     </PerfText>
                     {!!known?.name ? (
-                        <PerfText
-                            style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                        >
-                            {known.name}
-                        </PerfText>
+                        <PerfView style={{ flexDirection: 'row', gap: 6, marginTop: 2, paddingHorizontal: 16 }}>
+                            <PerfText
+                                style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                {known.name}
+                            </PerfText>
+                            <PerfText
+                                style={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                            >
+                                <AddressComponent
+                                    address={Address.parse(opAddress)}
+                                    end={4}
+                                />
+                            </PerfText>
+                        </PerfView>
                     ) : (
                         !!operation.op && (
                             <PerfText

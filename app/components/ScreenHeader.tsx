@@ -27,6 +27,7 @@ export function useScreenHeader(
         navigation.setOptions({
             headerShown: options.headerShown,
             headerSearchBarOptions: options.headerSearchBarOptions,
+            contentStyle: options.contentStyle,
             headerLeft: () => {
                 return (
                     options.leftButton ? options.leftButton : !!options.onBackPressed

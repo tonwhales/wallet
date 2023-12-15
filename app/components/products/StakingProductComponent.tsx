@@ -164,7 +164,7 @@ export const StakingProductComponent = memo(() => {
                                 {(!!totalBalance) && (
                                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                         <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                            <ValueComponent value={totalBalance} precision={2} />
+                                            <ValueComponent value={totalBalance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                                 {' TON'}
                                             </Text>

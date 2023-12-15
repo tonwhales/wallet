@@ -139,8 +139,8 @@ export const HoldersAccountItem = memo((props: {
                             {(!!props.account && props.account.balance) && (
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
-                                        <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ opacity: 0.5 }} />
-                                        <PerfText style={{ opacity: 0.5 }}>
+                                        <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
+                                        <PerfText style={{color: theme.textSecondary }}>
                                             {' TON'}
                                         </PerfText>
                                     </PerfText>

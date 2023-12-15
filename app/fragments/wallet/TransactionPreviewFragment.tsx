@@ -229,9 +229,12 @@ const TransactionPreview = () => {
                         borderColor={theme.surfaceOnElevation}
                         backgroundColor={theme.elevation}
                         markContact={!!contact}
-                        icPosition={'bottom'}
-                        isOwn={isOwn}
-                        icBorderWidth={4}
+                        icProps={{
+                            isOwn: isOwn,
+                            borderWidth: 2,
+                            position: 'bottom',
+                            size: 28
+                        }}
                         theme={theme}
                         isTestnet={isTestnet}
                     />

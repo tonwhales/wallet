@@ -234,10 +234,9 @@ export function TransactionView(props: {
                                 borderWith={0}
                                 spam={spam}
                                 markContact={!!contact}
-                                isOwn={isOwn}
+                                icProps={{ isOwn, backgroundColor: theme.surfaceOnBg, size: 18, borderWidth: 2 }}
                                 theme={theme}
                                 isTestnet={isTestnet}
-                                icBackgroundColor={theme.surfaceOnBg}
                             />
                         )}
                     </PerfView>

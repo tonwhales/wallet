@@ -78,7 +78,7 @@ export const Avatar = memo((props: {
     icBorderWidth?: number,
     icPosition?: 'top' | 'bottom' | 'left' | 'right',
     icBackgroundColor?: string,
-    theme: ThemeType, 
+    theme: ThemeType,
     isTestnet: boolean,
 }) => {
     const theme = props.theme;
@@ -211,13 +211,21 @@ export const Avatar = memo((props: {
                 width: props.size,
                 height: props.size,
                 borderRadius: props.size / 2,
-                backgroundColor: backgroundColor,
-                borderColor: props.borderColor ?? color,
-                borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
                 alignItems: 'center', justifyContent: 'center',
             }}>
-                <PerfView style={{ opacity: props.spam ? .5 : 1 }}>
-                    {img}
+                <PerfView style={{
+                    width: props.size,
+                    height: props.size,
+                    borderRadius: props.size / 2,
+                    backgroundColor: backgroundColor,
+                    borderColor: props.borderColor ?? color,
+                    borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
+                    alignItems: 'center', justifyContent: 'center',
+                    overflow: 'hidden'
+                }}>
+                    <PerfView style={{ opacity: props.spam ? .5 : 1 }}>
+                        {img}
+                    </PerfView>
                 </PerfView>
                 {ic}
             </PerfView>

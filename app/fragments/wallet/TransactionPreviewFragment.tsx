@@ -225,7 +225,7 @@ const TransactionPreview = () => {
                         spam={spam}
                         showSpambadge
                         verified={verified}
-                        borderWith={2}
+                        borderWith={2.5}
                         borderColor={theme.surfaceOnElevation}
                         backgroundColor={theme.elevation}
                         markContact={!!contact}
@@ -239,7 +239,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                marginTop: (spam || !!contact || verified) ? 16 : 8
+                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddress]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}

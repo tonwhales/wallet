@@ -164,7 +164,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
                 flexGrow: 1,
                 marginHorizontal: 16,
                 alignSelf: 'stretch',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                paddingBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
             }}>
                 <RoundButton
                     onPress={onClick}

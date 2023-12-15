@@ -132,8 +132,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         </Text>
                     </View>
                     <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
-                        <Text style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}>
-                            <ValueComponent value={balance} precision={2} />
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
+                            <ValueComponent value={balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
                             <Text style={{ color: theme.textSecondary, fontSize: 15 }}>{' TON'}</Text>
                         </Text>
                         <PriceComponent

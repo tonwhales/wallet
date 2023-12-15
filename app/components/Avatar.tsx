@@ -74,11 +74,14 @@ export const Avatar = memo((props: {
     borderColor?: string,
     borderWith?: number,
     backgroundColor?: string,
-    isOwn?: boolean,
-    icBorderWidth?: number,
-    icPosition?: 'top' | 'bottom' | 'left' | 'right',
-    icBackgroundColor?: string,
-    theme: ThemeType, 
+    icProps?: {
+        isOwn?: boolean,
+        borderWidth?: number,
+        position?: 'top' | 'bottom' | 'left' | 'right',
+        backgroundColor?: string,
+        size?: number,
+    },
+    theme: ThemeType,
     isTestnet: boolean,
 }) => {
     const theme = props.theme;
@@ -117,45 +120,49 @@ export const Avatar = memo((props: {
         backgroundColor = theme.white;
     }
 
-    let icSize = Math.floor(props.size * 0.43);
+    let icSize = props.icProps?.size ?? Math.floor(props.size * 0.43);
+    let icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
+    if (!!props.icProps?.borderWidth) {
+        icOutline = props.icProps?.borderWidth;
+    }
+    const icOffset = -(icSize - icOutline) / 2;
     let icPosition: {} = { bottom: -2, right: -2 };
-    let spam = props.showSpambadge && props.spam;
-    switch (props.icPosition) {
+
+    switch (props.icProps?.position) {
         case 'top':
-            icPosition = { top: -icSize / 2 };
+            icPosition = { top: icOffset };
             break;
         case 'left':
-            icPosition = { bottom: -2, left: -2 };
+            icPosition = { bottom: -icOutline, left: -icOutline };
             break;
         case 'right':
-            icPosition = { bottom: -2, right: -2 };
+            icPosition = { bottom: -icOutline, right: -icOutline };
             break;
         case 'bottom':
-            icPosition = { bottom: -icSize / 2 };
+            icPosition = { bottom: icOffset };
             break;
     }
+
+    let spam = props.showSpambadge && props.spam;
     let ic = null;
+
     if (props.markContact) {
-        let icOutline = Math.round(icSize * 0.03) > 2 ? Math.round(icSize * 0.03) : 2;
-        if (props.icBorderWidth) {
-            icOutline = props.icBorderWidth;
-        }
         ic = (
             <PerfView style={[
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: icSize / 2,
-                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
-                    position: 'absolute',
+                    backgroundColor: props.icProps?.backgroundColor ?? theme.surfaceOnElevation,
+                    position: 'absolute', overflow: 'hidden'
                 },
                 icPosition
             ]}>
                 <Image
                     source={contactSource}
                     style={{
-                        width: icSize - icOutline,
-                        height: icSize - icOutline,
+                        width: icSize - (2 * icOutline),
+                        height: icSize - (2 * icOutline),
                         tintColor: theme.iconPrimary
                     }}
                 />
@@ -167,7 +174,7 @@ export const Avatar = memo((props: {
                 position: 'absolute',
                 justifyContent: 'center', alignItems: 'center',
                 width: icSize, height: icSize, borderRadius: icSize,
-                backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation
+                backgroundColor: props.icProps?.backgroundColor ?? theme.surfaceOnElevation
             }, icPosition]}>
                 <Image
                     source={verifiedSource}
@@ -177,14 +184,14 @@ export const Avatar = memo((props: {
         );
     }
 
-    if (props.isOwn) {
+    if (props.icProps?.isOwn) {
         ic = (
             <PerfView style={[
                 {
                     justifyContent: 'center', alignItems: 'center',
                     height: icSize, width: icSize,
                     borderRadius: Math.round(icSize / 4),
-                    backgroundColor: props.icBackgroundColor ?? theme.surfaceOnElevation,
+                    backgroundColor: props.icProps?.backgroundColor ?? theme.surfaceOnElevation,
                     position: 'absolute',
                 },
                 icPosition
@@ -211,13 +218,21 @@ export const Avatar = memo((props: {
                 width: props.size,
                 height: props.size,
                 borderRadius: props.size / 2,
-                backgroundColor: backgroundColor,
-                borderColor: props.borderColor ?? color,
-                borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
                 alignItems: 'center', justifyContent: 'center',
             }}>
-                <PerfView style={{ opacity: props.spam ? .5 : 1 }}>
-                    {img}
+                <PerfView style={{
+                    width: props.size,
+                    height: props.size,
+                    borderRadius: props.size / 2,
+                    backgroundColor: backgroundColor,
+                    borderColor: props.borderColor ?? color,
+                    borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
+                    alignItems: 'center', justifyContent: 'center',
+                    overflow: 'hidden'
+                }}>
+                    <PerfView style={{ opacity: props.spam ? .5 : 1 }}>
+                        {img}
+                    </PerfView>
                 </PerfView>
                 {ic}
             </PerfView>

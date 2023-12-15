@@ -5,7 +5,7 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { Suspense, memo, useCallback, useEffect, useMemo } from 'react';
+import { Suspense, memo, useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
@@ -38,7 +38,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
 
-    const { start, visible } = useCopilot();
+    const { start, visible, stop } = useCopilot();
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
@@ -61,15 +61,26 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
-    useEffect(() => {
+    const onFocus = useCallback(() => {
         const onboardingShown = sharedStoragePersistence.getBoolean(onboardingFinishedKey);
-
-        if (!onboardingShown && !visible) {
-            setTimeout(() => {
+        if (!visible && !onboardingShown) {
+            if (Platform.OS === 'ios') {
+                setTimeout(() => {
+                    start();
+                }, 1000);
+            } else {
                 start();
-            }, 1000);
+            }
         }
-    }, [start, visible]);
+        return () => {
+            setTimeout(() => {
+                sharedStoragePersistence.set(onboardingFinishedKey, true);
+                stop();
+            }, 10);
+        }
+    }, [start]);
+
+    useFocusEffect(onFocus);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>

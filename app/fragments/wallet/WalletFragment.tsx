@@ -121,7 +121,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                     fontWeight: '500',
                                     lineHeight: 38
                                 }}
-                                centsTextStyle={{ opacity: 0.5 }}
+                                centsTextStyle={{ color: theme.textSecondary }}
                                 theme={theme}
                             />
                             {!account && (

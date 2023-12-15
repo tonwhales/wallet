@@ -8,15 +8,14 @@ import { systemFragment } from "../../../systemFragment";
 import { useRoute } from "@react-navigation/native";
 import { t } from "../../../i18n/t";
 import { storage } from "../../../storage/storage";
-import { wasPasscodeSetupShownKey } from "../../resolveOnboarding";
-import { useReboot } from "../../../utils/RebootContext";
+import { resolveOnboarding, wasPasscodeSetupShownKey } from "../../resolveOnboarding";
 import { useSetBiometricsState } from "../../../engine/hooks/appstate/useSetBiometricsState";
 import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPasscodeState";
 import { StatusBar } from "expo-status-bar";
-import { useTheme } from "../../../engine/hooks";
+import { useNetwork, useTheme } from "../../../engine/hooks";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 
 export const PasscodeSetupFragment = systemFragment(() => {
-    const reboot = useReboot();
     const route = useRoute();
     const theme = useTheme();
     const init = route.name === 'PasscodeSetupInit';
@@ -25,6 +24,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
     const isLocalAuth = storageType === 'local-authentication';
     const setBiometricsState = useSetBiometricsState();
     const setPasscodeState = useSetPasscodeState();
+    const network = useNetwork();
+    const navigation = useTypedNavigation();
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
@@ -50,7 +51,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
         }
 
         if (init) {
-            reboot();
+            const route = resolveOnboarding(network.isTestnet, false);
+            navigation.navigateAndReplaceAll(route);
         }
     }, []);
 
@@ -72,7 +74,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
                         ? () => {
                             storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)
-                            reboot();
+                            const route = resolveOnboarding(network.isTestnet, false);
+                            navigation.navigateAndReplaceAll(route);
                         }
                         : undefined
                 }

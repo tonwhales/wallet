@@ -100,6 +100,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 flexGrow: 1,
                 backgroundColor: !init ? undefined : theme.backgroundPrimary,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
+                paddingTop: init ? safeArea.top : 0,
             }}
             exiting={FadeIn}
             key={"content"}
@@ -224,12 +225,10 @@ export const WalletBackupFragment = systemFragment(() => {
             </ScrollView>
             {init && (
                 <View style={{
-                    alignSelf: 'stretch',
-                    paddingHorizontal: 16,
                     paddingVertical: 16,
-                    marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
+                    position: 'absolute', bottom: 0, left: 16, right: 16,
                 }}>
-                    <RoundButton title={back ? t('common.done') : t('common.continue')} onPress={onComplete} />
+                    <RoundButton title={back ? t('common.done') : t('create.okSaved')} onPress={onComplete} />
                 </View>
             )}
         </Animated.View>

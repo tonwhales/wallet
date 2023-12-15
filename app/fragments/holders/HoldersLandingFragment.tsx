@@ -23,7 +23,7 @@ import { useHoldersEnroll } from '../../engine/hooks';
 import { getCurrentAddress } from '../../storage/appState';
 import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { normalizePath } from './components/HoldersAppComponent';
+import { WebViewLoader, normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
@@ -53,21 +53,6 @@ export const HoldersLandingFragment = fragment(() => {
 
     // Anim
     let [loaded, setLoaded] = useState(false);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: theme.surfaceOnBg,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300 }),
-        };
-    });
-
     let [auth, setAuth] = useState(false);
     const authOpacity = useSharedValue(0);
     const animatedAuthStyles = useAnimatedStyle(() => {
@@ -80,7 +65,7 @@ export const HoldersLandingFragment = fragment(() => {
             backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
+            opacity: withTiming(authOpacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
         };
     });
 
@@ -248,7 +233,6 @@ export const HoldersLandingFragment = fragment(() => {
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
-        opacity.value = 0;
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
@@ -286,7 +270,9 @@ export const HoldersLandingFragment = fragment(() => {
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={onLoadEnd}
+                        onLoadEnd={() => {
+                            setTimeout(onLoadEnd, 100);
+                        }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -334,8 +320,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
                                 }}
                                 onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
+                                    setTimeout(onLoadEnd, 150);
                                 }}
                                 onLoadProgress={(event) => {
                                     if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
@@ -375,17 +360,7 @@ export const HoldersLandingFragment = fragment(() => {
                         </Animated.View>
                     )
                 }
-                {!useOfflineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
-                            <ScreenHeader onBackPressed={navigation.goBack} />
-                        </View>
-                        <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
+                <WebViewLoader type={'create'} loaded={loaded} />
                 <Animated.View
                     style={animatedAuthStyles}
                     pointerEvents={!auth ? 'none' : 'box-none'}

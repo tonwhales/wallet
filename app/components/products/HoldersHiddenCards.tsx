@@ -74,7 +74,7 @@ export const HoldersHiddenAccounts = memo(() => {
                 showDivider={false}
                 collapsed={collapsed}
                 items={hiddenList}
-                itemHeight={126}
+                itemHeight={122}
                 style={{ gap: 16, paddingHorizontal: 16 }}
                 renderItem={(item, index) => {
                     return (
@@ -87,6 +87,7 @@ export const HoldersHiddenAccounts = memo(() => {
                             rightAction={() => markCard(item.id, false)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}
                             single={hiddenList.length === 1}
+                            style={{ paddingVertical: 0 }}
                         />
                     )
                 }}

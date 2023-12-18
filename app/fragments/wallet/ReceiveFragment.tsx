@@ -164,7 +164,7 @@ export const ReceiveFragment = fragment(() => {
                                                 justifyContent: 'center', alignItems: 'center',
                                                 height: 20, width: 20, borderRadius: 10,
                                                 position: 'absolute', right: -2, bottom: -2,
-                                                backgroundColor: theme.surfaceOnBg
+                                                backgroundColor: theme.surfaceOnElevation
                                             }}>
                                                 <Image
                                                     source={require('@assets/ic-verified.png')}

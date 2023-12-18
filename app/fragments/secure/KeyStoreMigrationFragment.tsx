@@ -4,20 +4,22 @@ import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useCallback, useState } from "react";
-import { useTheme } from '../../engine/hooks';
+import { useNetwork, useTheme } from '../../engine/hooks';
 import { t } from "../../i18n/t";
 import { PasscodeState, getPasscodeState, migrateAndroidKeyStore } from "../../storage/secureStorage";
 import { useKeysAuth } from "../../components/secure/AuthWalletKeys";
-import { useReboot } from "../../utils/RebootContext";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { StatusBar } from "expo-status-bar";
+import { resolveOnboarding } from "../resolveOnboarding";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const KeyStoreMigrationFragment = systemFragment(() => {
     const theme = useTheme();
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
-    const reboot = useReboot();
+    const network = useNetwork();
+    const navigation = useTypedNavigation();
     const [state, setState] = useState<'loading' | undefined>()
 
     const onStart = useCallback(async () => {
@@ -30,7 +32,8 @@ export const KeyStoreMigrationFragment = systemFragment(() => {
             } else {
                 await migrateAndroidKeyStore();
             }
-            reboot();
+            const route = resolveOnboarding(network.isTestnet, false);
+            navigation.navigateAndReplaceAll(route);
         } catch {
             Alert.alert(t('common.error'), t('migrate.failed'));
             setState(undefined);

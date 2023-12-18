@@ -66,7 +66,7 @@ export const AppStartAuthFragment = fragment(() => {
     }, [onFullReset]);
 
     const onConfirmed = useCallback(() => {
-        const route = resolveOnboarding(network.isTestnet, false);;
+        const route = resolveOnboarding(network.isTestnet, false);
         navigation.navigateAndReplaceAll(route);
     }, []);
 

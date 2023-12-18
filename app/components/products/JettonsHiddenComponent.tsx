@@ -65,7 +65,6 @@ export const JettonsHiddenComponent = memo(() => {
                             key={'jt' + j.wallet.toString()}
                             jetton={j}
                             first={index === 0}
-                            hidden={true}
                             last={index === hiddenList.length - 1}
                             rightAction={() => markJettonActive(j.master)}
                             rightActionIcon={<Show height={36} width={36} style={{ width: 36, height: 36 }} />}

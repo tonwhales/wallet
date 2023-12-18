@@ -11,7 +11,6 @@ import { useDimensions } from "@react-native-community/hooks";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getBackup, markAddressSecured } from "../../storage/appState";
 
-
 export const BackupIntroFragment = systemFragment(() => {
     const theme = useTheme();
     const dimensions = useDimensions();
@@ -66,19 +65,19 @@ export const BackupIntroFragment = systemFragment(() => {
             <View style={{ flexGrow: 1 }} />
             <View style={[{ paddingHorizontal: 16, width: '100%', gap: 16 }, Platform.select({ android: { paddingBottom: 16 } })]}>
                 <RoundButton
-                    title={t('backupIntro.goToBackup')}
-                    onPress={() => {
-                        navigation.replace('WalletBackupInit');
-                    }}
-                    display={'secondary'}
-                />
-                <RoundButton
                     title={t('backupIntro.saved')}
                     onPress={() => {
                         const address = getBackup();
                         markAddressSecured(address.address);
                         navigation.navigateAndReplaceAll('Home');
                     }}
+                />
+                <RoundButton
+                    title={t('backupIntro.goToBackup')}
+                    onPress={() => {
+                        navigation.replace('WalletBackupInit');
+                    }}
+                    display={'secondary'}
                 />
             </View>
         </View>

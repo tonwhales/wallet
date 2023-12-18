@@ -7,20 +7,22 @@ import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { doUpgrade } from "../../storage/appState";
-import { useReboot } from "../../utils/RebootContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
+import { resolveOnboarding } from "../resolveOnboarding";
 
 export const WalletUpgradeFragment = systemFragment(() => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const reboot = useReboot();
     const navigation = useTypedNavigation();
+    const network = useNetwork();
+
     const onUpgrade = React.useCallback(async () => {
         await doUpgrade(isTestnet);
-        reboot();
+        const route = resolveOnboarding(network.isTestnet, false);
+        navigation.navigateAndReplaceAll(route);
     }, []);
     const onBackup = React.useCallback(() => {
         navigation.navigate('WalletBackup', { back: true });

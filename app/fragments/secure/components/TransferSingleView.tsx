@@ -186,7 +186,7 @@ export const TransferSingleView = memo(({
                                     borderColor={theme.surfaceOnElevation}
                                     backgroundColor={theme.backgroundPrimary}
                                     markContact={!!contact}
-                                    icPosition={'bottom'}
+                                    icProps={{ position: 'bottom' }}
                                     theme={theme}
                                     isTestnet={isTestnet}
                                 />

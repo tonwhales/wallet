@@ -141,7 +141,7 @@ function HoldersPlaceholder() {
     );
 }
 
-function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
+export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -557,7 +557,9 @@ export const HoldersAppComponent = memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={onLoadEnd}
+                        onLoadEnd={() => {
+                            setTimeout(onLoadEnd, 100);
+                        }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -608,7 +610,9 @@ export const HoldersAppComponent = memo((
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
                             }}
-                            onLoadEnd={onLoadEnd}
+                            onLoadEnd={() => {
+                                setTimeout(onLoadEnd, 100);
+                            }}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
@@ -655,7 +659,8 @@ export const HoldersAppComponent = memo((
                 <KeyboardAvoidingView
                     style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
                     behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                    contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
+                    pointerEvents={mainButton.isVisible ? undefined : 'none'}
+                    contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
                     keyboardVerticalOffset={Platform.OS === 'ios'
                         ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
                         : undefined

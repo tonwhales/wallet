@@ -21,8 +21,7 @@ export const JettonProductItem = memo((props: {
     first?: boolean,
     rightAction?: () => void
     rightActionIcon?: any,
-    single?: boolean,
-    hidden?: boolean,
+    single?: boolean
     card?: boolean
 }) => {
     const theme = useTheme();
@@ -51,16 +50,6 @@ export const JettonProductItem = memo((props: {
             callback: null
         });
     }, [props.jetton]);
-
-    const Wrapper = props.hidden ? View : TouchableHighlight;
-    const wrapperProps = props.hidden ? {} : {
-        onPressIn: onPressIn,
-        onPressOut: onPressOut,
-        onPress: onPress,
-        style: {
-            flexGrow: 1,
-        }
-    }
 
     return (
         (props.rightAction) ? (
@@ -127,15 +116,17 @@ export const JettonProductItem = memo((props: {
                         )
                     }}
                 >
-                    <Wrapper
-                        style={{ flex: 1 }}
-                        {...wrapperProps}
+                    <TouchableHighlight
+                        style={{ flexGrow: 1 }}
+                        onPressIn={onPressIn}
+                        onPressOut={onPressOut}
+                        onPress={onPress}
                     >
                         <View style={{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
-                            backgroundColor: theme.surfaceOnElevation,
+                            backgroundColor: theme.surfaceOnElevation
                         }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <WImage
@@ -202,12 +193,14 @@ export const JettonProductItem = memo((props: {
                                 )}
                             </View>
                         </View>
-                    </Wrapper>
+                    </TouchableHighlight>
                 </Swipeable>
-                {!props.last && !props.card && (
-                    <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
-                )}
-            </Animated.View>
+                {
+                    !props.last && !props.card && (
+                        <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+                    )
+                }
+            </Animated.View >
         ) : (
             <Pressable
                 onPressIn={onPressIn}

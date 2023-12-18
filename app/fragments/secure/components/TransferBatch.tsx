@@ -377,7 +377,7 @@ export const TransferBatch = memo((props: Props) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
 
     let appInfo = !!order.app && (
         <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>

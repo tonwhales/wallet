@@ -1,8 +1,11 @@
-import { useSetRecoilState } from "recoil";
-import { PendingTransaction, pendingTransactionsState } from "../../state/pending";
+import { PendingTransaction } from "../../state/pending";
+import { useNetwork, usePendingTransactions, useSelectedAccount } from "..";
 
 export function useRegisterPending() {
-    const update = useSetRecoilState(pendingTransactionsState);
+    const account = useSelectedAccount();
+    const network = useNetwork();
+    const [, update] = usePendingTransactions(account?.addressString ?? '', network.isTestnet);
+
     return (tx: PendingTransaction) => {
         update((old) => {
             if (old.find((t) => t.id == tx.id)) {

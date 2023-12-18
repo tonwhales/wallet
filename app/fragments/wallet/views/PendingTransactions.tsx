@@ -2,7 +2,7 @@ import React, { useCallback, useEffect } from "react";
 import { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
-import { PendingTransaction, pendingTransactionsState } from "../../../engine/state/pending";
+import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
 import { PendingTransactionAvatar } from "../../../components/PendingTransactionAvatar";
 import { useNetwork } from "../../../engine/hooks/network/useNetwork";
@@ -18,7 +18,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
 import { useSetRecoilState } from "recoil";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { useSelectedAccount } from "../../../engine/hooks";
 
 const PendingTransactionView = memo(({
     tx,
@@ -184,8 +184,9 @@ const PendingTransactionView = memo(({
 });
 
 export const PendingTransactions = memo(() => {
-    const pending = usePendingTransactions();
-    const setPending = useSetRecoilState(pendingTransactionsState);
+    const account = useSelectedAccount();
+    const network = useNetwork();
+    const [pending, setPending] = usePendingTransactions(account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
 
     const removePending = useCallback((id: string) => {

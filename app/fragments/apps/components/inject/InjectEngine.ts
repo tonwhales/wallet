@@ -46,7 +46,6 @@ export class InjectEngine {
 
             return { type: 'ok', data: resEncoded };
         } catch (e) {
-            logger.warn(e);
             if (e && ((typeof (e as any).message) === 'string')) {
                 return { type: 'error', message: (e as any).message };
             } else {

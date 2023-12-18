@@ -181,9 +181,7 @@ export const AppComponent = memo((props: {
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch (e) {
-                warn(e);
-            }
+            } catch {}
             dispatchResponse(webRef, { id, data: res });
         })();
 

@@ -218,8 +218,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         if (callback) {
             try {
                 callback(true, transfer);
-            } catch (e) {
-                warn(e);
+            } catch {
                 // Ignore on error
             }
         }

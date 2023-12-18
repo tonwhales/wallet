@@ -17,7 +17,7 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
-import { useSetRecoilState } from "recoil";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSelectedAccount } from "../../../engine/hooks";
 
 const PendingTransactionView = memo(({

@@ -22,7 +22,7 @@ export type PendingTransaction = {
     status: PendingTransactionStatus
 };
 
-export const pendingTransactionsState = atom<PendingTransaction[]>({
+export const pendingTransactionsState = atom<{ [key: string]: PendingTransaction[] }>({
     key: "pendingTransactionsState",
-    default: [],
+    default: {},
 });

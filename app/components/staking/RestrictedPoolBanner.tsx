@@ -1,8 +1,7 @@
 import React, { memo, useCallback, useState } from "react";
-import { View, Text, Pressable, useWindowDimensions } from "react-native";
+import { View, Text, Pressable, useWindowDimensions, Image } from "react-native";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { WImage } from "../WImage";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { storage } from "../../storage/storage";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
@@ -16,7 +15,7 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
     const theme = useTheme();
     const network = useNetwork();
     const dimentions = useWindowDimensions();
-    
+
     const wasHisddenInit = storage.getBoolean(`${wasHiddenKey}-${type}`);
     const [wasHidden, setHidden] = useState(wasHisddenInit);
 
@@ -46,7 +45,8 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
                 style={({ pressed }) => ({
                     flexDirection: 'row',
                     alignItems: 'center', borderRadius: 20,
-                    marginBottom: 16, padding: 20,
+                    marginBottom: 16,
+                    paddingLeft: 20,
                     backgroundColor: theme.surfaceOnBg,
                     overflow: 'hidden',
                     opacity: pressed ? .5 : 1
@@ -59,12 +59,12 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
                             <LinearGradient
                                 start={vec(-350, 0)}
                                 end={vec(dimentions.width - 32, 0)}
-                                colors={['#039DF500', '#029BF2']}
+                                colors={['#5B73FB', '#293EB3']}
                             />
                         </Rect>
                     </Canvas>
                 </View>
-                <View style={{ flexShrink: 1, marginRight: 8 }}>
+                <View style={{ flexShrink: 1, marginRight: 8, paddingVertical: 20 }}>
                     <Text style={{
                         fontSize: 16,
                         color: theme.white,
@@ -88,12 +88,10 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
                         {type === 'team' && t('products.staking.pools.teamBannerDescription')}
                     </Text>
                 </View>
-                <WImage
-                    requireSource={require('@assets/banners/staking-join-banner.png')}
-                    width={64}
-                    heigh={64}
+                <Image
+                    source={require('@assets/banners/staking-join-banner.webp')}
                     borderRadius={0}
-                    style={{ backgroundColor: theme.transparent }}
+                    style={{ backgroundColor: theme.transparent, height: 96, width: 121 }}
                 />
                 <Pressable
                     style={({ pressed }) => ({ opacity: pressed ? .25 : .5, position: 'absolute', top: 12, right: 12 })}

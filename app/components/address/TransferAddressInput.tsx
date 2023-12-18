@@ -6,7 +6,7 @@ import { Avatar } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useContact, useTheme } from "../../engine/hooks";
+import { useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -122,6 +122,8 @@ export function addressInputReducer() {
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
     const contact = useContact(props.target);
+    const [walletSettings,] = useWalletSettings(props?.validAddress ?? '');
+
     const theme = useTheme();
 
     const select = useCallback(() => {
@@ -162,6 +164,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             backgroundColor={props.theme.elevation}
                             borderColor={props.theme.elevation}
                             theme={theme}
+                            hash={walletSettings?.avatar}
                             isTestnet={props.isTestnet}
                         />
                         : <Image
@@ -211,6 +214,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 borderColor={props.theme.elevation}
                                 theme={theme}
                                 isTestnet={props.isTestnet}
+                                hash={walletSettings?.avatar}
                             />
                             : <Image
                                 source={require('@assets/ic-contact.png')}

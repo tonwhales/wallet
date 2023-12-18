@@ -25,6 +25,7 @@ import { parseJob } from '../engine/apps/parseJob';
 import { Cell } from '@ton/core';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Typography } from '../components/styles';
 
 const Tab = createBottomTabNavigator();
 
@@ -194,7 +195,7 @@ export const HomeFragment = fragment(() => {
                         } : undefined,
                         tabBarActiveTintColor: theme.accent,
                         tabBarInactiveTintColor: theme.textSecondary,
-                        tabBarLabelStyle: { marginTop: -4 },
+                        tabBarLabelStyle: [{ marginTop: -4 }, Typography.medium10_12],
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 

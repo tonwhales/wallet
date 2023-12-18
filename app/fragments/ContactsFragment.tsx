@@ -86,6 +86,14 @@ export const ContactsFragment = fragment(() => {
             headerShown: true,
             headerLargeTitle: true,
             tintColor: theme.accent,
+            contentStyle: Platform.select({
+                ios: {
+                    borderTopEndRadius: 0, borderTopStartRadius: 0,
+                    paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
+                    backgroundColor: theme.elevation
+                },
+                android: { backgroundColor: theme.backgroundPrimary }
+            }),
             onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
             headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
                 hideWhenScrolling: false,

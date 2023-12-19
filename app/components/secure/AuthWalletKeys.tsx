@@ -221,6 +221,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                     onPress: () => {
                                         resolve();
                                         logOutAndReset();
+                                        navigation.navigateAndReplaceAll('Welcome');
                                     },
                                     style: 'destructive'
                                 },

@@ -429,7 +429,9 @@ export const HoldersAppComponent = memo((
                     openWithInApp(data.args.url);
                     return;
                 }
-            } catch {}
+            } catch {
+                warn('Failed to open url');
+            }
         }
         if (data.name === 'closeApp') {
             navigation.goBack();
@@ -441,7 +443,9 @@ export const HoldersAppComponent = memo((
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch {}
+            } catch {
+                warn('Failed to execute operation');
+            }
             dispatchResponse(webRef, { id, data: res });
         })();
     }, []);

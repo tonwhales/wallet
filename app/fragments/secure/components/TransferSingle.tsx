@@ -219,7 +219,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             try {
                 callback(true, transfer);
             } catch {
-                // Ignore on error
+                warn('Failed to execute callback');
             }
         }
 

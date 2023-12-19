@@ -347,7 +347,7 @@ export const TransferBatch = memo((props: Props) => {
             try {
                 callback(true, transfer);
             } catch {
-                // Ignore on error
+                warn('Failed to execute callback');
             }
         }
 

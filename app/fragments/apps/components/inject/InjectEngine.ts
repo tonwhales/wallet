@@ -46,6 +46,7 @@ export class InjectEngine {
 
             return { type: 'ok', data: resEncoded };
         } catch (e) {
+            logger.warn('Failed to execute method');
             if (e && ((typeof (e as any).message) === 'string')) {
                 return { type: 'error', message: (e as any).message };
             } else {

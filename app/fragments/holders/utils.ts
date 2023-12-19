@@ -74,6 +74,7 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
             lockScroll
         }
     } catch {
+        warn('Failed to extract holders query params');
         return { backPolicy: 'close' }
     }
 }

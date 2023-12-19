@@ -138,6 +138,7 @@ export async function migrateAndroidKeyStore(passcode?: string) {
     await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
 
     storage.set('ton-storage-kind', 'secure-store');
+    storage.set('key-store-migrated', true);
 }
 
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {

@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from "react"
 import { fragment } from "../fragment";
-import { useEffect } from "react";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { resolveOnboarding } from "./resolveOnboarding";
 import { t } from "../i18n/t";

@@ -146,12 +146,23 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 return keys;
             } catch (e) {
                 if (e instanceof SecureAuthenticationCancelledError) {
-                    Alert.alert(
-                        t('security.auth.canceled.title'),
-                        t('security.auth.canceled.message'),
-                        [{ text: t('common.ok') }]
-                    );
-                    throw e;
+                    return await new Promise<WalletKeys>((resolve, reject) => {
+                        Alert.alert(
+                            t('security.auth.canceled.title'),
+                            t('security.auth.canceled.message'),
+                            passcodeState === PasscodeState.Set
+                                ? [
+                                    { text: t('common.ok'), onPress: () => { throw e } },
+                                    {
+                                        text: t('security.auth.biometricsSetupAgain.authenticate'),
+                                        onPress: () => {
+                                            setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                                        }
+                                    }
+                                ]
+                                : [{ text: t('common.ok'), onPress: () => { throw e }  }]
+                        );
+                    });
                 }
                 const premissionsRes = await checkBiometricsPermissions(passcodeState);
                 if (premissionsRes === 'biometrics-permission-check') {

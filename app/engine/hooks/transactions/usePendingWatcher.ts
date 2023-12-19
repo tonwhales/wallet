@@ -10,15 +10,7 @@ import { PendingTransaction, pendingTransactionsState } from "../../state/pendin
 export function usePendingWatcher() {
     const account = useSelectedAccount();
     const client = useClient4(useNetwork().isTestnet);
-    const setPendingState = useSetRecoilState(pendingTransactionsState);
-
-    const setPending = (updater: ((currVal: PendingTransaction[]) => PendingTransaction[]) | PendingTransaction[]) => {
-        setPendingState((currState) => {
-            const newState = { ...currState };
-            newState[account?.addressString || ''] = typeof updater === 'function' ? updater(newState[account?.addressString || ''] || []) : updater;
-            return newState;
-        });
-    }
+    const setPending = useSetRecoilState(pendingTransactionsState(account?.addressString || ''));
 
     const v4 = useWalletV4(client, account?.addressString || '');
     const lite = useAccountLite(account?.address || null);

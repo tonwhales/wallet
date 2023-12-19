@@ -140,7 +140,7 @@ export const SecurityFragment = fragment(() => {
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
                         <ItemButton
-                            leftIcon={require('@assets/ic_passcode.png')}
+                            leftIcon={require('@assets/ic-change-passcode.png')}
                             title={t('security.passcodeSettings.setupTitle')}
                             onPress={() => navigation.navigate('PasscodeSetup')}
                         />

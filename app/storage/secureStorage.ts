@@ -182,6 +182,7 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, passcode.length);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
     }

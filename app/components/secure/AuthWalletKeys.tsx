@@ -152,7 +152,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                             t('security.auth.canceled.message'),
                             passcodeState === PasscodeState.Set
                                 ? [
-                                    { text: t('common.ok'), onPress: () => { throw e } },
+                                    { text: t('common.ok'), onPress: reject },
                                     {
                                         text: t('security.auth.biometricsSetupAgain.authenticate'),
                                         onPress: () => {
@@ -160,7 +160,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                         }
                                     }
                                 ]
-                                : [{ text: t('common.ok'), onPress: () => { throw e }  }]
+                                : [{ text: t('common.ok'), onPress: reject  }]
                         );
                     });
                 }

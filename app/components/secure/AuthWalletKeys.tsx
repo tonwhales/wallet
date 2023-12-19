@@ -1,7 +1,7 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, StyleProp, ViewStyle } from 'react-native';
-import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { SecureAuthenticationCancelledError, WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey, loadKeyStorageType } from '../../storage/secureStorage';
@@ -145,6 +145,14 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 return keys;
             } catch (e) {
+                if (e instanceof SecureAuthenticationCancelledError) {
+                    Alert.alert(
+                        t('security.auth.canceled.title'),
+                        t('security.auth.canceled.message'),
+                        [{ text: t('common.ok') }]
+                    );
+                    throw e;
+                }
                 const premissionsRes = await checkBiometricsPermissions(passcodeState);
                 if (premissionsRes === 'biometrics-permission-check') {
                     await new Promise<void>(resolve => {
@@ -351,7 +359,15 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 } else {
                                     auth.promise.resolve(keys);
                                 }
-                            } catch {
+                            } catch (e) {
+                                if (e instanceof SecureAuthenticationCancelledError) {
+                                    Alert.alert(
+                                        t('security.auth.canceled.title'),
+                                        t('security.auth.canceled.message'),
+                                        [{ text: t('common.ok') }]
+                                    );
+                                    throw e;
+                                }
                                 setAttempts(attempts + 1);
 
                                 // Every 5 tries
@@ -388,9 +404,17 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                         auth.promise.resolve(keys);
                                         // Remove auth view
                                         setAuth(null);
-                                    } catch {
-                                        Alert.alert(t('secure.onBiometricsError'));
-                                        warn('Failed to load wallet keys');
+                                    } catch (e) {
+                                        if (e instanceof SecureAuthenticationCancelledError) {
+                                            Alert.alert(
+                                                t('security.auth.canceled.title'),
+                                                t('security.auth.canceled.message'),
+                                                [{ text: t('common.ok') }]
+                                            );
+                                        } else {
+                                            Alert.alert(t('secure.onBiometricsError'));
+                                            warn('Failed to load wallet keys');
+                                        }
                                     }
                                 }
                                 : undefined

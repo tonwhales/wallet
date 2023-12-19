@@ -11,7 +11,7 @@ import { sharedStoragePersistence, storage, storagePersistence } from "../storag
 import { queryClient } from "../engine/clients";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { getCurrentAddress } from "../storage/appState";
-import { loadWalletKeys } from "../storage/walletKeys";
+import { SecureAuthenticationCancelledError, loadWalletKeys } from "../storage/walletKeys";
 import { BiometricsState, getBiometricsState, passcodeLengthKey } from "../storage/secureStorage";
 import { Alert, View } from "react-native";
 import { warn } from "../utils/log";
@@ -96,9 +96,18 @@ export const AppStartAuthFragment = fragment(() => {
                     try {
                         await loadWalletKeys(acc.secretKeyEnc, pass);
                         onConfirmed();
-                    } catch {
-                        setAttempts(attempts + 1);
-                        throw Error('Failed to load keys');
+                    } catch (e) {
+                        if (e instanceof SecureAuthenticationCancelledError) {
+                            Alert.alert(
+                                t('security.auth.canceled.title'),
+                                t('security.auth.canceled.message'),
+                                [{ text: t('common.ok') }]
+                            );
+                            throw e;
+                        } else {
+                            setAttempts(attempts + 1);
+                            throw Error('Failed to load keys');
+                        }
                     }
                 }}
                 onMount={useBiometrics
@@ -107,7 +116,15 @@ export const AppStartAuthFragment = fragment(() => {
                             const acc = getCurrentAddress();
                             await loadWalletKeys(acc.secretKeyEnc);
                             onConfirmed();
-                        } catch { } // ignore
+                        } catch (e) { 
+                            if (e instanceof SecureAuthenticationCancelledError) {
+                                Alert.alert(
+                                    t('security.auth.canceled.title'),
+                                    t('security.auth.canceled.message'),
+                                    [{ text: t('common.ok') }]
+                                );
+                            }
+                        }
                     }
                     : undefined}
                 onLogoutAndReset={
@@ -125,9 +142,17 @@ export const AppStartAuthFragment = fragment(() => {
                                 const acc = getCurrentAddress();
                                 await loadWalletKeys(acc.secretKeyEnc);
                                 onConfirmed()
-                            } catch {
-                                Alert.alert(t('secure.onBiometricsError'));
-                                warn('Failed to load wallet keys');
+                            } catch (e) {
+                                if (e instanceof SecureAuthenticationCancelledError) {
+                                    Alert.alert(
+                                        t('security.auth.canceled.title'),
+                                        t('security.auth.canceled.message'),
+                                        [{ text: t('common.ok') }]
+                                    );
+                                } else {
+                                    Alert.alert(t('secure.onBiometricsError'));
+                                    warn('Failed to load wallet keys');
+                                }
                             }
                         }
                         : undefined

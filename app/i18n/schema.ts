@@ -755,7 +755,11 @@ export type LocalizationSchema = {
                 messageLogout: string,
                 logout: string,
                 restore: string,
-            }
+            },
+            canceled: {
+                title: string,
+                message: string,
+            },
         }
     },
     report: {

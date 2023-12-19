@@ -1,12 +1,12 @@
 import React, { memo, useLayoutEffect, useReducer, useState } from "react";
-import { View } from "react-native";
+import { Alert, View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
-import { loadWalletKeys } from "../../storage/walletKeys";
+import { SecureAuthenticationCancelledError, loadWalletKeys } from "../../storage/walletKeys";
 import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";
@@ -101,7 +101,18 @@ export const PasscodeChange = memo(() => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
                             }
-                            await loadWalletKeys(acc.secretKeyEnc, pass);
+                            try {
+                                await loadWalletKeys(acc.secretKeyEnc, pass);
+                            } catch (e) {
+                                if (e instanceof SecureAuthenticationCancelledError) {
+                                    Alert.alert(
+                                        t('security.auth.canceled.title'),
+                                        t('security.auth.canceled.message'),
+                                        [{ text: t('common.ok') }]
+                                    );
+                                    throw e;
+                                }
+                            }
                             dispatch({ type: 'input', input: '', prev: pass });
                         }}
                     />

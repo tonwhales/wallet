@@ -1,4 +1,4 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { JettonMasterState } from "../metadata/fetchJettonMasterContent";
 
@@ -22,7 +22,7 @@ export type PendingTransaction = {
     status: PendingTransactionStatus
 };
 
-export const pendingTransactionsState = atom<{ [key: string]: PendingTransaction[] }>({
+export const pendingTransactionsState = atomFamily<PendingTransaction[], string>({
     key: "pendingTransactionsState",
-    default: {},
+    default: (address) => [],
 });

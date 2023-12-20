@@ -43,7 +43,6 @@ export const PasscodeStep = memo((
     });
 
     useEffect(() => {
-        console.log('error', error);
         if (error) {
             animColor.value = withTiming(theme.accentRed);
         } else if (index === passLen - 1) {

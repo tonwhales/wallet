@@ -753,6 +753,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 messageLogout: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Logout\" (you will be logged out of you current wallet) and add your wallet again',
                 logout: 'Logout',
                 restore: 'Restore',
+            },
+            canceled: {
+                title: 'Canceled',
+                message: 'Authentication was canceled, please try again',
             }
         }
     },

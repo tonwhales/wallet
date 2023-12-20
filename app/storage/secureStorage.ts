@@ -138,6 +138,7 @@ export async function migrateAndroidKeyStore(passcode?: string) {
     await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
 
     storage.set('ton-storage-kind', 'secure-store');
+    storage.set('key-store-migrated', true);
 }
 
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
@@ -182,6 +183,7 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, passcode.length);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
     }

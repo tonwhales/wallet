@@ -1,20 +1,19 @@
 import React, { createContext, memo, useCallback, useContext, useEffect, useState } from 'react';
 import Animated, { BaseAnimationBuilder, EntryExitAnimationFunction, FadeOutUp, SlideInDown } from 'react-native-reanimated';
 import { Alert, Platform, StyleProp, ViewStyle } from 'react-native';
-import { WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
+import { SecureAuthenticationCancelledError, WalletKeys, loadWalletKeys } from '../../storage/walletKeys';
 import { PasscodeInput } from '../passcode/PasscodeInput';
 import { t } from '../../i18n/t';
 import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, passcodeLengthKey, loadKeyStorageType } from '../../storage/secureStorage';
 import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
+import { storage } from '../../storage/storage';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSelectedAccount, useTheme } from '../../engine/hooks';
-import { queryClient } from '../../engine/clients';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
 
@@ -31,7 +30,6 @@ export type AuthParams = {
     showResetOnMaxAttempts?: boolean,
     description?: string,
     enteringAnimation?: EnteringAnimation,
-    isAppStart?: boolean,
     containerStyle?: StyleProp<ViewStyle>,
 }
 
@@ -52,7 +50,7 @@ export type AuthWalletKeysType = {
     authenticateWithPasscode: (style?: AuthParams) => Promise<{ keys: WalletKeys, passcode: string }>,
 }
 
-export async function checkBiometricsPermissions(passcodeState: PasscodeState | null) {
+export async function checkBiometricsPermissions(passcodeState: PasscodeState | null): Promise<'use-passcode' | 'biometrics-setup-again' | 'biometrics-permission-check' | 'biometrics-cooldown' | 'biometrics-cancelled' | 'corrupted' | 'none'> {
     const storageType = loadKeyStorageType();
 
     if (storageType === 'local-authentication') {
@@ -104,7 +102,7 @@ export async function checkBiometricsPermissions(passcodeState: PasscodeState | 
         const level = await LocalAuthentication.getEnrolledLevelAsync();
 
         if ((faceIdSupported || touchIdSupported) && level === LocalAuthentication.SecurityLevel.BIOMETRIC) {
-            return passcodeState === PasscodeState.Set ? 'biometrics-setup-again-and' : 'corrupted';
+            return passcodeState === PasscodeState.Set ? 'biometrics-setup-again' : 'corrupted';
         } else {
             return passcodeState === PasscodeState.Set ? 'use-passcode' : 'corrupted';
         }
@@ -139,15 +137,29 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         const useBiometrics = (biometricsState === BiometricsState.InUse);
         const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
 
+        // Try to authenticate with biometrics
+        // If biometrics are not available, shows proper alert to user or throws an error
         if (useBiometrics) {
             try {
                 const acc = getCurrentAddress();
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 return keys;
             } catch (e) {
-                const premissionsRes = await checkBiometricsPermissions(passcodeState);
-                if (premissionsRes === 'biometrics-permission-check') {
-                    await new Promise<void>(resolve => {
+                // If cancelled - show alert on android
+                if (e instanceof SecureAuthenticationCancelledError) {
+                    if (Platform.OS !== 'ios') {
+                        Alert.alert(
+                            t('security.auth.canceled.title'),
+                            t('security.auth.canceled.message'),
+                            [{ text: t('common.ok') }]
+                        );
+                    }
+                } else {
+                    // Check permissions
+                    const premissionsRes = await checkBiometricsPermissions(passcodeState);
+
+                    // Biometrics permission is not granted or blocked
+                    if (premissionsRes === 'biometrics-permission-check') {
                         Alert.alert(
                             t('security.auth.biometricsPermissionCheck.title'),
                             t('security.auth.biometricsPermissionCheck.message'),
@@ -156,91 +168,78 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                     text: passcodeState === PasscodeState.Set
                                         ? t('security.auth.biometricsPermissionCheck.authenticate')
                                         : t('common.cancel'),
-                                    onPress: () => resolve()
                                 },
                                 {
                                     text: t('security.auth.biometricsPermissionCheck.openSettings'),
-                                    onPress: () => {
-                                        resolve();
-                                        openSettings()
-                                    }
+                                    onPress: openSettings
                                 }
                             ]
                         );
-                    });
-                } else if (premissionsRes === 'biometrics-setup-again' && !style?.isAppStart) {
-                    const isSetup = await new Promise<boolean>(resolve => {
+                    }
+                    //  Biometrics permission is granted but corrupted or not set up
+                    else if (premissionsRes === 'biometrics-setup-again') {
+                        // ask to setup again, if not - fallback to passcode
                         Alert.alert(
                             t('security.auth.biometricsSetupAgain.title'),
                             t('security.auth.biometricsSetupAgain.message'),
                             [
                                 {
                                     text: t('security.auth.biometricsSetupAgain.authenticate'),
-                                    onPress: () => resolve(false)
                                 },
                                 {
                                     text: t('security.auth.biometricsSetupAgain.setup'),
                                     onPress: () => {
-                                        resolve(false);
                                         navigation.navigate('BiometricsSetup');
                                     }
                                 }
                             ]
                         );
-                    });
-
-                    if (isSetup) {
-                        throw Error('Setting up biometrics');
                     }
-                } else if (premissionsRes === 'biometrics-cooldown') {
-                    await new Promise<void>(resolve => {
+                    // Too much attempts 
+                    else if (premissionsRes === 'biometrics-cooldown') {
                         Alert.alert(
                             t('security.auth.biometricsCooldown.title'),
                             t('security.auth.biometricsCooldown.message'),
-                            [
-                                {
-                                    text: t('common.ok'),
-                                    onPress: () => resolve()
-                                },
-                            ]
+                            [{ text: t('common.ok') }]
                         );
-                    });
-                } else if (premissionsRes === 'corrupted') {
-                    const appState = getAppState();
-                    await new Promise<void>(resolve => {
-                        Alert.alert(
-                            t('security.auth.biometricsCorrupted.title'),
-                            appState.addresses.length > 1
-                                ? t('security.auth.biometricsCorrupted.messageLogout')
-                                : t('security.auth.biometricsCorrupted.message'),
-                            [
-                                {
-                                    text: appState.addresses.length > 1
-                                        ? t('security.auth.biometricsCorrupted.logout')
-                                        : t('security.auth.biometricsCorrupted.restore'),
-                                    onPress: () => {
-                                        resolve();
-                                        logOutAndReset();
+                    }
+                    // Biometrics permission is granted but corrupted or not set up and no passcode set
+                    else if (premissionsRes === 'corrupted') {
+                        const appState = getAppState();
+                        await new Promise<void>(resolve => {
+                            Alert.alert(
+                                t('security.auth.biometricsCorrupted.title'),
+                                appState.addresses.length > 1
+                                    ? t('security.auth.biometricsCorrupted.messageLogout')
+                                    : t('security.auth.biometricsCorrupted.message'),
+                                [
+                                    {
+                                        text: appState.addresses.length > 1
+                                            ? t('security.auth.biometricsCorrupted.logout')
+                                            : t('security.auth.biometricsCorrupted.restore'),
+                                        onPress: () => {
+                                            resolve();
+                                            logOutAndReset();
+                                            navigation.navigateAndReplaceAll('Welcome');
+                                        },
+                                        style: 'destructive'
                                     },
-                                    style: 'destructive'
-                                },
-                            ]
-                        );
-                    });
-                }
+                                ]
+                            );
+                        });
+                        throw Error('Failed to load keys, reason: storage corrupted');
+                    }
 
-                // Retry with passcode
-                if (passcodeState === PasscodeState.Set) {
-                    return new Promise<WalletKeys>((resolve, reject) => {
-                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
-                    });
+                    // Overwise, premissionsRes: 'biometrics-cancelled' |'none' | 'use-passcode'
+                    // -> Perform fallback to passcode
                 }
             }
         }
 
+        // Fallback to passcode if biometrics is not set or unavailable (checked before)
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
+                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics, passcodeLength } });
             });
         }
 
@@ -265,23 +264,9 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
+            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics: false, passcodeLength } });
         });
     }, [auth]);
-
-    const onFullReset = useCallback(() => {
-        // clear storage
-        storage.clearAll();
-        sharedStoragePersistence.clearAll();
-        storagePersistence.clearAll();
-
-        // cancel running queries and clear query cache
-        queryClient.cancelQueries();
-        queryClient.clear();
-
-        // navigate to welcome screen
-        navigation.navigateAndReplaceAll('Welcome');
-    }, []);
 
     const fullResetActionSheet = useCallback(() => {
         const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
@@ -297,7 +282,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onFullReset();
+                    logOutAndReset();
+                    navigation.navigateAndReplaceAll('Welcome');
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -305,7 +291,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     break;
             }
         });
-    }, [onFullReset]);
+    }, [logOutAndReset]);
 
     useEffect(() => {
         setAttempts(0);
@@ -387,9 +373,13 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                         auth.promise.resolve(keys);
                                         // Remove auth view
                                         setAuth(null);
-                                    } catch {
-                                        Alert.alert(t('secure.onBiometricsError'));
-                                        warn('Failed to load wallet keys');
+                                    } catch (e) {
+                                        if (e instanceof SecureAuthenticationCancelledError) {
+                                            return;
+                                        } else {
+                                            Alert.alert(t('secure.onBiometricsError'));
+                                            warn('Failed to load wallet keys');
+                                        }
                                     }
                                 }
                                 : undefined

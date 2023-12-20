@@ -14,10 +14,12 @@ import { useSetPasscodeState } from "../../../engine/hooks/appstate/useSetPassco
 import { StatusBar } from "expo-status-bar";
 import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { useParams } from "../../../utils/useParams";
 
 export const PasscodeSetupFragment = systemFragment(() => {
     const route = useRoute();
     const theme = useTheme();
+    const { forceSetup } = useParams<{ forceSetup?: boolean }>();
     const init = route.name === 'PasscodeSetupInit';
     const safeArea = useSafeAreaInsets();
     const storageType = loadKeyStorageType();
@@ -50,6 +52,10 @@ export const PasscodeSetupFragment = systemFragment(() => {
             warn(`Failed to set passcode state on PasscodeSetup ${init ? 'init' : 'change'}`);
         }
 
+        if (forceSetup) {
+            storage.set('key-store-migrated', true);
+        }
+
         if (init) {
             const route = resolveOnboarding(network.isTestnet, false);
             navigation.navigateAndReplaceAll(route);
@@ -70,7 +76,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
                 onReady={onPasscodeConfirmed}
                 initial={init}
                 onLater={
-                    (init && !isLocalAuth) //Don't Allow to skip passcode setup on init and if local auth is enabled
+                    //Don't Allow to skip passcode setup on init, if local auth is enabled or is forced
+                    (init && !isLocalAuth && !forceSetup) 
                         ? () => {
                             storeBiometricsState(BiometricsState.InUse);
                             storage.set(wasPasscodeSetupShownKey, true)
@@ -79,6 +86,7 @@ export const PasscodeSetupFragment = systemFragment(() => {
                         }
                         : undefined
                 }
+                forced={forceSetup}
                 showToast={true}
                 screenHeaderStyle={{ paddingHorizontal: 16 }}
             />

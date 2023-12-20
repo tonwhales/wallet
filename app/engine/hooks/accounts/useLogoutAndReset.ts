@@ -30,8 +30,6 @@ export function useLogoutAndReset() {
             return;
         }
 
-
-
         const selected = appState.addresses[appState.selected];
 
         clearHolders(selected.address.toString({ testOnly: isTestnet }));

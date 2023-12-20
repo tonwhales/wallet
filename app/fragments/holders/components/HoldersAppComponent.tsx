@@ -444,7 +444,7 @@ export const HoldersAppComponent = memo((
             try {
                 res = await injectionEngine.execute(data);
             } catch {
-                warn('Failed to execute operation');
+                warn('Failed to execute inject engine operation');
             }
             dispatchResponse(webRef, { id, data: res });
         })();

@@ -123,8 +123,8 @@ export const darkTheme: ThemeType = {
     surfaceOnElevation: '#2C2C2D',
     surfaceTab: '#6A6A6C',
 
-    cardStackSecond: '#272728',
-    cardStackThird: '#1C1C1E',
+    cardStackSecond: '#191919',
+    cardStackThird: '#0F0F0F',
 
     accent: '#5E54F2',
     accentDisabled: '#7F7BBB',

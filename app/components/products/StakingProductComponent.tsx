@@ -74,7 +74,7 @@ export const StakingProductComponent = memo(() => {
                                 <Pressable
                                     onPress={() => navigation.navigate('StakingPools')}
                                     style={({ pressed }) => {
-                                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnElevation }]
+                                        return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                                     }}
                                 >
                                     <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
@@ -112,7 +112,7 @@ export const StakingProductComponent = memo(() => {
                                 address={p.address}
                                 balance={p.balance}
                                 style={{
-                                    backgroundColor: theme.surfaceOnElevation,
+                                    backgroundColor: theme.surfaceOnBg,
                                     paddingHorizontal: 20
                                 }}
                                 hideCycle
@@ -129,7 +129,7 @@ export const StakingProductComponent = memo(() => {
                                     marginHorizontal: 16,
                                     borderRadius: 20,
                                     alignItems: 'center',
-                                    backgroundColor: theme.surfaceOnElevation,
+                                    backgroundColor: theme.surfaceOnBg,
                                 },
                                 theme.style === 'dark' ? {
                                     shadowColor: '#000',
@@ -194,7 +194,7 @@ export const StakingProductComponent = memo(() => {
 
     return (
         <View style={{
-            backgroundColor: theme.surfaceOnElevation,
+            backgroundColor: theme.surfaceOnBg,
             borderRadius: 20,
             marginHorizontal: 16,
             marginBottom: 16
@@ -205,7 +205,7 @@ export const StakingProductComponent = memo(() => {
                         address={p.address}
                         balance={p.balance}
                         style={{
-                            backgroundColor: theme.surfaceOnElevation,
+                            backgroundColor: theme.surfaceOnBg,
                             paddingHorizontal: 20
                         }}
                         hideCycle
@@ -218,7 +218,7 @@ export const StakingProductComponent = memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('StakingPools')}
                 style={({ pressed }) => {
-                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnElevation }]
+                    return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>

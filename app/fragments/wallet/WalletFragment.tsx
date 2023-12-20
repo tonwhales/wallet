@@ -148,7 +148,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                         <View
                                             style={{
                                                 flexGrow: 1,
-                                                backgroundColor: theme.surfaceOnDark,
+                                                backgroundColor: theme.surfaceOnBg,
                                             }}
                                         />
                                     ) : (
@@ -173,7 +173,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                     <PriceComponent
                                         showSign
                                         amount={toNano(1)}
-                                        style={{ backgroundColor: theme.surfaceOnDark }}
+                                        style={{ backgroundColor: theme.surfaceOnBg }}
                                         textStyle={{ color: theme.textOnsurfaceOnDark }}
                                         theme={theme}
                                     />
@@ -216,7 +216,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginTop: 28,
                                 overflow: 'hidden'

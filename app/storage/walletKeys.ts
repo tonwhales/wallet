@@ -42,8 +42,6 @@ export async function loadWalletKeys(secretKeyEnc: Buffer, passcode?: string): P
             if (Platform.OS === 'ios' && e.message.includes('User canceled the operation')) {
                 throw new SecureAuthenticationCancelledError();
             }
-            
-            throw new SecureFailedLoadKeysError();
         }
         throw new SecureFailedLoadKeysError();
     }

@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleProp, View, ViewStyle, Text, Platform, Pressable, Image } from "react-native";
 import { PasscodeSteps } from "./PasscodeSteps";
 import Animated, { FadeIn, FadeOut, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
@@ -39,7 +39,7 @@ export const PasscodeInput = memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = useState(false);
-    const [cleanupTimerId, setCleanupTimerId] = useState<NodeJS.Timeout | undefined>(undefined);
+    const cleanupTimerIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -75,16 +75,16 @@ export const PasscodeInput = memo((
                         } catch (e) {
                             setIsWrong(true);
                         }
-                        setCleanupTimerId(setTimeout(() => {
+                        cleanupTimerIdRef.current = setTimeout(() => {
                             setPasscode('');
                             setIsWrong(false);
-                        }, 1500));
+                        }, 1500);
                     })();
                 }
                 return newState;
             });
         } else {
-            clearTimeout(cleanupTimerId);
+            clearTimeout(cleanupTimerIdRef.current);
             setIsWrong(false);
             setPasscode(() => {
                 let newState = '';
@@ -99,17 +99,17 @@ export const PasscodeInput = memo((
                             } catch (e) {
                                 setIsWrong(true);
                             }
-                            setCleanupTimerId(setTimeout(() => {
+                            cleanupTimerIdRef.current = setTimeout(() => {
                                 setPasscode('');
                                 setIsWrong(false);
-                            }, 1500));
+                            }, 1500);
                         })();
                     }
                 }
                 return newState;
             });
         }
-    }, [passcodeLength, passcode, cleanupTimerId]);
+    }, [passcodeLength, passcode]);
 
     useEffect(() => {
         setPasscode('');

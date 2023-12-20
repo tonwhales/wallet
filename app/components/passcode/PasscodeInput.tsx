@@ -60,11 +60,15 @@ export const PasscodeInput = memo((
             onRetryBiometrics();
             return;
         }
+        
+        clearTimeout(cleanupTimerIdRef.current);
+        setIsWrong(false);
+
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
-        } else if (/\d/.test(key) && passcode.length < passcodeLength) {
+        } else if (/\d/.test(key)) {
             setPasscode((prevPasscode) => {
-                let newState = prevPasscode
+                let newState = isWrong ? '' : prevPasscode;
                 if (newState.length < passcodeLength) {
                     newState = newState + key;
                 }
@@ -75,6 +79,8 @@ export const PasscodeInput = memo((
                         } catch (e) {
                             setIsWrong(true);
                         }
+
+                        clearTimeout(cleanupTimerIdRef.current);
                         cleanupTimerIdRef.current = setTimeout(() => {
                             setPasscode('');
                             setIsWrong(false);
@@ -83,33 +89,8 @@ export const PasscodeInput = memo((
                 }
                 return newState;
             });
-        } else {
-            clearTimeout(cleanupTimerIdRef.current);
-            setIsWrong(false);
-            setPasscode(() => {
-                let newState = '';
-                if (/\d/.test(key)) {
-                    if (newState.length < passcodeLength) {
-                        newState = newState + key;
-                    }
-                    if (newState.length === passcodeLength) {
-                        (async () => {
-                            try {
-                                await onEntered(newState);
-                            } catch (e) {
-                                setIsWrong(true);
-                            }
-                            cleanupTimerIdRef.current = setTimeout(() => {
-                                setPasscode('');
-                                setIsWrong(false);
-                            }, 1500);
-                        })();
-                    }
-                }
-                return newState;
-            });
         }
-    }, [passcodeLength, passcode]);
+    }, [passcodeLength, passcode, isWrong]);
 
     useEffect(() => {
         setPasscode('');

@@ -101,18 +101,7 @@ export const PasscodeChange = memo(() => {
                             if (!pass) {
                                 throw new Error('Passcode is required');
                             }
-                            try {
-                                await loadWalletKeys(acc.secretKeyEnc, pass);
-                            } catch (e) {
-                                if (e instanceof SecureAuthenticationCancelledError) {
-                                    Alert.alert(
-                                        t('security.auth.canceled.title'),
-                                        t('security.auth.canceled.message'),
-                                        [{ text: t('common.ok') }]
-                                    );
-                                    throw e;
-                                }
-                            }
+                            await loadWalletKeys(acc.secretKeyEnc, pass);
                             dispatch({ type: 'input', input: '', prev: pass });
                         }}
                     />

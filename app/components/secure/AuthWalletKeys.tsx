@@ -148,7 +148,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     return await new Promise<WalletKeys>((resolve, reject) => {
                         if (Platform.OS === 'ios') {
                             if (passcodeState === PasscodeState.Set) {
-                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, useBiometrics: true, ...style, passcodeLength } });
                             } else {
                                 reject();
                             }
@@ -162,7 +162,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                         {
                                             text: t('security.auth.biometricsSetupAgain.authenticate'),
                                             onPress: () => {
-                                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, useBiometrics: true, ...style, passcodeLength } });
                                             }
                                         }
                                     ]
@@ -243,7 +243,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 // Retry with passcode
                 if (passcodeState === PasscodeState.Set) {
                     return new Promise<WalletKeys>((resolve, reject) => {
-                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                        setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, useBiometrics: true, ...style, passcodeLength } });
                     });
                 }
             }
@@ -251,7 +251,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
         if (passcodeState === PasscodeState.Set) {
             return new Promise<WalletKeys>((resolve, reject) => {
-                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
+                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics: false, passcodeLength } });
             });
         }
 
@@ -276,7 +276,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             if (passcodeState !== PasscodeState.Set) {
                 reject();
             }
-            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { ...style, useBiometrics: false, passcodeLength } });
+            setAuth({ returns: 'keysWithPasscode', promise: { resolve, reject }, params: { showResetOnMaxAttempts: true, ...style, useBiometrics: false, passcodeLength } });
         });
     }, [auth]);
 
@@ -348,15 +348,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 } else {
                                     auth.promise.resolve(keys);
                                 }
-                            } catch (e) {
-                                if (e instanceof SecureAuthenticationCancelledError) {
-                                    Alert.alert(
-                                        t('security.auth.canceled.title'),
-                                        t('security.auth.canceled.message'),
-                                        [{ text: t('common.ok') }]
-                                    );
-                                    throw e;
-                                }
+                            } catch {
                                 setAttempts(attempts + 1);
 
                                 // Every 5 tries
@@ -395,11 +387,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                         setAuth(null);
                                     } catch (e) {
                                         if (e instanceof SecureAuthenticationCancelledError) {
-                                            Alert.alert(
-                                                t('security.auth.canceled.title'),
-                                                t('security.auth.canceled.message'),
-                                                [{ text: t('common.ok') }]
-                                            );
+                                            return;
                                         } else {
                                             Alert.alert(t('secure.onBiometricsError'));
                                             warn('Failed to load wallet keys');

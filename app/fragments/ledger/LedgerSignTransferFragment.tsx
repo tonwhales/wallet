@@ -343,6 +343,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                         throw Error('Invalid domain');
                     }
 
+                    domain = domain.toLowerCase();
+
                     const valid = validateDomain(domain);
                     if (!valid) {
                         throw Error('Invalid domain');

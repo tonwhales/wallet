@@ -73,8 +73,8 @@ export function canUpgradeAppState(): boolean {
     let jstate: any = null;
     try {
         jstate = JSON.parse(state);
-    } catch (e) {
-        warn(e);
+    } catch {
+        warn('Failed to parse app state');
         return false;
     }
 
@@ -102,8 +102,7 @@ export async function doUpgrade(isTestnet: boolean) {
     let jstate: any = null;
     try {
         jstate = JSON.parse(state);
-    } catch (e) {
-        warn(e);
+    } catch {
         return;
     }
 
@@ -155,8 +154,8 @@ export function getAppState(): AppState {
     let jstate: any = null;
     try {
         jstate = JSON.parse(state);
-    } catch (e) {
-        warn(e);
+    } catch {
+        warn('Failed to parse app state');
         return { addresses: [], selected: -1 };
     }
     const parsed = parseAppState(jstate);
@@ -214,8 +213,8 @@ export function getBackup(): { address: Address, secretKeyEnc: Buffer } {
     let jstate: any = null;
     try {
         jstate = JSON.parse(state);
-    } catch (e) {
-        warn(e);
+    } catch {
+        warn('Failed to parse app state');
         throw Error('No keys');
     }
 

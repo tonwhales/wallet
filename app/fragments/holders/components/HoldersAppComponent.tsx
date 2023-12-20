@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
+import { Linking, Platform, View, BackHandler, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -14,9 +14,7 @@ import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { HoldersParams, extractHoldersQueryParams } from '../utils';
-import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { getLocales } from 'react-native-localize';
-import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
@@ -431,8 +429,8 @@ export const HoldersAppComponent = memo((
                     openWithInApp(data.args.url);
                     return;
                 }
-            } catch (e) {
-                console.warn(e);
+            } catch {
+                warn('Failed to open url');
             }
         }
         if (data.name === 'closeApp') {
@@ -445,8 +443,8 @@ export const HoldersAppComponent = memo((
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch (e) {
-                warn(e);
+            } catch {
+                warn('Failed to execute inject engine operation');
             }
             dispatchResponse(webRef, { id, data: res });
         })();
@@ -471,9 +469,7 @@ export const HoldersAppComponent = memo((
                 openWithInApp(url);
                 return;
             }
-        } catch (e) {
-            warn(e);
-        }
+        } catch  {}
     }, []);
 
     const onNavigation = useCallback((url: string) => {

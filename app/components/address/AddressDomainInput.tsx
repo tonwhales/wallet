@@ -75,6 +75,8 @@ export const AddressDomainInput = memo(forwardRef(({
             ? toResolve.slice(0, toResolve.length - 4)
             : toResolve.slice(0, toResolve.length - 5);
 
+        domain = domain.toLowerCase();
+
         const valid = validateDomain(domain);
 
         if (!valid) {

@@ -6,14 +6,14 @@ import { t } from "../i18n/t";
 import { useNetwork, useTheme } from "../engine/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PasscodeInput } from "../components/passcode/PasscodeInput";
-import { sharedStoragePersistence, storage, storagePersistence } from "../storage/storage";
-import { queryClient } from "../engine/clients";
+import { storage } from "../storage/storage";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { getCurrentAddress } from "../storage/appState";
 import { SecureAuthenticationCancelledError, loadWalletKeys } from "../storage/walletKeys";
 import { BiometricsState, getBiometricsState, passcodeLengthKey } from "../storage/secureStorage";
 import { Alert, View } from "react-native";
 import { warn } from "../utils/log";
+import { useLogoutAndReset } from "../engine/hooks/accounts/useLogoutAndReset";
 
 export const AppStartAuthFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -23,22 +23,9 @@ export const AppStartAuthFragment = fragment(() => {
     const { showActionSheetWithOptions } = useActionSheet();
     const biometricsState = getBiometricsState();
     const useBiometrics = (biometricsState === BiometricsState.InUse);
+    const logOutAndReset = useLogoutAndReset();
 
     const [attempts, setAttempts] = useState(0);
-
-    const onFullReset = useCallback(() => {
-        // clear storage
-        storage.clearAll();
-        sharedStoragePersistence.clearAll();
-        storagePersistence.clearAll();
-
-        // cancel running queries and clear query cache
-        queryClient.cancelQueries();
-        queryClient.clear();
-
-        // navigate to welcome screen
-        navigation.navigateAndReplaceAll('Welcome');
-    }, []);
 
     const fullResetActionSheet = useCallback(() => {
         const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
@@ -54,7 +41,8 @@ export const AppStartAuthFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onFullReset();
+                    logOutAndReset();
+                    navigation.navigateAndReplaceAll('Welcome');
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -62,7 +50,7 @@ export const AppStartAuthFragment = fragment(() => {
                     break;
             }
         });
-    }, [onFullReset]);
+    }, [logOutAndReset]);
 
     const onConfirmed = useCallback(() => {
         const route = resolveOnboarding(network.isTestnet, false);
@@ -96,17 +84,8 @@ export const AppStartAuthFragment = fragment(() => {
                         await loadWalletKeys(acc.secretKeyEnc, pass);
                         onConfirmed();
                     } catch (e) {
-                        if (e instanceof SecureAuthenticationCancelledError) {
-                            Alert.alert(
-                                t('security.auth.canceled.title'),
-                                t('security.auth.canceled.message'),
-                                [{ text: t('common.ok') }]
-                            );
-                            throw e;
-                        } else {
-                            setAttempts(attempts + 1);
-                            throw Error('Failed to load keys');
-                        }
+                        setAttempts(attempts + 1);
+                        throw Error('Failed to load keys');
                     }
                 }}
                 onMount={useBiometrics
@@ -115,7 +94,7 @@ export const AppStartAuthFragment = fragment(() => {
                             const acc = getCurrentAddress();
                             await loadWalletKeys(acc.secretKeyEnc);
                             onConfirmed();
-                        } catch (e) { 
+                        } catch (e) {
                             if (e instanceof SecureAuthenticationCancelledError) {
                                 Alert.alert(
                                     t('security.auth.canceled.title'),

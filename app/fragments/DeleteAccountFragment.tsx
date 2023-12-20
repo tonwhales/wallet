@@ -68,6 +68,7 @@ export const DeleteAccountFragment = fragment(() => {
 
     const onDeleteAccount = useCallback(() => {
         let ended = false;
+        Keyboard.dismiss();
 
         backoff('delete_account', async () => {
             if (ended) {

@@ -295,6 +295,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             switch (selectedIndex) {
                 case 1:
                     logOutAndReset();
+                    navigation.navigateAndReplaceAll('Welcome');
                     break;
                 case cancelButtonIndex:
                 // Canceled

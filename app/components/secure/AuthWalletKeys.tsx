@@ -8,13 +8,12 @@ import { PasscodeState, getBiometricsState, BiometricsState, getPasscodeState, p
 import { getAppState, getCurrentAddress } from '../../storage/appState';
 import { warn } from '../../utils/log';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { sharedStoragePersistence, storage, storagePersistence } from '../../storage/storage';
+import { storage } from '../../storage/storage';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSelectedAccount, useTheme } from '../../engine/hooks';
-import { queryClient } from '../../engine/clients';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
 
@@ -147,83 +146,74 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             } catch (e) {
                 if (e instanceof SecureAuthenticationCancelledError) {
                     return await new Promise<WalletKeys>((resolve, reject) => {
-                        Alert.alert(
-                            t('security.auth.canceled.title'),
-                            t('security.auth.canceled.message'),
-                            passcodeState === PasscodeState.Set
-                                ? [
-                                    { text: t('common.ok'), onPress: reject },
-                                    {
-                                        text: t('security.auth.biometricsSetupAgain.authenticate'),
-                                        onPress: () => {
-                                            setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                        if (Platform.OS === 'ios') {
+                            if (passcodeState === PasscodeState.Set) {
+                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                            } else {
+                                reject();
+                            }
+                        } else {
+                            Alert.alert(
+                                t('security.auth.canceled.title'),
+                                t('security.auth.canceled.message'),
+                                passcodeState === PasscodeState.Set
+                                    ? [
+                                        { text: t('common.ok'), onPress: reject },
+                                        {
+                                            text: t('security.auth.biometricsSetupAgain.authenticate'),
+                                            onPress: () => {
+                                                setAuth({ returns: 'keysOnly', promise: { resolve, reject }, params: { useBiometrics: true, ...style, passcodeLength } });
+                                            }
                                         }
-                                    }
-                                ]
-                                : [{ text: t('common.ok'), onPress: reject  }]
-                        );
+                                    ]
+                                    : [{ text: t('common.ok'), onPress: reject }]
+                            );
+                        }
                     });
                 }
                 const premissionsRes = await checkBiometricsPermissions(passcodeState);
                 if (premissionsRes === 'biometrics-permission-check') {
-                    await new Promise<void>(resolve => {
-                        Alert.alert(
-                            t('security.auth.biometricsPermissionCheck.title'),
-                            t('security.auth.biometricsPermissionCheck.message'),
-                            [
-                                {
-                                    text: passcodeState === PasscodeState.Set
-                                        ? t('security.auth.biometricsPermissionCheck.authenticate')
-                                        : t('common.cancel'),
-                                    onPress: () => resolve()
-                                },
-                                {
-                                    text: t('security.auth.biometricsPermissionCheck.openSettings'),
-                                    onPress: () => {
-                                        resolve();
-                                        openSettings()
-                                    }
-                                }
-                            ]
-                        );
-                    });
+                    Alert.alert(
+                        t('security.auth.biometricsPermissionCheck.title'),
+                        t('security.auth.biometricsPermissionCheck.message'),
+                        [
+                            {
+                                text: passcodeState === PasscodeState.Set
+                                    ? t('security.auth.biometricsPermissionCheck.authenticate')
+                                    : t('common.cancel'),
+                            },
+                            {
+                                text: t('security.auth.biometricsPermissionCheck.openSettings'),
+                                onPress: openSettings
+                            }
+                        ]
+                    );
                 } else if (premissionsRes === 'biometrics-setup-again' && !style?.isAppStart) {
-                    const isSetup = await new Promise<boolean>(resolve => {
+                    await new Promise<void>(resolve => {
                         Alert.alert(
                             t('security.auth.biometricsSetupAgain.title'),
                             t('security.auth.biometricsSetupAgain.message'),
                             [
                                 {
                                     text: t('security.auth.biometricsSetupAgain.authenticate'),
-                                    onPress: () => resolve(false)
+                                    onPress: () => resolve()
                                 },
                                 {
                                     text: t('security.auth.biometricsSetupAgain.setup'),
                                     onPress: () => {
-                                        resolve(false);
+                                        resolve();
                                         navigation.navigate('BiometricsSetup');
                                     }
                                 }
                             ]
                         );
                     });
-
-                    if (isSetup) {
-                        throw Error('Setting up biometrics');
-                    }
                 } else if (premissionsRes === 'biometrics-cooldown') {
-                    await new Promise<void>(resolve => {
-                        Alert.alert(
-                            t('security.auth.biometricsCooldown.title'),
-                            t('security.auth.biometricsCooldown.message'),
-                            [
-                                {
-                                    text: t('common.ok'),
-                                    onPress: () => resolve()
-                                },
-                            ]
-                        );
-                    });
+                    Alert.alert(
+                        t('security.auth.biometricsCooldown.title'),
+                        t('security.auth.biometricsCooldown.message'),
+                        [{ text: t('common.ok') }]
+                    );
                 } else if (premissionsRes === 'corrupted') {
                     const appState = getAppState();
                     await new Promise<void>(resolve => {
@@ -247,6 +237,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                             ]
                         );
                     });
+                    throw Error('Failed to load keys, reason: storage corrupted');
                 }
 
                 // Retry with passcode
@@ -289,20 +280,6 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         });
     }, [auth]);
 
-    const onFullReset = useCallback(() => {
-        // clear storage
-        storage.clearAll();
-        sharedStoragePersistence.clearAll();
-        storagePersistence.clearAll();
-
-        // cancel running queries and clear query cache
-        queryClient.cancelQueries();
-        queryClient.clear();
-
-        // navigate to welcome screen
-        navigation.navigateAndReplaceAll('Welcome');
-    }, []);
-
     const fullResetActionSheet = useCallback(() => {
         const options = [t('common.cancel'), t('deleteAccount.logOutAndDelete')];
         const destructiveButtonIndex = 1;
@@ -317,7 +294,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    onFullReset();
+                    logOutAndReset();
                     break;
                 case cancelButtonIndex:
                 // Canceled
@@ -325,7 +302,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     break;
             }
         });
-    }, [onFullReset]);
+    }, [logOutAndReset]);
 
     useEffect(() => {
         setAttempts(0);

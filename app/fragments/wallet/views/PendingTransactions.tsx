@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { memo } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
@@ -17,7 +17,7 @@ import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
-import { useSetRecoilState } from "recoil";
+import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSelectedAccount } from "../../../engine/hooks";
 
 const PendingTransactionView = memo(({
@@ -35,6 +35,7 @@ const PendingTransactionView = memo(({
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const navigation = useTypedNavigation();
     const body = tx.body;
     const targetFriendly = body?.type === 'token' ? body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
@@ -69,15 +70,19 @@ const PendingTransactionView = memo(({
             entering={FadeInDown}
             exiting={FadeOutUp}
             style={{
-                paddingHorizontal: 20, paddingVertical: 20, paddingBottom: tx.body?.type === 'comment' ? 0 : undefined
+                paddingHorizontal: 20, paddingVertical: 20,
+                maxHeight: 86
             }}
         >
-            <View style={{
-                alignSelf: 'stretch',
-                flexDirection: 'row',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
+            <Pressable
+                style={{
+                    alignSelf: 'stretch',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}
+                onPress={() => navigation.navigate('PendingTransaction', { transaction: tx })}
+            >
                 <View style={{
                     width: 46, height: 46,
                     borderRadius: 23,
@@ -170,7 +175,7 @@ const PendingTransactionView = memo(({
                         />
                     )}
                 </View>
-            </View>
+            </Pressable>
             {!last && !single && (
                 <ItemDivider />
             )}

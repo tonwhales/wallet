@@ -339,15 +339,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                             } catch {
                                 setAttempts(attempts + 1);
 
-                                // Every 5 tries
-                                if (
-                                    attempts > 0 &&
-                                    attempts % 5 === 0
-                                ) {
-                                    auth.promise.reject();
-                                    setAuth(null);
-                                    return;
-                                }
+                                // TODO: think about destroying keys after 30 attempts
 
                                 throw Error('Failed to load keys');
                             }
@@ -357,8 +349,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         }}
                         onLogoutAndReset={
                             (auth.params?.showResetOnMaxAttempts
-                                && attempts > 0
-                                && attempts % 5 === 0
+                                && attempts > 5
                             )
                                 ? fullResetActionSheet
                                 : undefined

@@ -1,7 +1,7 @@
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { StyleProp, View, ViewStyle, Text, Platform, Pressable, Image } from "react-native";
 import { PasscodeSteps } from "./PasscodeSteps";
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
@@ -39,6 +39,7 @@ export const PasscodeInput = memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = useState(false);
+    const [cleanupTimerId, setCleanupTimerId] = useState<NodeJS.Timeout | undefined>(undefined);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -57,6 +58,7 @@ export const PasscodeInput = memo((
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         if (key === PasscodeKey.LeftActionKey && !!onRetryBiometrics) {
             onRetryBiometrics();
+            return;
         }
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
@@ -73,22 +75,52 @@ export const PasscodeInput = memo((
                         } catch (e) {
                             setIsWrong(true);
                         }
-                        setTimeout(() => {
+                        setCleanupTimerId(setTimeout(() => {
                             setPasscode('');
                             setIsWrong(false);
-                        }, 1500);
+                        }, 1500));
                     })();
                 }
                 return newState;
             });
+        } else {
+            clearTimeout(cleanupTimerId);
+            setIsWrong(false);
+            setPasscode(() => {
+                let newState = '';
+                if (/\d/.test(key)) {
+                    if (newState.length < passcodeLength) {
+                        newState = newState + key;
+                    }
+                    if (newState.length === passcodeLength) {
+                        (async () => {
+                            try {
+                                await onEntered(newState);
+                            } catch (e) {
+                                setIsWrong(true);
+                            }
+                            setCleanupTimerId(setTimeout(() => {
+                                setPasscode('');
+                                setIsWrong(false);
+                            }, 1500));
+                        })();
+                    }
+                }
+                return newState;
+            });
         }
-    }, [passcodeLength, passcode]);
+    }, [passcodeLength, passcode, cleanupTimerId]);
 
     useEffect(() => {
         setPasscode('');
+        cancelAnimation(translate);
+        translate.value = 0;
+        setIsWrong(false);
     }, [passcodeLength]);
 
     useEffect(() => {
+        cancelAnimation(translate);
+        translate.value = 0;
         if (isWrong) {
             doShake();
         }

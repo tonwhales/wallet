@@ -270,7 +270,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
 
     return (
         <TransferSingleView

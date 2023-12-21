@@ -104,7 +104,8 @@ export const BiometricsSetupFragment = systemFragment(() => {
             flexGrow: 1,
             backgroundColor: theme.elevation,
             justifyContent: 'center',
-            alignContent: 'center'
+            alignContent: 'center',
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
             <ScreenHeader
                 onClosePressed={navigation.goBack}
@@ -160,13 +161,15 @@ export const BiometricsSetupFragment = systemFragment(() => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={{
-                flexGrow: 1,
-                marginHorizontal: 16,
-                alignSelf: 'stretch',
-                justifyContent: 'center',
-                paddingBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
-            }}>
+            <View style={[
+                {
+                    flexGrow: 1,
+                    marginHorizontal: 16,
+                    alignSelf: 'stretch',
+                    justifyContent: 'center',
+                },
+                Platform.select({ ios: { paddingBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom } })
+            ]}>
                 <RoundButton
                     onPress={onClick}
                     title={buttonText}

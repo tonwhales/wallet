@@ -34,9 +34,7 @@ export const WelcomeFragment = systemFragment(() => {
             backgroundColor: theme.backgroundPrimary,
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            <ScrollView bounces={false}>
-                <WelcomeSlider style={{ paddingTop: safeArea.top }} />
-            </ScrollView>
+            <WelcomeSlider style={{ paddingTop: safeArea.top }} />
             <View style={{
                 width: '100%',
                 justifyContent: 'space-between',

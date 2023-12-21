@@ -13,6 +13,7 @@ import { memo, useCallback, useState } from 'react';
 import { Mixpanel } from 'mixpanel-react-native';
 import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
+import { ThemeProvider } from './engine/ThemeContext';
 
 const PERSISTANCE_VERSION = '16';
 
@@ -49,11 +50,13 @@ export const Root = memo(() => {
                         client={queryClient}
                     >
                         <RecoilRoot>
-                            <AddressBookLoader>
-                                <LedgerTransportProvider>
-                                    <Navigation />
-                                </LedgerTransportProvider>
-                            </AddressBookLoader>
+                            <ThemeProvider>
+                                <AddressBookLoader>
+                                    <LedgerTransportProvider>
+                                        <Navigation />
+                                    </LedgerTransportProvider>
+                                </AddressBookLoader>
+                            </ThemeProvider>
                         </RecoilRoot>
                     </PersistQueryClientProvider>
                 </RebootContext.Provider>

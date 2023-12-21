@@ -226,7 +226,7 @@ export const WalletWordsComponent = React.memo((props: {
                         alignSelf: 'center',
                         marginTop: 16, marginHorizontal: 16,
                         fontWeight: '600', fontSize: 32, lineHeight: 38,
-                        color: theme.textPrimary,
+                        color: theme.textPrimary, textAlign: 'center'
                     }}>
                         {t('import.title')}
                     </Text>

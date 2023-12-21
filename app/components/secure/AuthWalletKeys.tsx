@@ -13,7 +13,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { PERMISSIONS, check, openSettings, request } from 'react-native-permissions';
 import * as LocalAuthentication from 'expo-local-authentication'
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useBiometricsState, useSelectedAccount, useSetBiometricsState, useTheme } from '../../engine/hooks';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
 
@@ -63,7 +63,7 @@ export async function checkBiometricsPermissions(passcodeState: PasscodeState | 
 
     if (storageType === 'key-store') { // Android Only
         if (passcodeState === PasscodeState.Set) {
-            return 'biometrics-setup-again';
+            return 'biometrics-setup-again'; // TODO: is it correct if we want to use old key-store?
         } else {
             return 'corrupted';
         }
@@ -118,6 +118,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
     const theme = useTheme();
     const acc = useSelectedAccount();
     const logOutAndReset = useLogoutAndReset();
+    const biometricsState = useBiometricsState();
+    const setBiometricsState = useSetBiometricsState();
 
     const [auth, setAuth] = useState<AuthProps | null>(null);
     const [attempts, setAttempts] = useState(0);
@@ -171,7 +173,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                     }
                     //  Biometrics permission is granted but corrupted or not set up
                     else if (premissionsRes === 'biometrics-setup-again') {
-                        // ask to setup again, if not - fallback to passcode
+                        // ask to setup again, but fallback to passcode and reset biometrics
+                        setBiometricsState(BiometricsState.NotSet);
                         Alert.alert(
                             t('security.auth.biometricsSetupAgain.title'),
                             t('security.auth.biometricsSetupAgain.message'),
@@ -179,12 +182,6 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 {
                                     text: t('security.auth.biometricsSetupAgain.authenticate'),
                                 },
-                                {
-                                    text: t('security.auth.biometricsSetupAgain.setup'),
-                                    onPress: () => {
-                                        navigation.navigate('BiometricsSetup');
-                                    }
-                                }
                             ]
                         );
                     }
@@ -349,7 +346,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                         }
                         passcodeLength={auth.params?.passcodeLength}
                         onRetryBiometrics={
-                            (auth.params?.useBiometrics && auth.returns === 'keysOnly')
+                            (auth.params?.useBiometrics && auth.returns === 'keysOnly' && biometricsState === BiometricsState.InUse)
                                 ? async () => {
                                     try {
                                         const acc = getCurrentAddress();

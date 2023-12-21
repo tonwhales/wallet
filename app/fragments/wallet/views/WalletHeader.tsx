@@ -98,7 +98,7 @@ export const WalletHeader = memo(() => {
                             style={{
                                 fontWeight: '500',
                                 fontSize: 17, lineHeight: 24,
-                                color: theme.textOnsurfaceOnDark, flexShrink: 1,
+                                color: theme.textPrimary, flexShrink: 1,
                                 marginRight: 8
                             }}
                             ellipsizeMode='tail'
@@ -109,7 +109,7 @@ export const WalletHeader = memo(() => {
                         {syncState === 'updating' && (
                             <ReAnimatedCircularProgress
                                 size={14}
-                                color={theme.textOnsurfaceOnDark}
+                                color={theme.textPrimary}
                                 reverse
                                 infinitRotate
                                 progress={0.8}
@@ -144,7 +144,7 @@ export const WalletHeader = memo(() => {
                             style={{
                                 height: 22,
                                 width: 22,
-                                tintColor: theme.iconUnchangeable
+                                tintColor: theme.iconPrimary
                             }}
                         />
                     </Pressable>

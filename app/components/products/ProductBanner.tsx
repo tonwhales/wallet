@@ -1,8 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import { View, Text, ImageSourcePropType, Image, Pressable, StyleProp, ViewStyle } from "react-native";
 import { useTheme } from "../../engine/hooks";
 
-export const ProductBanner = React.memo((props: {
+export const ProductBanner = memo((props: {
     onPress?: () => void,
     title: string,
     subtitle?: string,
@@ -21,7 +21,7 @@ export const ProductBanner = React.memo((props: {
                     {
                         opacity: pressed ? 0.5 : 1,
                         height: 106,
-                        backgroundColor: theme.surfaceOnElevation,
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,
                     },
                     props.style
@@ -34,7 +34,7 @@ export const ProductBanner = React.memo((props: {
                         height: 74, width: 96,
                         justifyContent: 'center', alignItems: 'center',
                         overflow: 'hidden',
-                        backgroundColor: theme.surfaceOnElevation,
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 10
                     }, props.illustrationStyle]}>
                         <Image resizeMode={'contain'} source={props.illustration} style={{ height: 74, width: 96 }} />

@@ -35,7 +35,7 @@ const CardItemWrapper = memo(({
     return (
         <Animated.View style={[
             { zIndex: 98 - index, marginTop: 16 },
-            animatedStyle
+            animatedStyle,
         ]}>
             {item}
         </Animated.View>
@@ -99,7 +99,8 @@ export const CollapsibleCards = memo(({
             [0, 1],
             [-66, 16 + itemHeight - 86],
             Extrapolation.CLAMP
-        )
+        ), 
+        borderRadius: progress.value === 0 ? 20 : 0
     }));
 
     const cardThirdLevelStyle = useAnimatedStyle(() => ({
@@ -120,7 +121,8 @@ export const CollapsibleCards = memo(({
             [0, 1],
             [-58, 16],
             Extrapolation.CLAMP
-        )
+        ),
+        borderRadius: progress.value === 0 ? 20 : 0
     }));
 
     const titleStyle = useAnimatedStyle(() => ({
@@ -220,10 +222,8 @@ export const CollapsibleCards = memo(({
                         {
                             height: itemHeight,
                             marginHorizontal: 16,
-                            borderRadius: 20,
                             overflow: 'hidden',
                             alignSelf: 'center',
-                            backgroundColor: theme.surfaceOnElevation
                         },
                         cardSecondLevelStyle,
                         { zIndex: 100 },
@@ -241,6 +241,7 @@ export const CollapsibleCards = memo(({
                             {
                                 backgroundColor: theme.cardStackSecond,
                                 position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+                                borderRadius: 20
                             },
                             cardLevelOpacity
                         ]}
@@ -251,7 +252,6 @@ export const CollapsibleCards = memo(({
                         {
                             height: itemHeight,
                             marginHorizontal: 16,
-                            borderRadius: 20,
                             overflow: 'hidden',
                             alignSelf: 'center'
                         },
@@ -265,6 +265,7 @@ export const CollapsibleCards = memo(({
                             {
                                 backgroundColor: theme.cardStackThird,
                                 position: 'absolute', left: 0, right: 0, top: 0, bottom: 0,
+                                borderRadius: 20
                             },
                             cardLevelOpacity
                         ]}

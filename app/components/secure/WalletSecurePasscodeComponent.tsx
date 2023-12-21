@@ -176,6 +176,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                             onPress: () => {
                                                 resolve();
                                                 logOutAndReset();
+                                                navigation.navigateAndReplaceAll('Welcome');
                                             },
                                             style: 'destructive'
                                         },

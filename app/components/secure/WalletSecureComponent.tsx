@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Alert, Platform, View, Text, Image, ScrollView } from 'react-native';
-import { BiometricsState, encryptAndStoreAppKeyWithBiometrics, storeBiometricsState } from '../../storage/secureStorage';
+import { BiometricsState, encryptAndStoreAppKeyWithBiometrics } from '../../storage/secureStorage';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import { RoundButton } from '../RoundButton';
 import { t } from '../../i18n/t';
 import { warn } from '../../utils/log';
 import { memo, useCallback, useState } from 'react';
 import { useDimensions } from '@react-native-community/hooks';
-import { useTheme } from '../../engine/hooks';
+import { useSetBiometricsState, useTheme } from '../../engine/hooks';
 import { ThemeStyle } from '../../engine/state/theme';
 import { ScreenHeader } from '../ScreenHeader';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -24,13 +24,14 @@ export const WalletSecureComponent = memo((props: {
     const theme = useTheme();
     // Action
     const [loading, setLoading] = useState(false);
+    const setBiometricsState = useSetBiometricsState();
     const onClick = useCallback(() => {
         (async () => {
             setLoading(true);
             try {
                 await encryptAndStoreAppKeyWithBiometrics(props.passcode);
                 // Save default state to Use biometrics
-                storeBiometricsState(BiometricsState.InUse);
+                setBiometricsState(BiometricsState.InUse);
 
                 props.callback(true);
             } catch (e) {
@@ -110,17 +111,6 @@ export const WalletSecureComponent = memo((props: {
                     flexGrow: 1,
                 }}>
                     <View style={{ paddingHorizontal: 16 }}>
-                        <View style={{
-                            justifyContent: 'center', alignItems: 'center',
-                            aspectRatio: 0.92,
-                            width: dimensions.screen.width - 32,
-                        }}>
-                            <Image
-                                resizeMode={'contain'}
-                                style={{ width: dimensions.screen.width - 32 }}
-                                source={imgSource}
-                            />
-                        </View>
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
                             fontWeight: '600',
@@ -148,6 +138,17 @@ export const WalletSecureComponent = memo((props: {
                         >
                             {text}
                         </Text>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            aspectRatio: 0.92,
+                            width: dimensions.screen.width - 32,
+                        }}>
+                            <Image
+                                resizeMode={'contain'}
+                                style={{ width: dimensions.screen.width - 32 }}
+                                source={imgSource}
+                            />
+                        </View>
                     </View>
                 </View>
             </ScrollView>

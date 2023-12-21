@@ -12,7 +12,6 @@ import { AddressSearch } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 
-import IcSpamNonen from '@assets/ic-spam-none.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
 type TransferAddressInputProps = {
@@ -230,13 +229,6 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             index={props.index}
                             ref={ref}
                             onFocus={props.onFocus}
-                            style={{ paddingHorizontal: 16, flexGrow: 1 }}
-                            inputStyle={{
-                                flexShrink: 1,
-                                fontSize: 17, fontWeight: '400',
-                                color: props.theme.textPrimary,
-                                textAlignVertical: 'center',
-                            }}
                             isKnown={isKnown}
                             onSubmit={props.onSubmit}
                             contact={contact}

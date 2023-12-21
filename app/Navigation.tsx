@@ -84,6 +84,7 @@ import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransfe
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
 import { ProductsFragment } from './fragments/wallet/ProductsFragment';
+import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -187,6 +188,7 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
     genericScreen('BackupIntro', BackupIntroFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
 
@@ -247,8 +249,6 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
-    modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
-    modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 

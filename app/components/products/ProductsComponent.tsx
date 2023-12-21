@@ -95,7 +95,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         flexDirection: 'row', flexGrow: 1,
                         alignItems: 'center',
                         padding: 20,
-                        backgroundColor: theme.surfaceOnElevation,
+                        backgroundColor: theme.surfaceOnBg,
                         borderRadius: 20,
                         overflow: 'hidden'
                     },
@@ -107,7 +107,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                             justifyContent: 'center', alignItems: 'center',
                             height: 20, width: 20, borderRadius: 10,
                             position: 'absolute', right: -2, bottom: -2,
-                            backgroundColor: theme.surfaceOnElevation
+                            backgroundColor: theme.surfaceOnBg
                         }}>
                             <Image
                                 source={require('@assets/ic-verified.png')}

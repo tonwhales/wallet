@@ -11,6 +11,7 @@ import LottieView from 'lottie-react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { openWithInApp } from "../../../utils/openWithInApp";
 import { ScreenHeader } from "../../../components/ScreenHeader";
+import { Typography } from "../../../components/styles";
 
 export const WebViewErrorComponent = memo(({
     errorDomain,
@@ -56,6 +57,7 @@ export const WebViewErrorComponent = memo(({
                     width: '100%',
                     flexGrow: 1,
                     alignItems: 'center',
+                    justifyContent: 'center',
                     paddingTop: 46, paddingBottom: safeArea.bottom,
                 }}>
                     {networkState.isInternetReachable ? (
@@ -71,44 +73,39 @@ export const WebViewErrorComponent = memo(({
                             source={require('@assets/ic-no-internet.png')}
                         />
                     )}
-                    <Text style={{
-                        color: theme.textPrimary,
-                        fontSize: 32, lineHeight: 38,
-                        fontWeight: '600',
-                        marginBottom: 8
-                    }}>
+                    <Text style={[{ color: theme.textPrimary, textAlign: 'center' }, Typography.semiBold32_38]}>
                         {networkState.isInternetReachable ?
                             t('common.errorOccurred', { error: errorDesc, code: errorCode }) :
                             t('common.checkInternetConnection')
                         }
                     </Text>
-                    <Text style={{
+                    <Text style={[{
                         color: theme.textSecondary,
-                        fontSize: 17, lineHeight: 24,
-                        fontWeight: '400',
                         textAlign: 'center', marginTop: 12,
                         marginBottom: 20
-                    }}>
+                    }, Typography.regular17_24]}>
                         {!networkState.isInternetReachable
                             ? t('webView.checkInternetAndReload')
                             : t('webView.contactSupportOrTryToReload')
                         }
                     </Text>
-                    {networkState.isInternetReachable && (
+                    <View>
+                        {networkState.isInternetReachable && (
+                            <RoundButton
+                                style={{ marginBottom: 16 }}
+                                display={'secondary'}
+                                onPress={() => {
+                                    openWithInApp('https://t.me/WhalesSupportBot');
+                                }}
+                                title={t('webView.contactSupport')}
+                            />
+                        )}
                         <RoundButton
-                            style={{ marginBottom: 16 }}
-                            display={'secondary'}
-                            onPress={() => {
-                                openWithInApp('https://t.me/WhalesSupportBot');
-                            }}
-                            title={t('webView.contactSupport')}
+                            display={'default'}
+                            onPress={onReload}
+                            title={t('common.reload')}
                         />
-                    )}
-                    <RoundButton
-                        display={'default'}
-                        onPress={onReload}
-                        title={t('common.reload')}
-                    />
+                    </View>
                 </View>
             )
                 : (

@@ -17,6 +17,7 @@ import { StakingPoolMember } from "../../engine/types";
 import StakingIcon from '@assets/ic_staking.svg';
 import IcCheck from "@assets/ic-check.svg";
 import { ScreenHeader } from "../../components/ScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool: Address, onSelect: () => void }) => {
     const theme = useTheme();
@@ -180,6 +181,7 @@ export const StakingPoolSelectorFragment = fragment(() => {
             paddingBottom: 0,
             backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
         }}>
+            <StatusBar style={Platform.select({ ios: 'light', android: theme.style === 'dark' ? 'light' : 'dark' })} />
             {Platform.OS === 'android' && (
                 <ScreenHeader onClosePressed={navigation.goBack} />
             )}

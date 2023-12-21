@@ -1,5 +1,5 @@
 import React from "react"
-import { Platform, View, ScrollView, Image } from "react-native"
+import { Platform, View, ScrollView, Image, AppState } from "react-native"
 import { useSafeAreaInsets } from "react-native-safe-area-context"
 import { ItemButton } from "../components/ItemButton"
 import { fragment } from "../fragment"
@@ -30,13 +30,13 @@ export const SecurityFragment = fragment(() => {
     const theme = useTheme();
     const passcodeState = usePasscodeState();
     const biometricsState = useBiometricsState();
-    const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const setBiometricsState = useSetBiometricsState();
+    const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [lockAppWithAuthState, setLockAppWithAuthState] = useLockAppWithAuthState();
 
     const biometricsProps = useMemo(() => {
         if (passcodeState !== PasscodeState.Set) {
-            return null
+            return null;
         }
 
         let icon: any | undefined;
@@ -77,17 +77,31 @@ export const SecurityFragment = fragment(() => {
         return {
             icon,
             buttonText,
-            state: biometricsState,
         }
 
-    }, [biometricsState, deviceEncryption, passcodeState]);
+    }, [deviceEncryption, passcodeState]);
+
+    const [biometricsToggleValue, setBiometricsToggleValue] = useState<boolean>(biometricsState === BiometricsState.InUse);
 
     useEffect(() => {
-        (async () => {
-            const encryption = await getDeviceEncryption();
-            setDeviceEncryption(encryption);
-        })();
+        const updateDeviceEncryption = () => {
+            (async () => {
+                const encryption = await getDeviceEncryption();
+                setDeviceEncryption(encryption);
+            })();
+        };
+
+        let sub = AppState.addEventListener('change', updateDeviceEncryption);
+        updateDeviceEncryption();
+
+        return () => sub.remove();
     }, []);
+
+    // Update toggle if outer value updated
+    useEffect(() => {
+        setBiometricsToggleValue(biometricsState === BiometricsState.InUse);
+    }, [biometricsState]);
+
 
     return (
         <View style={{
@@ -140,7 +154,7 @@ export const SecurityFragment = fragment(() => {
                     )}
                     {(!passcodeState || passcodeState === PasscodeState.NotSet) && (
                         <ItemButton
-                            leftIcon={require('@assets/ic_passcode.png')}
+                            leftIcon={require('@assets/ic-change-passcode.png')}
                             title={t('security.passcodeSettings.setupTitle')}
                             onPress={() => navigation.navigate('PasscodeSetup')}
                         />
@@ -154,14 +168,16 @@ export const SecurityFragment = fragment(() => {
                 }}>
                     {biometricsProps && (
                         <>
-                            {!!biometricsProps.state && biometricsProps.state !== BiometricsState.NotSet && (
+                            {biometricsState !== BiometricsState.NotSet && (
                                 <ItemSwitch
                                     title={biometricsProps.buttonText}
-                                    value={biometricsProps.state === BiometricsState.InUse}
+                                    value={biometricsToggleValue}
                                     leftIconComponent={deviceEncryption === 'face' ? undefined : biometricsProps.icon}
                                     leftIcon={deviceEncryption === 'face' ? require('@assets/ic-secure-face.png') : undefined}
                                     onChange={async (newValue: boolean) => {
+                                        let oldValue = biometricsToggleValue;
                                         try {
+                                            setBiometricsToggleValue(newValue);
                                             if (newValue) {
                                                 await authContext.authenticateWithPasscode({ cancelable: true, backgroundColor: theme.elevation });
                                             } else {
@@ -169,12 +185,13 @@ export const SecurityFragment = fragment(() => {
                                             }
                                             setBiometricsState(newValue ? BiometricsState.InUse : BiometricsState.DontUse);
                                         } catch (e) {
+                                            setBiometricsToggleValue(oldValue);
                                             warn('Failed to authenticate with passcode');
                                         }
                                     }}
                                 />
                             )}
-                            {(!biometricsProps.state || biometricsProps.state === BiometricsState.NotSet) && (
+                            {(biometricsState === BiometricsState.NotSet) && (
                                 <ItemButton
                                     leftIconComponent={biometricsProps.icon}
                                     title={biometricsProps.buttonText}

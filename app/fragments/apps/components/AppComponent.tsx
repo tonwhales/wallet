@@ -181,8 +181,8 @@ export const AppComponent = memo((props: {
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch (e) {
-                warn(e);
+            } catch {
+                warn('Failed to execute inject engine operation');
             }
             dispatchResponse(webRef, { id, data: res });
         })();

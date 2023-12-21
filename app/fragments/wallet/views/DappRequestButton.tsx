@@ -151,7 +151,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
             />
             <View style={{
                 height: 10, width: 10,
-                backgroundColor: theme.surfaceOnElevation,
+                backgroundColor: theme.surfaceOnBg,
                 borderRadius: 5,
                 position: 'absolute', top: 0, right: 0,
                 justifyContent: 'center', alignItems: 'center'
@@ -173,7 +173,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
                 // TODO: add onLongPress={() => {}} to remove request
                 onPress={onPress}
                 extension={true}
-                style={{ marginVertical: 4, marginHorizontal: 10, backgroundColor: theme.surfaceOnElevation }}
+                style={{ marginVertical: 4, marginHorizontal: 10, backgroundColor: theme.surfaceOnBg }}
             />
             {props.divider && (
                 <View style={{

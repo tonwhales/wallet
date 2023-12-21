@@ -97,6 +97,7 @@ export const PasscodeSetup = memo((
         style,
         onBack,
         screenHeaderStyle,
+        forced,
         showToast,
     }: {
         description?: string,
@@ -107,6 +108,7 @@ export const PasscodeSetup = memo((
         style?: StyleProp<ViewStyle>,
         onBack?: () => void,
         screenHeaderStyle?: StyleProp<ViewStyle>,
+        forced?: boolean,
         showToast?: boolean,
     }) => {
     const navigation = useTypedNavigation();
@@ -145,17 +147,13 @@ export const PasscodeSetup = memo((
     return (
         <View style={[{ flexGrow: 1, width: '100%', height: '100%', }, style]}>
             <ScreenHeader
-                onBackPressed={() => {
-                    if (state.step === 're-enter') {
-                        dispatch({ type: 'input', input: '' });
-                        return;
-                    }
-                    if (onBack) {
-                        onBack();
-                    } else {
-                        navigation.base.goBack();
-                    }
-                }}
+                onBackPressed={
+                    state.step === 're-enter'
+                        ? () => dispatch({ type: 'input', input: '' })
+                        : forced
+                            ? undefined
+                            : onBack ?? navigation.base.goBack
+                }
                 style={[Platform.select({ android: { paddingHorizontal: 16 } }), screenHeaderStyle]}
                 rightButton={state.step === 'input' && !!onLater && (
                     <Pressable

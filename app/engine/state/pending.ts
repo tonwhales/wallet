@@ -1,11 +1,11 @@
-import { atom } from "recoil";
+import { atom, atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
 import { JettonMasterState } from "../metadata/fetchJettonMasterContent";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell }
     | { type: 'comment', comment: string }
-    | { type: 'token', amount: bigint, master: JettonMasterState, target: Address }
+    | { type: 'token', amount: bigint, master: JettonMasterState, target: Address, comment: string | null }
     | { type: 'batch' };
 
 export type PendingTransactionStatus = 'pending' | 'sent';
@@ -22,7 +22,7 @@ export type PendingTransaction = {
     status: PendingTransactionStatus
 };
 
-export const pendingTransactionsState = atom<PendingTransaction[]>({
+export const pendingTransactionsState = atomFamily<PendingTransaction[], string>({
     key: "pendingTransactionsState",
-    default: [],
+    default: (address) => [],
 });

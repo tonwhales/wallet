@@ -346,9 +346,8 @@ export const TransferBatch = memo((props: Props) => {
         if (callback) {
             try {
                 callback(true, transfer);
-            } catch (e) {
-                warn(e);
-                // Ignore on error
+            } catch {
+                warn('Failed to execute callback');
             }
         }
 
@@ -377,7 +376,7 @@ export const TransferBatch = memo((props: Props) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
 
     let appInfo = !!order.app && (
         <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>

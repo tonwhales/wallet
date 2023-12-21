@@ -73,8 +73,8 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
             showKeyboardAccessoryView,
             lockScroll
         }
-    } catch (error) {
-        warn(error);
+    } catch {
+        warn('Failed to extract holders query params');
         return { backPolicy: 'close' }
     }
 }

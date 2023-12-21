@@ -188,18 +188,14 @@ export const WalletBackupFragment = systemFragment(() => {
                         style={{ marginTop: 20 }}
                         onPress={() => {
                             try {
-                                if (Platform.OS === 'android') {
-                                    Clipboard.setString(mnemonics.join(' '));
-                                    ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
-                                    return;
-                                }
                                 Clipboard.setString(mnemonics.join(' '));
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                                 toaster.show(
                                     {
                                         message: t('common.copied'),
                                         type: 'default',
-                                        duration: ToastDuration.SHORT
+                                        duration: ToastDuration.SHORT,
+                                        marginBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 64 : safeArea.bottom + 64) : 16
                                     }
                                 );
                             } catch {

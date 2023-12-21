@@ -9,8 +9,6 @@ import { resolveUrl } from "../../../utils/resolveUrl";
 import { t } from "../../../i18n/t";
 import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
-import { CopilotStep } from "react-native-copilot";
-import { OnboadingView } from "../../../components/onboarding/CopilotTooltip";
 import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 
@@ -69,85 +67,74 @@ export const WalletHeader = memo(() => {
                     }}
                     onPress={() => navigation.navigate('WalletSettings')}
                 >
-                    <CopilotStep
-                        text={t('onboarding.avatar')}
-                        order={1}
-                        name={'firstStep'}
-                    >
-                        <OnboadingView style={{
-                            width: 32, height: 32,
-                            backgroundColor: theme.accent,
-                            borderRadius: 16
-                        }}>
-                            <Avatar
-                                id={address.toString({ testOnly: network.isTestnet })}
-                                size={32}
-                                borderWith={0}
-                                hash={walletSettings?.avatar}
-                                backgroundColor={theme.iconUnchangeable}
-                                theme={theme}
-                                isTestnet={network.isTestnet}
-                            />
-                        </OnboadingView>
-                    </CopilotStep>
+                    <View style={{
+                        width: 32, height: 32,
+                        backgroundColor: theme.accent,
+                        borderRadius: 16
+                    }}>
+                        <Avatar
+                            id={address.toString({ testOnly: network.isTestnet })}
+                            size={32}
+                            borderWith={0}
+                            hash={walletSettings?.avatar}
+                            backgroundColor={theme.iconUnchangeable}
+                            theme={theme}
+                            isTestnet={network.isTestnet}
+                        />
+                    </View>
                 </Pressable>
                 <Pressable
                     onPress={onAccountPress}
                     style={{ flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%' }}
                 >
-                    <CopilotStep
-                        text={t('onboarding.wallet')}
-                        order={2}
-                        name={'secondStep'}
-                    >
-                        <OnboadingView style={{
-                            flexDirection: 'row',
-                            backgroundColor: theme.surfaceOnDark,
-                            height: 32, borderRadius: 32,
-                            paddingHorizontal: 12, paddingVertical: 4,
-                            alignItems: 'center'
-                        }}>
-                            <Text
-                                style={{
-                                    fontWeight: '500',
-                                    fontSize: 17, lineHeight: 24,
-                                    color: theme.textOnsurfaceOnDark, flexShrink: 1,
-                                    marginRight: 8
-                                }}
-                                ellipsizeMode='tail'
-                                numberOfLines={1}
-                            >
-                                {walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
-                            </Text>
-                            {syncState === 'updating' && (
-                                <ReAnimatedCircularProgress
-                                    size={14}
-                                    color={theme.textOnsurfaceOnDark}
-                                    reverse
-                                    infinitRotate
-                                    progress={0.8}
-                                />
-                            )}
-                            {syncState === 'connecting' && (
-                                <NoConnection
-                                    height={16}
-                                    width={16}
-                                    style={{ height: 16, width: 16 }}
-                                />
-                            )}
-                            {syncState === 'online' && (
-                                <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
-                                    <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
-                                </View>
-                            )}
-                        </OnboadingView>
-                    </CopilotStep>
+                    <View style={{
+                        flexDirection: 'row',
+                        backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                        height: 32, borderRadius: 32,
+                        paddingHorizontal: 12, paddingVertical: 4,
+                        alignItems: 'center'
+                    }}>
+                        <Text
+                            style={{
+                                fontWeight: '500',
+                                fontSize: 17, lineHeight: 24,
+                                color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
+                                flexShrink: 1,
+                                marginRight: 8
+                            }}
+                            ellipsizeMode='tail'
+                            numberOfLines={1}
+                        >
+                            {walletSettings?.name || `${network.isTestnet ? '[test]' : ''} ${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        </Text>
+                        {syncState === 'updating' && (
+                            <ReAnimatedCircularProgress
+                                size={14}
+                                color={theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary}
+                                reverse
+                                infinitRotate
+                                progress={0.8}
+                            />
+                        )}
+                        {syncState === 'connecting' && (
+                            <NoConnection
+                                height={16}
+                                width={16}
+                                style={{ height: 16, width: 16 }}
+                            />
+                        )}
+                        {syncState === 'online' && (
+                            <View style={{ height: 16, width: 16, justifyContent: 'center', alignItems: 'center' }}>
+                                <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
+                            </View>
+                        )}
+                    </View>
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     <Pressable
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
-                            backgroundColor: theme.surfaceOnDark,
+                            backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
                             height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
                             borderRadius: 16
                         })}
@@ -158,7 +145,7 @@ export const WalletHeader = memo(() => {
                             style={{
                                 height: 22,
                                 width: 22,
-                                tintColor: theme.iconUnchangeable
+                                tintColor: theme.iconPrimary
                             }}
                         />
                     </Pressable>

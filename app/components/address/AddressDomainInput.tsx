@@ -75,6 +75,8 @@ export const AddressDomainInput = memo(forwardRef(({
             ? toResolve.slice(0, toResolve.length - 4)
             : toResolve.slice(0, toResolve.length - 5);
 
+        domain = domain.toLowerCase();
+
         const valid = validateDomain(domain);
 
         if (!valid) {
@@ -236,7 +238,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 autoCorrect={false}
                 autoComplete={'off'}
                 textContentType={'none'}
-                style={style}
+                style={[{ paddingHorizontal: 16, flexGrow: 1 }, style]}
                 onBlur={(index) => {
                     setFocused(false);
                     if (onBlur) {
@@ -248,18 +250,22 @@ export const AddressDomainInput = memo(forwardRef(({
                 blurOnSubmit={false}
                 editable={!resolving}
                 inputStyle={[
-                    inputStyle,
                     {
+                        width: suffix? undefined: '100%',
+                        fontSize: 17, fontWeight: '400',
+                        color: theme.textPrimary,
+                        textAlignVertical: 'center',
                         marginLeft: (focused && input.length === 0) ? 0 : -8,
-                        flex: suffix ? 1 : undefined,
-                    }
+                        flexShrink: suffix ? 1 : undefined,
+                    },
+                    inputStyle
                 ]}
                 suffixStyle={{
+                    flex: 1,
+                    flexGrow: 1, marginLeft: 5,
                     fontSize: 17, fontWeight: '400',
                     color: theme.textSecondary,
-                    flexShrink: 1,
-                    textAlign: 'left',
-                    minWidth: 90
+                    textAlign: 'left'
                 }}
                 textAlignVertical={'center'}
                 actionButtonRight={{

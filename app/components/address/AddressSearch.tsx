@@ -176,7 +176,7 @@ export const AddressSearch = memo(({
                         {filtered.recent.map((address, index) => {
                             const contact = contacts[address.toString({ testOnly: network.isTestnet })];
                             const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
-                            const ownIndex = myWallets.findIndex((acc) => acc.address.equals(address));
+                            const own = myWallets.find((acc) => acc.address.equals(address));
                             let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
                             let title = t('contacts.unknown');
                             if (contact) {
@@ -185,13 +185,13 @@ export const AddressSearch = memo(({
                             } else if (known) {
                                 type = 'known';
                                 title = known.name;
-                            } else if (ownIndex >= 0) {
+                            } else if (!!own) {
                                 type = 'my-wallets';
                                 const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
                                 if (settings?.name) {
                                     title = settings.name;
                                 } else {
-                                    title = `${t('common.wallet')} ${ownIndex + 1}`;
+                                    title = `${t('common.wallet')} ${own.index + 1}`;
                                 }
                             }
 

@@ -9,9 +9,6 @@ import { Suspense, memo, useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
-import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
-import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
-import { sharedStoragePersistence } from '../../storage/storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
@@ -38,8 +35,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const holdersCards = useHoldersAccounts(address).data?.accounts;
     const bottomBarHeight = useBottomTabBarHeight();
 
-    const { start, visible, stop } = useCopilot();
-
     const stakingBalance = useMemo(() => {
         if (!staking) {
             return 0n;
@@ -60,27 +55,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
-
-    const onFocus = useCallback(() => {
-        const onboardingShown = sharedStoragePersistence.getBoolean(onboardingFinishedKey);
-        if (!visible && !onboardingShown) {
-            if (Platform.OS === 'ios') {
-                setTimeout(() => {
-                    start();
-                }, 1000);
-            } else {
-                start();
-            }
-        }
-        return () => {
-            setTimeout(() => {
-                sharedStoragePersistence.set(onboardingFinishedKey, true);
-                stop();
-            }, 10);
-        }
-    }, [start]);
-
-    useFocusEffect(onFocus);
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
@@ -148,7 +122,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                         <View
                                             style={{
                                                 flexGrow: 1,
-                                                backgroundColor: theme.surfaceOnDark,
+                                                backgroundColor: theme.surfaceOnBg,
                                             }}
                                         />
                                     ) : (
@@ -164,21 +138,13 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <CopilotStep
-                                text={t('onboarding.price')}
-                                order={3}
-                                name={'thirdStep'}
-                            >
-                                <OnboadingView>
-                                    <PriceComponent
-                                        showSign
-                                        amount={toNano(1)}
-                                        style={{ backgroundColor: theme.surfaceOnDark }}
-                                        textStyle={{ color: theme.textOnsurfaceOnDark }}
-                                        theme={theme}
-                                    />
-                                </OnboadingView>
-                            </CopilotStep>
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
+                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                theme={theme}
+                            />
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
@@ -216,7 +182,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginTop: 28,
                                 overflow: 'hidden'
@@ -371,24 +337,12 @@ export const WalletFragment = fragment(() => {
                 screenName={'Wallet'}
             >
                 {!selectedAcc ? (skeleton) : (
-                    <CopilotProvider
-                        arrowColor={'#1F1E25'}
-                        tooltipStyle={{
-                            backgroundColor: '#1F1E25',
-                            borderRadius: 20, padding: 16
-                        }}
-                        margin={16}
-                        stepNumberComponent={() => null}
-                        tooltipComponent={CopilotTooltip}
-                        svgMaskPath={defaultCopilotSvgPath}
-                    >
-                        <Suspense fallback={skeleton}>
-                            <WalletComponent
-                                selectedAcc={selectedAcc}
-                                wallet={accountLite}
-                            />
-                        </Suspense>
-                    </CopilotProvider>
+                    <Suspense fallback={skeleton}>
+                        <WalletComponent
+                            selectedAcc={selectedAcc}
+                            wallet={accountLite}
+                        />
+                    </Suspense>
                 )}
             </PerformanceMeasureView>
         </>

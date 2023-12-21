@@ -1,16 +1,17 @@
-import { useSetRecoilState } from "recoil";
 import { useAccountLite } from "../accounts/useAccountLite";
 import { useSelectedAccount } from "../appstate/useSelectedAccount";
-import { pendingTransactionsState } from "../../state/pending";
 import { useEffect } from "react";
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { useClient4, useNetwork } from '../network';
 import { useWalletV4 } from '../accounts/useWalletV4';
+import { useSetRecoilState } from "recoil";
+import { PendingTransaction, pendingTransactionsState } from "../../state/pending";
 
 export function usePendingWatcher() {
     const account = useSelectedAccount();
     const client = useClient4(useNetwork().isTestnet);
-    const setPending = useSetRecoilState(pendingTransactionsState);
+    const setPending = useSetRecoilState(pendingTransactionsState(account?.addressString || ''));
+
     const v4 = useWalletV4(client, account?.addressString || '');
     const lite = useAccountLite(account?.address || null);
     const firstTransaction = useRawAccountTransactions(client, account?.addressString || '').data?.pages[0]?.[0];

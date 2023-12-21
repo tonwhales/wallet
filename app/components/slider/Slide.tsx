@@ -1,9 +1,9 @@
 import { useDimensions } from "@react-native-community/hooks";
-import React from "react";
+import React, { memo } from "react";
 import { View, Text, Image, ImageSourcePropType } from "react-native";
 import { useTheme } from "../../engine/hooks";
 
-export const Slide = React.memo((
+export const Slide = memo((
     {
         upperNote,
         title,
@@ -18,6 +18,8 @@ export const Slide = React.memo((
 ) => {
     const theme = useTheme();
     const dimensions = useDimensions();
+    const imgWidth = dimensions.screen.height > 800 ? dimensions.screen.width - 64 : 248;
+
     return (
         <View style={{
             width: dimensions.screen.width,
@@ -61,15 +63,14 @@ export const Slide = React.memo((
             <View style={{
                 justifyContent: 'center', alignItems: 'center',
                 aspectRatio: 0.92,
-                width: dimensions.screen.width - 32,
+                width: imgWidth,
             }}>
                 <Image
                     resizeMode={'contain'}
-                    style={{ width: dimensions.screen.width - 32 }}
+                    style={{ width: imgWidth }}
                     source={illustration}
                 />
             </View>
-            <View style={{ flexGrow: 1 }} />
         </View>
     );
 });

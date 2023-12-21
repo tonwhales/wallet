@@ -68,11 +68,7 @@ export const HoldersAccountItem = memo((props: {
     return (
         <Swipeable
             ref={swipableRef}
-            containerStyle={[{
-                flex: 1,
-                borderRadius: 20,
-                backgroundColor: theme.surfaceOnElevation
-            }, props.style]}
+            containerStyle={[{ flex: 1 }, props.style]}
             useNativeAnimations={true}
             renderRightActions={() => {
                 return (
@@ -81,9 +77,9 @@ export const HoldersAccountItem = memo((props: {
                             {
                                 padding: 20,
                                 justifyContent: 'center', alignItems: 'center',
-                                borderTopRightRadius: 20,
-                                borderBottomRightRadius: 20,
-                                backgroundColor: props.single ? theme.transparent : theme.accent,
+                                borderRadius: 20,
+                                backgroundColor: theme.accent,
+                                marginLeft: 10
                             }
                         ]}
                         onPress={() => {
@@ -94,21 +90,13 @@ export const HoldersAccountItem = memo((props: {
                         }}
                     >
                         {props.rightActionIcon}
-                        {!props.single && <View
-                            style={{
-                                position: 'absolute',
-                                top: 0, bottom: 0, left: -20,
-                                width: 20,
-                                backgroundColor: theme.surfaceOnElevation,
-                            }}
-                        />}
                     </Pressable>
                 )
             }}
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation }}
+                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20, }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}
@@ -140,7 +128,7 @@ export const HoldersAccountItem = memo((props: {
                                 <View style={{ flexGrow: 1, alignItems: 'flex-end' }}>
                                     <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                         <ValueComponent value={props.account.balance} precision={2} centFontStyle={{ color: theme.textSecondary }} />
-                                        <PerfText style={{color: theme.textSecondary }}>
+                                        <PerfText style={{ color: theme.textSecondary }}>
                                             {' TON'}
                                         </PerfText>
                                     </PerfText>

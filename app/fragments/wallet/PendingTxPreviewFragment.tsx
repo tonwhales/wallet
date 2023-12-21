@@ -4,25 +4,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
-import { ValueComponent, valueText } from "../../components/ValueComponent";
+import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
-import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
-import { useRoute } from "@react-navigation/native";
+import { useAppState, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
-import { TransactionDescription } from "../../engine/types";
-import { BigMath } from "../../utils/BigMath";
-import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
 import { formatCurrency } from "../../utils/formatCurrency";
@@ -32,58 +27,54 @@ import { useAddressBookContext } from "../../engine/AddressBookContext";
 import { PerfView } from "../../components/basic/PerfView";
 import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
-import { TxInfo } from "./views/preview/TxInfo";
-import { View } from "react-native";
 import { AddressComponent } from "../../components/address/AddressComponent";
+import { PendingTransaction } from "../../engine/state/pending";
+import { parseBody } from "../../engine/transactions/parseWalletTransaction";
+import { resolveOperation } from "../../engine/transactions/resolveOperation";
 
-const TransactionPreview = () => {
+const PendingTxPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
     const toaster = useToaster();
-    const ledgerContext = useLedgerTransport();
     const appState = useAppState();
     const addressBook = useAddressBookContext();
     const [price, currency] = usePrice();
-    const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
+    const [walletSettings,] = useWalletSettings(selected.address);
 
-    const isLedger = route.name === 'LedgerTransactionPreview';
-
-    const address = useMemo(() => {
-        if (isLedger && !!ledgerContext?.addr?.address) {
-            try {
-                return Address.parse(ledgerContext.addr.address);
-            } catch {
-                return null;
-            }
-        } else {
-            return selected.address;
-        }
-    }, [ledgerContext?.addr?.address, selected]);
-
-    const [walletSettings,] = useWalletSettings(address);
-
-    const params = useParams<{ transaction: TransactionDescription }>();
-
+    const params = useParams<{ transaction: PendingTransaction }>();
     const tx = params.transaction;
-    const operation = tx.base.operation;
-    const kind = tx.base.parsed.kind;
-    const item = operation.items[0];
-    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-    const fees = BigInt(tx.base.fees);
-    const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+    const body = tx.body?.type === 'payload' ? parseBody(tx.body.cell) : null;
+    const opAddress = tx.body?.type === 'token' ? tx.body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
+    const amount = tx.body?.type === 'token'
+        ? tx.body.amount
+        : tx.amount > 0n
+            ? tx.amount
+            : -tx.amount;
+    const operation = !!opAddress ? resolveOperation({
+        account: Address.parse(opAddress),
+        amount: amount,
+        body: body
+    }, isTestnet) : undefined;
+    const fees = tx.fees;
+    const isOwn = appState.addresses.findIndex((a) => a.address.toString({ testOnly: isTestnet }) === opAddress) >= 0;
+    let comment = tx.body?.type === 'comment' ? tx.body.comment : undefined;
+    if (body?.type === 'comment') {
+        comment = body.comment;
+    }
+    if (tx.body?.type === 'token' && tx.body.comment) {
+        comment = tx.body.comment;
+    }
 
-    const verified = !!tx.verified
-        || !!KnownJettonMasters(isTestnet)[opAddress];
-
+    const verified = !!KnownJettonMasters(isTestnet)[opAddress ?? ''];
+    const knownWallet = KnownWallets(isTestnet)[opAddress ?? ''];
     const contact = addressBook.asContact(opAddress);
     const isSpam = addressBook.isDenyAddress(opAddress);
 
-    let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
+    let dateStr = `${formatDate(tx.time, 'MMMM dd, yyyy')} • ${formatTime(tx.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
     const feesPrise = useMemo(() => {
@@ -101,75 +92,42 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    let jetton = tx.masterMetadata;
-    let op: string;
-    if (tx.op) {
-        op = tx.op;
-        if (op === 'airdrop') {
-            op = t('tx.airdrop');
-        }
-    } else {
-        if (tx.base.parsed.kind === 'out') {
-            if (tx.base.parsed.status === 'pending') {
-                op = t('tx.sending');
-            } else {
-                op = t('tx.sent');
-            }
-        } else if (tx.base.parsed.kind === 'in') {
-            if (tx.base.parsed.bounced) {
-                op = t('tx.bounced');
-            } else {
-                op = t('tx.received');
-            }
-        } else {
-            throw Error('Unknown kind');
-        }
+    let jetton = tx.body?.type === 'token' ? tx.body.master : null;
+    let op = t('tx.sending');
+    if (tx.status === 'sent') {
+        op = t('tx.sent');
     }
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[opAddress]) {
-        known = KnownWallets(isTestnet)[opAddress];
+    if (knownWallet) {
+        known = knownWallet;
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    let spam = useIsSpamWallet(opAddress)
-        || isSpam
-        || (
-            BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
-            && tx.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[opAddress]
-            && !isTestnet
-        ) && tx.base.parsed.kind !== 'out';
-
     const participants = useMemo(() => {
         const appState = getAppState();
-        const index = isLedger
-            ? 'Ledger'
-            : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
-        if (tx.base.parsed.kind === 'out') {
+        const index = `${appState.addresses.findIndex((a) => selected.address?.equals(a.address)) + 1}`;
+
+        if (!opAddress) {
             return {
                 from: {
-                    address: address,
+                    address: selected.address,
                     name: walletSettings?.name || `${t('common.wallet')} ${index}`
-                },
-                to: {
-                    address: Address.parse(opAddress),
-                    name: known?.name
                 }
             }
         }
 
         return {
             from: {
-                address: Address.parse(opAddress),
-                name: known?.name
+                address: selected.address,
+                name: walletSettings?.name || `${t('common.wallet')} ${index}`
             },
             to: {
-                address: address,
-                name: walletSettings?.name || `${t('common.wallet')} ${index}`
+                address: Address.parse(opAddress),
+                name: known?.name
             }
         }
     }, [opAddress, walletSettings, tx, known]);
@@ -184,9 +142,9 @@ const TransactionPreview = () => {
     }, []);
 
     const stringText = valueText({
-        value: item.amount,
-        precision: 9,
-        decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
+        value: amount,
+        precision: tx.body?.type === 'token' && jetton ? jetton.decimals ?? 9 : 9,
+        decimals: tx.body?.type === 'token' && jetton ? jetton.decimals : undefined,
     });
 
     return (
@@ -221,9 +179,8 @@ const TransactionPreview = () => {
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     <Avatar
                         size={68}
-                        id={opAddress}
+                        id={opAddress ?? ''}
                         address={opAddress}
-                        spam={spam}
                         showSpambadge
                         verified={verified}
                         borderWith={2.5}
@@ -243,7 +200,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddress]) ? 16 : 8,
+                                paddingTop: (!!contact || verified || isOwn || knownWallet) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}
@@ -252,14 +209,14 @@ const TransactionPreview = () => {
                     >
                         {op}
                     </PerfText>
-                    {!!known?.name ? (
+                    {!!participants.to ? (
                         <PerfView style={{ flexDirection: 'row', gap: 6, marginTop: 2, paddingHorizontal: 16 }}>
                             <PerfText
                                 style={[{ color: theme.textPrimary, flexShrink: 1 }, Typography.regular17_24]}
                                 numberOfLines={1}
                                 ellipsizeMode="tail"
                             >
-                                {known.name}
+                                {participants.to.name}
                             </PerfText>
                             <PerfText
                                 style={[{ color: theme.textSecondary }, Typography.regular17_24]}
@@ -267,13 +224,13 @@ const TransactionPreview = () => {
                                 ellipsizeMode="tail"
                             >
                                 <AddressComponent
-                                    address={Address.parse(opAddress)}
+                                    address={participants.to.address}
                                     end={4}
                                 />
                             </PerfText>
                         </PerfView>
                     ) : (
-                        !!operation.op && (
+                        !!operation?.op && (
                             <PerfText
                                 style={[{ color: theme.textSecondary, marginTop: 2 }, Typography.regular15_20]}
                                 numberOfLines={1}
@@ -283,53 +240,39 @@ const TransactionPreview = () => {
                             </PerfText>
                         )
                     )}
-                    {tx.base.parsed.status === 'failed' ? (
-                        <PerfText style={[
-                            { color: theme.accentRed, marginTop: 12 },
-                            Typography.semiBold27_32
-                        ]}>
-                            {t('tx.failed')}
-                        </PerfText>
-                    ) : (
-                        <>
-                            <Text
-                                minimumFontScale={0.4}
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                style={[
-                                    {
-                                        color: kind === 'in'
-                                            ? spam
-                                                ? theme.textPrimary
-                                                : theme.accentGreen
-                                            : theme.textPrimary,
-                                        marginTop: 12,
-                                    },
-                                    Typography.semiBold27_32
-                                ]}
-                            >
-                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
-                            </Text>
-                            {item.kind === 'ton' && (
-                                <PriceComponent
-                                    style={{
-                                        backgroundColor: theme.transparent,
-                                        paddingHorizontal: 0,
-                                        alignSelf: 'center',
-                                        paddingVertical: 0,
-                                        height: 'auto',
-                                        paddingLeft: 0
-                                    }}
-                                    theme={theme}
-                                    prefix={kind === 'in' ? '+' : ''}
-                                    textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                    amount={BigInt(item.amount)}
-                                />
-                            )}
-                        </>
-                    )}
+                    <>
+                        <Text
+                            minimumFontScale={0.4}
+                            adjustsFontSizeToFit={true}
+                            numberOfLines={1}
+                            style={[
+                                {
+                                    color: theme.textPrimary,
+                                    marginTop: 12,
+                                },
+                                Typography.semiBold27_32
+                            ]}
+                        >
+                            {`${stringText[0]}${stringText[1]}${tx.body?.type !== 'token' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                        </Text>
+                        {tx.body?.type !== 'token' && (
+                            <PriceComponent
+                                style={{
+                                    backgroundColor: theme.transparent,
+                                    paddingHorizontal: 0,
+                                    alignSelf: 'center',
+                                    paddingVertical: 0,
+                                    height: 'auto',
+                                    paddingLeft: 0
+                                }}
+                                theme={theme}
+                                textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                amount={amount}
+                            />
+                        )}
+                    </>
                 </PerfView>
-                {!(dontShowComments && isSpam) && (!!operation.comment) && (
+                {!(dontShowComments && isSpam) && !!comment && (
                     <ItemGroup style={{ marginTop: 16 }}>
                         <PerfView style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <PerfText style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
@@ -337,7 +280,7 @@ const TransactionPreview = () => {
                             </PerfText>
                             <PerfView style={{ alignItems: 'flex-start' }}>
                                 <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                                    {operation.comment}
+                                    {comment}
                                 </PerfText>
                             </PerfView>
                         </PerfView>
@@ -347,29 +290,29 @@ const TransactionPreview = () => {
                     <PreviewFrom
                         onCopyAddress={onCopyAddress}
                         from={participants.from}
-                        kind={kind}
+                        kind={'out'}
                         theme={theme}
                         isTestnet={isTestnet}
                     />
-                    {(!!participants.to.address && !!participants.from.address) && (
-                        <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
+                    {!!participants.to && (
+                        <>
+                            {!!participants.from.address && (
+                                <PerfView style={{
+                                    height: 1, alignSelf: 'stretch',
+                                    backgroundColor: theme.divider,
+                                    marginVertical: 16,
+                                    marginHorizontal: 10
+                                }} />
+                            )}
+                            <PreviewTo
+                                onCopyAddress={onCopyAddress}
+                                to={participants.to}
+                                kind={'out'}
+                                theme={theme}
+                                isTestnet={isTestnet}
+                            />
+                        </>
                     )}
-                    <PreviewTo
-                        onCopyAddress={onCopyAddress}
-                        to={participants.to}
-                        kind={kind}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                    />
-                    <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                    <TxInfo
-                        lt={tx.base.lt}
-                        address={address?.toString({ testOnly: isTestnet }) || ''}
-                        hash={tx.base.hash}
-                        toaster={toaster}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                    />
                 </ItemGroup>
                 <PerfView style={{
                     backgroundColor: theme.surfaceOnElevation,
@@ -383,7 +326,7 @@ const TransactionPreview = () => {
                             {t('txPreview.blockchainFee')}
                         </PerfText>
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
-                            {tx.base.fees
+                            {!!fees
                                 ? <>
                                     {`${fromNano(fees)}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
@@ -402,29 +345,10 @@ const TransactionPreview = () => {
                     />
                 </PerfView>
             </ScrollView>
-            {
-                tx.base.parsed.kind === 'out' && (tx.base.parsed.body?.type !== 'payload') && !isLedger && (
-                    <PerfView style={{ flexDirection: 'row', width: '100%', marginBottom: safeArea.bottom + 16, paddingHorizontal: 16 }}>
-                        <RoundButton
-                            title={t('txPreview.sendAgain')}
-                            style={{ flexGrow: 1 }}
-                            onPress={() => navigation.navigateSimpleTransfer({
-                                target: tx.base.parsed.resolvedAddress,
-                                comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-                                amount: BigInt(tx.base.parsed.amount) > 0n ? BigInt(tx.base.parsed.amount) : -BigInt(tx.base.parsed.amount),
-                                job: null,
-                                stateInit: null,
-                                jetton: null,
-                                callback: null
-                            })}
-                        />
-                    </PerfView>
-                )
-            }
         </PerfView>
     );
 }
-TransactionPreview.displayName = 'TransactionPreview';
+PendingTxPreview.displayName = 'PendingTxPreview';
 
-export const TransactionPreviewFragment = fragment(TransactionPreview);
-TransactionPreviewFragment.displayName = 'TransactionPreviewFragment';
+export const PendingTxPreviewFragment = fragment(PendingTxPreview);
+PendingTxPreviewFragment.displayName = 'PendingTxPreviewFragment';

@@ -166,7 +166,7 @@ export const DappAuthComponent = memo(({
     }, [state, domain, addressString]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             {Platform.OS === 'android' && (
                 <ScreenHeader

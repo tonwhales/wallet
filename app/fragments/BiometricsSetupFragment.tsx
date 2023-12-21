@@ -120,17 +120,6 @@ export const BiometricsSetupFragment = systemFragment(() => {
                     flexGrow: 1,
                 }}>
                     <View style={{ paddingHorizontal: 16 }}>
-                        <View style={{
-                            justifyContent: 'center', alignItems: 'center',
-                            aspectRatio: 0.92,
-                            width: dimensions.screen.width - 32,
-                        }}>
-                            <Image
-                                resizeMode={'contain'}
-                                style={{ width: dimensions.screen.width - 32 }}
-                                source={imgSource}
-                            />
-                        </View>
                         <Text style={{
                             fontSize: 32, lineHeight: 38,
                             fontWeight: '600',
@@ -158,6 +147,17 @@ export const BiometricsSetupFragment = systemFragment(() => {
                         >
                             {text}
                         </Text>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            aspectRatio: 0.92,
+                            width: dimensions.screen.width - 32,
+                        }}>
+                            <Image
+                                resizeMode={'contain'}
+                                style={{ width: dimensions.screen.width - 32 }}
+                                source={imgSource}
+                            />
+                        </View>
                     </View>
                 </View>
             </ScrollView>

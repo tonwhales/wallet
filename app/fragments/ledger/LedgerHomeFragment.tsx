@@ -339,7 +339,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('LedgerStakingPools', StakingPoolsFragment),
 ]
 
-export const WalletNavigationStack = memo(() => {
+export const LedgerNavigationStack = memo(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
 

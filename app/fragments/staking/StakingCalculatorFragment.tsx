@@ -45,6 +45,9 @@ export const StakingCalculatorFragment = fragment(() => {
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
+        if (amount.length === 0) {
+            return 0n;
+        }
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
             value = toNano(valid);
@@ -121,8 +124,25 @@ export const StakingCalculatorFragment = fragment(() => {
                             index={0}
                             value={amount}
                             onValueChange={(newVal) => {
+                                const charsChanged = amount.length - newVal.length;
+
+                                if (charsChanged === 1) {
+                                    // finding deleted char and checking if it was space, if so, deleting one more char
+                                    let charIndex;
+                                    const deletedChar = amount.split('').find((char, index) => {
+                                        if  (char !== newVal[index]) {
+                                            charIndex = index;
+                                            return true;
+                                        }
+                                    });
+                                    if (deletedChar === ' ' && !!charIndex) {
+                                        newVal = newVal.slice(0, charIndex - 1) + newVal.slice(charIndex);
+                                    }
+                                }
+
                                 const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true });
                                 const temp = formatted.replace(',', '.').replaceAll(' ', '');
+
                                 if (temp.split('.')[0].length > 10) { // 10 digits before dot bigger is unreallistic
                                     return;
                                 }
@@ -146,7 +166,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             prefix={'TON'}
                         />
                     </View>
-                    {!!pool && !!validAmount && (
+                    {!!pool && validAmount !== null && (
                         <StakingCalcComponent
                             amount={validAmount}
                             pool={pool}

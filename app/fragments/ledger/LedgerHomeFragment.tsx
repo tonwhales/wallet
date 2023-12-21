@@ -30,7 +30,7 @@ export const LedgerHomeFragment = fragment(() => {
         }
         try {
             return Address.parse(ledgerContext.addr.address);
-        } catch {}
+        } catch { }
     }, [ledgerContext?.addr?.address]);
 
     const account = useAccountsLite([address!])[0].data;
@@ -84,16 +84,6 @@ export const LedgerHomeFragment = fragment(() => {
 
     const scrollStyle = useAnimatedStyle(() => {
         return { backgroundColor: scrollBackgroundColor.value === 0 ? theme.backgroundUnchangeable : theme.white };
-    });
-
-    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: withTiming(animSensor.sensor.value.y * 80) },
-                { translateY: withTiming(animSensor.sensor.value.x * 80) },
-            ]
-        }
     });
 
     useEffect(() => {
@@ -172,15 +162,13 @@ export const LedgerHomeFragment = fragment(() => {
                             </Text>
                         </View>
                         <Animated.View
-                            style={[{
+                            style={{
                                 position: 'absolute', top: 0, left: '50%',
                                 marginTop: -20, marginLeft: -20,
                                 height: 400, width: 400,
                                 borderRadius: 400,
                                 overflow: 'hidden'
-                            },
-                                animatedStyle
-                            ]}
+                            }}
                             pointerEvents={'none'}
                         >
                             <Image
@@ -199,14 +187,14 @@ export const LedgerHomeFragment = fragment(() => {
                                 <PriceComponent
                                     amount={BigInt(account?.balance.coins ?? 0)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
-                                    textStyle={{ color: theme.textThird }}
+                                    textStyle={{ color: theme.textOnsurfaceOnDark }}
                                     theme={theme}
                                 />
                                 <PriceComponent
                                     showSign
                                     amount={toNano(1)}
                                     style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
-                                    textStyle={{ color: theme.textThird }}
+                                    textStyle={{ color: theme.textOnsurfaceOnDark }}
                                     theme={theme}
                                 />
                             </Pressable>
@@ -315,14 +303,12 @@ export const LedgerHomeFragment = fragment(() => {
                             </Pressable>
                         </View>
                         <Animated.View
-                            style={[{
+                            style={{
                                 position: 'absolute', top: '-175%', left: '50%',
                                 marginTop: -20, marginLeft: -20,
                                 height: 400, width: 400, borderRadius: 200,
                                 overflow: 'hidden'
-                            },
-                                animatedStyle
-                            ]}
+                            }}
                             pointerEvents={'none'}
                         >
                             <Image

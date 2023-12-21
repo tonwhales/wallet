@@ -156,14 +156,15 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
                 {devices.map((device: any) => {
                     return (<BleDevice key={`ledger-${device.id}`} device={device} onSelect={onDeviceSelect} />);
                 })}
+                <View style={{ height: 16 }} />
             </ScrollView>
             <View style={{
                 flexDirection: 'row',
                 position: 'absolute',
-                bottom: safeArea.bottom + 16,
-                left: 16, right: 16,
+                bottom: safeArea.bottom === 0 ? 40 : safeArea.bottom + 16,
+                left: 0, right: 0,
                 alignItems: 'center', justifyContent: 'center',
-                paddingHorizontal: 8
+                paddingHorizontal: 16
             }}>
                 <RoundButton
                     title={t('hardwareWallet.actions.scanBluetooth')}

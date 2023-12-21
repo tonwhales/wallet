@@ -89,7 +89,7 @@ export const WalletHeader = memo(() => {
                 >
                     <View style={{
                         flexDirection: 'row',
-                        backgroundColor: theme.surfaceOnBg,
+                        backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
                         height: 32, borderRadius: 32,
                         paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center'
@@ -98,7 +98,8 @@ export const WalletHeader = memo(() => {
                             style={{
                                 fontWeight: '500',
                                 fontSize: 17, lineHeight: 24,
-                                color: theme.textPrimary, flexShrink: 1,
+                                color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
+                                flexShrink: 1,
                                 marginRight: 8
                             }}
                             ellipsizeMode='tail'
@@ -109,7 +110,7 @@ export const WalletHeader = memo(() => {
                         {syncState === 'updating' && (
                             <ReAnimatedCircularProgress
                                 size={14}
-                                color={theme.textPrimary}
+                                color={theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary}
                                 reverse
                                 infinitRotate
                                 progress={0.8}
@@ -133,7 +134,7 @@ export const WalletHeader = memo(() => {
                     <Pressable
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
                             height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
                             borderRadius: 16
                         })}

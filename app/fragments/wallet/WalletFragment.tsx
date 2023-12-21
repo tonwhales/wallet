@@ -141,8 +141,8 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
-                                style={{ backgroundColor: theme.surfaceOnBg }}
-                                textStyle={{ color: theme.textPrimary }}
+                                style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
+                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
                                 theme={theme}
                             />
                         </Pressable>

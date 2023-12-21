@@ -86,7 +86,7 @@ export const ScannerFragment = systemFragment(() => {
 
     if (!hasPermission) {
         return (
-            <View style={{ flexGrow: 1 }}>
+            <View style={[{ flexGrow: 1 }, Platform.select({ android: { paddingTop: safeArea.top } })]}>
                 {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
                 <ScreenHeader
                     tintColor={'white'}

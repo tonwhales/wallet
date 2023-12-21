@@ -124,7 +124,7 @@ export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}

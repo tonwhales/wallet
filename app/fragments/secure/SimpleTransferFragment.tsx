@@ -40,6 +40,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -639,38 +640,11 @@ export const SimpleTransferFragment = fragment(() => {
         const headertitle = addressFriendly
             ? {
                 titleComponent: (
-                    <Animated.View
-                        entering={FadeInDown} exiting={FadeOutDown}
-                        style={{
-                            backgroundColor: theme.border,
-                            borderRadius: 100,
-                            maxWidth: '70%',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginLeft: -16,
-                            paddingLeft: 6, paddingRight: 12,
-                            paddingVertical: 6
-                        }}
-                    >
-                        <Avatar
-                            size={24}
-                            id={addressFriendly}
-                            address={addressFriendly}
-                            borderWith={0}
-                            theme={theme}
-                            isTestnet={network.isTestnet}
-                        />
-                        <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            color: theme.textPrimary,
-                            fontWeight: '500',
-                            marginLeft: 6,
-                            minHeight: 24
-                        }}>
-                            {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
-                        </Text>
-                    </Animated.View>
+                    <TransferHeader
+                        theme={theme}
+                        addressFriendly={addressFriendly}
+                        isTestnet={network.isTestnet}
+                    />
                 )
             }
             : {

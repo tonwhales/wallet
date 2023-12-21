@@ -145,15 +145,8 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 return keys;
             } catch (e) {
-                // If cancelled - show alert on android
                 if (e instanceof SecureAuthenticationCancelledError) {
-                    if (Platform.OS !== 'ios') {
-                        Alert.alert(
-                            t('security.auth.canceled.title'),
-                            t('security.auth.canceled.message'),
-                            [{ text: t('common.ok') }]
-                        );
-                    }
+                    // If cancelled - do nothing
                 } else {
                     // Check permissions
                     const premissionsRes = await checkBiometricsPermissions(passcodeState);

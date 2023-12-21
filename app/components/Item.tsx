@@ -2,8 +2,9 @@ import * as React from 'react';
 import { ImageSourcePropType, Pressable, Text, View, Image, Platform, StyleProp, TextStyle } from 'react-native';
 import { Switch } from 'react-native-gesture-handler';
 import { useTheme } from '../engine/hooks';
+import { memo } from 'react';
 
-export const Item = React.memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
+export const Item = memo((props: { title?: string, hint?: string, onPress?: () => void, backgroundColor?: string, textColor?: string }) => {
     const theme = useTheme();
     return (
         <Pressable
@@ -35,7 +36,7 @@ export const Item = React.memo((props: { title?: string, hint?: string, onPress?
     )
 });
 
-export const ItemSwitch = React.memo((props: {
+export const ItemSwitch = memo((props: {
     title?: string,
     value: boolean,
     onChange: (value: boolean) => void,
@@ -80,10 +81,9 @@ export const ItemSwitch = React.memo((props: {
             <Switch
                 trackColor={{
                     false: theme.divider,
-                    true: theme.accent,
+                    true: theme.accentDisabled,
                 }}
                 pointerEvents={'none'}
-                thumbColor={(Platform.OS === 'android' && props.value) ? theme.textSecondary : undefined}
                 value={props.value}
                 onValueChange={props.onChange}
             />

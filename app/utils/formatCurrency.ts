@@ -37,7 +37,7 @@ export function formatInputAmount(
   previousRaw?: string,
 ) {
   // Check for deleted char being space
-  if (previousRaw) {
+  if (!!previousRaw) {
     const charsChanged = previousRaw.length - raw.length;
 
     if (charsChanged === 1) {

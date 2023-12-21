@@ -72,8 +72,7 @@ export const SpamFilterFragment = fragment(() => {
     return (
         <View style={{
             flexGrow: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 32
+            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
         }}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
@@ -84,11 +83,12 @@ export const SpamFilterFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'height' : undefined}
+                behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                style={{ flexGrow: 1 }}
             >
                 <ScrollView
-                    style={{ flexGrow: 1 }}
-                    contentInset={{ bottom: safeArea.bottom === 0 ? 32 : safeArea.bottom + 32 }}
+                    style={{ flexBasis: 0 }}
+                    contentInset={{ bottom: safeArea.bottom, top: 0.1 }}
                 >
                     <View style={{
                         marginBottom: 16, marginTop: 22,

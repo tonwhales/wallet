@@ -89,7 +89,7 @@ export const WalletHeader = memo(() => {
                 >
                     <View style={{
                         flexDirection: 'row',
-                        backgroundColor: theme.surfaceOnDark,
+                        backgroundColor: theme.surfaceOnBg,
                         height: 32, borderRadius: 32,
                         paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center'

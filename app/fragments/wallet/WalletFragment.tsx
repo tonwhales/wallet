@@ -141,7 +141,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
-                                style={{ backgroundColor: theme.surfaceOnDark }}
+                                style={{ backgroundColor: theme.surfaceOnBg }}
                                 textStyle={{ color: theme.textOnsurfaceOnDark }}
                                 theme={theme}
                             />

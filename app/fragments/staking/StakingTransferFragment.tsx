@@ -415,7 +415,7 @@ export const StakingTransferFragment = fragment(() => {
                             onFocus={onFocus}
                             value={amount}
                             onValueChange={(newVal) => {
-                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true });
+                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
                                 setAmount(formatted);
                             }}
                             keyboardType={'numeric'}
@@ -452,7 +452,7 @@ export const StakingTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
 
-                    {(params?.action === 'deposit' || params?.action === 'top_up') && pool && !!validAmount && (
+                    {(params?.action === 'deposit' || params?.action === 'top_up') && pool && validAmount !== null && (
                         <>
                             <StakingCalcComponent
                                 amount={validAmount}

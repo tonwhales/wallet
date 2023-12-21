@@ -936,7 +936,7 @@ export const SimpleTransferFragment = fragment(() => {
                             onFocus={onFocus}
                             value={amount}
                             onValueChange={(newVal) => {
-                                const formatted = formatInputAmount(newVal, jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true });
+                                const formatted = formatInputAmount(newVal, jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true }, amount);
                                 setAmount(formatted);
                             }}
                             keyboardType={'numeric'}

@@ -30,18 +30,19 @@ export const AccountSelectorFragment = fragment(() => {
     const addressesCount = appState.addresses.length + (ledgerConnected ? 1 : 0);
 
     const heightMultiplier = useMemo(() => {
+        const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;
         let multiplier = 1;
         if (addressesCount === 1) {
-            multiplier = .5;
+            multiplier = .5 + heightDependentMultiplier;
         } else if (addressesCount === 2) {
-            multiplier = .52;
+            multiplier = .52 + heightDependentMultiplier;
         } else if (addressesCount === 3) {
-            multiplier = .7;
+            multiplier = .7 + heightDependentMultiplier;
         } else if (addressesCount === 4) {
             multiplier = .8;
         }
         return multiplier;
-    }, [addressesCount, ledgerConnected]);
+    }, [addressesCount, ledgerConnected, dimentions.height]);
 
     const isScrollMode = useMemo(() => {
         return addressesCount + (ledgerConnected ? 1 : 0) > 3;
@@ -79,14 +80,13 @@ export const AccountSelectorFragment = fragment(() => {
     }, []);
 
     return (
-        <View style={{
-            flexGrow: 1,
-            justifyContent: 'flex-end',
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom,
-            backgroundColor: Platform.OS === 'android' ? theme.backgroundPrimary : undefined,
-        }}>
-
+        <View style={[
+            { flexGrow: 1, justifyContent: 'flex-end' },
+            Platform.select({
+                ios: { paddingBottom: isScrollMode ? 0 : safeArea.bottom === 0 ? 32 : safeArea.bottom, },
+                android: { paddingTop: safeArea.top, backgroundColor: theme.backgroundPrimary, }
+            })
+        ]}>
             <StatusBar style={Platform.select({
                 android: theme.style === 'dark' ? 'light' : 'dark',
                 ios: 'light'

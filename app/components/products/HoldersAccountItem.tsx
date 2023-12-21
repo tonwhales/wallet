@@ -71,7 +71,7 @@ export const HoldersAccountItem = memo((props: {
             containerStyle={[{
                 flex: 1,
                 borderRadius: 20,
-                backgroundColor: theme.surfaceOnElevation
+                backgroundColor: theme.surfaceOnBg
             }, props.style]}
             useNativeAnimations={true}
             renderRightActions={() => {
@@ -99,7 +99,7 @@ export const HoldersAccountItem = memo((props: {
                                 position: 'absolute',
                                 top: 0, bottom: 0, left: -20,
                                 width: 20,
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                             }}
                         />}
                     </Pressable>
@@ -108,7 +108,7 @@ export const HoldersAccountItem = memo((props: {
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation }}
+                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}

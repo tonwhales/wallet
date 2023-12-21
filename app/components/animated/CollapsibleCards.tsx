@@ -223,7 +223,7 @@ export const CollapsibleCards = memo(({
                             borderRadius: 20,
                             overflow: 'hidden',
                             alignSelf: 'center',
-                            backgroundColor: theme.surfaceOnElevation
+                            backgroundColor: theme.surfaceOnBg
                         },
                         cardSecondLevelStyle,
                         { zIndex: 100 },

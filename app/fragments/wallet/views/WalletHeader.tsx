@@ -102,7 +102,7 @@ export const WalletHeader = memo(() => {
                     >
                         <OnboadingView style={{
                             flexDirection: 'row',
-                            backgroundColor: theme.surfaceOnDark,
+                            backgroundColor: theme.surfaceOnBg,
                             height: 32, borderRadius: 32,
                             paddingHorizontal: 12, paddingVertical: 4,
                             alignItems: 'center'
@@ -147,7 +147,7 @@ export const WalletHeader = memo(() => {
                     <Pressable
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
-                            backgroundColor: theme.surfaceOnDark,
+                            backgroundColor: theme.surfaceOnBg,
                             height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
                             borderRadius: 16
                         })}

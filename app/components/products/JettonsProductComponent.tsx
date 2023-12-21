@@ -70,7 +70,7 @@ export const JettonsProductComponent = memo(() => {
                                 marginHorizontal: 16,
                                 borderRadius: 20,
                                 alignItems: 'center',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                             },
                             theme.style === 'dark' ? {
                                 shadowColor: '#000',

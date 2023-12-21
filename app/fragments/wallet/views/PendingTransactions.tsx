@@ -222,7 +222,7 @@ export const PendingTransactions = memo(() => {
             )}
             <View style={{
                 overflow: 'hidden',
-                backgroundColor: theme.surfaceOnElevation,
+                backgroundColor: theme.surfaceOnBg,
                 marginHorizontal: 16, borderRadius: 20,
             }}>
                 {pending.map((tx, i) => (

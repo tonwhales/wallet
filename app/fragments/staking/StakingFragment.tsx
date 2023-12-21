@@ -19,7 +19,7 @@ import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -36,6 +36,7 @@ export const StakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
+    const active = useStakingActive();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -118,6 +119,9 @@ export const StakingFragment = fragment(() => {
     const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openPoolSelector = useCallback(() => {
+        if (active.length < 2) {
+            return;
+        }
         navigation.navigate(
             isLedger ? 'StakingPoolSelectorLedger' : 'StakingPoolSelector',
             {
@@ -127,7 +131,7 @@ export const StakingFragment = fragment(() => {
                 }
             },
         )
-    }, [isLedger, targetPool, setParams]);
+    }, [isLedger, targetPool, setParams, active]);
 
     const hasStake = (member?.balance || 0n)
         + (member?.pendingWithdraw || 0n)
@@ -172,7 +176,7 @@ export const StakingFragment = fragment(() => {
                     <Pressable
                         style={({ pressed }) => ({
                             alignItems: 'center',
-                            opacity: pressed ? 0.5 : 1
+                            opacity: (pressed && active.length >= 2) ? 0.5 : 1
                         })}
                         onPress={openPoolSelector}
                     >

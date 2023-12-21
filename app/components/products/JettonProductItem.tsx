@@ -104,14 +104,6 @@ export const JettonProductItem = memo((props: {
                                 }}
                             >
                                 {props.rightActionIcon}
-                                {!props.single && <View
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0, bottom: 0, left: -20,
-                                        width: 20,
-                                        backgroundColor: theme.surfaceOnBg,
-                                    }}
-                                />}
                             </Pressable>
                         )
                     }}

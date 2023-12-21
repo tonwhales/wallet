@@ -2,6 +2,7 @@ import { memo } from "react";
 import { View, Text } from "react-native";
 import { useConnectPendingRequests, useCurrentJob, useTheme } from "../../../engine/hooks";
 import { DappRequestButton } from "../views/DappRequestButton";
+import { t } from "../../../i18n/t";
 
 export const DappsRequests = memo(() => {
     const theme = useTheme();
@@ -27,7 +28,7 @@ export const DappsRequests = memo(() => {
                     color: theme.textPrimary,
                     lineHeight: 24,
                 }}>
-                    {'Requests'}
+                    {t('products.transactionRequest.groupTitle')}
                 </Text>
             </View>
             <View style={{

@@ -288,7 +288,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         transactionRequest: {
             title: 'Transaction requested',
-            subtitle: 'Press to view request'
+            subtitle: 'Press to view request',
+            groupTitle: 'Transaction requests',
         },
         signatureRequest: {
             title: 'Signature requested',
@@ -481,7 +482,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden cards',
+            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',

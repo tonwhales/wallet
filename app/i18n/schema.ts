@@ -290,7 +290,8 @@ export type LocalizationSchema = {
         },
         transactionRequest: {
             title: string,
-            subtitle: string
+            subtitle: string,
+            groupTitle: string,
         },
         signatureRequest: {
             title: string,

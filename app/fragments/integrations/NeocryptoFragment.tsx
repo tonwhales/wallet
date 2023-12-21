@@ -107,7 +107,16 @@ export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
                         <CheckBox
                             checked={doNotShow}
                             onToggle={onDoNotShowToggle}
-                            text={t('neocrypto.doNotShow')}
+                            text={
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    marginLeft: 16,
+                                    color: theme.textSecondary
+                                }}>
+                                    {t('neocrypto.doNotShow')}
+                                </Text>
+                            }
                             style={{
                                 marginTop: 16
                             }}

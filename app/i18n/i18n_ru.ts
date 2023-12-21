@@ -125,7 +125,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "receive": "Получить TON",
             "description": "Совершите первую транзакцию"
         },
-        "pendingTransactions": "Ожидают подтверждения"
+        "pendingTransactions": "Ожидают отправки"
     },
     "transactions": {
         "title": "Транзакции",
@@ -288,7 +288,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         },
         "transactionRequest": {
             "title": "Запрос на транзакцию",
-            "subtitle": "Нажмите, чтобы посмотреть запрос"
+            "subtitle": "Нажмите, чтобы посмотреть запрос",
+            "groupTitle": "Запросы на подтверждение",
         },
         "signatureRequest": {
             "title": "Запрос на подпись",

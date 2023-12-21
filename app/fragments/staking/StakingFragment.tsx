@@ -286,7 +286,7 @@ export const StakingFragment = fragment(() => {
                         limitActions
                         disableContextMenu
                         copyOnPress
-                        copyToastProps={{ marginBottom: 16 }}
+                        copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                     />
                 </View>
                 <View

@@ -45,6 +45,9 @@ export const StakingCalculatorFragment = fragment(() => {
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
+        if (amount.length === 0) {
+            return 0n;
+        }
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
             value = toNano(valid);
@@ -121,8 +124,9 @@ export const StakingCalculatorFragment = fragment(() => {
                             index={0}
                             value={amount}
                             onValueChange={(newVal) => {
-                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true });
+                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
                                 const temp = formatted.replace(',', '.').replaceAll(' ', '');
+
                                 if (temp.split('.')[0].length > 10) { // 10 digits before dot bigger is unreallistic
                                     return;
                                 }
@@ -146,7 +150,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             prefix={'TON'}
                         />
                     </View>
-                    {!!pool && !!validAmount && (
+                    {!!pool && validAmount !== null && (
                         <StakingCalcComponent
                             amount={validAmount}
                             pool={pool}

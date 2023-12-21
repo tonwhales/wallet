@@ -141,11 +141,6 @@ export const StakingCalcComponent = memo((
         )
     }
 
-    // const parsed = parseAmountToNumber(amount);
-    // const yearly = toFixedBN(parsed * (apyWithFee ? apyWithFee : 0.1));
-    // const monthly = toFixedBN(parsed * (Math.pow((1 + (apyWithFee ? apyWithFee : 0.1) / 366), 30)) - parsed);
-    // const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
-
     const amountNum = Number(fromNano(amount));
     const yearly = amountNum * apyWithFee;
     const monthly = amountNum * (Math.pow((1 + apyWithFee / 366), 30)) - amountNum;

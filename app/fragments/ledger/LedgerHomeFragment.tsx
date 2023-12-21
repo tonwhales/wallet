@@ -1,7 +1,7 @@
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { memo, useCallback, useEffect, useMemo } from "react";
 import { t } from "../../i18n/t";
 import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useAnimatedStyle, useSharedValue, withTiming } from "react-native-reanimated";
 import { Pressable, View, Image, Text, Platform } from "react-native";
@@ -13,8 +13,13 @@ import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { LedgerProductsComponent } from "../../components/products/LedgerProductsComponent";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { fullScreen } from "../../Navigation";
+import { StakingFragment } from "../staking/StakingFragment";
+import { StakingPoolsFragment } from "../staking/StakingPoolsFragment";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const LedgerHomeFragment = fragment(() => {
     const theme = useTheme();
@@ -324,3 +329,36 @@ export const LedgerHomeFragment = fragment(() => {
         </View>
     );
 })
+
+const Stack = createNativeStackNavigator();
+Stack.Navigator.displayName = 'LedgerStack';
+
+const navigation = (safeArea: EdgeInsets) => [
+    fullScreen('Home', LedgerHomeFragment),
+    fullScreen('LedgerStaking', StakingFragment),
+    fullScreen('LedgerStakingPools', StakingPoolsFragment),
+]
+
+export const WalletNavigationStack = memo(() => {
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
+
+    useFocusEffect(() => {
+        setStatusBarStyle('light');
+    });
+
+    return (
+        <Stack.Navigator
+            initialRouteName={'Home'}
+            screenOptions={{
+                headerBackTitle: t('common.back'),
+                title: '',
+                headerShadowVisible: false,
+                headerTransparent: false,
+                headerStyle: { backgroundColor: theme.backgroundPrimary }
+            }}
+        >
+            {navigation(safeArea)}
+        </Stack.Navigator>
+    );
+});

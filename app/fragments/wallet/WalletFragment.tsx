@@ -122,7 +122,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                         <View
                                             style={{
                                                 flexGrow: 1,
-                                                backgroundColor: theme.surfaceOnDark,
+                                                backgroundColor: theme.surfaceOnBg,
                                             }}
                                         />
                                     ) : (
@@ -138,13 +138,21 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <PriceComponent
-                                showSign
-                                amount={toNano(1)}
-                                style={{ backgroundColor: theme.surfaceOnDark }}
-                                textStyle={{ color: theme.textOnsurfaceOnDark }}
-                                theme={theme}
-                            />
+                            <CopilotStep
+                                text={t('onboarding.price')}
+                                order={3}
+                                name={'thirdStep'}
+                            >
+                                <OnboadingView>
+                                    <PriceComponent
+                                        showSign
+                                        amount={toNano(1)}
+                                        style={{ backgroundColor: theme.surfaceOnBg }}
+                                        textStyle={{ color: theme.textOnsurfaceOnDark }}
+                                        theme={theme}
+                                    />
+                                </OnboadingView>
+                            </CopilotStep>
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
@@ -182,7 +190,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginTop: 28,
                                 overflow: 'hidden'

@@ -482,7 +482,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden cards',
+            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',

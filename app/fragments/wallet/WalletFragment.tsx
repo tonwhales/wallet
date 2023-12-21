@@ -138,21 +138,13 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <CopilotStep
-                                text={t('onboarding.price')}
-                                order={3}
-                                name={'thirdStep'}
-                            >
-                                <OnboadingView>
-                                    <PriceComponent
-                                        showSign
-                                        amount={toNano(1)}
-                                        style={{ backgroundColor: theme.surfaceOnBg }}
-                                        textStyle={{ color: theme.textOnsurfaceOnDark }}
-                                        theme={theme}
-                                    />
-                                </OnboadingView>
-                            </CopilotStep>
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: theme.surfaceOnDark }}
+                                textStyle={{ color: theme.textOnsurfaceOnDark }}
+                                theme={theme}
+                            />
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress

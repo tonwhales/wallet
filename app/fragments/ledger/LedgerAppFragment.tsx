@@ -5,7 +5,7 @@ import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { LedgerHomeFragment } from "./LedgerHomeFragment";
+import { LedgerNavigationStack } from "./LedgerHomeFragment";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
@@ -34,7 +34,7 @@ export const LedgerAppFragment = fragment(() => {
     }
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
+        <View style={{ flexGrow: 1, backgroundColor: theme.surfaceOnBg }}>
             <Tab.Navigator
                 initialRouteName={'LedgerHome'}
                 screenOptions={({ route }) => ({
@@ -82,7 +82,7 @@ export const LedgerAppFragment = fragment(() => {
                 <Tab.Screen
                     options={{ title: t('home.home') }}
                     name={'LedgerHome'}
-                    component={LedgerHomeFragment}
+                    component={LedgerNavigationStack}
                 />
                 <Tab.Screen
                     options={{ title: t('home.history') }}

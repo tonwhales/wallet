@@ -237,6 +237,7 @@ export function TransactionView(props: {
                                 icProps={{ isOwn, backgroundColor: theme.surfaceOnBg, size: 18, borderWidth: 2 }}
                                 theme={theme}
                                 isTestnet={isTestnet}
+                                hashColor
                             />
                         )}
                     </PerfView>

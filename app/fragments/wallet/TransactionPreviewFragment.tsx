@@ -238,6 +238,7 @@ const TransactionPreview = () => {
                         }}
                         theme={theme}
                         isTestnet={isTestnet}
+                        hashColor
                     />
                     <PerfText
                         style={[

@@ -10,38 +10,38 @@ import { PerfView } from './basic/PerfView';
 import { ThemeType } from '../engine/state/theme';
 
 export const avatarImages = [
-    require('@assets/avatars/0.webp'),
-    require('@assets/avatars/1.webp'),
-    require('@assets/avatars/2.webp'),
-    require('@assets/avatars/3.webp'),
-    require('@assets/avatars/4.webp'),
-    require('@assets/avatars/5.webp'),
-    require('@assets/avatars/6.webp'),
-    require('@assets/avatars/7.webp'),
-    require('@assets/avatars/8.webp'),
-    require('@assets/avatars/9.webp'),
-    require('@assets/avatars/10.webp'),
-    require('@assets/avatars/11.webp'),
-    require('@assets/avatars/12.webp'),
-    require('@assets/avatars/13.webp'),
-    require('@assets/avatars/14.webp'),
-    require('@assets/avatars/15.webp'),
-    require('@assets/avatars/16.webp'),
-    require('@assets/avatars/17.webp'),
-    require('@assets/avatars/18.webp'),
-    require('@assets/avatars/19.webp'),
-    require('@assets/avatars/20.webp'),
-    require('@assets/avatars/21.webp'),
-    require('@assets/avatars/22.webp'),
-    require('@assets/avatars/23.webp'),
-    require('@assets/avatars/24.webp'),
-    require('@assets/avatars/25.webp'),
-    require('@assets/avatars/26.webp'),
-    require('@assets/avatars/27.webp'),
-    require('@assets/avatars/28.webp'),
-    require('@assets/avatars/29.webp'),
-    require('@assets/avatars/30.webp'),
-    require('@assets/avatars/31.webp'),
+    require('@assets/avatars/0.png'),
+    require('@assets/avatars/1.png'),
+    require('@assets/avatars/2.png'),
+    require('@assets/avatars/3.png'),
+    require('@assets/avatars/4.png'),
+    require('@assets/avatars/5.png'),
+    require('@assets/avatars/6.png'),
+    require('@assets/avatars/7.png'),
+    // require('@assets/avatars/8.webp'),
+    // require('@assets/avatars/9.webp'),
+    // require('@assets/avatars/10.webp'),
+    // require('@assets/avatars/11.webp'),
+    // require('@assets/avatars/12.webp'),
+    // require('@assets/avatars/13.webp'),
+    // require('@assets/avatars/14.webp'),
+    // require('@assets/avatars/15.webp'),
+    // require('@assets/avatars/16.webp'),
+    // require('@assets/avatars/17.webp'),
+    // require('@assets/avatars/18.webp'),
+    // require('@assets/avatars/19.webp'),
+    // require('@assets/avatars/20.webp'),
+    // require('@assets/avatars/21.webp'),
+    // require('@assets/avatars/22.webp'),
+    // require('@assets/avatars/23.webp'),
+    // require('@assets/avatars/24.webp'),
+    // require('@assets/avatars/25.webp'),
+    // require('@assets/avatars/26.webp'),
+    // require('@assets/avatars/27.webp'),
+    // require('@assets/avatars/28.webp'),
+    // require('@assets/avatars/29.webp'),
+    // require('@assets/avatars/30.webp'),
+    // require('@assets/avatars/31.webp'),
 ];
 
 const myWalletSource = require('@assets/ic-my-wallet.png');
@@ -49,15 +49,14 @@ const verifiedSource = require('@assets/ic-verified.png');
 const contactSource = require('@assets/ic-contact.png');
 
 export const avatarColors = [
-    '#294659',
-    '#e56555',
-    '#f28c48',
-    '#8e85ee',
-    '#76c84d',
-    '#5fbed5',
-    '#549cdd',
-    '#f2749a',
-    '#d1b04d'
+    '#B36DEA',
+    '#61BDFF',
+    '#A6A6A6',
+    '#F6D615',
+    '#42B98E',
+    '#FE6099',
+    '#3877F2',
+    '#FF9A50'
 ];
 
 export const Avatar = memo((props: {
@@ -83,11 +82,13 @@ export const Avatar = memo((props: {
     },
     theme: ThemeType,
     isTestnet: boolean,
+    hashColor?: boolean
 }) => {
     const theme = props.theme;
     const isTestnet = props.isTestnet;
 
     let known = props.address ? KnownWallets(isTestnet)[props.address] : undefined;
+
 
     const hash = (props.hash !== undefined && props.hash !== null)
         ? props.hash
@@ -95,6 +96,7 @@ export const Avatar = memo((props: {
     let imgSource = avatarImages[hash];
     let color = avatarColors[avatarHash(props.id, avatarColors.length)];
     let img: any;
+    console.log({ imgSource })
 
     if (props.image) {
         img = (
@@ -107,7 +109,7 @@ export const Avatar = memo((props: {
         img = (
             <FastImage
                 source={imgSource}
-                style={{ width: props.size * .83, height: props.size * .83, borderRadius: props.size / 2, overflow: 'hidden' }}
+                style={{ width: props.size, height: props.size, borderRadius: props.size / 2, overflow: 'hidden' }}
             />
         );
     } else {
@@ -115,6 +117,10 @@ export const Avatar = memo((props: {
     }
 
     let backgroundColor: string | undefined = props.backgroundColor ?? theme.surfaceOnElevation;
+
+    if (props.hashColor) {
+        backgroundColor = color;
+    }
 
     if (known && known?.ic) {
         backgroundColor = theme.white;
@@ -224,7 +230,7 @@ export const Avatar = memo((props: {
                     width: props.size,
                     height: props.size,
                     borderRadius: props.size / 2,
-                    backgroundColor: backgroundColor,
+                    backgroundColor: backgroundColor ?? color,
                     borderColor: props.borderColor ?? color,
                     borderWidth: props.borderWith !== undefined ? props.borderWith : 1,
                     alignItems: 'center', justifyContent: 'center',

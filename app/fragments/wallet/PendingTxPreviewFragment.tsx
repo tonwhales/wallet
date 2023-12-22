@@ -195,6 +195,7 @@ const PendingTxPreview = () => {
                         }}
                         theme={theme}
                         isTestnet={isTestnet}
+                        hashColor
                     />
                     <PerfText
                         style={[

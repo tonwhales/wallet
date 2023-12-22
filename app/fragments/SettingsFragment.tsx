@@ -96,6 +96,10 @@ export const SettingsFragment = fragment(() => {
         });
     }, []);
 
+    const onAccountPress = useCallback(() => {
+        navigation.navigate('AccountSelector');
+    }, []);
+
     useTrackScreen('More', network.isTestnet);
 
     useFocusEffect(() => {
@@ -106,12 +110,16 @@ export const SettingsFragment = fragment(() => {
         <View style={{ flexGrow: 1 }}>
             <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
                 <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-                <View style={{
-                    flexDirection: 'row',
-                    backgroundColor: theme.surfaceOnElevation,
-                    borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
-                    alignItems: 'center'
-                }}>
+                <Pressable
+                    style={({ pressed }) => ({
+                        flexDirection: 'row',
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                        alignItems: 'center',
+                        opacity: pressed ? 0.8 : 1,
+                    })}
+                    onPress={onAccountPress}
+                >
                     <Text
                         style={{
                             fontWeight: '500',
@@ -145,7 +153,7 @@ export const SettingsFragment = fragment(() => {
                             <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
                         </View>
                     )}
-                </View>
+                </Pressable>
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}

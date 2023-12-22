@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions, PixelRatio } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition, Easing, EasingFunction } from 'react-native-reanimated';
+import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -20,7 +20,6 @@ import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
-import { Avatar } from '../../components/Avatar';
 import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
@@ -605,7 +604,12 @@ export const SimpleTransferFragment = fragment(() => {
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
-    }, []);
+        if (Platform.OS === 'android') {
+            setTimeout(() => {
+                scrollRef.current?.scrollTo({ y: 0 });
+            }, 100);
+        }
+    }, [scrollRef]);
 
     const onSubmit = useCallback((index: number) => {
         setSelectedInput(null);
@@ -617,12 +621,17 @@ export const SimpleTransferFragment = fragment(() => {
     }, []);
 
     // to account for some weird bug with LayoutAnimation
+    // TODO: refactor LinearTransition animations to animated each component on its own
     const animMarginTop = useMemo(() => {
         const { height: SCREEN_HEIGHT } = Dimensions.get('window');
         if (SCREEN_HEIGHT < 800) {
             return 0;
-        } else if (SCREEN_HEIGHT < 900) {
-            return 44;
+        } else if (SCREEN_HEIGHT <= 900 && SCREEN_HEIGHT >= 800) {
+            if (Platform.OS === 'android' && SCREEN_HEIGHT > 850) {
+                return 148;
+            }
+            
+            return Platform.select({ android: 116, ios: 44, default: 0 });
         } else if (SCREEN_HEIGHT < 1000) {
             return 138;
         }

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions, PixelRatio } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition, Easing, EasingFunction } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -37,10 +37,10 @@ import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
+import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -616,6 +616,19 @@ export const SimpleTransferFragment = fragment(() => {
         setSelectedInput(null);
     }, []);
 
+    // to account for some weird bug with LayoutAnimation
+    const animMarginTop = useMemo(() => {
+        const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+        if (SCREEN_HEIGHT < 800) {
+            return 0;
+        } else if (SCREEN_HEIGHT < 900) {
+            return 44;
+        } else if (SCREEN_HEIGHT < 1000) {
+            return 138;
+        }
+        return 0;
+    }, []);
+
     const { selected, onNext, header } = useMemo<{
         selected: 'amount' | 'address' | 'comment' | null,
         onNext: (() => void) | null,
@@ -631,7 +644,7 @@ export const SimpleTransferFragment = fragment(() => {
             return {
                 selected: null,
                 onNext: null,
-                header: { title: t('transfer.title'), onBackPressed: () => refs[1]?.current?.focus(), }
+                header: { title: t('transfer.title') }
             }
         }
 
@@ -651,25 +664,10 @@ export const SimpleTransferFragment = fragment(() => {
                 title: t('transfer.title'),
             }
 
-        if (selectedInput === 1) {
-            return {
-                selected: 'amount',
-                onNext: (validAmount && !amountError)
-                    ? () => refs[2]?.current?.focus()
-                    : null,
-                header: {
-                    onBackPressed: () => refs[0]?.current?.focus(),
-                    ...headertitle
-                }
-            }
-        }
-
         if (selectedInput === 0) {
             return {
                 selected: 'address',
-                onNext: !!targetAddressValid
-                    ? () => refs[1]?.current?.focus()
-                    : null,
+                onNext: targetAddressValid ? resetInput : null,
                 header: {
                     title: t('common.recipient'),
                     titleComponent: undefined,
@@ -677,51 +675,61 @@ export const SimpleTransferFragment = fragment(() => {
             }
         }
 
+        if (selectedInput === 1) {
+            return {
+                selected: 'amount',
+                onNext: resetInput,
+                header: { ...headertitle }
+            }
+        }
+
         if (selectedInput === 2) {
             return {
                 selected: 'comment',
                 onNext: resetInput,
-                header: {
-                    ...headertitle,
-                    onBackPressed: () => refs[1]?.current?.focus(),
-                }
+                header: { ...headertitle }
             }
         }
 
         // Default
-        return { selected: null, onNext: null, header: { onBackPressed: navigation.goBack, ...headertitle } };
+        return { selected: null, onNext: null, header: { ...headertitle } };
     }, [selectedInput, targetAddressValid, validAmount, refs, doSend, amountError]);
 
     const seletectInputStyles = useMemo<{
         amount: StyleProp<ViewStyle>,
         address: StyleProp<ViewStyle>,
         comment: StyleProp<ViewStyle>,
+        fees: StyleProp<ViewStyle>,
     }>(() => {
         switch (selected) {
             case 'amount':
                 return {
-                    amount: { position: 'absolute', top: 0, left: 0, right: 0 },
-                    address: { position: 'absolute', top: 1000, left: 0, right: 0 },
-                    comment: { position: 'absolute', top: 1000, left: 0, right: 0 },
+                    address: { opacity: 0 },
+                    amount: { position: 'absolute', top: 0, left: 0, right: 0, opacity: 1 },
+                    comment: { opacity: 0 },
+                    fees: { opacity: 0 },
                 }
             case 'address':
                 return {
-                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
-                    address: { position: 'absolute', top: 16, left: 0, right: 0 },
-                    comment: { position: 'absolute', top: -1000, left: 0, right: 0 },
+                    address: { position: 'absolute', top: 16, left: 0, right: 0, opacity: 1 },
+                    amount: { opacity: 0 },
+                    comment: { opacity: 0 },
+                    fees: { opacity: 0 },
                 }
 
             case 'comment':
                 return {
-                    amount: { position: 'absolute', top: -1000, left: 0, right: 0 },
-                    address: { position: 'absolute', top: -1000, left: 0, right: 0 },
-                    comment: { position: 'absolute', top: 0, left: 0, right: 0 },
+                    address: { opacity: 0 },
+                    amount: { opacity: 0 },
+                    comment: { position: 'absolute', top: 0, left: 0, right: 0, opacity: 1 },
+                    fees: { opacity: 0 },
                 }
             default:
                 return {
-                    amount: Platform.select({ android: { marginVertical: -80 }, ios: {} }),
-                    address: {},
-                    comment: {}
+                    address: { opacity: 1 },
+                    amount: { opacity: 1, marginTop: 16 - animMarginTop },
+                    comment: { opacity: 1, marginTop: 16 - animMarginTop },
+                    fees: { opacity: 1, marginTop: 16 - animMarginTop }
                 }
         }
     }, [selected]);
@@ -733,7 +741,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, [selected, addressDomainInput]);
 
     return (
-        <Animated.View style={{ flexGrow: 1 }}>
+        <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
                 title={header.title}
@@ -763,7 +771,7 @@ export const SimpleTransferFragment = fragment(() => {
                 nestedScrollEnabled={true}
             >
                 <Animated.View
-                    layout={LinearTransition.duration(300)}
+                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                     style={[seletectInputStyles.address, { flex: 1, zIndex: selected === 'address' ? 1 : undefined }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
@@ -785,13 +793,11 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                 </Animated.View>
                 <Animated.View
-                    layout={LinearTransition.duration(300)}
+                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                     style={[seletectInputStyles.amount, { flex: 1, zIndex: selected === 'amount' ? 1 : undefined }]}
                 >
                     <View
                         style={{
-                            marginTop: !selected ? 16 : 0,
-                            marginBottom: amountError ? 0 : 16,
                             backgroundColor: theme.surfaceOnElevation,
                             borderRadius: 20,
                             justifyContent: 'center',
@@ -937,7 +943,6 @@ export const SimpleTransferFragment = fragment(() => {
                                 fontSize: 13,
                                 lineHeight: 18,
                                 marginTop: 8,
-                                marginBottom: 16,
                                 marginLeft: 20,
                                 fontWeight: '400'
                             }}>
@@ -947,14 +952,13 @@ export const SimpleTransferFragment = fragment(() => {
                     )}
                 </Animated.View>
                 <Animated.View
-                    layout={LinearTransition.duration(300)}
+                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                     style={[
-                        { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined },
-                        seletectInputStyles.comment
+                        seletectInputStyles.comment,
+                        { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined }
                     ]}
                 >
                     <View style={{
-                        flex: 1,
                         backgroundColor: theme.surfaceOnElevation,
                         paddingVertical: 20,
                         paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
@@ -981,7 +985,7 @@ export const SimpleTransferFragment = fragment(() => {
                         />
                     </View>
                     {selected === 'comment' && (
-                        <Animated.View layout={Layout.duration(300)}>
+                        <Animated.View layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}>
                             <Text style={{
                                 color: theme.textSecondary,
                                 fontSize: 13, lineHeight: 18,
@@ -994,53 +998,57 @@ export const SimpleTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
                 </Animated.View>
-                {selectedInput === null && (
-                    <Animated.View layout={Layout.duration(300)} style={{ flex: 1 }}>
-                        <View style={{
-                            backgroundColor: theme.surfaceOnElevation,
-                            padding: 20, borderRadius: 20, marginTop: 16,
-                            flexDirection: 'row',
-                            justifyContent: 'space-between', alignItems: 'center',
-                        }}>
-                            <View>
-                                <Text
-                                    style={{
-                                        color: theme.textSecondary,
-                                        fontSize: 13, lineHeight: 18, fontWeight: '400',
-                                        marginBottom: 2
-                                    }}>
-                                    {t('txPreview.blockchainFee')}
-                                </Text>
-                                <Text style={{
-                                    color: theme.textPrimary,
-                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
+                <Animated.View
+                    layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
+                    style={[
+                        seletectInputStyles.fees,
+                        { flex: 1 }
+                    ]}
+                >
+                    <View style={{
+                        backgroundColor: theme.surfaceOnElevation,
+                        padding: 20, borderRadius: 20,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                    }}>
+                        <View>
+                            <Text
+                                style={{
+                                    color: theme.textSecondary,
+                                    fontSize: 13, lineHeight: 18, fontWeight: '400',
+                                    marginBottom: 2
                                 }}>
-                                    {estimation
-                                        ? <>
-                                            {`${fromNano(estimation)} TON`}
-                                        </>
-                                        : '...'
-                                    }
-                                    {!!estimationPrise && (
-                                        <Text style={{
-                                            color: theme.textSecondary,
-                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                        }}>
-                                            {` (${estimationPrise})`}
-                                        </Text>
+                                {t('txPreview.blockchainFee')}
+                            </Text>
+                            <Text style={{
+                                color: theme.textPrimary,
+                                fontSize: 17, lineHeight: 24, fontWeight: '400'
+                            }}>
+                                {estimation
+                                    ? <>
+                                        {`${fromNano(estimation)} TON`}
+                                    </>
+                                    : '...'
+                                }
+                                {!!estimationPrise && (
+                                    <Text style={{
+                                        color: theme.textSecondary,
+                                        fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                    }}>
+                                        {` (${estimationPrise})`}
+                                    </Text>
 
-                                    )}
-                                </Text>
-                            </View>
-                            <AboutIconButton
-                                title={t('txPreview.blockchainFee')}
-                                description={t('txPreview.blockchainFeeDescription')}
-                                style={{ height: 24, width: 24, position: undefined }}
-                                size={24}
-                            />
+                                )}
+                            </Text>
                         </View>
-                    </Animated.View>
-                )}
+                        <AboutIconButton
+                            title={t('txPreview.blockchainFee')}
+                            description={t('txPreview.blockchainFeeDescription')}
+                            style={{ height: 24, width: 24, position: undefined }}
+                            size={24}
+                        />
+                    </View>
+                </Animated.View>
                 <View style={{ height: 56 }} />
             </ScrollView>
             <KeyboardAvoidingView
@@ -1056,7 +1064,7 @@ export const SimpleTransferFragment = fragment(() => {
             >
                 {!!selected
                     ? <RoundButton
-                        title={t('common.continue')}
+                        title={t('common.save')}
                         disabled={!onNext}
                         onPress={onNext ? onNext : undefined}
                     />
@@ -1067,6 +1075,6 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                 }
             </KeyboardAvoidingView>
-        </Animated.View>
+        </View>
     );
 });

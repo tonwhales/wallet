@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { memo } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, StyleProp, ViewStyle } from "react-native";
 import { usePendingTransactions } from "../../../engine/hooks/transactions/usePendingTransactions";
 import { PendingTransaction } from "../../../engine/state/pending";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
@@ -19,6 +19,7 @@ import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSelectedAccount } from "../../../engine/hooks";
+import { ThemeType } from "../../../engine/state/theme";
 
 const PendingTransactionView = memo(({
     tx,
@@ -103,7 +104,7 @@ const PendingTransactionView = memo(({
                             borderWith={0}
                             id={targetFriendly ?? 'batch'}
                             theme={theme}
-                            isTestnet={false}
+                            isTestnet={isTestnet}
                             backgroundColor={theme.backgroundPrimary}
                         />
                     )}
@@ -182,6 +183,40 @@ const PendingTransactionView = memo(({
         </Animated.View>
     )
 });
+PendingTransactionView.displayName = 'PendingTransactionView';
+
+export const PendingTransactionsView = memo((
+    {
+        theme,
+        pending,
+        removePending,
+        style
+    }: {
+        theme: ThemeType,
+        pending: PendingTransaction[],
+        removePending: (id: string) => void,
+        style?: StyleProp<ViewStyle>,
+    }
+) => {
+    return (
+        <View style={[{
+            overflow: 'hidden',
+            backgroundColor: theme.surfaceOnBg,
+            borderRadius: 20,
+        }, style]}>
+            {pending.map((tx, i) => (
+                <PendingTransactionView
+                    key={tx.id}
+                    tx={tx}
+                    first={i === 0}
+                    last={i === pending.length - 1}
+                    onRemove={() => removePending(tx.id)}
+                />
+            ))}
+        </View>
+    );
+});
+PendingTransactionsView.displayName = 'PendingTransactionsView';
 
 export const PendingTransactions = memo(() => {
     const account = useSelectedAccount();
@@ -196,7 +231,10 @@ export const PendingTransactions = memo(() => {
     }, [setPending]);
 
     return (
-        <View>
+        <View style={{
+            paddingHorizontal: 16,
+            marginTop: 16,
+        }}>
             {pending.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}
@@ -205,9 +243,7 @@ export const PendingTransactions = memo(() => {
                         backgroundColor: theme.backgroundPrimary,
                         justifyContent: 'flex-end',
                         paddingBottom: 2,
-                        paddingTop: 12,
                         marginVertical: 8,
-                        paddingHorizontal: 16
                     }}
                 >
                     <Text style={{
@@ -220,21 +256,12 @@ export const PendingTransactions = memo(() => {
                     </Text>
                 </Animated.View>
             )}
-            <View style={{
-                overflow: 'hidden',
-                backgroundColor: theme.surfaceOnBg,
-                marginHorizontal: 16, borderRadius: 20,
-            }}>
-                {pending.map((tx, i) => (
-                    <PendingTransactionView
-                        key={tx.id}
-                        tx={tx}
-                        first={i === 0}
-                        last={i === pending.length - 1}
-                        onRemove={() => removePending(tx.id)}
-                    />
-                ))}
-            </View>
+            <PendingTransactionsView
+                theme={theme}
+                pending={pending}
+                removePending={removePending}
+            />
         </View>
     );
 });
+PendingTransactions.displayName = 'PendingTransactions';

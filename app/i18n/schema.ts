@@ -471,6 +471,7 @@ export type LocalizationSchema = {
                 account: string,
                 basicAccount: string,
                 proAccount: string,
+                noCards: string,
             },
             pageTitles: {
                 general: string,

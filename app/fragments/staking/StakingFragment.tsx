@@ -19,11 +19,12 @@ import { StakingPoolType } from "./StakingPoolsFragment";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -37,6 +38,7 @@ export const StakingFragment = fragment(() => {
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
     const active = useStakingActive();
+    const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -53,7 +55,19 @@ export const StakingFragment = fragment(() => {
         isLedger
             ? ledgerAddress!.toString({ testOnly: network.isTestnet })
             : selected!.address.toString({ testOnly: network.isTestnet })
-    )
+    );
+
+    const pendingPoolTxs = useMemo(() => {
+        return pendingTxs.filter((tx) => {
+            return tx.address?.equals(targetPool);
+        });
+    }, [pendingTxs, targetPool]);
+
+    const removePending = useCallback((id: string) => {
+        setPending((prev) => {
+            return prev.filter((tx) => tx.id !== id);
+        });
+    }, [setPending]);
 
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
@@ -135,6 +149,7 @@ export const StakingFragment = fragment(() => {
 
     const hasStake = (member?.balance || 0n)
         + (member?.pendingWithdraw || 0n)
+        + (member?.pendingDeposit || 0n)
         + (member?.withdraw || 0n)
         > 0n;
 
@@ -404,6 +419,14 @@ export const StakingFragment = fragment(() => {
                     <StakingCycle
                         stakeUntil={pool.status.proxyStakeUntil}
                         locked={pool.status.locked}
+                        style={{ marginBottom: 16 }}
+                    />
+                )}
+                {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
+                    <PendingTransactionsView
+                        theme={theme}
+                        pending={pendingPoolTxs}
+                        removePending={removePending}
                         style={{ marginBottom: 16 }}
                     />
                 )}

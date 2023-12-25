@@ -29,7 +29,7 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
 export function formatInputAmount(
   raw: string,
   decimals: number,
-  formatting: {
+  formatting?: {
     skipFormattingReal?: boolean,
     skipFormattingDecimals?: boolean,
     trimSeparator?: boolean,
@@ -56,7 +56,7 @@ export function formatInputAmount(
   }
 
 
-  const { skipFormattingReal, skipFormattingDecimals, trimSeparator } = formatting;
+  const { skipFormattingReal, skipFormattingDecimals, trimSeparator } = formatting || {};
   const { decimalSeparator } = getNumberFormatSettings();
 
   if (raw.endsWith(',') || raw.endsWith('.')) {

@@ -317,7 +317,9 @@ export const StakingTransferFragment = fragment(() => {
                 - (pool?.params?.receiptPrice || toNano('0.1'))
         }
         if (addAmount > 0n) {
-            onSetAmount(fromNano(addAmount));
+            const amount = fromNano(addAmount);
+            const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
+            onSetAmount(formatted);
         }
     }, [balance, params, pool]);
 

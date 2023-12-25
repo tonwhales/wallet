@@ -486,11 +486,11 @@ export const SimpleTransferFragment = fragment(() => {
     }, [commentString, target, validAmount, stateInit, jetton,]);
 
     const onAddAll = useCallback(() => {
-        setAmount(
-            jettonState
-                ? fromBnWithDecimals(balance, jettonState.master.decimals)
-                : fromNano(balance)
-        );
+        const amount = jettonState
+            ? fromBnWithDecimals(balance, jettonState.master.decimals)
+            : fromNano(balance);
+        const formatted = formatInputAmount(amount.replace('.', ','), jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true });
+        setAmount(formatted);
     }, [balance, jettonState]);
 
     //
@@ -1017,7 +1017,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} TON`}
+                                            {`${fromNano(estimation).replace('.', ',')} TON`}
                                         </>
                                         : '...'
                                     }

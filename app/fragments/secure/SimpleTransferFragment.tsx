@@ -553,18 +553,26 @@ export const SimpleTransferFragment = fragment(() => {
         // Load contract
         const contract = await contractFromPublicKey(acc!.publicKey);
 
-        // Check if same address
-        if (isLedger) {
-            if (!ledgerAddress) {
-                return;
-            }
-            if (address.equals(ledgerAddress)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
-                return;
-            }
-        } else {
-            if (address.equals(contract.address)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
+        // Check if transfering to yourself
+        if (isLedger && !ledgerAddress) {
+            return;
+        }
+
+        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+            let allowSendingToYourself = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSendingToYourself) {
                 return;
             }
         }

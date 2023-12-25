@@ -34,10 +34,10 @@ import { OrderMessage } from "../TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 import { AppInfo } from "../../../components/ConnectedAppButton";
+import { ItemDivider } from "../../../components/ItemDivider";
 
 import IcAlert from '@assets/ic-alert.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { ItemDivider } from "../../../components/ItemDivider";
 
 type Props = {
     text: string | null,
@@ -143,8 +143,8 @@ export const TransferBatch = memo((props: Props) => {
                         jettonAmount = parsing.loadCoins();
                     }
                 }
-            } catch (e) {
-                console.warn(e);
+            } catch {
+                console.warn('Failed to parse jetton amount');
             }
 
             if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
@@ -308,8 +308,22 @@ export const TransferBatch = memo((props: Props) => {
             return;
         }
         if (totalAmount === 0n) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
+            let allowSeingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSeingZero) {
+                return;
+            }
         }
 
 

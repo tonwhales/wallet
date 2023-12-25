@@ -231,10 +231,7 @@ export const PendingTransactions = memo(() => {
     }, [setPending]);
 
     return (
-        <View style={{
-            paddingHorizontal: 16,
-            marginTop: 16,
-        }}>
+        <View style={{ paddingHorizontal: 16 }}>
             {pending.length > 0 && (
                 <Animated.View
                     entering={FadeInDown}
@@ -244,6 +241,7 @@ export const PendingTransactions = memo(() => {
                         justifyContent: 'flex-end',
                         paddingBottom: 2,
                         marginVertical: 8,
+                        marginTop: 16,
                     }}
                 >
                     <Text style={{

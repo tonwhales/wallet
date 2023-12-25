@@ -96,7 +96,7 @@ export const HoldersAccountItem = memo((props: {
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20, }}
+                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20 }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}
@@ -152,7 +152,9 @@ export const HoldersAccountItem = memo((props: {
                             style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
                             contentContainerStyle={{ gap: 8 }}
                             contentInset={Platform.select({ ios: { left: 78 } })}
+                            contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
                             showsHorizontalScrollIndicator={false}
+                            alwaysBounceHorizontal={props.account.cards.length > 0}
                         >
                             {props.account.cards.map((card,) => {
                                 return (
@@ -162,6 +164,11 @@ export const HoldersAccountItem = memo((props: {
                                     />
                                 )
                             })}
+                            {props.account.cards.length === 0 && (
+                                <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
+                                    {t('products.holders.accounts.noCards')}
+                                </PerfText>
+                            )}
                         </ScrollView>
                     </View>
                 </TouchableOpacity>

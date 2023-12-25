@@ -149,6 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidAmount": "Неверное количество",
             "sendingToYourself": "Адреса отправителя и адрес получателя совпадают. Укажите другой адрес.",
             "zeroCoins": "Сумма перевода должна быть больше нуля",
+            "zeroCoinsAlert": "Вы пытаетесь отправить ноль монет",
             "notEnoughCoins": "На вашем балансе недостаточно средств",
             "addressIsForTestnet": "Адрес получателя относится к тестовой сети",
             "addressCantReceive": "Адрес получателя не может принимать монеты",

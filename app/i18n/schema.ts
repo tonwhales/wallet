@@ -166,6 +166,7 @@ export type LocalizationSchema = {
             invalidDomainString: string,
             sendingToYourself: string,
             zeroCoins: string,
+            zeroCoinsAlert: string,
             notEnoughCoins: string,
             addressIsForTestnet: string,
             addressCantReceive: string,

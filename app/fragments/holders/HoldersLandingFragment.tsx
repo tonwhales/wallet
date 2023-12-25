@@ -27,6 +27,8 @@ import { WebViewLoader, normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
 import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
+import DeviceInfo from 'react-native-device-info';
+
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
@@ -232,7 +234,13 @@ export const HoldersLandingFragment = fragment(() => {
     }, []);
 
     const onLoadEnd = useCallback(() => {
-        setLoaded(true);
+        try {
+            const powerState = DeviceInfo.getPowerStateSync();
+            const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
+            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+        } catch {
+            setTimeout(() => setLoaded(true), 100);
+        }
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
@@ -270,9 +278,7 @@ export const HoldersLandingFragment = fragment(() => {
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={() => {
-                            setTimeout(onLoadEnd, 100);
-                        }}
+                        onLoadEnd={onLoadEnd}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -319,9 +325,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     alignSelf: 'stretch',
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
                                 }}
-                                onLoadEnd={() => {
-                                    setTimeout(onLoadEnd, 150);
-                                }}
+                                onLoadEnd={onLoadEnd}
                                 onLoadProgress={(event) => {
                                     if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                         // Searching for supported query

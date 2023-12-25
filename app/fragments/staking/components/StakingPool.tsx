@@ -113,10 +113,11 @@ export const StakingPool = memo((props: {
                 opacity: pressed ? 0.5 : 1,
                 borderRadius: 16,
                 backgroundColor: theme.backgroundPrimary,
-                padding: 16
+                padding: 16,
+                paddingTop: props.balance > 0n ? 20 : 0,
             }, props.style]}
         >
-            {!props.hideCycle && (<View style={{
+            {!props.hideCycle && (<View style={[{
                 flexShrink: 1,
                 alignItems: 'center',
                 alignSelf: 'flex-end',
@@ -124,8 +125,7 @@ export const StakingPool = memo((props: {
                 overflow: 'hidden',
                 backgroundColor: theme.border,
                 maxWidth: 74, justifyContent: 'center',
-                position: 'relative', top: -6, right: -6
-            }}>
+            }, props.balance > 0n ? { position: 'relative', top: -10, right: -6 } : { position: 'relative', top: 10, right: -6 }]}>
                 <Text style={{
                     paddingHorizontal: 8, paddingVertical: 1,
                     color: theme.textPrimary,
@@ -222,7 +222,7 @@ export const StakingPool = memo((props: {
                                         value={props.balance}
                                         centFontStyle={{ opacity: 0.5 }}
                                     />
-                                    <Text style={{ opacity: 0.5 }}>
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
                                         {' TON'}
                                     </Text>
                                 </Text>
@@ -234,6 +234,7 @@ export const StakingPool = memo((props: {
                                         alignSelf: 'flex-end',
                                         marginTop: 2, height: 20
                                     }}
+                                    theme={theme}
                                     textStyle={{
                                         color: theme.textSecondary,
                                         fontWeight: '400',

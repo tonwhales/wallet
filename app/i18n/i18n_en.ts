@@ -51,6 +51,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         wallets: 'Wallets',
         later: 'Later',
         select: 'Select',
+        show: 'Show',
+        hide: 'Hide',
         showAll: 'Show all',
         hideAll: 'Hide all',
         done: 'Done',
@@ -71,6 +73,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         message: 'Message',
         airdrop: 'Airdrop',
         myWallets: 'My wallets',
+        showMore: 'Show more',
     },
     syncStatus: {
         connecting: 'Connecting',
@@ -141,7 +144,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     txPreview: {
         sendAgain: 'Send again',
         blockchainFee: 'Network fee',
-        blockchainFeeDescription: 'All fees are calculated in Gas. It\'s a special currency for fees in TON. All fees are nominated and fixed in a certain gas amount, but the gas price itself is not fixed. Even if TON price increases 100 times, transactions will remain ultra-cheap; less than $0.01. Moreover, validators may lower this value if they see commissions have become expensive. The gas fee, like many other parameters of TON, is configurable and may be changed by a special vote made in the mainnet. Fees on TON are difficult to calculate in advance, as their amount depends on transaction run time, account status, message content and size, blockchain network settings, and a number of other variables that cannot be calculated until the transaction is sent.',
+        blockchainFeeDescription: 'This fee is also referred to as GAS. It is required for a transaction to be successfully processed in blockchain. The size of the GAS depends on the amount of work that validators need to do to include a transaction in the block.',
     },
     receive: {
         title: 'Receive',
@@ -161,7 +164,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'Unfortunately you can\'t send zero coins',
-            notEnoughCoins: 'You don\'t have enough coins on your balance',
+            notEnoughCoins: 'You don\'t have enough TON on your wallets balance',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
             addressIsNotActive: 'This wallet has no history',
@@ -222,8 +225,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         completed: 'This authentication request already completed',
         authorized: 'Authorization request approved',
         authorizedDescription: 'Now you can get back the app.',
-        noExtensions: 'You don\'t have any extensions installed yet',
-        noApps: 'You don\'t have any connected apps yet',
+        noExtensions: 'No extensions yet',
+        noApps: 'No connected apps yet',
         name: 'Connected apps',
         yourWallet: 'Your wallet',
         revoke: {
@@ -258,7 +261,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         subtitle: 'If you have been using obsolete wallets, you can automatically move all funds from your old addresses.',
         inProgress: 'Migrating old wallets...',
         transfer: 'Transfering coins from {{address}}',
-        check: 'Checking address {{address}}'
+        check: 'Checking address {{address}}',
+        keyStoreTitle: 'Transition to a new security method',
+        keyStoreSubtitle: 'We want your keys to always be secure, so we have updated the way we protect them. We need your permission to transfer your keys to a new secure storage.',
+        failed: 'Migration failed',
     },
     qr: {
         title: 'Point camera at QR code',
@@ -268,7 +274,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         failedToReadFromImage: 'Failed to read QR code from image',
     },
     products: {
-        addNew: 'Add new',
+        addNew: 'Add new product',
         tonConnect: {
             errors: {
                 connection: 'Connection error',
@@ -282,7 +288,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         transactionRequest: {
             title: 'Transaction requested',
-            subtitle: 'Press to view request'
+            subtitle: 'Press to view request',
+            groupTitle: 'Transaction requests',
         },
         signatureRequest: {
             title: 'Signature requested',
@@ -455,7 +462,13 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             }
         },
         holders: {
-            title: 'Tonhub Bank card',
+            title: 'Bank account',
+            accounts: {
+                title: 'Accounts',
+                account: 'Account',
+                basicAccount: 'Basic account',
+                proAccount: 'Pro account',
+            },
             pageTitles: {
                 general: 'Tonhub Cards',
                 card: 'Tonhub Card',
@@ -469,7 +482,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 setUpCard: 'Set up the card',
                 pin: 'Change PIN',
             },
-            hiddenCards: 'Hidden cards',
+            hiddenCards: 'Hidden accounts',
             card: {
                 card: 'Card',
                 cards: 'Holders cards',
@@ -528,7 +541,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 description_2: 'No one except you has access to your funds',
                 description_3: 'You truly own your money',
                 moreInfo: 'More about ZenPay Card',
-                buttonSub: 'KYC and card issue takes ~5 min'
+                buttonSub: 'KYC and card issue takes ~5 min',
+                failed: {
+                    title: 'Failed to authorize',
+                    noAppData: 'No app data',
+                    noDomainKey: 'No domain key',
+                    createDomainKey: 'During domain key creation',
+                    fetchToken: 'During token fetching',
+                    createSignature: 'During signature creation',
+                },
             }
         }
     },
@@ -605,10 +626,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     },
     backupIntro: {
         title: 'Back up your wallet',
-        subtitle: 'In the next step you will see 24 secret words that allows you to recover a wallet',
-        clause1: 'If I lose recovery phrase, my funds will be lost forever.',
-        clause2: 'If I expose or share my recovery phrase to anybody, my funds can be stolen.',
-        clause3: 'It is my full responsibility to keep my recovery phrase secure.'
+        subtitle: 'Are you sure that you have saved your 24 secret words?',
+        saved: 'Yes, I saved them',
+        goToBackup: 'No, Go to backup',
     },
     errors: {
         incorrectWords: {
@@ -719,10 +739,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 authenticate: 'Authenticate with Passcode',
             },
             biometricsSetupAgain: {
-                title: 'Biometrics setup',
-                message: 'Please, setup biometrics again with passcode',
+                title: 'New biometrics detected',
+                message: 'Please, setup biometrics again in security settings',
                 setup: 'Setup',
-                authenticate: 'Authenticate with Passcode',
+                authenticate: 'Continue with Passcode',
             },
             biometricsCooldown: {
                 title: 'Biometrics cooldown',
@@ -734,6 +754,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 messageLogout: 'Unfortunately, your wallet is no longer available, to restore your wallet, tap \"Logout\" (you will be logged out of you current wallet) and add your wallet again',
                 logout: 'Logout',
                 restore: 'Restore',
+            },
+            canceled: {
+                title: 'Canceled',
+                message: 'Authentication was canceled, please try again',
             }
         }
     },

@@ -3,6 +3,7 @@ export const Queries = {
     Account: (address: string) => ({
         All: () => ['account', address],
         Lite: () => ['account', address, 'lite'],
+        WalletV4: () => ['account', address, 'wallet-v4'],
         JettonWallet: () => ['account', address, 'jettonWallet'],
         StakingPool: () => ({
             Status: () => ['account', address, 'staking', 'status'],
@@ -16,13 +17,14 @@ export const Queries = {
 
     Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
+        All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],
         Cards: (mode: 'private' | 'public') => ['holders', address, 'cards', mode],
         Notifications: (id: string) => ['holders', address, 'events', id],
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
-    Config: () => ['config'],
+    Config: (network: 'testnet' | 'mainnet') => ['config', network],
     ServerConfig: () => ['serverConfig'],
 
     Hints: (address: string) => (['hints', address]),
@@ -35,6 +37,7 @@ export const Queries = {
             AllWallets: () => ['jettons', 'address', address, 'master'],
             Wallet: (masterAddress: string) => ['jettons', 'address', address, 'master', masterAddress],
         }),
+        Swap: (masterAddress: string) => ['jettons', 'swap', masterAddress],
     }),
     TonPrice: () => ['tonPrice'],
     Apps: (url: string) => ({
@@ -42,5 +45,5 @@ export const Queries = {
         AppData: () => ['apps', url, 'appData'],
         Stats: () => ['apps', url, 'stats'],
     }),
-    APY: () => (['staking', 'apy']),
+    APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
 }

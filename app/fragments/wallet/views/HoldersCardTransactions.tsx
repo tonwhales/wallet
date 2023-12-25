@@ -5,52 +5,60 @@ import { formatDate } from "../../../utils/dates";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
 import { useCardTransactions, useNetwork, useTheme } from "../../../engine/hooks";
 import { Address } from "@ton/core";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { ThemeType } from "../../../engine/state/theme";
 
 export const HoldersCardTransactions = memo(({
     id,
-    address
+    address,
+    theme,
+    isTestnet
 }: {
     id: string,
-    address: Address
+    address: Address,
+    theme: ThemeType,
+    isTestnet: boolean
 }) => {
-    const theme = useTheme();
-    const { isTestnet } = useNetwork();
+    const bottomBarHeight = useBottomTabBarHeight();
     const notificationsState = useCardTransactions(address.toString({ testOnly: isTestnet }), id);
     const notifications = notificationsState?.data;
     const txs = notifications?.pages?.map((p) => p?.data).filter((d) => !!d).flat() as CardNotification[];
 
     const sections = useMemo(() => {
-        const data: { title: string, data: CardNotification[] }[] = [];
+        const data: Map<string, CardNotification[]> = new Map();
         if (txs && txs.length > 0) {
             let lastDate: string | undefined;
             let lastDateIndex = 0;
-            txs.forEach((tx, index) => {
+            for (let index = 0; index < txs.length; index++) {
+                const tx = txs[index];
                 const dateKey = formatDate(tx.time / 1000);
                 if (lastDate !== dateKey) {
                     lastDate = dateKey;
-                    data.push({ title: dateKey, data: [] });
+                    data.set(dateKey, []);
                     lastDateIndex = index;
                 }
-                data[data.length - 1].data.push(tx);
-            });
-
+                data.get(dateKey)?.push(tx);
+            }
         }
-        return data;
+        return Array.from(data.entries()).map(([title, data]) => ({ title, data }));
     }, [txs]);
 
     return (
         <View style={{ flexGrow: 1 }}>
             <SectionList
                 sections={sections}
-                getItemCount={(data) => data.items.length}
+                getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
                 keyExtractor={(item, index) => item.id + index}
                 onEndReached={() => notificationsState.fetchNextPage()}
                 renderItem={({ item }) => (
                     <HoldersCardNotification
                         key={`card-tx-${id}-${item.id}`}
                         notification={item}
+                        theme={theme}
                     />
                 )}
+                initialNumToRender={15}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 stickySectionHeadersEnabled={false}
                 onEndReachedThreshold={0.5}
                 refreshing={notificationsState.isLoading}

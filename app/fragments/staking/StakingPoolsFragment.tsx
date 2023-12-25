@@ -16,6 +16,7 @@ import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useS
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar } from "expo-status-bar";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
 
@@ -33,6 +34,7 @@ export const StakingPoolsFragment = fragment(() => {
     const route = useRoute();
     const ledgerContext = useLedgerTransport();
     const selected = useSelectedAccount();
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const isLedger = route.name === 'LedgerStakingPools';
 
@@ -370,6 +372,7 @@ export const StakingPoolsFragment = fragment(() => {
                 alwaysBounceVertical={false}
                 style={{ flexShrink: 1, flexGrow: 1 }}
                 contentContainerStyle={{ paddingTop: 8, paddingHorizontal: 16 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
                 <View style={{ flexGrow: 1 }}>
                     {items}

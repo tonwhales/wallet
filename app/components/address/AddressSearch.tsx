@@ -7,6 +7,7 @@ import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwor
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
+import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 export type AddressSearchItem = {
     address: Address,
@@ -30,7 +31,8 @@ export const AddressSearch = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const contacts = useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
     const appState = useAppState();
     const selectedIndex = appState.selected;
     const myWallets = appState.addresses.map((acc, index) => ({
@@ -42,7 +44,7 @@ export const AddressSearch = memo(({
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
 
-    const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet }))?.data;
+    const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet })).data;
 
     const lastTxs = useMemo(() => {
         // first two txs
@@ -50,11 +52,15 @@ export const AddressSearch = memo(({
 
         let addresses: Address[] = [];
         if (!!two && two.length > 1) {
-            const first = Address.parse(two[0].base.parsed.resolvedAddress);
-            const second = Address.parse(two[1].base.parsed.resolvedAddress);
-            if (first && second && first.equals(second)) {
+            const firstAddr = two[0].base.operation.items[0].kind === 'token' ? two[0].base.operation.address : two[0].base.parsed.resolvedAddress;
+            const secondAddr = two[1].base.operation.items[0].kind === 'token' ? two[1].base.operation.address : two[1].base.parsed.resolvedAddress;
+
+            const first = Address.parse(firstAddr);
+            const second = Address.parse(secondAddr);
+
+            if (!!first && !!second && first.equals(second)) {
                 addresses = [first];
-            } else if (first && second && !first.equals(second)) {
+            } else if (!!first && !!second && !first.equals(second)) {
                 addresses = [first, second];
             } else if (first) {
                 addresses = [first];
@@ -62,18 +68,6 @@ export const AddressSearch = memo(({
                 addresses = [second];
             }
         }
-
-        // filter contacts
-        addresses = addresses.filter((a) => {
-            return !Object.keys(contacts).find((key) => {
-                try {
-                    const address = Address.parse(key);
-                    return address.equals(a);
-                } catch {
-                    return false;
-                }
-            });
-        });
 
         return addresses;
     }, [txs, contacts]);
@@ -167,7 +161,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -182,8 +176,24 @@ export const AddressSearch = memo(({
                         {filtered.recent.map((address, index) => {
                             const contact = contacts[address.toString({ testOnly: network.isTestnet })];
                             const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
-                            const type = contact ? 'contact' : known ? 'known' : 'unknown';
-                            const title = contact ? contact.name : known ? known.name : t('contacts.unknown');
+                            const own = myWallets.find((acc) => acc.address.equals(address));
+                            let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
+                            let title = t('contacts.unknown');
+                            if (contact) {
+                                type = 'contact';
+                                title = contact.name;
+                            } else if (known) {
+                                type = 'known';
+                                title = known.name;
+                            } else if (!!own) {
+                                type = 'my-wallets';
+                                const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
+                                if (settings?.name) {
+                                    title = settings.name;
+                                } else {
+                                    title = `${t('common.wallet')} ${own.index + 1}`;
+                                }
+                            }
 
                             return (
                                 <AddressSearchItemView
@@ -212,7 +222,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>
@@ -247,7 +257,7 @@ export const AddressSearch = memo(({
                         fontSize: 17, fontWeight: '600',
                         lineHeight: 24,
                         color: theme.textPrimary,
-                        marginBottom: 8,
+                        marginBottom: 12,
                         marginLeft: transfer ? 16 : 0,
                         marginTop: transfer ? 16 : 0
                     }}>

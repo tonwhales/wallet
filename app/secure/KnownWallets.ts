@@ -408,6 +408,7 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
         ? {
             'EQCcLAW537KnRg_aSPrnQJoyYjOZkzqYp6FVmRUvN1crSazV': { /*TODO: add some usefull fields for mapped objects */ },
             'EQB-ajMyi5-WKIgOHnbOGApfckUGbl6tDk3Qt8PKmb-xLAvp': {},
+            'EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON': {}, // wsTON
             'EQBynBO23ywHy_CgarY9NK9FTz0yDsG82PtcbSTQgGoXwiuA': {}, // jUSDT
             'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728': {}, // jUSDC
             'EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B': {}, // jDAI

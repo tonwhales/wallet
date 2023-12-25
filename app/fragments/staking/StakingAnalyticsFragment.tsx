@@ -326,6 +326,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                             amount={selectedPoint.balance}
                             style={{ backgroundColor: theme.divider }}
                             textStyle={{ color: theme.textPrimary }}
+                            theme={theme}
                         />
                         <View style={{
                             backgroundColor: theme.divider,
@@ -351,6 +352,7 @@ export const StakingAnalyticsFragment = fragment(() => {
                                     paddingLeft: 0,
                                     height: undefined,
                                 }}
+                                theme={theme}
                                 amount={selectedPoint.profit}
                             />
                         </View>

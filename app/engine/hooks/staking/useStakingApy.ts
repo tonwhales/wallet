@@ -7,7 +7,7 @@ export function useStakingApy() {
     const { isTestnet } = useNetwork();
 
     return useQuery({
-        queryKey: Queries.APY(),
+        queryKey: Queries.APY(isTestnet ? 'testnet' : 'mainnet'),
         queryFn: () => {
             return fetchApy(isTestnet);
         },

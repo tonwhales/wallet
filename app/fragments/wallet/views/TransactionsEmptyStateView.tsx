@@ -1,6 +1,6 @@
 import React from "react";
 import { memo, useCallback } from "react";
-import { View, Text, Platform } from "react-native";
+import { View, Text, Image } from "react-native";
 import { t } from "../../../i18n/t";
 import { RoundButton } from "../../../components/RoundButton";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -8,15 +8,19 @@ import { useNetwork, useTheme } from "../../../engine/hooks";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { useDimensions } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Typography } from "../../../components/styles";
 
-import IcEmpty from '@assets/ic-history-empty.svg';
+const EmptyIllustrations = {
+    dark: require('@assets/empty-txs-dark.webp'),
+    light: require('@assets/empty-txs.webp')
+}
 
 export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }) => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-    const dimentions = useDimensions();
+    const dimensions = useDimensions();
     const safeArea = useSafeAreaInsets();
 
     const navigateReceive = useCallback(() => {
@@ -35,16 +39,20 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
     }, [isLedger, ledgerContext]);
 
     return (
-        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimentions.window.height - safeArea.bottom - 112 }}>
-            <IcEmpty
-                height={68}
-                width={68}
-                style={{
-                    height: 68,
-                    width: 68,
-                    marginBottom: 32,
-                }}
-            />
+        <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 16, minHeight: dimensions.window.height - safeArea.bottom - 112 }}>
+            <View style={{
+                justifyContent: 'center', alignItems: 'center',
+                width: dimensions.screen.width - 32,
+                height: (dimensions.screen.width - 32) * 0.91,
+                borderRadius: 20, overflow: 'hidden',
+                marginBottom: 32,
+            }}>
+                <Image
+                    resizeMode={'center'}
+                    style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                    source={EmptyIllustrations[theme.style]}
+                />
+            </View>
             <Text
                 style={{
                     textAlign: 'center',
@@ -55,12 +63,7 @@ export const TransactionsEmptyState = memo(({ isLedger }: { isLedger?: boolean }
                 {t('wallet.empty.message')}
             </Text>
             <Text
-                style={{
-                    marginTop: 16,
-                    textAlign: 'center',
-                    fontSize: 17, fontWeight: '400',
-                    color: theme.textSecondary
-                }}
+                style={[{ marginTop: 16, textAlign: 'center', color: theme.textSecondary }, Typography.regular17_24]}
             >
                 {t('wallet.empty.description')}
             </Text>

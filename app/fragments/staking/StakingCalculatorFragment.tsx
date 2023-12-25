@@ -11,11 +11,11 @@ import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
 import { TransferAction } from "./StakingTransferFragment";
 import { usePrice, useStakingPool, useTheme } from "../../engine/hooks";
-import { Address, fromNano } from "@ton/core";
+import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
 import { StatusBar } from "expo-status-bar";
@@ -43,42 +43,25 @@ export const StakingCalculatorFragment = fragment(() => {
 
     const [amount, setAmount] = useState(pool?.member?.balance ? fromNano(pool.member.balance) : '');
 
-    const onChangeAmount = useCallback((value: string) => {
-        let amount = value;
-        if (amount.length <= 10) {
-            setAmount(amount);
-            return;
+    const validAmount = useMemo(() => {
+        let value: bigint | null = null;
+        if (amount.length === 0) {
+            return 0n;
         }
-
-        if (amount.includes(',')) {
-            amount = amount.replace(',', '.');
-            const parts = amount.split('.');
-            if (parts.length === 2) {
-                if (parts[0].length <= 10) {
-                    setAmount(amount);
-                } else {
-                    setAmount((prev) => prev);
-                }
-            }
+        try {
+            const valid = amount.replace(',', '.').replaceAll(' ', '');
+            value = toNano(valid);
+            return value;
+        } catch {
+            return null;
         }
-
-        if (amount.includes('.')) {
-            const parts = amount.split('.');
-            if (parts.length === 2) {
-                if (parts[0].length <= 10) {
-                    setAmount(amount);
-                } else {
-                    setAmount((prev) => prev);
-                }
-            }
-        }
-    }, [setAmount]);
+    }, [amount]);
 
     const priceText = useMemo(() => {
-        if (!amount) {
+        if (!amount || !validAmount) {
             return;
         }
-        const validAmount = parseAmountToValidBN(amount);
+
         const isNeg = validAmount < 0n;
         const abs = isNeg ? -validAmount : validAmount;
 
@@ -87,7 +70,7 @@ export const StakingCalculatorFragment = fragment(() => {
             currency,
             isNeg
         );
-    }, [amount, price, currency]);
+    }, [amount, price, currency, validAmount]);
 
     return (
         <>
@@ -140,7 +123,15 @@ export const StakingCalculatorFragment = fragment(() => {
                         <ATextInput
                             index={0}
                             value={amount}
-                            onValueChange={setAmount}
+                            onValueChange={(newVal) => {
+                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
+                                const temp = formatted.replace(',', '.').replaceAll(' ', '');
+
+                                if (temp.split('.')[0].length > 10) { // 10 digits before dot bigger is unreallistic
+                                    return;
+                                }
+                                setAmount(formatted);
+                            }}
                             keyboardType={'numeric'}
                             style={{
                                 backgroundColor: theme.backgroundPrimary,
@@ -149,7 +140,6 @@ export const StakingCalculatorFragment = fragment(() => {
                             }}
                             inputStyle={{
                                 fontSize: 17, fontWeight: '400',
-                                textAlignVertical: 'top',
                                 color: theme.textPrimary,
                                 width: 'auto',
                                 flexShrink: 1
@@ -159,9 +149,9 @@ export const StakingCalculatorFragment = fragment(() => {
                             prefix={'TON'}
                         />
                     </View>
-                    {!!pool && (
+                    {!!pool && validAmount !== null && (
                         <StakingCalcComponent
-                            amount={amount}
+                            amount={validAmount}
                             pool={pool}
                         />
                     )}

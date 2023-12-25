@@ -11,6 +11,7 @@ import { useDimensions } from "@react-native-community/hooks";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
+import { ScrollView } from "react-native-gesture-handler";
 
 export const HardwareWalletFragment = fragment(() => {
     const theme = useTheme();
@@ -65,77 +66,84 @@ export const HardwareWalletFragment = fragment(() => {
                 onBackPressed={navigation.goBack}
                 style={{ paddingHorizontal: 16 }}
             />
-            <View style={{
-                paddingHorizontal: 16,
-                justifyContent: 'center', alignItems: 'center',
-                marginTop: 41, marginBottom: 33,
-            }}>
-                <Image
-                    style={{
-                        width: dimentions.screen.width - 32,
-                        height: undefined,
-                        aspectRatio: 1,
-                        borderRadius: 20,
-                    }}
-                    source={
-                        Platform.select({
-                            ios: theme.style === 'dark'
-                                ? require('@assets/ledger/ledger-ios-dark.webp')
-                                : require('@assets/ledger/ledger-ios.webp'),
-                            android: theme.style === 'dark'
-                                ? require('@assets/ledger/ledger-and-dark.webp')
-                                : require('@assets/ledger/ledger-and.webp')
-                        })
-                    }
-                    resizeMode={'contain'}
-                />
-            </View>
-            <View style={{
-                marginHorizontal: 16,
-                marginBottom: safeArea.bottom + 16,
-                borderRadius: 14,
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexGrow: 1,
-            }}>
-                <Text style={{
-                    color: theme.textPrimary,
-                    fontWeight: '600',
-                    fontSize: 32, lineHeight: 38,
-                    marginBottom: 16,
-                    marginHorizontal: 8,
-                    textAlign: 'center'
+            <ScrollView>
+                <View style={{
+                    paddingHorizontal: 16,
+                    justifyContent: 'center', alignItems: 'center',
+                    marginTop: 41, marginBottom: 33,
                 }}>
-                    {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
-                    {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
-                </Text>
-                <View style={{ alignItems: 'center' }}>
+                    <Image
+                        style={{
+                            width: dimentions.screen.width - 32,
+                            height: undefined,
+                            aspectRatio: 1,
+                            borderRadius: 20,
+                        }}
+                        source={
+                            Platform.select({
+                                ios: theme.style === 'dark'
+                                    ? require('@assets/ledger/ledger-ios-dark.webp')
+                                    : require('@assets/ledger/ledger-ios.webp'),
+                                android: theme.style === 'dark'
+                                    ? require('@assets/ledger/ledger-and-dark.webp')
+                                    : require('@assets/ledger/ledger-and.webp')
+                            })
+                        }
+                        resizeMode={'contain'}
+                    />
+                </View>
+                <View style={{
+                    marginHorizontal: 16,
+                    borderRadius: 14,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    flexGrow: 1,
+                }}>
                     <Text style={{
-                        color: theme.textSecondary,
-                        fontWeight: '400',
-                        fontSize: 17, lineHeight: 24,
+                        color: theme.textPrimary,
+                        fontWeight: '600',
+                        fontSize: 32, lineHeight: 38,
+                        marginBottom: 16,
+                        marginHorizontal: 8,
                         textAlign: 'center'
                     }}>
-                        {t('hardwareWallet.installation')}
+                        {Platform.OS === 'android' && t('hardwareWallet.connectionDescriptionAndroid')}
+                        {Platform.OS === 'ios' && t('hardwareWallet.connectionDescriptionIOS')}
                     </Text>
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                            }
-                        }}
-                        onPress={() => openWithInApp('https://tonwhales.com/ledger')}
-                    >
+                    <View style={{ alignItems: 'center' }}>
                         <Text style={{
-                            color: theme.accent,
-                            fontWeight: '500',
+                            color: theme.textSecondary,
+                            fontWeight: '400',
                             fontSize: 17, lineHeight: 24,
+                            textAlign: 'center'
                         }}>
-                            {t('hardwareWallet.installationGuide')}
+                            {t('hardwareWallet.installation')}
                         </Text>
-                    </Pressable>
+                        <Pressable
+                            style={({ pressed }) => {
+                                return {
+                                    opacity: pressed ? 0.5 : 1,
+                                }
+                            }}
+                            onPress={() => openWithInApp('https://tonwhales.com/ledger')}
+                        >
+                            <Text style={{
+                                color: theme.accent,
+                                fontWeight: '500',
+                                fontSize: 17, lineHeight: 24,
+                            }}>
+                                {t('hardwareWallet.installationGuide')}
+                            </Text>
+                        </Pressable>
+                    </View>
                 </View>
-                <View style={{ flexGrow: 1 }} />
+                <View style={{ height: 16 }} />
+            </ScrollView>
+            <View style={{ flexGrow: 1 }} />
+            <View style={{
+                marginBottom: safeArea.bottom + 16,
+                paddingHorizontal: 16
+            }}>
                 {Platform.OS === 'android' && (
                     <RoundButton
                         title={t('hardwareWallet.actions.connectHid')}

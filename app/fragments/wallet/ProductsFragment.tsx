@@ -1,4 +1,4 @@
-import { View, ScrollView } from "react-native";
+import { View, Platform, Text, Pressable } from "react-native";
 import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -10,11 +10,13 @@ import { t } from "../../i18n/t";
 import { ProductBanner } from "../../components/products/ProductBanner";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { StatusBar } from "expo-status-bar";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const ProductsFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const network = useNetwork();
+    const safeArea = useSafeAreaInsets();
     const apy = useStakingApy()?.apy;
     const seleted = useSelectedAccount();
     const status = useHoldersAccountStatus(seleted!.address).data;
@@ -36,49 +38,78 @@ export const ProductsFragment = fragment(() => {
         () => {
             const domain = extractDomain(holdersUrl);
             const domainKey = getDomainKey(domain);
+            navigation.goBack();
             if (needsEnrolment || !domainKey) {
                 navigation.navigate(
                     'HoldersLanding',
                     {
                         endpoint: holdersUrl,
-                        onEnrollType: { type: 'account' }
+                        onEnrollType: { type: 'create' }
                     }
                 );
                 return;
             }
-            navigation.navigate('Holders', { type: 'account' });
+            navigation.navigate('Holders', { type: 'create' });
         },
         [needsEnrolment],
     );
 
     return (
-        <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1 }}>
-            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            <ScreenHeader
-                style={{ paddingTop: 32, paddingHorizontal: 16 }}
-                title={t('products.addNew')}
-                onBackPressed={navigation.goBack}
-            />
-            <ScrollView style={{ marginTop: 24 }} showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 16 }}>
+        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
+            {Platform.OS === 'android' && (
+                <ScreenHeader
+                    onBackPressed={navigation.goBack}
+                    style={{ paddingTop: safeArea.top }}
+                />
+            )}
+            <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
+            <View style={{
+                flexShrink: Platform.OS === 'ios' ? 1 : undefined,
+                flexGrow: Platform.OS === 'ios' ? 0 : 1,
+                backgroundColor: theme.elevation,
+                borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
+                borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
+                paddingHorizontal: 16,
+                paddingTop: Platform.OS === 'android' ? 0 : 40,
+                paddingBottom: safeArea.bottom + 32
+            }}>
+                <Text
+                    style={{
+                        fontSize: 32,
+                        fontWeight: '600',
+                        marginBottom: 24,
+                        color: theme.textPrimary
+                    }}
+                >
+                    {t('products.addNew')}
+                </Text>
                 {network.isTestnet && (
                     <ProductBanner
                         title={t('products.holders.card.defaultTitle')}
                         subtitle={t('products.holders.card.defaultSubtitle')}
                         reverse
                         onPress={onHolders}
-                        illustration={require('@assets/banners/banner-holders.png')}
+                        illustration={require('@assets/banners/banner-holders.webp')}
+                        style={{ backgroundColor: theme.surfaceOnElevation }}
+                        illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
                 )}
                 <View style={{ marginTop: network.isTestnet ? 16 : 0 }}>
                     <ProductBanner
-                        onPress={() => navigation.replace('StakingPools')}
+                        onPress={() => {
+                            navigation.goBack();
+                            navigation.navigate('StakingPools');
+                        }}
                         reverse
                         title={t('products.staking.title')}
                         subtitle={network.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-                        illustration={require('@assets/banners/banner-staking.png')}
+                        illustration={require('@assets/banners/banner-staking.webp')}
+                        style={{ backgroundColor: theme.surfaceOnElevation }}
+                        illustrationStyle={{ backgroundColor: theme.elevation }}
                     />
                 </View>
-            </ScrollView>
+            </View>
         </View>
     );
 });

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -16,16 +16,22 @@ import * as RNImagePicker from 'expo-image-picker';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import { Camera, FlashMode } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
+import { Typography } from '../../components/styles';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
 
+const EmptyIllustrations = {
+    dark: require('@assets/empty-cam-dark.webp'),
+    light: require('@assets/empty-cam.webp')
+}
+
 export const ScannerFragment = systemFragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const route = useRoute().params;
-    const dimentions = useDimensions();
+    const dimensions = useDimensions();
     const navigation = useNavigation();
 
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
@@ -78,105 +84,75 @@ export const ScannerFragment = systemFragment(() => {
         }
     }, [route]);
 
-    if (hasPermission === null) {
+    if (!hasPermission) {
         return (
-            <View style={styles.container}>
-                <View style={{
-                    alignSelf: 'center',
-                    width: 170,
-                    backgroundColor: 'rgba(30,30,30,1)',
-                    borderRadius: 16,
-                    justifyContent: 'center', alignItems: 'center',
-                    paddingHorizontal: 17,
-                    paddingVertical: 16
-                }}>
-                    <Text style={{
-                        fontWeight: '500',
-                        fontSize: 17,
-                        color: 'white',
-                        textAlign: 'center'
-                    }}
-                    >
-                        {t('qr.requestingPermission')}
-                    </Text>
-                </View>
+            <View style={[{ flexGrow: 1 }, Platform.select({ android: { paddingTop: safeArea.top } })]}>
+                {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
                 <ScreenHeader
                     tintColor={'white'}
-                    style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
-                    onBackPressed={() => {
+                    onClosePressed={() => {
                         setActive(false);
                         setTimeout(() => {
                             navigation.goBack();
                         }, 10);
                     }}
                 />
-            </View>
-        );
-    }
-
-    if (hasPermission === false) {
-        return (
-            <View style={[styles.container, { backgroundColor: 'white', alignItems: 'center' }]}>
                 <View style={{ flexGrow: 1 }} />
                 <View style={{
-                    width: dimentions.window.width - 32,
-                    aspectRatio: 1,
-                    borderColor: theme.accent, borderWidth: 1, borderStyle: 'dashed',
-                    marginBottom: 32
+                    justifyContent: 'center', alignItems: 'center',
+                    paddingHorizontal: 16,
                 }}>
-
+                    <View style={{
+                        justifyContent: 'center', alignItems: 'center',
+                        width: dimensions.screen.width - 32,
+                        height: (dimensions.screen.width - 32) * 0.91,
+                        borderRadius: 20, overflow: 'hidden',
+                        marginBottom: 32,
+                    }}>
+                        <Image
+                            resizeMode={'center'}
+                            style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                            source={EmptyIllustrations[theme.style]}
+                        />
+                    </View>
+                    <Text
+                        style={[
+                            { textAlign: 'center', color: theme.textPrimary, marginHorizontal: 16 },
+                            Typography.semiBold32_38
+                        ]}
+                    >
+                        {hasPermission === null ? t('qr.requestingPermission') : t('qr.noPermission')}
+                    </Text>
                 </View>
-                <Text style={{
-                    fontWeight: '600',
-                    fontSize: 32, lineHeight: 38,
-                    color: theme.textPrimary,
-                    textAlign: 'center'
-                }}
-                >
-                    {t('qr.noPermission')}
-                </Text>
-                <View style={{
-                    flexGrow: 1
-                }} />
-                <View style={{
-                    height: 64,
-                    marginTop: 16, marginHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom,
-                    alignSelf: 'stretch'
-                }}>
-                    <RoundButton
-                        title={t('qr.requestPermission')}
-                        onPress={(async () => {
-                            if (Platform.OS === 'ios') {
-                                Linking.openURL('app-settings:');
-                            } else if (Platform.OS === 'android') {
-                                const pkg = Application.applicationId;
-                                IntentLauncher.startActivityAsync(
-                                    IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
-                                    { data: 'package:' + pkg }
-                                );
-                            }
-                        })}
-                    />
-                </View>
-                <ScreenHeader
-                    tintColor={theme.accent}
-                    style={{ position: 'absolute', top: safeArea.top, left: 0, right: 0 }}
-                    onBackPressed={() => {
-                        setActive(false);
-                        setTimeout(() => {
-                            navigation.goBack();
-                        }, 10);
-                    }}
-                />
+                <View style={{ flexGrow: 1 }} />
+                {hasPermission !== null && (
+                    <View style={{ paddingHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom }}>
+                        <RoundButton
+                            title={t('qr.requestPermission')}
+                            style={{ marginBottom: 32, marginTop: 16 }}
+                            onPress={(async () => {
+                                if (Platform.OS === 'ios') {
+                                    Linking.openURL('app-settings:');
+                                } else if (Platform.OS === 'android') {
+                                    const pkg = Application.applicationId;
+                                    IntentLauncher.startActivityAsync(
+                                        IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+                                        { data: 'package:' + pkg }
+                                    );
+                                }
+                            })}
+                        />
+                    </View>
+                )}
             </View>
         );
     }
 
-    const rectSize = dimentions.screen.width - (45 * 2);
-    const topLeftOuter0 = rrect(rect(0, 0, dimentions.screen.height, dimentions.screen.height), 10, 10);
+    const rectSize = dimensions.screen.width - (45 * 2);
+    const topLeftOuter0 = rrect(rect(0, 0, dimensions.screen.height, dimensions.screen.height), 10, 10);
     const topLeftInner0 = rrect(rect(
-        (dimentions.screen.width - rectSize) / 2,
-        (dimentions.screen.height - rectSize) / 2 - safeArea.top - safeArea.bottom,
+        (dimensions.screen.width - rectSize) / 2,
+        (dimensions.screen.height - rectSize) / 2 - safeArea.top - safeArea.bottom,
         rectSize,
         rectSize
     ), 16, 16);
@@ -196,8 +172,7 @@ export const ScannerFragment = systemFragment(() => {
             <Canvas style={{
                 position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
                 justifyContent: 'center', alignItems: 'center',
-                paddingHorizontal: 17,
-
+                paddingHorizontal: 16,
             }}>
                 <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
             </Canvas>
@@ -220,7 +195,7 @@ export const ScannerFragment = systemFragment(() => {
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',
                 paddingHorizontal: 16,
-                marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24,
+                marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
             }}>
                 <Pressable style={(props) => {
                     return {
@@ -258,9 +233,8 @@ export const ScannerFragment = systemFragment(() => {
                 </Pressable>
             </View>
             <ScreenHeader
-                tintColor={'white'}
-                style={{ position: 'absolute', top: Platform.OS === 'android'? 32: 0, left: 16, right: 0 }}
-                onBackPressed={() => {
+                style={{ position: 'absolute', top: Platform.OS === 'android' ? 32 : 0, left: 0, right: 0 }}
+                onClosePressed={() => {
                     setActive(false);
                     setTimeout(() => {
                         navigation.goBack();
@@ -274,6 +248,7 @@ export const ScannerFragment = systemFragment(() => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexGrow: 1,
         flexDirection: 'column',
         justifyContent: 'center',
         backgroundColor: 'rgba(30,30,30,0.9)'

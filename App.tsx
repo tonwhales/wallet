@@ -1,8 +1,3 @@
-// Crypto
-global.Buffer = global.Buffer || require('@craftzdog/react-native-buffer').Buffer;
-import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
-polyfillWebCrypto();
-
 // Set up an PRNG for nacl with expo-crypto
 import nacl from 'tweetnacl';
 import { getRandomBytes } from 'expo-crypto'
@@ -28,6 +23,13 @@ import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 import { getThemeStyleState } from './app/engine/state/theme';
+import * as Sentry from '@sentry/react-native';
+
+if (!__DEV__) {
+  Sentry.init({
+    dsn: 'https://11b74fcdccf8b7578f81eb424b1f999d@o4504887465869312.ingest.sentry.io/4506297188220928',
+  });
+}
 
 const style = getThemeStyleState();
 const scheme = Appearance.getColorScheme();

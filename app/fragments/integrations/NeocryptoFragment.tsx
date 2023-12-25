@@ -107,7 +107,16 @@ export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
                         <CheckBox
                             checked={doNotShow}
                             onToggle={onDoNotShowToggle}
-                            text={t('neocrypto.doNotShow')}
+                            text={
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    marginLeft: 16,
+                                    color: theme.textSecondary
+                                }}>
+                                    {t('neocrypto.doNotShow')}
+                                </Text>
+                            }
                             style={{
                                 marginTop: 16
                             }}
@@ -115,7 +124,7 @@ export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
                     </View>
                 </View>
             </ScrollView>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}

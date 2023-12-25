@@ -343,6 +343,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                         throw Error('Invalid domain');
                     }
 
+                    domain = domain.toLowerCase();
+
                     const valid = validateDomain(domain);
                     if (!valid) {
                         throw Error('Invalid domain');
@@ -400,7 +402,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                 backoff('transfer', async () => {
                     let block = await backoff('transfer', () => client.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address)),
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, network.isTestnet, true)),
                         backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                     ])
                 }),

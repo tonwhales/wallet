@@ -1,14 +1,15 @@
 import React from "react";
 import { useEffect } from "react";
-import { View, Image } from "react-native";
+import { View, Image, Platform, StyleSheet } from "react-native";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { LedgerHomeFragment } from "./LedgerHomeFragment";
+import { LedgerNavigationStack } from "./LedgerHomeFragment";
 import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
+import { BlurView } from "expo-blur";
 
 const Tab = createBottomTabNavigator();
 
@@ -33,14 +34,30 @@ export const LedgerAppFragment = fragment(() => {
     }
 
     return (
-        <View style={{ flexGrow: 1, backgroundColor: 'white', }}>
+        <View style={{ flexGrow: 1, backgroundColor: theme.surfaceOnBg }}>
             <Tab.Navigator
                 initialRouteName={'LedgerHome'}
                 screenOptions={({ route }) => ({
                     tabBarStyle: {
-                        backgroundColor: theme.surfaceOnBg,
-                        borderTopColor: theme.border
+                        backgroundColor: theme.transparent,
+                        borderTopColor: theme.border,
+                        ...Platform.select({
+                            ios: {
+                                backgroundColor: theme.transparent,
+                                position: 'absolute', bottom: 0, left: 0, right: 0,
+                            },
+                            android: { backgroundColor: theme.surfaceOnBg }
+                        })
                     },
+                    tabBarBackground: Platform.OS === 'ios' ? () => {
+                        return (
+                            <BlurView
+                                tint={theme.style === 'light' ? 'light' : 'dark'}
+                                intensity={80}
+                                style={StyleSheet.absoluteFill}
+                            />
+                        )
+                    } : undefined,
                     tabBarActiveTintColor: theme.accent,
                     tabBarInactiveTintColor: theme.iconPrimary,
                     headerShown: false,
@@ -65,7 +82,7 @@ export const LedgerAppFragment = fragment(() => {
                 <Tab.Screen
                     options={{ title: t('home.home') }}
                     name={'LedgerHome'}
-                    component={LedgerHomeFragment}
+                    component={LedgerNavigationStack}
                 />
                 <Tab.Screen
                     options={{ title: t('home.history') }}

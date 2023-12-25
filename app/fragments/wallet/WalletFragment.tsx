@@ -5,13 +5,10 @@ import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
-import { Suspense, memo, useCallback, useEffect, useMemo } from 'react';
+import { Suspense, memo, useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
 import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
-import { CopilotTooltip, OnboadingView, defaultCopilotSvgPath, onboardingFinishedKey } from '../../components/onboarding/CopilotTooltip';
-import { CopilotProvider, CopilotStep, useCopilot } from 'react-native-copilot';
-import { sharedStoragePersistence } from '../../storage/storage';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
 import { StakingFragment } from '../staking/StakingFragment';
@@ -21,11 +18,12 @@ import { ProductsComponent } from '../../components/products/ProductsComponent';
 import { AccountLite } from '../../engine/hooks/accounts/useAccountLite';
 import { toNano } from '@ton/core';
 import { SelectedAccount } from '../../engine/types';
-import { ProductsFragment } from './ProductsFragment';
 import { WalletSkeleton } from '../../components/skeletons/WalletSkeleton';
 import { PerformanceMeasureView } from '@shopify/react-native-performance';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { BlurView } from 'expo-blur';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -35,8 +33,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const account = props.wallet;
     const staking = useStaking();
     const holdersCards = useHoldersAccounts(address).data?.accounts;
-
-    const { start, visible } = useCopilot();
+    const bottomBarHeight = useBottomTabBarHeight();
 
     const stakingBalance = useMemo(() => {
         if (!staking) {
@@ -59,21 +56,12 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const onOpenBuy = useCallback(() => navigation.navigate('Buy'), []);
 
-    useEffect(() => {
-        const onboardingShown = sharedStoragePersistence.getBoolean(onboardingFinishedKey);
-
-        if (!onboardingShown && !visible) {
-            setTimeout(() => {
-                start();
-            }, 1000);
-        }
-    }, [start, visible]);
-
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.backgroundPrimary }}>
             <WalletHeader />
             <ScrollView
                 style={{ flexBasis: 0 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                 contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}
@@ -100,45 +88,63 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         paddingHorizontal: 16,
                         backgroundColor: theme.backgroundUnchangeable
                     }}>
-                        <PriceComponent
-                            amount={balance}
-                            style={{
-                                alignSelf: 'center',
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: undefined,
-                                paddingVertical: undefined,
-                                paddingLeft: undefined,
-                                borderRadius: undefined,
-                                height: undefined,
-                            }}
-                            textStyle={{
-                                fontSize: 32,
-                                color: theme.textOnsurfaceOnDark,
-                                fontWeight: '500',
-                                lineHeight: 38,
-                            }}
-                            centsTextStyle={{
-                                opacity: 0.5
-                            }}
-                        />
+                        <View>
+                            <PriceComponent
+                                amount={balance}
+                                style={{
+                                    alignSelf: 'center',
+                                    backgroundColor: theme.transparent,
+                                    paddingHorizontal: undefined,
+                                    paddingVertical: undefined,
+                                    paddingLeft: undefined,
+                                    borderRadius: undefined,
+                                    height: undefined,
+                                }}
+                                textStyle={{
+                                    fontSize: 32,
+                                    color: theme.textOnsurfaceOnDark,
+                                    fontWeight: '500',
+                                    lineHeight: 38
+                                }}
+                                centsTextStyle={{ color: theme.textSecondary }}
+                                theme={theme}
+                            />
+                            {!account && (
+                                <View
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0, left: 0, right: 0, bottom: 0,
+                                        overflow: 'hidden',
+                                        borderRadius: 8,
+                                    }}
+                                >
+                                    {Platform.OS === 'android' ? (
+                                        <View
+                                            style={{
+                                                flexGrow: 1,
+                                                backgroundColor: theme.surfaceOnBg,
+                                            }}
+                                        />
+                                    ) : (
+                                        <BlurView
+                                            tint={theme.style === 'dark' ? 'dark' : 'light'}
+                                            style={{ flexGrow: 1 }}
+                                        />
+                                    )}
+                                </View>
+                            )}
+                        </View>
                         <Pressable
                             style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16 }}
                             onPress={navigateToCurrencySettings}
                         >
-                            <CopilotStep
-                                text={t('onboarding.price')}
-                                order={3}
-                                name={'thirdStep'}
-                            >
-                                <OnboadingView>
-                                    <PriceComponent
-                                        showSign
-                                        amount={toNano(1)}
-                                        style={{ backgroundColor: theme.surfaceOnDark }}
-                                        textStyle={{ color: theme.textOnsurfaceOnDark }}
-                                    />
-                                </OnboadingView>
-                            </CopilotStep>
+                            <PriceComponent
+                                showSign
+                                amount={toNano(1)}
+                                style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
+                                textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                theme={theme}
+                            />
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
@@ -159,7 +165,10 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                             }}
                             disableContextMenu
                             copyOnPress
-                            copyToastProps={{ marginBottom: 16 }}
+                            copyToastProps={Platform.select({
+                                ios: { marginBottom: 24 + bottomBarHeight, },
+                                android: { marginBottom: 16, }
+                            })}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>
@@ -202,7 +211,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                                 borderRadius: 16,
                                                 alignItems: 'center', justifyContent: 'center'
                                             }}>
-                                                <Image source={require('@assets/ic_buy.png')} />
+                                                <Image source={require('@assets/ic-buy.png')} />
                                             </View>
                                             <Text style={{
                                                 fontSize: 15, lineHeight: 20,
@@ -309,7 +318,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
 }
 
 const skeleton = (
-    <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+    <View style={{ position: 'absolute', top: -100, bottom: 0, left: 0, right: 0 }}>
         <WalletSkeleton />
     </View>
 )
@@ -327,26 +336,13 @@ export const WalletFragment = fragment(() => {
                 interactive={accountLite !== undefined && selectedAcc !== undefined}
                 screenName={'Wallet'}
             >
-                {(!accountLite || !selectedAcc) ? (skeleton) : (
-                    <CopilotProvider
-                        arrowColor={'#1F1E25'}
-                        tooltipStyle={{
-                            backgroundColor: '#1F1E25',
-                            borderRadius: 20, padding: 16
-                        }}
-                        margin={16}
-                        stepNumberComponent={() => null}
-                        tooltipComponent={CopilotTooltip}
-                        svgMaskPath={defaultCopilotSvgPath}
-                    >
-                        <Suspense fallback={skeleton}>
-                            <WalletComponent
-                                selectedAcc={selectedAcc}
-                                wallet={accountLite}
-                            />
-                        </Suspense>
-
-                    </CopilotProvider>
+                {!selectedAcc ? (skeleton) : (
+                    <Suspense fallback={skeleton}>
+                        <WalletComponent
+                            selectedAcc={selectedAcc}
+                            wallet={accountLite}
+                        />
+                    </Suspense>
                 )}
             </PerformanceMeasureView>
         </>
@@ -354,12 +350,12 @@ export const WalletFragment = fragment(() => {
 }, true);
 
 const Stack = createNativeStackNavigator();
+Stack.Navigator.displayName = 'WalletStack';
 
 const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
-    fullScreen('Products', ProductsFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

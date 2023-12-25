@@ -2,19 +2,18 @@ import * as React from 'react';
 import { ActivityIndicator, StyleProp, Text, View, ViewStyle } from 'react-native';
 import { useTheme } from '../engine/hooks';
 import { memo } from 'react';
+import { Typography } from './styles';
 
 export const ItemHeader = memo((props: { title: string, loading?: boolean, style?: StyleProp<ViewStyle> }) => {
     const theme = useTheme()
     return (
         <View style={[{ flexDirection: 'row' }, props.style]}>
             <Text
-                style={{
-                    fontSize: 17, lineHeight: 24,
+                style={[{
                     textAlignVertical: 'center',
                     color: theme.textPrimary,
-                    fontWeight: '600',
                     flexGrow: 1,
-                }}
+                }, Typography.semiBold17_24]}
             >
                 {props.title}
             </Text>

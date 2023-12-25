@@ -146,6 +146,7 @@ export function ProductButton(props: ProductButtonProps) {
                                         alignSelf: 'flex-end',
                                         marginTop: 2, height: 14
                                     }}
+                                    theme={theme}
                                     textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 12 }}
                                 />
                             )

@@ -54,5 +54,9 @@ export function useHoldersAccountStatus(address: string | Address) {
 
             return { ...fetched, token };
         },
+        refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        refetchInterval: 1000 * 60 * 5,
+        staleTime: 1000 * 60 * 60 * 24,
     });
 }

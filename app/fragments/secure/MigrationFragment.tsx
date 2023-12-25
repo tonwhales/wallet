@@ -151,7 +151,7 @@ export const MigrationFragment = systemFragment(() => {
     if (!confirm) {
         return (
             <>
-                <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark' })} />
+                <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
                 <ScreenHeader
                     title={t('migrate.title')}
                     onClosePressed={() => navigation.goBack()}

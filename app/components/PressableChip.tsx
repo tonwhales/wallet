@@ -3,6 +3,7 @@ import { Pressable, StyleProp, ViewStyle, Text, TextStyle } from "react-native";
 import Animated from "react-native-reanimated";
 import React from "react";
 import { useAnimatedPressedInOut } from "../utils/useAnimatedPressedInOut";
+import { PerfText } from "./basic/PerfText";
 
 export const PressableChip = memo(({
     onPress,
@@ -25,7 +26,6 @@ export const PressableChip = memo(({
         >
             <Animated.View style={[
                 {
-                    marginRight: 12,
                     paddingHorizontal: 16, paddingVertical: 6,
                     borderRadius: 100,
                     height: 32,
@@ -33,7 +33,7 @@ export const PressableChip = memo(({
                 style,
                 animatedStyle
             ]}>
-                <Text style={[
+                <PerfText style={[
                     {
                         fontWeight: '500',
                         fontSize: 15, lineHeight: 20,
@@ -42,7 +42,7 @@ export const PressableChip = memo(({
                     textStyle
                 ]}>
                     {text}
-                </Text>
+                </PerfText>
             </Animated.View>
         </Pressable>
     )

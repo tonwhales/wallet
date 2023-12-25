@@ -4,6 +4,7 @@ import { iOSUIKit } from 'react-native-typography';
 import { RoundButtonDisplay, roundButtonDisplays } from './roundButtonDisplays';
 import { useTheme } from '../engine/hooks';
 import { memo, useCallback, useState } from 'react';
+import { PerfView } from './basic/PerfView';
 
 export type RoundButtonSize = 'large' | 'normal' | 'small';
 const sizes: { [key in RoundButtonSize]: { height: number, fontSize: number, hitSlop: number, pad: number } } = {
@@ -70,19 +71,19 @@ export const RoundButton = memo((props: {
             onPress={doAction}
         >
             {(p) => (
-                <View style={{ height: size.height - 2, alignItems: 'center', justifyContent: 'center', minWidth: 64, paddingHorizontal: 16, }}>
+                <PerfView style={{ height: size.height - 2, alignItems: 'center', justifyContent: 'center', minWidth: 64, paddingHorizontal: 16, }}>
                     {doLoading && !props.loadingStatus && (
-                        <View style={{
+                        <PerfView style={{
                             position: 'absolute',
                             left: 0, right: 0, bottom: 0, top: 0,
                             alignItems: 'center', justifyContent: 'center',
                             opacity: props.disabled ? 0.6 : 1
                         }}>
                             <ActivityIndicator color={display.textColor} size='small' />
-                        </View>
+                        </PerfView>
                     )}
                     {doLoading && props.loadingStatus && (
-                        <View style={{
+                        <PerfView style={{
                             position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
                             alignItems: 'center', justifyContent: 'center',
                             flexDirection: 'row',
@@ -96,9 +97,9 @@ export const RoundButton = memo((props: {
                                 {props.loadingStatus}
                             </Text>
                             <ActivityIndicator color={display.textColor} size='small' />
-                        </View>
+                        </PerfView>
                     )}
-                    <View style={{
+                    <PerfView style={{
                         flexDirection: 'row',
                         justifyContent: 'center',
                         alignItems: 'center'
@@ -109,8 +110,8 @@ export const RoundButton = memo((props: {
                                 style={{ marginRight: 10, width: 20, height: 20 }}
                             />
                         )}
-                        {!doLoading && props.icon && (<View style={{ marginRight: 10 }}>{props.icon}</View>)}
-                        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        {!doLoading && props.icon && (<PerfView style={{ marginRight: 10 }}>{props.icon}</PerfView>)}
+                        <PerfView style={{ justifyContent: 'center', alignItems: 'center' }}>
                             <Text
                                 style={[
                                     iOSUIKit.title3,
@@ -144,9 +145,9 @@ export const RoundButton = memo((props: {
                                     {props.subtitle}
                                 </Text>
                             )}
-                        </View>
-                    </View>
-                </View>
+                        </PerfView>
+                    </PerfView>
+                </PerfView>
             )}
         </Pressable>
     )

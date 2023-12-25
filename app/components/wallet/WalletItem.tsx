@@ -73,6 +73,8 @@ export const WalletItem = memo((
                     id={address.toString({ testOnly: network.isTestnet })}
                     size={46}
                     hash={walletSettings?.avatar}
+                    theme={theme}
+                    isTestnet={network.isTestnet}
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>

@@ -22,24 +22,33 @@ export const StakingCalcComponent = memo((
         member,
         pool
     }: {
-        amount: string,
+        amount: bigint,
         topUp?: boolean,
         member?: StakingPoolMember | null,
         pool: StakingPoolState
     }) => {
     const theme = useTheme();
     const apy = useStakingApy()?.apy;
-    const poolFee = pool.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
+    const poolFee = pool.params.poolFee / 100n;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
-            return (apy - apy * (poolFee / 100)) / 100;
+            try {
+                const poolFeeNum = Number(poolFee);
+                const apyNum = Number(apy);
+                const abs = apyNum - apyNum * (poolFeeNum / 100);
+                return Number((abs / 100).toFixed(4));
+            } catch {
+                return 0.1;
+            }
         }
+        return 0.1;
     }, [apy, poolFee]);
 
     if (topUp && member) {
 
-        const yearly = toFixedBN(parseAmountToNumber(fromNano(member.balance)) * (apyWithFee ? apyWithFee : 0.1));
-        const yearlyPlus = yearly + (toFixedBN(parseAmountToNumber(amount) * (apyWithFee ? apyWithFee : 0.1)));
+        const yearly = Number(fromNano(member.balance)) * apyWithFee;
+        const yearlyPlus = yearly + (Number(fromNano(amount)) * apyWithFee);
+
         return (
             <View style={{ backgroundColor: theme.surfaceOnElevation, padding: 20, borderRadius: 20 }}>
                 <View style={{
@@ -61,13 +70,14 @@ export const StakingCalcComponent = memo((
                                 color: theme.textPrimary
                             }}>
                                 {'≈ '}
-                                <ValueComponent precision={2} value={yearly} />
+                                <ValueComponent precision={2} value={toNano(yearly.toFixed(3))} />
                                 {' TON'}
                             </Text>
                             <PriceComponent
-                                amount={yearly}
+                                amount={toNano(yearly.toFixed(3))}
                                 style={priceViewStyle(theme)}
                                 textStyle={priceTextStyle(theme)}
+                                theme={theme}
                             />
                         </View>
                     </View>
@@ -84,7 +94,7 @@ export const StakingCalcComponent = memo((
                             {t('products.staking.calc.yearlyTopUp')}
                         </Text>
                         <View>
-                            {(yearlyPlus === 0n || yearlyPlus > (toNano('100000000000000'))) ? (
+                            {yearlyPlus === 0 ? (
                                 <>
                                     <Text style={{
                                         fontWeight: '600',
@@ -112,13 +122,14 @@ export const StakingCalcComponent = memo((
                                         color: theme.accentGreen
                                     }}>
                                         {'≈ '}
-                                        <ValueComponent precision={2} value={yearlyPlus} />
+                                        <ValueComponent precision={2} value={toNano(yearlyPlus.toFixed(3))} />
                                         {' TON'}
                                     </Text>
                                     <PriceComponent
-                                        amount={yearlyPlus}
+                                        amount={toNano(yearlyPlus.toFixed(3))}
                                         style={priceViewStyle(theme)}
                                         textStyle={priceTextStyle(theme)}
+                                        theme={theme}
                                     />
                                 </>
                             )
@@ -130,10 +141,10 @@ export const StakingCalcComponent = memo((
         )
     }
 
-    const parsed = parseAmountToNumber(amount);
-    const yearly = toFixedBN(parsed * (apyWithFee ? apyWithFee : 0.1));
-    const monthly = toFixedBN(parsed * (Math.pow((1 + (apyWithFee ? apyWithFee : 0.1) / 366), 30)) - parsed);
-    const daily = toFixedBN(parsed * (1 + (apyWithFee ? apyWithFee : 0.1) / 366) - parsed)
+    const amountNum = Number(fromNano(amount));
+    const yearly = amountNum * apyWithFee;
+    const monthly = amountNum * (Math.pow((1 + apyWithFee / 366), 30)) - amountNum;
+    const daily = amountNum * (1 + apyWithFee / 366) - amountNum;
 
     return (
         <View style={{
@@ -153,13 +164,14 @@ export const StakingCalcComponent = memo((
                 <View>
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
-                        <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={yearly} />
+                        <ValueComponent precision={monthly < 0.01 ? 8 : 2} value={toNano(yearly.toFixed(3))} />
                         {' TON'}
                     </Text>
                     <PriceComponent
-                        amount={yearly}
+                        amount={toNano(yearly.toFixed(3))}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>
@@ -178,13 +190,14 @@ export const StakingCalcComponent = memo((
                 <View>
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
-                        <ValueComponent precision={bnIsLess(monthly, 0.01) ? 8 : 2} value={monthly} />
+                        <ValueComponent precision={monthly < 0.01 ? 8 : 2} value={toNano(monthly.toFixed(3))} />
                         {' TON'}
                     </Text>
                     <PriceComponent
-                        amount={monthly}
+                        amount={toNano(monthly.toFixed(3))}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>
@@ -203,13 +216,14 @@ export const StakingCalcComponent = memo((
                 <View>
                     <Text style={itemValueTextStyle(theme)}>
                         {'≈ '}
-                        <ValueComponent precision={bnIsLess(daily, 0.01) ? 8 : 2} value={daily} />
+                        <ValueComponent precision={daily < 0.01 ? 8 : 2} value={toNano(daily.toFixed(3))} />
                         {' TON'}
                     </Text>
                     <PriceComponent
-                        amount={daily}
+                        amount={toNano(daily.toFixed(3))}
                         style={priceViewStyle(theme)}
                         textStyle={priceTextStyle(theme)}
+                        theme={theme}
                     />
                 </View>
             </View>

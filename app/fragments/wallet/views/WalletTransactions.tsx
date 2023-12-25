@@ -1,12 +1,11 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
-import { EdgeInsets, Rect } from "react-native-safe-area-context";
+import { EdgeInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { Platform, SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
@@ -15,6 +14,7 @@ import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -29,6 +29,7 @@ const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string 
         </View>
     )
 });
+SectionHeader.displayName = 'SectionHeader';
 
 type TransactionListItemProps = {
     address: Address,
@@ -69,8 +70,10 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.addToDenyList === next.addToDenyList
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
-        && prev.spamWallets === next.spamWallets;
+        && prev.spamWallets === next.spamWallets
+        && prev.appState === next.appState;
 });
+TransactionListItem.displayName = 'TransactionListItem';
 
 export const WalletTransactions = memo((props: {
     txs: TransactionDescription[],
@@ -78,7 +81,6 @@ export const WalletTransactions = memo((props: {
     address: Address,
     navigation: TypedNavigation,
     safeArea: EdgeInsets,
-    frameArea: Rect,
     onLoadMore: () => void,
     loading: boolean,
     header?: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
@@ -88,8 +90,10 @@ export const WalletTransactions = memo((props: {
         contentOffset?: PointProp
     },
     ledger?: boolean,
+    theme: ThemeType,
 }) => {
-    const theme = useTheme();
+    const bottomBarHeight = useBottomTabBarHeight();
+    const theme = props.theme;
     const navigation = props.navigation;
     const { isTestnet } = useNetwork();
     const [spamMinAmount,] = useSpamMinAmount();
@@ -111,24 +115,21 @@ export const WalletTransactions = memo((props: {
     }, [isTestnet, updateAddressBook]);
 
     const { transactionsSectioned } = useMemo(() => {
-        let sectioned: { title: string, data: TransactionDescription[] }[] = [];
-        if (props.txs.length > 0) {
-            let lastTime: string = getDateKey(props.txs[0].base.time);
-            let lastItems: TransactionDescription[] = [];
-            let title = formatDate(props.txs[0].base.time);
-            sectioned.push({ data: lastItems, title });
-            for (let t of props.txs) {
-                let time = getDateKey(t.base.time);
-                if (lastTime !== time) {
-                    lastTime = time;
-                    lastItems = [];
-                    title = formatDate(t.base.time);
-                    sectioned.push({ data: lastItems, title });
-                }
-                lastItems.push(t);
+        const sectioned = new Map<string, TransactionDescription[]>();
+        for (const t of props.txs) {
+            const time = getDateKey(t.base.time);
+            const section = sectioned.get(time);
+            if (section) {
+                section.push(t);
+            } else {
+                sectioned.set(time, [t]);
             }
         }
-        return { transactionsSectioned: sectioned };
+        const sections = Array.from(sectioned).map(([time, data]) => ({
+            title: formatDate(data[0].base.time),
+            data,
+        }));
+        return { transactionsSectioned: sections };
     }, [props.txs]);
 
     const navigateToPreview = useCallback((transaction: TransactionDescription) => {
@@ -148,11 +149,12 @@ export const WalletTransactions = memo((props: {
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle
             ]}
+            contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             sections={transactionsSectioned}
             scrollEventThrottle={26}
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
-            initialNumToRender={20}
+            initialNumToRender={15}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={props.header}
@@ -192,3 +194,4 @@ export const WalletTransactions = memo((props: {
         />
     );
 });
+WalletTransactions.displayName = 'WalletTransactions';

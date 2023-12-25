@@ -23,6 +23,9 @@ export type ThemeType = {
     surfaceOnDark: string,
     surfaceTab: string,
 
+    cardStackSecond: string,
+    cardStackThird: string,
+
     overlay: string,
 
     accent: string,
@@ -41,7 +44,7 @@ export type ThemeType = {
     iconPrimary: string,
     iconUnchangeable: string,
     iconNav: string,
-    
+
     divider: string,
     border: string,
 
@@ -69,6 +72,9 @@ export const baseTheme: ThemeType = {
     surfaceOnElevation: '#F7F8F9',
     surfaceOnDark: '#2C2C2D',
     surfaceTab: '#FFFFFF',
+
+    cardStackSecond: '#E9ECEE',
+    cardStackThird: '#DFE1E5',
 
     overlay: 'rgba(0, 0, 0, 0.6)',
 
@@ -116,6 +122,9 @@ export const darkTheme: ThemeType = {
     surfaceOnBg: '#1C1C1E',
     surfaceOnElevation: '#2C2C2D',
     surfaceTab: '#6A6A6C',
+
+    cardStackSecond: '#191919',
+    cardStackThird: '#0F0F0F',
 
     accent: '#5E54F2',
     accentDisabled: '#7F7BBB',

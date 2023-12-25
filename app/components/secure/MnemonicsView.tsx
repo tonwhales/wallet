@@ -1,6 +1,8 @@
-import React, { memo } from "react";
-import { View, Text, TextStyle, ViewStyle, StyleProp } from "react-native"
+import React, { memo, useEffect, useState } from "react";
+import { View, Text, TextStyle, ViewStyle, StyleProp, Platform } from "react-native"
 import { useTheme } from "../../engine/hooks";
+import * as ScreenCapture from 'expo-screen-capture';
+import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 
 const wordStyle: TextStyle = {
     fontSize: 17,
@@ -31,11 +33,24 @@ const MnemonicWord = memo(({ word, index }: { word: string, index: number }) => 
     );
 })
 
-export const MnemonicsView = memo(({ mnemonics, style }: { mnemonics: string, style?: StyleProp<ViewStyle> }) => {
+export const MnemonicsView = memo(({ mnemonics, style, preventCapture }: { mnemonics: string, style?: StyleProp<ViewStyle>, preventCapture?: boolean }) => {
     const theme = useTheme();
     const words = mnemonics.split(' ');
     const wordsCol1 = words.slice(0, 12);
     const wordsCol2 = words.slice(12, 24);
+
+    useEffect(() => {
+        // Currently, taking screenshots on iOS cannot be prevented. This is due to underlying OS limitations.
+        if (preventCapture && Platform.OS === 'android') { 
+            ScreenCapture.preventScreenCaptureAsync('words-screen');
+        }
+        // Keeping screen in awakened state
+        activateKeepAwakeAsync('MnemonicsView');
+        return () => {
+            ScreenCapture.allowScreenCaptureAsync('words-screen');
+            deactivateKeepAwake('MnemonicsView');
+        }
+    }, []);
 
     return (
         <View style={[

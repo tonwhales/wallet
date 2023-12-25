@@ -131,6 +131,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
                         app: (prepared.app && prepared.app) ? {
                             title: prepared.app.name,
                             domain: extractDomain(prepared.app.url),
+                            url: prepared.app.url,
                         } : undefined
                     },
                     job: null,
@@ -172,7 +173,7 @@ export const DappRequestButton = memo((props: DappRequestButtonProps) => {
                 // TODO: add onLongPress={() => {}} to remove request
                 onPress={onPress}
                 extension={true}
-                style={{ marginVertical: 4, marginHorizontal: 10 }}
+                style={{ marginVertical: 4, marginHorizontal: 10, backgroundColor: theme.surfaceOnBg }}
             />
             {props.divider && (
                 <View style={{

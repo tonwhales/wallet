@@ -1,5 +1,5 @@
-import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react"
-import { ViewStyle, StyleProp, Alert, TextInput, Pressable, TextStyle, Image } from "react-native"
+import React, { ForwardedRef, forwardRef, memo, useCallback, useEffect, useMemo, useState } from "react"
+import { ViewStyle, StyleProp, Alert, Pressable, TextStyle, Image } from "react-native"
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated"
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import { View } from "react-native";
@@ -67,13 +67,6 @@ export const AddressDomainInput = memo(forwardRef(({
         })();
     }, [onQRCodeRead]);
 
-    const tref = useRef<TextInput>(null);
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            tref.current!.focus();
-        },
-    }));
-
     const onResolveDomain = useCallback(async (
         toResolve: string, zone: '.t.me' | '.ton',
         rootDnsAddress: Address
@@ -81,6 +74,8 @@ export const AddressDomainInput = memo(forwardRef(({
         let domain = zone === '.ton'
             ? toResolve.slice(0, toResolve.length - 4)
             : toResolve.slice(0, toResolve.length - 5);
+
+        domain = domain.toLowerCase();
 
         const valid = validateDomain(domain);
 
@@ -218,7 +213,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 autoFocus={autoFocus}
                 value={textInput}
                 index={index}
-                ref={tref}
+                ref={ref}
                 maxLength={48}
                 onFocus={(index) => {
                     setFocused(true);
@@ -243,7 +238,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 autoCorrect={false}
                 autoComplete={'off'}
                 textContentType={'none'}
-                style={style}
+                style={[{ paddingHorizontal: 16, flexGrow: 1 }, style]}
                 onBlur={(index) => {
                     setFocused(false);
                     if (onBlur) {
@@ -255,18 +250,22 @@ export const AddressDomainInput = memo(forwardRef(({
                 blurOnSubmit={false}
                 editable={!resolving}
                 inputStyle={[
-                    inputStyle,
                     {
+                        width: suffix? undefined: '100%',
+                        fontSize: 17, fontWeight: '400',
+                        color: theme.textPrimary,
+                        textAlignVertical: 'center',
                         marginLeft: (focused && input.length === 0) ? 0 : -8,
                         flexShrink: suffix ? 1 : undefined,
-                    }
+                    },
+                    inputStyle
                 ]}
                 suffixStyle={{
+                    flex: 1,
+                    flexGrow: 1, marginLeft: 5,
                     fontSize: 17, fontWeight: '400',
                     color: theme.textSecondary,
-                    textAlign: 'center',
-                    flexGrow: 1,
-                    minWidth: 104
+                    textAlign: 'left'
                 }}
                 textAlignVertical={'center'}
                 actionButtonRight={{

@@ -19,6 +19,7 @@ import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -37,6 +38,7 @@ export const SettingsFragment = fragment(() => {
     const [themeStyle,] = useThemeStyle();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
+    const bottomBarHeight = useBottomTabBarHeight();
     const { showActionSheetWithOptions } = useActionSheet();
     const currentWalletIndex = getAppState().selected;
     const seleted = useSelectedAccount();
@@ -94,6 +96,10 @@ export const SettingsFragment = fragment(() => {
         });
     }, []);
 
+    const onAccountPress = useCallback(() => {
+        navigation.navigate('AccountSelector');
+    }, []);
+
     useTrackScreen('More', network.isTestnet);
 
     useFocusEffect(() => {
@@ -104,12 +110,16 @@ export const SettingsFragment = fragment(() => {
         <View style={{ flexGrow: 1 }}>
             <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
                 <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-                <View style={{
-                    flexDirection: 'row',
-                    backgroundColor: theme.surfaceOnElevation,
-                    borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
-                    alignItems: 'center'
-                }}>
+                <Pressable
+                    style={({ pressed }) => ({
+                        flexDirection: 'row',
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                        alignItems: 'center',
+                        opacity: pressed ? 0.8 : 1,
+                    })}
+                    onPress={onAccountPress}
+                >
                     <Text
                         style={{
                             fontWeight: '500',
@@ -143,7 +153,7 @@ export const SettingsFragment = fragment(() => {
                             <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
                         </View>
                     )}
-                </View>
+                </Pressable>
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -153,6 +163,7 @@ export const SettingsFragment = fragment(() => {
                     paddingHorizontal: 16,
                     flexBasis: 0,
                 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
                 <View style={{
                     marginBottom: 16, marginTop: 16,

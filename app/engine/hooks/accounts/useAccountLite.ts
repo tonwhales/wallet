@@ -9,6 +9,11 @@ import { useMemo } from 'react';
 export type AccountLite = {
     address: string,
     balance: bigint,
+    last: {
+        hash: string,
+        lt: string,
+    } | null,
+    block: number;
 }
 
 export function useAccountLite(address?: Address | null): AccountLite | null {
@@ -32,7 +37,10 @@ export function useAccountLite(address?: Address | null): AccountLite | null {
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             let last = await getLastBlock();
-            return await client.getAccountLite(last, Address.parse(addr));
+            return {
+                account: (await client.getAccountLite(last, Address.parse(addr))).account,
+                block: last,
+            };
         },
     });
 
@@ -43,5 +51,7 @@ export function useAccountLite(address?: Address | null): AccountLite | null {
     return {
         address: addressString,
         balance: query.data.account.balance.coins ? BigInt(query.data?.account.balance.coins) : BigInt(0),
+        last: query.data.account.last,
+        block: query.data.block,
     }
 }

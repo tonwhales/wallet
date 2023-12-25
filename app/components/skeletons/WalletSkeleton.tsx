@@ -35,50 +35,95 @@ export const WalletSkeleton = memo(() => {
                     flexGrow: 1,
                     opacity: 0.7,
                     paddingTop: safeArea.top,
-                    backgroundColor: theme.backgroundUnchangeable,
                 },
             ]}
         >
             <Animated.View style={[{ flexGrow: 1 }, animatedStyles]}>
                 <View style={{ paddingHorizontal: 16 }}>
-                    <View style={{
-                        height: 44,
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                    }}>
+                    <View
+                        style={{
+                            backgroundColor: theme.backgroundUnchangeable,
+                            height: 360,
+                            paddingTop: 100,
+                            position: 'absolute',
+                            top: -10,
+                            left: 0,
+                            right: 0,
+                            borderRadius: 20,
+                            alignItems: 'center',
+                            borderBottomLeftRadius: 20,
+                            borderBottomRightRadius: 20,
+                        }}
+                    >
                         <View style={{
-                            width: 24, height: 24,
-                            backgroundColor: theme.divider,
-                            borderRadius: 12
-                        }} />
-                        <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={{ backgroundColor: theme.divider, height: 32, width: 120, borderRadius: 20 }} />
+                            height: 44,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            paddingHorizontal: 16,
+                            marginTop: 12,
+                        }}>
+                            <View style={{
+                                width: 32, height: 32,
+                                backgroundColor: theme.divider,
+                                borderRadius: 16
+                            }} />
+                            <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                <View style={{ backgroundColor: theme.divider, height: 32, width: 132, borderRadius: 20 }} />
+                            </View>
+                            <View style={{ width: 32, height: 32, }} />
                         </View>
-                        <View style={{ width: 24, height: 24 }} />
+                        <View
+                            style={{
+                                backgroundColor: theme.divider,
+                                height: 28,
+                                width: 142,
+                                borderRadius: 8,
+                                marginTop: 30
+                            }}
+                        />
                     </View>
+                    <View
+                        style={{
+                            backgroundColor: theme.surfaceOnBg,
+                            height: 96,
+                            borderRadius: 20,
+                            marginTop: 86,
+                            position: 'absolute',
+                            top: 230,
+                            left: 16, right: 16,
+                        }}
+                    />
                     <View style={{
-                        backgroundColor: theme.divider,
-                        borderRadius: 20,
-                        paddingVertical: 16, paddingHorizontal: 20,
-                        overflow: 'hidden', height: 176,
-                        marginTop: 16
-                    }} />
-                    <View style={{
-                        backgroundColor: theme.divider,
-                        borderRadius: 20,
-                        paddingVertical: 16, paddingHorizontal: 20,
-                        overflow: 'hidden', height: 92,
-                        marginTop: 16
-                    }} />
+                        position: 'absolute',
+                        top: 488,
+                        left: 16, right: 16,
+                    }}>
+                        <View
+                            style={{
+                                backgroundColor: theme.surfaceOnBg,
+                                height: 84,
+                                borderRadius: 20,
+                                marginBottom: 16,
+                            }}
+                        />
+                        <View
+                            style={{
+                                backgroundColor: theme.surfaceOnBg,
+                                height: 84,
+                                borderRadius: 20,
+                                marginBottom: 16,
+                            }}
+                        />
+                        <View
+                            style={{
+                                backgroundColor: theme.surfaceOnBg,
+                                height: 84,
+                                borderRadius: 20,
+                                marginBottom: 16,
+                            }}
+                        />
+                    </View>
                 </View>
-                <View style={{
-                    backgroundColor: theme.surfaceOnBg,
-                    borderTopLeftRadius: 20,
-                    borderTopRightRadius: 20,
-                    paddingVertical: 16, paddingHorizontal: 20,
-                    overflow: 'hidden', height: 92,
-                    marginTop: 16, flexGrow: 1
-                }} />
             </Animated.View>
 
         </Animated.View>

@@ -64,7 +64,7 @@ export function useConfig() {
     let client = useClient4(isTestnet);
 
     const query = useQuery({
-        queryKey: Queries.Config(),
+        queryKey: Queries.Config(isTestnet ? 'testnet' : 'mainnet'),
         queryFn: fetchConfigQueryFn(client, isTestnet),
         refetchOnMount: true,
         refetchOnWindowFocus: true,

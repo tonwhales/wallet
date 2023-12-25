@@ -20,7 +20,7 @@ import { WImage } from "../../../components/WImage";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { confirmAlert } from "../../../utils/confirmAlert";
-import { useClient4, useCommitCommand, useContacts, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
+import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
 import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
@@ -33,10 +33,11 @@ import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/u
 import { OrderMessage } from "../TransferFragment";
 import { fromBnWithDecimals } from "../../../utils/withDecimals";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
+import { AppInfo } from "../../../components/ConnectedAppButton";
 
 import IcAlert from '@assets/ic-alert.svg';
-import TonSign from '@assets/ic_ton_sign.svg';
-import SignLock from '@assets/ic_sign_lock.svg';
+import IcTonIcon from '@assets/ic-ton-acc.svg';
+import { ItemDivider } from "../../../components/ItemDivider";
 
 type Props = {
     text: string | null,
@@ -56,6 +57,7 @@ type Props = {
             stateInit: Cell | null,
         }[],
         app?: {
+            url: string,
             domain: string,
             title: string
         }
@@ -80,6 +82,19 @@ export const TransferBatch = memo((props: Props) => {
     const contacts = addressBook.contacts;
     const denyList = addressBook.denyList;
     const serverConfig = useServerConfig();
+
+    const appData = useAppData(props.order.app?.url || '');
+    const appManifest = useAppManifest(props.order.app?.url || '');
+
+    let app: AppInfo = useMemo(() => {
+        if (appData) {
+            return { ...appData, type: 'app-data' };
+        } else if (appManifest) {
+            return { ...appManifest, type: 'app-manifest' };
+        } else {
+            return null;
+        }
+    }, [appData, appManifest]);
 
     const {
         text,
@@ -331,9 +346,8 @@ export const TransferBatch = memo((props: Props) => {
         if (callback) {
             try {
                 callback(true, transfer);
-            } catch (e) {
-                warn(e);
-                // Ignore on error
+            } catch {
+                warn('Failed to execute callback');
             }
         }
 
@@ -344,6 +358,7 @@ export const TransferBatch = memo((props: Props) => {
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
+            status: 'pending',
             fees: fees,
             amount: totalAmount * (BigInt(-1)),
             address: null,
@@ -361,7 +376,92 @@ export const TransferBatch = memo((props: Props) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
+
+    let appInfo = !!order.app && (
+        <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+            <View style={{
+                backgroundColor: theme.divider,
+                height: 54,
+                position: 'absolute', left: 0, right: 0
+            }} />
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <WImage
+                    heigh={68}
+                    width={68}
+                    borderRadius={34}
+                />
+                <Text style={{
+                    fontSize: 17,
+                    fontWeight: '600',
+                    flexShrink: 1,
+                    color: theme.textPrimary,
+                    textAlign: 'center'
+                }}>
+                    {t('transfer.requestsToSign', { app: order.app.title })}
+                </Text>
+                <View style={{
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    flexShrink: 1,
+                }}>
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 17,
+                        fontWeight: '400',
+                        marginLeft: 4,
+                        color: theme.textPrimary
+                    }}>
+                        {order.app.domain}
+                    </Text>
+                </View>
+            </View>
+        </ItemGroup>
+    );
+
+    if (app) {
+        appInfo = (
+            <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+                <View style={{
+                    backgroundColor: theme.divider,
+                    height: 54,
+                    position: 'absolute', left: 0, right: 0
+                }} />
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <WImage
+                        heigh={68}
+                        width={68}
+                        borderRadius={34}
+                        src={app.type === 'app-data' ? app.image?.preview256 : app.iconUrl}
+                    />
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                        flexShrink: 1,
+                        color: theme.textPrimary,
+                        textAlign: 'center'
+                    }}>
+                        {t('products.transactionRequest.title')}
+                    </Text>
+                    <View style={{
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        flexShrink: 1,
+                    }}>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 17,
+                            fontWeight: '400',
+                            marginLeft: 4,
+                            color: theme.textPrimary
+                        }}>
+                            {app.type === 'app-data' ? app.title : app.name}
+                        </Text>
+                    </View>
+                </View>
+            </ItemGroup>
+        )
+    }
 
     return (
         <>
@@ -375,157 +475,97 @@ export const TransferBatch = memo((props: Props) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    {!!order.app && (
+                    {appInfo}
+                    <ItemGroup style={{ marginBottom: 16, marginTop: !!appInfo ? 0 : 16, paddingHorizontal: 20 }}>
                         <View style={{
-                            marginTop: 8,
-                            justifyContent: 'flex-start',
-                            alignItems: 'flex-start',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: Array.from(totalJettons).length > 0 ? 16 : 0
                         }}>
-                            <Text style={{
-                                fontSize: 14,
-                                fontWeight: '600',
-                                flexShrink: 1,
-                                color: theme.textPrimary
-                            }}>
-                                {t('transfer.requestsToSign', { app: order.app.title })}
-                            </Text>
                             <View style={{
+                                backgroundColor: theme.ton,
+                                height: 48, width: 48,
+                                borderRadius: 24,
+                                justifyContent: 'center',
                                 alignItems: 'center',
-                                flexDirection: 'row',
-                                flexShrink: 1,
                             }}>
-                                <SignLock />
+                                <IcTonIcon height={48} width={48} color={'white'} />
+                            </View>
+                            <View style={{ justifyContent: 'center', marginLeft: 16 }}>
                                 <Text style={{
-                                    textAlign: 'center',
-                                    fontSize: 14,
-                                    fontWeight: '400',
-                                    marginLeft: 4,
-                                    color: theme.textSecondary
+                                    fontWeight: '600',
+                                    fontSize: 17, lineHeight: 24,
+                                    color: theme.textPrimary
                                 }}>
-                                    {order.app.domain}
+                                    {'-' + fromNano(totalAmount) + ' TON'}
                                 </Text>
+                                <PriceComponent
+                                    amount={totalAmount}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0, marginTop: 2,
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0
+                                    }}
+                                    prefix={'-'}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                                    theme={theme}
+                                />
                             </View>
                         </View>
-                    )}
-                    <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
-                        <View style={{
-                            backgroundColor: theme.divider,
-                            height: 54,
-                            position: 'absolute', left: 0, right: 0
-                        }} />
-                        <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-                            <View style={{ width: 34 * (totalJettons.size + 2), flexDirection: 'row', height: 68 }}>
-                                <View style={{
-                                    backgroundColor: theme.surfaceOnElevation,
-                                    height: 68, width: 68,
-                                    borderRadius: 34,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    position: 'absolute',
-                                    left: 0,
-                                }}>
-                                    <View style={{
-                                        backgroundColor: theme.ton,
-                                        height: 64, width: 64,
-                                        borderRadius: 32,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                        <TonSign height={26} width={26} color={'white'} />
+                        {Array.from(totalJettons).map((value, index) => {
+                            return (
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: index < Array.from(totalJettons).length - 1 ? 16 : 0 }}>
+                                    <View
+                                        style={{
+                                            backgroundColor: theme.surfaceOnElevation,
+                                            height: 48, width: 48,
+                                            borderRadius: 24,
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                        }}
+                                        key={value[0]}
+                                    >
+                                        <WImage
+                                            src={value[1].jettonMaster.image?.preview256}
+                                            blurhash={value[1].jettonMaster.image?.blurhash}
+                                            width={48}
+                                            heigh={48}
+                                            borderRadius={24}
+                                        />
                                     </View>
+                                    <Text
+                                        key={`jetton-amount-${index}`}
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: 17, lineHeight: 24,
+                                            color: theme.textPrimary,
+                                            marginLeft: 16
+                                        }}
+                                    >
+                                        {'-' + fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals) + ' ' + value[1].jettonMaster.symbol}
+                                    </Text>
                                 </View>
-                                {totalJettons.size > 0 && (
-                                    Array.from(totalJettons).map((value, index) => {
-                                        return (
-                                            <View
-                                                style={{
-                                                    backgroundColor: theme.surfaceOnElevation,
-                                                    height: 68, width: 68,
-                                                    borderRadius: 34,
-                                                    justifyContent: 'center',
-                                                    alignItems: 'center',
-                                                    position: 'absolute',
-                                                    left: 34 + 68 * (index) - 34 * index,
-                                                }}
-                                                key={value[0]}
-                                            >
-                                                <WImage
-                                                    src={value[1].jettonMaster.image?.preview256}
-                                                    blurhash={value[1].jettonMaster.image?.blurhash}
-                                                    width={64}
-                                                    heigh={64}
-                                                    borderRadius={32}
-                                                />
-                                            </View>
-                                        )
-                                    })
-                                )}
-                            </View>
-                        </View>
-                        <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={{
-                                fontSize: 17, lineHeight: 24, fontWeight: '600',
-                                color: theme.textPrimary,
-                                marginTop: 8
-                            }}>
-                                {t('common.send')}
-                            </Text>
-                        </View>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
-                            <Text style={{
-                                fontWeight: '600',
-                                fontSize: 17, lineHeight: 24,
-                                color: theme.textPrimary
-                            }}>
-                                {fromNano(totalAmount) + ' TON'}
-                            </Text>
-                            {Array.from(totalJettons).map((value, index) => {
-                                return (
-                                    <>
-                                        <Text
-                                            key={`jetton-amount-${index}`}
-                                            style={{
-                                                fontWeight: '600',
-                                                fontSize: 17, lineHeight: 24,
-                                                color: theme.textPrimary
-                                            }}
-                                        >
-                                            {index !== totalJettons.size ? ' • ' : ''}
-                                            {fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals) + ' ' + value[1].jettonMaster.symbol}
-                                        </Text>
-                                    </>
-                                );
-                            })}
-                        </View>
-                        <PriceComponent
-                            amount={totalAmount}
-                            style={{
-                                backgroundColor: theme.transparent,
-                                paddingHorizontal: 0, marginTop: 2,
-                                alignSelf: 'center',
-                                paddingLeft: 0
-                            }}
-                            textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
-                        />
+                            )
+                        })}
                     </ItemGroup>
-                    <ItemGroup>
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                    <ItemGroup style={{ marginBottom: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
                                 color: theme.textSecondary,
                             }}>
                                 {t('common.from')}
                             </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
                                     <AddressComponent address={selected!.address} end={4} />
                                 </Text>
                                 {walletSettings?.name && (
                                     <Text
                                         style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
                                             color: theme.textSecondary,
-                                            flexShrink: 1
+                                            flexShrink: 1, marginLeft: 6
                                         }}
                                         numberOfLines={1}
                                         ellipsizeMode={'tail'}
@@ -535,16 +575,47 @@ export const TransferBatch = memo((props: Props) => {
                                 )}
                             </View>
                         </View>
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
-                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                    </ItemGroup>
+                    <ItemCollapsible titleComponent={
+                        <View style={{ justifyContent: 'center' }}>
                             <Text style={{
                                 fontSize: 15, lineHeight: 20, fontWeight: '400',
                                 color: theme.textSecondary,
                             }}>
                                 {t('transfer.feeTotalTitle')}
                             </Text>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {fromNano(fees + gas.total) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    amount={fees + gas.total}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0,
+                                        alignSelf: 'flex-end',
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                        marginLeft: 6
+                                    }}
+                                    textStyle={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                        flexShrink: 1
+                                    }}
+                                    theme={theme}
+                                />
+                            </View>
+                        </View>
+                    }>
+                        <View style={{ justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('transfer.feeTitle')}
+                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
                                     {fromNano(fees) + ' TON'}
                                 </Text>
                                 <PriceComponent
@@ -552,46 +623,83 @@ export const TransferBatch = memo((props: Props) => {
                                     style={{
                                         backgroundColor: theme.transparent,
                                         paddingHorizontal: 0,
-                                        alignSelf: 'flex-end'
+                                        alignSelf: 'flex-end',
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                        marginLeft: 6
                                     }}
                                     textStyle={{
-                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
                                         color: theme.textSecondary,
                                         flexShrink: 1
                                     }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>
-                        {gas.unusual && (
-                            <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Pressable
-                                    onPress={jettonsGasAlert}
-                                    style={({ pressed }) => {
-                                        return {
-                                            alignSelf: 'flex-start',
-                                            flexDirection: 'row',
-                                            width: '100%',
-                                            borderRadius: 12,
-                                            marginTop: 16,
-                                            paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
-                                            justifyContent: 'space-between', alignItems: 'center',
-                                            backgroundColor: 'white',
-                                            opacity: pressed ? 0.5 : 1
-                                        }
-                                    }}
-                                >
+                        {gas.total > 0n && (
+                            <>
+                                <ItemDivider marginHorizontal={0} />
+                                <View style={{ justifyContent: 'center' }}>
                                     <Text style={{
-                                        fontSize: 15, lineHeight: 20,
-                                        fontWeight: '400',
-                                        color: theme.accentRed
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: theme.textSecondary,
                                     }}>
-                                        {t('transfer.unusualJettonsGas')}
+                                        {t('transfer.gasFee')}
                                     </Text>
-                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
-                                </Pressable>
-                            </View>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                            {fromNano(gas.total) + ' TON'}
+                                        </Text>
+                                        <PriceComponent
+                                            amount={gas.total}
+                                            style={{
+                                                backgroundColor: theme.transparent,
+                                                paddingHorizontal: 0,
+                                                alignSelf: 'flex-end',
+                                                paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                                marginLeft: 6
+                                            }}
+                                            textStyle={{
+                                                fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                                color: theme.textSecondary,
+                                                flexShrink: 1
+                                            }}
+                                            theme={theme}
+                                        />
+                                    </View>
+                                    {gas.unusual && (
+                                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <Pressable
+                                                onPress={jettonsGasAlert}
+                                                style={({ pressed }) => {
+                                                    return {
+                                                        alignSelf: 'flex-start',
+                                                        flexDirection: 'row',
+                                                        width: '100%',
+                                                        borderRadius: 12,
+                                                        marginTop: 16,
+                                                        paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
+                                                        justifyContent: 'space-between', alignItems: 'center',
+                                                        backgroundColor: 'white',
+                                                        opacity: pressed ? 0.5 : 1
+                                                    }
+                                                }}
+                                            >
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20,
+                                                    fontWeight: '400',
+                                                    color: theme.accentRed
+                                                }}>
+                                                    {t('transfer.unusualJettonsGas')}
+                                                </Text>
+                                                <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                            </Pressable>
+                                        </View>
+                                    )}
+                                </View>
+                            </>
                         )}
-                    </ItemGroup>
+                    </ItemCollapsible>
 
                     {internals.map((i, index) => {
                         return (
@@ -631,6 +739,7 @@ export const TransferBatch = memo((props: Props) => {
                                                         color: theme.textSecondary,
                                                         flexShrink: 1
                                                     }}
+                                                    theme={theme}
                                                 />
                                             )}
                                         </View>
@@ -660,13 +769,17 @@ export const TransferBatch = memo((props: Props) => {
                                                     >
                                                         {i.known?.name}
                                                     </Text>
-                                                    <Image
-                                                        source={require('@assets/ic-verified.png')}
-                                                        style={{
-                                                            height: 18, width: 18,
-                                                            marginLeft: 6
-                                                        }}
-                                                    />
+                                                    <View style={{
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        height: 18, width: 18, borderRadius: 9,
+                                                        marginLeft: 6,
+                                                        backgroundColor: theme.surfaceOnBg
+                                                    }}>
+                                                        <Image
+                                                            source={require('@assets/ic-verified.png')}
+                                                            style={{ height: 18, width: 18 }}
+                                                        />
+                                                    </View>
                                                 </View>
                                             )}
                                             {(!i.message.addr.active) && (
@@ -728,6 +841,7 @@ export const TransferBatch = memo((props: Props) => {
                                                             color: theme.textSecondary,
                                                             flexShrink: 1
                                                         }}
+                                                        theme={theme}
                                                     />
                                                 </View>
                                             </View>
@@ -774,8 +888,8 @@ export const TransferBatch = memo((props: Props) => {
                         );
                     })}
                     <View style={{ height: 56 }} />
-                </View>
-            </ScrollView>
+                </View >
+            </ScrollView >
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                 <RoundButton
                     title={t('common.confirm')}

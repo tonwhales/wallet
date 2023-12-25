@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Alert, Platform, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
 import { getAppState, getBackup, getCurrentAddress, markAddressSecured } from '../../storage/appState';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { t } from '../../i18n/t';
@@ -14,10 +14,13 @@ import { DeviceEncryption, getDeviceEncryption } from '../../storage/getDeviceEn
 import { LoadingIndicator } from '../LoadingIndicator';
 import { storage } from '../../storage/storage';
 import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWithPasscode, getBiometricsState, getPasscodeState, passcodeStateKey } from '../../storage/secureStorage';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-import { useKeysAuth } from './AuthWalletKeys';
+import { useCallback, useEffect, useState } from 'react';
+import { checkBiometricsPermissions, useKeysAuth } from './AuthWalletKeys';
 import { mnemonicToWalletKey } from '@ton/crypto';
 import { useNetwork, useSetAppState, useTheme } from '../../engine/hooks';
+import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
+import { openSettings } from 'react-native-permissions';
+import { ScreenHeader } from '../ScreenHeader';
 
 export const WalletSecurePasscodeComponent = systemFragment((props: {
     mnemonics: string,
@@ -30,6 +33,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const setAppState = useSetAppState();
+    const logOutAndReset = useLogoutAndReset();
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -69,13 +73,121 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 const biometricsState = getBiometricsState();
                 const useBiometrics = (biometricsState === BiometricsState.InUse);
 
-                if (useBiometrics) {
-                    secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
-                } else if (passcodeState === PasscodeState.Set) {
+                const tryPasscode = async () => {
                     const authRes = await authContext.authenticateWithPasscode();
                     if (authRes) {
                         secretKeyEnc = await encryptData(Buffer.from(props.mnemonics), authRes.passcode);
                     }
+                }
+
+                if (useBiometrics) {
+                    try {
+                        secretKeyEnc = await encryptData(Buffer.from(props.mnemonics));
+                    } catch {
+                        const premissionsRes = await checkBiometricsPermissions(passcodeState);
+                        if (premissionsRes === 'biometrics-permission-check') {
+                            const resolved = await new Promise<boolean>(resolve => {
+                                Alert.alert(
+                                    t('security.auth.biometricsPermissionCheck.title'),
+                                    t('security.auth.biometricsPermissionCheck.message'),
+                                    [
+                                        {
+                                            text: passcodeState === PasscodeState.Set
+                                                ? t('security.auth.biometricsPermissionCheck.authenticate')
+                                                : t('common.cancel'),
+                                            onPress: async () => {
+                                                await tryPasscode();
+                                                props.onBack?.();
+                                                resolve(false);
+                                            }
+                                        },
+                                        {
+                                            text: t('security.auth.biometricsPermissionCheck.openSettings'),
+                                            onPress: () => {
+                                                props.onBack?.();
+                                                openSettings();
+                                                resolve(true);
+                                            }
+                                        }
+                                    ]
+                                );
+                            });
+                            if (resolved) {
+                                return;
+                            }
+                        } else if (premissionsRes === 'biometrics-setup-again') {
+                            const authWithPasscode = await new Promise<boolean>(resolve => {
+                                Alert.alert(
+                                    t('security.auth.biometricsSetupAgain.title'),
+                                    t('security.auth.biometricsSetupAgain.message'),
+                                    [
+                                        {
+                                            text: t('security.auth.biometricsSetupAgain.authenticate'),
+                                            onPress: async () => {
+                                                await tryPasscode();
+                                                props.onBack?.();
+                                                resolve(false);
+                                            }
+                                        },
+                                        {
+                                            text: t('security.auth.biometricsSetupAgain.setup'),
+                                            onPress: () => {
+                                                navigation.navigate('BiometricsSetup');
+                                                resolve(true);
+                                            }
+                                        }
+                                    ]
+                                );
+                            });
+
+                            if (authWithPasscode) {
+                                return;
+                            }
+                        } else if (premissionsRes === 'biometrics-cooldown') {
+                            await new Promise<void>(resolve => {
+                                Alert.alert(
+                                    t('security.auth.biometricsCooldown.title'),
+                                    t('security.auth.biometricsCooldown.message'),
+                                    [
+                                        {
+                                            text: t('common.ok'),
+                                            onPress: () => {
+                                                props.onBack?.();
+                                                resolve();
+                                            }
+                                        },
+                                    ]
+                                );
+                            });
+                            return;
+                        } else if (premissionsRes === 'corrupted') {
+                            const appState = getAppState();
+                            await new Promise<void>(resolve => {
+                                Alert.alert(
+                                    t('security.auth.biometricsCorrupted.title'),
+                                    appState.addresses.length > 1
+                                        ? t('security.auth.biometricsCorrupted.messageLogout')
+                                        : t('security.auth.biometricsCorrupted.message'),
+                                    [
+                                        {
+                                            text: appState.addresses.length > 1
+                                                ? t('security.auth.biometricsCorrupted.logout')
+                                                : t('security.auth.biometricsCorrupted.restore'),
+                                            onPress: () => {
+                                                resolve();
+                                                logOutAndReset();
+                                                navigation.navigateAndReplaceAll('Welcome');
+                                            },
+                                            style: 'destructive'
+                                        },
+                                    ]
+                                );
+                            });
+                            return;
+                        }
+                    }
+                } else if (passcodeState === PasscodeState.Set) {
+                    await tryPasscode();
                 }
 
                 if (!secretKeyEnc) {
@@ -222,14 +334,15 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         <View style={{ flexGrow: 1, width: '100%', paddingTop: 32 }}>
             {(loading || props.additionalWallet) ? (
                 <Animated.View
-                    style={{
-                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                        justifyContent: 'center', alignItems: 'center',
-                    }}
+                    style={{ flex: 1, flexDirection: 'row' }}
                     entering={FadeIn}
                     exiting={FadeOut}
                 >
-                    <LoadingIndicator simple />
+                    <LoadingIndicator style={StyleSheet.absoluteFill} simple />
+                    <ScreenHeader
+                        style={{ paddingHorizontal: 16 }}
+                        onBackPressed={props.onBack}
+                    />
                 </Animated.View>
             ) : (
                 !state ? (

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { NativeSyntheticEvent, Platform, Pressable, Share, View } from 'react-native';
+import { NativeSyntheticEvent, Platform, Pressable, Share, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
@@ -18,6 +18,8 @@ import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatTime } from '../../../utils/dates';
 import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
+import { PerfView } from '../../../components/basic/PerfView';
+import { Typography } from '../../../components/styles';
 
 export function TransactionView(props: {
     own: Address,
@@ -51,7 +53,7 @@ export function TransactionView(props: {
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
-    const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.addressString === opAddress) >= 0;
+    const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
@@ -69,7 +71,7 @@ export function TransactionView(props: {
                 }
             } else if (parsed.kind === 'in') {
                 if (parsed.bounced) {
-                    return '⚠️ ' + t('tx.bounced');
+                    return t('tx.bounced');
                 } else {
                     return t('tx.received');
                 }
@@ -83,9 +85,11 @@ export function TransactionView(props: {
     let known: KnownWallet | undefined = undefined;
     if (KnownWallets(isTestnet)[opAddress]) {
         known = KnownWallets(isTestnet)[opAddress];
-    } else if (tx.title) {
+    }
+    if (tx.title) {
         known = { name: tx.title };
-    } else if (!!contact) { // Resolve contact known wallet
+    }
+    if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
@@ -159,41 +163,38 @@ export function TransactionView(props: {
         { title: t('txActions.txShare'), systemIcon: Platform.OS === 'ios' ? 'square.and.arrow.up' : undefined }
     ];
 
-    const handleAction = useCallback(
-        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-            switch (e.nativeEvent.name) {
-                case t('txActions.addressShare'): {
-                    onShare(addressLink);
-                    break;
-                }
-                case t('txActions.addressContact'): {
-                    onAddressContact(Address.parse(opAddress));
-                    break;
-                }
-                case t('txActions.addressContactEdit'): {
-                    onAddressContact(Address.parse(opAddress));
-                    break;
-                }
-                case t('txActions.addressMarkSpam'): {
-                    onMarkAddressSpam();
-                    break;
-                }
-                case t('txActions.txRepeat'): {
-                    onRepeatTx();
-                    break;
-                }
-                case t('txActions.txShare'): {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink);
-                    }
-                    break;
-                }
-                default:
-                    break;
+    const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        switch (e.nativeEvent.name) {
+            case t('txActions.addressShare'): {
+                onShare(addressLink);
+                break;
             }
-        },
-        [addressLink, explorerTxLink, onShare, onMarkAddressSpam, onAddressContact],
-    );
+            case t('txActions.addressContact'): {
+                onAddressContact(Address.parse(opAddress));
+                break;
+            }
+            case t('txActions.addressContactEdit'): {
+                onAddressContact(Address.parse(opAddress));
+                break;
+            }
+            case t('txActions.addressMarkSpam'): {
+                onMarkAddressSpam();
+                break;
+            }
+            case t('txActions.txRepeat'): {
+                onRepeatTx();
+                break;
+            }
+            case t('txActions.txShare'): {
+                if (explorerTxLink) {
+                    onShare(explorerTxLink);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+    }, [addressLink, explorerTxLink, onShare, onMarkAddressSpam, onAddressContact]);
 
     return (
         <ContextMenu
@@ -205,13 +206,13 @@ export function TransactionView(props: {
                 style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
                 onLongPress={() => { }} /* Adding for Android not calling onPress while ContextMenu is LongPressed */
             >
-                <View style={{
+                <PerfView style={{
                     alignSelf: 'stretch',
                     flexDirection: 'row',
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <View style={{
+                    <PerfView style={{
                         width: 46, height: 46,
                         borderRadius: 23,
                         position: 'relative',
@@ -232,13 +233,15 @@ export function TransactionView(props: {
                                 id={opAddress}
                                 borderWith={0}
                                 spam={spam}
-                                markContact={!!known}
-                                isOwn={isOwn}
+                                markContact={!!contact}
+                                icProps={{ isOwn, backgroundColor: theme.surfaceOnBg, size: 18, borderWidth: 2 }}
+                                theme={theme}
+                                isTestnet={isTestnet}
                             />
                         )}
-                    </View>
-                    <View style={{ flex: 1, marginRight: 4 }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    </PerfView>
+                    <PerfView style={{ flex: 1, marginRight: 4 }}>
+                        <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
                             <PerfText
                                 style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
                                 ellipsizeMode={'tail'}
@@ -247,7 +250,7 @@ export function TransactionView(props: {
                                 {op}
                             </PerfText>
                             {spam && (
-                                <View style={{
+                                <PerfView style={{
                                     backgroundColor: theme.backgroundUnchangeable,
                                     borderWidth: 1,
                                     justifyContent: 'center',
@@ -266,9 +269,9 @@ export function TransactionView(props: {
                                     >
                                         {'SPAM'}
                                     </PerfText>
-                                </View>
+                                </PerfView>
                             )}
-                        </View>
+                        </PerfView>
                         <PerfText
                             style={{
                                 color: theme.textSecondary,
@@ -287,25 +290,25 @@ export function TransactionView(props: {
                             }
                             {` • ${formatTime(tx.base.time)}`}
                         </PerfText>
-                    </View>
-                    <View style={{ alignItems: 'flex-end' }}>
+                    </PerfView>
+                    <PerfView style={{ alignItems: 'flex-end' }}>
                         {parsed.status === 'failed' ? (
                             <PerfText style={{ color: theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
                                 {t('tx.failed')}
                             </PerfText>
                         ) : (
-                            <PerfText
-                                style={{
-                                    color: kind === 'in'
-                                        ? spam
-                                            ? theme.textPrimary
-                                            : theme.accentGreen
-                                        : theme.textPrimary,
-                                    fontWeight: '600',
-                                    lineHeight: 24,
-                                    fontSize: 17,
-                                    marginRight: 2,
-                                }}
+                            <Text
+                                style={[
+                                    {
+                                        color: kind === 'in'
+                                            ? spam
+                                                ? theme.textPrimary
+                                                : theme.accentGreen
+                                            : theme.textPrimary,
+                                        marginRight: 2,
+                                    },
+                                    Typography.semiBold17_24
+                                ]}
                                 numberOfLines={1}
                             >
                                 {kind === 'in' ? '+' : '-'}
@@ -313,9 +316,12 @@ export function TransactionView(props: {
                                     value={absAmount}
                                     decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
                                     precision={3}
+                                    centFontStyle={{ fontSize: 15 }}
                                 />
-                                {item.kind === 'token' ? ' ' + tx.masterMetadata?.symbol : ' TON'}
-                            </PerfText>
+                                <Text style={{ fontSize: 15 }}>
+                                    {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                </Text>
+                            </Text>
                         )}
                         {item.kind !== 'token' && (
                             <PriceComponent
@@ -327,6 +333,7 @@ export function TransactionView(props: {
                                     paddingHorizontal: 0, paddingVertical: 0,
                                     alignSelf: 'flex-end',
                                 }}
+                                theme={theme}
                                 textStyle={{
                                     color: theme.textSecondary,
                                     fontWeight: '400',
@@ -334,10 +341,10 @@ export function TransactionView(props: {
                                 }}
                             />
                         )}
-                    </View>
-                </View>
+                    </PerfView>
+                </PerfView>
                 {!!operation.comment && !(spam && dontShowComments) && (
-                    <View style={{
+                    <PerfView style={{
                         flexShrink: 1, alignSelf: 'flex-start',
                         backgroundColor: theme.border,
                         marginTop: 8,
@@ -351,7 +358,7 @@ export function TransactionView(props: {
                         >
                             {operation.comment}
                         </PerfText>
-                    </View>
+                    </PerfView>
                 )}
             </Pressable>
         </ContextMenu>

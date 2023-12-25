@@ -5,7 +5,6 @@ import { WelcomeFragment } from './fragments/onboarding/WelcomeFragment';
 import { WalletImportFragment } from './fragments/onboarding/WalletImportFragment';
 import { WalletCreateFragment } from './fragments/onboarding/WalletCreateFragment';
 import { LegalFragment } from './fragments/onboarding/LegalFragment';
-import { WalletCreatedFragment } from './fragments/onboarding/WalletCreatedFragment';
 import { WalletBackupFragment } from './fragments/secure/WalletBackupFragment';
 import { HomeFragment } from './fragments/HomeFragment';
 import { SimpleTransferFragment } from './fragments/secure/SimpleTransferFragment';
@@ -83,8 +82,12 @@ import { LedgerSelectAccountFragment } from './fragments/ledger/LedgerSelectAcco
 import { LedgerAppFragment } from './fragments/ledger/LedgerAppFragment';
 import { LedgerSignTransferFragment } from './fragments/ledger/LedgerSignTransferFragment';
 import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
+import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
+import { ProductsFragment } from './fragments/wallet/ProductsFragment';
+import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
 
 const Stack = createNativeStackNavigator();
+Stack.Navigator.displayName = 'MainStack';
 
 export function fullScreen(name: string, component: React.ComponentType<any>) {
     return (
@@ -121,10 +124,14 @@ function modalScreen(name: string, component: React.ComponentType<any>, safeArea
             options={{
                 presentation: 'modal',
                 headerShown: false,
-                contentStyle: {
-                    paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16 : undefined,
-                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : theme.backgroundPrimary
-                }
+                contentStyle: Platform.select({
+                    ios: {
+                        borderTopEndRadius: 20, borderTopStartRadius: 20,
+                        paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
+                        backgroundColor: theme.elevation
+                    },
+                    android: { backgroundColor: theme.backgroundPrimary }
+                })
             }}
         />
     );
@@ -141,10 +148,14 @@ function lockedModalScreen(name: string, component: React.ComponentType<any>, sa
                 presentation: 'modal',
                 headerShown: false,
                 gestureEnabled: false,
-                contentStyle: {
-                    paddingBottom: Platform.OS === 'ios' ? safeArea.bottom + 16 : undefined,
-                    backgroundColor: Platform.OS === 'ios' ? theme.elevation : theme.backgroundPrimary
-                }
+                contentStyle: Platform.select({
+                    ios: {
+                        borderTopEndRadius: 20, borderTopStartRadius: 20,
+                        paddingBottom: safeArea.bottom + 16,
+                        backgroundColor: theme.elevation
+                    },
+                    android: { backgroundColor: theme.backgroundPrimary }
+                })
             }}
         />
     );
@@ -172,11 +183,12 @@ const navigation = (safeArea: EdgeInsets) => [
     genericScreen('LegalCreate', LegalFragment, safeArea, true),
     genericScreen('LegalImport', LegalFragment, safeArea, true),
     genericScreen('WalletImport', WalletImportFragment, safeArea, true),
-    genericScreen('WalletCreate', WalletCreateFragment, safeArea),
-    genericScreen('WalletCreated', WalletCreatedFragment, safeArea),
+    genericScreen('WalletCreate', WalletCreateFragment, safeArea, true),
     genericScreen('WalletBackupInit', WalletBackupFragment, safeArea),
     genericScreen('WalletUpgrade', WalletUpgradeFragment, safeArea),
+    genericScreen('BackupIntro', BackupIntroFragment, safeArea),
     modalScreen('Transaction', TransactionPreviewFragment, safeArea),
+    modalScreen('PendingTransaction', PendingTxPreviewFragment, safeArea),
     modalScreen('Sign', SignFragment, safeArea),
     modalScreen('Migration', MigrationFragment, safeArea),
 
@@ -194,6 +206,7 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('Receive', ReceiveFragment, safeArea),
     lockedModalScreen('Buy', NeocryptoFragment, safeArea),
     modalScreen('Assets', AssetsFragment, safeArea),
+    transparentModalScreen('Products', ProductsFragment, safeArea),
 
     // dApps
     transparentModalScreen('TonConnectAuthenticate', TonConnectAuthenticateFragment, safeArea),
@@ -236,8 +249,6 @@ const navigation = (safeArea: EdgeInsets) => [
     lockedModalScreen('LedgerSignTransfer', LedgerSignTransferFragment, safeArea),
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
-    modalScreen('LedgerStakingPools', StakingPoolsFragment, safeArea),
-    modalScreen('LedgerStaking', StakingFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
 

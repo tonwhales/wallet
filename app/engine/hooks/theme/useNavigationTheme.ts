@@ -6,6 +6,7 @@ import { DefaultTheme } from '@react-navigation/native';
 import { Theme as NavigationThemeType } from '@react-navigation/native';
 import * as SystemUI from 'expo-system-ui';
 import { useThemeStyle } from './useThemeStyle';
+import { Platform } from 'react-native';
 
 export function useNavigationTheme(): NavigationThemeType {
     const theme = useTheme();
@@ -13,8 +14,10 @@ export function useNavigationTheme(): NavigationThemeType {
 
     useEffect(() => {
         changeNavBarColor(theme.surfaceOnBg);
-        if (themeStyle !== ThemeStyle.System) {
+        if (themeStyle !== ThemeStyle.System && Platform.OS === 'android') {
             SystemUI.setBackgroundColorAsync(theme.backgroundPrimary);
+        } else {
+            SystemUI.setBackgroundColorAsync(null);
         }
     }, [theme, themeStyle]);
 

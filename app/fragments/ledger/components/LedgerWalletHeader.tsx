@@ -85,33 +85,25 @@ export const LedgerWalletHeader = memo(() => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
             }}>
-                <Pressable
-                    style={({ pressed }) => {
-                        return {
-                            opacity: pressed ? 0.5 : 1,
-                            flex: 1
-                        }
-                    }}
-                    onPress={() => navigation.navigate('WalletSettings')}
-                >
+                <View style={{ flex: 1 }}>
                     <View style={{
-                        width: 24, height: 24,
+                        width: 32, height: 32,
                         backgroundColor: theme.accent,
-                        borderRadius: 12
+                        borderRadius: 16
                     }}>
                         <Image
-                            style={{ width: 24, height: 24 }}
+                            style={{ width: 32, height: 32 }}
                             source={require('@assets/ledger_device.png')}
                         />
                     </View>
-                </Pressable>
+                </View>
                 <Pressable
                     onPress={onAccountPress}
                     style={{ flex: 1, alignItems: 'center', justifyContent: 'center', minWidth: '30%' }}
                 >
                     <View style={{
                         flexDirection: 'row',
-                        backgroundColor: 'rgba(255,255,255,0.08)',
+                        backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
                         borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
                         alignItems: 'center'
                     }}>
@@ -119,7 +111,8 @@ export const LedgerWalletHeader = memo(() => {
                             style={{
                                 fontWeight: '500',
                                 fontSize: 17, lineHeight: 24,
-                                color: theme.white, flexShrink: 1,
+                                color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
+                                flexShrink: 1,
                                 marginRight: 8
                             }}
                             ellipsizeMode='tail'
@@ -130,7 +123,7 @@ export const LedgerWalletHeader = memo(() => {
                         {syncState === 'updating' && (
                             <ReAnimatedCircularProgress
                                 size={14}
-                                color={theme.white}
+                                color={theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary}
                                 reverse
                                 infinitRotate
                                 progress={0.8}
@@ -152,18 +145,21 @@ export const LedgerWalletHeader = memo(() => {
                 </Pressable>
                 <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                     <Pressable
-                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1,
+                            backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                            height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 16
+                        })}
                         onPress={openScanner}
                     >
-                        <Scanner
+                        <Image
+                            source={require('@assets/ic-scan-main.png')}
                             style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
+                                height: 22,
+                                width: 22,
+                                tintColor: theme.iconPrimary
                             }}
-                            height={24}
-                            width={24}
-                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 </View>

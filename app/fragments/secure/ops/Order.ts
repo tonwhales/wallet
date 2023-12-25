@@ -16,6 +16,7 @@ export type Order = {
     app?: {
         domain: string,
         title: string,
+        url: string
     }
 };
 
@@ -127,7 +128,8 @@ export function createOrder(args: {
     stateInit: Cell | null,
     app?: {
         domain: string,
-        title: string
+        title: string,
+        url: string
     }
 }) {
     return {
@@ -153,7 +155,8 @@ export function createSimpleOrder(args: {
     stateInit: Cell | null,
     app?: {
         domain: string,
-        title: string
+        title: string,
+        url: string
     }
 }): Order {
 

@@ -80,29 +80,31 @@ export const WelcomeSlider = memo(({ style }: { style?: StyleProp<ViewStyle> }) 
                 }
                 )}
             </View>
-            <ScrollView
-                ref={scrollRef}
-                horizontal={true}
-                pagingEnabled={true}
-                snapToAlignment={'center'}
-                style={{ flexGrow: 1, width: dimensions.screen.width }}
-                contentContainerStyle={{ width: dimensions.screen.width * slidesComponents.length }}
-                showsHorizontalScrollIndicator={false}
-                bounces={false}
-                onScroll={onScroll}
-                scrollEventThrottle={32}
-            >
-                {slidesComponents.map((slide, index) => {
-                    return (
-                        <Slide
-                            upperNote={slide.upperNote}
-                            title={slide.title}
-                            subtitle={slide.subtitle}
-                            illustration={slide.illustration}
-                            key={`slide-${index}`}
-                        />
-                    )
-                })}
+            <ScrollView bounces={false}>
+                <ScrollView
+                    ref={scrollRef}
+                    horizontal={true}
+                    pagingEnabled={true}
+                    snapToAlignment={'center'}
+                    style={{ flexGrow: 1, width: dimensions.screen.width }}
+                    contentContainerStyle={{ width: dimensions.screen.width * slidesComponents.length }}
+                    showsHorizontalScrollIndicator={false}
+                    bounces={false}
+                    onScroll={onScroll}
+                    scrollEventThrottle={32}
+                >
+                    {slidesComponents.map((slide, index) => {
+                        return (
+                            <Slide
+                                upperNote={slide.upperNote}
+                                title={slide.title}
+                                subtitle={slide.subtitle}
+                                illustration={slide.illustration}
+                                key={`slide-${index}`}
+                            />
+                        )
+                    })}
+                </ScrollView>
             </ScrollView>
         </View>
     );

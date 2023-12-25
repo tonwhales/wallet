@@ -68,7 +68,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             <Pressable
                 onPress={() => navigation.navigate('LedgerStakingPools')}
                 style={({ pressed }) => {
-                    return [style, { backgroundColor: theme.surfaceOnElevation, opacity: pressed ? 0.5 : 1 }]
+                    return [style, { backgroundColor: theme.surfaceOnBg, opacity: pressed ? 0.5 : 1 }]
                 }}
             >
                 <View style={{ alignSelf: 'stretch', flexDirection: 'row' }}>
@@ -114,6 +114,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
                                     height: 'auto'
                                 }}
                                 textStyle={{ color: theme.textSecondary, ...subtitleStyle }}
+                                theme={theme}
                             />
                         </View>
                     </View>
@@ -127,7 +128,7 @@ export const LedgerStakingProductComponent = React.memo(() => {
             onPress={() => navigation.navigate('LedgerStakingPools')}
             title={t('products.staking.title')}
             subtitle={network.isTestnet ? t('products.staking.subtitle.devPromo') : t("products.staking.subtitle.join", { apy: apyWithFee ?? '8' })}
-            illustration={require('@assets/banners/banner-staking.png')}
+            illustration={require('@assets/banners/banner-staking.webp')}
         />
     );
 })

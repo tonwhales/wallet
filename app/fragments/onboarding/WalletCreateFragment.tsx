@@ -10,7 +10,7 @@ import { RoundButton } from '../../components/RoundButton';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { warn } from '../../utils/log';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import * as ScreenCapture from 'expo-screen-capture';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -19,6 +19,7 @@ import { useNetwork, useTheme } from '../../engine/hooks';
 import { mnemonicNew } from "@ton/crypto";
 import { StatusBar } from 'expo-status-bar';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
+import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 
 export const WalletCreateFragment = systemFragment(() => {
     const { isTestnet } = useNetwork();
@@ -27,6 +28,7 @@ export const WalletCreateFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
     const { mnemonics, additionalWallet } = useParams<{ mnemonics?: string, additionalWallet?: boolean }>();
     const [state, setState] = useState<{ mnemonics: string, saved?: boolean } | null>(mnemonics ? { mnemonics } : null);
+    const toaster = useToaster();
 
     useEffect(() => {
         if (!mnemonics) {
@@ -39,27 +41,6 @@ export const WalletCreateFragment = systemFragment(() => {
         }
     }, []);
 
-    const onBack = useCallback((e: any) => {
-        if (state?.saved) {
-            e.preventDefault();
-            setState({ ...state, saved: false });
-            return;
-        }
-
-        navigation.base.dispatch(e.data.action);
-    }, [state, navigation]);
-
-    useEffect(() => {
-        if (state) {
-            ScreenCapture.preventScreenCaptureAsync('words-screen');
-        } else {
-            ScreenCapture.allowScreenCaptureAsync('words-screen');
-        }
-        return () => {
-            ScreenCapture.allowScreenCaptureAsync('words-screen');
-        }
-    }, [state]);
-
     useLayoutEffect(() => {
         let subscription: ScreenCapture.Subscription;
         if (!state?.saved) {
@@ -70,15 +51,8 @@ export const WalletCreateFragment = systemFragment(() => {
             });
         }
 
-        if (Platform.OS === 'android') {
-            navigation.base.addListener('beforeRemove', onBack);
-        }
-
         return () => {
             subscription?.remove();
-            if (Platform.OS === 'android') {
-                navigation.base.removeListener('beforeRemove', onBack);
-            }
         }
     }, [navigation, state]);
 
@@ -145,7 +119,10 @@ export const WalletCreateFragment = systemFragment(() => {
                         }}>
                             {t('create.backupSubtitle')}
                         </Text>
-                        <MnemonicsView mnemonics={state.mnemonics} />
+                        <MnemonicsView
+                            mnemonics={state.mnemonics}
+                            preventCapture={true}
+                        />
                         {isTestnet && (
                             <RoundButton
                                 display={'text'}
@@ -153,13 +130,16 @@ export const WalletCreateFragment = systemFragment(() => {
                                 style={{ marginTop: 20 }}
                                 onPress={() => {
                                     try {
-                                        if (Platform.OS === 'android') {
-                                            Clipboard.setString(state.mnemonics);
-                                            ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
-                                            return;
-                                        }
                                         Clipboard.setString(state.mnemonics);
                                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                        toaster.show(
+                                            {
+                                                message: t('common.copied'),
+                                                type: 'default',
+                                                duration: ToastDuration.SHORT,
+                                                marginBottom: Platform.select({ android: safeArea.bottom + 16 })
+                                            }
+                                        );
                                     } catch {
                                         warn('Failed to copy words');
                                         Alert.alert(t('common.error'), t('errors.unknown'));

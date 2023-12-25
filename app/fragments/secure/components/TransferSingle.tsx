@@ -20,31 +20,14 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
-import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
 import { getLastBlock } from "../../../engine/accountWatcher";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
+import { ConfirmLoadedPropsSingle } from "../TransferFragment";
+import { PendingTransactionBody } from "../../../engine/state/pending";
 
-type Props = {
-    target: {
-        isTestOnly: boolean;
-        address: Address;
-        balance: bigint,
-        active: boolean,
-        domain?: string
-    },
-    text: string | null,
-    order: Order,
-    job: string | null,
-    fees: bigint,
-    metadata: ContractMetadata,
-    restricted: boolean,
-    jettonMaster: JettonMasterState | null
-    callback: ((ok: boolean, result: Cell | null) => void) | null
-    back?: number
-}
-
-export const TransferSingle = memo((props: Props) => {
+export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
     const authContext = useKeysAuth();
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
@@ -55,9 +38,10 @@ export const TransferSingle = memo((props: Props) => {
     const registerPending = useRegisterPending();
     const [walletSettings,] = useWalletSettings(selected?.address);
 
-    const {
+    let {
         restricted,
         target,
+        jettonTarget,
         text,
         order,
         job,
@@ -107,9 +91,13 @@ export const TransferSingle = memo((props: Props) => {
         }
     }, []);
 
+    if (jettonTarget) {
+        target = jettonTarget;
+    }
+
     const friendlyTarget = target.address.toString({ testOnly: isTestnet });
     // Contact wallets
-    const contact = useContact(operation.address);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -120,16 +108,14 @@ export const TransferSingle = memo((props: Props) => {
         known = { name: contact.name }
     }
 
-    const isSpam = useDenyAddress(operation.address);
-    let spam = useIsSpamWallet(friendlyTarget) || isSpam
-
+    const isSpam = useDenyAddress(friendlyTarget);
+    const spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation
     const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
-
 
         // Check if same address
         if (target.address.equals(contract.address)) {
@@ -191,7 +177,7 @@ export const TransferSingle = memo((props: Props) => {
                 : text ? comment(text) : null;
 
             let intMessage = internal({
-                to: target.address,
+                to: order.messages[0].target,
                 value: order.messages[0].amount,
                 init: internalStateInit,
                 bounce,
@@ -232,9 +218,8 @@ export const TransferSingle = memo((props: Props) => {
         if (callback) {
             try {
                 callback(true, transfer);
-            } catch (e) {
-                warn(e);
-                // Ignore on error
+            } catch {
+                warn('Failed to execute callback');
             }
         }
 
@@ -242,14 +227,37 @@ export const TransferSingle = memo((props: Props) => {
         success.current = true;
         trackEvent(MixpanelEvent.Transfer, { target: order.messages[0].target, amount: order.messages[0].amount.toString(10) }, isTestnet);
 
+        let amount = order.messages[0].amount * (BigInt(-1));
+        if (order.messages[0].amountAll) {
+            amount = BigInt(-1) * account!.balance;
+        }
+
+        let body: PendingTransactionBody | null = order.messages[0].payload
+            ? { type: 'payload', cell: order.messages[0].payload }
+            : (text && text.length > 0
+                ? { type: 'comment', comment: text }
+                : null
+            );
+
+        if (jettonTarget && jettonMaster && jettonAmountString) {
+            body = {
+                type: 'token',
+                master: jettonMaster,
+                target: jettonTarget.address,
+                amount: toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9),
+                comment: text,
+            }
+        }
+
         // Register pending
         registerPending({
             id: 'pending-' + seqno,
+            status: 'pending',
             fees: fees,
-            amount: order.messages[0].amount * (BigInt(-1)),
+            amount: amount,
             address: target.address,
             seqno: seqno,
-            body: order.messages[0].payload ? { type: 'payload', cell: order.messages[0].payload } : (text && text.length > 0 ? { type: 'comment', comment: text } : null),
+            body: body,
             time: Math.floor(Date.now() / 1000),
             hash: msg.hash(),
         });
@@ -262,7 +270,7 @@ export const TransferSingle = memo((props: Props) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
 
     return (
         <TransferSingleView

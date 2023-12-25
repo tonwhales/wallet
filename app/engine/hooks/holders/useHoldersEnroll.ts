@@ -2,12 +2,14 @@ import { Address } from "@ton/core";
 import { AuthParams, AuthWalletKeysType } from "../../../components/secure/AuthWalletKeys";
 import { fetchAccountToken } from "../../api/holders/fetchAccountToken";
 import { contractFromPublicKey, walletConfigFromContract } from "../../contractFromPublicKey";
-import { deleteHoldersToken, getHoldersToken, setHoldersToken, useHoldersAccountStatus } from "./useHoldersAccountStatus";
+import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { useNetwork } from "../network/useNetwork";
 import { useCreateDomainKeyIfNeeded } from "../dapps/useCreateDomainKeyIfNeeded";
 import { createDomainSignature } from "../../utils/createDomainSignature";
+import { DomainSubkey } from "../../state/domainKeys";
+import { onHoldersEnroll } from "../../effects/onHoldersEnroll";
 
-export function useHoldersEnroll(
+export type HoldersEnrollParams = {
     acc: {
         address: Address;
         addressString: string;
@@ -18,40 +20,64 @@ export function useHoldersEnroll(
     domain: string,
     authContext: AuthWalletKeysType,
     authStyle?: AuthParams | undefined
-) {
+}
+
+export enum HoldersEnrollErrorType {
+    NoDomainKey = 'NoDomainKey',
+    DomainKeyFailed = 'DomainKeyFailed',
+    FetchTokenFailed = 'FetchTokenFailed',
+    CreateSignatureFailed = 'CreateSignatureFailed',
+    AfterEnrollFailed = 'AfterEnrollFailed'
+}
+
+export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
+
+export function useHoldersEnroll({ acc, domain, authContext, authStyle }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const createDomainKeyIfNeeded = useCreateDomainKeyIfNeeded();
-    const status = useHoldersAccountStatus(acc.address);
     return (async () => {
         let res = await (async () => {
             //
             // Create domain key if needed
             //
 
-            let existingKey = await createDomainKeyIfNeeded(domain, authContext, undefined, authStyle);
+            let existingKey: DomainSubkey | false;
+
+            try {
+                existingKey = await createDomainKeyIfNeeded(domain, authContext, undefined, authStyle)
+            } catch {
+                return { type: 'error', error: HoldersEnrollErrorType.DomainKeyFailed };
+            }
 
             if (!existingKey) {
-                return false;
+                return { type: 'error', error: HoldersEnrollErrorType.NoDomainKey };
             }
 
             // 
             // Check holders token cloud value
             // 
 
-            
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
             if (existingToken && existingToken.toString().length > 0) {
-                return true;
+                return { type: 'success' };
             } else {
                 //
                 // Create signnature and fetch token
                 //
 
+                let contract = contractFromPublicKey(acc.publicKey);
+                let config = walletConfigFromContract(contract);
+                let signed: { signature: string; time: number; subkey: { domain: string; publicKey: string; time: number; signature: string; }; };
+
                 try {
-                    let contract = contractFromPublicKey(acc.publicKey);
-                    let config = walletConfigFromContract(contract);
-                    let signed = createDomainSignature(domain, existingKey);
+                    signed = createDomainSignature(domain, existingKey)
+                } catch {
+                    return { type: 'error', error: HoldersEnrollErrorType.CreateSignatureFailed };
+                }
+
+                try {
+
                     let token = await fetchAccountToken({
                         address: contract.address.toString({ testOnly: isTestnet }),
                         walletConfig: config.walletConfig,
@@ -62,19 +88,25 @@ export function useHoldersEnroll(
                     }, isTestnet);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
-                } catch (e) {
-                    console.warn(e);
+                } catch {
                     deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }));
-                    throw Error('Failed to create signature and fetch token');
+                    return { type: 'error', error: HoldersEnrollErrorType.FetchTokenFailed };
                 }
             }
 
-            return true;
+            return { type: 'success' };
         })();
 
+        //
         // Refetch state
-        await status.refetch();
+        //
 
-        return res;
+        try {
+            await onHoldersEnroll(acc.address.toString({ testOnly: isTestnet }), isTestnet);
+        } catch {
+            console.warn(HoldersEnrollErrorType.AfterEnrollFailed);
+        }
+
+        return res as HoldersEnrollResult;
     })
 }

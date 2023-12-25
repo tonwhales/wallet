@@ -76,19 +76,24 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
     let status: 'success' | 'failed' = 'success';
     let dest: string | null = null;
     if (tx.inMessage && tx.inMessage.info.type === 'external-in') {
-        const parse = inMessageBody!.beginParse();
-        parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
-        seqno = parse.loadUint(32);
-        const command = parse.loadUint(8);
-        if (command === 0) {
-            let message = loadMessageRelaxed(parse.loadRef().beginParse());
-            if (message.info.dest && Address.isAddress(message.info.dest)) {
-                dest = message.info.dest.toString({ testOnly: isTestnet });
+        try {
+            const parse = inMessageBody!.beginParse();
+            parse.skip(512 + 32 + 32); // Signature + wallet_id + timeout
+            seqno = parse.loadUint(32);
+            const command = parse.loadUint(8);
+            if (command === 0 && parse.remainingRefs > 0) {
+                let message = loadMessageRelaxed(parse.loadRef().beginParse());
+                if (message.info.dest && Address.isAddress(message.info.dest)) {
+                    dest = message.info.dest.toString({ testOnly: isTestnet });
+                }
+                body = parseBody(message.body);
+
+                if (tx.outMessagesCount === 0) {
+                    status = 'failed';
+                }
             }
-            body = parseBody(message.body);
-        }
-        if (tx.outMessagesCount === 0) {
-            status = 'failed';
+        } catch (e) {
+            console.error('failed to parse external-in message', e, inMessageBody?.toBoc().toString('base64'));
         }
     }
 
@@ -282,10 +287,6 @@ export function useRawAccountTransactions(client: TonClient4, account: string) {
             return { pages, pageParams };
         },
     });
-
-    if (!query.data) {
-        return null;
-    }
 
     return query;
 }

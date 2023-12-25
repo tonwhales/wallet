@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -21,7 +21,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
 import { Avatar } from '../../components/Avatar';
-import { formatCurrency } from '../../utils/formatCurrency';
+import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
 import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -40,6 +40,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -52,7 +53,8 @@ export type SimpleTransferParams = {
     back?: number,
     app?: {
         domain: string,
-        title: string
+        title: string,
+        url: string,
     }
 }
 
@@ -130,7 +132,7 @@ export const SimpleTransferFragment = fragment(() => {
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
         try {
-            const valid = amount.replace(',', '.');
+            const valid = amount.replace(',', '.').replaceAll(' ', '');
             // Manage jettons with decimals
             if (jettonState) {
                 value = toBnWithDecimals(valid, jettonState.master.decimals ?? 9);
@@ -638,36 +640,11 @@ export const SimpleTransferFragment = fragment(() => {
         const headertitle = addressFriendly
             ? {
                 titleComponent: (
-                    <Animated.View
-                        entering={FadeInDown} exiting={FadeOutDown}
-                        style={{
-                            backgroundColor: theme.border,
-                            borderRadius: 100,
-                            maxWidth: '70%',
-                            flexDirection: 'row',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            marginLeft: -16,
-                            paddingLeft: 6, paddingRight: 12,
-                            paddingVertical: 6
-                        }}
-                    >
-                        <Avatar
-                            size={24}
-                            id={addressFriendly}
-                            address={addressFriendly}
-                            borderWith={0}
-                        />
-                        <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            color: theme.textPrimary,
-                            fontWeight: '500',
-                            marginLeft: 6,
-                            minHeight: 24
-                        }}>
-                            {addressFriendly.slice(0, 4) + '...' + addressFriendly.slice(-4)}
-                        </Text>
-                    </Animated.View>
+                    <TransferHeader
+                        theme={theme}
+                        addressFriendly={addressFriendly}
+                        isTestnet={network.isTestnet}
+                    />
                 )
             }
             : {
@@ -742,7 +719,7 @@ export const SimpleTransferFragment = fragment(() => {
                 }
             default:
                 return {
-                    amount: {},
+                    amount: Platform.select({ android: { marginVertical: -80 }, ios: {} }),
                     address: {},
                     comment: {}
                 }
@@ -756,7 +733,7 @@ export const SimpleTransferFragment = fragment(() => {
     }, [selected, addressDomainInput]);
 
     return (
-        <Animated.View layout={Layout.duration(300)} style={{ flexGrow: 1 }}>
+        <Animated.View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
                 title={header.title}
@@ -772,7 +749,7 @@ export const SimpleTransferFragment = fragment(() => {
                 ref={scrollRef}
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', marginTop: 16 }}
                 contentContainerStyle={[
-                    { marginHorizontal: 16 },
+                    { marginHorizontal: 16, flexGrow: 1 },
                     Platform.select({ android: { minHeight: addressInputHeight } }),
                 ]}
                 contentInset={{
@@ -786,8 +763,8 @@ export const SimpleTransferFragment = fragment(() => {
                 nestedScrollEnabled={true}
             >
                 <Animated.View
-                    layout={Layout.duration(300)}
-                    style={[seletectInputStyles.address, { flex: 1, zIndex: 1 }]}
+                    layout={LinearTransition.duration(300)}
+                    style={[seletectInputStyles.address, { flex: 1, zIndex: selected === 'address' ? 1 : undefined }]}
                     onLayout={(e) => setAddressInputHeight(e.nativeEvent.layout.height)}
                 >
                     <TransferAddressInput
@@ -808,8 +785,8 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                 </Animated.View>
                 <Animated.View
-                    layout={Layout.duration(300)}
-                    style={[seletectInputStyles.amount, { flex: 1 }]}
+                    layout={LinearTransition.duration(300)}
+                    style={[seletectInputStyles.amount, { flex: 1, zIndex: selected === 'amount' ? 1 : undefined }]}
                 >
                     <View
                         style={{
@@ -851,13 +828,17 @@ export const SimpleTransferFragment = fragment(() => {
                                         )}
                                         {!jettonState && (<IcTonIcon width={46} height={46} />)}
                                         {isVerified && (
-                                            <Image
-                                                source={require('@assets/ic-verified.png')}
-                                                style={{
-                                                    height: 16, width: 16,
-                                                    position: 'absolute', right: -2, bottom: -2,
-                                                }}
-                                            />
+                                            <View style={{
+                                                justifyContent: 'center', alignItems: 'center',
+                                                height: 20, width: 20, borderRadius: 10,
+                                                position: 'absolute', right: -2, bottom: 0,
+                                                backgroundColor: theme.surfaceOnBg
+                                            }}>
+                                                <Image
+                                                    source={require('@assets/ic-verified.png')}
+                                                    style={{ height: 20, width: 20 }}
+                                                />
+                                            </View>
                                         )}
                                     </View>
                                     <View style={{ justifyContent: 'space-between', flexShrink: 1 }}>
@@ -928,7 +909,10 @@ export const SimpleTransferFragment = fragment(() => {
                             ref={refs[1]}
                             onFocus={onFocus}
                             value={amount}
-                            onValueChange={setAmount}
+                            onValueChange={(newVal) => {
+                                const formatted = formatInputAmount(newVal, jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true }, amount);
+                                setAmount(formatted);
+                            }}
                             keyboardType={'numeric'}
                             style={{
                                 backgroundColor: theme.backgroundPrimary,
@@ -963,16 +947,17 @@ export const SimpleTransferFragment = fragment(() => {
                     )}
                 </Animated.View>
                 <Animated.View
-                    layout={Layout.duration(300)}
+                    layout={LinearTransition.duration(300)}
                     style={[
-                        { backgroundColor: theme.elevation, flex: 1 },
+                        { backgroundColor: theme.elevation, flex: 1, zIndex: selected === 'comment' ? 1 : undefined },
                         seletectInputStyles.comment
                     ]}
                 >
                     <View style={{
                         flex: 1,
                         backgroundColor: theme.surfaceOnElevation,
-                        paddingVertical: 26, paddingHorizontal: 10,
+                        paddingVertical: 20,
+                        paddingHorizontal: (commentString.length > 0 && selected !== 'comment') ? 4 : 0,
                         width: '100%', borderRadius: 20,
                     }}>
                         <ATextInput
@@ -1032,17 +1017,26 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} (${estimationPrise})`}
+                                            {`${fromNano(estimation)} TON`}
                                         </>
                                         : '...'
                                     }
+                                    {!!estimationPrise && (
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                        }}>
+                                            {` (${estimationPrise})`}
+                                        </Text>
+
+                                    )}
                                 </Text>
                             </View>
                             <AboutIconButton
                                 title={t('txPreview.blockchainFee')}
                                 description={t('txPreview.blockchainFeeDescription')}
                                 style={{ height: 24, width: 24, position: undefined }}
-                                size={20}
+                                size={24}
                             />
                         </View>
                     </Animated.View>
@@ -1068,7 +1062,7 @@ export const SimpleTransferFragment = fragment(() => {
                     />
                     : <RoundButton
                         disabled={!order}
-                        title={t('common.send')}
+                        title={t('common.continue')}
                         action={doSend}
                     />
                 }

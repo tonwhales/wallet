@@ -156,7 +156,7 @@ export const AppComponent = memo((props: {
             }
         });
     }, [domainKey]);
-    const injectionEngine = useInjectEngine(domain, props.title, isTestnet);
+    const injectionEngine = useInjectEngine(domain, props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -181,8 +181,8 @@ export const AppComponent = memo((props: {
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch (e) {
-                warn(e);
+            } catch {
+                warn('Failed to execute inject engine operation');
             }
             dispatchResponse(webRef, { id, data: res });
         })();

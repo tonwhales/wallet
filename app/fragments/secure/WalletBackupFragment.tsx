@@ -54,7 +54,9 @@ export const WalletBackupFragment = systemFragment(() => {
     useEffect(() => {
         let subscription: ScreenCapture.Subscription;
         subscription = ScreenCapture.addScreenshotListener(() => {
-            navigation.navigate('ScreenCapture');
+            navigation.navigateScreenCapture({
+                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+            });
         });
 
         (async () => {
@@ -71,11 +73,8 @@ export const WalletBackupFragment = systemFragment(() => {
             }
         })();
 
-        // Keeping screen in awakened state
-        activateKeepAwakeAsync('WalletBackupFragment');
-        return function deactivate() {
+        return () => {
             subscription?.remove();
-            deactivateKeepAwake('WalletBackupFragment');
         };
     }, []);
 
@@ -101,6 +100,7 @@ export const WalletBackupFragment = systemFragment(() => {
                 flexGrow: 1,
                 backgroundColor: !init ? undefined : theme.backgroundPrimary,
                 paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
+                paddingTop: init ? safeArea.top : 0,
             }}
             exiting={FadeIn}
             key={"content"}
@@ -159,6 +159,7 @@ export const WalletBackupFragment = systemFragment(() => {
                             paddingTop: init ? 16 : 46,
                             backgroundColor: !init ? theme.surfaceOnElevation : undefined
                         }}
+                        preventCapture={true}
                     />
                     {!init && (
                         <View style={{
@@ -174,6 +175,8 @@ export const WalletBackupFragment = systemFragment(() => {
                                 size={77}
                                 borderColor={theme.elevation}
                                 borderWith={3}
+                                theme={theme}
+                                isTestnet={network.isTestnet}
                             />
                         </View>
                     )}
@@ -185,18 +188,14 @@ export const WalletBackupFragment = systemFragment(() => {
                         style={{ marginTop: 20 }}
                         onPress={() => {
                             try {
-                                if (Platform.OS === 'android') {
-                                    Clipboard.setString(mnemonics.join(' '));
-                                    ToastAndroid.show(t('common.copiedAlert'), ToastAndroid.SHORT);
-                                    return;
-                                }
                                 Clipboard.setString(mnemonics.join(' '));
                                 Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
                                 toaster.show(
                                     {
                                         message: t('common.copied'),
                                         type: 'default',
-                                        duration: ToastDuration.SHORT
+                                        duration: ToastDuration.SHORT,
+                                        marginBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 64 : safeArea.bottom + 64) : 16
                                     }
                                 );
                             } catch {
@@ -222,12 +221,10 @@ export const WalletBackupFragment = systemFragment(() => {
             </ScrollView>
             {init && (
                 <View style={{
-                    alignSelf: 'stretch',
-                    paddingHorizontal: 16,
                     paddingVertical: 16,
-                    marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom
+                    position: 'absolute', bottom: 0, left: 16, right: 16,
                 }}>
-                    <RoundButton title={back ? t('common.done') : t('common.continue')} onPress={onComplete} />
+                    <RoundButton title={back ? t('common.done') : t('create.okSaved')} onPress={onComplete} />
                 </View>
             )}
         </Animated.View>

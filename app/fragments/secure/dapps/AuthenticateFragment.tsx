@@ -22,6 +22,7 @@ import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { useAddExtension } from '../../../engine/hooks';
 import { getAppData } from '../../../engine/getters/getAppData';
 import { DappAuthComponent } from './DappAuthComponent';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
@@ -33,6 +34,7 @@ type SignState = { type: 'loading' }
 const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const safeArea = useSafeAreaInsets();
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
     const [state, setState] = useState<SignState>({ type: 'loading' });
@@ -109,7 +111,11 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
         // Sign
         let walletKeys: WalletKeys;
         try {
-            walletKeys = await authContext.authenticate({ cancelable: true, backgroundColor: theme.surfaceOnElevation });
+            walletKeys = await authContext.authenticate({
+                cancelable: true,
+                backgroundColor: theme.elevation,
+                containerStyle: { paddingBottom: safeArea.bottom + 56 },
+            });
         } catch (e) {
             warn('Failed to load wallet keys');
             return;

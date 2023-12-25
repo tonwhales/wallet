@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from "react";
 import { View, Text, Platform, Image, Pressable } from "react-native";
-import Animated, { SensorType, useAnimatedSensor, useAnimatedStyle, withTiming } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
@@ -16,13 +16,14 @@ import { t } from "../../i18n/t";
 import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
 import { KnownPools } from "../../utils/KnownPools";
 import { StakingPoolType } from "./StakingPoolsFragment";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useNetwork, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, toNano } from "@ton/core";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export const StakingFragment = fragment(() => {
     const theme = useTheme();
@@ -34,6 +35,8 @@ export const StakingFragment = fragment(() => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
+    const bottomBarHeight = useBottomTabBarHeight();
+    const active = useStakingActive();
 
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
@@ -52,17 +55,6 @@ export const StakingFragment = fragment(() => {
             : selected!.address.toString({ testOnly: network.isTestnet })
     )
 
-    const animSensor = useAnimatedSensor(SensorType.GYROSCOPE, { interval: 100 });
-
-    const animatedStyle = useAnimatedStyle(() => {
-        return {
-            transform: [
-                { translateX: withTiming(animSensor.sensor.value.y * 80) },
-                { translateY: withTiming(animSensor.sensor.value.x * 80) },
-            ]
-        }
-    });
-
     let type: StakingPoolType = useMemo(() => {
         if (KnownPools(network.isTestnet)[params.pool].name.toLowerCase().includes('club')) {
             return 'club';
@@ -77,7 +69,7 @@ export const StakingFragment = fragment(() => {
         if (network.isTestnet) {
             return true;
         }
-        return !!config!.pools.find((v2) => {
+        return !!config?.pools.find((v2) => {
             return Address.parse(v2).equals(targetPool)
         })
     }, [config, targetPool, network]);
@@ -127,6 +119,9 @@ export const StakingFragment = fragment(() => {
     const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
     const openPoolSelector = useCallback(() => {
+        if (active.length < 2) {
+            return;
+        }
         navigation.navigate(
             isLedger ? 'StakingPoolSelectorLedger' : 'StakingPoolSelector',
             {
@@ -136,12 +131,19 @@ export const StakingFragment = fragment(() => {
                 }
             },
         )
-    }, [isLedger, targetPool, setParams]);
+    }, [isLedger, targetPool, setParams, active]);
 
     const hasStake = (member?.balance || 0n)
         + (member?.pendingWithdraw || 0n)
         + (member?.withdraw || 0n)
         > 0n;
+
+    // weird bug with status bar not changing color with component
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
 
     return (
         <View style={{ flex: 1 }}>
@@ -174,7 +176,7 @@ export const StakingFragment = fragment(() => {
                     <Pressable
                         style={({ pressed }) => ({
                             alignItems: 'center',
-                            opacity: pressed ? 0.5 : 1
+                            opacity: (pressed && active.length >= 2) ? 0.5 : 1
                         })}
                         onPress={openPoolSelector}
                     >
@@ -192,6 +194,7 @@ export const StakingFragment = fragment(() => {
                 contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
                 style={{ flexGrow: 1 }}
                 scrollEventThrottle={16}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
             >
                 <View
                     style={{
@@ -227,23 +230,20 @@ export const StakingFragment = fragment(() => {
                             opacity: 0.5
                         }}>{' TON'}</Text>
                     </Text>
-                    <Animated.View
-                        style={[
-                            {
-                                position: 'absolute', top: 0, left: '50%',
-                                marginTop: -20, marginLeft: -20,
-                                height: 400, width: 400,
-                                overflow: 'hidden'
-                            },
-                            animatedStyle
-                        ]}
+                    <View
+                        style={{
+                            position: 'absolute', top: 0, left: '50%',
+                            marginTop: -20, marginLeft: -20,
+                            height: 400, width: 400,
+                            overflow: 'hidden'
+                        }}
                         pointerEvents={'none'}
                     >
                         <Image
                             source={require('@assets/shine-blur.webp')}
                             style={{ height: 400, width: 400 }}
                         />
-                    </Animated.View>
+                    </View>
                     <View style={{
                         flexDirection: 'row', alignItems: 'center',
                         marginTop: 10
@@ -256,12 +256,14 @@ export const StakingFragment = fragment(() => {
                                 amount={member?.balance || 0n}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
                                 textStyle={{ color: theme.textUnchangeable }}
+                                theme={theme}
                             />
                             <PriceComponent
                                 showSign
                                 amount={toNano(1)}
                                 style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
                                 textStyle={{ color: theme.textUnchangeable }}
+                                theme={theme}
                             />
                         </Pressable>
                     </View>
@@ -284,7 +286,7 @@ export const StakingFragment = fragment(() => {
                         limitActions
                         disableContextMenu
                         copyOnPress
-                        copyToastProps={{ marginBottom: 16 }}
+                        copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
                     />
                 </View>
                 <View

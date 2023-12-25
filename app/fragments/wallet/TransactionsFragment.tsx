@@ -1,6 +1,6 @@
 import React, { Suspense, useCallback, useMemo, useState } from "react";
 import { View } from "react-native";
-import { useSafeAreaFrame, useSafeAreaInsets } from "react-native-safe-area-context";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -17,27 +17,26 @@ import { TabHeader } from "../../components/topbar/TabHeader";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
 import { PressableChip } from "../../components/PressableChip";
 import { HoldersCardTransactions } from "./views/HoldersCardTransactions";
-import { PendingTransactions } from "./views/PendingTransactions";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address } from "@ton/core";
 import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSkeleton";
-import { HoldersAccount } from "../../engine/api/holders/fetchCards";
+import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
+import { ThemeType } from "../../engine/state/theme";
 
-function TransactionsComponent(props: { account: Address, isLedger?: boolean }) {
-    const theme = useTheme();
+function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
-    const frameArea = useSafeAreaFrame();
     const navigation = useTypedNavigation();
     const { isTestnet } = useNetwork();
     const address = props.account;
+    const theme = props.theme
     const client = useClient4(isTestnet);
     const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
     const holdersAccounts = useHoldersAccounts(address).data;
     const holdersCards = holdersAccounts?.type === 'private'
         ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()
         : [];
-    const transactions = txs?.data;
+    const transactions = txs.data;
 
     const [tab, setTab] = useState<{ prev?: number, current: number }>({ current: 0 });
 
@@ -58,13 +57,13 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
     }, [holdersCards]);
 
     const onReachedEnd = useCallback(() => {
-        if (txs?.hasNext && !txs?.loading) {
-            txs?.next();
+        if (txs.hasNext) {
+            txs.next();
         }
-    }, [txs?.next, txs?.hasNext, txs?.loading]);
+    }, [txs.next, txs.hasNext]);
 
     return (
-        <View style={{ flex: 1, backgroundColor: theme.backgroundPrimary }}>
+        <View style={{ flex: 1, backgroundColor: props.theme.backgroundPrimary }}>
             <TabHeader title={t('transactions.history')} />
             <TabView
                 tabBarPosition={'top'}
@@ -80,6 +79,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                             style={{ backgroundColor: theme.transparent, paddingVertical: 8 }}
                             contentContainerStyle={{ marginLeft: 16 }}
                             indicatorStyle={{ backgroundColor: theme.transparent }}
+                            gap={16}
+                            tabStyle={{ marginRight: 90 }}
                             renderTabBarItem={(tabItemProps) => {
                                 const focused = tabItemProps.route.key === props.navigationState.routes[props.navigationState.index].key;
                                 return (
@@ -111,11 +112,10 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 navigation={navigation}
                                 safeArea={safeArea}
                                 onLoadMore={onReachedEnd}
-                                hasNext={txs?.hasNext === true}
-                                frameArea={frameArea}
-                                loading={txs?.loading === true}
+                                hasNext={txs.hasNext === true}
+                                loading={txs.loading}
                                 ledger={props.isLedger}
-                                header={props.isLedger ? undefined : <PendingTransactions />}
+                                theme={theme}
                             />
                         )
                     } else {
@@ -124,6 +124,8 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean }) 
                                 key={`card-${sceneProps.route.key}`}
                                 id={sceneProps.route.key}
                                 address={address}
+                                theme={theme}
+                                isTestnet={isTestnet}
                             />
                         )
                     }
@@ -173,8 +175,16 @@ export const TransactionsFragment = fragment(() => {
         );
     } else {
         return (
-            <Suspense fallback={<TransactionsSkeleton />}>
-                <TransactionsComponent isLedger={isLedger} account={account} />
+            <Suspense fallback={
+                <View style={{ paddingTop: 166 }}>
+                    <TransactionsSkeleton />
+                </View>
+            }>
+                <TransactionsComponent
+                    theme={theme}
+                    isLedger={isLedger}
+                    account={account}
+                />
             </Suspense>
         )
     }

@@ -147,8 +147,7 @@ export function useCloudValue<T>(key: string, initial: (src: T) => void): [T, (u
             
             return data.value?.toString('base64') || null;
         },
-        refetchOnMount: true,
-        suspense: true,
+        refetchOnMount: true
     });
 
     const localAmValue = useMemo(() => valueQuery.data ? AutomergeValue.fromExisting<T>(Buffer.from(valueQuery.data, 'base64')) : AutomergeValue.fromEmpty<T>(initial), [valueQuery]);

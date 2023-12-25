@@ -23,9 +23,7 @@ export const nullTransfer = {
 }
 
 export function typedNavigate(src: Base, name: string, params?: any) {
-    setTimeout(() => {
-        src.navigate({ name, params: { ...params } });
-    }, src.isFocused() ? 0 : 300);
+    src.navigate({ name, params: { ...params } });
 }
 
 export function typedReplace(src: Base, name: string, params?: any) {

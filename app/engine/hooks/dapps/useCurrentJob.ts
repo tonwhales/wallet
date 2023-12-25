@@ -87,8 +87,7 @@ export function useCurrentJob(): [ParsedJob | null, (job: ParsedJob | null) => v
     const query = useQuery({
         queryKey: Queries.Job(addressString),
         queryFn: fetchJob,
-        suspense: true,
-        refetchInterval: 1000 * 3,
+        refetchInterval: 1000 * 5,
     });
 
     const update = (job: ParsedJob | null) => {

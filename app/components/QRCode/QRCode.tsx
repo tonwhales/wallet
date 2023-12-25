@@ -1,10 +1,11 @@
 import { Canvas, RoundedRect, DiffRect, rrect, rect, Path } from '@shopify/react-native-skia';
 import * as React from 'react';
-import { View } from 'react-native';
-import { createQRMatrix } from './QRMatrix';
+import { View, Image } from 'react-native';
+import { QRMatrix, createQRMatrix } from './QRMatrix';
 import { ImagePreview } from '../../engine/api/fetchAppData';
 import { WImage } from '../WImage';
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 
 import TonIcon from '@assets/ic-ton-qr.svg';
 
@@ -74,15 +75,15 @@ function getRectPath(x: number, y: number, w: number, h: number, tlr: number, tr
         + ' Z';
 };
 
-export const QRCode = memo((props: {
-    data: string,
+const QRCodeCanvas = memo((props: {
+    matrix: QRMatrix,
+    color: string,
     size: number,
-    color?: string,
-    icon?: ImagePreview | null
+    dotSize: number
+    matrixCenter: number
+    circleRadius: number
 }) => {
-    const matrix = createQRMatrix(props.data, 'medium');
-    const dotSize = props.size / matrix.size;
-    const padding = (props.size - dotSize * matrix.size) / 2;
+    const { matrix, color, size, dotSize, matrixCenter, circleRadius } = props;
 
     const items: JSX.Element[] = [];
     for (let x = 0; x < matrix.size; x++) {
@@ -109,9 +110,6 @@ export const QRCode = memo((props: {
                     borderBottomRightRadius = dotSize / 2;
                 }
 
-                const matrixCenter = Math.floor(matrix.size / 2);
-                const circleRadius = Math.floor(34 / (dotSize));
-
                 if (isPointInCircle(x, y, matrixCenter, matrixCenter, circleRadius)) {
                     continue;
                 }
@@ -120,8 +118,8 @@ export const QRCode = memo((props: {
                     continue;
                 }
 
-                const height = dotSize;
-                const width = dotSize;
+                const height = dotSize + 0.5;
+                const width = dotSize + 0.5;
 
                 const path = getRectPath(
                     x * dotSize,
@@ -135,29 +133,83 @@ export const QRCode = memo((props: {
                     <Path
                         key={`${x}-${y}`}
                         path={path}
-                        color={props.color ?? 'black'}
+                        color={color ?? 'black'}
                     />
                 );
             }
         }
     }
 
-    addCornerFinderPatterns(items, dotSize, matrix.size, props.color);
+    addCornerFinderPatterns(items, dotSize, matrix.size, color);
 
     return (
-        <View style={{
-            width: props.size,
-            height: props.size,
-            padding: padding,
-            flexWrap: 'wrap',
-            borderRadius: 20,
+        <Canvas style={{
+            width: size,
+            height: size,
         }}>
-            <Canvas style={{
+            {items}
+        </Canvas>
+    )
+});
+QRCodeCanvas.displayName = 'QRCodeCanvas';
+
+export const QRCode = memo((props: {
+    data: string,
+    size: number,
+    color?: string,
+    icon?: ImagePreview | null
+}) => {
+    const [matrix, setMatrix] = useState<QRMatrix | null>(null);
+    const matrixSize = matrix?.size ?? 0;
+    const dotSize = matrixSize ? props.size / matrixSize : 0;
+    const matrixCenter = Math.floor(matrixSize / 2);
+    const circleRadius = Math.floor(36 / (dotSize));
+    const padding = (props.size - dotSize * matrixSize) / 2;
+
+    useEffect(() => {
+        const generateQRMatrix = async () => {
+            const matrix = createQRMatrix(props.data, 'medium');
+            setMatrix(matrix);
+        };
+
+        generateQRMatrix();
+    }, [props.data]);
+
+    return (
+        <Animated.View
+            style={{
                 width: props.size,
                 height: props.size,
-            }}>
-                {items}
-            </Canvas>
+                padding: padding,
+                flexWrap: 'wrap',
+                borderRadius: 20,
+            }}
+            layout={LinearTransition.duration(300)}
+        >
+            {!!matrix ? (
+                <Animated.View
+                    entering={FadeIn}
+                    exiting={FadeOut}
+                    style={{ height: props.size, width: props.size }}
+                >
+                    <QRCodeCanvas
+                        matrix={matrix}
+                        color={props.color ?? 'black'}
+                        size={props.size}
+                        dotSize={dotSize}
+                        matrixCenter={matrixCenter}
+                        circleRadius={circleRadius}
+                    />
+                </Animated.View>
+            ) : (
+                <Image
+                    style={{
+                        height: props.size, width: props.size,
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0
+                    }}
+                    source={require('@assets/ic-tonhub-qr.webp')}
+                />
+            )}
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0, bottom: 0, right: 0,
@@ -173,6 +225,7 @@ export const QRCode = memo((props: {
                     lockLoading
                 />}
             </View>
-        </View >
+        </Animated.View>
     );
 });
+QRCode.displayName = 'QRCode';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback, TextInputProps } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
 import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
@@ -152,7 +152,7 @@ export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: Forwarde
         blur: () => {
             tref.current!.blur();
         }
-    }));
+    }), [ref, tref]);
 
     const valueNotEmptyShared = useSharedValue(0);
     const labelHeightCoeff = useSharedValue(1);

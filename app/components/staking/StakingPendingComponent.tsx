@@ -81,6 +81,7 @@ export const StakingPendingComponent = memo((
                                 alignSelf: 'flex-end'
                             }}
                             textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
+                            theme={theme}
                         />
                     </View>
                 </View>)}
@@ -131,6 +132,7 @@ export const StakingPendingComponent = memo((
                                     alignSelf: 'flex-end'
                                 }}
                                 textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
+                                theme={theme}
                             />
                         </View>
                     </View>
@@ -196,6 +198,7 @@ export const StakingPendingComponent = memo((
                                         alignSelf: 'flex-end'
                                     }}
                                     textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
+                                    theme={theme}
                                 />
                             </View>
                         </View>

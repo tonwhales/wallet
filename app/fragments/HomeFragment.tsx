@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Image, View } from 'react-native';
+import { Image, View, StyleSheet } from 'react-native';
 import { fragment } from "../fragment";
 import { WalletNavigationStack } from './wallet/WalletFragment';
 import { SettingsFragment } from './SettingsFragment';
@@ -23,12 +23,16 @@ import { useConnectPendingRequests, useNetwork, useTheme } from '../engine/hooks
 import { fetchJob, useCurrentJob } from '../engine/hooks/dapps/useCurrentJob';
 import { parseJob } from '../engine/apps/parseJob';
 import { Cell } from '@ton/core';
+import { BlurView } from 'expo-blur';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Typography } from '../components/styles';
 
 const Tab = createBottomTabNavigator();
 
 export const HomeFragment = fragment(() => {
     const network = useNetwork();
     const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const loader = useGlobalLoader()
     const [tonXRequest,] = useCurrentJob();
@@ -169,11 +173,29 @@ export const HomeFragment = fragment(() => {
                         unmountOnBlur: false,
                         freezeOnBlur: route.name === 'Transactions',
                         tabBarStyle: {
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.transparent,
                             borderTopColor: theme.border,
+                            ...Platform.select({
+                                ios: {
+                                    backgroundColor: theme.transparent,
+                                    position: 'absolute', bottom: 0, left: 0, right: 0,
+                                },
+                                android: { backgroundColor: theme.surfaceOnBg }
+                            })
                         },
+                        tabBarItemStyle: { marginBottom: safeArea.bottom === 0 ? 8 : undefined },
+                        tabBarBackground: Platform.OS === 'ios' ? () => {
+                            return (
+                                <BlurView
+                                    tint={theme.style === 'light' ? 'light' : 'dark'}
+                                    intensity={80}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                            )
+                        } : undefined,
                         tabBarActiveTintColor: theme.accent,
-                        tabBarInactiveTintColor: theme.iconPrimary,
+                        tabBarInactiveTintColor: theme.textSecondary,
+                        tabBarLabelStyle: [{ marginTop: -4 }, Typography.medium10_12],
                         tabBarIcon: ({ focused }) => {
                             let source = require('@assets/ic-home.png');
 

@@ -1,14 +1,13 @@
 import axios from 'axios';
 import * as React from 'react';
-import { useCallback, useLayoutEffect, useRef, useState } from 'react';
-import { Alert, Platform, Pressable, Text, View, useWindowDimensions } from 'react-native';
+import { useCallback, useState } from 'react';
+import { Alert, Platform, Pressable, Text, View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { backoff } from '../../utils/time';
 import { useTrackScreen } from '../../analytics/mixpanel';
-import LottieView from 'lottie-react-native';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useLinkNavigator } from '../../useLinkNavigator';
@@ -22,8 +21,8 @@ import { useDisconnectApp, useExtensions, useNetwork, useRemoveExtension, useThe
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { getCachedAppData } from '../../engine/getters/getAppData';
 import { setStatusBarStyle } from 'expo-status-bar';
-
-import Scanner from '@assets/ic-scanner-accent.svg';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+import { useDimensions } from '@react-native-community/hooks';
 
 type Item = {
     key: string;
@@ -55,12 +54,18 @@ function groupItems(items: Item[]): GroupedItems[] {
     return groups;
 }
 
+const EmptyIllustrations = {
+    dark: require('@assets/empty-connections-dark.webp'),
+    light: require('@assets/empty-connections.webp')
+}
+
 export const ConnectionsFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const window = useWindowDimensions();
+    const bottomBarHeight = useBottomTabBarHeight();
+    const dimensions = useDimensions();
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
@@ -136,18 +141,6 @@ export const ConnectionsFragment = fragment(() => {
         }]);
     }, [disconnectConnect]);
 
-    // 
-    // Lottie animation
-    // 
-    const anim = useRef<LottieView>(null);
-    useLayoutEffect(() => {
-        if (Platform.OS === 'ios') {
-            setTimeout(() => {
-                anim.current?.play()
-            }, 300);
-        }
-    }, []);
-
     const onQRCodeRead = (src: string) => {
         try {
             let res = resolveUrl(src, network.isTestnet);
@@ -165,8 +158,11 @@ export const ConnectionsFragment = fragment(() => {
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));
-        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     }, []));
+
+    useFocusEffect(useCallback(() => {
+        setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+    }, [theme.style]));
 
     return (
         <View style={{ flex: 1 }}>
@@ -174,33 +170,67 @@ export const ConnectionsFragment = fragment(() => {
                 title={t('home.browser')}
                 rightAction={
                     <Pressable
-                        style={({ pressed }) => { return { opacity: pressed ? 0.5 : 1 } }}
+                        style={({ pressed }) => ({
+                            opacity: pressed ? 0.5 : 1,
+                            backgroundColor: theme.surfaceOnBg,
+                            height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                            borderRadius: 16
+                        })}
                         onPress={openScanner}
                     >
-                        <Scanner
+                        <Image
+                            source={require('@assets/ic-scan-main.png')}
                             style={{
-                                height: 24,
-                                width: 24,
-                                marginLeft: 14
+                                height: 22,
+                                width: 22,
+                                tintColor: theme.iconPrimary
                             }}
-                            height={24}
-                            width={24}
-                            color={theme.iconPrimary}
                         />
                     </Pressable>
                 }
+                style={{ marginBottom: 8 }}
             />
             <SegmentedControl
                 values={[t('connections.extensions'), t('connections.connections')]}
                 selectedIndex={isExtensions ? 0 : 1}
+                appearance={theme.style === 'dark' ? 'dark' : 'light'}
                 onChange={(event) => setIsExtensions(event.nativeEvent.selectedSegmentIndex === 0)}
                 style={{ marginHorizontal: 16 }}
+                backgroundColor={theme.surfaceOnBg}
+                fontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
+                activeFontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
             />
-            {isExtensions
-                ? (
+            {isExtensions ? (
+                (extensions.length === 0 && tonconnectApps.length === 0) ? (
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.91,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginBottom: 22,
+                        }}>
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <Text style={{
+                            fontSize: 32,
+                            fontWeight: '600',
+                            marginHorizontal: 24,
+                            textAlign: 'center',
+                            color: theme.textPrimary,
+                        }}>
+                            {t('auth.noExtensions')}
+                        </Text>
+                    </View>
+                ) : (
                     <Animated.ScrollView
                         entering={FadeIn}
                         exiting={FadeOut}
+                        contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                         style={{ flexGrow: 1, marginTop: 24, }}
                     >
                         <View style={{
@@ -210,20 +240,8 @@ export const ConnectionsFragment = fragment(() => {
                             alignItems: 'center',
                             flexShrink: 1,
                         }}>
-                            {(extensions.length === 0 && tonconnectApps.length === 0) && (
-                                <Text style={{
-                                    fontSize: 32,
-                                    fontWeight: '600',
-                                    marginHorizontal: 24,
-                                    textAlign: 'center',
-                                    color: theme.textPrimary,
-                                    marginTop: (window.height / 4) + safeArea.top,
-                                }}>
-                                    {t('auth.noExtensions')}
-                                </Text>
-                            )}
-                            {extensions.map((app) => (
-                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                            {extensions.map((app, index) => (
+                                <View key={`app-${app.url}`} style={{ width: '100%', marginTop: index === 0 ? 0 : 8, marginBottom: 8 }}>
                                     <ConnectionButton
                                         onPress={() => openExtension(app.url)}
                                         onRevoke={() => onRemoveExtension(app.url)}
@@ -233,8 +251,11 @@ export const ConnectionsFragment = fragment(() => {
                                     />
                                 </View>
                             ))}
-                            {tonconnectApps.map((app) => (
-                                <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
+                            {tonconnectApps.map((app, index) => (
+                                <View
+                                    key={`app-${app.url}`}
+                                    style={{ width: '100%', marginTop: (index === 0 && extensions.length === 0) ? 0 : 8, marginBottom: 8 }}
+                                >
                                     <ConnectionButton
                                         onRevoke={() => disconnectConnectApp(app.url)}
                                         onPress={() => navigation.navigate('ConnectApp', { url: app.url })}
@@ -244,14 +265,41 @@ export const ConnectionsFragment = fragment(() => {
                                     />
                                 </View>
                             ))}
+                            <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                         </View>
-                        <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </Animated.ScrollView>
                 )
-                : (
+            ) : (
+                apps.length === 0 ? (
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.91,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginBottom: 22,
+                        }}>
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <Text style={{
+                            fontSize: 32,
+                            fontWeight: '600',
+                            marginHorizontal: 24,
+                            textAlign: 'center',
+                            color: theme.textPrimary,
+                        }}>
+                            {t('auth.noApps')}
+                        </Text>
+                    </View>
+                ) : (
                     <Animated.ScrollView
                         entering={FadeIn}
                         exiting={FadeOut}
+                        contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
                         style={{ flexGrow: 1, marginTop: 24, }}
                     >
                         <View style={{
@@ -261,18 +309,6 @@ export const ConnectionsFragment = fragment(() => {
                             alignItems: 'center',
                             flexShrink: 1,
                         }}>
-                            {apps.length === 0 && (
-                                <Text style={{
-                                    fontSize: 32,
-                                    fontWeight: '600',
-                                    marginHorizontal: 24,
-                                    textAlign: 'center',
-                                    color: theme.textPrimary,
-                                    marginTop: (window.height / 4) + safeArea.top,
-                                }}>
-                                    {t('auth.noApps')}
-                                </Text>
-                            )}
                             {apps.map((app) => (
                                 <View key={`app-${app.url}`} style={{ width: '100%', marginBottom: 8 }}>
                                     <ConnectionButton
@@ -286,7 +322,7 @@ export const ConnectionsFragment = fragment(() => {
                         <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </Animated.ScrollView>
                 )
-            }
+            )}
         </View>
     );
 });

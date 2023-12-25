@@ -68,7 +68,7 @@ export const PasscodeKeyButton = memo((
                 }
             }}
         >
-            <Img color={theme.textPrimary} style={{ height: 60, width: 100 }} />
+            <Img color={theme.textPrimary} style={{ height: 60, width: 60 }} />
         </Pressable>
     );
 });

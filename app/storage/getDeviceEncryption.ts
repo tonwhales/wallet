@@ -30,35 +30,9 @@ export async function getDeviceEncryption(): Promise<DeviceEncryption> {
         let securityLevel = await KeyStore.getEnrolledLevelAsync();
         if (securityLevel === KeyStore.SecurityLevel.BIOMETRIC) {
             return 'biometric';
+        } else {
+            return 'none'; // using only strong biometric encryption so no need to check other options
         }
-        if (securityLevel === KeyStore.SecurityLevel.SECRET) {
-            return 'secret';
-        }
-
-        //
-        // Fallback to local authentication
-        // NOTE: this is not protected at all and we simply using
-        //       system confirmation for transaction signing
-        //
-
-        const level = await LocalAuthentication.getEnrolledLevelAsync();
-
-        // Check is has supported auth type to call LocalAuthentication.authenticateAsync()
-        let hasSupportedAuth = (await LocalAuthentication.supportedAuthenticationTypesAsync()).length > 0;
-        if (!hasSupportedAuth) {
-            return 'none';
-        }
-        if (level === LocalAuthentication.SecurityLevel.BIOMETRIC) {
-            return 'device-biometrics';
-        }
-        if (level === LocalAuthentication.SecurityLevel.SECRET) {
-            return 'device-passcode';
-        }
-
-        //
-        // Last call: nothing at all enabled on device and there are nothing we can do.
-        //
-        return 'none';
     }
 
     // Fetch enrolled security

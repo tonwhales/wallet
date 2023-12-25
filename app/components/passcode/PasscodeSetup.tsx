@@ -8,9 +8,10 @@ import { PasscodeInput } from "./PasscodeInput";
 import { PasscodeSuccess } from "./PasscodeSuccess";
 import { LoadingIndicator } from "../LoadingIndicator";
 import { CloseButton } from "../navigation/CloseButton";
-import { ScreenHeader, ScreenHeaderProps } from "../ScreenHeader";
+import { ScreenHeader } from "../ScreenHeader";
 import { ThemeType } from "../../engine/state/theme";
 import { useTheme } from "../../engine/hooks";
+import { ToastDuration, useToaster } from "../toast/ToastProvider";
 
 type Action = { type: 're-enter' | 'input', input: string, } | { type: 'success' } | { type: 'loading' } | { type: 'passcode-length', length: number };
 type Step = 'input' | 're-enter' | 'success' | 'loading';
@@ -95,7 +96,9 @@ export const PasscodeSetup = memo((
         showSuccess,
         style,
         onBack,
-        screenHeaderStyle
+        screenHeaderStyle,
+        forced,
+        showToast,
     }: {
         description?: string,
         onReady?: (pass: string) => Promise<void>,
@@ -104,10 +107,13 @@ export const PasscodeSetup = memo((
         showSuccess?: boolean,
         style?: StyleProp<ViewStyle>,
         onBack?: () => void,
-        screenHeaderStyle?: StyleProp<ViewStyle>
+        screenHeaderStyle?: StyleProp<ViewStyle>,
+        forced?: boolean,
+        showToast?: boolean,
     }) => {
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const toaster = useToaster();
 
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'input', input: '', passcodeLength: 4 });
 
@@ -141,18 +147,32 @@ export const PasscodeSetup = memo((
     return (
         <View style={[{ flexGrow: 1, width: '100%', height: '100%', }, style]}>
             <ScreenHeader
-                onBackPressed={() => {
-                    if (state.step === 're-enter') {
-                        dispatch({ type: 'input', input: '' });
-                        return;
-                    }
-                    if (onBack) {
-                        onBack();
-                    } else {
-                        navigation.base.goBack();
-                    }
-                }}
+                onBackPressed={
+                    state.step === 're-enter'
+                        ? () => dispatch({ type: 'input', input: '' })
+                        : forced
+                            ? undefined
+                            : onBack ?? navigation.base.goBack
+                }
                 style={[Platform.select({ android: { paddingHorizontal: 16 } }), screenHeaderStyle]}
+                rightButton={state.step === 'input' && !!onLater && (
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                            }
+                        }}
+                        onPress={onLater}
+                    >
+                        <Text style={{
+                            color: theme.accent,
+                            fontSize: 17,
+                            fontWeight: '500',
+                        }}>
+                            {t('common.later')}
+                        </Text>
+                    </Pressable>
+                )}
             />
             {state.step === 'input' && (
                 <Animated.View style={{ flexGrow: 1 }} exiting={FadeOutDown}>
@@ -168,25 +188,6 @@ export const PasscodeSetup = memo((
                         passcodeLength={state.passcodeLength}
                         onPasscodeLengthChange={(length) => dispatch({ type: 'passcode-length', length })}
                     />
-                    {!!onLater && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    position: 'absolute', top: 24, right: 16,
-                                    opacity: pressed ? 0.5 : 1,
-                                }
-                            }}
-                            onPress={onLater}
-                        >
-                            <Text style={{
-                                color: theme.accent,
-                                fontSize: 17,
-                                fontWeight: '500',
-                            }}>
-                                {t('common.later')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </Animated.View>
             )}
 
@@ -203,27 +204,6 @@ export const PasscodeSetup = memo((
                         }}
                         passcodeLength={state.passcodeLength}
                     />
-                    {!!initial && (
-                        <Pressable
-                            style={({ pressed }) => {
-                                return {
-                                    position: 'absolute', top: 24, right: 16,
-                                    opacity: pressed ? 0.5 : 1,
-                                }
-                            }}
-                            onPress={() => {
-                                dispatch({ type: 'input', input: '' });
-                            }}
-                        >
-                            <Text style={{
-                                color: theme.accent,
-                                fontSize: 17,
-                                fontWeight: '500',
-                            }}>
-                                {t('common.back')}
-                            </Text>
-                        </Pressable>
-                    )}
                 </Animated.View>
             )}
             {state.step === 'success' && showSuccess && (
@@ -238,7 +218,17 @@ export const PasscodeSetup = memo((
             {state.step === 'loading' && (
                 <SetupLoader
                     onLoadEnd={dispatch}
-                    load={async (pass) => { await onReady?.(pass) }}
+                    load={async (pass) => {
+                        await onReady?.(pass);
+                        if (showToast) {
+                            toaster.show({
+                                message: t('security.passcodeSettings.success'),
+                                type: 'default',
+                                duration: ToastDuration.SHORT,
+                                onDestroy: navigation.goBack
+                            });
+                        }
+                    }}
                     input={state.input}
                     theme={theme}
                 />

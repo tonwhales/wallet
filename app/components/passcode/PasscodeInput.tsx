@@ -1,7 +1,7 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
-import { StyleProp, View, ViewStyle, Text, Platform, Pressable } from "react-native";
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { StyleProp, View, ViewStyle, Text, Platform, Pressable, Image } from "react-native";
 import { PasscodeSteps } from "./PasscodeSteps";
-import Animated, { FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, cancelAnimation, useAnimatedStyle, useSharedValue, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics';
 import { PasscodeKeyboard } from "./PasscodeKeyboard";
 import { PasscodeKey } from "./PasscodeKeyButton";
@@ -10,9 +10,7 @@ import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEn
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from "../../engine/hooks";
 
-import TouchIos from '@assets/ic_touch_ios.svg';
 import TouchAndroid from '@assets/ic_touch_and.svg';
-import FaceIos from '@assets/ic_face_id.svg';
 
 export const PasscodeInput = memo((
     {
@@ -20,6 +18,7 @@ export const PasscodeInput = memo((
         description,
         style,
         onRetryBiometrics,
+        onMount,
         onEntered,
         passcodeLength = 6,
         onPasscodeLengthChange,
@@ -29,6 +28,7 @@ export const PasscodeInput = memo((
         description?: string,
         style?: StyleProp<ViewStyle>,
         onRetryBiometrics?: () => void,
+        onMount?: () => void,
         onEntered: (passcode: string | null) => Promise<void> | void,
         passcodeLength?: number,
         onPasscodeLengthChange?: (length: number) => void,
@@ -39,6 +39,7 @@ export const PasscodeInput = memo((
     const [deviceEncryption, setDeviceEncryption] = useState<DeviceEncryption>();
     const [passcode, setPasscode] = useState<string>('');
     const [isWrong, setIsWrong] = useState(false);
+    const cleanupTimerIdRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
     const translate = useSharedValue(0);
     const shakeStyle = useAnimatedStyle(() => {
@@ -57,12 +58,17 @@ export const PasscodeInput = memo((
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
         if (key === PasscodeKey.LeftActionKey && !!onRetryBiometrics) {
             onRetryBiometrics();
+            return;
         }
+        
+        clearTimeout(cleanupTimerIdRef.current);
+        setIsWrong(false);
+
         if (key === PasscodeKey.Backspace) {
             setPasscode((prevPasscode) => prevPasscode.slice(0, -1));
-        } else if (/\d/.test(key) && passcode.length < passcodeLength) {
+        } else if (/\d/.test(key)) {
             setPasscode((prevPasscode) => {
-                let newState = prevPasscode
+                let newState = isWrong ? '' : prevPasscode;
                 if (newState.length < passcodeLength) {
                     newState = newState + key;
                 }
@@ -73,7 +79,9 @@ export const PasscodeInput = memo((
                         } catch (e) {
                             setIsWrong(true);
                         }
-                        setTimeout(() => {
+
+                        clearTimeout(cleanupTimerIdRef.current);
+                        cleanupTimerIdRef.current = setTimeout(() => {
                             setPasscode('');
                             setIsWrong(false);
                         }, 1500);
@@ -82,13 +90,18 @@ export const PasscodeInput = memo((
                 return newState;
             });
         }
-    }, [passcodeLength, passcode]);
+    }, [passcodeLength, passcode, isWrong]);
 
     useEffect(() => {
         setPasscode('');
+        cancelAnimation(translate);
+        translate.value = 0;
+        setIsWrong(false);
     }, [passcodeLength]);
 
     useEffect(() => {
+        cancelAnimation(translate);
+        translate.value = 0;
         if (isWrong) {
             doShake();
         }
@@ -103,18 +116,42 @@ export const PasscodeInput = memo((
         }
     }, []);
 
+    useEffect(() => {
+        if (!!onMount) {
+            setTimeout(() => {
+                onMount();
+            }, 500) // to call pin pad has been rendred for user, some weird bug
+        }
+    }, []);
+
     const deviceEncryptionIcon = useMemo(() => {
         let icon: any | undefined;
         switch (deviceEncryption) {
             case 'face':
                 icon = Platform.OS === 'ios'
-                    ? <FaceIos color={theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    ? (
+                        <View style={{ height: 60, width: 60, justifyContent: 'center', alignItems: 'center' }}>
+                            <Image
+                                style={{ height: 32, width: 32 }}
+                                resizeMode={'cover'}
+                                source={require('@assets/ic-secure-face.png')}
+                            />
+                        </View>
+                    )
                     : <TouchAndroid color={theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'biometric':
             case 'fingerprint':
                 icon = Platform.OS === 'ios'
-                    ? <TouchIos color={theme.textPrimary} style={{ height: 60, width: 100 }} />
+                    ? (
+                        <View style={{ height: 60, width: 60, justifyContent: 'center', alignItems: 'center' }}>
+                            <Image
+                                style={{ height: 32, width: 32 }}
+                                resizeMode={'cover'}
+                                source={require('@assets/ic-touch-id.png')}
+                            />
+                        </View>
+                    )
                     : <TouchAndroid color={theme.textPrimary} style={{ height: 60, width: 100 }} />
                 break;
             case 'passcode':

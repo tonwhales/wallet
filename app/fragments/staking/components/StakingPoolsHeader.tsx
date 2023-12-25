@@ -2,6 +2,7 @@ import { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { ItemHeader } from "../../../components/ItemHeader";
 import { useTheme } from "../../../engine/hooks";
+import { Typography } from "../../../components/styles";
 
 export const StakingPoolsHeader = memo((props: {
     text: string,
@@ -13,7 +14,7 @@ export const StakingPoolsHeader = memo((props: {
     return (
         <View style={{
             paddingHorizontal: 20,
-            paddingTop: 20,
+            paddingTop: 16,
             paddingBottom: 16
         }}>
             <View style={{
@@ -32,12 +33,7 @@ export const StakingPoolsHeader = memo((props: {
                     }}
                         onPress={props.action.onAction}
                     >
-                        <Text style={{
-                            fontSize: 15, lineHeight: 20,
-                            fontWeight: '500',
-                            color: theme.accent,
-                            textAlign: 'right'
-                        }}
+                        <Text style={[{ color: theme.accent, textAlign: 'right' }, Typography.medium15_20]}
                             numberOfLines={1}
                         >
                             {props.action.title}

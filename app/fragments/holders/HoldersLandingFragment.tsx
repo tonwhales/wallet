@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ActivityIndicator, Platform, View, Alert } from 'react-native';
 import WebView from 'react-native-webview';
 import Animated, { Easing, FadeIn, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
@@ -18,18 +17,21 @@ import { OfflineWebView } from './components/OfflineWebView';
 import * as FileSystem from 'expo-file-system';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { WebViewErrorComponent } from './components/WebViewErrorComponent';
-import { useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
+import { useNetwork, useOfflineApp, usePrimaryCurrency } from '../../engine/hooks';
 import { useTheme } from '../../engine/hooks';
 import { useHoldersEnroll } from '../../engine/hooks';
 import { getCurrentAddress } from '../../storage/appState';
 import { getAppData } from '../../engine/getters/getAppData';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import { normalizePath } from './components/HoldersAppComponent';
+import { WebViewLoader, normalizePath } from './components/HoldersAppComponent';
 import { StatusBar } from 'expo-status-bar';
+import { openWithInApp } from '../../utils/openWithInApp';
+import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const webRef = useRef<WebView>(null);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
@@ -43,29 +45,14 @@ export const HoldersLandingFragment = fragment(() => {
     const { endpoint, onEnrollType } = useParams<{ endpoint: string, onEnrollType: HoldersAppParams }>();
 
     const domain = extractDomain(endpoint);
-    const enroll = useHoldersEnroll(acc, domain, authContext, { paddingTop: 32 });
+    const enroll = useHoldersEnroll({ acc, domain, authContext, authStyle: { paddingTop: 32 } });
     const lang = getLocales()[0].languageCode;
 
     // TODO
     const stableOfflineV = useOfflineApp().stableOfflineV;
 
     // Anim
-    let [loaded, setLoaded] = React.useState(false);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: theme.surfaceOnBg,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300 }),
-        };
-    });
-
+    let [loaded, setLoaded] = useState(false);
     let [auth, setAuth] = useState(false);
     const authOpacity = useSharedValue(0);
     const animatedAuthStyles = useAnimatedStyle(() => {
@@ -78,7 +65,7 @@ export const HoldersLandingFragment = fragment(() => {
             backgroundColor: theme.surfaceOnBg,
             alignItems: 'center',
             justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
+            opacity: withTiming(authOpacity.value, { duration: 300, easing: Easing.bezier(0.42, 0, 1, 1) }),
         };
     });
 
@@ -93,30 +80,79 @@ export const HoldersLandingFragment = fragment(() => {
         try {
             const data = await getAppData(endpoint);
             if (!data) {
-                Alert.alert(t('auth.failed'));
+                Alert.alert(
+                    t('products.holders.enroll.failed.title'),
+                    t('products.holders.enroll.failed.noAppData'),
+                    [
+                        { text: t('common.cancel') },
+                        {
+                            text: t('webView.contactSupport'),
+                            onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                        }
+                    ]
+                );
                 authOpacity.value = 0;
                 setAuth(false);
                 return;
             }
 
             const res = await enroll();
-            if (!res) {
-                Alert.alert(t('auth.failed'));
+
+            if (res.type === 'success') {
+                // Navigate to continue
+                navigation.replace('Holders', onEnrollType);
+
                 authOpacity.value = 0;
                 setAuth(false)
                 return;
             }
 
-            // Navigate to continue
-            navigation.replace('Holders', onEnrollType);
+            let message = ''
 
+            switch (res.error) {
+                case HoldersEnrollErrorType.NoDomainKey:
+                    message = t('products.holders.enroll.failed.noDomainKey');
+                    break;
+                case HoldersEnrollErrorType.CreateSignatureFailed:
+                    message = t('products.holders.enroll.failed.createSignature');
+                    break;
+                case HoldersEnrollErrorType.DomainKeyFailed:
+                    message = t('products.holders.enroll.failed.createDomainKey');
+                    break;
+                case HoldersEnrollErrorType.FetchTokenFailed:
+                    message = t('products.holders.enroll.failed.fetchToken');
+                    break;
+            }
+
+            Alert.alert(
+                t('products.holders.enroll.failed.title'),
+                message,
+                [
+                    { text: t('common.cancel') },
+                    {
+                        text: t('webView.contactSupport'),
+                        onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                    }
+                ]
+            );
+            authOpacity.value = 0;
+            setAuth(false)
+            return;
+        } catch {
             authOpacity.value = 0;
             setAuth(false);
-        } catch (error) {
-            authOpacity.value = 0;
-            setAuth(false);
-            Alert.alert(t('auth.failed'));
-            warn(error);
+
+            Alert.alert(
+                t('products.holders.enroll.failed.title'),
+                undefined,
+                [
+                    { text: t('common.cancel') },
+                    {
+                        text: t('webView.contactSupport'),
+                        onPress: () => openWithInApp('https://t.me/WhalesSupportBot')
+                    }
+                ]
+            );
         }
     }, [auth, enroll]);
 
@@ -197,7 +233,6 @@ export const HoldersLandingFragment = fragment(() => {
 
     const onLoadEnd = useCallback(() => {
         setLoaded(true);
-        opacity.value = 0;
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
@@ -217,7 +252,7 @@ export const HoldersLandingFragment = fragment(() => {
         <View style={{
             flex: 1,
             paddingTop: 36,
-            backgroundColor: theme.surfaceOnBg
+            backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <View style={{ backgroundColor: theme.surfaceOnBg, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}>
@@ -235,7 +270,9 @@ export const HoldersLandingFragment = fragment(() => {
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={onLoadEnd}
+                        onLoadEnd={() => {
+                            setTimeout(onLoadEnd, 100);
+                        }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -283,8 +320,7 @@ export const HoldersLandingFragment = fragment(() => {
                                     marginTop: Platform.OS === 'ios' ? 0 : 8,
                                 }}
                                 onLoadEnd={() => {
-                                    setLoaded(true);
-                                    opacity.value = 0;
+                                    setTimeout(onLoadEnd, 150);
                                 }}
                                 onLoadProgress={(event) => {
                                     if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
@@ -319,21 +355,12 @@ export const HoldersLandingFragment = fragment(() => {
                                         />
                                     )
                                 }}
+                                webviewDebuggingEnabled={isTestnet}
                             />
                         </Animated.View>
                     )
                 }
-                {!useOfflineApp && (
-                    <Animated.View
-                        style={animatedStyles}
-                        pointerEvents={loaded ? 'none' : 'box-none'}
-                    >
-                        <View style={{ position: 'absolute', top: -4, left: 16, right: 0 }}>
-                            <ScreenHeader onBackPressed={navigation.goBack} />
-                        </View>
-                        <ActivityIndicator size="small" color={'#564CE2'} />
-                    </Animated.View>
-                )}
+                <WebViewLoader type={'create'} loaded={loaded} />
                 <Animated.View
                     style={animatedAuthStyles}
                     pointerEvents={!auth ? 'none' : 'box-none'}

@@ -1,0 +1,58 @@
+diff --git a/node_modules/@ton/crypto/dist/primitives/sha256.js b/node_modules/@ton/crypto/dist/primitives/sha256.js
+index 0784d7e..21e15db 100644
+--- a/node_modules/@ton/crypto/dist/primitives/sha256.js
++++ b/node_modules/@ton/crypto/dist/primitives/sha256.js
+@@ -11,20 +11,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.sha256 = exports.sha256_fallback = exports.sha256_sync = void 0;
+-const jssha_1 = __importDefault(require("jssha"));
++const crypto = require('crypto');
+ const crypto_primitives_1 = require("@ton/crypto-primitives");
+ function sha256_sync(source) {
+     let src;
+     if (typeof source === 'string') {
+-        src = Buffer.from(source, 'utf-8').toString('hex');
++        src = Buffer.from(source, 'utf-8');
+     }
+     else {
+-        src = source.toString('hex');
++        src = source;
+     }
+-    let hasher = new jssha_1.default('SHA-256', 'HEX');
+-    hasher.update(src);
+-    let res = hasher.getHash('HEX');
+-    return Buffer.from(res, 'hex');
++    return crypto.createHash('sha256').update(src).digest();
+ }
+ exports.sha256_sync = sha256_sync;
+ async function sha256_fallback(source) {
+diff --git a/node_modules/@ton/crypto/dist/primitives/sha512.js b/node_modules/@ton/crypto/dist/primitives/sha512.js
+index 9b06a07..b0e27e0 100644
+--- a/node_modules/@ton/crypto/dist/primitives/sha512.js
++++ b/node_modules/@ton/crypto/dist/primitives/sha512.js
+@@ -11,20 +11,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
+ };
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.sha512 = exports.sha512_fallback = exports.sha512_sync = void 0;
+-const jssha_1 = __importDefault(require("jssha"));
++const crypto = require("crypto");
+ const crypto_primitives_1 = require("@ton/crypto-primitives");
+ function sha512_sync(source) {
+     let src;
+     if (typeof source === 'string') {
+-        src = Buffer.from(source, 'utf-8').toString('hex');
++        src = Buffer.from(source, 'utf-8');
+     }
+     else {
+-        src = source.toString('hex');
++        src = source;
+     }
+-    let hasher = new jssha_1.default('SHA-512', 'HEX');
+-    hasher.update(src);
+-    let res = hasher.getHash('HEX');
+-    return Buffer.from(res, 'hex');
++    return crypto.createHash('sha512').update(src).digest();
+ }
+ exports.sha512_sync = sha512_sync;
+ async function sha512_fallback(source) {

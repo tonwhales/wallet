@@ -8,15 +8,17 @@ import { t } from '../../i18n/t';
 import { useEffect, useLayoutEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersAccountStatus, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { StatusBar } from 'expo-status-bar';
+import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 
 export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
 
 export const HoldersAppFragment = fragment(() => {
     const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
     const safeArea = useSafeAreaInsets();
     const selected = useSelectedAccount();
@@ -50,11 +52,13 @@ export const HoldersAppFragment = fragment(() => {
         }
     }, [needsEnrollment]);
 
-    useLayoutEffect(() => {
-        navigation.setOptions({
-            headerShown: false
-        });
-    }, [navigation]);
+    useEffect(() => {
+        return () => {
+            if (!!selected) {
+                onHoldersInvalidate(selected.addressString, isTestnet);
+            }
+        }
+    }, [selected, isTestnet]);
 
     return (
         <View style={{

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Linking, Text, Platform, View, BackHandler, Pressable, KeyboardAvoidingView } from 'react-native';
+import { Linking, Platform, View, BackHandler, KeyboardAvoidingView } from 'react-native';
 import WebView from 'react-native-webview';
 import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
@@ -14,9 +14,7 @@ import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
 import { HoldersParams, extractHoldersQueryParams } from '../utils';
-import { AndroidToolbar } from '../../../components/topbar/AndroidToolbar';
 import { getLocales } from 'react-native-localize';
-import { t } from '../../../i18n/t';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import * as FileSystem from 'expo-file-system';
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
@@ -44,6 +42,8 @@ export function normalizePath(path: string) {
 
 import IcHolders from '../../../../assets/ic_holders.svg';
 import { getDomainKey } from '../../../engine/state/domainKeys';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -139,9 +139,10 @@ function HoldersPlaceholder() {
     );
 }
 
-function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
+export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
 
     const [animationPlayed, setAnimationPlayed] = useState(loaded);
     const [showClose, setShowClose] = useState(false);
@@ -154,7 +155,7 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'c
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: theme.surfaceOnBg,
+            backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -186,22 +187,12 @@ function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'c
         <Animated.View
             style={animatedStyles}
         >
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0 }}>
-                <AndroidToolbar accentColor={'#564CE2'} onBack={() => navigation.goBack()} />
-            </View>
+            <ScreenHeader
+                onBackPressed={showClose ? navigation.goBack : undefined}
+                style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
+            />
             {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
-            {Platform.OS === 'ios' && showClose && (
-                <Animated.View style={{ position: 'absolute', top: 22, right: 16 }} entering={FadeIn}>
-                    <Pressable
-                        onPress={() => {
-                            navigation.goBack();
-                        }} >
-                        <Text style={{ color: '#564CE2', fontWeight: '500', fontSize: 17 }}>
-                            {t('common.close')}
-                        </Text>
-                    </Pressable>
-                </Animated.View>
-            )}
+
         </Animated.View>
     );
 }
@@ -258,7 +249,7 @@ export const HoldersAppComponent = memo((
     const source = useMemo(() => {
         let route = '';
         if (props.variant.type === 'create') {
-            route = status?.state === HoldersAccountState.Ok ? '/create' : '';
+            route = '/create';
         } else if (props.variant.type === 'account') {
             route = `/account/${props.variant.id}`;
         }
@@ -394,7 +385,7 @@ export const HoldersAppComponent = memo((
         );
     }, [status, accountsStatus]);
 
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet);
+    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;
 
@@ -438,8 +429,8 @@ export const HoldersAppComponent = memo((
                     openWithInApp(data.args.url);
                     return;
                 }
-            } catch (e) {
-                console.warn(e);
+            } catch {
+                warn('Failed to open url');
             }
         }
         if (data.name === 'closeApp') {
@@ -452,15 +443,15 @@ export const HoldersAppComponent = memo((
             let res = { type: 'error', message: 'Unknown error' };
             try {
                 res = await injectionEngine.execute(data);
-            } catch (e) {
-                warn(e);
+            } catch {
+                warn('Failed to execute inject engine operation');
             }
             dispatchResponse(webRef, { id, data: res });
         })();
     }, []);
 
     const onCloseApp = useCallback(() => {
-        // engine.products.holders.doSync();
+        onHoldersInvalidate(acc.addressString, isTestnet);
         navigation.goBack();
         trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, isTestnet);
     }, []);
@@ -478,9 +469,7 @@ export const HoldersAppComponent = memo((
                 openWithInApp(url);
                 return;
             }
-        } catch (e) {
-            warn(e);
-        }
+        } catch  {}
     }, []);
 
     const onNavigation = useCallback((url: string) => {
@@ -564,7 +553,9 @@ export const HoldersAppComponent = memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={onLoadEnd}
+                        onLoadEnd={() => {
+                            setTimeout(onLoadEnd, 100);
+                        }}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -615,7 +606,9 @@ export const HoldersAppComponent = memo((
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
                             }}
-                            onLoadEnd={onLoadEnd}
+                            onLoadEnd={() => {
+                                setTimeout(onLoadEnd, 100);
+                            }}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query
@@ -654,20 +647,22 @@ export const HoldersAppComponent = memo((
                                     />
                                 )
                             }}
+                            webviewDebuggingEnabled={isTestnet}
                         />
                     </Animated.View>
                 )}
                 <WebViewLoader type={props.variant.type} loaded={loaded} />
-                {mainButton && mainButton.isVisible && (
-                    <KeyboardAvoidingView
-                        style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-                        behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                        contentContainerStyle={{ marginHorizontal: 16, marginBottom: 0 }}
-                        keyboardVerticalOffset={Platform.OS === 'ios'
-                            ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
-                            : undefined
-                        }
-                    >
+                <KeyboardAvoidingView
+                    style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+                    behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                    pointerEvents={mainButton.isVisible ? undefined : 'none'}
+                    contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
+                    keyboardVerticalOffset={Platform.OS === 'ios'
+                        ? bottomMargin + (keyboard.keyboardShown ? 32 : 0)
+                        : undefined
+                    }
+                >
+                    {mainButton && mainButton.isVisible && (
                         <Animated.View
                             style={Platform.OS === 'android'
                                 ? { marginHorizontal: 16, marginBottom: 16 }
@@ -678,8 +673,8 @@ export const HoldersAppComponent = memo((
                         >
                             <DappMainButton {...mainButton} />
                         </Animated.View>
-                    </KeyboardAvoidingView>
-                )}
+                    )}
+                </KeyboardAvoidingView>
             </View>
         </>
     );

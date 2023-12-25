@@ -46,6 +46,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                         id={addr}
                         size={46}
                         borderWith={0}
+                        theme={theme}
+                        isTestnet={isTestnet}
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>
@@ -53,7 +55,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                         <>
                             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
                                 <Text
-                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    style={{ flex: 1, color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
                                     ellipsizeMode={'tail'}
                                     numberOfLines={1}
                                 >

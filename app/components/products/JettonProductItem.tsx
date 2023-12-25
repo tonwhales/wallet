@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { KnownJettonMasters } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { View, Pressable, Image } from 'react-native';
+import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
 import { WImage } from '../WImage';
 import { useAnimatedPressedInOut } from '../../utils/useAnimatedPressedInOut';
@@ -11,6 +11,9 @@ import { Swipeable, TouchableHighlight } from 'react-native-gesture-handler';
 import { useNetwork, useTheme } from '../../engine/hooks';
 import { Jetton } from '../../engine/types';
 import { PerfText } from '../basic/PerfText';
+import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
+import { PriceComponent } from '../PriceComponent';
+import { fromNano, toNano } from '@ton/core';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -18,13 +21,18 @@ export const JettonProductItem = memo((props: {
     first?: boolean,
     rightAction?: () => void
     rightActionIcon?: any,
-    single?: boolean,
-    hidden?: boolean
+    single?: boolean
+    card?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const swap = useJettonSwap(props.jetton.master.toString({ testOnly: isTestnet }));
     const navigation = useTypedNavigation();
     const balance = props.jetton.balance;
+    const balanceNum = Number(fromNano(balance));
+    const swapAmount = (!!swap && balance > 0n)
+        ? Number(fromNano(swap)) * balanceNum
+        : null;
     const swipableRef = useRef<Swipeable>(null);
 
     const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
@@ -43,20 +51,10 @@ export const JettonProductItem = memo((props: {
         });
     }, [props.jetton]);
 
-    const Wrapper = props.hidden ? View : TouchableHighlight;
-    const wrapperProps = props.hidden ? {} : {
-        onPressIn: onPressIn,
-        onPressOut: onPressOut,
-        onPress: onPress
-    }
-
     return (
         (props.rightAction) ? (
             <Animated.View style={[
-                {
-                    flex: 1, flexDirection: 'row',
-                    paddingHorizontal: 16
-                },
+                { flex: 1, flexDirection: 'row', paddingHorizontal: props.card ? 0 : 16 },
                 animatedStyle
             ]}>
                 <Swipeable
@@ -64,24 +62,40 @@ export const JettonProductItem = memo((props: {
                     overshootRight={false}
                     containerStyle={{ flex: 1 }}
                     useNativeAnimations={true}
-                    childrenContainerStyle={{
-                        flex: 1,
-                        borderTopLeftRadius: props.first ? 20 : 0,
-                        borderTopRightRadius: props.first ? 20 : 0,
-                        borderBottomLeftRadius: props.last ? 20 : 0,
-                        borderBottomRightRadius: props.last ? 20 : 0,
-                        overflow: 'hidden'
-                    }}
+                    childrenContainerStyle={[
+                        {
+                            flex: 1,
+                            overflow: 'hidden'
+                        },
+                        props.card
+                            ? { borderRadius: 20 }
+                            : {
+                                borderTopLeftRadius: props.first ? 20 : 0,
+                                borderTopRightRadius: props.first ? 20 : 0,
+                                borderBottomLeftRadius: props.last ? 20 : 0,
+                                borderBottomRightRadius: props.last ? 20 : 0,
+                            }
+                    ]}
                     renderRightActions={() => {
                         return (
                             <Pressable
-                                style={{
-                                    padding: 20,
-                                    justifyContent: 'center', alignItems: 'center',
-                                    borderTopRightRadius: props.first ? 20 : 0,
-                                    borderBottomRightRadius: props.last ? 20 : 0,
-                                    backgroundColor: props.single ? theme.transparent : theme.accent,
-                                }}
+                                style={[
+                                    {
+                                        padding: 20,
+                                        justifyContent: 'center', alignItems: 'center',
+                                        borderRadius: 20,
+                                        backgroundColor: theme.accent,
+                                        marginLeft: 10
+                                    },
+                                    props.card
+                                        ? {
+                                            borderTopRightRadius: 20,
+                                            borderBottomRightRadius: 20,
+                                        } : {
+                                            borderTopRightRadius: props.first ? 20 : 0,
+                                            borderBottomRightRadius: props.last ? 20 : 0,
+                                        }
+                                ]}
                                 onPress={() => {
                                     swipableRef.current?.close();
                                     if (props.rightAction) {
@@ -90,27 +104,21 @@ export const JettonProductItem = memo((props: {
                                 }}
                             >
                                 {props.rightActionIcon}
-                                {!props.single && <View
-                                    style={{
-                                        position: 'absolute',
-                                        top: 0, bottom: 0, left: -20,
-                                        width: 20,
-                                        backgroundColor: theme.surfaceOnBg,
-                                    }}
-                                />}
                             </Pressable>
                         )
                     }}
                 >
-                    <Wrapper
-                        style={{ flex: 1 }}
-                        {...wrapperProps}
+                    <TouchableHighlight
+                        style={{ flexGrow: 1 }}
+                        onPressIn={onPressIn}
+                        onPressOut={onPressOut}
+                        onPress={onPress}
                     >
                         <View style={{
                             flexDirection: 'row', flexGrow: 1,
                             alignItems: 'center',
                             padding: 20,
-                            backgroundColor: theme.surfaceOnBg,
+                            backgroundColor: theme.surfaceOnBg
                         }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <WImage
@@ -120,13 +128,17 @@ export const JettonProductItem = memo((props: {
                                     borderRadius={23}
                                 />
                                 {isKnown && (
-                                    <Image
-                                        source={require('@assets/ic-verified.png')}
-                                        style={{
-                                            height: 16, width: 16,
-                                            position: 'absolute', right: -2, bottom: -2,
-                                        }}
-                                    />
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 20, width: 20, borderRadius: 10,
+                                        position: 'absolute', right: -2, bottom: -2,
+                                        backgroundColor: theme.surfaceOnBg
+                                    }}>
+                                        <Image
+                                            source={require('@assets/ic-verified.png')}
+                                            style={{ height: 20, width: 20 }}
+                                        />
+                                    </View>
                                 )}
                             </View>
                             <View style={{ marginLeft: 12, flex: 1 }}>
@@ -153,17 +165,34 @@ export const JettonProductItem = memo((props: {
                                     <ValueComponent
                                         value={balance}
                                         decimals={props.jetton.decimals}
-                                    />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    />
+                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                        {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                                    </Text>
                                 </PerfText>
-                                <View style={{ flexGrow: 1 }} />
+                                {!!swapAmount && (
+                                    <PriceComponent
+                                        amount={toNano(swapAmount)}
+                                        style={{
+                                            backgroundColor: 'transparent',
+                                            paddingHorizontal: 0, paddingVertical: 0,
+                                            alignSelf: 'flex-end',
+                                            height: undefined
+                                        }}
+                                        textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                        theme={theme}
+                                    />
+                                )}
                             </View>
                         </View>
-                    </Wrapper>
+                    </TouchableHighlight>
                 </Swipeable>
-                {!props.last && (
-                    <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
-                )}
-            </Animated.View>
+                {
+                    !props.last && !props.card && (
+                        <View style={{ backgroundColor: theme.divider, height: 1, position: 'absolute', bottom: 0, left: 36, right: 36 }} />
+                    )
+                }
+            </Animated.View >
         ) : (
             <Pressable
                 onPressIn={onPressIn}
@@ -188,13 +217,17 @@ export const JettonProductItem = memo((props: {
                             borderRadius={23}
                         />
                         {isKnown && (
-                            <Image
-                                source={require('@assets/ic-verified.png')}
-                                style={{
-                                    height: 16, width: 16,
-                                    position: 'absolute', right: -2, bottom: -2,
-                                }}
-                            />
+                            <View style={{
+                                justifyContent: 'center', alignItems: 'center',
+                                height: 20, width: 20, borderRadius: 10,
+                                position: 'absolute', right: -2, bottom: -2,
+                                backgroundColor: theme.surfaceOnBg
+                            }}>
+                                <Image
+                                    source={require('@assets/ic-verified.png')}
+                                    style={{ height: 20, width: 20 }}
+                                />
+                            </View>
                         )}
                     </View>
                     <View style={{ marginLeft: 12, flex: 1 }}>
@@ -221,7 +254,10 @@ export const JettonProductItem = memo((props: {
                             <ValueComponent
                                 value={balance}
                                 decimals={props.jetton.decimals}
-                            />{props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            />
+                            <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                {props.jetton.symbol ? (' ' + props.jetton.symbol) : ''}
+                            </Text>
                         </PerfText>
                         <View style={{ flexGrow: 1 }} />
                     </View>

@@ -1,5 +1,5 @@
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Platform, View, Text, ScrollView } from "react-native";
+import { Platform, View, Text, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Address } from "@ton/core";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
@@ -9,14 +9,17 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useClient4, useNetwork, useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
-import { useContacts } from "../engine/hooks/contacts/useContacts";
 import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useParams } from "../utils/useParams";
 import { StatusBar } from "expo-status-bar";
+import { useAddressBookContext } from "../engine/AddressBookContext";
+import { useDimensions } from "@react-native-community/hooks";
 
-import IcSpamNonen from '@assets/ic-spam-none.svg';
-
+const EmptyIllustrations = {
+    dark: require('@assets/empty-contacts-dark.webp'),
+    light: require('@assets/empty-contacts.webp')
+}
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
@@ -24,10 +27,12 @@ export const ContactsFragment = fragment(() => {
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const contacts = useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
     const account = useSelectedAccount();
     const client = useClient4(isTestnet);
-    const transactions = useAccountTransactions(client, account?.addressString ?? '')?.data ?? [];
+    const dimensions = useDimensions();
+    const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];
 
     const [search, setSearch] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);
@@ -81,6 +86,14 @@ export const ContactsFragment = fragment(() => {
             headerShown: true,
             headerLargeTitle: true,
             tintColor: theme.accent,
+            contentStyle: Platform.select({
+                ios: {
+                    borderTopEndRadius: 0, borderTopStartRadius: 0,
+                    paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
+                    backgroundColor: theme.elevation
+                },
+                android: { backgroundColor: theme.backgroundPrimary }
+            }),
             onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
             headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
                 hideWhenScrolling: false,
@@ -112,17 +125,21 @@ export const ContactsFragment = fragment(() => {
             )}
             {(!contactsList || contactsList.length === 0) ? (
                 <>
-                    <View style={{ flexGrow: 1 }} />
                     <View style={{ alignItems: 'center' }}>
-                        <IcSpamNonen
-                            height={68}
-                            width={68}
-                            style={{
-                                height: 68,
-                                width: 68,
-                            }}
-                        />
-                        <View style={{ alignItems: 'center', paddingHorizontal: 16, paddingTop: 32 }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.72,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginTop: 20
+                        }}>
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -66 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
                             <Text style={{
                                 fontSize: 32, lineHeight: 38,
                                 fontWeight: '600',

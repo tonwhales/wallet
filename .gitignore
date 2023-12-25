@@ -76,3 +76,5 @@ dist/
 android/app/release
 android/app/netmain
 android/app/nettest
+
+sentry.properties

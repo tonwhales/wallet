@@ -53,6 +53,8 @@ export type LocalizationSchema = {
         wallets: string,
         later: string,
         select: string,
+        show: string,
+        hide: string,
         showAll: string,
         hideAll: string,
         done: string,
@@ -73,6 +75,7 @@ export type LocalizationSchema = {
         message: string,
         airdrop: string,
         myWallets: string,
+        showMore: string,
     },
     syncStatus: {
         connecting: string,
@@ -260,7 +263,10 @@ export type LocalizationSchema = {
         subtitle: string,
         inProgress: string,
         transfer: string,
-        check: string
+        check: string,
+        keyStoreTitle: string,
+        keyStoreSubtitle: string,
+        failed: string,
     },
     qr: {
         title: string,
@@ -284,7 +290,8 @@ export type LocalizationSchema = {
         },
         transactionRequest: {
             title: string,
-            subtitle: string
+            subtitle: string,
+            groupTitle: string,
         },
         signatureRequest: {
             title: string,
@@ -458,6 +465,12 @@ export type LocalizationSchema = {
         },
         holders: {
             title: string,
+            accounts: {
+                title: string,
+                account: string,
+                basicAccount: string,
+                proAccount: string,
+            },
             pageTitles: {
                 general: string,
                 card: string,
@@ -530,7 +543,15 @@ export type LocalizationSchema = {
                 description_2: string,
                 description_3: string,
                 moreInfo: string,
-                buttonSub: string
+                buttonSub: string,
+                failed: {
+                    title: string,
+                    noAppData: string,
+                    noDomainKey: string,
+                    createDomainKey: string,
+                    fetchToken: string,
+                    createSignature: string,
+                },
             }
         }
     }
@@ -608,9 +629,8 @@ export type LocalizationSchema = {
     backupIntro: {
         title: string,
         subtitle: string,
-        clause1: string,
-        clause2: string,
-        clause3: string
+        saved: string,
+        goToBackup: string,
     }
     errors: {
         incorrectWords: {
@@ -736,7 +756,11 @@ export type LocalizationSchema = {
                 messageLogout: string,
                 logout: string,
                 restore: string,
-            }
+            },
+            canceled: {
+                title: string,
+                message: string,
+            },
         }
     },
     report: {

@@ -45,17 +45,15 @@ export const PasscodeStep = memo((
     useEffect(() => {
         if (error) {
             animColor.value = withTiming(theme.accentRed);
-        }
-    }, [error]);
-
-    useEffect(() => {
-        if (index === passLen - 1) {
+        } else if (index === passLen - 1) {
             scale.value = withSpring(1.4, { damping: 10, stiffness: 100 }, () => { scale.value = 1 });
             animColor.value = withTiming(theme.accent);
         } else if (index > passLen - 1) {
             animColor.value = withTiming(theme.textSecondary);
+        } else if (index < passLen - 1) {
+            animColor.value = withTiming(theme.accent);
         }
-    }, [passLen]);
+    }, [passLen, error]);
 
     return (
         <View style={{

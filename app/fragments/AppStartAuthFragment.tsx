@@ -41,7 +41,7 @@ export const AppStartAuthFragment = fragment(() => {
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    logOutAndReset();
+                    logOutAndReset(true);
                     navigation.navigateAndReplaceAll('Welcome');
                     break;
                 case cancelButtonIndex:

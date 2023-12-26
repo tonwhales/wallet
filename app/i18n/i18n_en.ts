@@ -144,7 +144,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
     txPreview: {
         sendAgain: 'Send again',
         blockchainFee: 'Network fee',
-        blockchainFeeDescription: 'All fees are calculated in Gas. It\'s a special currency for fees in TON. All fees are nominated and fixed in a certain gas amount, but the gas price itself is not fixed. Even if TON price increases 100 times, transactions will remain ultra-cheap; less than $0.01. Moreover, validators may lower this value if they see commissions have become expensive. The gas fee, like many other parameters of TON, is configurable and may be changed by a special vote made in the mainnet. Fees on TON are difficult to calculate in advance, as their amount depends on transaction run time, account status, message content and size, blockchain network settings, and a number of other variables that cannot be calculated until the transaction is sent.',
+        blockchainFeeDescription: 'This fee is also referred to as GAS. It is required for a transaction to be successfully processed in blockchain. The size of the GAS depends on the amount of work that validators need to do to include a transaction in the block.',
     },
     receive: {
         title: 'Receive',
@@ -164,6 +164,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             invalidDomainString: 'Minimum 4 characters, maximum 126 characters. Latin letters (a-z), numbers (0-9) and a hyphen (-) are allowed. A hyphen cannot be at the beginning or end.',
             sendingToYourself: 'You can\'t send coins to yourself',
             zeroCoins: 'Unfortunately you can\'t send zero coins',
+            zeroCoinsAlert: 'You are trying to send zero coins',
             notEnoughCoins: 'You don\'t have enough TON on your wallets balance',
             addressIsForTestnet: 'This address is for testnet',
             addressCantReceive: 'This address can\'t receive coins',
@@ -468,6 +469,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 account: 'Account',
                 basicAccount: 'Basic account',
                 proAccount: 'Pro account',
+                noCards: 'No cards',
             },
             pageTitles: {
                 general: 'Tonhub Cards',

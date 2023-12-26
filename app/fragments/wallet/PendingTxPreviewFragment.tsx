@@ -329,7 +329,7 @@ const PendingTxPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {!!fees
                                 ? <>
-                                    {`${fromNano(fees)}`}
+                                    {`${fromNano(fees).replace('.', ',')}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

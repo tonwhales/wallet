@@ -21,7 +21,7 @@ import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../.
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import Animated, { Easing, Extrapolate, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import Animated, { Easing, Extrapolation, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 import { WebViewErrorComponent } from './WebViewErrorComponent';
 import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
@@ -35,15 +35,16 @@ import { createDomainSignature } from '../../../engine/utils/createDomainSignatu
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { useKeyboard } from '@react-native-community/hooks';
 import { OfflineWebView } from './OfflineWebView';
+import { getDomainKey } from '../../../engine/state/domainKeys';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
+import DeviceInfo from 'react-native-device-info';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
 import IcHolders from '../../../../assets/ic_holders.svg';
-import { getDomainKey } from '../../../engine/state/domainKeys';
-import { ScreenHeader } from '../../../components/ScreenHeader';
-import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -65,13 +66,13 @@ function PulsingCardPlaceholder() {
             animation.value,
             [0, 1],
             [1, 0.75],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
         );
         const scale = interpolate(
             animation.value,
             [0, 1],
             [1, 1.03],
-            Extrapolate.CLAMP,
+            Extrapolation.CLAMP,
         )
         return {
             width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
@@ -114,13 +115,13 @@ function HoldersPlaceholder() {
             animation.value,
             [0, 1],
             [1, 0.8],
-            Extrapolate.CLAMP
+            Extrapolation.CLAMP
         );
         const scale = interpolate(
             animation.value,
             [0, 1],
             [1, 1.01],
-            Extrapolate.CLAMP,
+            Extrapolation.CLAMP,
         )
         return {
             flex: 1,
@@ -157,7 +158,6 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
             bottom: 0,
             backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
-            justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
         };
     });
@@ -189,7 +189,7 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
         >
             <ScreenHeader
                 onBackPressed={showClose ? navigation.goBack : undefined}
-                style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
+                style={{ paddingHorizontal: 16, width: '100%' }}
             />
             {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
 
@@ -469,7 +469,7 @@ export const HoldersAppComponent = memo((
                 openWithInApp(url);
                 return;
             }
-        } catch  {}
+        } catch { }
     }, []);
 
     const onNavigation = useCallback((url: string) => {
@@ -520,7 +520,13 @@ export const HoldersAppComponent = memo((
     const [offlineRender, setOfflineRender] = useState(0);
 
     const onLoadEnd = useCallback(() => {
-        setLoaded(true);
+        try {
+            const powerState = DeviceInfo.getPowerStateSync();
+            const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
+            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+        } catch {
+            setTimeout(() => setLoaded(true), 100);
+        }
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
@@ -553,9 +559,7 @@ export const HoldersAppComponent = memo((
                             alignSelf: 'stretch',
                             marginTop: Platform.OS === 'ios' ? 0 : 8,
                         }}
-                        onLoadEnd={() => {
-                            setTimeout(onLoadEnd, 100);
-                        }}
+                        onLoadEnd={onLoadEnd}
                         onLoadProgress={(event) => {
                             if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                 // Searching for supported query
@@ -606,9 +610,7 @@ export const HoldersAppComponent = memo((
                                 alignSelf: 'stretch',
                                 marginTop: Platform.OS === 'ios' ? 0 : 8,
                             }}
-                            onLoadEnd={() => {
-                                setTimeout(onLoadEnd, 100);
-                            }}
+                            onLoadEnd={onLoadEnd}
                             onLoadProgress={(event) => {
                                 if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
                                     // Searching for supported query

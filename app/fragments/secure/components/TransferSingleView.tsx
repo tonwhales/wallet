@@ -520,7 +520,7 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 fontSize: 17, lineHeight: 24, fontWeight: '400'
                             }}>
-                                {`${fromNano(fees)}`}
+                                {`${fromNano(fees).replace('.', ',')}`}
                                 {feesPrise && (
                                     <Text style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}

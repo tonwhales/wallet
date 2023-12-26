@@ -166,6 +166,7 @@ export type LocalizationSchema = {
             invalidDomainString: string,
             sendingToYourself: string,
             zeroCoins: string,
+            zeroCoinsAlert: string,
             notEnoughCoins: string,
             addressIsForTestnet: string,
             addressCantReceive: string,
@@ -470,6 +471,7 @@ export type LocalizationSchema = {
                 account: string,
                 basicAccount: string,
                 proAccount: string,
+                noCards: string,
             },
             pageTitles: {
                 general: string,

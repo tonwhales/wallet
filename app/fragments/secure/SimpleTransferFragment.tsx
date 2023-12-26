@@ -81,10 +81,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [addr]);
 
-    const ledgerLite = useAccountLite(ledgerAddress);
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
-
-    const account = isLedger ? ledgerLite : accountLite;
 
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
         addressInputReducer(),
@@ -187,10 +184,10 @@ export const SimpleTransferFragment = fragment(() => {
         if (jettonState) {
             value = BigInt(jettonState.wallet.balance);
         } else {
-            value = account?.balance || 0n;
+            value = accountLite?.balance || 0n;
         }
         return value;
-    }, [jettonState, account?.balance, isLedger]);
+    }, [jettonState, accountLite?.balance, isLedger]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {
@@ -261,8 +258,8 @@ export const SimpleTransferFragment = fragment(() => {
                 domain: domain,
                 text: commentString,
                 payload: null,
-                amount: account?.balance === validAmount ? toNano('0') : validAmount,
-                amountAll: account?.balance === validAmount ? true : false,
+                amount: accountLite?.balance === validAmount ? toNano('0') : validAmount,
+                amountAll: accountLite?.balance === validAmount ? true : false,
                 stateInit
             });
         }
@@ -288,8 +285,8 @@ export const SimpleTransferFragment = fragment(() => {
             domain: domain,
             text: commentString,
             payload: null,
-            amount: (validAmount === account?.balance) ? toNano('0') : validAmount,
-            amountAll: validAmount === account?.balance,
+            amount: (validAmount === accountLite?.balance) ? toNano('0') : validAmount,
+            amountAll: validAmount === accountLite?.balance,
             stateInit,
             app: params?.app
         });
@@ -404,7 +401,7 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Resolve fee
-                if (config && account) {
+                if (config && accountLite) {
                     const externalMessage = external({
                         to: contract.address,
                         body: transfer,
@@ -425,7 +422,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, account, client, config, commentString, ledgerAddress]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -601,7 +598,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, commentString, account, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
+    }, [amount, target, domain, commentString, accountLite, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);

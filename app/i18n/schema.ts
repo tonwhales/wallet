@@ -872,6 +872,8 @@ export type LocalizationSchema = {
         bluetoothScanDescription_3_and: string,
         bluetoothScanDescription_4_and: string,
         chooseAccountDescription: string,
+        openTheAppDescription: string,
+        unlockLedgerDescription: string,
         openAppVerifyAddress: string,
         devices: string,
         connection: string,

@@ -209,7 +209,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                             : t('security.auth.biometricsCorrupted.restore'),
                                         onPress: () => {
                                             resolve();
-                                            logOutAndReset();
+                                            logOutAndReset(true);
                                             navigation.navigateAndReplaceAll('Welcome');
                                         },
                                         style: 'destructive'
@@ -272,7 +272,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         }, (selectedIndex?: number) => {
             switch (selectedIndex) {
                 case 1:
-                    logOutAndReset();
+                    logOutAndReset(true);
                     navigation.navigateAndReplaceAll('Welcome');
                     break;
                 case cancelButtonIndex:

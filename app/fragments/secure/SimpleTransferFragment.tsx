@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -694,19 +694,6 @@ export const SimpleTransferFragment = fragment(() => {
                 title: t('transfer.title'),
             }
 
-        if (selectedInput === 1) {
-            return {
-                selected: 'amount',
-                onNext: (validAmount !== null && !amountError)
-                    ? () => refs[2]?.current?.focus()
-                    : null,
-                header: {
-                    onBackPressed: () => refs[0]?.current?.focus(),
-                    ...headertitle
-                }
-            }
-        }
-
         if (selectedInput === 0) {
             return {
                 selected: 'address',
@@ -1069,7 +1056,7 @@ export const SimpleTransferFragment = fragment(() => {
                             }}>
                                 {estimation
                                     ? <>
-                                        {`${fromNano(estimation)} TON`}
+                                        {`${fromNano(estimation).replace('.', ',')} TON`}
                                     </>
                                     : '...'
                                 }
@@ -1078,25 +1065,8 @@ export const SimpleTransferFragment = fragment(() => {
                                         color: theme.textSecondary,
                                         fontSize: 17, lineHeight: 24, fontWeight: '400',
                                     }}>
-                                    {t('txPreview.blockchainFee')}
-                                </Text>
-                                <Text style={{
-                                    color: theme.textPrimary,
-                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
-                                }}>
-                                    {estimation
-                                        ? <>
-                                            {`${fromNano(estimation).replace('.', ',')} TON`}
-                                        </>
-                                        : '...'
-                                    }
-                                    {!!estimationPrise && (
-                                        <Text style={{
-                                            color: theme.textSecondary,
-                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
-                                        }}>
-                                            {` (${estimationPrise})`}
-                                        </Text>
+                                        {` (${estimationPrise})`}
+                                    </Text>
 
                                 )}
                             </Text>

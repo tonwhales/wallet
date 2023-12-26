@@ -10,7 +10,7 @@ import { useAccountTransactions, useClient4, useNetwork, useTheme } from "../../
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
-import { Address } from '@ton/core';
+import { SettingsFragment } from '../SettingsFragment';
 
 const Tab = createBottomTabNavigator();
 
@@ -82,6 +82,10 @@ export const LedgerAppFragment = fragment(() => {
                             source = require('@assets/ic-history.png');
                         }
 
+                        if ((route.name === 'LedgerSettings')) {
+                            source = require('@assets/ic-settings.png');
+                        }
+
                         return (
                             <Image
                                 source={source}
@@ -100,6 +104,11 @@ export const LedgerAppFragment = fragment(() => {
                     options={{ title: t('home.history') }}
                     name={'LedgerTransactions'}
                     component={TransactionsFragment}
+                />
+                <Tab.Screen
+                    options={{ title: t('home.more') }}
+                    name={'LedgerSettings'}
+                    component={SettingsFragment}
                 />
             </Tab.Navigator>
         </View>

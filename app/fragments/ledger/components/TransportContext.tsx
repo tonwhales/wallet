@@ -77,6 +77,7 @@ export const TransportContext = createContext<
         startBleSearch: () => void,
         focused: boolean,
         setFocused: (focused: boolean) => void,
+        reset: () => void,
     }
     | null
 >(null);
@@ -273,6 +274,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 bleSearchState: bleState,
                 focused,
                 setFocused,
+                reset,
             }}
         >
             {children}

@@ -300,7 +300,7 @@ export const StakingTransferFragment = fragment(() => {
 
     const onFocus = useCallback((index: number) => {
         if (amount === '0') {
-            setAmount('');
+            onSetAmount('');
         }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
@@ -317,7 +317,9 @@ export const StakingTransferFragment = fragment(() => {
                 - (pool?.params?.receiptPrice || toNano('0.1'))
         }
         if (addAmount > 0n) {
-            onSetAmount(fromNano(addAmount));
+            const amount = fromNano(addAmount);
+            const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
+            onSetAmount(formatted);
         }
     }, [balance, params, pool]);
 
@@ -416,7 +418,7 @@ export const StakingTransferFragment = fragment(() => {
                             value={amount}
                             onValueChange={(newVal) => {
                                 const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
-                                setAmount(formatted);
+                                onSetAmount(formatted);
                             }}
                             keyboardType={'numeric'}
                             style={{

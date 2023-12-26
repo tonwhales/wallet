@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { Layout, FadeOut, FadeIn, FadeOutDown, FadeInDown, LinearTransition } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, LinearTransition } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -20,7 +20,6 @@ import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
-import { Avatar } from '../../components/Avatar';
 import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
@@ -37,10 +36,10 @@ import { ItemDivider } from '../../components/ItemDivider';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
+import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
-import { TransferHeader } from '../../components/transfer/TransferHeader';
 
 export type SimpleTransferParams = {
     target?: string | null,
@@ -193,7 +192,7 @@ export const SimpleTransferFragment = fragment(() => {
         if (amount.length === 0) {
             return undefined;
         }
-        if (!validAmount) {
+        if (validAmount === null) {
             return t('transfer.error.invalidAmount');
         }
         if (validAmount < 0n) {
@@ -202,7 +201,7 @@ export const SimpleTransferFragment = fragment(() => {
         if (validAmount > balance) {
             return t('transfer.error.notEnoughCoins');
         }
-        if (validAmount === 0n) {
+        if (validAmount === 0n && !!jettonState) {
             return t('transfer.error.zeroCoins');
         }
 
@@ -226,7 +225,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Resolve order
     const order = useMemo(() => {
-        if (!validAmount) {
+        if (validAmount === null) {
             return null
         }
 
@@ -483,11 +482,11 @@ export const SimpleTransferFragment = fragment(() => {
     }, [commentString, target, validAmount, stateInit, jetton,]);
 
     const onAddAll = useCallback(() => {
-        setAmount(
-            jettonState
-                ? fromBnWithDecimals(balance, jettonState.master.decimals)
-                : fromNano(balance)
-        );
+        const amount = jettonState
+            ? fromBnWithDecimals(balance, jettonState.master.decimals)
+            : fromNano(balance);
+        const formatted = formatInputAmount(amount.replace('.', ','), jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true });
+        setAmount(formatted);
     }, [balance, jettonState]);
 
     //
@@ -521,18 +520,16 @@ export const SimpleTransferFragment = fragment(() => {
 
     const doSend = useCallback(async () => {
         let address: Address;
-        let isTestOnly: boolean;
 
         try {
             let parsed = Address.parseFriendly(target);
             address = parsed.address;
-            isTestOnly = parsed.isTestOnly;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
         }
 
-        if (!validAmount) {
+        if (validAmount === null) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
@@ -550,18 +547,26 @@ export const SimpleTransferFragment = fragment(() => {
         // Load contract
         const contract = await contractFromPublicKey(acc!.publicKey);
 
-        // Check if same address
-        if (isLedger) {
-            if (!ledgerAddress) {
-                return;
-            }
-            if (address.equals(ledgerAddress)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
-                return;
-            }
-        } else {
-            if (address.equals(contract.address)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
+        // Check if transfering to yourself
+        if (isLedger && !ledgerAddress) {
+            return;
+        }
+
+        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+            let allowSendingToYourself = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSendingToYourself) {
                 return;
             }
         }
@@ -572,8 +577,26 @@ export const SimpleTransferFragment = fragment(() => {
             return;
         }
         if (validAmount === 0n) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
+            if (!!jettonState) {
+                Alert.alert(t('transfer.error.zeroCoins'));
+                return;
+            }
+            let allowSeingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSeingZero) {
+                return;
+            }
         }
 
         setSelectedInput(null);
@@ -651,7 +674,7 @@ export const SimpleTransferFragment = fragment(() => {
         if (selectedInput === 1) {
             return {
                 selected: 'amount',
-                onNext: (validAmount && !amountError)
+                onNext: (validAmount !== null && !amountError)
                     ? () => refs[2]?.current?.focus()
                     : null,
                 header: {
@@ -1014,7 +1037,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation)} TON`}
+                                            {`${fromNano(estimation).replace('.', ',')} TON`}
                                         </>
                                         : '...'
                                     }

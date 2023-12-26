@@ -94,9 +94,9 @@ export const AvatarPickerFragment = fragment(() => {
                                     justifyContent: 'center', alignItems: 'center',
                                     width: 72, height: 72,
                                     marginRight: 8,
-                                    borderWidth: index === hashState ? 1 : 0,
+                                    borderWidth: index === hashState ? 2 : 0,
                                     borderColor: theme.accent,
-                                    borderRadius: 37
+                                    borderRadius: 36
                                 }}
                             >
                                 <Avatar
@@ -104,6 +104,7 @@ export const AvatarPickerFragment = fragment(() => {
                                     id={""}
                                     hash={index}
                                     borderColor={theme.border}
+                                    borderWith={0}
                                     theme={theme}
                                     isTestnet={isTestnet}
                                 />

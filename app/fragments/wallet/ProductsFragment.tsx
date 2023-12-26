@@ -57,13 +57,15 @@ export const ProductsFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
-            {Platform.OS === 'android' && (
+            {Platform.OS === 'android' ? (
                 <ScreenHeader
                     onBackPressed={navigation.goBack}
-                    style={{ paddingTop: safeArea.top }}
+                    style={{ paddingTop: safeArea.top, paddingHorizontal: 16 }}
                 />
+            ) : (
+                <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
             )}
-            <Pressable onPress={Platform.select({ ios: navigation.goBack })} style={{ flexGrow: 1 }} />
+
             <View style={{
                 flexShrink: Platform.OS === 'ios' ? 1 : undefined,
                 flexGrow: Platform.OS === 'ios' ? 0 : 1,

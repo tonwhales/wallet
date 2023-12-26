@@ -8,6 +8,7 @@ import { StakingPoolState } from "../../engine/types";
 import { fromNano, toNano } from "@ton/core";
 import { ItemDivider } from "../ItemDivider";
 import { AboutIconButton } from "../AboutIconButton";
+import { formatInputAmount } from "../../utils/formatCurrency";
 
 const itemViewStyle = {
     flexDirection: 'row', width: '100%',
@@ -205,7 +206,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                             </Text>
                             <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                                 <Text style={itemValueTextStyle(theme)}>
-                                    {fromNano(fee) + ' ' + 'TON'}
+                                    {`${fromNano(fee).replace('.', ',')} TON`}
                                 </Text>
                                 <PriceComponent
                                     amount={fee}

@@ -31,6 +31,7 @@ export const TransferHeader = memo(({ theme, isTestnet, addressFriendly }: { the
                 theme={theme}
                 isTestnet={isTestnet}
                 hash={walletSettings?.avatar}
+                hashColor
             />
             <Text style={{
                 fontSize: 17, lineHeight: 24,

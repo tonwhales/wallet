@@ -39,7 +39,7 @@ export const LedgerHomeFragment = fragment(() => {
         } catch { }
     }, [ledgerContext?.addr?.address]);
 
-    const account = useAccountsLite([address!])[0].data;
+    const account = useAccountLite(address!)!;
     const staking = useStaking(address!);
 
     const stakingBalance = useMemo(() => {
@@ -50,7 +50,7 @@ export const LedgerHomeFragment = fragment(() => {
     }, [staking]);
 
     const balance = useMemo(() => {
-        const accountWithStaking = (account ? BigInt(account.balance.coins) : 0n)
+        const accountWithStaking = (account ? BigInt(account.balance) : 0n)
             + (stakingBalance || 0n);
 
         return accountWithStaking;
@@ -316,7 +316,7 @@ export const LedgerHomeFragment = fragment(() => {
                         </View>
                     </View>
                 </View>
-                <LedgerProductsComponent />
+                <LedgerProductsComponent account={account} />
             </ScrollView>
         </View>
     );

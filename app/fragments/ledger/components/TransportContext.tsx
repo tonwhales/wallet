@@ -1,4 +1,4 @@
-import React, { ReactNode, createContext, useCallback, useContext, useEffect, useReducer, useState } from "react";
+import React, { ReactNode, createContext, useCallback, useContext, useEffect, useReducer, useRef, useState } from "react";
 import Transport from "@ledgerhq/hw-transport";
 import TransportHID from "@ledgerhq/react-native-hid";
 import TransportBLE from "@ledgerhq/react-native-hw-transport-ble";
@@ -8,8 +8,9 @@ import { Observable, Subscription } from "rxjs";
 import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
+import { navigationRef } from '../../../Navigation';
 
-export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any, navigation: TypedNavigation }
+export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
 
 export type BLESearchState =
@@ -76,17 +77,28 @@ export const TransportContext = createContext<
         startBleSearch: () => void,
         focused: boolean,
         setFocused: (focused: boolean) => void,
+        reset: () => void,
     }
     | null
 >(null);
 
 export const LedgerTransportProvider = ({ children }: { children: ReactNode }) => {
+    // Trasport state
     const [ledgerConnection, setLedgerConnection] = useState<TypedTransport | null>(null);
+
+    // TON wrapper
     const [tonTransport, setTonTransport] = useState<TonTransport | null>(null);
+
+    // Selected address
     const [addr, setAddr] = useState<LedgerAddress | null>(null);
+
+    // BLE search state
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
+
+    // idk what is this
     const [focused, setFocused] = useState(false);
+    const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback(() => {
         setLedgerConnection(null);
@@ -95,32 +107,43 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         setSearch(0);
         setFocused(false);
         dispatchBleState({ type: 'reset' });
+        reconnectAttempts.current = 0;
     }, []);
 
-    const onSetLedgerConnecton = useCallback((connection: TypedTransport | null) => {
-        setLedgerConnection(connection);
-    }, []);
-
-    const onDisconnect = useCallback((navigation: TypedNavigation) => {
-        return () => {
-            Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
-                text: t('common.back'),
-                onPress: () => {
-                    navigation.navigateAndReplaceAll('Home');
-                    reset();
+    const onDisconnect = useCallback(() => {
+        if (reconnectAttempts.current < 2) {
+            reconnectAttempts.current++;
+            (async () => {
+                try {
+                    console.warn('[ledger] reconnect #' + reconnectAttempts.current);
+                    if (!ledgerConnection) return;
+                    const transport = await TransportBLE.open(ledgerConnection.device.id);
+                    setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
+                    reconnectAttempts.current = 0;
+                } catch {
+                    console.warn('[ledger] reconnect failed');
                 }
-            }]);
+            })();
+            return;
         }
-    }, []);
 
-    const startHIDSearch = useCallback(async (navigation: TypedNavigation) => {
+        Alert.alert(t('hardwareWallet.errors.lostConnection'), undefined, [{
+            text: t('common.back'),
+            onPress: () => {
+                navigationRef.reset({ index: 0, routes: [{ name: 'Home' }] });
+                reset();
+            }
+        }]);
+    }, [ledgerConnection]);
+
+    const startHIDSearch = useCallback(async () => {
         let hid = await TransportHID.create();
-        setLedgerConnection({ type: 'hid', transport: hid, device: null, navigation });
+        setLedgerConnection({ type: 'hid', transport: hid, device: null });
     }, []);
 
     const startBleSearch = useCallback(() => {
-        setSearch(bleSearch + 1);
-    }, [bleSearch]);
+        setSearch((prevSearch) => prevSearch + 1);
+    }, []);
 
     useEffect(() => {
         let powerSub: Subscription;
@@ -143,6 +166,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 }
             });
         }
+
         (async () => {
             if (!bleSearch) return;
             if (Platform.OS === "android" && Platform.Version >= 23) {
@@ -171,10 +195,12 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
 
                 if (scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted'
                     || scanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
+
                     let resScanConnect = await requestMultiple([
                         PERMISSIONS.ANDROID.BLUETOOTH_SCAN,
                         PERMISSIONS.ANDROID.BLUETOOTH_CONNECT,
                     ]);
+
                     if (resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_SCAN] !== 'granted'
                         || resScanConnect[PERMISSIONS.ANDROID.BLUETOOTH_CONNECT] !== 'granted') {
                         dispatchBleState({ type: 'permissions-failed' });
@@ -211,21 +237,20 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     useEffect(() => {
         let sub: Subscription | null = null;
         if (ledgerConnection?.type === 'ble') {
-
-            ledgerConnection.transport.on('disconnect', onDisconnect(ledgerConnection.navigation));
+            ledgerConnection.transport.on('disconnect', onDisconnect);
             setTonTransport(new TonTransport(ledgerConnection.transport));
 
         } else if (ledgerConnection?.type === 'hid') {
 
-            ledgerConnection.transport.on('disconnect', onDisconnect(ledgerConnection.navigation));
-            ledgerConnection.transport.on('onDeviceDisconnect', onDisconnect(ledgerConnection.navigation));
-            
+            ledgerConnection.transport.on('disconnect', onDisconnect);
+            ledgerConnection.transport.on('onDeviceDisconnect', onDisconnect);
+
             sub = new Observable(TransportHID.listen).subscribe((e: any) => {
                 if (e.type === "remove") {
-                    onDisconnect(ledgerConnection.navigation)();
+                    onDisconnect();
                 }
             });
-            
+
             setTonTransport(new TonTransport(ledgerConnection.transport));
         }
         return () => {
@@ -240,12 +265,16 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         <TransportContext.Provider
             value={{
                 tonTransport,
-                ledgerConnection, setLedgerConnection: onSetLedgerConnecton,
-                addr, setAddr,
+                ledgerConnection,
+                setLedgerConnection,
+                addr,
+                setAddr,
                 startHIDSearch,
                 startBleSearch,
                 bleSearchState: bleState,
-                focused, setFocused,
+                focused,
+                setFocused,
+                reset,
             }}
         >
             {children}

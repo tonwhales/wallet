@@ -162,6 +162,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             theme={theme}
                             hash={walletSettings?.avatar}
                             isTestnet={props.isTestnet}
+                            hashColor
                         />
                         : <Image
                             source={require('@assets/ic-contact.png')}
@@ -211,6 +212,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 theme={theme}
                                 isTestnet={props.isTestnet}
                                 hash={walletSettings?.avatar}
+                                hashColor
                             />
                             : <Image
                                 source={require('@assets/ic-contact.png')}

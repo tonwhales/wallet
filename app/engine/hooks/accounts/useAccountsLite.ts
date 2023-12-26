@@ -14,10 +14,13 @@ export function useAccountsLite(accounts: Address[]) {
             queryFn: async () => {
                 let last = await getLastBlock();
                 const res = await client.getAccountLite(last, w);
-                return res.account;
+                return {
+                    account: res.account,
+                    block: last,
+                };
             },
         })),
     });
 
-    return queries.map((q, i) => ({ address: accounts[i], data: q.data })).filter(d => !!d);
+    return queries.map((q, i) => ({ address: accounts[i], data: q.data?.account })).filter(d => !!d.data);
 }

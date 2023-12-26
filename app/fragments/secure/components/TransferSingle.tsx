@@ -1,11 +1,8 @@
 import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Alert } from "react-native";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { ContractMetadata } from "../../../engine/metadata/Metadata";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
-import { Order } from "../../../fragments/secure/ops/Order";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
@@ -18,7 +15,6 @@ import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
 import { TransferSingleView } from "./TransferSingleView";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { beginCell, storeMessage, external, Address, Cell, loadStateInit, comment, internal, SendMode } from "@ton/core";
-import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { useAccountLite, useClient4, useCommitCommand, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useRegisterPending, useSelectedAccount } from "../../../engine/hooks";
 import { fromBnWithDecimals, toBnWithDecimals } from "../../../utils/withDecimals";
 import { fetchSeqno } from "../../../engine/api/fetchSeqno";
@@ -54,7 +50,6 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     // Resolve operation
     let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
     let operation = resolveOperation({ body: body, amount: order.messages[0].amount, account: Address.parse(order.messages[0].target) }, isTestnet);
 
     const amount = useMemo(() => {
@@ -117,10 +112,24 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        // Check if same address
+        // Check if transfering to yourself
         if (target.address.equals(contract.address)) {
-            Alert.alert(t('transfer.error.sendingToYourself'));
-            return;
+            let allowSendingToYourself = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSendingToYourself) {
+                return;
+            }
         }
 
         // Check amount
@@ -129,6 +138,27 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             return;
         }
         if (!order.messages[0].amountAll && order.messages[0].amount === BigInt(0)) {
+            let allowSeingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSeingZero) {
+                return;
+            }
+        }
+        if (
+            jettonTarget && jettonMaster && jettonAmountString
+            && toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9) === 0n
+        ) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }

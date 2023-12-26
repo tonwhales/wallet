@@ -106,6 +106,7 @@ const PendingTransactionView = memo(({
                             theme={theme}
                             isTestnet={isTestnet}
                             backgroundColor={theme.backgroundPrimary}
+                            hashColor
                         />
                     )}
                 </View>

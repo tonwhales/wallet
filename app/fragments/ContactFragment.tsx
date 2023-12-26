@@ -281,6 +281,7 @@ export const ContactFragment = fragment(() => {
                                 borderColor={theme.surfaceOnElevation}
                                 theme={theme}
                                 isTestnet={isTestnet}
+                                hashColor
                             />
                         </View>
                         {!editing && (

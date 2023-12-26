@@ -189,6 +189,7 @@ export const TransferSingleView = memo(({
                                     icProps={{ position: 'bottom' }}
                                     theme={theme}
                                     isTestnet={isTestnet}
+                                    hashColor
                                 />
                             </View>
                         </View>

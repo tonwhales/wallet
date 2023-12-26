@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useAppState, useClient4, useContacts, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAccountTransactions, useAppState, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
@@ -177,6 +177,7 @@ export const AddressSearch = memo(({
                             const contact = contacts[address.toString({ testOnly: network.isTestnet })];
                             const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
                             const own = myWallets.find((acc) => acc.address.equals(address));
+                            const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
                             let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
                             let title = t('contacts.unknown');
                             if (contact) {
@@ -187,7 +188,6 @@ export const AddressSearch = memo(({
                                 title = known.name;
                             } else if (!!own) {
                                 type = 'my-wallets';
-                                const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
                                 if (settings?.name) {
                                     title = settings.name;
                                 } else {
@@ -202,7 +202,8 @@ export const AddressSearch = memo(({
                                         address: address,
                                         title: title,
                                         searchable: address.toString({ testOnly: network.isTestnet }),
-                                        type: type
+                                        type: type,
+                                        walletSettings: settings
                                     }}
                                     onPress={onSelect}
                                 />

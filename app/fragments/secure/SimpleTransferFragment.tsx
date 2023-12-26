@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable, StyleProp, ViewStyle, Image, Dimensions } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { FadeOut, FadeIn, LinearTransition, Easing } from 'react-native-reanimated';
+import Animated, { Layout, FadeOut, FadeIn, LinearTransition } from 'react-native-reanimated';
 import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
@@ -80,10 +80,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [addr]);
 
-    const ledgerLite = useAccountLite(ledgerAddress);
     const accountLite = useAccountLite(isLedger ? ledgerAddress : acc!.address);
-
-    const account = isLedger ? ledgerLite : accountLite;
 
     const [addressDomainInputState, dispatchAddressDomainInput] = useReducer(
         addressInputReducer(),
@@ -186,16 +183,16 @@ export const SimpleTransferFragment = fragment(() => {
         if (jettonState) {
             value = BigInt(jettonState.wallet.balance);
         } else {
-            value = account?.balance || 0n;
+            value = accountLite?.balance || 0n;
         }
         return value;
-    }, [jettonState, account?.balance, isLedger]);
+    }, [jettonState, accountLite?.balance, isLedger]);
 
     const amountError = useMemo(() => {
         if (amount.length === 0) {
             return undefined;
         }
-        if (!validAmount) {
+        if (validAmount === null) {
             return t('transfer.error.invalidAmount');
         }
         if (validAmount < 0n) {
@@ -204,7 +201,7 @@ export const SimpleTransferFragment = fragment(() => {
         if (validAmount > balance) {
             return t('transfer.error.notEnoughCoins');
         }
-        if (validAmount === 0n) {
+        if (validAmount === 0n && !!jettonState) {
             return t('transfer.error.zeroCoins');
         }
 
@@ -228,7 +225,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     // Resolve order
     const order = useMemo(() => {
-        if (!validAmount) {
+        if (validAmount === null) {
             return null
         }
 
@@ -260,8 +257,8 @@ export const SimpleTransferFragment = fragment(() => {
                 domain: domain,
                 text: commentString,
                 payload: null,
-                amount: account?.balance === validAmount ? toNano('0') : validAmount,
-                amountAll: account?.balance === validAmount ? true : false,
+                amount: accountLite?.balance === validAmount ? toNano('0') : validAmount,
+                amountAll: accountLite?.balance === validAmount ? true : false,
                 stateInit
             });
         }
@@ -287,8 +284,8 @@ export const SimpleTransferFragment = fragment(() => {
             domain: domain,
             text: commentString,
             payload: null,
-            amount: (validAmount === account?.balance) ? toNano('0') : validAmount,
-            amountAll: validAmount === account?.balance,
+            amount: (validAmount === accountLite?.balance) ? toNano('0') : validAmount,
+            amountAll: validAmount === accountLite?.balance,
             stateInit,
             app: params?.app
         });
@@ -403,7 +400,7 @@ export const SimpleTransferFragment = fragment(() => {
                 }
 
                 // Resolve fee
-                if (config && account) {
+                if (config && accountLite) {
                     const externalMessage = external({
                         to: contract.address,
                         body: transfer,
@@ -424,7 +421,7 @@ export const SimpleTransferFragment = fragment(() => {
         return () => {
             ended = true;
         }
-    }, [order, account, client, config, commentString, ledgerAddress]);
+    }, [order, accountLite, client, config, commentString, ledgerAddress]);
 
     const linkNavigator = useLinkNavigator(network.isTestnet);
     const onQRCodeRead = useCallback((src: string) => {
@@ -485,11 +482,11 @@ export const SimpleTransferFragment = fragment(() => {
     }, [commentString, target, validAmount, stateInit, jetton,]);
 
     const onAddAll = useCallback(() => {
-        setAmount(
-            jettonState
-                ? fromBnWithDecimals(balance, jettonState.master.decimals)
-                : fromNano(balance)
-        );
+        const amount = jettonState
+            ? fromBnWithDecimals(balance, jettonState.master.decimals)
+            : fromNano(balance);
+        const formatted = formatInputAmount(amount.replace('.', ','), jettonState?.master.decimals ?? 9, { skipFormattingDecimals: true });
+        setAmount(formatted);
     }, [balance, jettonState]);
 
     //
@@ -523,18 +520,16 @@ export const SimpleTransferFragment = fragment(() => {
 
     const doSend = useCallback(async () => {
         let address: Address;
-        let isTestOnly: boolean;
 
         try {
             let parsed = Address.parseFriendly(target);
             address = parsed.address;
-            isTestOnly = parsed.isTestOnly;
         } catch (e) {
             Alert.alert(t('transfer.error.invalidAddress'));
             return;
         }
 
-        if (!validAmount) {
+        if (validAmount === null) {
             Alert.alert(t('transfer.error.invalidAmount'));
             return;
         }
@@ -552,18 +547,26 @@ export const SimpleTransferFragment = fragment(() => {
         // Load contract
         const contract = await contractFromPublicKey(acc!.publicKey);
 
-        // Check if same address
-        if (isLedger) {
-            if (!ledgerAddress) {
-                return;
-            }
-            if (address.equals(ledgerAddress)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
-                return;
-            }
-        } else {
-            if (address.equals(contract.address)) {
-                Alert.alert(t('transfer.error.sendingToYourself'));
+        // Check if transfering to yourself
+        if (isLedger && !ledgerAddress) {
+            return;
+        }
+
+        if (address.equals(isLedger ? ledgerAddress! : contract.address)) {
+            let allowSendingToYourself = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSendingToYourself) {
                 return;
             }
         }
@@ -574,8 +577,26 @@ export const SimpleTransferFragment = fragment(() => {
             return;
         }
         if (validAmount === 0n) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
+            if (!!jettonState) {
+                Alert.alert(t('transfer.error.zeroCoins'));
+                return;
+            }
+            let allowSeingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSeingZero) {
+                return;
+            }
         }
 
         setSelectedInput(null);
@@ -600,7 +621,7 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, commentString, account, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
+    }, [amount, target, domain, commentString, accountLite, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
@@ -672,6 +693,19 @@ export const SimpleTransferFragment = fragment(() => {
             : {
                 title: t('transfer.title'),
             }
+
+        if (selectedInput === 1) {
+            return {
+                selected: 'amount',
+                onNext: (validAmount !== null && !amountError)
+                    ? () => refs[2]?.current?.focus()
+                    : null,
+                header: {
+                    onBackPressed: () => refs[0]?.current?.focus(),
+                    ...headertitle
+                }
+            }
+        }
 
         if (selectedInput === 0) {
             return {
@@ -1044,8 +1078,25 @@ export const SimpleTransferFragment = fragment(() => {
                                         color: theme.textSecondary,
                                         fontSize: 17, lineHeight: 24, fontWeight: '400',
                                     }}>
-                                        {` (${estimationPrise})`}
-                                    </Text>
+                                    {t('txPreview.blockchainFee')}
+                                </Text>
+                                <Text style={{
+                                    color: theme.textPrimary,
+                                    fontSize: 17, lineHeight: 24, fontWeight: '400'
+                                }}>
+                                    {estimation
+                                        ? <>
+                                            {`${fromNano(estimation).replace('.', ',')} TON`}
+                                        </>
+                                        : '...'
+                                    }
+                                    {!!estimationPrise && (
+                                        <Text style={{
+                                            color: theme.textSecondary,
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                        }}>
+                                            {` (${estimationPrise})`}
+                                        </Text>
 
                                 )}
                             </Text>

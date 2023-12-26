@@ -192,7 +192,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 </Pressable>
             </View>
             <View
-                style={[!isSelected ? [{ opacity: 0, height: 0 }, Platform.select({ ios: { width: 0 } })] : Platform.select({ ios: { marginTop: -16 } })]}
+                style={[!isSelected ? [{ opacity: 0, height: 0 }, Platform.select({ ios: { width: 0 } })] : {}]}
                 pointerEvents={isSelected ? undefined : 'none'}
             >
                 <View style={{

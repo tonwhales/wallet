@@ -624,12 +624,7 @@ export const SimpleTransferFragment = fragment(() => {
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
-        if (Platform.OS === 'android') {
-            setTimeout(() => {
-                scrollRef.current?.scrollTo({ y: 0 });
-            }, 100);
-        }
-    }, [scrollRef]);
+    }, []);
 
     const onSubmit = useCallback((index: number) => {
         setSelectedInput(null);

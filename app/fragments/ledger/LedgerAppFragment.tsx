@@ -6,12 +6,23 @@ import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { LedgerNavigationStack } from "./LedgerHomeFragment";
-import { useTheme } from "../../engine/hooks";
+import { useAccountTransactions, useClient4, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { TransactionsFragment } from "../wallet/TransactionsFragment";
 import { BlurView } from "expo-blur";
+import { Address } from '@ton/core';
 
 const Tab = createBottomTabNavigator();
+
+
+const PrefetchTransactions = ({ address }: { address: string }) => {
+    let isTestnet = useNetwork().isTestnet;
+    let client = useClient4(isTestnet);
+
+    useAccountTransactions(client, address);
+
+    return null;
+}
 
 export const LedgerAppFragment = fragment(() => {
     const theme = useTheme();
@@ -35,6 +46,7 @@ export const LedgerAppFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1, backgroundColor: theme.surfaceOnBg }}>
+            {ledgerContext?.addr.address && <PrefetchTransactions address={ledgerContext?.addr.address} />}
             <Tab.Navigator
                 initialRouteName={'LedgerHome'}
                 screenOptions={({ route }) => ({

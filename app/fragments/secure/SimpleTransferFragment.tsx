@@ -721,7 +721,7 @@ export const SimpleTransferFragment = fragment(() => {
             case 'amount':
                 return {
                     address: { opacity: 0, pointerEvents: 'none' },
-                    amount: { position: 'absolute', top: -addressInputHeight - 16, left: 0, right: 0, opacity: 1, zIndex: 1 },
+                    amount: { position: 'relative', top: -addressInputHeight - 16, left: 0, right: 0, opacity: 1, zIndex: 1 },
                     comment: { opacity: 0, pointerEvents: 'none' },
                     fees: { opacity: 0, pointerEvents: 'none' },
                 }
@@ -741,6 +741,12 @@ export const SimpleTransferFragment = fragment(() => {
                 }
         }
     }, [selected, addressInputHeight, amountInputHeight]);
+
+    useEffect(() => {
+        if (!selectedInput) {
+            scrollRef.current?.scrollTo({ y: 0 });
+        }
+    }, [selectedInput, scrollRef]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -941,21 +947,20 @@ export const SimpleTransferFragment = fragment(() => {
                                 hideClearButton
                                 prefix={jettonState ? (jettonState.master.symbol ?? '') : 'TON'}
                             />
+                            {amountError && (
+                                <Animated.View entering={FadeIn} exiting={FadeOut.duration(100)}>
+                                    <Text style={{
+                                        color: theme.accentRed,
+                                        fontSize: 13,
+                                        lineHeight: 18,
+                                        marginTop: 8,
+                                        fontWeight: '400'
+                                    }}>
+                                        {amountError}
+                                    </Text>
+                                </Animated.View>
+                            )}
                         </View>
-                        {amountError && (
-                            <Animated.View entering={FadeIn} exiting={FadeOut}>
-                                <Text style={{
-                                    color: theme.accentRed,
-                                    fontSize: 13,
-                                    lineHeight: 18,
-                                    marginTop: 8,
-                                    marginLeft: 20,
-                                    fontWeight: '400'
-                                }}>
-                                    {amountError}
-                                </Text>
-                            </Animated.View>
-                        )}
                     </Animated.View>
                 </View>
                 <View style={{ marginTop: 16 }}>

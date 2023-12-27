@@ -18,7 +18,7 @@ import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
-import { formatCurrency } from "../../../utils/formatCurrency";
+import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
 import { Avatar } from "../../../components/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 
@@ -520,7 +520,7 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 fontSize: 17, lineHeight: 24, fontWeight: '400'
                             }}>
-                                {`${fromNano(fees).replace('.', ',')}`}
+                                {`${formatAmount(fromNano(fees))}`}
                                 {feesPrise && (
                                     <Text style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}

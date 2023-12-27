@@ -30,7 +30,6 @@ import { useHoldersAccounts } from '../../engine/hooks';
 import { useHoldersAccountStatus } from '../../engine/hooks';
 import { KeyboardAvoidingView } from 'react-native';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import * as Sentry from '@sentry/react-native';
 
 export const DeveloperToolsFragment = fragment(() => {
     const theme = useTheme();
@@ -53,18 +52,6 @@ export const DeveloperToolsFragment = fragment(() => {
 
     const [themeStyle, setThemeStyle] = useThemeStyle();
     const [lang, setLang] = useLanguage();
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const ready = await checkCurrentOfflineVersion();
-    //         setOfflineAppReady(ready ? { version: ready } : false);
-    //         const prev = await engine.products.holders.getPrevOfflineVersion();
-    //         if (prev) {
-    //             const prevReady = await engine.products.holders.isOfflineAppReady(prev);
-    //             setPrevOfflineVersion(prevReady ? prev : false);
-    //         }
-    //     })()
-    // }, [offlineApp]);
 
     const reboot = useReboot();
     const clearHolders = useClearHolders();
@@ -160,7 +147,7 @@ export const DeveloperToolsFragment = fragment(() => {
                         flexShrink: 1,
                     }}>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton leftIcon={require('../../../assets/ic_backup.png')} title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
+                            <ItemButton title={t('devTools.copySeed')} onPress={onExportSeedAlert} />
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton leftIcon={require('../../../assets/ic_sign_out.png')} dangerZone title={'Clean cache and reset'} onPress={resetCache} />
@@ -171,9 +158,6 @@ export const DeveloperToolsFragment = fragment(() => {
                         </View>
                         <View style={{ marginHorizontal: 16, width: '100%' }}>
                             <ItemButton title={"Counter"} hint={counter.counter.toString()} onPress={() => setCounter((value) => value.counter++)} />
-                        </View>
-                        <View style={{ marginHorizontal: 16, width: '100%' }}>
-                            <ItemButton title={"Test Sentry events"} onPress={() => Sentry.captureException(new Error('First error'))} />
                         </View>
 
                         {!(

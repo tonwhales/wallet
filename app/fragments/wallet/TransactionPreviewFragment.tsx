@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
-import { ValueComponent, valueText } from "../../components/ValueComponent";
+import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../../components/Avatar";
@@ -25,7 +25,7 @@ import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -33,7 +33,6 @@ import { PerfView } from "../../components/basic/PerfView";
 import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
 import { TxInfo } from "./views/preview/TxInfo";
-import { View } from "react-native";
 import { AddressComponent } from "../../components/address/AddressComponent";
 
 const TransactionPreview = () => {
@@ -386,7 +385,7 @@ const TransactionPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {tx.base.fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', ',')}`}
+                                    {`${formatAmount(fromNano(fees))}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

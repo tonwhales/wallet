@@ -20,7 +20,7 @@ import { useAppState, useDontShowComments, useNetwork, usePrice, useSelectedAcco
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -329,7 +329,7 @@ const PendingTxPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {!!fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', ',')}`}
+                                    {`${formatAmount(fromNano(fees))}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

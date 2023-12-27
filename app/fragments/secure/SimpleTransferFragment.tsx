@@ -20,7 +20,7 @@ import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
-import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
+import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
 import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -1035,7 +1035,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation).replace('.', ',')} TON`}
+                                            {`${formatAmount(fromNano(estimation))} TON`}
                                         </>
                                         : '...'
                                     }

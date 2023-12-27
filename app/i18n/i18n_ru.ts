@@ -858,7 +858,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "ledger": "Ledger",
         "title": "Подключить Ledger",
         "description": "Ваш аппаратный Ledger кошелёк",
-        "installation": "Если вы впервые подключаете Ledger, то прочитайте",
+        "installation": "Убедитесь, что Ledger разблокирован и Bluetooth включен",
         "installationGuide": "Руководство по подключению TON Ledger",
         "connectionDescriptionAndroid": "Подключите ваш Ledger через USB или Bluetooth",
         "connectionDescriptionIOS": "Подключите ваш Ledger через Bluetooth",

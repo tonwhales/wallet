@@ -30,7 +30,7 @@ export function toBnWithDecimals(src: bigint | number | string, precision: numbe
     if (!frac) {
       frac = '0';
     }
-    if (frac.length > precision) {
+    if (frac.length > precision && /* corner case for zero precision values */ (frac !== '0' && precision !== 0)) { 
       throw Error('Invalid number');
     }
     while (frac.length < precision) {
@@ -45,7 +45,7 @@ export function toBnWithDecimals(src: bigint | number | string, precision: numbe
   }
   
   export function fromBnWithDecimals(src: bigint | string, precision?: number | null): string {
-    precision = precision || 9;
+    precision = precision ?? 9;
     
     const prec = 10n ** BigInt(precision);
     let v = BigInt(src);

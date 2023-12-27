@@ -742,6 +742,12 @@ export const SimpleTransferFragment = fragment(() => {
         }
     }, [selected, addressInputHeight, amountInputHeight]);
 
+    useEffect(() => {
+        if (!selectedInput) {
+            scrollRef.current?.scrollTo({ y: 0 });
+        }
+    }, [selectedInput, scrollRef]);
+
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />

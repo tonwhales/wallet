@@ -746,6 +746,9 @@ export const SimpleTransferFragment = fragment(() => {
         if (!selectedInput) {
             scrollRef.current?.scrollTo({ y: 0 });
         }
+        if (Platform.OS === 'android') {
+            scrollRef.current?.scrollTo({ y: 0 });
+        }
     }, [selectedInput, scrollRef]);
 
     return (

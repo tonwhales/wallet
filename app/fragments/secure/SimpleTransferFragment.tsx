@@ -743,10 +743,8 @@ export const SimpleTransferFragment = fragment(() => {
     }, [selected, addressInputHeight, amountInputHeight]);
 
     useEffect(() => {
-        if (!selectedInput) {
-            scrollRef.current?.scrollTo({ y: 0 });
-        }
-    }, [selectedInput, scrollRef]);
+        scrollRef.current?.scrollTo({ y: 0 });
+    }, [selectedInput]);
 
     return (
         <View style={{ flexGrow: 1 }}>

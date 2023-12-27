@@ -8,10 +8,10 @@ export function useSaveAppConnection() {
     const setConnections = useSetAppsConnectionsState();
     return (async ({
         app,
-        connection
+        connections
     }: {
         app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl: string },
-        connection: ConnectedAppConnection
+        connections: ConnectedAppConnection[]
     }) => {
         let key = extensionKey(app.url);
 
@@ -44,12 +44,12 @@ export function useSaveAppConnection() {
             if (prev[key]) {
                 return {
                     ...prev,
-                    [key]: [...prev[key], connection]
+                    [key]: [...prev[key], ...connections]
                 }
             }
             return {
                 ...prev,
-                [key]: [connection]
+                [key]: [...connections]
             }
         });
     });

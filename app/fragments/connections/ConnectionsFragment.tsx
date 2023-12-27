@@ -136,7 +136,7 @@ export const ConnectionsFragment = fragment(() => {
             text: t('auth.revoke.action'),
             style: 'destructive',
             onPress: () => {
-                disconnectConnect(key);
+                disconnectConnect(key, 0);
             }
         }]);
     }, [disconnectConnect]);

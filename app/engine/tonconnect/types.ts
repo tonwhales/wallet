@@ -97,13 +97,15 @@ export type UseWebViewBridgeReturnType<Event> = [
 export class ConnectEventError implements IConnectEventError {
   event: IConnectEventError['event'];
   payload: IConnectEventError['payload'];
+  id: IConnectEventError['id'];
 
-  constructor(code = CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR, message: string) {
+  constructor(code = CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR, message: string, id: number) {
     this.event = 'connect_error';
     this.payload = {
       code,
       message,
     };
+    this.id = id;
   }
 }
 

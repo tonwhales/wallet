@@ -13,7 +13,7 @@ import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
 import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
-import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
+import { checkProtocolVersionCapability, setLastEventId, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {
@@ -24,6 +24,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
     const onDisconnect = useDisconnectApp();
 
     const [connectEvent, setConnectEvent] = useState<ConnectEvent | null>(null);
+    const [requestId, setRequestId] = useState(0);
 
     const app = useMemo(() => {
         return getConnectApp(endpoint);
@@ -54,6 +55,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                         return new ConnectEventError(
                             CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                             'Unknown app',
+                            requestId
                         );
                     }
 
@@ -68,10 +70,10 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                         autoConnectDisabled: false,
                                         manifestUrl: request.manifestUrl,
                                     },
-                                    connection: {
+                                    connections: [{
                                         type: TonConnectBridgeType.Injected,
                                         replyItems: result.replyItems,
-                                    }
+                                    }]
                                 });
 
                                 resolve({
@@ -80,6 +82,7 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                         items: result.replyItems,
                                         device: tonConnectDeviceInfo,
                                     },
+                                    id: requestId
                                 });
 
                                 // return;
@@ -107,12 +110,14 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                     return new ConnectEventError(
                         CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                         error?.message,
+                        requestId
                     );
                 }
             },
 
             restoreConnection: async () => {
                 const event = await autoConnect(endpoint);
+                setRequestId(event.id);
                 setConnectEvent(event);
                 return event;
             },
@@ -120,11 +125,12 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
             disconnect: async () => {
                 setConnectEvent(null);
                 removeInjectedConnection(endpoint);
+                setRequestId(0);
                 return;
             },
 
             send: async <T extends RpcMethod>(request: AppRequest<T>) => {
-
+                setRequestId(Number(request.id));
                 if (!app) {
                     return {
                         error: {
@@ -232,17 +238,17 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                 });
             }
         };
-    }, [endpoint, app]);
+    }, [endpoint, app, requestId, saveAppConnection, autoConnect, removeInjectedConnection]);
 
     const [ref, injectedJavaScriptBeforeContentLoaded, onMessage, sendEvent] =
         useWebViewBridge<TonConnectInjectedBridge, WalletEvent>(bridgeObject);
 
     const disconnect = useCallback(async () => {
         try {
-            onDisconnect(endpoint);
-            sendEvent({ event: 'disconnect', payload: {} });
+            onDisconnect(endpoint, requestId);
+            sendEvent({ event: 'disconnect', payload: {}, id: requestId });
         } catch { }
-    }, [endpoint, sendEvent]);
+    }, [endpoint, sendEvent, requestId]);
 
     return {
         ref,

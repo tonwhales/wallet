@@ -96,12 +96,13 @@ export const HoldersAccountItem = memo((props: {
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20 }}
+                    style={{ borderRadius: 20, overflow: 'hidden' }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}
+                    activeOpacity={0.8}
                 >
-                    <View>
+                    <View style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <IcTonIcon width={46} height={46} />
@@ -173,6 +174,6 @@ export const HoldersAccountItem = memo((props: {
                     </View>
                 </TouchableOpacity>
             </Animated.View>
-        </Swipeable>
+        </Swipeable >
     );
 });

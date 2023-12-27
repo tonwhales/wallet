@@ -3,6 +3,7 @@ import { View, Text } from "react-native";
 import { useConnectPendingRequests, useCurrentJob, useTheme } from "../../../engine/hooks";
 import { DappRequestButton } from "../views/DappRequestButton";
 import { t } from "../../../i18n/t";
+import { Typography } from "../../../components/styles";
 
 export const DappsRequests = memo(() => {
     const theme = useTheme();
@@ -22,12 +23,7 @@ export const DappsRequests = memo(() => {
                 paddingVertical: 12,
                 marginBottom: 4,
             }}>
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                    color: theme.textPrimary,
-                    lineHeight: 24,
-                }}>
+                <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('products.transactionRequest.groupTitle')}
                 </Text>
             </View>

@@ -62,6 +62,8 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
             <ScrollView
                 style={{ flexBasis: 0 }}
                 contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+                contentInsetAdjustmentBehavior={"never"}
+                automaticallyAdjustContentInsets={false}
                 contentContainerStyle={{ paddingBottom: 16 }}
                 showsVerticalScrollIndicator={false}
                 scrollEventThrottle={16}

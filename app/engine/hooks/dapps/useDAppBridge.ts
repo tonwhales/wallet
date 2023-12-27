@@ -70,10 +70,10 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                                         autoConnectDisabled: false,
                                         manifestUrl: request.manifestUrl,
                                     },
-                                    connection: {
+                                    connections: [{
                                         type: TonConnectBridgeType.Injected,
                                         replyItems: result.replyItems,
-                                    }
+                                    }]
                                 });
 
                                 resolve({

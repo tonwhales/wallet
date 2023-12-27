@@ -229,26 +229,18 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         autoConnectDisabled: false,
                         manifestUrl: state.manifestUrl
                     },
-                    connection: {
-                        type: TonConnectBridgeType.Remote,
-                        sessionKeyPair: sessionCrypto.stringifyKeypair(),
-                        clientSessionId: state.clientSessionId,
-                        replyItems,
-                    },
-                });
-
-                saveAppConnection({
-                    app: {
-                        name: state.app.name,
-                        url: state.app.url,
-                        iconUrl: state.app.iconUrl,
-                        autoConnectDisabled: false,
-                        manifestUrl: state.manifestUrl
-                    },
-                    connection: {
-                        type: TonConnectBridgeType.Injected,
-                        replyItems,
-                    },
+                    connections: [
+                        {
+                            type: TonConnectBridgeType.Remote,
+                            sessionKeyPair: sessionCrypto.stringifyKeypair(),
+                            clientSessionId: state.clientSessionId,
+                            replyItems,
+                        },
+                        {
+                            type: TonConnectBridgeType.Injected,
+                            replyItems,
+                        }
+                    ],
                 });
 
                 // Send connect response

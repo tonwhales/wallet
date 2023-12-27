@@ -61,10 +61,10 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
                     autoConnectDisabled: false,
                     manifestUrl: connectedApp.manifestUrl,
                 },
-                connection: {
+                connections: [{
                     type: TonConnectBridgeType.Injected,
                     replyItems: replyItems,
-                }
+                }]
             });
 
             const event: ConnectEvent = {
@@ -73,7 +73,7 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
                     items: replyItems,
                     device: tonConnectDeviceInfo,
                 },
-                id: '0',
+                id: 0,
             }
 
             return event;

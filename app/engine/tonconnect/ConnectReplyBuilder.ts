@@ -116,7 +116,7 @@ export class ConnectReplyBuilder {
   }
 
   static createAutoConnectReplyItems(addr: string, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
-    const address = Address.parse(addr).toString();
+    const address = Address.parse(addr).toRawString();
 
     return [
       {

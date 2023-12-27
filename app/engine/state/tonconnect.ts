@@ -186,7 +186,8 @@ export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
 
     // filter requests that are not in connections
     const filtered = state.filter((request) => {
-      const remoteConnections = Object.values(connections).filter((c) => c[0].type === TonConnectBridgeType.Remote).map((c) => (c[0] as ConnectedAppConnectionRemote));
+      const allConnections = Object.values(connections).flat();
+      const remoteConnections = allConnections.filter((c) => c.type === TonConnectBridgeType.Remote) as ConnectedAppConnectionRemote[];
       return remoteConnections.some((c) => c.clientSessionId === request.from);
     });
 

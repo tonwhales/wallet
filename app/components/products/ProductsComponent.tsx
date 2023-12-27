@@ -87,7 +87,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <Pressable
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                style={{ flex: 1, paddingHorizontal: 16, marginBottom: 16 }}
+                style={({ pressed }) => {
+                    return { flex: 1, paddingHorizontal: 16, marginBottom: 16, opacity: pressed ? 0.8 : 1 }
+                }}
                 onPress={onTonPress}
             >
                 <Animated.View style={[

@@ -6,7 +6,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useCallback, useState } from "react";
 import { Avatar, avatarImages } from "../../components/Avatar";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,6 +16,8 @@ export const AvatarPickerFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const { isTestnet } = useNetwork();
+    const selected = useSelectedAccount();
+    const address = selected!.address;
 
     const [hashState, setHash] = useState(hash);
 
@@ -68,11 +70,12 @@ export const AvatarPickerFragment = fragment(() => {
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <Avatar
                     size={300}
-                    id={""}
                     hash={hashState}
                     borderColor={theme.transparent}
                     theme={theme}
                     isTestnet={isTestnet}
+                    id={address.toString({ testOnly: isTestnet })}
+                    hashColor
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
@@ -101,12 +104,13 @@ export const AvatarPickerFragment = fragment(() => {
                             >
                                 <Avatar
                                     size={70}
-                                    id={""}
                                     hash={index}
                                     borderColor={theme.border}
                                     borderWith={0}
                                     theme={theme}
                                     isTestnet={isTestnet}
+                                    id={address.toString({ testOnly: isTestnet })}
+                                    hashColor
                                 />
                             </Pressable>
                         )

@@ -75,6 +75,7 @@ export const WalletItem = memo((
                     hash={walletSettings?.avatar}
                     theme={theme}
                     isTestnet={network.isTestnet}
+                    hashColor
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>

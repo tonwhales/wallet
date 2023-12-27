@@ -115,10 +115,11 @@ export const WalletSettingsFragment = fragment(() => {
                         <Avatar
                             size={100}
                             borderColor={theme.surfaceOnElevation}
-                            id={''}
                             hash={avatar}
                             theme={theme}
                             isTestnet={isTestnet}
+                            id={address.toString({ testOnly: isTestnet })}
+                            hashColor
                         />
                         <Text style={{
                             color: theme.accent,

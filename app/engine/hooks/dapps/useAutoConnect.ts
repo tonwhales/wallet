@@ -7,14 +7,16 @@ import { useAppConnections } from "./useAppConnections";
 import { extensionKey } from "./useAddExtension";
 import { useConnectApp } from "./useConnectApp";
 import { beginCell, storeStateInit } from "@ton/core";
-import { ConnectEventError } from '../../tonconnect/types';
+import { ConnectEventError, TonConnectBridgeType } from '../../tonconnect/types';
 import { ConnectReplyBuilder } from '../../tonconnect/ConnectReplyBuilder';
 import { tonConnectDeviceInfo } from '../../tonconnect/config';
+import { useSaveAppConnection } from ".";
 
 export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
     const { isTestnet } = useNetwork();
     const getConnections = useAppConnections();
     const connectApp = useConnectApp();
+    const saveAppConnection = useSaveAppConnection();
     return async (endpoint: string) => {
         try {
             const connectedApp = connectApp(endpoint);
@@ -28,6 +30,7 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
                 throw new ConnectEventError(
                     CONNECT_EVENT_ERROR_CODES.UNKNOWN_APP_ERROR,
                     'Unknown app',
+                    0
                 );
             }
 
@@ -35,7 +38,6 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
             const acc = getCurrentAddress();
             try {
                 const contract = await contractFromPublicKey(acc.publicKey);
-
                 const initialCode = contract.init.code;
                 const initialData = contract.init.data;
                 const stateInitCell = beginCell().store(storeStateInit({ code: initialCode, data: initialData })).endCell();
@@ -46,17 +48,35 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
 
             const replyItems = ConnectReplyBuilder.createAutoConnectReplyItems(
                 acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
+                Uint8Array.from(acc.publicKey),
                 walletStateInit,
                 isTestnet
             );
 
-            return {
+            saveAppConnection({
+                app: {
+                    name: connectedApp.name,
+                    url: connectedApp.url,
+                    iconUrl: connectedApp.iconUrl,
+                    autoConnectDisabled: false,
+                    manifestUrl: connectedApp.manifestUrl,
+                },
+                connections: [{
+                    type: TonConnectBridgeType.Injected,
+                    replyItems: replyItems,
+                }]
+            });
+
+            const event: ConnectEvent = {
                 event: 'connect',
                 payload: {
                     items: replyItems,
                     device: tonConnectDeviceInfo,
                 },
-            };
+                id: 0,
+            }
+
+            return event;
         } catch (error: any) {
             if (error instanceof ConnectEventError) {
                 return error;
@@ -65,6 +85,7 @@ export function useAutoConnect(): (endpoint: string) => Promise<ConnectEvent> {
             return new ConnectEventError(
                 CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR,
                 error?.message,
+                0
             );
         }
     }

@@ -20,7 +20,7 @@ import { useParams } from '../../utils/useParams';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { ReactNode, RefObject, createRef, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { WImage } from '../../components/WImage';
-import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
+import { formatAmount, formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
 import { ValueComponent } from '../../components/ValueComponent';
 import { useRoute } from '@react-navigation/native';
 import { useAccountLite, useClient4, useCommitCommand, useConfig, useJettonMaster, useJettonWallet, useNetwork, usePrice, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -37,7 +37,6 @@ import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 import { ScrollView } from 'react-native-gesture-handler';
 import { TransferHeader } from '../../components/transfer/TransferHeader';
-import { getNumberFormatSettings } from 'react-native-localize';
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 import IcChevron from '@assets/ic_chevron_forward.svg';
@@ -62,7 +61,6 @@ export const SimpleTransferFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
-    const { decimalSeparator } = getNumberFormatSettings();
     const params: SimpleTransferParams | undefined = useParams();
     const route = useRoute();
     const isLedger = route.name === 'LedgerSimpleTransfer';
@@ -1038,7 +1036,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}>
                                     {estimation
                                         ? <>
-                                            {`${fromNano(estimation).replace('.', decimalSeparator)} TON`}
+                                            {`${formatAmount(fromNano(estimation))} TON`}
                                         </>
                                         : '...'
                                     }

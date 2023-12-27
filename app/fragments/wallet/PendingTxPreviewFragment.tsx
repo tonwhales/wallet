@@ -20,7 +20,7 @@ import { useAppState, useDontShowComments, useNetwork, usePrice, useSelectedAcco
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -31,12 +31,10 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { PendingTransaction } from "../../engine/state/pending";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
-import { getNumberFormatSettings } from "react-native-localize";
 
 const PendingTxPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const { decimalSeparator } = getNumberFormatSettings();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -331,7 +329,7 @@ const PendingTxPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {!!fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', decimalSeparator)}`}
+                                    {`${formatAmount(fromNano(fees))}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

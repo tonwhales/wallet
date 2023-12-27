@@ -26,6 +26,11 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
   [PrimaryCurrency.Jpy]: { symbol: '¥', end: true, label: 'Japanese Yen' },
 };
 
+export function formatAmount(amount: string) {
+  const { decimalSeparator } = getNumberFormatSettings();
+  return amount.replace('.', decimalSeparator);
+}
+
 export function formatInputAmount(
   raw: string,
   decimals: number,

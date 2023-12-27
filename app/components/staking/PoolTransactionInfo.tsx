@@ -8,8 +8,7 @@ import { StakingPoolState } from "../../engine/types";
 import { fromNano, toNano } from "@ton/core";
 import { ItemDivider } from "../ItemDivider";
 import { AboutIconButton } from "../AboutIconButton";
-import { formatInputAmount } from "../../utils/formatCurrency";
-import { getNumberFormatSettings } from "react-native-localize";
+import { formatAmount } from "../../utils/formatCurrency";
 
 const itemViewStyle = {
     flexDirection: 'row', width: '100%',
@@ -28,7 +27,6 @@ const itemValueTextStyle = (theme: ThemeType) => ({
 }) as StyleProp<TextStyle>;
 
 export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState, fee?: bigint | null }) => {
-    const { decimalSeparator } = getNumberFormatSettings();
     if (!pool) return null;
     const theme = useTheme();
     const network = useNetwork();
@@ -208,7 +206,7 @@ export const PoolTransactionInfo = memo(({ pool, fee }: { pool: StakingPoolState
                             </Text>
                             <View style={{ justifyContent: 'center', alignItems: 'flex-end' }}>
                                 <Text style={itemValueTextStyle(theme)}>
-                                    {`${fromNano(fee).replace('.', decimalSeparator)} TON`}
+                                    {`${formatAmount(fromNano(fee))} TON`}
                                 </Text>
                                 <PriceComponent
                                     amount={fee}

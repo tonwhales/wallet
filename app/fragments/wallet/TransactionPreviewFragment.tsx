@@ -25,7 +25,7 @@ import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Address, fromNano } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
-import { formatCurrency } from "../../utils/formatCurrency";
+import { formatAmount, formatCurrency } from "../../utils/formatCurrency";
 import { PerfText } from "../../components/basic/PerfText";
 import { Typography } from "../../components/styles";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -34,12 +34,10 @@ import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
 import { TxInfo } from "./views/preview/TxInfo";
 import { AddressComponent } from "../../components/address/AddressComponent";
-import { getNumberFormatSettings } from "react-native-localize";
 
 const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const { decimalSeparator } = getNumberFormatSettings();
     const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -387,7 +385,7 @@ const TransactionPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {tx.base.fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', decimalSeparator)}`}
+                                    {`${formatAmount(fromNano(fees))}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

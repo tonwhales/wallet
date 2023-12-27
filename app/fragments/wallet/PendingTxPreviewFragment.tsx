@@ -31,10 +31,12 @@ import { AddressComponent } from "../../components/address/AddressComponent";
 import { PendingTransaction } from "../../engine/state/pending";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
+import { getNumberFormatSettings } from "react-native-localize";
 
 const PendingTxPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const { decimalSeparator } = getNumberFormatSettings();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount()!;
@@ -329,7 +331,7 @@ const PendingTxPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {!!fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', ',')}`}
+                                    {`${fromNano(fees).replace('.', decimalSeparator)}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

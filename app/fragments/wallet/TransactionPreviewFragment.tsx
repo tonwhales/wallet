@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
 import { useParams } from "../../utils/useParams";
-import { ValueComponent, valueText } from "../../components/ValueComponent";
+import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../../components/Avatar";
@@ -33,12 +33,13 @@ import { PerfView } from "../../components/basic/PerfView";
 import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
 import { TxInfo } from "./views/preview/TxInfo";
-import { View } from "react-native";
 import { AddressComponent } from "../../components/address/AddressComponent";
+import { getNumberFormatSettings } from "react-native-localize";
 
 const TransactionPreview = () => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
+    const { decimalSeparator } = getNumberFormatSettings();
     const route = useRoute();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
@@ -386,7 +387,7 @@ const TransactionPreview = () => {
                         <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                             {tx.base.fees
                                 ? <>
-                                    {`${fromNano(fees).replace('.', ',')}`}
+                                    {`${fromNano(fees).replace('.', decimalSeparator)}`}
                                     <PerfText style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}
                                     </PerfText>

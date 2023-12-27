@@ -25,6 +25,7 @@ import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import { getNumberFormatSettings } from "react-native-localize";
 
 export const TransferSingleView = memo(({
     operation,
@@ -66,6 +67,7 @@ export const TransferSingleView = memo(({
     contact?: AddressContact | null,
 }) => {
     const navigation = useTypedNavigation();
+    const { decimalSeparator } = getNumberFormatSettings();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
@@ -520,7 +522,7 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 fontSize: 17, lineHeight: 24, fontWeight: '400'
                             }}>
-                                {`${fromNano(fees).replace('.', ',')}`}
+                                {`${fromNano(fees).replace('.', decimalSeparator)}`}
                                 {feesPrise && (
                                     <Text style={{ color: theme.textSecondary }}>
                                         {` ${feesPrise}`}

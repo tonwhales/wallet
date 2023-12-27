@@ -37,11 +37,13 @@ export function useAccountLite(address?: Address | null): AccountLite | null {
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             let last = await getLastBlock();
+            let account = (await client.getAccountLite(last, Address.parse(addr))).account;
+
             return {
-                account: (await client.getAccountLite(last, Address.parse(addr))).account,
+                account: account,
                 block: last,
             };
-        },
+        }
     });
 
     if (!query.data?.account?.balance) {

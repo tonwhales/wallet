@@ -29,7 +29,7 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
 
     const onDeviceSelect = useCallback(async (device: any) => {
         const transport = await TransportBLE.open(device.id);
-        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device, navigation });
+        ledgerContext?.setLedgerConnection({ type: 'ble', transport, device });
     }, [ledgerContext]);
 
     const newScan = useCallback(() => {

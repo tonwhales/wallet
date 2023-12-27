@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 import { t } from "../../i18n/t";
 import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -12,8 +12,157 @@ import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
+import { delay } from 'teslabot';
+import { ThemeType } from '../../engine/state/theme';
+import { Typography } from '../../components/styles';
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
+type AccountsLite = ReturnType<typeof useAccountsLite>;
+
+const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isTestnet, onLoadAccount, loading }: {
+    safeArea: EdgeInsets,
+    theme: ThemeType,
+    accountsLite: AccountsLite,
+    accs: {
+        address: Address;
+        publicKey: Buffer;
+    }[],
+    selected?: number,
+    isTestnet: boolean,
+    loading: boolean,
+    onLoadAccount: (acc: LedgerAccount) => Promise<void>
+}) => {
+    return (
+        <ScrollView
+            contentInset={{ top: 0, bottom: safeArea.bottom + 16 }}
+            contentOffset={{ y: 16 + safeArea.top, x: 0 }}
+            contentContainerStyle={{ paddingHorizontal: 16 }}
+        >
+            {loading ? (
+                <>
+                    <View style={{
+                        height: 86,
+                        borderRadius: 20,
+                        backgroundColor: theme.surfaceOnElevation,
+                        justifyContent: 'center', padding: 20,
+                        marginBottom: 16
+                    }}>
+                        <View style={{
+                            backgroundColor: 'white',
+                            borderRadius: 16, height: 16, width: '45%'
+                        }} />
+                        <View style={{
+                            backgroundColor: 'white',
+                            marginTop: 8,
+                            borderRadius: 16, height: 24, width: '60%'
+                        }} />
+                    </View>
+                    <View style={{
+                        height: 86,
+                        borderRadius: 20,
+                        backgroundColor: theme.surfaceOnElevation,
+                        justifyContent: 'center', padding: 20,
+                        marginBottom: 16
+                    }}>
+                        <View style={{
+                            backgroundColor: 'white',
+                            borderRadius: 16, height: 16, width: '45%'
+                        }} />
+                        <View style={{
+                            backgroundColor: 'white',
+                            marginTop: 8,
+                            borderRadius: 16, height: 24, width: '60%'
+                        }} />
+                    </View>
+                    <View style={{
+                        height: 86,
+                        borderRadius: 20,
+                        backgroundColor: theme.surfaceOnElevation,
+                        justifyContent: 'center', padding: 20,
+                        marginBottom: 16
+                    }}>
+                        <View style={{
+                            backgroundColor: 'white',
+                            borderRadius: 16, height: 16, width: '45%'
+                        }} />
+                        <View style={{
+                            backgroundColor: 'white',
+                            marginTop: 8,
+                            borderRadius: 16, height: 24, width: '60%'
+                        }} />
+                    </View>
+                </>
+            ) : (
+                accountsLite.map((acc) => {
+                    const item = accs.find((a) => a.address.equals(acc.address));
+                    return (
+                        <AccountButton
+                            key={acc.address.toString()}
+                            loadingAcc={selected}
+                            onSelect={onLoadAccount}
+                            acc={{
+                                i: accs.findIndex((a) => a.address.equals(acc.address)),
+                                addr: {
+                                    address: acc.address.toString({ testOnly: isTestnet }),
+                                    publicKey: item!.publicKey || Buffer.from([]),
+                                },
+                                balance: BigInt(acc.data?.balance.coins || 0),
+                            }}
+                        />
+                    )
+                })
+            )}
+            <View style={{ height: 56 }} />
+        </ScrollView>
+    );
+}
+
+const LedgerHint = ({ state, theme }: { state: 'locked-device' | 'closed-app' | 'active' | 'loading', theme: ThemeType }) => {
+    const [dotCount, setDotCount] = useState<number>(0);
+
+    // dot animation
+    useEffect(() => {
+        if (state !== 'closed-app' && state !== 'locked-device') {
+            setDotCount(0);
+            return;
+        }
+        
+        let interval = setInterval(() => {
+            setDotCount((prev) => (prev + 1) % 4);
+        }, 300);
+
+        return () => {
+            clearInterval(interval);
+        }
+    }, [state]);
+
+    let text = t('hardwareWallet.chooseAccountDescription');
+    if (state === 'active' || state === 'loading') {
+        text = t('hardwareWallet.chooseAccountDescription');
+    }
+
+    if (state === 'locked-device') {
+        text = t('hardwareWallet.unlockLedgerDescription');
+    }
+
+    if (state == 'closed-app') {
+        text = t('hardwareWallet.openTheAppDescription');
+    }
+
+    text += new Array(dotCount).fill('.').join('');
+
+    return (
+        <Text style={{
+            fontWeight: '400',
+            fontSize: 17, lineHeight: 24,
+            color: theme.textSecondary,
+            marginBottom: 16,
+            marginHorizontal: 16
+        }}>
+            {text}
+        </Text>
+    );
+}
 
 export const LedgerSelectAccountFragment = fragment(() => {
     const theme = useTheme();
@@ -30,29 +179,56 @@ export const LedgerSelectAccountFragment = fragment(() => {
 
     const accountsLite = useAccountsLite(accs.map((a) => a.address));
 
+    const [connectionState, setConnectionState] = useState<'locked-device' | 'closed-app' | 'active' | 'loading'>('loading');
+
     useEffect(() => {
+        let cancelled = false;
+        let cancelWork = () => {
+            cancelled = true;
+        };
+
         if (!!ledgerContext?.tonTransport) {
             (async () => {
-                const res: { address: Address, publicKey: Buffer }[] = [];
-                const run = Array.from({ length: 10 }).map((_, i) => i);
-                try {
-                    for (const i of run) {
-                        const path = pathFromAccountNumber(i, network.isTestnet);
-                        const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: network.isTestnet });
-                        const address = Address.parse(addr.address);
-                        res.push({ address, publicKey: addr.publicKey });
+                while (!cancelled) {
+                    const res: { address: Address, publicKey: Buffer }[] = [];
+                    const run = Array.from({ length: 10 }).map((_, i) => i);
+                    try {
+                        let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+                        if (cancelled) return;
+
+                        if (!isAppOpen) {
+                            // TODO: ask to open app
+                            console.warn('[ledger] closed app');
+                            setConnectionState('closed-app');
+                            return;
+                        }
+
+                        setConnectionState('loading');
+                        for (const i of run) {
+                            const path = pathFromAccountNumber(i, network.isTestnet);
+                            const addr = await ledgerContext.tonTransport!.getAddress(path, { testOnly: network.isTestnet });
+                            if (cancelled) return;
+
+                            const address = Address.parse(addr.address);
+                            res.push({ address, publicKey: addr.publicKey });
+                        }
+
+                        setAccounts(res);
+                        setConnectionState('active');
+                        return;
+                    } catch (e) {
+                        if (e instanceof Error && e.name === 'LockedDeviceError') {
+                            console.warn('[ledger] locked device');
+                            setConnectionState('locked-device');
+                        }
+
+                        await delay(1000);
                     }
-                } catch {
-                    Alert.alert(
-                        t('hardwareWallet.errors.unknown'),
-                        t('hardwareWallet.errors.reboot'),
-                        [{ text: t('common.ok'), onPress: () => ledgerContext.setLedgerConnection(null) }]
-                    );
                 }
-                setAccounts(res);
             })();
-            return;
         }
+
+        return cancelWork;
     }, [ledgerContext?.tonTransport]);
 
     const onLoadAccount = React.useCallback(
@@ -105,96 +281,19 @@ export const LedgerSelectAccountFragment = fragment(() => {
             }}>
                 {ledgerContext?.tonTransport?.transport.deviceModel?.productName}
             </Text>
-            <Text style={{
-                fontWeight: '400',
-                fontSize: 17, lineHeight: 24,
-                color: theme.textSecondary,
-                marginBottom: 16,
-                marginHorizontal: 16
-            }}>
-                {t('hardwareWallet.chooseAccountDescription')}
-            </Text>
-            <ScrollView
-                contentInset={{ top: 0, bottom: safeArea.bottom + 16 }}
-                contentOffset={{ y: 16 + safeArea.top, x: 0 }}
-                contentContainerStyle={{ paddingHorizontal: 16 }}
-            >
-                {(!accountsLite || accountsLite.length === 0) ? (
-                    <>
-                        <View style={{
-                            height: 86,
-                            borderRadius: 20,
-                            backgroundColor: theme.surfaceOnElevation,
-                            justifyContent: 'center', padding: 20,
-                            marginBottom: 16
-                        }}>
-                            <View style={{
-                                backgroundColor: 'white',
-                                borderRadius: 16, height: 16, width: '45%'
-                            }} />
-                            <View style={{
-                                backgroundColor: 'white',
-                                marginTop: 8,
-                                borderRadius: 16, height: 24, width: '60%'
-                            }} />
-                        </View>
-                        <View style={{
-                            height: 86,
-                            borderRadius: 20,
-                            backgroundColor: theme.surfaceOnElevation,
-                            justifyContent: 'center', padding: 20,
-                            marginBottom: 16
-                        }}>
-                            <View style={{
-                                backgroundColor: 'white',
-                                borderRadius: 16, height: 16, width: '45%'
-                            }} />
-                            <View style={{
-                                backgroundColor: 'white',
-                                marginTop: 8,
-                                borderRadius: 16, height: 24, width: '60%'
-                            }} />
-                        </View>
-                        <View style={{
-                            height: 86,
-                            borderRadius: 20,
-                            backgroundColor: theme.surfaceOnElevation,
-                            justifyContent: 'center', padding: 20,
-                            marginBottom: 16
-                        }}>
-                            <View style={{
-                                backgroundColor: 'white',
-                                borderRadius: 16, height: 16, width: '45%'
-                            }} />
-                            <View style={{
-                                backgroundColor: 'white',
-                                marginTop: 8,
-                                borderRadius: 16, height: 24, width: '60%'
-                            }} />
-                        </View>
-                    </>
-                ) : (
-                    accountsLite.map((acc) => {
-                        const item = accs.find((a) => a.address.equals(acc.address));
-                        return (
-                            <AccountButton
-                                key={acc.address.toString()}
-                                loadingAcc={selected}
-                                onSelect={onLoadAccount}
-                                acc={{
-                                    i: accs.findIndex((a) => a.address.equals(acc.address)),
-                                    addr: {
-                                        address: acc.address.toString({ testOnly: network.isTestnet }),
-                                        publicKey: item!.publicKey || Buffer.from([]),
-                                    },
-                                    balance: BigInt(acc.data?.balance.coins || 0),
-                                }}
-                            />
-                        )
-                    })
-                )}
-                <View style={{ height: 56 }} />
-            </ScrollView>
+            <LedgerHint state={connectionState} theme={theme} />
+            {(connectionState === 'active' || connectionState === 'loading') && (
+                <LedgerAccountsList
+                    accountsLite={accountsLite}
+                    accs={accs}
+                    isTestnet={network.isTestnet}
+                    onLoadAccount={onLoadAccount}
+                    safeArea={safeArea}
+                    selected={selected}
+                    theme={theme}
+                    loading={(!accountsLite || accountsLite.length === 0) || connectionState === 'loading'}
+                />
+            )}
         </View>
     );
 });

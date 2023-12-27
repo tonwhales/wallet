@@ -135,10 +135,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
         }
     }, [select]);
 
-    const isSelected = Platform.select({
-        ios: props.isSelected,
-        android: true,
-    });
+    const isSelected = props.isSelected;
 
     return (
         <View>
@@ -165,6 +162,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             theme={theme}
                             hash={walletSettings?.avatar}
                             isTestnet={props.isTestnet}
+                            hashColor
                         />
                         : <Image
                             source={require('@assets/ic-contact.png')}
@@ -194,7 +192,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 </Pressable>
             </View>
             <View
-                style={[!isSelected ? { opacity: 0, height: 0, width: 0 } : Platform.select({ ios: { marginTop: -16 } })]}
+                style={[!isSelected ? [{ opacity: 0, height: 0 }, Platform.select({ ios: { width: 0 } })] : {}]}
                 pointerEvents={isSelected ? undefined : 'none'}
             >
                 <View style={{
@@ -214,6 +212,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 theme={theme}
                                 isTestnet={props.isTestnet}
                                 hash={walletSettings?.avatar}
+                                hashColor
                             />
                             : <Image
                                 source={require('@assets/ic-contact.png')}
@@ -228,6 +227,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             target={props.target}
                             index={props.index}
                             ref={ref}
+                            autoFocus={true}
                             onFocus={props.onFocus}
                             isKnown={isKnown}
                             onSubmit={props.onSubmit}

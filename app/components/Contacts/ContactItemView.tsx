@@ -48,6 +48,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                         borderWith={0}
                         theme={theme}
                         isTestnet={isTestnet}
+                        hashColor
                     />
                 </View>
                 <View style={{ flexGrow: 1, justifyContent: 'center' }}>

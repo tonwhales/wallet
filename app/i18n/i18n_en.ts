@@ -858,7 +858,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         ledger: 'Ledger',
         title: 'Connect Ledger',
         description: 'Your hardware Ledger wallet',
-        installation: 'If this is your first time, then you can read',
+        installation: 'Make sure that Ledger is unlocked and Bluetooth enabled, learn more at',
         installationGuide: 'TON ledger connection guide',
         connectionDescriptionAndroid: 'Connect your Ledger via USB or Bluetooth',
         connectionDescriptionIOS: 'Connect your Ledger via Bluetooth',

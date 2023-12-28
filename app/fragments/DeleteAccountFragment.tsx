@@ -43,7 +43,7 @@ export const DeleteAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.address);
+    const account = useAccountLite(selected?.address);
     const keyboard = useKeyboard();
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 

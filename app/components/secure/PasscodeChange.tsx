@@ -7,10 +7,11 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
 import { SecureAuthenticationCancelledError, loadWalletKeys } from "../../storage/walletKeys";
-import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
+import { PasscodeState, passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";
 import { useDimensions } from "@react-native-community/hooks";
+import { useSetPasscodeState } from "../../engine/hooks";
 
 type Action =
     | { type: 'auth', input: string }
@@ -79,6 +80,7 @@ export const PasscodeChange = memo(() => {
     const [isFirstRender, setFirstRender] = useState(true);
     const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
+    const setPascodeState = useSetPasscodeState();
     const navigation = useTypedNavigation();
     const toaster = useToaster();
 
@@ -143,6 +145,7 @@ export const PasscodeChange = memo(() => {
                             }
 
                             updatePasscode(state.prev, newPasscode);
+                            setPascodeState(PasscodeState.Set);
 
                             toaster.show({
                                 message: t('security.passcodeSettings.success'),

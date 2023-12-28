@@ -182,7 +182,6 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         // Store
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
-        storage.set(passcodeStateKey, PasscodeState.Set);
         storage.set(passcodeLengthKey, passcode.length);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
@@ -205,7 +204,6 @@ export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcod
         storage.set('ton-storage-ref', ref);
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
-        storage.set(passcodeStateKey, PasscodeState.Set);
         storage.set(passcodeLengthKey, passcode.length);
 
         // Encrypt data with new key
@@ -278,7 +276,6 @@ export async function updatePasscode(prevPasscode: string, newPasscode: string) 
         const ref = storage.getString('ton-storage-ref')
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
-        storage.set(passcodeStateKey, PasscodeState.Set);
         storage.set(passcodeLengthKey, newPasscode.length);
     } catch (e) {
         throw Error('Unable to migrate to new passcode');

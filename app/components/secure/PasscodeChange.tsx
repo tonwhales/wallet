@@ -1,12 +1,12 @@
 import React, { memo, useLayoutEffect, useReducer, useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
-import { SecureAuthenticationCancelledError, loadWalletKeys } from "../../storage/walletKeys";
+import { loadWalletKeys } from "../../storage/walletKeys";
 import { PasscodeState, passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";

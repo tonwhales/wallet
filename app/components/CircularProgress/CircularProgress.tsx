@@ -214,7 +214,7 @@ const generateStyles = ({
             height: size,
             borderColor: color,
             borderRadius: size / 2,
-            borderWidth: width,
+            borderWidth: width
         },
     });
 

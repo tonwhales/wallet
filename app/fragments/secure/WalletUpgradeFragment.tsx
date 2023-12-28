@@ -7,18 +7,22 @@ import { FragmentMediaContent } from "../../components/FragmentMediaContent";
 import { t } from "../../i18n/t";
 import { systemFragment } from "../../systemFragment";
 import { doUpgrade } from "../../storage/appState";
-import { useReboot } from "../../utils/RebootContext";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from "../../engine/hooks/network/useNetwork";
+import { resolveOnboarding } from "../resolveOnboarding";
 
 export const WalletUpgradeFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
-    const reboot = useReboot();
     const navigation = useTypedNavigation();
+    const network = useNetwork();
+
     const onUpgrade = React.useCallback(async () => {
-        await doUpgrade(AppConfig.isTestnet);
-        reboot();
+        await doUpgrade(isTestnet);
+        const route = resolveOnboarding(network.isTestnet, false);
+        navigation.navigateAndReplaceAll(route);
     }, []);
     const onBackup = React.useCallback(() => {
         navigation.navigate('WalletBackup', { back: true });
@@ -27,7 +31,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
         <View style={{
             flexGrow: 1,
             alignSelf: 'stretch', alignItems: 'center',
-            backgroundColor: Theme.item,
+            backgroundColor: theme.surfaceOnBg,
             paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
             paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
         }}>
@@ -39,7 +43,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
             >
                 <Text style={{
                     textAlign: 'center',
-                    color: Theme.textSubtitle,
+                    color: theme.textThird,
                     fontSize: 16,
                     marginTop: 14,
                 }}>
@@ -64,7 +68,7 @@ export const WalletUpgradeFragment = systemFragment(() => {
                     <Text style={{
                         fontSize: 17,
                         fontWeight: '600',
-                        color: Theme.accentText
+                        color: theme.accent
                     }}>
                         {t('secure.backup')}
                     </Text>

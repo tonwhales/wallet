@@ -1,13 +1,18 @@
-import { ConnectRequest, SEND_TRANSACTION_ERROR_CODES, SessionCrypto } from '@tonconnect/protocol';
-import { Alert } from 'react-native';
-import { Cell, fromNano, toNano } from 'ton';
-import { t } from '../../i18n/t';
-import { getTimeSec } from '../../utils/getTimeSec';
-import { warn } from '../../utils/log';
-import { sendTonConnectResponse } from '../api/sendTonConnectResponse';
-import { Engine } from '../Engine';
+import { ConnectRequest } from '@tonconnect/protocol';
 import { MIN_PROTOCOL_VERSION } from './config';
-import { SendTransactionError, SendTransactionRequest, SignRawParams, WebViewBridgeMessageType } from './types';
+import { WebViewBridgeMessageType } from './types';
+import { storage } from '../../storage/storage';
+import { getCurrentAddress } from '../../storage/appState';
+
+export function setLastEventId(lastEventId: string) {
+  const selected = getCurrentAddress().addressString;
+  storage.set(`${selected}/connect_last_event_id`, lastEventId);
+}
+
+export function getLastEventId() {
+  const selected = getCurrentAddress().addressString;
+  return storage.getString(`${selected}/connect_last_event_id`);
+}
 
 export function isHexString(str: string): boolean {
   const hexRegex = /^[0-9a-fA-F]+$/;
@@ -23,110 +28,6 @@ export function checkProtocolVersionCapability(protocolVersion: number) {
 export function verifyConnectRequest(request: ConnectRequest) {
   if (!(request && request.manifestUrl && request.items?.length)) {
     throw new Error('Wrong request data');
-  }
-}
-
-export const tonConnectTransactionCallback = (
-  ok: boolean,
-  result: Cell | null,
-  request: { from: string } & SendTransactionRequest,
-  sessionCrypto: SessionCrypto,
-  engine: Engine
-) => {
-  if (!ok) {
-    sendTonConnectResponse({
-      response: new SendTransactionError(
-        request.id,
-        SEND_TRANSACTION_ERROR_CODES.USER_REJECTS_ERROR,
-        'Wallet declined the request',
-      ),
-      sessionCrypto,
-      clientSessionId: request.from
-    });
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    return;
-  }
-
-  sendTonConnectResponse({
-    response: { result: result?.toBoc({ idx: false }).toString('base64') ?? '', id: request.id },
-    sessionCrypto,
-    clientSessionId: request.from
-  });
-  engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-}
-
-export const prepareTonConnectRequest = (request: { from: string } & SendTransactionRequest, engine: Engine) => {
-  const params = JSON.parse(request.params[0]) as SignRawParams;
-
-  const isValidRequest =
-    params && typeof params.valid_until === 'number' &&
-    Array.isArray(params.messages) &&
-    params.messages.every((msg) => !!msg.address && !!msg.amount);
-
-  const session = engine.products.tonConnect.getConnectionByClientSessionId(request.from);
-  if (!session) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    Alert.alert(t('common.error'), t('products.tonConnect.errors.connection'));
-    return;
-  }
-  const sessionCrypto = new SessionCrypto(session.sessionKeyPair);
-
-  if (!isValidRequest) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    sendTonConnectResponse({
-      response: {
-        error: {
-          code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-          message: `Bad request`,
-        },
-        id: request.id.toString(),
-      },
-      sessionCrypto,
-      clientSessionId: request.from
-    })
-    return;
-  }
-
-  const { valid_until } = params;
-  if (valid_until < getTimeSec()) {
-    engine.products.tonConnect.deleteActiveRemoteRequest(request.from);
-    sendTonConnectResponse({
-      response: {
-        error: {
-          code: SEND_TRANSACTION_ERROR_CODES.UNKNOWN_ERROR,
-          message: `Request timed out`,
-        },
-        id: request.id.toString(),
-      },
-      sessionCrypto,
-      clientSessionId: request.from
-    })
-    return;
-  }
-
-  const app = engine.products.tonConnect.findConnectedAppByClientSessionId(request.from);
-
-  const messages = [];
-  for (const message of params.messages) {
-    try {
-      const msg = {
-        amount: toNano(fromNano(message.amount)),
-        target: message.address,
-        amountAll: false,
-        payload: message.payload ? Cell.fromBoc(Buffer.from(message.payload, 'base64'))[0] : null,
-        stateInit: message.stateInit ? Cell.fromBoc(Buffer.from(message.stateInit, 'base64'))[0] : null
-      }
-      messages.push(msg);
-    } catch (error) {
-      warn(error);
-    }
-  }
-
-  return {
-    request,
-    sessionCrypto,
-    messages,
-    app
   }
 }
 

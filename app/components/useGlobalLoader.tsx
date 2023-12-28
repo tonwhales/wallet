@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ActivityIndicator, Animated, Keyboard, Platform, View } from 'react-native';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 const GlobalLoaderContext = React.createContext<{ show: () => () => void } | null>(null);
 
@@ -13,7 +13,7 @@ export function useGlobalLoader() {
 }
 
 export const GlobalLoaderProvider = React.memo((props: { children?: any }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [visible, setVisible] = React.useState(false);
 
     const backgroundOpacity = React.useMemo(() => new Animated.Value(0), []);
@@ -67,12 +67,13 @@ export const GlobalLoaderProvider = React.memo((props: { children?: any }) => {
 
                 <Animated.View style={{ opacity: backgroundOpacity, backgroundColor: 'rgba(0,0,0,0.49)', position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents={visible ? 'auto' : 'box-none'} />
                 <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, justifyContent: 'center', alignItems: 'center' }} pointerEvents="none">
-                    <Animated.View style={{ backgroundColor: 'white', width: 120, height: 120, borderRadius: 36, opacity: loaderOpacity, justifyContent: 'center', alignItems: 'center' }}>
+                    <Animated.View style={{ backgroundColor: theme.backgroundPrimary, width: 120, height: 120, borderRadius: 36, opacity: loaderOpacity, justifyContent: 'center', alignItems: 'center' }}>
                         {Platform.OS === 'ios' && (<ActivityIndicator size="large" style={{ transform: [{ translateX: 2 }, { translateY: 2 }] }} />)}
-                        {Platform.OS !== 'ios' && (<ActivityIndicator size={64} color={Theme.loader} animating={true} />)}
+                        {Platform.OS !== 'ios' && (<ActivityIndicator size={64} color={theme.accent} animating={true} />)}
                     </Animated.View>
                 </View>
             </View>
         </GlobalLoaderContext.Provider>
     )
 })
+GlobalLoaderProvider.displayName = 'GlobalLoaderProvider';

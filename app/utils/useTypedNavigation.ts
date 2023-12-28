@@ -1,20 +1,29 @@
 import * as React from 'react';
 import { NavigationProp, ParamListBase, StackActions, useNavigation } from '@react-navigation/native';
-import { Address, Cell } from 'ton';
-import BN from 'bn.js';
+import { Address, Cell } from '@ton/core';
 import { StakingTransferParams } from '../fragments/staking/StakingTransferFragment';
 import { LedgerSignTransferParams } from '../fragments/ledger/LedgerSignTransferFragment';
-import { ZenPayAppParams } from '../fragments/zenpay/ZenPayAppFragment';
-import { TonConnectAuthProps } from '../fragments/secure/TonConnectAuthenticateFragment';
+import { TonConnectAuthProps } from '../fragments/secure/dapps/TonConnectAuthenticateFragment';
 import { TransferFragmentProps } from '../fragments/secure/TransferFragment';
 import { SimpleTransferParams } from '../fragments/secure/SimpleTransferFragment';
+import { BarCodeScanner } from 'expo-barcode-scanner';
+import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
+import { useMemo } from 'react';
 
 type Base = NavigationProp<ParamListBase>;
 
+export const nullTransfer = {
+    amount: null,
+    target: null,
+    stateInit: null,
+    job: null,
+    comment: null,
+    jetton: null,
+    callback: null
+}
+
 export function typedNavigate(src: Base, name: string, params?: any) {
-    setTimeout(() => {
-        src.navigate({ name, params: { ...params } });
-    }, src.isFocused() ? 0 : 300);
+    src.navigate({ name, params: { ...params } });
 }
 
 export function typedReplace(src: Base, name: string, params?: any) {
@@ -106,20 +115,39 @@ export class TypedNavigation {
     }
 
     navigateLedgerApp() {
-        this.navigate('LedgerApp');
+        this.navigateAndReplaceAll('LedgerApp');
     }
 
-    navigateZenPay(params: ZenPayAppParams) {
-        this.navigate('ZenPay', params);
+    navigateHolders(params: HoldersAppParams) {
+        this.navigate('Holders', params);
     }
     
     navigateConnectAuth(params: TonConnectAuthProps) {
         this.navigate('TonConnectAuthenticate', params);
     }
+
+    navigateScanner(params: { callback: (src: string) => void }, modal?: boolean) {
+        (async () => {
+            await BarCodeScanner.requestPermissionsAsync();
+            this.navigate('Scanner', params);
+        })();
+    }
+
+    navigateScreenCapture(params?: { callback: (src: string) => void, modal?: boolean }) {
+        this.navigate('ScreenCapture', params);
+    }
+
+    navigateAlert(params: { title: string, message?: string, callback?: () => void }, replace?: boolean) {
+        if (replace) {
+            this.replace('Alert', params);
+            return;
+        };
+        this.navigate('Alert', params);
+    }
 }
 
 export function useTypedNavigation() {
     const baseNavigation = useNavigation();
-    const typedNavigation = React.useMemo(() => new TypedNavigation(baseNavigation), [baseNavigation]);
+    const typedNavigation = useMemo(() => new TypedNavigation(baseNavigation), [baseNavigation]);
     return typedNavigation;
 }

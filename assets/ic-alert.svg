@@ -1,0 +1,12 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="16/ic-allert-16" clip-path="url(#clip0_8189_63900)">
+<circle id="Ellipse 2749" cx="8" cy="8" r="8" fill="#FF415C"/>
+<path id="Rectangle 2121" d="M8.99999 4.00001C8.99999 3.44772 8.55228 3 7.99999 3C7.44771 3 7 3.44771 7 3.99999L7 8.00003C7 8.5523 7.4477 9 7.99997 9C8.55224 9 8.99994 8.5523 8.99994 8.00004L8.99999 4.00001Z" fill="white"/>
+<circle id="Ellipse 323" cx="1" cy="1" r="1" transform="matrix(-1 8.74228e-08 8.74228e-08 1 9 11)" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_8189_63900">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>

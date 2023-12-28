@@ -1,8 +1,3 @@
-// Crypto
-global.Buffer = global.Buffer || require('buffer').Buffer;
-import { polyfillWebCrypto } from './app/utils/expo-standart-web-crypto/polyfillWebCrypto';
-polyfillWebCrypto();
-
 // Set up an PRNG for nacl with expo-crypto
 import nacl from 'tweetnacl';
 import { getRandomBytes } from 'expo-crypto'
@@ -17,20 +12,23 @@ nacl.setPRNG((x, n) => {
 // Navigation
 import 'react-native-gesture-handler';
 
-// Storage
-import './app/storage/appState';
-
 // App
 import * as React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, TextInput } from 'react-native';
+import { StyleSheet, Text, TextInput, Appearance } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, initialWindowMetrics } from 'react-native-safe-area-context';
 import { Root } from './app/Root';
 import { changeNavBarColor } from './app/components/modules/NavBar';
 import * as SplashScreen from 'expo-splash-screen';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
+import { getThemeStyleState } from './app/engine/state/theme';
 
-changeNavBarColor('white');
+const style = getThemeStyleState();
+const scheme = Appearance.getColorScheme();
+const isDark = style === 'dark' || (style === 'system' && scheme === 'dark');
+
+changeNavBarColor(isDark ? '#1C1C1E' : 'white');
 
 // Note that it is a bad practice to disable font scaling globally.
 // TODO: extend Text and TextInput components to support or lock font scaling.
@@ -48,10 +46,12 @@ SplashScreen.preventAutoHideAsync();
 function Boot() {
   return (
     <>
-      <StatusBar style="auto" />
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <SafeAreaProvider initialMetrics={initialWindowMetrics}>
         <GestureHandlerRootView style={styles.container}>
-          <Root />
+          <ActionSheetProvider>
+            <Root />
+          </ActionSheetProvider>
         </GestureHandlerRootView>
       </SafeAreaProvider>
     </>
@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'column',
-    backgroundColor: '#F2F2F6',
+    backgroundColor: isDark ? '#1C1C1E' : 'white',
     alignItems: 'stretch',
     justifyContent: 'center',
   },

@@ -2,7 +2,6 @@ import { RefObject } from 'react';
 import WebView, { WebViewMessageEvent } from 'react-native-webview';
 import { AppRequest, ConnectEvent, ConnectEventError as IConnectEventError, ConnectRequest, CONNECT_EVENT_ERROR_CODES, DeviceInfo, RpcMethod, SendTransactionRpcResponseError, SEND_TRANSACTION_ERROR_CODES, WalletResponse } from '@tonconnect/protocol';
 import { ConnectItemReply, KeyPair } from '@tonconnect/protocol';
-import * as t from 'io-ts';
 
 export enum CONNECT_ITEM_ERROR_CODES {
   UNKNOWN_ERROR = 0,
@@ -98,13 +97,15 @@ export type UseWebViewBridgeReturnType<Event> = [
 export class ConnectEventError implements IConnectEventError {
   event: IConnectEventError['event'];
   payload: IConnectEventError['payload'];
+  id: IConnectEventError['id'];
 
-  constructor(code = CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR, message: string) {
+  constructor(code = CONNECT_EVENT_ERROR_CODES.UNKNOWN_ERROR, message: string, id: number) {
     this.event = 'connect_error';
     this.payload = {
       code,
       message,
     };
+    this.id = id;
   }
 }
 

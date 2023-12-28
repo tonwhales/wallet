@@ -1,7 +1,7 @@
-import BN from "bn.js";
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
 import { warn } from "../../../utils/log";
 import { JettonWallet } from "../Metadata";
+import { TonClient4 } from '@ton/ton';
 
 export async function tryFetchJettonWallet(client: TonClient4, seqno: number, address: Address): Promise<JettonWallet | null> {
     let walletData = await client.runMethod(seqno, address, 'get_wallet_data');
@@ -25,17 +25,17 @@ export async function tryFetchJettonWallet(client: TonClient4, seqno: number, ad
     }
 
     // Parsing
-    let balance: BN;
+    let balance: bigint;
     let owner: Address;
     let master: Address;
     try {
         balance = walletData.result[0].value;
-        let _owner = walletData.result[1].cell.beginParse().readAddress();
+        let _owner = walletData.result[1].cell.beginParse().loadAddress();
         if (!_owner) {
             return null;
         }
         owner = _owner;
-        let _master = walletData.result[2].cell.beginParse().readAddress()
+        let _master = walletData.result[2].cell.beginParse().loadAddress();
         if (!_master) {
             return null;
         }

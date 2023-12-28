@@ -1,118 +1,70 @@
-import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Platform, View, Text, ScrollView, KeyboardAvoidingView, LayoutAnimation } from "react-native";
-import Animated, { FadeInDown, FadeInLeft, FadeOutRight } from "react-native-reanimated";
+import { Platform, View, Text, ScrollView, Image } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address } from "ton";
-import { AddressDomainInput } from "../components/AddressDomainInput";
-import { AndroidToolbar } from "../components/topbar/AndroidToolbar";
-import { ATextInputRef } from "../components/ATextInput";
-import { CloseButton } from "../components/CloseButton";
+import { Address } from "@ton/core";
 import { ContactItemView } from "../components/Contacts/ContactItemView";
 import { RoundButton } from "../components/RoundButton";
-import { useEngine } from "../engine/Engine";
 import { fragment } from "../fragment";
 import { t } from "../i18n/t";
-import { formatDate, getDateKey } from "../utils/dates";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { TransactionView } from "./wallet/views/TransactionView";
 import LottieView from 'lottie-react-native';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useClient4, useNetwork, useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
+import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
+import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
+import { useParams } from "../utils/useParams";
+import { StatusBar } from "expo-status-bar";
+import { useAddressBookContext } from "../engine/AddressBookContext";
+import { useDimensions } from "@react-native-community/hooks";
+
+const EmptyIllustrations = {
+    dark: require('@assets/empty-contacts-dark.webp'),
+    light: require('@assets/empty-contacts.webp')
+}
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const account = engine.products.main.useAccount();
-    const transactions = account?.transactions ?? [];
+    const { isTestnet } = useNetwork();
+    const { callback } = useParams<{ callback?: (address: Address) => void }>();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
-    const settings = engine.products.settings;
-    const contacts = settings.useContacts();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
+    const account = useSelectedAccount();
+    const client = useClient4(isTestnet);
+    const dimensions = useDimensions();
+    const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];
 
-    const [addingAddress, setAddingAddress] = useState(false);
-    const [domain, setDomain] = React.useState<string>();
-    const [target, setTarget] = React.useState('');
-    const [addressDomainInput, setAddressDomainInput] = React.useState('');
-    const inputRef: React.RefObject<ATextInputRef> = React.createRef();
-    const validAddress = useMemo(() => {
-        try {
-            const valid = target.trim();
-            Address.parse(valid);
-            return valid;
-        } catch (error) {
-            return null;
-        }
-    }, [target]);
+    const [search, setSearch] = useState('');
+    const [searchFocused, setSearchFocused] = useState(false);
 
-    const onAddContact = useCallback(
-        () => {
-            if (validAddress) {
-                setAddingAddress(false);
-                navigation.navigate('Contact', { address: validAddress });
+    const transactionsAddresses = useMemo(() => {
+        const addresses = new Set<string>();
+        // first 10 transactions
+        transactions.slice(0, 10).forEach((t) => {
+            if (t && !!t.base.operation.address) {
+                addresses.add(t.base.operation.address);
             }
-        },
-        [validAddress],
-    );
-
-    const contactsList = useMemo(() => {
-        return Object.entries(contacts);
-    }, [contacts]);
-
-    const editContact = useMemo(() => {
-        return !!contactsList.find(([key, value]) => {
-            return key === target
         });
-    }, [contactsList, target]);
-
-    const transactionsComponents: any[] = React.useMemo(() => {
-        let transactionsSectioned: { title: string, items: string[] }[] = [];
-        if (transactions.length > 0) {
-            let lastTime: string = getDateKey(transactions[0].time);
-            let lastSection: string[] = [];
-            let title = formatDate(transactions[0].time);
-            transactionsSectioned.push({ title, items: lastSection });
-            for (let t of transactions.length >= 3 ? transactions.slice(0, 3) : transactions) {
-                let time = getDateKey(t.time);
-                if (lastTime !== time) {
-                    lastSection = [];
-                    lastTime = time;
-                    title = formatDate(t.time);
-                    transactionsSectioned.push({ title, items: lastSection });
-                }
-                lastSection.push(t.id);
-            }
-        }
-
-        const views = [];
-        for (let s of transactionsSectioned) {
-            views.push(
-                <View key={'t-' + s.title} style={{ marginTop: 8, backgroundColor: Theme.background }} collapsable={false}>
-                    <Text style={{ fontSize: 18, fontWeight: '700', marginHorizontal: 16, marginVertical: 8 }}>{s.title}</Text>
-                </View>
-            );
-            views.push(
-                <View
-                    key={'s-' + s.title}
-                    style={{ marginHorizontal: 16, borderRadius: 14, backgroundColor: Theme.item, overflow: 'hidden' }}
-                    collapsable={false}
-                >
-                    {s.items.map((t, i) => <TransactionView
-                        own={engine.address}
-                        engine={engine}
-                        tx={t}
-                        separator={i < s.items.length - 1}
-                        key={'tx-' + t}
-                        onPress={() => { }}
-                    />)}
-                </View >
-            );
-        }
-        return views;
+        return Array.from(addresses).map((addr) => Address.parse(addr));
     }, [transactions]);
 
-    useLayoutEffect(() => {
-        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    }, [addingAddress]);
+    const contactsList = useMemo(() => {
+        if (search && search.length > 0) {
+            return Object.entries(contacts).filter((d) => {
+                const addr = d[0];
+                const contact = d[1];
+                const name = contact.name;
+                const lastName = contact.fields?.find((f) => f.key === 'lastName')?.value;
+                return (addr + name + (lastName ? ` ${lastName}` : '')).toLowerCase().includes(search.toLowerCase());
+            });
+        }
+        return Object.entries(contacts);
+    }, [contacts, search]);
+
+
+    const onAddContact = useCallback(() => {
+        navigation.navigate('Contact', { isNew: true });
+    }, []);
 
     // 
     // Lottie animation
@@ -126,195 +78,123 @@ export const ContactsFragment = fragment(() => {
         }
     }, []);
 
+    useScreenHeader(
+        navigation,
+        theme,
+        {
+            title: t('contacts.title'),
+            headerShown: true,
+            headerLargeTitle: true,
+            tintColor: theme.accent,
+            contentStyle: Platform.select({
+                ios: {
+                    borderTopEndRadius: 0, borderTopStartRadius: 0,
+                    paddingBottom: (safeArea.bottom === 0 ? 24 : safeArea.bottom) + 16,
+                    backgroundColor: theme.elevation
+                },
+                android: { backgroundColor: theme.backgroundPrimary }
+            }),
+            onClosePressed: Platform.OS === 'ios' ? navigation.goBack : undefined,
+            headerSearchBarOptions: Object.entries(contacts).length > 0 ? {
+                hideWhenScrolling: false,
+                hideNavigationBar: false,
+                onFocus: () => setSearchFocused(true),
+                onBlur: () => setSearchFocused(false),
+                onChangeText: (event) => setSearch(event.nativeEvent.text),
+                placeholder: t('contacts.search'),
+                onCancelButtonPress: () => setSearch('')
+            } : undefined,
+        }
+    );
+
     return (
         <View style={{
             flex: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
+            paddingBottom: safeArea.bottom + 16,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar pageTitle={t('contacts.title')} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    marginTop: 17,
-                    height: 32
-                }}>
-                    <Text style={[{
-                        fontWeight: '600',
-                        fontSize: 17
-                    }, { textAlign: 'center' }]}>
-                        {t('contacts.title')}
-                    </Text>
-                </View>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            {(Object.entries(contacts).length <= 0) && (
+                <ScreenHeader
+                    title={t('contacts.title')}
+                    onClosePressed={navigation.goBack}
+                />
             )}
-            {(!contactsList || contactsList.length === 0) && (
-                <View style={{
-                    flex: 1,
-                    justifyContent: 'center', alignItems: 'center'
-                }}>
-                    <View style={{ alignItems: 'center', paddingHorizontal: 16, }}>
-                        <LottieView
-                            ref={anim}
-                            source={require('../../assets/animations/empty.json')}
-                            autoPlay={true}
-                            loop={true}
-                            style={{ width: 128, height: 128, maxWidth: 140, maxHeight: 140 }}
-                        />
-                        <Text style={{
-                            fontSize: 18,
-                            fontWeight: '700',
-                            marginHorizontal: 8,
-                            marginBottom: 8,
-                            textAlign: 'center',
-                            color: Theme.textColor,
-                        }}
-                        >
-                            {t('contacts.empty')}
-                        </Text>
-                        <Text style={{
-                            fontSize: 16,
-                            color: Theme.priceSecondary
+            {(!contactsList || contactsList.length === 0) ? (
+                <>
+                    <View style={{ alignItems: 'center' }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.72,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginTop: 20
                         }}>
-                            {t('contacts.description')}
-                        </Text>
-                    </View>
-                    <View style={{ width: '100%' }}>
-                        {transactionsComponents}
-                    </View>
-                </View>
-            )}
-            {(contactsList && contactsList.length > 0) && (
-                <ScrollView style={{ flexGrow: 1 }}>
-                    <View style={{
-                        marginBottom: 16, marginTop: 17,
-                        borderRadius: 14,
-                        paddingHorizontal: 16,
-                        flexShrink: 1,
-                    }}>
-                        {contactsList.map((d) => {
-                            return (
-                                <ContactItemView
-                                    key={`contact-${d[0]}`}
-                                    addr={d[0]}
-                                    contact={d[1]}
-                                />
-                            );
-                        })}
-                    </View>
-                </ScrollView>
-            )}
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                style={{
-                    marginTop: 16,
-                    marginBottom: safeArea.bottom + 16,
-                    position: 'absolute', bottom: 0, left: 16, right: 16,
-                }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
-            >
-                {addingAddress && (
-                    <>
-                        {Platform.OS === 'android' && (
-                            <Animated.View entering={FadeInDown}>
-                                <View style={{
-                                    marginBottom: 16, marginTop: 17,
-                                    backgroundColor: Theme.item,
-                                    borderRadius: 14,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                    <AddressDomainInput
-                                        input={addressDomainInput}
-                                        onInputChange={setAddressDomainInput}
-                                        target={target}
-                                        index={1}
-                                        ref={inputRef}
-                                        onTargetChange={setTarget}
-                                        onDomainChange={setDomain}
-                                        style={{
-                                            backgroundColor: Theme.transparent,
-                                            paddingHorizontal: 0,
-                                            marginHorizontal: 16,
-                                        }}
-                                        onSubmit={onAddContact}
-                                        labelText={t('contacts.contactAddress')}
-                                    />
-                                </View>
-                            </Animated.View>
-                        )}
-                        {Platform.OS !== 'android' && (
-                            <View style={{
-                                marginBottom: 16, marginTop: 17,
-                                backgroundColor: Theme.item,
-                                borderRadius: 14,
-                                justifyContent: 'center',
-                                alignItems: 'center',
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -66 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <View style={{ alignItems: 'center', paddingHorizontal: 16, marginTop: 32 }}>
+                            <Text style={{
+                                fontSize: 32, lineHeight: 38,
+                                fontWeight: '600',
+                                marginBottom: 16,
+                                textAlign: 'center',
+                                color: theme.textPrimary,
+                            }}
+                            >
+                                {t('contacts.empty')}
+                            </Text>
+                            <Text style={{
+                                fontSize: 17, lineHeight: 24,
+                                fontWeight: '400',
+                                color: theme.textSecondary,
+                                textAlign: 'center'
                             }}>
-                                <AddressDomainInput
-                                    input={addressDomainInput}
-                                    onInputChange={setAddressDomainInput}
-                                    target={target}
-                                    index={1}
-                                    ref={inputRef}
-                                    onTargetChange={setTarget}
-                                    onDomainChange={setDomain}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0,
-                                        marginHorizontal: 16,
-                                    }}
-                                    onSubmit={onAddContact}
-                                    labelText={t('contacts.contactAddress')}
-                                />
-                            </View>
-                        )}
-                    </>
-                )}
-                <View style={{ flexDirection: 'row', width: '100%' }}>
-                    {addingAddress && (
-                        <>
-                            {Platform.OS === 'android' && (
-                                <Animated.View entering={FadeInLeft} exiting={FadeOutRight}>
-                                    <RoundButton
-                                        title={t('common.cancel')}
-                                        disabled={!addingAddress}
-                                        onPress={() => setAddingAddress(false)}
-                                        display={'secondary'}
-                                        style={{ flexGrow: 1, marginRight: 8 }}
-                                    />
-                                </Animated.View>
-                            )}
-                            {Platform.OS !== 'android' && (
-                                <RoundButton
-                                    title={t('common.cancel')}
-                                    disabled={!addingAddress}
-                                    onPress={() => setAddingAddress(false)}
-                                    display={'secondary'}
-                                    style={{ flexGrow: 1, marginRight: 8 }}
-                                />
-                            )}
-                        </>
-                    )}
-                    <RoundButton
-                        title={addingAddress && editContact ? t('contacts.edit') : t('contacts.add')}
-                        style={{ flexGrow: 1 }}
-                        disabled={addingAddress && !validAddress}
-                        onPress={() => {
-                            if (addingAddress) {
-                                onAddContact();
-                                return;
-                            }
-                            setAddingAddress(true);
-                        }}
-                        display={'default'}
-                    />
-                </View>
-            </KeyboardAvoidingView>
-            {Platform.OS === 'ios' && (
-                <CloseButton
-                    style={{ position: 'absolute', top: 12, right: 10 }}
-                    onPress={() => {
-                        navigation.goBack();
-                    }}
+                                {t('contacts.description')}
+                            </Text>
+                        </View>
+
+                    </View>
+                    <ScrollView
+                        style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom, marginTop: 16 }}
+                        showsVerticalScrollIndicator={true}
+                    >
+                        {transactionsAddresses.map((a, index) => {
+                            return (<ContactTransactionView key={`recent-${index}`} address={a} />);
+                        })}
+                    </ScrollView>
+                </>
+            ) : (
+                <ScrollView
+                    style={{ flexGrow: 1, paddingHorizontal: 16, paddingBottom: safeArea.bottom }}
+                    showsVerticalScrollIndicator={true}
+                >
+                    {contactsList.map((d) => {
+                        return (
+                            <ContactItemView
+                                key={`contact-${d[0]}`}
+                                addr={d[0]}
+                                action={callback}
+                            />
+                        );
+                    })}
+                </ScrollView>
+
+            )}
+            {!callback && (
+                <RoundButton
+                    title={t('contacts.add')}
+                    onPress={onAddContact}
+                    style={[
+                        { marginHorizontal: 16 },
+                        Platform.select({ ios: { marginBottom: (contactsList && contactsList.length > 0) ? 16 + 56 + safeArea.bottom : 0 } })
+                    ]}
                 />
             )}
         </View>

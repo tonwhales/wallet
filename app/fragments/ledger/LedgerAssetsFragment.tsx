@@ -1,34 +1,34 @@
-import { StatusBar } from "expo-status-bar";
 import { useCallback, useMemo } from "react";
 import { Platform, View, Text, ScrollView } from "react-native";
 import { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CloseButton } from "../../components/CloseButton";
-import { useEngine } from "../../engine/Engine";
-import { JettonState } from "../../engine/products/WalletProduct";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import TonIcon from '../../../assets/ic_ton_account.svg';
-import BN from "bn.js";
-import { Address } from "ton";
+import TonIcon from '../../../assets/ic-ton-acc.svg';
+import { Address } from "@ton/core";
 import { AnimatedProductButton } from "../wallet/products/AnimatedProductButton";
 import { JettonProduct } from "../wallet/products/JettonProduct";
-import { useTransport } from "./components/TransportContext";
+import { useLedgerTransport } from "./components/TransportContext";
 import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
+import { useJettons, useTheme } from '../../engine/hooks';
+import { useAccountLite } from '../../engine/hooks';
+import { Jetton } from '../../engine/types';
+import { CloseButton } from "../../components/navigation/CloseButton";
 
 export const LedgerAssetsFragment = fragment(() => {
     const { target, callback } = useParams<{ target?: string, callback?: (address?: Address) => void }>();
     const safeArea = useSafeAreaInsets();
+    const theme = useTheme();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const { addr } = useTransport();
-    const address = useMemo(() => Address.parse(addr!.address), [addr]);
-    const jettons = engine.products.ledger.useJettons(address)?.jettons ?? [];
-    const account = engine.products.ledger.useAccount();
+    const { addr } = useLedgerTransport();
+    const addressParsed = useMemo(() => Address.parse(addr!.address), [addr]);
+    const address = useMemo(() => addressParsed.toString({ testOnly: false }), [addressParsed]);
+    const jettons = useJettons(address);
+    const account = useAccountLite(addressParsed);
 
-    const navigateToJettonTransfer = useCallback((jetton: JettonState) => {
+    const navigateToJettonTransfer = useCallback((jetton: Jetton) => {
         navigation.replace('LedgerTransfer', {
             amount: null,
             target: target,
@@ -52,7 +52,6 @@ export const LedgerAssetsFragment = fragment(() => {
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar pageTitle={t('products.accounts')} />
             {Platform.OS === 'ios' && (
                 <View style={{
@@ -61,7 +60,8 @@ export const LedgerAssetsFragment = fragment(() => {
                 }}>
                     <Text style={[{
                         fontWeight: '600',
-                        fontSize: 17
+                        fontSize: 17,
+                        color: theme.textPrimary
                     }, { textAlign: 'center' }]}>
                         {t('products.accounts')}
                     </Text>
@@ -80,7 +80,7 @@ export const LedgerAssetsFragment = fragment(() => {
                         name={'TON'}
                         subtitle={t('common.balance')}
                         icon={TonIcon}
-                        value={account?.balance ?? new BN(0)}
+                        value={account?.balance ?? BigInt(0)}
                         onPress={() => {
                             if (callback) {
                                 onCallback();
@@ -99,13 +99,12 @@ export const LedgerAssetsFragment = fragment(() => {
                         extension={true}
                         style={{ marginVertical: 4 }}
                     />
-                    {jettons.map((j) => {
+                    {jettons.map((j: any) => {
                         return (
                             <JettonProduct
-                                key={'jt' + j.wallet.toFriendly()}
+                                key={'jt' + j.wallet.toString()}
                                 jetton={j}
                                 navigation={navigation}
-                                engine={engine}
                                 onPress={() => {
                                     if (callback) {
                                         onCallback(j.master);

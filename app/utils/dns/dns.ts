@@ -1,16 +1,17 @@
-import BN from "bn.js";
-import { Address, Cell, StackItem, TonClient4 } from "ton";
-import { sha256 } from "ton-crypto";
+import { Address, Cell, TupleItem, beginCell } from "@ton/core";
+import { sha256 } from "@ton/crypto";
 import { bytesToHex } from "./bytesToHex";
+import { TonClient4 } from '@ton/ton';
+import { backoff } from '../time';
 
 export const DNS_CATEGORY_NEXT_RESOLVER = 'dns_next_resolver'; // Smart Contract address
 export const DNS_CATEGORY_WALLET = 'wallet'; // Smart Contract address
 export const DNS_CATEGORY_SITE = 'site'; // ADNL address
 
 export async function categoryToBN(category: string | undefined) {
-    if (!category) return new BN(0); // all categories
+    if (!category) return BigInt(0); // all categories
     const categoryHash = await sha256(Buffer.from(category, 'utf8'));
-    return new BN(bytesToHex(categoryHash), 16);
+    return BigInt('0x' + bytesToHex(categoryHash));
 }
 
 export async function editWalletPayload(addr: string) {
@@ -36,44 +37,44 @@ export async function editResolverPayload(addr: string) {
 }
 
 export async function createChangeDnsContentPayload(params: { category: string, value: Cell | null, queryId?: number }) {
-    const changeContent = new Cell;
-    changeContent.bits.writeUint(0x4eb1f0f9, 32); // OP
-    changeContent.bits.writeUint(params.queryId || 0, 64); // query_id
-    changeContent.bits.writeUint(await categoryToBN(params.category), 256);
+    const changeContent = beginCell();
+    changeContent.storeUint(0x4eb1f0f9, 32); // OP
+    changeContent.storeUint(params.queryId || 0, 64); // query_id
+    changeContent.storeUint(await categoryToBN(params.category), 256);
 
     if (params.value) {
-        changeContent.refs[0] = params.value;
+        changeContent.storeRef(params.value);
     }
-    return changeContent
+    return changeContent.endCell();
 }
 
 export function createSmartContractAddressRecord(smartContractAddress: Address) {
-    const cell = new Cell();
-    cell.bits.writeUint(0x9fd3, 16); // https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L827
-    cell.bits.writeAddress(smartContractAddress);
-    cell.bits.writeUint(0, 8); // flags
-    return cell;
+    const cell = beginCell();
+    cell.storeUint(0x9fd3, 16); // https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L827
+    cell.storeAddress(smartContractAddress);
+    cell.storeUint(0, 8); // flags
+    return cell.endCell();
 }
 
 export function createNextResolverRecord(smartContractAddress: Address) {
-    const cell = new Cell();
-    cell.bits.writeUint(0xba93, 16); // https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
-    cell.bits.writeAddress(smartContractAddress);
-    return cell;
-}
-
-function parseStackItemAddress(item: StackItem) {
-    if (item.type !== 'slice') {
-        return null;
-    }
-
-    return item.cell.beginParse().readAddress();
+    const cell = beginCell();
+    cell.storeUint(0xba93, 16); // https://github.com/ton-blockchain/ton/blob/7e3df93ca2ab336716a230fceb1726d81bac0a06/crypto/block/block.tlb#L819
+    cell.storeAddress(smartContractAddress);
+    return cell.endCell();
 }
 
 export type AuctionInfo = {
     maxBidAddress: Address | null,
-    maxBidAmount: BN,
+    maxBidAmount: bigint,
     auctionEndTime: number
+}
+
+function parseStackItemAddress(item: TupleItem) {
+    if (item.type !== 'slice') {
+        return null;
+    }
+
+    return item.cell.beginParse().loadAddress();
 }
 
 export async function getAuctionInfo(tonClient4: TonClient4, seqno: number, address: Address): Promise<AuctionInfo | null> {
@@ -82,7 +83,7 @@ export async function getAuctionInfo(tonClient4: TonClient4, seqno: number, addr
     if (result[0].type !== 'slice') {
         return null;
     }
-    const maxBidAddress = result[0].cell.beginParse().readAddress();
+    const maxBidAddress = result[0].cell.beginParse().loadAddress();
     if (result[1].type !== 'int') {
         return null;
     }
@@ -90,14 +91,14 @@ export async function getAuctionInfo(tonClient4: TonClient4, seqno: number, addr
     if (result[2].type !== 'int') {
         return null;
     }
-    const auctionEndTime = result[2].value.toNumber();
+    const auctionEndTime = Number(result[2].value);
     return { maxBidAddress, maxBidAmount, auctionEndTime };
 }
 
 export async function getDnsData(tonClient4: TonClient4, seqno: number, address: Address) {
     const result = (await tonClient4.runMethod(seqno, address, 'get_nft_data')).result;
 
-    const isInitialized = result[0].type === 'int' ? result[0].value.toNumber() === -1 : false;
+    const isInitialized = result[0].type === 'int' ? Number(result[0].value) === -1 : false;
     const index = result[1].type === 'int' ? result[1].value : null;
     const collectionAddress = parseStackItemAddress(result[2]);
     const ownerAddress = isInitialized ? parseStackItemAddress(result[3]) : null;
@@ -113,7 +114,7 @@ export async function getDnsData(tonClient4: TonClient4, seqno: number, address:
 export async function getDnsLastFillUpTime(tonClient4: TonClient4, seqno: number, address: Address) {
     const result = (await tonClient4.runMethod(seqno, address, 'get_last_fill_up_time')).result;
 
-    return result[0].type === 'int' ? result[0].value.toNumber() : 0;
+    return result[0].type === 'int' ? Number(result[0].value) : 0;
 }
 
 function domainToBytes(domain: string) {
@@ -159,10 +160,10 @@ function domainToBytes(domain: string) {
 
 function parseSmartContractAddressImpl(cell: Cell, prefix0: number, prefix1: number) {
     const slice = cell.beginParse();
-    const pref0 = slice.readUintNumber(8);
-    const pref1 = slice.readUintNumber(8);
+    const pref0 = slice.loadUint(8);
+    const pref1 = slice.loadUint(8);
     if (pref0 !== prefix0 || pref1 !== prefix1) throw new Error('Invalid dns record value prefix');
-    return slice.readAddress();
+    return slice.loadAddress();
 }
 
 function parseSmartContractAddressRecord(cell: Cell) {
@@ -173,16 +174,16 @@ function parseNextResolverRecord(cell: Cell) {
     return parseSmartContractAddressImpl(cell, 0xba, 0x93);
 }
 
-async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress: Address, rawDomainBytes: Uint8Array, category?: string, oneStep?: boolean): Promise<Address | Cell | BN | null> {
+async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress: Address, rawDomainBytes: Uint8Array, category?: string, oneStep?: boolean): Promise<Address | Cell | bigint | null> {
     const len = rawDomainBytes.length * 8;
 
-    const domainCell = new Cell();
+    const domainCell = beginCell();
     for (let i = 0; i < rawDomainBytes.length; i++) {
-        domainCell.bits.writeUint8(rawDomainBytes[i]);
+        domainCell.storeUint(rawDomainBytes[i], 8);
     }
 
     const categoryBN = await categoryToBN(category);
-    const result = (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell }, { type: 'int', value: categoryBN }])).result;
+    const result = await backoff('dns-resolve', async () => (await tonClient4.runMethod(seqno, dnsAddress, 'dnsresolve', [{ type: 'slice', cell: domainCell.endCell() }, { type: 'int', value: categoryBN }])).result);
 
     if (result.length !== 2) {
         throw new Error('Invalid dnsresolve response, res.length !== 2');
@@ -191,7 +192,7 @@ async function dnsResolveImpl(tonClient4: TonClient4, seqno: number, dnsAddress:
     if (result[0].type !== 'int') {
         throw new Error('Invalid dnsresolve response, res[0].type !== int');
     }
-    const resultLen = result[0].value.toNumber();
+    const resultLen = Number(result[0].value);
 
     if (result[1].type === 'null') {
         return null;

@@ -1,27 +1,18 @@
-import BN from "bn.js";
-import { Address, Cell } from "ton";
-import { JettonMasterState } from "../../engine/sync/startJettonMasterSync";
-import { ContractMetadata } from "../../engine/metadata/Metadata";
-import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { Body, Transaction } from "../../engine/Transaction";
+import { Address } from "@ton/core";
 import { formatSupportedBody } from "./formatSupportedBody";
-import { parseMessageBody } from "../../engine/transactions/parseMessageBody";
-import { Operation, OperationItem } from "./types";
-import { t } from "../../i18n/t";
+import { parseMessageBody } from "./parseMessageBody";
+import { parseBody } from './parseWalletTransaction';
+import { LocalizedResources } from "../../i18n/schema";
+import { StoredOperation, StoredOperationItem, TxBody } from '../types';
 
 export function resolveOperation(args: {
     account: Address,
-    amount: BN,
-    body: Body | null,
-    metadata: ContractMetadata | null,
-    jettonMaster: JettonMasterState | null
-}): Operation {
+    amount: bigint,
+    body: TxBody | null,
+}, isTestnet: boolean): StoredOperation {
 
     // Resolve default address
     let address: Address = args.account;
-
-    // Avatar image
-    let image: string | undefined = undefined;
 
     // Comment
     let comment: string | undefined = undefined;
@@ -29,88 +20,54 @@ export function resolveOperation(args: {
         comment = args.body.comment;
     }
 
-    // Resolve default name
-    let op: string | undefined = undefined;
-
-    // Resolve default name
-    let title: string | undefined = undefined;
+    // Resolve default op
+    let op: { res: LocalizedResources, options?: any } | undefined = undefined;
 
     // Resolve default items
-    let items: OperationItem[] = [];
-    items.push({ kind: 'ton', amount: args.amount });
+    let items: StoredOperationItem[] = [];
+    items.push({ kind: 'ton', amount: args.amount.toString(10) });
 
     // Simple payload overwrite
-    if (args.body && args.body.type === 'payload' && args.metadata && !args.jettonMaster) {
-        let parsedBody = parseMessageBody(args.body.cell, args.metadata.interfaces);
+    if (args.body && args.body.type === 'payload') {
+        let parsedBody = parseMessageBody(args.body.cell);
         if (parsedBody) {
             let f = formatSupportedBody(parsedBody);
             if (f) {
-                op = f.text;
+                op = f;
             }
-        }
-    }
 
-    // Jetton payloads
-    if (args.body && args.body.type === 'payload' && args.jettonMaster && args.jettonMaster.symbol && args.metadata && args.metadata.jettonWallet) {
-        let parsedBody = parseMessageBody(args.body.cell, ['311736387032003861293477945447179662681']);
-        if (parsedBody) {
-            let f = formatSupportedBody(parsedBody);
-            if (f) {
-                op = f.text;
-            }
             if (parsedBody.type === 'jetton::transfer') {
-                address = parsedBody.data['destination'] as Address;
-                let amount = parsedBody.data['amount'] as BN;
-                let symbol = args.jettonMaster.symbol;
-                let decimals = args.jettonMaster.decimals;
-                items.unshift({ kind: 'token', amount, symbol, decimals });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
+                address = parsedBody.data.destination;
+                let amount = parsedBody.data.amount;
+                items.unshift({ kind: 'token', amount: amount.toString(10) });
+                let body = parseBody(parsedBody.data.forwardPayload);
                 if (body && body.type === 'comment') {
                     comment = body.comment;
                 }
-                op = t('tx.tokenTransfer');
+                op = { res: 'tx.tokenTransfer' };
             } else if (parsedBody.type === 'jetton::transfer_notification') {
                 if (parsedBody.data['sender']) {
-                    address = parsedBody.data['sender'] as Address;
+                    address = parsedBody.data.sender;
                 } else {
-                    op = 'airdrop';
-                    address = args.metadata.jettonWallet.master;
+                    op = { res: 'common.airdrop' };
                 }
-                let amount = parsedBody.data['amount'] as BN;
-                let symbol = args.jettonMaster.symbol;
-                let decimals = args.jettonMaster.decimals;
-                items.unshift({ kind: 'token', amount, symbol, decimals });
-                let body = parseBody(parsedBody.data['payload'] as Cell);
-                if (body && body.type === 'comment') {
-                    comment = body.comment;
-                }
-            } else {
-                if (args.jettonMaster && args.jettonMaster.image) {
-                    image = args.jettonMaster.image.preview256;
+                let amount = parsedBody.data.amount;
+                items.unshift({ kind: 'token', amount: amount.toString(10) });
+                if (!!parsedBody.data.forwardPayload) {
+                    let body = parseBody(parsedBody.data.forwardPayload);
+                    if (body && body.type === 'comment') {
+                        comment = body.comment;
+                    }
                 }
             }
-        } else {
-            if (args.jettonMaster && args.jettonMaster.image) {
-                image = args.jettonMaster.image.preview256;
-            }
-        }
-    }
-
-    // Resolve jetton name
-    if (args.metadata && args.metadata.jettonMaster && args.jettonMaster && args.jettonMaster.name) {
-        title = args.jettonMaster.name;
-        if (args.jettonMaster.image) {
-            image = args.jettonMaster.image.preview256;
         }
     }
 
 
     return {
-        address,
-        title,
-        op,
+        address: address.toString({ testOnly: isTestnet }),
         items,
-        image,
-        comment
+        comment,
+        op
     }
 }

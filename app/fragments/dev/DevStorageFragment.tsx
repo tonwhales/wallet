@@ -3,10 +3,11 @@ import { View } from 'react-native';
 import { Item } from '../../components/Item';
 import { fragment } from '../../fragment';
 import { getApplicationKey, getBiometricsState, getPasscodeState, loadKeyStorageRef, loadKeyStorageType } from '../../storage/secureStorage';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { ItemButton } from '../../components/ItemButton';
 import { ScrollView } from 'react-native-gesture-handler';
 import { ItemGroup } from '../../components/ItemGroup';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
 
 function loadStorageState() {
     const biometricsState = getBiometricsState();
@@ -18,7 +19,8 @@ function loadStorageState() {
 }
 
 export const DevStorageFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     let [value, setValue] = React.useState('');
 
@@ -41,10 +43,10 @@ export const DevStorageFragment = fragment(() => {
 
     return (
         <ScrollView style={{ flexGrow: 1 }}>
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, paddingHorizontal: 16 }}>
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, paddingHorizontal: 16 }}>
                 <ItemGroup style={{
                     marginBottom: 16, marginTop: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.surfaceOnBg,
                     borderRadius: 16,
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -63,7 +65,7 @@ export const DevStorageFragment = fragment(() => {
 
                 <ItemGroup style={{
                     marginBottom: 16,
-                    backgroundColor: Theme.item,
+                    backgroundColor: theme.surfaceOnBg,
                     borderRadius: 14,
                     justifyContent: 'center',
                     alignItems: 'center',

@@ -1,16 +1,18 @@
-import React from "react";
+import React, { memo } from "react";
 import { Pressable } from "react-native";
-import ImgKey0 from '../../../assets/letter_0.svg';
-import ImgKey1 from '../../../assets/letter_1.svg';
-import ImgKey2 from '../../../assets/letter_2.svg';
-import ImgKey3 from '../../../assets/letter_3.svg';
-import ImgKey4 from '../../../assets/letter_4.svg';
-import ImgKey5 from '../../../assets/letter_5.svg';
-import ImgKey6 from '../../../assets/letter_6.svg';
-import ImgKey7 from '../../../assets/letter_7.svg';
-import ImgKey8 from '../../../assets/letter_8.svg';
-import ImgKey9 from '../../../assets/letter_9.svg';
-import ImgKeyBackspace from '../../../assets/letter_backspace.svg';
+import { useTheme } from "../../engine/hooks";
+
+import ImgKey0 from '@assets/letter_0.svg';
+import ImgKey1 from '@assets/letter_1.svg';
+import ImgKey2 from '@assets/letter_2.svg';
+import ImgKey3 from '@assets/letter_3.svg';
+import ImgKey4 from '@assets/letter_4.svg';
+import ImgKey5 from '@assets/letter_5.svg';
+import ImgKey6 from '@assets/letter_6.svg';
+import ImgKey7 from '@assets/letter_7.svg';
+import ImgKey8 from '@assets/letter_8.svg';
+import ImgKey9 from '@assets/letter_9.svg';
+import ImgKeyBackspace from '@assets/letter_backspace.svg';
 
 export enum PasscodeKey {
     One = '1',
@@ -41,7 +43,7 @@ const keyImages: { [key: string]: any } = {
     [PasscodeKey.Backspace]: ImgKeyBackspace,
 }
 
-export const PasscodeKeyButton = React.memo((
+export const PasscodeKeyButton = memo((
     {
         passcodeKey,
         onPress
@@ -49,6 +51,7 @@ export const PasscodeKeyButton = React.memo((
         passcodeKey: PasscodeKey,
         onPress: () => void,
     }) => {
+    const  theme = useTheme();
 
     const Img = keyImages[passcodeKey];
 
@@ -58,14 +61,14 @@ export const PasscodeKeyButton = React.memo((
             onPress={onPress}
             style={({ pressed }) => {
                 return {
-                    opacity: pressed ? 0.5 : 1,
-                    height: 60, width: 100,
+                    height: 60, width: 60,
                     justifyContent: 'center', alignItems: 'center',
-                    marginHorizontal: 10
+                    marginHorizontal: 30, borderRadius: 30,
+                    backgroundColor: pressed ? theme.border : undefined,
                 }
             }}
         >
-            <Img color={'#000'} style={{ height: 60, width: 100 }} />
+            <Img color={theme.textPrimary} style={{ height: 60, width: 60 }} />
         </Pressable>
     );
 });

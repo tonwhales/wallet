@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import axios from 'axios';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
 import { getAppInstanceKeyPair } from '../storage/appState';
 import { Platform } from 'react-native';
 
@@ -24,7 +24,7 @@ export const registerForPushNotificationsAsync = async () => {
         if (finalStatus !== 'granted') {
             return null;
         }
-        return (await Notifications.getExpoPushTokenAsync({ experienceId: '@ex3ndr/wallet' })).data;
+        return (await Notifications.getExpoPushTokenAsync()).data;
     } else {
         return null;
     }
@@ -34,6 +34,6 @@ export async function registerPushToken(token: string, addresses: Address[], isT
     await axios.post('https://connect.tonhubapi.com/push/register', {
         token,
         appPublicKey: (await getAppInstanceKeyPair()).publicKey.toString('base64'),
-        addresses: addresses.map((v) => v.toFriendly({ testOnly: isTestnet }))
+        addresses: addresses.map((v) => v.toString({ testOnly: isTestnet }))
     }, { method: 'POST' });
 }

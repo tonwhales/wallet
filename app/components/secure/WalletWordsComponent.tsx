@@ -1,17 +1,17 @@
 import React from "react";
 import { DeviceEncryption, getDeviceEncryption } from "../../storage/getDeviceEncryption";
-import { useAppConfig } from "../../utils/AppConfigContext";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
-import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo } from "react-native-reanimated";
+import Animated, { measure, runOnUI, useAnimatedRef, useAnimatedScrollHandler, useSharedValue, scrollTo, AnimatedRef } from "react-native-reanimated";
 import { Alert, Platform, View, Text, InputAccessoryView } from "react-native";
 import { WordInput, WordInputRef, normalize, wordsTrie } from "../../fragments/onboarding/WalletImportFragment";
-import { mnemonicValidate } from "ton-crypto";
 import { t } from "../../i18n/t";
 import { warn } from "../../utils/log";
 import { RoundButton } from "../RoundButton";
-import { StatusBar } from "expo-status-bar";
 import { AutocompleteView } from "../AutocompleteView";
+import { useTheme } from "../../engine/hooks";
+import { mnemonicValidate } from "@ton/crypto";
+import { randomEngLetter } from "../../utils/randomEngLetter";
 
 export const WalletWordsComponent = React.memo((props: {
     onComplete: (v: {
@@ -19,12 +19,12 @@ export const WalletWordsComponent = React.memo((props: {
         deviceEncryption: DeviceEncryption
     }) => void,
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
 
     // References to all fields
-    const animatedRefs: React.RefObject<View>[] = [];
+    const animatedRefs: AnimatedRef<View>[] = [];
     for (let i = 0; i < 24; i++) {
         animatedRefs.push(useAnimatedRef());
     }
@@ -47,14 +47,12 @@ export const WalletWordsComponent = React.memo((props: {
         let w = normalize(words[selectedWord]);
         return (w.length > 0)
             ? wordsTrie.find(w)
-            : [];
-    }, [words[selectedWord]]);
+            : wordsTrie.find(randomEngLetter());
+    }, [selectedWord, words[selectedWord]]);
 
     // Submit Callback (does not re-create during re-render)
     const wordsRef = React.useRef(words);
-    // React.useEffect(() => {
-    //     wordsRef.current = words;
-    // }, [words]);
+
     const onSubmitEnd = React.useCallback(async () => {
         let wordsLocal = wordsRef.current;
         let normalized = wordsLocal.map((v) => v.toLowerCase().trim());
@@ -139,6 +137,14 @@ export const WalletWordsComponent = React.memo((props: {
     }, []);
 
     const onSetValue = React.useCallback((index: number, value: string) => {
+        if (value.split(' ').length === 24) {
+            wordsRef.current = value.split(' ');
+            setWords(value.split(' '));
+            runOnUI(scrollToInput)(23);
+            setSelectedWord(23);
+            refs[23].current?.focus();
+            return;
+        }
         let r = [...wordsRef.current];
         r[index] = value;
         wordsRef.current = r;
@@ -187,29 +193,27 @@ export const WalletWordsComponent = React.memo((props: {
 
     let wordComponents: any[] = [];
     for (let i = 0; i < 24; i++) {
-        wordComponents.push(<WordInput
-            key={"word-" + i}
-            index={i}
-            innerRef={animatedRefs[i]}
-            ref={refs[i]}
-            value={words[i]}
-            setValue={onSetValue}
-            onFocus={onFocus}
-            onSubmit={onSubmit}
-        />);
-        if (i < 23) {
-            wordComponents.push(<View key={'sep-' + i} style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 17 }} />);
-        }
+        wordComponents.push(
+            <WordInput
+                key={"word-" + i}
+                index={i}
+                innerRef={animatedRefs[i]}
+                ref={refs[i]}
+                value={words[i]}
+                setValue={onSetValue}
+                onFocus={onFocus}
+                onSubmit={onSubmit}
+            />
+        );
     }
 
     return (
         <>
-            <StatusBar style='dark' />
             <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }} ref={containerRef} collapsable={false}>
                 <Animated.ScrollView
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
+                    contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - 32) : safeArea.bottom /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                     contentInsetAdjustmentBehavior="never"
                     keyboardShouldPersistTaps="always"
                     keyboardDismissMode="none"
@@ -218,30 +222,34 @@ export const WalletWordsComponent = React.memo((props: {
                     onScroll={scrollHandler}
                     scrollEventThrottle={16}
                 >
-                    <Text style={{ alignSelf: 'center', marginTop: 5, marginHorizontal: 16, fontWeight: '800', fontSize: 26 }}>
+                    <Text style={{
+                        alignSelf: 'center',
+                        marginTop: 16, marginHorizontal: 16,
+                        fontWeight: '600', fontSize: 32, lineHeight: 38,
+                        color: theme.textPrimary, textAlign: 'center'
+                    }}>
                         {t('import.title')}
                     </Text>
                     <Text style={{
                         alignSelf: 'center', textAlign: 'center',
                         marginTop: 15,
-                        marginBottom: 37,
+                        marginBottom: 16,
                         marginHorizontal: 37,
                         fontWeight: '400', fontSize: 16,
-                        color: 'rgba(109, 109, 113, 1)'
+                        color: theme.textSecondary,
                     }}>
                         {t('import.subtitle')}
                     </Text>
-                    <View style={{
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        width: '100%',
-                    }}>
+                    <View style={{ width: '100%' }}>
                         {wordComponents}
                     </View>
                     <RoundButton
                         title={t('common.continue')}
                         action={onSubmitEnd}
-                        style={{ alignSelf: 'stretch', marginBottom: 16 + safeArea.bottom, marginTop: 30 }}
+                        style={[
+                            { alignSelf: 'stretch', marginTop: 30 },
+                            Platform.select({ android: { marginBottom: 16 + safeArea.bottom } })
+                        ]}
                     />
                 </Animated.ScrollView>
             </View>

@@ -1,8 +1,8 @@
 import React from "react";
-import LottieView, { AnimatedLottieViewProps } from 'lottie-react-native';
+import LottieView, { LottieViewProps } from 'lottie-react-native';
 import { Platform } from "react-native";
 
-export const LottieAnimView = React.memo((props: AnimatedLottieViewProps & { autoPlayIos?: boolean }) => {
+export const LottieAnimView = React.memo((props: LottieViewProps & { autoPlayIos?: boolean }) => {
     const anim = React.useRef<LottieView>(null);
 
     React.useLayoutEffect(() => {

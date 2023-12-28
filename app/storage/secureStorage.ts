@@ -1,6 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
-import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from 'ton-crypto';
+import { getSecureRandomBytes, openBox, pbkdf2_sha512, sealBox } from '@ton/crypto';
 import { storage } from "./storage";
 import * as LocalAuthentication from 'expo-local-authentication';
 import * as KeyStore from './modules/KeyStore';
@@ -8,6 +8,7 @@ import * as KeyStore from './modules/KeyStore';
 export const passcodeStateKey = 'passcode-state';
 export const passcodeSaltKey = 'ton-storage-passcode-nacl';
 export const passcodeEncKey = 'ton-storage-passcode-enc-key-';
+export const passcodeLengthKey = 'passcode-length';
 
 export const biometricsEncKey = 'ton-biometrics-enc-key';
 export const biometricsStateKey = 'biometrics-state';
@@ -137,6 +138,7 @@ export async function migrateAndroidKeyStore(passcode?: string) {
     await SecureStore.setItemAsync(ref, appKey.toString('base64'), { requireAuthentication: true });
 
     storage.set('ton-storage-kind', 'secure-store');
+    storage.set('key-store-migrated', true);
 }
 
 export async function encryptAndStoreAppKeyWithBiometrics(passcode: string) {
@@ -181,6 +183,7 @@ export async function encryptAndStoreAppKeyWithPasscode(passcode: string) {
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, passcode.length);
     } catch (e) {
         throw Error('Failed to encrypt and store app key with passcode');
     }
@@ -203,6 +206,7 @@ export async function generateNewKeyAndEncryptWithPasscode(data: Buffer, passcod
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncPrivateKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, passcode.length);
 
         // Encrypt data with new key
         return doEncrypt(privateKey, data);
@@ -275,6 +279,7 @@ export async function updatePasscode(prevPasscode: string, newPasscode: string) 
         storage.set(passcodeSaltKey, passcodeKey.salt);
         storage.set(passcodeEncKey + ref, passcodeEncAppKey.toString('base64'));
         storage.set(passcodeStateKey, PasscodeState.Set);
+        storage.set(passcodeLengthKey, newPasscode.length);
     } catch (e) {
         throw Error('Unable to migrate to new passcode');
     }
@@ -282,6 +287,10 @@ export async function updatePasscode(prevPasscode: string, newPasscode: string) 
 
 export function getPasscodeState() {
     return (storage.getString(passcodeStateKey) ?? null) as PasscodeState | null;
+}
+
+export function storePasscodeState(state: PasscodeState) {
+    storage.set(passcodeStateKey, state);
 }
 
 export function getBiometricsState() {

@@ -3,18 +3,21 @@ import { Alert, Platform, Text, TouchableOpacity, View } from "react-native";
 import * as Haptics from 'expo-haptics';
 import { TextInput } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { mnemonicValidate } from 'ton-crypto';
 import { DeviceEncryption } from '../../storage/getDeviceEncryption';
 import Animated, { FadeOutDown, FadeIn, useSharedValue, useAnimatedStyle, withSequence, withTiming, withRepeat } from 'react-native-reanimated';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { WordsListTrie } from '../../utils/wordsListTrie';
 import { t } from '../../i18n/t';
 import { systemFragment } from '../../systemFragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { warn } from '../../utils/log';
 import { WalletWordsComponent } from '../../components/secure/WalletWordsComponent';
 import { WalletSecurePasscodeComponent } from '../../components/secure/WalletSecurePasscodeComponent';
+import { useTypedNavigation } from '../../utils/useTypedNavigation';
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTheme } from '../../engine/hooks';
+import { mnemonicValidate } from '@ton/crypto';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { useParams } from '../../utils/useParams';
+import { StatusBar } from 'expo-status-bar';
 
 export const wordsTrie = WordsListTrie();
 
@@ -26,34 +29,34 @@ export function normalize(src: string) {
     return src.trim().toLocaleLowerCase();
 }
 
-export const WordInput = React.memo(React.forwardRef((props: {
+export const WordInput = memo(forwardRef((props: {
     index: number,
     value: string,
     autoFocus?: boolean,
-    innerRef: React.RefObject<View>,
+    innerRef: RefObject<View>,
     setValue: (index: number, src: string) => void,
     onFocus: (index: number) => void,
     onSubmit: (index: number, value: string) => void,
-}, ref: React.ForwardedRef<WordInputRef>) => {
-    const { Theme } = useAppConfig();
+}, ref: ForwardedRef<WordInputRef>) => {
+    const theme = useTheme();
 
     //
     // Internal state
     //
 
-    const suggestions = React.useMemo(() => (props.value.length > 0) ? wordsTrie.find(normalize(props.value)) : [], [props.value]);
-    const [isWrong, setIsWrong] = React.useState(false);
+    const suggestions = useMemo(() => (props.value.length > 0) ? wordsTrie.find(normalize(props.value)) : [], [props.value]);
+    const [isWrong, setIsWrong] = useState(false);
 
     //
     // Shake
     // 
     const translate = useSharedValue(0);
-    const style = useAnimatedStyle(() => {
+    const animtedStyle = useAnimatedStyle(() => {
         return {
             transform: [{ translateX: translate.value }],
         };
     }, []);
-    const doShake = React.useCallback(() => {
+    const doShake = useCallback(() => {
         translate.value = withSequence(
             withTiming(-10, { duration: 30 }),
             withRepeat(withTiming(10, { duration: 30 }), 2, true),
@@ -66,8 +69,8 @@ export const WordInput = React.memo(React.forwardRef((props: {
     // External imperative functions
     //
 
-    const tref = React.useRef<TextInput>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         }
@@ -78,18 +81,18 @@ export const WordInput = React.memo(React.forwardRef((props: {
     //
 
     // Forward focus event
-    const onFocus = React.useCallback(() => {
+    const onFocus = useCallback(() => {
         props.onFocus(props.index);
     }, [props.index]);
 
     // Update wrong state on blur (should we shake in case of failure?)
-    const onBlur = React.useCallback(() => {
+    const onBlur = useCallback(() => {
         const normalized = normalize(props.value);
         setIsWrong(normalized.length > 0 && !wordsTrie.contains(normalized));
     }, [props.value]);
 
     // Handle submit (enter press) action
-    const onSubmit = React.useCallback(async () => {
+    const onSubmit = useCallback(async () => {
 
         // Check if there are suggestions - replace them instead
         if (suggestions.length >= 1) {
@@ -131,27 +134,38 @@ export const WordInput = React.memo(React.forwardRef((props: {
         props.onSubmit(props.index, normalized);
     }, [props.value, suggestions, props.onSubmit, props.index]);
 
-    const onTextChange = React.useCallback((value: string) => {
+    const onTextChange = useCallback((value: string) => {
         props.setValue(props.index, value);
         setIsWrong(false);
     }, [props.index, props.setValue]);
 
     return (
-        <Animated.View style={style}>
-            <View ref={props.innerRef} style={{ flexDirection: 'row' }} collapsable={false}>
+        <Animated.View style={animtedStyle}>
+            <View
+                ref={props.innerRef}
+                style={{
+                    flexDirection: 'row',
+                    backgroundColor: theme.border,
+                    borderRadius: 16,
+                    marginVertical: 8
+                }}
+                collapsable={false}
+            >
                 <Text
                     style={{
                         alignSelf: 'center',
-                        fontSize: 16, width: 40,
-                        paddingVertical: 16,
+                        fontSize: 17, fontWeight: '500',
+                        lineHeight: 24,
+                        width: 40,
+                        paddingVertical: 14,
                         textAlign: 'right',
-                        color: !isWrong ? Theme.textSubtitle : '#FF274E',
+                        color: !isWrong ? theme.textSecondary : theme.accentRed,
                     }}
                     onPress={() => {
                         tref.current?.focus();
                     }}
                 >
-                    {(props.index + 1)}.
+                    {(props.index + 1)}:
                 </Text>
                 {Platform.OS === 'android' && (
                     <TouchableOpacity onPress={tref.current?.focus} activeOpacity={1} >
@@ -163,8 +177,10 @@ export const WordInput = React.memo(React.forwardRef((props: {
                                 paddingLeft: 26,
                                 paddingRight: 48,
                                 flexGrow: 1,
-                                fontSize: 16,
-                                color: !isWrong ? '#000' : '#FF274E'
+                                fontSize: 17,
+                                lineHeight: 24,
+                                fontWeight: '400',
+                                color: !isWrong ? theme.textPrimary : theme.accentRed
                             }}
                             value={props.value}
                             onChangeText={onTextChange}
@@ -192,7 +208,7 @@ export const WordInput = React.memo(React.forwardRef((props: {
                             paddingRight: 48,
                             flexGrow: 1,
                             fontSize: 16,
-                            color: !isWrong ? '#000' : '#FF274E'
+                            color: !isWrong ? theme.textPrimary : theme.accentRed
                         }}
                         value={props.value}
                         onChangeText={onTextChange}
@@ -215,52 +231,52 @@ export const WordInput = React.memo(React.forwardRef((props: {
 }));
 
 export const WalletImportFragment = systemFragment(() => {
-    const { Theme } = useAppConfig();
-    const [state, setState] = React.useState<{
+    const theme = useTheme();
+    const navigation = useTypedNavigation();
+    const { additionalWallet } = useParams<{ additionalWallet?: boolean }>();
+    const [state, setState] = useState<{
         mnemonics: string,
         deviceEncryption: DeviceEncryption
     } | null>(null);
     const safeArea = useSafeAreaInsets();
-    const navigation = useTypedNavigation();
-
-    React.useLayoutEffect(() => {
-        if (!state) {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.background } });
-        } else {
-            navigation.setOptions({ headerStyle: { backgroundColor: Theme.item } });
-        }
-    }, [navigation, state]);
 
     return (
         <View
             style={{
                 flexGrow: 1,
-                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom ?? 0) + 16 : 0,
+                ...Platform.select({
+                    ios: {
+                        paddingBottom: state ? (safeArea.bottom === 0 ? 32 : safeArea.bottom) + 16 : 0,
+                        paddingTop: state ? 0 : 32,
+                    }
+                }),
             }}
         >
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!state && (
                 <Animated.View
                     style={{
                         alignItems: 'center', justifyContent: 'center', flexGrow: 1,
                         paddingTop: Platform.OS === 'android' ? safeArea.top : 0,
-                        backgroundColor: Platform.OS === 'android' ? Theme.background : undefined
                     }}
-                    key="loading"
+                    key={'loading'}
                     exiting={FadeOutDown}
                 >
-                    <AndroidToolbar style={{ backgroundColor: Theme.background }} />
+                    <ScreenHeader style={{ paddingHorizontal: 16 }} onBackPressed={navigation.goBack} />
                     <WalletWordsComponent onComplete={setState} />
                 </Animated.View>
             )}
             {state && (
                 <Animated.View
                     style={{ alignItems: 'stretch', justifyContent: 'center', flexGrow: 1 }}
-                    key="content"
+                    key={'content'}
                     entering={FadeIn}
                 >
                     <WalletSecurePasscodeComponent
                         mnemonics={state.mnemonics}
                         import={true}
+                        onBack={() => setState(null)}
+                        additionalWallet={additionalWallet}
                     />
                 </Animated.View>
             )}

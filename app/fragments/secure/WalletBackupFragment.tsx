@@ -1,53 +1,71 @@
 import * as React from 'react';
-import { ActivityIndicator, Platform, Text, View, useWindowDimensions, ScrollView } from 'react-native';
-import Animated, { FadeIn, FadeOutDown } from 'react-native-reanimated';
+import { Platform, Text, View, ScrollView, Alert, ToastAndroid } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
-import { useEngine } from '../../engine/Engine';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
-import { useReboot } from '../../utils/RebootContext';
 import { warn } from '../../utils/log';
+import Clipboard from '@react-native-clipboard/clipboard';
+import * as Haptics from 'expo-haptics';
+import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
+import { Avatar } from '../../components/Avatar';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import * as ScreenCapture from 'expo-screen-capture';
+import { useNetwork, useTheme } from '../../engine/hooks';
+import { MnemonicsView } from '../../components/secure/MnemonicsView';
+import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
+import { StatusBar } from 'expo-status-bar';
+import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
-    const { Theme, AppConfig } = useAppConfig();
-    const { height } = useWindowDimensions();
+    const theme = useTheme();
+    const network = useNetwork();
     const navigation = useTypedNavigation();
     const route = useRoute();
     const init = route.name === 'WalletBackupInit';
-    const reboot = useReboot();
+    const logout = route.name === 'WalletBackupLogout';
     const back = route.params && (route.params as any).back === true;
-    const [mnemonics, setMnemonics] = React.useState<string[] | null>(null);
-    const address = React.useMemo(() => getBackup(), []);
-    const engine = useEngine();
+    const [mnemonics, setMnemonics] = useState<string[] | null>(null);
+    const address = useMemo(() => getBackup(), []);
     const authContext = useKeysAuth();
-    const onComplete = React.useCallback(() => {
+    const toaster = useToaster();
+    const [walletSettings, setSettings] = useWalletSettings(address.address);
+
+    const onComplete = useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address, AppConfig.isTestnet);
+        markAddressSecured(address.address);
         if (back) {
             navigation.goBack();
         } else {
-            if (init) {
-                reboot();
-            }
             navigation.navigateAndReplaceAll('Home');
         }
-    }, [engine]);
-    React.useEffect(() => {
+    }, [address]);
+
+    useEffect(() => {
+        let subscription: ScreenCapture.Subscription;
+        subscription = ScreenCapture.addScreenshotListener(() => {
+            navigation.navigateScreenCapture({
+                callback: () => ScreenCapture.allowScreenCaptureAsync('words-screen')
+            });
+        });
+
         (async () => {
             try {
-                let keys = await authContext.authenticate({ backgroundColor: Theme.item });
+                let keys = await authContext.authenticate({
+                    backgroundColor: theme.surfaceOnBg,
+                    cancelable: true,
+                    containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                });
                 setMnemonics(keys.mnemonics);
             } catch {
                 navigation.goBack();
@@ -55,38 +73,24 @@ export const WalletBackupFragment = systemFragment(() => {
             }
         })();
 
-        // Keeping screen in awakened state
-        activateKeepAwakeAsync('WalletBackupFragment');
-        return function deactivate() {
-            deactivateKeepAwake('WalletBackupFragment')
+        return () => {
+            subscription?.remove();
         };
     }, []);
-    if (!mnemonics) {
-        return (
-            <Animated.View
-                style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 1, backgroundColor: Theme.item }}
-                exiting={FadeOutDown}
-                key={"loader"}
-            >
-                <ActivityIndicator color={Theme.loader} />
-            </Animated.View>
-        )
-    }
 
-    let words1: any[] = [];
-    let words2: any[] = [];
-    for (let i = 0; i < 24; i++) {
-        const component = (
-            <View key={'mn-' + i} style={{ flexDirection: 'row', marginBottom: height > 800 ? 16 : 12 }}>
-                <Text style={{ textAlign: 'right', color: Theme.textSecondary, fontSize: 16, minWidth: 24, marginRight: 23, fontWeight: '400' }}>{(i + 1) + '. '}</Text>
-                <Text style={{ color: Theme.textColor, fontSize: 16, fontWeight: '400' }}>{mnemonics[i]}</Text>
-            </View>
-        );
-        if (i < 12) {
-            words1.push(component);
-        } else {
-            words2.push(component);
+    useScreenHeader(
+        navigation,
+        theme,
+        {
+            title: !init ? t('create.backupTitle') : '',
+            headerShown: !logout,
+            tintColor: theme.accent,
+            onBackPressed: navigation.goBack
         }
+    );
+
+    if (!mnemonics) {
+        return null;
     }
 
     return (
@@ -94,44 +98,135 @@ export const WalletBackupFragment = systemFragment(() => {
             style={{
                 alignItems: 'center', justifyContent: 'center',
                 flexGrow: 1,
-                backgroundColor: Theme.item, paddingTop: Platform.OS === 'android' ? safeArea.top : undefined
+                backgroundColor: !init ? undefined : theme.backgroundPrimary,
+                paddingBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 32 : safeArea.bottom + 32) : 0,
+                paddingTop: init ? safeArea.top : 0,
             }}
             exiting={FadeIn}
             key={"content"}
         >
-            <AndroidToolbar />
-            <ScrollView alwaysBounceVertical={false} style={{ width: '100%' }}>
-                <Text style={{ fontSize: 26, fontWeight: '800', textAlign: 'center', marginTop: 17 }}>{t('backup.title')}</Text>
-                <Text style={{ textAlign: 'center', marginHorizontal: 16, marginTop: 11, fontSize: 16, color: Theme.priceSecondary }}>
-                    {t('backup.subtitle')}
-                </Text>
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    marginHorizontal: 35,
-                    marginTop: 35,
-                    alignSelf: 'stretch',
-                    paddingHorizontal: 10
-                }}>
-                    <View>
-                        {words1}
-                    </View>
-                    <View>
-                        {words2}
-                    </View>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: !init ? 'light' : theme.style === 'dark' ? 'light' : 'dark',
+            })} />
+            {logout ? (
+                <ScreenHeader
+                    title={t('common.logout')}
+                    onBackPressed={navigation.goBack}
+                    style={{ paddingHorizontal: 16 }}
+                />
+            ) : (
+                !init && (
+                    <ScreenHeader
+                        title={t('create.backupTitle')}
+                        onClosePressed={navigation.goBack}
+                        style={Platform.select({ android: { paddingTop: safeArea.top } })}
+                    />
+                )
+            )}
+            <ScrollView
+                alwaysBounceVertical={false}
+                showsVerticalScrollIndicator={false}
+                style={{ flexGrow: 1, width: '100%', paddingHorizontal: 16 }}
+            >
+                {init && (
+                    <>
+                        <Text style={{
+                            fontSize: 32, lineHeight: 38,
+                            fontWeight: '600',
+                            textAlign: 'center',
+                            color: theme.textPrimary,
+                            marginBottom: 12, marginTop: 16
+                        }}>
+                            {t('create.backupTitle')}
+                        </Text>
+                        <Text style={{
+                            textAlign: 'center',
+                            fontSize: 17, lineHeight: 24,
+                            fontWeight: '400',
+                            flexShrink: 1,
+                            color: theme.textSecondary,
+                            marginBottom: 16
+                        }}>
+                            {t('create.backupSubtitle')}
+                        </Text>
+                    </>
+                )}
+                <View style={{ marginTop: init ? 0 : 65 }}>
+                    <MnemonicsView
+                        mnemonics={mnemonics.join(' ')}
+                        style={{
+                            paddingTop: init ? 16 : 46,
+                            backgroundColor: !init ? theme.surfaceOnElevation : undefined
+                        }}
+                        preventCapture={true}
+                    />
+                    {!init && (
+                        <View style={{
+                            borderRadius: 34,
+                            height: 68, width: 68,
+                            backgroundColor: theme.surfaceOnElevation,
+                            justifyContent: 'center', alignItems: 'center',
+                            position: 'absolute', top: -34, alignSelf: 'center'
+                        }}>
+                            <Avatar
+                                id={address.address.toString({ testOnly: network.isTestnet })}
+                                hash={walletSettings.avatar}
+                                size={77}
+                                borderColor={theme.elevation}
+                                borderWith={3}
+                                theme={theme}
+                                isTestnet={network.isTestnet}
+                            />
+                        </View>
+                    )}
                 </View>
-                <View style={{ height: 64 + 16 + safeArea.bottom }} />
+                {network.isTestnet && (
+                    <RoundButton
+                        display={'text'}
+                        title={t('create.copy')}
+                        style={{ marginTop: 20 }}
+                        onPress={() => {
+                            try {
+                                Clipboard.setString(mnemonics.join(' '));
+                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                                toaster.show(
+                                    {
+                                        message: t('common.copied'),
+                                        type: 'default',
+                                        duration: ToastDuration.SHORT,
+                                        marginBottom: Platform.OS === 'ios' ? (safeArea.bottom === 0 ? 56 + 64 : safeArea.bottom + 64) : 16
+                                    }
+                                );
+                            } catch {
+                                warn('Failed to copy words');
+                                Alert.alert(t('common.error'), t('errors.unknown'));
+                                return;
+                            }
+                        }}
+                    />
+                )}
+                {!init && (
+                    <Text style={{
+                        textAlign: 'center',
+                        fontSize: 17, lineHeight: 24,
+                        fontWeight: '400',
+                        flexShrink: 1,
+                        color: theme.textSecondary,
+                        marginTop: 24
+                    }}>
+                        {t('create.backupSubtitle')}
+                    </Text>
+                )}
             </ScrollView>
-            <View style={{
-                height: 64,
-                marginTop: 33,
-                alignSelf: 'stretch',
-                position: 'absolute',
-                bottom: safeArea.bottom + (Platform.OS === 'ios' ? (safeArea.bottom ?? 16) + 16 : 0),
-                left: 16, right: 16
-            }}>
-                <RoundButton title={back ? t('common.back') : t('common.continue')} onPress={onComplete} />
-            </View>
+            {init && (
+                <View style={{
+                    paddingVertical: 16,
+                    position: 'absolute', bottom: 0, left: 16, right: 16,
+                }}>
+                    <RoundButton title={back ? t('common.done') : t('create.okSaved')} onPress={onComplete} />
+                </View>
+            )}
         </Animated.View>
     );
 });

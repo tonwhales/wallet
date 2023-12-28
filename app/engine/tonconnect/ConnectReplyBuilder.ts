@@ -9,12 +9,12 @@ import {
 import naclUtils from 'tweetnacl-util';
 import nacl from 'tweetnacl';
 import { Buffer } from 'buffer';
-import { Address } from 'ton';
+import { Address } from '@ton/core';
+import { Int64LE } from 'int64-buffer';
+import { sha256_sync } from '@ton/crypto';
 import { getTimeSec } from '../../utils/getTimeSec';
 import { extractDomain } from '../utils/extractDomain';
 import { AppManifest } from '../api/fetchManifest';
-import { Int64LE } from 'int64-buffer';
-import { sha256_sync } from 'ton-crypto';
 
 export class ConnectReplyBuilder {
   request: ConnectRequest;
@@ -37,7 +37,6 @@ export class ConnectReplyBuilder {
   ): TonProofItemReply {
     const timestamp = getTimeSec();
     const timestampBuffer = new Int64LE(timestamp).toBuffer();
-
     const domain = extractDomain(this.manifest.url);
     const domainBuffer = Buffer.from(domain);
     const domainLengthBuffer = Buffer.allocUnsafe(4);
@@ -91,8 +90,8 @@ export class ConnectReplyBuilder {
     };
   }
 
-  createReplyItems(addr: string, privateKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
-    const address = Address.parse(addr).toString();
+  createReplyItems(addr: string, privateKey: Uint8Array, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
+    const address = Address.parse(addr).toRawString();
 
     const replyItems = this.request.items.map((requestItem): ConnectItemReply => {
       switch (requestItem.name) {
@@ -102,6 +101,7 @@ export class ConnectReplyBuilder {
             address,
             network: ConnectReplyBuilder.getNetwork(isTestnet),
             walletStateInit,
+            publicKey: Buffer.from(publicKey).toString('hex'),
           };
 
         case 'ton_proof':
@@ -115,8 +115,8 @@ export class ConnectReplyBuilder {
     return replyItems;
   }
 
-  static createAutoConnectReplyItems(addr: string, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
-    const address = Address.parse(addr).toString();
+  static createAutoConnectReplyItems(addr: string, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
+    const address = Address.parse(addr).toRawString();
 
     return [
       {
@@ -124,6 +124,7 @@ export class ConnectReplyBuilder {
         address,
         network: ConnectReplyBuilder.getNetwork(isTestnet),
         walletStateInit,
+        publicKey: Buffer.from(publicKey).toString('hex'),
       },
     ];
   }

@@ -1,48 +1,38 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, StyleProp, Text, TextStyle, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
+import { Platform, Text, View, KeyboardAvoidingView, Keyboard, Alert, Pressable } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useKeyboard } from '@react-native-community/hooks';
-import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI } from 'react-native-reanimated';
-import { Address, Cell, fromNano, toNano } from 'ton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { ATextInput } from '../../components/ATextInput';
-import { CloseButton } from '../../components/CloseButton';
+import Animated, { useSharedValue, useAnimatedRef, measure, scrollTo, runOnUI, FadeIn, FadeOut } from 'react-native-reanimated';
+import { ATextInput, ATextInputRef } from '../../components/ATextInput';
 import { RoundButton } from '../../components/RoundButton';
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useEngine } from '../../engine/Engine';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
-import { StakingCycle } from "../../components/Staking/StakingCycle";
-import { StakingCalcComponent } from '../../components/Staking/StakingCalcComponent';
-import { PoolTransactionInfo } from '../../components/Staking/PoolTransactionInfo';
-import { UnstakeBanner } from '../../components/Staking/UnstakeBanner';
-import { parseAmountToBn, parseAmountToNumber, parseAmountToValidBN } from '../../utils/parseAmount';
+import { StakingCycle } from "../../components/staking/StakingCycle";
+import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
+import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
+import { parseAmountToBn } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
 import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { useParams } from '../../utils/useParams';
-import { LocalizedResources } from '../../i18n/schema';
-import { useAppConfig } from '../../utils/AppConfigContext';
-
-const labelStyle: StyleProp<TextStyle> = {
-    fontWeight: '600',
-    fontSize: 17
-};
-
-export type ATextInputRef = {
-    focus: () => void;
-    blur: () => void;
-}
+import { useRoute } from '@react-navigation/native';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { formatCurrency, formatInputAmount } from '../../utils/formatCurrency';
+import { Address, Cell, fromNano, toNano } from '@ton/core';
+import { useAccountLite, useNetwork, usePrice, useSelectedAccount, useStakingPool, useTheme } from '../../engine/hooks';
+import { useLedgerTransport } from '../ledger/components/TransportContext';
+import { TonPayloadFormat } from '@ton-community/ton-ledger';
+import { AboutIconButton } from '../../components/AboutIconButton';
+import { StatusBar } from 'expo-status-bar';
 
 export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
 
 export type StakingTransferParams = {
-    target?: Address,
-    amount?: BN | null,
+    target: Address,
+    amount?: bigint | null,
     lockAmount?: boolean,
     lockComment?: boolean,
     lockAddress?: boolean,
@@ -65,43 +55,67 @@ export function actionTitle(action?: TransferAction) {
 }
 
 export const StakingTransferFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const network = useNetwork();
     const navigation = useTypedNavigation();
     const params = useParams<StakingTransferParams>();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const route = useRoute();
+    const [price, currency] = usePrice();
+    const selected = useSelectedAccount();
+
+    const isLedger = route.name === 'LedgerStakingTransfer';
+
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch { }
+    }, [ledgerContext?.addr?.address]);
+
+    const accountLite = useAccountLite(selected!.address);
+    const ledgerAccountLite = useAccountLite(ledgerAddress);
+    const account = isLedger ? ledgerAccountLite : accountLite;
     const safeArea = useSafeAreaInsets();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
-    const member = pool?.member
+    const pool = useStakingPool(params.target, isLedger ? ledgerAddress : selected!.address);
+    const member = pool?.member;
 
-    const [title, setTitle] = React.useState('');
-    const [amount, setAmount] = React.useState(params?.amount ? fromNano(params.amount) : '');
-    const [minAmountWarn, setMinAmountWarn] = React.useState<string>();
+    const [title, setTitle] = useState('');
+    const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
+    const [minAmountWarn, setMinAmountWarn] = useState<string>();
 
-    let balance = account.balance || new BN(0);
+    const validAmount = useMemo(() => {
+        let value: bigint | null = null;
+        try {
+            const valid = amount.replace(',', '.').replaceAll(' ', '');
+            value = toNano(valid);
+            return value;
+        } catch {
+            return null;
+        }
+    }, [amount]);
+
+    let balance = account?.balance || 0n;
     if (params?.action === 'withdraw') {
         balance = member
-            ? member!.balance.add(member!.withdraw).add(member!.pendingDeposit)
-            : toNano(0);
+            ? member.balance + member.withdraw + member.pendingDeposit
+            : 0n;
     }
 
     if (params?.action === 'withdraw_ready') {
         balance = member?.withdraw || toNano(0);
     }
 
-    const onSetAmount = React.useCallback(
-        (newAmount: string) => {
-            setMinAmountWarn(undefined);
-            setAmount(newAmount);
-        }, []);
+    const onSetAmount = useCallback((newAmount: string) => {
+        setMinAmountWarn(undefined);
+        setAmount(newAmount);
+    }, []);
 
-    const doContinue = React.useCallback(async () => {
-        let value: BN;
+    const doContinue = useCallback(async () => {
+        let value: bigint;
         let minAmount = pool?.params.minStake
-            ? pool.params.minStake
-                .add(pool.params.receiptPrice)
-                .add(pool.params.depositFee)
-            : toNano(AppConfig.isTestnet ? '10.2' : '50');
+            ? pool.params.minStake + (pool.params.receiptPrice) + (pool.params.depositFee)
+            : toNano(network.isTestnet ? '10.2' : '50');
 
         if (!params?.target) {
             Alert.alert(t('transfer.error.invalidAddress'));
@@ -118,7 +132,7 @@ export const StakingTransferFragment = fragment(() => {
         // Check min stake amount
         if (
             (params?.action === 'deposit' || params?.action === 'top_up')
-            && value.lt(minAmount)
+            && value < minAmount
         ) {
             setMinAmountWarn(
                 t('products.staking.minAmountWarning',
@@ -130,9 +144,9 @@ export const StakingTransferFragment = fragment(() => {
         // Check availible 
         if (params?.action === 'withdraw') {
             const availible = member
-                ? member.balance.add(member.withdraw).add(member.pendingDeposit)
+                ? member.balance + member.withdraw + member.pendingDeposit
                 : undefined;
-            if (!availible || availible.lt(value)) {
+            if (!availible || availible < value) {
                 setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
                 return;
             }
@@ -141,13 +155,57 @@ export const StakingTransferFragment = fragment(() => {
         // Add withdraw payload
         let payload: Cell;
         let transferAmount = value;
+
+        if (isLedger) {
+            let ledgerPayload: TonPayloadFormat = {
+                type: 'comment',
+                text: 'Withdraw',
+            };
+            let actionText = t('transfer.title');
+
+            if (params.action === 'withdraw') {
+                transferAmount = pool
+                    ? (pool.params.withdrawFee + pool.params.receiptPrice)
+                    : toNano('0.2');
+                actionText = t('products.staking.transfer.withdrawStakeTitle');
+            } else if (params.action === 'top_up') {
+                actionText = t('products.staking.transfer.topUpTitle');
+                ledgerPayload.text = 'Deposit';
+            } else if (params.action === 'withdraw_ready') {
+                transferAmount = pool
+                    ? (pool.params.withdrawFee + pool.params.receiptPrice)
+                    : toNano('0.2');
+                actionText = t('products.staking.transfer.confirmWithdrawReady');
+            }
+
+            const text = t('products.staking.transfer.ledgerSignText', { action: actionText });
+            navigation.navigateLedgerSignTransfer({
+                order: {
+                    type: 'ledger',
+                    target: params.target.toString({ testOnly: network.isTestnet }),
+                    payload: ledgerPayload,
+                    amount: transferAmount,
+                    amountAll: false,
+                    stateInit: null,
+                },
+                text: text,
+            });
+            return;
+        }
+
         if (params.action === 'withdraw_ready') {
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool
+                ? (pool.params.withdrawFee + pool.params.receiptPrice)
+                : toNano('0.2');
         } else if (params?.action === 'withdraw') {
-            if (transferAmount.eq(balance)) transferAmount = new BN(0);
+            if (transferAmount === balance) {
+                transferAmount = 0n;
+            }
             payload = createWithdrawStakeCell(transferAmount);
-            transferAmount = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+            transferAmount = pool
+                ? (pool.params.withdrawFee + pool.params.receiptPrice)
+                : toNano('0.2');
         } else if (params.action === 'deposit' || params.action === 'top_up') {
             payload = createAddStakeCommand();
         } else {
@@ -155,16 +213,22 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if ((transferAmount.eq(account.balance) || account.balance.lt(transferAmount))) {
+        if ((transferAmount === (account?.balance ?? 0n) || (account?.balance ?? 0n) < transferAmount)) {
             setMinAmountWarn(
                 (params.action === 'withdraw' || params.action === 'withdraw_ready')
-                    ? t('products.staking.transfer.notEnoughCoinsFee', { amount: pool ? fromNano(pool.params.withdrawFee.add(pool.params.receiptPrice)) : '0.2' })
+                    ? t(
+                        'products.staking.transfer.notEnoughCoinsFee',
+                        {
+                            amount: pool
+                                ? fromNano(pool.params.withdrawFee + pool.params.receiptPrice)
+                                : '0.2'
+                        })
                     : t('transfer.error.notEnoughCoins')
             );
             return;
         }
 
-        if (transferAmount.eq(new BN(0))) {
+        if (transferAmount === 0n) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
         }
@@ -177,8 +241,9 @@ export const StakingTransferFragment = fragment(() => {
         // Navigate to TransferFragment
         navigation.navigateTransfer({
             order: {
+                type: 'order',
                 messages: [{
-                    target: params.target.toFriendly({ testOnly: AppConfig.isTestnet }),
+                    target: params.target.toString({ testOnly: network.isTestnet }),
                     payload,
                     amount: transferAmount,
                     amountAll: false,
@@ -209,7 +274,7 @@ export const StakingTransferFragment = fragment(() => {
     const scrollRef = useAnimatedRef<Animated.ScrollView>();
     const containerRef = useAnimatedRef<View>();
 
-    const scrollToInput = React.useCallback((index: number) => {
+    const scrollToInput = useCallback((index: number) => {
         'worklet';
 
         if (index === 0) {
@@ -229,247 +294,239 @@ export const StakingTransferFragment = fragment(() => {
     }, []);
 
     const keyboardHeight = useSharedValue(keyboard.keyboardShown ? keyboard.keyboardHeight : 0);
-    React.useEffect(() => {
+    useEffect(() => {
         keyboardHeight.value = keyboard.keyboardShown ? keyboard.keyboardHeight : 0;
     }, [keyboard.keyboardShown ? keyboard.keyboardHeight : 0, selectedInput]);
 
-    const onFocus = React.useCallback((index: number) => {
+    const onFocus = useCallback((index: number) => {
         if (amount === '0') {
-            setAmount('');
+            onSetAmount('');
         }
         runOnUI(scrollToInput)(index);
         setSelectedInput(index);
     }, [amount]);
 
-    const onAddAll = React.useCallback(() => {
+    const onAddAll = useCallback(() => {
         let addAmount = balance;
         if (params?.action === 'deposit' || params?.action === 'top_up') {
             // Account for withdraw fee need to unstake 
             addAmount = addAmount
-                .sub(pool?.params.withdrawFee || toNano('0.1'))
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
-                .sub(pool?.params.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
-                .sub(pool?.params.receiptPrice || toNano('0.1'))
+                - (pool?.params?.withdrawFee || toNano('0.1'))
+                - (pool?.params?.receiptPrice || toNano('0.1'))
+                - (pool?.params?.withdrawFee || toNano('0.1')) // saving up for the potential second 'withdraw' request
+                - (pool?.params?.receiptPrice || toNano('0.1'))
         }
-        onSetAmount(fromNano(addAmount));
+        if (addAmount > 0n) {
+            const amount = fromNano(addAmount);
+            const formatted = formatInputAmount(amount.replace('.', ','), 9, { skipFormattingDecimals: true });
+            onSetAmount(formatted);
+        }
     }, [balance, params, pool]);
 
-    React.useEffect(() => {
+    useEffect(() => {
         setTitle(actionTitle(params?.action));
     }, [params?.action]);
 
-    React.useLayoutEffect(() => {
+    useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
 
-    const withdrawFee = pool ? pool.params.withdrawFee.add(pool.params.receiptPrice) : toNano('0.2');
+    const withdrawFee = pool
+        ? (pool.params.withdrawFee + pool.params.receiptPrice) : toNano('0.2');
+
+    const priceText = useMemo(() => {
+        if (!validAmount) {
+            return;
+        }
+        const isNeg = validAmount < 0n;
+        const abs = isNeg ? -validAmount : validAmount;
+        return formatCurrency(
+            (parseFloat(fromNano(abs)) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [validAmount, price, currency]);
 
     return (
-        <>
-            <AndroidToolbar
-                style={{ marginTop: safeArea.top }}
-                pageTitle={title}
+        <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            <ScreenHeader
+                title={title}
+                onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                }}>
-                    <Text style={[labelStyle, { textAlign: 'center', lineHeight: 32 }]}>
-                        {title}
-                    </Text>
-                </View>
-            )}
             <Animated.ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
                 automaticallyAdjustContentInsets={false}
                 ref={scrollRef}
                 scrollEventThrottle={16}
             >
                 <View
                     ref={containerRef}
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
+                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column', marginTop: 16 }}
                 >
-                    <>
-                        <View style={{
-                            marginBottom: 0,
-                            backgroundColor: Theme.item,
-                            borderRadius: 14,
+                    <View
+                        style={{
+                            marginTop: 16,
+                            marginBottom: minAmountWarn ? 0 : 16,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20,
                             justifyContent: 'center',
-                            alignItems: 'center',
-                            padding: 15,
+                            padding: 20
+                        }}
+                    >
+                        <View style={{
+                            flexDirection: 'row',
+                            marginBottom: 12,
+                            justifyContent: 'space-between'
                         }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                width: '100%',
-                                justifyContent: 'space-between'
-                            }}>
-                                <Text style={{
-                                    fontWeight: '400',
-                                    fontSize: 16,
-                                    color: Theme.textSubtitle,
-                                }}>
-                                    {t('common.amount')}
-                                </Text>
-                                <Text style={{
-                                    fontWeight: '600',
-                                    fontSize: 16,
-                                    color: Theme.priceSecondary,
-                                }}>
-                                    <ValueComponent value={balance} precision={3} />
-                                    {' TON'}
-                                </Text>
-                            </View>
-                            <View style={{ width: '100%' }}>
-                                <View style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center'
-                                }}>
-                                    <ATextInput
-                                        index={0}
-                                        ref={refs[0]}
-                                        onFocus={onFocus}
-                                        value={amount}
-                                        onValueChange={onSetAmount}
-                                        placeholder={'0'}
-                                        keyboardType={'numeric'}
-                                        textAlign={'left'}
-                                        style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                        inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
-                                        fontWeight={'800'}
-                                        fontSize={30}
-                                        editable={!params?.lockAmount}
-                                        enabled={!params?.lockAmount}
-                                        preventDefaultHeight
-                                        preventDefaultLineHeight
-                                        preventDefaultValuePadding
-                                        blurOnSubmit={false}
-                                    />
-                                    {!params?.lockAmount && <Pressable
-                                        style={({ pressed }) => {
-                                            return [
-                                                {
-                                                    backgroundColor: Theme.accent,
-                                                    height: 24,
-                                                    borderRadius: 40,
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    paddingHorizontal: 10,
-                                                    paddingVertical: 3,
-                                                },
-                                                { opacity: pressed ? 0.3 : 1 }
-                                            ]
-                                        }}
-                                        onPress={onAddAll}
-                                    >
-                                        <Text style={{
-                                            fontWeight: '600',
-                                            fontSize: 16,
-                                            color: Theme.item
-                                        }}>
-                                            {t('common.max')}
-                                        </Text>
-                                    </Pressable>}
-                                </View>
-                                <PriceComponent
-                                    amount={parseAmountToValidBN(amount)}
-                                    style={{
-                                        backgroundColor: Theme.transparent,
-                                        paddingHorizontal: 0
-                                    }}
-                                    textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
-                                />
-                            </View>
-                        </View>
-                        {!!minAmountWarn && (
                             <Text style={{
-                                color: Theme.dangerZone,
                                 fontWeight: '400',
-                                fontSize: 14,
-                                marginTop: 10
+                                fontSize: 15, lineHeight: 20,
+                                color: theme.textSecondary,
+                            }}>
+                                {`${t('common.balance')}: `}
+                                <ValueComponent
+                                    precision={4}
+                                    value={balance}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
+                            </Text>
+                            <Pressable
+                                style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
+                                onPress={onAddAll}
+                            >
+                                <Text style={{
+                                    fontWeight: '500',
+                                    fontSize: 15, lineHeight: 20,
+                                    color: theme.accent,
+                                }}>
+                                    {t('transfer.sendAll')}
+                                </Text>
+                            </Pressable>
+                        </View>
+                        <ATextInput
+                            index={0}
+                            ref={refs[0]}
+                            onFocus={onFocus}
+                            value={amount}
+                            onValueChange={(newVal) => {
+                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
+                                onSetAmount(formatted);
+                            }}
+                            keyboardType={'numeric'}
+                            style={{
+                                backgroundColor: theme.backgroundPrimary,
+                                paddingHorizontal: 16, paddingVertical: 14,
+                                borderRadius: 16,
+                            }}
+                            inputStyle={{
+                                fontSize: 17, fontWeight: '400',
+                                color: minAmountWarn ? theme.accentRed : theme.textPrimary,
+                                width: 'auto',
+                                flexShrink: 1
+                            }}
+                            suffix={priceText}
+                            hideClearButton
+                            prefix={'TON'}
+                        />
+                    </View>
+                    {!!minAmountWarn && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Text style={{
+                                color: theme.accentRed,
+                                fontSize: 13,
+                                lineHeight: 18,
+                                marginTop: 8,
+                                marginBottom: 16,
+                                marginLeft: 20,
+                                fontWeight: '400'
                             }}>
                                 {minAmountWarn}
                             </Text>
-                        )}
-                        {(params?.action === 'deposit' || params?.action === 'top_up') && pool && (
-                            <>
-                                {!AppConfig.isTestnet && (
-                                    <StakingCalcComponent
-                                        amount={amount}
-                                        topUp={params?.action === 'top_up'}
-                                        member={member}
-                                        pool={pool}
-                                    />
-                                )}
-                                <PoolTransactionInfo pool={pool} />
-                            </>
-                        )}
-                        {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
-                            <>
+                        </Animated.View>
+                    )}
+
+                    {(params?.action === 'deposit' || params?.action === 'top_up') && pool && validAmount !== null && (
+                        <>
+                            <StakingCalcComponent
+                                amount={validAmount}
+                                topUp={params?.action === 'top_up'}
+                                member={member}
+                                pool={pool}
+                            />
+                            <PoolTransactionInfo pool={pool} />
+                        </>
+                    )}
+                    {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (
+                        <>
+                            <View style={{
+                                backgroundColor: theme.surfaceOnElevation,
+                                borderRadius: 14,
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                marginVertical: 16,
+                                padding: 20
+                            }}>
                                 <View style={{
-                                    backgroundColor: Theme.item,
-                                    borderRadius: 14,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    paddingLeft: 16,
-                                    marginTop: 14,
-                                    marginBottom: 15
+                                    flexDirection: 'row', width: '100%',
+                                    justifyContent: 'space-between', alignItems: 'center',
                                 }}>
-                                    <View style={{
-                                        flexDirection: 'row', width: '100%',
-                                        justifyContent: 'space-between', alignItems: 'center',
-                                        paddingRight: 16,
-                                        height: 55
+                                    <Text style={{
+                                        fontSize: 15,
+                                        fontWeight: '400',
+                                        color: theme.textSecondary
                                     }}>
-                                        <Text style={{
-                                            fontSize: 16,
-                                            color: Theme.label
-                                        }}>
-                                            {t('products.staking.info.withdrawFee')}
-                                        </Text>
-                                        <View style={{ justifyContent: 'center' }}>
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 16,
-                                                color: Theme.textColor
-                                            }}>
-                                                {`${fromNano(withdrawFee)} TON`}
-                                            </Text>
-                                            <PriceComponent
-                                                amount={withdrawFee}
-                                                style={{
-                                                    backgroundColor: Theme.transparent,
-                                                    paddingHorizontal: 0, paddingVertical: 2,
-                                                    alignSelf: 'flex-end'
-                                                }}
-                                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
+                                        {t('products.staking.info.withdrawFee')}
+                                        <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
+                                            <AboutIconButton
+                                                title={t('products.staking.info.withdrawCompleteFee')}
+                                                description={t('products.staking.info.withdrawFeeDescription')}
+                                                style={{ height: 16, width: 16, position: 'absolute', top: 2, right: 0, left: 6, bottom: 0 }}
                                             />
                                         </View>
+                                    </Text>
+                                    <View style={{ justifyContent: 'center' }}>
+                                        <Text style={{
+                                            fontWeight: '400',
+                                            fontSize: 17,
+                                            color: theme.textPrimary
+                                        }}>
+                                            {`${fromNano(withdrawFee)} TON`}
+                                        </Text>
+                                        <PriceComponent
+                                            amount={withdrawFee}
+                                            style={{
+                                                backgroundColor: theme.transparent,
+                                                paddingHorizontal: 0, paddingVertical: 0,
+                                                alignSelf: 'flex-end',
+                                                height: 'auto'
+                                            }}
+                                            theme={theme}
+                                            textStyle={{ color: theme.textSecondary, fontSize: 15, fontWeight: '400' }}
+                                        />
                                     </View>
                                 </View>
-                                {!!pool && params.action !== 'withdraw_ready' && (
-                                    <StakingCycle
-                                        stakeUntil={pool.params.stakeUntil}
-                                        locked={pool.params.locked}
-                                        style={{
-                                            marginBottom: 15,
-                                            marginHorizontal: 0
-                                        }}
-                                        withdraw={true}
-                                    />
-                                )}
-                                {!!member && params.action !== 'withdraw_ready' && parseAmountToNumber(amount) > 0 && (
-                                    <UnstakeBanner amount={amount} member={member} />
-                                )}
-                            </>
-                        )}
-                    </>
+                            </View>
+                            {!!pool && params.action !== 'withdraw_ready' && (
+                                <StakingCycle
+                                    stakeUntil={pool.status.proxyStakeUntil}
+                                    locked={pool.status.locked}
+                                    style={{
+                                        marginBottom: 15,
+                                        marginHorizontal: 0
+                                    }}
+                                    withdraw={true}
+                                />
+                            )}
+                        </>
+                    )}
                 </View>
             </Animated.ScrollView>
             <KeyboardAvoidingView
@@ -485,16 +542,6 @@ export const StakingTransferFragment = fragment(() => {
                     action={doContinue}
                 />
             </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
-        </>
+        </View>
     );
 });

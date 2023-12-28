@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import CheckMark from '../../assets/ic_check_mark.svg';
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
 
 export const CheckBox = React.memo((
     {
@@ -16,7 +16,7 @@ export const CheckBox = React.memo((
         style?: StyleProp<ViewStyle>
     }
 ) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const [isChecked, setIsChecked] = useState(checked);
 
     const toggle = useCallback(
@@ -49,7 +49,7 @@ export const CheckBox = React.memo((
                     justifyContent: 'center',
                     alignItems: 'center',
                     height: 24, width: 24, borderRadius: 4,
-                    backgroundColor: isChecked ? Theme.accent : '#CBCBCB'
+                    backgroundColor: isChecked ? theme.accent : '#CBCBCB'
                 }}>
                     {isChecked && <CheckMark />}
                 </View>
@@ -57,7 +57,7 @@ export const CheckBox = React.memo((
                     fontWeight: '400',
                     fontSize: 16,
                     marginLeft: 16,
-                    color: Theme.textColor
+                    color: theme.textPrimary
                 }}>
                     {text}
                 </Text>

@@ -1,8 +1,8 @@
 import { formatDuration } from "date-fns";
-import React, { useEffect, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
 import { StyleProp, Text, TextStyle } from "react-native"
 import { t } from "../i18n/t";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from "../engine/hooks";
 
 export function getDuration(seconds: number) {
     let left = seconds;
@@ -42,27 +42,26 @@ export function shortLocale(code: 'ru' | 'en') {
     return { formatDistance };
 }
 
-function format(duration: number) {
+function format(duration: number, hidePrefix?: boolean) {
     if (duration <= 0) return t('common.soon');
-    return t('common.in')
-        + ' '
+    return (hidePrefix ? '' : t('common.in') + ' ')
         + formatDuration(
             getDuration(duration),
             { locale: shortLocale(t('lang') as 'ru' | 'en'), delimiter: ':', zero: true }
         );
 }
 
-export const Countdown = React.memo(({ left, textStyle }: { left: number, textStyle?: StyleProp<TextStyle> }) => {
+export const Countdown = memo(({ left, textStyle, hidePrefix }: { left: number, textStyle?: StyleProp<TextStyle>, hidePrefix?: boolean }) => {
     const [text, setText] = useState(format(left));
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     useEffect(() => {
-        setText(format(left));
+        setText(format(left, hidePrefix));
     }, [left]);
 
     return (
         <Text style={[{
-            color: Theme.textSubtitle,
+            color: theme.textSecondary,
             fontSize: 13,
             fontVariant: ['tabular-nums']
         }, textStyle]}

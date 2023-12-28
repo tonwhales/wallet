@@ -1,70 +1,46 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
-import { Platform, Text, View, Alert, Pressable } from "react-native";
+import { Platform, Text, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit } from 'ton';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { ScrollView } from 'react-native-gesture-handler';
-import { ItemGroup } from '../../components/ItemGroup';
-import { ItemLarge } from '../../components/ItemLarge';
-import { ItemDivider } from '../../components/ItemDivider';
-import { CloseButton } from '../../components/CloseButton';
+import { CloseButton } from '../../components/navigation/CloseButton';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees } from '../../engine/estimate/estimateFees';
 import { MixpanelEvent, trackEvent } from '../../analytics/mixpanel';
-import { DNS_CATEGORY_NEXT_RESOLVER, DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
-import TonSign from '../../../assets/ic_ton_sign.svg';
-import TransferToArrow from '../../../assets/ic_transfer_to.svg';
-import Contact from '../../../assets/ic_transfer_contact.svg';
-import VerifiedIcon from '../../../assets/ic_verified.svg';
-import TonSignGas from '../../../assets/ic_transfer_gas.svg';
-import SignLock from '../../../assets/ic_sign_lock.svg';
-import WithStateInit from '../../../assets/ic_sign_contract.svg';
-import SmartContract from '../../../assets/ic_sign_smart_contract.svg';
-import Staking from '../../../assets/ic_sign_staking.svg';
-import Question from '../../../assets/ic_question.svg';
-import { PriceComponent } from '../../components/PriceComponent';
-import { Avatar } from '../../components/Avatar';
-import { AddressComponent } from '../../components/AddressComponent';
-import { ItemCollapsible } from '../../components/ItemCollapsible';
-import { WImage } from '../../components/WImage';
-import { ItemAddress } from '../../components/ItemAddress';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
+import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { LedgerOrder } from '../secure/ops/Order';
-import { WalletV4Source } from 'ton-contracts';
-import { TonTransport } from 'ton-ledger';
 import { fetchSeqno } from '../../engine/api/fetchSeqno';
 import { pathFromAccountNumber } from '../../utils/pathFromAccountNumber';
 import { delay } from 'teslabot';
 import { resolveLedgerPayload } from './utils/resolveLedgerPayload';
-import { useTransport } from './components/TransportContext';
-import { LottieAnimView } from '../../components/LottieAnimView';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
-import { useAppConfig } from '../../utils/AppConfigContext';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
+import Animated, { FadeInDown, FadeOutDown } from 'react-native-reanimated';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { confirmAlert } from '../../utils/confirmAlert';
+import { ReAnimatedCircularProgress } from '../../components/CircularProgress/ReAnimatedCircularProgress';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { TonTransport } from '@ton-community/ton-ledger';
+import { useAccountLite, useClient4, useConfig, useContact, useDenyAddress, useIsSpamWallet, useNetwork, useTheme } from '../../engine/hooks';
+import { useLedgerTransport } from './components/TransportContext';
+import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
+import { fromBnWithDecimals } from '../../utils/withDecimals';
+import { Address, Cell, SendMode, WalletContractV4, beginCell, external, internal, storeMessage, storeMessageRelaxed } from '@ton/ton';
+import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
+import { estimateFees } from '../../utils/estimateFees';
+import { TransferSingleView } from '../secure/components/TransferSingleView';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
     text: string | null,
-}
-
-export type ATextInputRef = {
-    focus: () => void;
 }
 
 type ConfirmLoadedProps = {
@@ -72,24 +48,34 @@ type ConfirmLoadedProps = {
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
     },
     text: string | null,
     order: LedgerOrder,
     jettonMaster: JettonMasterState | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     transport: TonTransport,
     addr: { acc: number, address: string, publicKey: Buffer },
 };
 
-const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
-    const { Theme, AppConfig } = useAppConfig();
+const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferState: (state: 'confirm' | 'sending' | 'sent') => void })) => {
+    const network = useNetwork();
+    const client = useClient4(network.isTestnet);
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const account = engine.products.ledger.useAccount();
+    const ledgerContext = useLedgerTransport();
+    const ledgerAddress = useMemo(() => {
+        if (ledgerContext?.addr) {
+            try {
+                return Address.parse(ledgerContext.addr.address);
+            } catch { }
+        }
+    }, [ledgerContext]);
+    const account = useAccountLite(ledgerAddress);
+    const [walletSettings,] = useWalletSettings(ledgerAddress!);
+
     const {
         restricted,
         target,
@@ -99,82 +85,78 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         fees,
         metadata,
         transport,
-        addr
+        addr,
+        setTransferState
     } = props;
-
-    const [transferState, setTransferState] = React.useState<'confirm' | 'sending' | 'sent'>('confirm');
 
     // Resolve operation
     let payload = order.payload ? resolveLedgerPayload(order.payload) : null;
     let body = payload ? parseBody(payload) : null;
-    let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, metadata.interfaces) : null;
-    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target), metadata, jettonMaster });
+    // let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
+    let operation = resolveOperation({ body: body, amount: order.amount, account: Address.parse(order.target) }, network.isTestnet);
 
     // Resolve Jettion amount
-    const jettonAmount = React.useMemo(() => {
+    const jettonAmountString = useMemo(() => {
         try {
             if (jettonMaster && payload) {
                 const temp = payload;
                 if (temp) {
                     const parsing = temp.beginParse();
-                    parsing.readUint(32);
-                    parsing.readUint(64);
-                    return parsing.readCoins();
+                    parsing.loadUint(32);
+                    parsing.loadUint(64);
+                    const unformatted = parsing.loadCoins();
+                    return fromBnWithDecimals(unformatted, jettonMaster.decimals);
                 }
             }
-        } catch (e) {
-            console.warn(e);
-        }
-
-        return undefined;
+        } catch { }
     }, [order]);
 
     // Resolve operation
-    let path = pathFromAccountNumber(addr.acc, AppConfig.isTestnet);
+    let path = pathFromAccountNumber(addr.acc, network.isTestnet);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
             trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
         }
     }, []);
 
-    const friendlyTarget = target.address.toFriendly({ testOnly: AppConfig.isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet });
     // Contact wallets
-    const contact = engine.products.settings.useContactAddress(target.address);
+    const contact = useContact(friendlyTarget);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-        known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
+    if (KnownWallets(network.isTestnet)[friendlyTarget]) {
+        known = KnownWallets(network.isTestnet)[friendlyTarget];
     } else if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
 
-    const isSpam = engine.products.settings.useDenyAddress(target.address);
-    let spam = engine.products.serverConfig.useIsSpamWallet(friendlyTarget) || isSpam
+    const isSpam = useDenyAddress(friendlyTarget);
+    let spam = useIsSpamWallet(friendlyTarget) || isSpam
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
-        let value: BN = order.amount;
+    const doSend = useCallback(async () => {
+        let value: bigint = order.amount;
 
         // Parse address
         let address: Address = target.address;
 
         const contract = await contractFromPublicKey(addr.publicKey);
-        const source = WalletV4Source.create({ workchain: 0, publicKey: addr.publicKey });
+        const source = WalletContractV4.create({ workchain: 0, publicKey: addr.publicKey });
 
         try {
             // Fetch data
             const [[accountSeqno, account, targetState]] = await Promise.all([
                 backoff('transfer-fetch-data', async () => {
-                    let block = await backoff('ledger-lastblock', () => engine.client4.getLastBlock());
-                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(engine.client4, block.last.seqno, contract.address));
+                    let block = await backoff('ledger-lastblock', () => client.getLastBlock());
+                    let seqno = await backoff('ledger-contract-seqno', () => fetchSeqno(client, block.last.seqno, contract.address));
                     return Promise.all([
                         seqno,
-                        backoff('ledger-lite', () => engine.client4.getAccountLite(block.last.seqno, contract.address)),
-                        backoff('ledger-target', () => engine.client4.getAccount(block.last.seqno, address))
+                        backoff('ledger-lite', () => client.getAccountLite(block.last.seqno, contract.address)),
+                        backoff('ledger-target', () => client.getAccount(block.last.seqno, address))
                     ])
                 }),
             ]);
@@ -183,8 +165,8 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             let bounce = true;
             if (targetState.account.state.type !== 'active' && !order.stateInit) {
                 bounce = false;
-                if (target.balance.lte(new BN(0))) {
-                    let cont = await confirm('transfer.error.addressIsNotActive');
+                if (target.balance <= 0n) {
+                    let cont = await confirmAlert('transfer.error.addressIsNotActive');
                     if (!cont) {
                         navigation.goBack();
                         return;
@@ -198,7 +180,7 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                 signed = await transport.signTransaction(path, {
                     to: address!,
                     sendMode: order.amountAll
-                        ? SendMode.CARRRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+                        ? SendMode.CARRY_ALL_REMAINING_BALANCE : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                     amount: value!,
                     seqno: accountSeqno,
                     timeout: Math.floor(Date.now() / 1e3) + 60000,
@@ -219,21 +201,19 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
             }
 
             // Sending when accepted
-            let extMessage = new ExternalMessage({
+            let extMessage = external({
                 to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: accountSeqno === 0 ? new StateInit({ code: source.initialCode, data: source.initialData }) : null,
-                    body: new CellMessage(signed!)
-                })
+                body: signed,
+                init: accountSeqno === 0 ? source.init : null
             });
-            let msg = new Cell();
-            extMessage.writeTo(msg);
+
+            let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
             // Transfer
             await backoff('ledger-transfer', async () => {
                 try {
                     setTransferState('sending');
-                    await engine.client4.sendMessage(msg.toBoc({ idx: false }));
+                    await client.sendMessage(msg.toBoc({ idx: false }));
                 } catch (error) {
                     console.warn(error);
                 }
@@ -245,11 +225,10 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
                     if (!account.account.last) {
                         return;
                     }
-                    const latestStr = engine.products.ledger.getWallet(contract.address)?.transactions[0];
-                    const lastBlock = await engine.client4.getLastBlock();
-                    const lite = await engine.client4.getAccountLite(lastBlock.last.seqno, contract.address);
+                    const lastBlock = await client.getLastBlock();
+                    const lite = await client.getAccountLite(lastBlock.last.seqno, contract.address);
 
-                    if (new BN(account.account.last.lt, 10).lt(new BN(latestStr ?? '0', 10))) {
+                    if (BigInt(account.account.last.lt) < BigInt(lite.account.last?.lt || '0')) {
                         setTransferState('sent');
                         navigation.goBack();
                         return;
@@ -269,652 +248,26 @@ const LedgerTransferLoaded = React.memo((props: ConfirmLoadedProps) => {
         }
     }, []);
 
-    React.useEffect(() => {
+    useEffect(() => {
         // Start transfer confirmation via Ledger
         doSend();
     }, []);
 
-    const inactiveAlert = React.useCallback(
-        () => {
-            Alert.alert(t('transfer.error.addressIsNotActive'),
-                t('transfer.error.addressIsNotActiveDescription'),
-                [{ text: t('common.gotIt') }])
-        },
-        [],
-    );
-
     return (
-        <>
-            {!!order.app && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                    paddingHorizontal: Platform.OS === 'ios' ? 40 + 8 : 16,
-                }}>
-                    <Text style={{
-                        textAlign: 'center',
-                        fontSize: 14,
-                        fontWeight: '600'
-                    }}>
-                        {t('transfer.requestsToSign', { app: order.app.title })}
-                    </Text>
-                    <View style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flexDirection: 'row',
-                        marginTop: 6
-                    }}>
-                        <SignLock />
-                        <Text style={{
-                            textAlign: 'center',
-                            fontSize: 14,
-                            fontWeight: '400',
-                            marginLeft: 4,
-                            color: '#858B93'
-                        }}>
-                            {order.app.domain}
-                        </Text>
-                    </View>
-                </View>
-            )}
-            <ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
-                contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
-                contentInsetAdjustmentBehavior="never"
-                keyboardShouldPersistTaps="always"
-                keyboardDismissMode="none"
-                automaticallyAdjustContentInsets={false}
-                alwaysBounceVertical={false}
-            >
-                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
-                        {transferState === 'confirm' && (
-                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <LottieAnimView
-                                    autoPlayIos
-                                    source={require('../../../assets/animations/sign.json')}
-                                    style={{ width: 120, height: 120 }}
-                                    autoPlay={true}
-                                    loop={true}
-                                />
-                                <Text style={{
-                                    fontWeight: '700',
-                                    fontSize: 30,
-                                    textAlign: 'center',
-                                    marginTop: 8
-                                }}>
-                                    {t('hardwareWallet.actions.confirmOnLedger')}
-                                </Text>
-                            </Animated.View>
-                        )}
-                        {transferState === 'sending' && (
-                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <LottieAnimView
-                                    autoPlayIos
-                                    source={require('../../../assets/animations/clock.json')}
-                                    style={{ width: 120, height: 120 }}
-                                    autoPlay={true}
-                                    loop={true}
-                                />
-                                <Text style={{
-                                    fontWeight: '700',
-                                    fontSize: 30,
-                                    textAlign: 'center',
-                                    marginTop: 8
-                                }}>
-                                    {t('hardwareWallet.actions.sending')}
-                                </Text>
-                            </Animated.View>
-                        )}
-                        {transferState === 'sent' && (
-                            <Animated.View entering={FadeIn} exiting={FadeOut} style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                <LottieAnimView
-                                    autoPlayIos
-                                    source={require('../../../assets/animations/done.json')}
-                                    style={{ width: 120, height: 120 }}
-                                    autoPlay={true}
-                                    loop={true}
-                                />
-                                <Text style={{
-                                    fontWeight: '700',
-                                    fontSize: 30,
-                                    textAlign: 'center',
-                                    marginTop: 8
-                                }}>
-                                    {t('hardwareWallet.actions.sent')}
-                                </Text>
-                            </Animated.View>
-                        )}
-                    </View>
-                    <View
-                        style={{
-                            marginTop: 30,
-                            backgroundColor: Theme.item,
-                            borderRadius: 14,
-                            justifyContent: 'center',
-                            paddingHorizontal: 16,
-                            paddingVertical: 20,
-                            marginBottom: 14
-                        }}
-                    >
-                        <View>
-                            {!jettonAmount && (
-                                <>
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        minHeight: 40,
-                                        justifyContent: 'center'
-                                    }}>
-                                        <Text style={{
-                                            fontWeight: '700',
-                                            fontSize: 20,
-                                            color: Theme.textColor,
-                                            marginLeft: 2,
-                                        }}>
-                                            {`${fromNano(order.amountAll ? (account?.balance ?? new BN(0)) : order.amount)} TON`}
-                                        </Text>
-                                        <PriceComponent
-                                            prefix={'~'}
-                                            amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
-                                            style={{
-                                                backgroundColor: 'transparent',
-                                                paddingHorizontal: 0,
-                                                marginLeft: 2
-                                            }}
-                                            textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
-                                        />
-                                        {!!operation.comment && operation.comment.length > 0 && (
-                                            <View style={{
-                                                backgroundColor: Theme.background,
-                                                padding: 10,
-                                                borderRadius: 6,
-                                                marginTop: 8,
-                                                marginBottom: 22,
-                                            }}>
-                                                <Text>
-                                                    {`💬 ${operation.comment}`}
-                                                </Text>
-                                                <View style={{
-                                                    marginLeft: 40 + 6,
-                                                    marginVertical: 14,
-                                                    justifyContent: 'center',
-                                                    minHeight: 22,
-                                                    position: 'absolute',
-                                                    left: -82, top: operation.comment.length > 32 ? 22 : 8, bottom: 0,
-                                                }}>
-                                                    <View>
-                                                        <TransferToArrow />
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        )}
-                                        <View style={{
-                                            position: 'absolute',
-                                            left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
-                                            height: 40, width: 40,
-                                            borderRadius: 40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginTop: 2
-                                        }}>
-                                            <TonSign />
-                                        </View>
-                                    </View>
-                                    {!(!!operation.comment && operation.comment.length > 0) && (
-                                        <View style={{
-                                            marginLeft: 40 + 6,
-                                            marginVertical: 14,
-                                            justifyContent: 'center',
-                                            minHeight: 22,
-                                        }}>
-                                            <View style={{
-                                                position: 'absolute',
-                                                left: -26 - 10, top: 0, bottom: 0,
-                                            }}>
-                                                <TransferToArrow />
-                                            </View>
-                                        </View>
-                                    )}
-                                </>
-                            )}
-                            {!!jettonAmount && !!jettonMaster && (
-                                <>
-                                    <View style={{
-                                        position: 'absolute',
-                                        top: 44,
-                                        bottom: contact ? 48 : 44,
-                                        left: 17,
-                                        width: 2,
-                                        borderRadius: 2,
-                                        backgroundColor: Theme.divider
-                                    }} />
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        minHeight: 40,
-                                        justifyContent: 'center'
-                                    }}>
-                                        <Text style={{
-                                            fontWeight: '700',
-                                            fontSize: 20,
-                                            color: Theme.textColor,
-                                            marginLeft: 2
-                                        }}>
-                                            {`${fromNano(jettonAmount)} ${jettonMaster.symbol}`}
-                                        </Text>
-                                        {!!operation.comment && operation.comment.length > 0 && (
-                                            <View style={{
-                                                backgroundColor: Theme.background,
-                                                padding: 10,
-                                                borderRadius: 6,
-                                                marginTop: 8
-                                            }}>
-                                                <Text>
-                                                    {`💬 ${operation.comment}`}
-                                                </Text>
-                                            </View>
-                                        )}
-                                        <View style={{
-                                            position: 'absolute',
-                                            left: -48, top: 0, bottom: 0,
-                                            backgroundColor: Theme.accent,
-                                            height: 40, width: 40,
-                                            borderRadius: 40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                            marginTop: 2
-                                        }}>
-                                            <WImage
-                                                src={jettonMaster.image?.preview256}
-                                                blurhash={jettonMaster.image?.blurhash}
-                                                width={40}
-                                                heigh={40}
-                                                borderRadius={40}
-                                            />
-                                        </View>
-                                    </View>
-                                    <View style={{
-                                        marginLeft: 40 + 6,
-                                        minHeight: 24,
-                                        marginTop: 20, marginBottom: 30,
-                                        justifyContent: 'center'
-                                    }}>
-                                        {!AppConfig.isTestnet && (
-                                            <PriceComponent
-                                                prefix={`${t('transfer.gasFee')} ${fromNano(order.amount)} TON (`}
-                                                suffix={')'}
-                                                amount={order.amountAll ? (account?.balance ?? new BN(0)) : order.amount}
-                                                style={{
-                                                    backgroundColor: 'transparent',
-                                                    paddingHorizontal: 0,
-                                                    marginLeft: 2
-                                                }}
-                                                textStyle={{
-                                                    color: '#858B93',
-                                                    fontWeight: '400', fontSize: 14
-                                                }}
-                                            />
-                                        )}
-                                        {AppConfig.isTestnet && (
-                                            <Text style={{
-                                                color: '#858B93',
-                                                fontWeight: '400', fontSize: 14,
-                                                lineHeight: 16
-                                            }}>
-                                                {`${t('transfer.gasFee')} ${fromNano(order.amount)} TON`}
-                                            </Text>
-                                        )}
-                                        <View style={{
-                                            backgroundColor: Theme.item,
-                                            shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                            shadowOffset: {
-                                                height: 1,
-                                                width: 0
-                                            },
-                                            shadowRadius: 3,
-                                            shadowOpacity: 1,
-                                            height: 24, width: 24,
-                                            borderRadius: 24,
-                                            position: 'absolute', top: 0, bottom: 0, left: -40,
-                                            justifyContent: 'center',
-                                            alignItems: 'center',
-                                        }}>
-                                            <TonSignGas />
-                                        </View>
-                                    </View>
-                                </>
-                            )}
-                            {(!!contact || !!known) && (
-                                <View style={{
-                                    marginLeft: 40 + 6,
-                                    minHeight: 40,
-                                    justifyContent: 'center'
-                                }}>
-                                    <View style={{ flexDirection: 'row' }}>
-                                        <Text style={{
-                                            fontWeight: '700',
-                                            fontSize: 20,
-                                            color: Theme.textColor,
-                                            marginLeft: 2,
-                                        }}>
-                                            {`${contact?.name ?? known?.name}`}
-                                        </Text>
-                                        {known && (
-                                            <VerifiedIcon
-                                                width={20}
-                                                height={20}
-                                                style={{ alignSelf: 'center', marginLeft: 6 }}
-                                            />
-                                        )}
-                                    </View>
-                                    <Text style={{
-                                        fontWeight: '400',
-                                        fontSize: 14,
-                                        color: '#858B93',
-                                        marginLeft: 2,
-                                        marginTop: 4
-                                    }}>
-                                        <AddressComponent address={target.address} />
-                                    </Text>
-                                    {!target.active && !order.stateInit && (
-                                        <>
-                                            <Pressable
-                                                onPress={inactiveAlert}
-                                                style={({ pressed }) => {
-                                                    return {
-                                                        alignSelf: 'flex-start',
-                                                        flexDirection: 'row',
-                                                        borderRadius: 6, borderWidth: 1,
-                                                        borderColor: '#FFC165',
-                                                        paddingHorizontal: 8, paddingVertical: 4,
-                                                        marginTop: 4,
-                                                        justifyContent: 'center', alignItems: 'center',
-                                                        opacity: pressed ? 0.3 : 1
-                                                    }
-                                                }}
-                                            >
-                                                <Text style={{
-                                                    fontSize: 14,
-                                                    fontWeight: '400',
-                                                    color: '#E19626'
-                                                }}>
-                                                    {t('transfer.error.addressIsNotActive')}
-                                                </Text>
-                                                <Question style={{ marginLeft: 5 }} />
-                                            </Pressable>
-                                        </>
-                                    )}
-                                    {contact && (
-                                        <>
-                                            <View style={{
-                                                position: 'absolute',
-                                                left: -48, top: 0, bottom: 0,
-                                                backgroundColor: '#EDA652',
-                                                height: 40, width: 40,
-                                                borderRadius: 40,
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                marginBottom: 36
-                                            }}>
-                                                <Contact />
-                                            </View>
-                                            <View style={{
-                                                alignSelf: 'flex-start',
-                                                borderRadius: 6, borderWidth: 1,
-                                                borderColor: '#DEDEDE',
-                                                paddingHorizontal: 8, paddingVertical: 4,
-                                                marginTop: 4
-                                            }}>
-                                                <Text>
-                                                    {t('transfer.contact')}
-                                                </Text>
-                                            </View>
-                                        </>
-                                    )}
-                                    {!contact && (
-                                        <View style={{
-                                            position: 'absolute',
-                                            left: -48, top: 0, bottom: 0,
-                                            height: 40, width: 40,
-                                        }}>
-                                            <Avatar
-                                                address={friendlyTarget}
-                                                id={friendlyTarget}
-                                                size={40}
-                                                spam={spam}
-                                                dontShowVerified={true}
-                                            />
-                                        </View>
-                                    )}
-                                </View>
-                            )}
-                            {(!contact && !known) && (
-                                <View style={{
-                                    marginLeft: 40 + 6,
-                                    minHeight: 40,
-                                    justifyContent: 'center'
-                                }}>
-                                    <Text style={{
-                                        fontWeight: '700',
-                                        fontSize: 20,
-                                        color: Theme.textColor,
-                                        marginLeft: 2
-                                    }}>
-                                        <AddressComponent address={target.address} />
-                                    </Text>
-                                    <View style={{
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                        height: 40, width: 40,
-                                    }}>
-                                        <Avatar
-                                            address={friendlyTarget}
-                                            id={friendlyTarget}
-                                            size={40}
-                                            spam={spam}
-                                            dontShowVerified={true}
-                                        />
-                                    </View>
-                                    {!target.active && !order.stateInit && (
-                                        <>
-                                            <Pressable
-                                                onPress={inactiveAlert}
-                                                style={({ pressed }) => {
-                                                    return {
-                                                        alignSelf: 'flex-start',
-                                                        flexDirection: 'row',
-                                                        borderRadius: 6, borderWidth: 1,
-                                                        borderColor: '#FFC165',
-                                                        paddingHorizontal: 8, paddingVertical: 4,
-                                                        marginTop: 4,
-                                                        justifyContent: 'center', alignItems: 'center',
-                                                        opacity: pressed ? 0.3 : 1
-                                                    }
-                                                }}
-                                            >
-                                                <Text style={{
-                                                    fontSize: 14,
-                                                    fontWeight: '400',
-                                                    color: '#E19626'
-                                                }}>
-                                                    {t('transfer.error.addressIsNotActive')}
-                                                </Text>
-                                                <Question style={{ marginLeft: 5 }} />
-                                            </Pressable>
-                                        </>
-                                    )}
-                                </View>
-                            )}
-                        </View>
-
-                        {!jettonAmount && (!!operation.op || (!operation.comment && !operation.op && !!text)) && (
-                            <View>
-                                <View style={{
-                                    position: 'absolute',
-                                    top: -2,
-                                    bottom: 42,
-                                    left: 17,
-                                    width: 2,
-                                    borderRadius: 2,
-                                    backgroundColor: Theme.divider
-                                }} />
-                                <View style={{
-                                    marginLeft: 40 + 6,
-                                    justifyContent: 'center'
-                                }}>
-                                    {!!operation.op && (
-                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
-                                            <Text style={{
-                                                color: '#858B93',
-                                                fontWeight: '400', fontSize: 14,
-                                                lineHeight: 16
-                                            }}>
-                                                {t('transfer.smartContract')}
-                                            </Text>
-                                            <View style={{
-                                                backgroundColor: Theme.item,
-                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                                shadowOffset: {
-                                                    height: 1,
-                                                    width: 0
-                                                },
-                                                shadowRadius: 3,
-                                                shadowOpacity: 1,
-                                                height: 24, width: 24,
-                                                borderRadius: 24,
-                                                position: 'absolute', top: 0, bottom: 0, left: -42,
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}>
-                                                <WithStateInit />
-                                            </View>
-                                        </View>
-                                    )}
-                                    {!operation.comment && !operation.op && !!text && (
-                                        <View style={{ marginLeft: 2, marginVertical: 30, minHeight: 24, justifyContent: 'center' }}>
-                                            <Text style={{
-                                                color: '#858B93',
-                                                fontWeight: '400', fontSize: 14,
-                                                lineHeight: 16
-                                            }}>
-                                                {t('transfer.smartContract')}
-                                            </Text>
-                                            <View style={{
-                                                backgroundColor: Theme.item,
-                                                shadowColor: 'rgba(0, 0, 0, 0.25)',
-                                                shadowOffset: {
-                                                    height: 1,
-                                                    width: 0
-                                                },
-                                                shadowRadius: 3,
-                                                shadowOpacity: 1,
-                                                height: 24, width: 24,
-                                                borderRadius: 24,
-                                                position: 'absolute', top: 0, bottom: 0, left: -42,
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                            }}>
-                                                <WithStateInit />
-                                            </View>
-                                        </View>
-                                    )}
-                                </View>
-                                <View style={{
-                                    marginLeft: 40 + 6,
-                                    justifyContent: 'center'
-                                }}>
-                                    {!!operation.op && (
-                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
-                                            <Text style={{
-                                                fontWeight: '400',
-                                                fontSize: 17,
-                                                color: Theme.textColor,
-                                            }}>
-                                                {operation.op}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    {!operation.comment && !operation.op && !!text && (
-                                        <View style={{ marginLeft: 2, minHeight: 40, justifyContent: 'center' }}>
-                                            <Text style={{
-                                                flexShrink: 1,
-                                                fontWeight: '500',
-                                                fontSize: 14,
-                                                color: Theme.textColor,
-                                                opacity: 0.4
-                                            }}>
-                                                {text}
-                                            </Text>
-                                        </View>
-                                    )}
-                                    <View style={{
-                                        backgroundColor: '#60C75E',
-                                        height: 40, width: 40,
-                                        borderRadius: 40,
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        position: 'absolute',
-                                        left: -48, top: 0, bottom: 0,
-                                    }}>
-                                        {(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <Staking />
-                                        )}
-                                        {!(parsedBody?.type === 'deposit' || parsedBody?.type === 'withdraw') && (
-                                            <SmartContract />
-                                        )}
-                                    </View>
-                                </View>
-                            </View>
-                        )}
-
-                    </View>
-                    <ItemGroup>
-                        <ItemCollapsible title={t('transfer.moreDetails')}>
-                            <ItemAddress
-                                title={t('common.walletAddress')}
-                                text={operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                verified={!!known}
-                                contact={!!contact}
-                                secondary={known ? known.name : contact?.name ?? undefined}
-                            />
-                            {!!props.order.domain && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('common.domain')} text={`${props.order.domain}.ton`} />
-                                </>
-                            )}
-                            {!!operation.op && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={operation.op} />
-                                </>
-                            )}
-                            {!operation.comment && !operation.op && !!text && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.purpose')} text={text} />
-                                </>
-                            )}
-                            {!operation.comment && !operation.op && payload && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.unknown')} text={payload.hash().toString('base64')} />
-                                </>
-                            )}
-                            {!!jettonAmount && (
-                                <>
-                                    <ItemDivider />
-                                    <ItemLarge title={t('transfer.gasFee')} text={fromNano(order.amount) + ' TON'} />
-                                </>
-                            )}
-                            <ItemDivider />
-                            <ItemLarge title={t('transfer.feeTitle')} text={fromNano(fees) + ' TON'} />
-                        </ItemCollapsible>
-                    </ItemGroup>
-                    <View style={{ height: 56 }} />
-                </View>
-            </ScrollView>
-        </>
+        <TransferSingleView
+            operation={operation}
+            order={order}
+            amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
+            jettonAmountString={jettonAmountString}
+            target={target}
+            fees={fees}
+            jettonMaster={jettonMaster}
+            walletSettings={walletSettings}
+            text={text}
+            known={known}
+            isSpam={spam}
+            isLedger
+        />
     );
 });
 
@@ -924,36 +277,48 @@ export const LedgerSignTransferFragment = fragment(() => {
         text: string | null,
     } = useRoute().params! as any;
 
-    const { ledgerConnection, tonTransport, addr } = useTransport();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const theme = useTheme();
+    const network = useNetwork();
+    const client = useClient4(network.isTestnet);
+    const ledgerContext = useLedgerTransport();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
 
     // Memmoize all parameters just in case
-    const from = React.useMemo(() => addr, []);
-    const target = React.useMemo(() => Address.parseFriendly(params.order.target), []);
-    const order = React.useMemo(() => params.order, []);
-    const text = React.useMemo(() => params.text, []);
+    const from = useMemo(() => ledgerContext?.addr, []);
+    const target = useMemo(() => Address.parseFriendly(params.order.target), []);
+    const order = useMemo(() => params.order, []);
+    const text = useMemo(() => params.text, []);
 
     // Fetch all required parameters
-    const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
-    const netConfig = engine.products.config.useConfig();
+    const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
+    const netConfig = useConfig();
 
-    React.useEffect(() => {
+    // Sign/Transfer state
+    const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent'>('confirm');
+
+    const transferStateTitle = useMemo(() => {
+        switch (transferState) {
+            case 'confirm': return t('hardwareWallet.actions.confirmOnLedger');
+            case 'sending': return t('hardwareWallet.actions.sending');
+            case 'sent': return t('hardwareWallet.actions.sent');
+        }
+    }, [transferState]);
+
+    useEffect(() => {
 
         // Await data
         if (!netConfig) {
             return;
         }
 
-        if (!ledgerConnection || !tonTransport || !addr) {
-            return;
-        }
 
         let exited = false;
 
         backoff('transfer', async () => {
+            if (!ledgerContext || !ledgerContext.ledgerConnection || !ledgerContext.tonTransport || !ledgerContext.addr) {
+                return;
+            }
 
             if (!from) {
                 return;
@@ -961,7 +326,7 @@ export const LedgerSignTransferFragment = fragment(() => {
 
             // Confirm domain-resolved wallet address
             if (order.domain) {
-                const tonDnsRootAddress = netConfig.rootDnsAddress;
+                const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
                 try {
                     const tonZoneMatch = order.domain.match(/\.ton$/);
                     const tMeZoneMatch = order.domain.match(/\.t\.me$/);
@@ -978,12 +343,14 @@ export const LedgerSignTransferFragment = fragment(() => {
                         throw Error('Invalid domain');
                     }
 
+                    domain = domain.toLowerCase();
+
                     const valid = validateDomain(domain);
                     if (!valid) {
                         throw Error('Invalid domain');
                     }
 
-                    const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                    const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
                     if (!resolvedDomainWallet) {
                         throw Error('Error resolving domain wallet');
                     }
@@ -991,7 +358,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                     if (
                         !resolvedDomainWallet
                         || !Address.isAddress(resolvedDomainWallet)
-                        || !resolvedDomainWallet.equals(target!.address)
+                        || !(resolvedDomainWallet as Address).equals(target!.address)
                     ) {
                         throw Error('Error resolving wallet address');
                     }
@@ -1011,21 +378,20 @@ export const LedgerSignTransferFragment = fragment(() => {
             let payload: Cell | null = order.payload ? resolveLedgerPayload(order.payload) : null;
 
             // Create transfer
-            let intMessage = new InternalMessage({
+            let intMessage = internal({
                 to: target.address,
                 value: order.amount,
                 bounce: false,
-                body: new CommonMessageInfo({
-                    stateInit: order.stateInit ? new CellMessage(order.stateInit) : null,
-                    body: payload ? new CellMessage(payload) : null
-                })
+                body: payload
             });
-            let transfer = await contract.createTransfer({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
-                secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                order: intMessage
+
+            let block = await backoff('transfer', () => client.getLastBlock());
+            let seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
+            let transfer = contract.createTransfer({
+                seqno: seqno,
+                secretKey: Buffer.alloc(64),
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages: [intMessage]
             });
 
             // Fetch data
@@ -1035,10 +401,9 @@ export const LedgerSignTransferFragment = fragment(() => {
             ] = await Promise.all([
                 backoff('transfer', () => fetchConfig()),
                 backoff('transfer', async () => {
-                    let block = await backoff('transfer', () => engine.client4.getLastBlock());
                     return Promise.all([
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, network.isTestnet, true)),
+                        backoff('transfer', () => client.getAccount(block.last.seqno, target.address))
                     ])
                 }),
             ])
@@ -1058,21 +423,20 @@ export const LedgerSignTransferFragment = fragment(() => {
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (metadata.jettonWallet) {
-                jettonMaster = engine.persistence.jettonMasters.item(metadata.jettonWallet!.master).value;
+                jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, network.isTestnet);
             }
 
             // Estimate fee
-            let inMsg = new Cell();
-            new ExternalMessage({
+            let inMsgExt = external({
                 to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                    body: new CellMessage(transfer)
-                })
-            }).writeTo(inMsg);
-            let outMsg = new Cell();
-            intMessage.writeTo(outMsg);
-            let fees = estimateFees(netConfig!, inMsg, [outMsg], [state!.account.storageStat]);
+                body: transfer,
+                init: seqno === 0 ? contract.init : null
+            });
+
+            let inMsg = beginCell().store(storeMessage(inMsgExt)).endCell();
+
+
+            let fees = estimateFees(netConfig!, inMsg, [beginCell().store(storeMessageRelaxed(intMessage)).endCell()], [state!.account.storageStat]);
 
             // Set state
             setLoadedProps({
@@ -1080,7 +444,7 @@ export const LedgerSignTransferFragment = fragment(() => {
                 target: {
                     isTestOnly: target.isTestOnly,
                     address: target.address,
-                    balance: new BN(state.account.balance.coins, 10),
+                    balance: BigInt(state.account.balance.coins),
                     active: state.account.state.type === 'active',
                     domain: order.domain
                 },
@@ -1088,8 +452,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                 jettonMaster,
                 fees,
                 metadata,
-                addr: addr,
-                transport: tonTransport,
+                addr: ledgerContext.addr,
+                transport: ledgerContext.tonTransport,
                 text
             });
         });
@@ -1100,23 +464,62 @@ export const LedgerSignTransferFragment = fragment(() => {
     }, [netConfig]);
 
     return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
-                {!!loadedProps && <LedgerTransferLoaded {...loadedProps} />}
-            </View>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
+        <View style={{ flexGrow: 1 }}>
+            <ScreenHeader
+                style={{ paddingLeft: 16 }}
+                onBackPressed={navigation.goBack}
+                onClosePressed={() => navigation.navigateAndReplaceAll('LedgerHome')}
+                titleComponent={!!loadedProps && (
+                    <Animated.View
+                        entering={FadeInDown} exiting={FadeOutDown}
+                        style={{
+                            backgroundColor: theme.border,
+                            borderRadius: 100,
+                            maxWidth: '70%',
+                            flexDirection: 'row',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            paddingLeft: 6, paddingRight: 12,
+                            paddingVertical: 6
                         }}
+                    >
+                        <Text style={{
+                            fontSize: 17, lineHeight: 24,
+                            color: theme.textPrimary,
+                            fontWeight: '500',
+                            marginLeft: 6,
+                            marginRight: 6,
+                            minHeight: 24
+                        }}>
+                            {transferStateTitle}
+                        </Text>
+                        <ReAnimatedCircularProgress
+                            size={14}
+                            color={theme.accent}
+                            reverse
+                            infinitRotate
+                            progress={0.8}
+                        />
+                    </Animated.View>
+                )}
+            />
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+                {!loadedProps ? (
+                    <View style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    }}>
+                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                            <TransferSkeleton />
+                        </View>
+                    </View>
+                ) : (
+                    <LedgerTransferLoaded
+                        {...loadedProps}
+                        setTransferState={setTransferState}
                     />
-                )
-            }
-        </>
+                )}
+            </View>
+            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
+        </View>
     );
 });

@@ -2,12 +2,13 @@
 
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTLinkingManager.h>
+#import <ReactNativePerformance/ReactNativePerformance.h>
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  
+  [ReactNativePerformance onAppStarted];
   // Disable iCloud backup
   NSArray *urlArray = [[NSFileManager defaultManager] URLsForDirectory: NSDocumentDirectory inDomains: NSUserDomainMask];
   NSURL *documentsUrl = [urlArray firstObject];
@@ -24,6 +25,8 @@
   // You can add your custom initial props in the dictionary below.
   // They will be passed down to the ViewController used by React Native.
   self.initialProps = @{};
+
+  [UIDevice currentDevice].batteryMonitoringEnabled = true;
   
   return [super application:application didFinishLaunchingWithOptions:launchOptions];
  }

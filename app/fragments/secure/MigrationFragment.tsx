@@ -1,8 +1,7 @@
-import { BN } from 'bn.js';
 import * as React from 'react';
 import { Platform, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { SendMode, WalletContractType } from 'ton';
+import { SendMode, internal, external, beginCell, storeMessage } from '@ton/core';
 import { LoadingIndicator } from '../../components/LoadingIndicator';
 import { RoundButton } from '../../components/RoundButton';
 import { WalletKeys } from '../../storage/walletKeys';
@@ -10,18 +9,24 @@ import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
-import { useEngine } from '../../engine/Engine';
 import { ValueComponent } from '../../components/ValueComponent';
 import { WalletAddress } from '../../components/WalletAddress';
-import { CloseButton } from '../../components/CloseButton';
 import LottieView from 'lottie-react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { t } from '../../i18n/t';
-import { StatusBar } from 'expo-status-bar';
 import { systemFragment } from '../../systemFragment';
 import { fragment } from '../../fragment';
-import { useAppConfig } from '../../utils/AppConfigContext';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from '../../engine/hooks';
+import { useEffect, useState } from 'react';
+import { useOldWalletsBalances } from '../../engine/hooks';
+import { useClient4 } from '../../engine/hooks';
+import { WalletContractV1R1, WalletContractV1R2, WalletContractV1R3, WalletContractV2R1, WalletContractV2R2, WalletContractV3R1, WalletContractV3R2 } from '@ton/ton';
+import { getLastBlock } from '../../engine/accountWatcher';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { StatusBar } from 'expo-status-bar';
 
 function ellipsiseAddress(src: string) {
     return src.slice(0, 10)
@@ -30,14 +35,15 @@ function ellipsiseAddress(src: string) {
 }
 
 const MigrationProcessFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
+    const client = useClient4(isTestnet);
     const authContext = useKeysAuth();
     const navigation = useTypedNavigation();
-    const [status, setStatus] = React.useState<string>(t('migrate.inProgress'));
-    const engine = useEngine();
+    const [status, setStatus] = useState<string>(t('migrate.inProgress'));
 
-    React.useEffect(() => {
+    useEffect(() => {
         let ended = false;
 
         backoff('migration', async () => {
@@ -53,48 +59,56 @@ const MigrationProcessFragment = fragment(() => {
             let targetContract = await contractFromPublicKey(key.keyPair.publicKey);
 
             // Check possible addresses
-            const legacyTypes: WalletContractType[] = [
-                'org.ton.wallets.simple.r2',
-                'org.ton.wallets.simple.r3',
-                'org.ton.wallets.v2',
-                'org.ton.wallets.v2.r2',
-                'org.ton.wallets.v3',
-                'org.ton.wallets.v3.r2'
+            const legacyContracts = [
+                WalletContractV1R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV1R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV1R3.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV2R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV2R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV3R1.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                WalletContractV3R2.create({ workchain: 0, publicKey: key.keyPair.publicKey }),
+                // TODO: add v4, when next version will be implemented
             ];
-            for (let type of legacyTypes) {
-                if (ended) {
-                    return;
-                }
-                let wallet = engine.connector.client.openWalletFromSecretKey({ workchain: 0, secretKey: key.keyPair.secretKey, type });
-                if (ended) {
-                    return;
-                }
-                setStatus(t('migrate.check', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
 
-                const state = await backoff('migration', () => engine.connector.client.getContractState(wallet.address));
-                if (state.balance.gt(new BN(0))) {
-                    setStatus(t('migrate.transfer', { address: ellipsiseAddress(wallet.address.toFriendly({ testOnly: AppConfig.isTestnet })) }));
-                    wallet.prepare(0, key.keyPair.publicKey, type);
+            for (let contract of legacyContracts) {
+                if (ended) {
+                    return;
+                }
+                setStatus(t('migrate.check', { address: ellipsiseAddress(contract.address.toString({ testOnly: isTestnet })) }));
+
+                const last = await getLastBlock();
+                const state = await backoff('migr-acc', () => client.getAccountLite(last, contract.address));
+                if (BigInt(state.account.balance.coins) > BigInt(0)) {
+                    setStatus(t(
+                        'migrate.transfer',
+                        { address: ellipsiseAddress(contract.address.toString({ testOnly: isTestnet })) }
+                    ));
 
                     // Seqno
-                    const seqno = await backoff('migration', () => wallet.getSeqNo());
+                    const seqno = await backoff('migr-seq', async () => fetchSeqno(client, await getLastBlock(), contract.address));
 
-                    // Transfer
-                    await backoff('migration', () => wallet.transfer({
-                        seqno,
-                        to: targetContract.address,
-                        value: new BN(0),
-                        sendMode: SendMode.CARRRY_ALL_REMAINING_BALANCE,
+                    // Create send all transfer
+                    let transfer = contract.createTransfer({
+                        seqno: seqno,
                         secretKey: key.keyPair.secretKey,
-                        bounce: false
-                    }));
+                        sendMode: SendMode.CARRY_ALL_REMAINING_BALANCE, // Transfer full balance
+                        messages: [internal({
+                            to: targetContract.address,
+                            value: 0n,
+                            bounce: false,
+                        })]
+                    });
 
-                    while (!ended) {
-                        let s = await backoff('migration', () => wallet.getSeqNo());
-                        if (s > seqno) {
-                            break;
-                        }
-                    }
+                    // Create external message
+                    let extMessage = external({
+                        to: contract.address,
+                        body: transfer,
+                        init: seqno === 0 ? contract.init : undefined,
+                    });
+
+                    let msg = beginCell().store(storeMessage(extMessage)).endCell();
+
+                    await backoff('migr-msg', () => client.sendMessage(msg.toBoc({ idx: false })));
                 }
             }
 
@@ -108,55 +122,43 @@ const MigrationProcessFragment = fragment(() => {
 
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
             <AndroidToolbar style={{ marginTop: safeArea.top }} />
             <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <LoadingIndicator />
-                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: Theme.textColor, textAlign: 'center' }}>{status}</Text>
+                <Text style={{ marginTop: 16, fontSize: 24, marginHorizontal: 16, color: theme.textPrimary, textAlign: 'center' }}>{status}</Text>
             </View>
         </>
     );
 });
 
 export const MigrationFragment = systemFragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const safeArea = useSafeAreaInsets();
     const [confirm, setConfirm] = React.useState(false);
     const navigation = useTypedNavigation();
-    const engine = useEngine();
     const animRef = React.useRef<LottieView>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (Platform.OS === 'ios') {
             setTimeout(() => animRef.current?.play(), 500);
         }
     }, []);
 
-    const state = engine.products.legacy.useStateFull();
-    let s = new BN(0);
-    for (let w of state) {
-        s = s.add(w.balance);
-    }
+    const state = useOldWalletsBalances();
+    const s = state.total;
 
     if (!confirm) {
         return (
             <>
-                <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-                <AndroidToolbar style={{ marginTop: safeArea.top }} />
-                {Platform.OS === 'ios' && (
-                    <View style={{
-                        paddingTop: 12,
-                        paddingBottom: 17
-                    }}>
-                        <Text style={[{
-                            fontWeight: '600',
-                            marginLeft: 17,
-                            fontSize: 17
-                        }, { textAlign: 'center' }]}>{t('migrate.title')}</Text>
-                    </View>
-                )}
+                <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
+                <ScreenHeader
+                    title={t('migrate.title')}
+                    onClosePressed={() => navigation.goBack()}
+                    style={Platform.select({ android: { marginTop: safeArea.top } })}
+                />
                 <ScrollView
-                    style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
+                    style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}
                     contentContainerStyle={{ flexGrow: 1, paddingBottom: safeArea.bottom }}
                     alwaysBounceVertical={false}
                 >
@@ -180,7 +182,7 @@ export const MigrationFragment = systemFragment(() => {
                             textAlign: 'center',
                             marginTop: 26,
                             marginBottom: 10,
-                            color: Theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.title')}
@@ -191,7 +193,7 @@ export const MigrationFragment = systemFragment(() => {
                             fontSize: 16,
                             textAlign: 'center',
                             marginBottom: 10,
-                            color: Theme.textColor
+                            color: theme.textPrimary
                         }}
                     >
                         {t('migrate.subtitle')}
@@ -199,47 +201,55 @@ export const MigrationFragment = systemFragment(() => {
 
                     <View style={{ flexGrow: 1 }} />
                     <View style={{
-                        marginHorizontal: 16, backgroundColor: Theme.item,
+                        marginHorizontal: 16, backgroundColor: theme.surfaceOnElevation,
                         borderRadius: 14,
+                        padding: 16
                     }}>
-
-                        {state.map((v, i) => (
-                            <>
-                                {i > 0 && (<View style={{ height: 1, backgroundColor: Theme.divider }} />)}
-                                <View key={v.address.toFriendly()}
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignSelf: 'flex-start',
-                                        height: 40,
-                                        alignItems: 'center',
-                                        marginHorizontal: 8
-                                    }}>
-                                    <WalletAddress
-                                        address={v.address}
-                                        elipsise
-                                        value={v.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
-                                    />
-                                    <Text>
-                                        <ValueComponent value={v.balance} /> TON
-                                    </Text>
-                                </View>
-                            </>
-                        ))}
+                        {state.accounts.map((v, i) => {
+                            if (!v) {
+                                return null;
+                            }
+                            return (
+                                <>
+                                    {i > 0 && (<View style={{ height: 1, backgroundColor: theme.divider }} />)}
+                                    <View
+                                        key={v.address.toString()}
+                                        style={{
+                                            flexDirection: 'row',
+                                            alignSelf: 'flex-start',
+                                            height: 40,
+                                            alignItems: 'center',
+                                            marginHorizontal: 8,
+                                            marginVertical: 4
+                                        }}
+                                    >
+                                        <WalletAddress
+                                            address={v.address}
+                                            elipsise={{ start: 4, end: 10 }}
+                                            value={v?.address.toString({ testOnly: isTestnet })}
+                                            style={{ flexGrow: 1, flexBasis: 0, alignItems: 'flex-start' }}
+                                        />
+                                        <Text style={{ color: theme.textPrimary }}>
+                                            <ValueComponent
+                                                value={v.data?.balance.coins ?? 0n}
+                                                precision={4}
+                                            /> TON
+                                        </Text>
+                                    </View>
+                                </>
+                            )
+                        })}
                     </View>
                     <View style={{ flexGrow: 1 }} />
                 </ScrollView>
                 <View style={{ marginHorizontal: 16, marginBottom: 16 + safeArea.bottom }}>
-                    <RoundButton title={t('common.start')} onPress={() => setConfirm(true)} disabled={s.lte(new BN(0))} display={s.lte(new BN(0)) ? 'secondary' : 'default'} />
-                </View>
-                {Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
+                    <RoundButton
+                        title={t('common.start')}
+                        onPress={() => setConfirm(true)}
+                        disabled={s <= BigInt(0)}
+                        display={s <= BigInt(0) ? 'secondary' : 'default'}
                     />
-                )}
+                </View>
             </>
         );
     }

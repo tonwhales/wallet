@@ -1,10 +1,15 @@
 import * as React from 'react';
-import { KeyboardTypeOptions, Platform, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle } from 'react-native';
+import { KeyboardTypeOptions, ReturnKeyTypeOptions, StyleProp, View, ViewStyle, Text, TextStyle, Pressable, TouchableWithoutFeedback } from 'react-native';
 import { TextInput } from 'react-native-gesture-handler';
-import { useAppConfig } from '../utils/AppConfigContext';
+import Animated, { FadeIn, FadeOut, cancelAnimation, interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTheme } from '../engine/hooks';
+
+import Clear from '@assets/ic-clear.svg';
 
 export type ATextInputRef = {
     focus: () => void;
+    blur?: () => void;
 }
 
 export interface ATextInputProps {
@@ -95,128 +100,252 @@ export interface ATextInputProps {
     fontWeight?: 'normal' | 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700' | '800' | '900' | undefined;
     fontSize?: number | undefined;
     lineHeight?: number | undefined;
-    preventDefaultHeight?: boolean,
-    preventDefaultValuePadding?: boolean
-    preventDefaultLineHeight?: boolean
-    actionButtonRight?: any,
+    actionButtonRight?: { component: React.ReactNode, width: number },
     blurOnSubmit?: boolean,
-    innerRef?: React.RefObject<View>,
+    innerRef?: RefObject<View>,
     onFocus?: (index: number) => void,
     onBlur?: (index: number) => void,
     onSubmit?: (index: number) => void,
     index?: number,
-    label?: any,
-    backgroundColor?: string
+    label?: string,
+    labelStyle?: StyleProp<ViewStyle>,
+    labelTextStyle?: StyleProp<TextStyle>,
+    backgroundColor?: string,
+    textAlignVertical?: 'auto' | 'top' | 'bottom' | 'center' | undefined,
+    suffix?: string,
+    suffixStyle?: StyleProp<TextStyle>,
+    error?: string,
+    hideClearButton?: boolean,
+    maxLength?: number,
 }
 
-export const ATextInput = React.memo(React.forwardRef((props: ATextInputProps, ref: React.ForwardedRef<ATextInputRef>) => {
-    const { Theme } = useAppConfig();
-    const onFocus = React.useCallback(() => {
+export const ATextInput = memo(forwardRef((props: ATextInputProps, ref: ForwardedRef<ATextInputRef>) => {
+    const theme = useTheme();
+
+    const [focused, setFocused] = useState(false);
+
+    const hasValue = useMemo(() => (props.value && props.value.length > 0), [props.value]);
+
+    const onFocus = useCallback(() => {
+        setFocused(true);
         if (props.onFocus && typeof props.index === 'number') {
             props.onFocus(props.index);
         }
     }, [props.index]);
-    const onSubmit = React.useCallback(() => {
+    const onSubmit = useCallback(() => {
         if (props.onSubmit && props.index) {
             props.onSubmit(props.index);
         }
     }, [props.index]);
-    const onBlur = React.useCallback(() => {
+    const onBlur = useCallback(() => {
+        setFocused(false);
         if (props.onBlur && typeof props.index === 'number') {
             props.onBlur(props.index);
         }
     }, [props.index]);
 
-    const tref = React.useRef<TextInput>(null);
-    React.useImperativeHandle(ref, () => ({
+    const tref = useRef<TextInput>(null);
+    useImperativeHandle(ref, () => ({
         focus: () => {
             tref.current!.focus();
         },
         blur: () => {
             tref.current!.blur();
         }
-    }));
+    }), [ref, tref]);
 
-    let paddingTop = props.multiline ? 12 : 10;
-    let paddingBottom = props.preventDefaultValuePadding
-        ? undefined
-        : props.multiline ? 14 : (Platform.OS === 'ios' ? 12 : 10);
-    if (props.label) paddingTop = 6;
+    const valueNotEmptyShared = useSharedValue(0);
+    const labelHeightCoeff = useSharedValue(1);
+
+    const withLabel = !!props.label;
+    const valueNotEmpty = (props.value?.length || 0) > 0;
+
+    const labelAnimStyle = useAnimatedStyle(() => {
+        return {
+            transform: [
+                { scale: interpolate(valueNotEmptyShared.value, [0, 1], [1, 0.8]) },
+                { translateX: interpolate(valueNotEmptyShared.value, [0, 1], [0, -44]) },
+                { translateY: interpolate(valueNotEmptyShared.value, [0, 1], [2, -13]) },
+            ]
+        }
+    });
+
+    const labelShiftStyle = useAnimatedStyle(() => {
+        return {
+            height: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * 10]),
+        }
+    });
+
+    const inputHeightCompensatorStyle = useAnimatedStyle(() => {
+        return {
+            marginBottom: interpolate(valueNotEmptyShared.value, [0, 1], [0, labelHeightCoeff.value * -4])
+        }
+    });
+
+    useEffect(() => {
+        cancelAnimation(valueNotEmptyShared);
+        valueNotEmptyShared.value = withTiming(withLabel && valueNotEmpty ? 1 : 0, { duration: 100 });
+    }, [withLabel, valueNotEmpty]);
 
     return (
-        <View style={[{
-            backgroundColor: props.backgroundColor || '#F2F2F2',
-            borderRadius: 12,
-            paddingHorizontal: 16,
-            flexDirection: 'row'
-        }, props.style]}>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-                {!!props.label && (
-                    <View style={{
-                        width: '100%',
-                        overflow: 'hidden',
-                        position: 'relative',
-                        marginTop: 10
-                    }}>
-                        {props.label}
+        <TouchableWithoutFeedback
+            style={{ position: 'relative' }}
+            onPress={() => {
+                if (!focused) {
+                    tref.current?.focus();
+                    return;
+                }
+            }}
+        >
+            <Animated.View style={[
+                {
+                    borderRadius: 12,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    minHeight: 26,
+                    position: 'relative',
+                },
+                props.style
+            ]}>
+                {withLabel && (
+                    <View style={{ position: 'absolute', top: 0, right: 0, left: 16 }}>
+                        <Animated.View style={[labelAnimStyle, props.labelStyle, { paddingRight: props.actionButtonRight?.width }]}>
+                            <Text
+                                numberOfLines={1}
+                                onTextLayout={(e) => {
+                                    if (e.nativeEvent.lines.length <= 1) {
+                                        labelHeightCoeff.value = 1;
+                                        return;
+                                    }
+                                    labelHeightCoeff.value = e.nativeEvent.lines.length * 1.4;
+                                }}
+                                style={[
+                                    {
+                                        color: theme.textSecondary,
+                                        fontSize: 17,
+                                        fontWeight: '400'
+                                    },
+                                    props.labelTextStyle
+                                ]}
+                            >
+                                {props.label}
+                            </Text>
+                        </Animated.View>
                     </View>
                 )}
-                <View style={{ flex: 1, flexDirection: 'row' }} ref={props.innerRef} >
-                    {props.prefix && (
-                        <Text
-                            numberOfLines={1}
-                            style={{
-                                marginTop: 3,
-                                fontSize: 17,
-                                fontWeight: '400',
-                                alignSelf: 'center',
-                                color: Theme.placeholder,
-                            }}
-                        >
-                            {props.prefix}
-                        </Text>
-                    )}
-                    <TextInput
-                        ref={tref}
-                        style={[{
-                            height: props.preventDefaultHeight
-                                ? undefined
-                                : props.multiline ? 44 * 3 : 48,
-                            paddingTop: paddingTop,
-                            paddingBottom: paddingBottom,
-                            flexGrow: 1,
-                            fontSize: props.fontSize ? props.fontSize : 17,
-                            lineHeight: props.lineHeight
-                                ? props.lineHeight
-                                : props.preventDefaultLineHeight ? undefined : 22,
-                            fontWeight: props.fontWeight ? props.fontWeight : '400',
-                            textAlignVertical: props.multiline ? 'top' : 'center'
-                        }, props.inputStyle]}
-                        textAlign={props.textAlign}
-                        autoFocus={props.autoFocus}
-                        placeholder={props.placeholder}
-                        placeholderTextColor={Theme.placeholder}
-                        autoCapitalize={props.autoCapitalize}
-                        autoCorrect={props.autoCorrect}
-                        keyboardType={props.keyboardType}
-                        returnKeyType={props.returnKeyType}
-                        autoComplete={props.autoComplete}
-                        multiline={props.multiline}
-                        enabled={props.enabled}
-                        blurOnSubmit={props.blurOnSubmit}
-                        editable={props.editable}
-                        value={props.value}
-                        textContentType={props.textContentType}
-                        onChangeText={props.onValueChange}
-                        onFocus={onFocus}
-                        onBlur={onBlur}
-                        onSubmitEditing={onSubmit}
-                    />
-                    {props.actionButtonRight && (
-                        props.actionButtonRight
-                    )}
+                <View style={{ width: '100%', flex: 1, position: 'relative' }}>
+                    <Animated.View style={labelShiftStyle} />
+                    <View
+                        style={{ flexDirection: 'row', alignItems: 'center' }}
+                        ref={props.innerRef}
+                    >
+                        <TextInput
+                            ref={tref}
+                            hitSlop={16}
+                            style={[
+                                {
+                                    color: theme.textPrimary,
+                                    fontSize: props.fontSize !== undefined ? props.fontSize : 17,
+                                    lineHeight: props.lineHeight !== undefined ? props.lineHeight : undefined,
+                                    fontWeight: props.fontWeight ? props.fontWeight : '400',
+                                    textAlignVertical: props.textAlignVertical
+                                        ? props.textAlignVertical
+                                        : props.multiline
+                                            ? 'top'
+                                            : 'center',
+                                    width: '100%',
+                                    marginHorizontal: 0, marginVertical: 0,
+                                    paddingBottom: 0, paddingTop: 0, paddingVertical: 0,
+                                    paddingLeft: 0, paddingRight: 0,
+                                },
+                                props.inputStyle
+                            ]}
+                            selectionColor={theme.textPrimary}
+                            cursorColor={theme.textPrimary}
+                            textAlign={props.textAlign}
+                            autoFocus={props.autoFocus}
+                            placeholderTextColor={theme.textSecondary}
+                            autoCapitalize={props.autoCapitalize}
+                            placeholder={props.label ? undefined : props.placeholder}
+                            autoCorrect={props.autoCorrect}
+                            keyboardType={props.keyboardType}
+                            returnKeyType={props.returnKeyType}
+                            autoComplete={props.autoComplete}
+                            multiline={props.multiline}
+                            enabled={props.enabled}
+                            blurOnSubmit={props.blurOnSubmit}
+                            editable={props.editable}
+                            value={props.value}
+                            onChangeText={props.onValueChange}
+                            textContentType={props.textContentType}
+                            onFocus={onFocus}
+                            onBlur={onBlur}
+                            onSubmitEditing={onSubmit}
+                            maxLength={props.maxLength}
+                        />
+                        {props.prefix && (
+                            <Text
+                                numberOfLines={1}
+                                style={{
+                                    fontSize: 17,
+                                    fontWeight: '400',
+                                    alignSelf: 'center',
+                                    marginLeft: 2,
+                                    color: theme.textSecondary,
+                                }}
+                            >
+                                {props.prefix}
+                            </Text>
+                        )}
+                        {props.suffix && (
+                            <Text
+                                numberOfLines={1}
+                                ellipsizeMode={'tail'}
+                                style={[
+                                    {
+                                        flexGrow: 1,
+                                        fontSize: 15, lineHeight: 20,
+                                        fontWeight: '400',
+                                        alignSelf: 'center',
+                                        color: theme.textSecondary,
+                                        flexShrink: 1,
+                                        textAlign: 'right',
+                                    },
+                                    props.suffixStyle
+                                ]}
+                            >
+                                {props.suffix}
+                            </Text>
+                        )}
+                    </View>
+                    <Animated.View style={inputHeightCompensatorStyle} />
                 </View>
-            </View>
-        </View>
+                {!!props.actionButtonRight
+                    ? (props.actionButtonRight.component)
+                    : !props.hideClearButton && focused && hasValue && (
+                        <Animated.View entering={FadeIn} exiting={FadeOut}>
+                            <Pressable
+                                onPress={() => {
+                                    if (props.onValueChange) {
+                                        props.onValueChange('');
+                                    }
+                                }}
+                                style={{ height: 24, width: 24 }}
+                                hitSlop={16}
+                            >
+                                <Clear height={24} width={24} style={{ height: 24, width: 24 }} />
+                            </Pressable>
+                        </Animated.View>
+                    )
+                }
+            </Animated.View>
+            {/* {props.error && (
+                <Animated.View style={{ marginTop: 2, marginLeft: 16 }} layout={Layout.duration(300)}>
+                    <Text style={{ color: Theme.accentRed, fontSize: 13, lineHeight: 18, fontWeight: '400' }}>
+                        {props.error}
+                    </Text>
+                </Animated.View>
+            )} */}
+        </TouchableWithoutFeedback>
     )
 }));

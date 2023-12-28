@@ -1,0 +1,125 @@
+diff --git a/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js b/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
+index 40f1723..b769fd9 100644
+--- a/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
++++ b/node_modules/@ton/crypto-primitives/dist/native/getSecureRandom.js
+@@ -8,7 +8,7 @@
+  */
+ Object.defineProperty(exports, "__esModule", { value: true });
+ exports.getSecureRandomWords = exports.getSecureRandomBytes = void 0;
+-const getRandomBytes = require('expo-random').getRandomBytes;
++const getRandomBytes = require('expo-crypto').getRandomBytes;
+ function getSecureRandomBytes(size) {
+     return Buffer.from(getRandomBytes(size));
+ }
+diff --git a/node_modules/@ton/crypto-primitives/dist/native/hmac_sha512.js b/node_modules/@ton/crypto-primitives/dist/native/hmac_sha512.js
+index 113289c..b0d87d3 100644
+--- a/node_modules/@ton/crypto-primitives/dist/native/hmac_sha512.js
++++ b/node_modules/@ton/crypto-primitives/dist/native/hmac_sha512.js
+@@ -1,4 +1,3 @@
+-"use strict";
+ /**
+  * Copyright (c) Whales Corp.
+  * All Rights Reserved.
+@@ -6,20 +5,11 @@
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+-var __importDefault = (this && this.__importDefault) || function (mod) {
+-    return (mod && mod.__esModule) ? mod : { "default": mod };
+-};
+-Object.defineProperty(exports, "__esModule", { value: true });
+-exports.hmac_sha512 = void 0;
+-const jssha_1 = __importDefault(require("jssha"));
+-async function hmac_sha512(key, data) {
++import crypto from 'crypto';
++export async function hmac_sha512(key, data) {
+     let keyBuffer = typeof key === 'string' ? Buffer.from(key, 'utf-8') : key;
+     let dataBuffer = typeof data === 'string' ? Buffer.from(data, 'utf-8') : data;
+-    const shaObj = new jssha_1.default("SHA-512", "HEX", {
+-        hmacKey: { value: keyBuffer.toString('hex'), format: "HEX" },
+-    });
+-    shaObj.update(dataBuffer.toString('hex'));
+-    const hmac = shaObj.getHash("HEX");
+-    return Buffer.from(hmac, 'hex');
++    return crypto.createHmac('sha512', keyBuffer)
++        .update(dataBuffer)
++        .digest();
+ }
+-exports.hmac_sha512 = hmac_sha512;
+diff --git a/node_modules/@ton/crypto-primitives/dist/native/sha256.js b/node_modules/@ton/crypto-primitives/dist/native/sha256.js
+index 1481328..ffe9d13 100644
+--- a/node_modules/@ton/crypto-primitives/dist/native/sha256.js
++++ b/node_modules/@ton/crypto-primitives/dist/native/sha256.js
+@@ -1,4 +1,3 @@
+-"use strict";
+ /**
+  * Copyright (c) Whales Corp.
+  * All Rights Reserved.
+@@ -6,23 +5,15 @@
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+-var __importDefault = (this && this.__importDefault) || function (mod) {
+-    return (mod && mod.__esModule) ? mod : { "default": mod };
+-};
+-Object.defineProperty(exports, "__esModule", { value: true });
+-exports.sha256 = void 0;
+-const jssha_1 = __importDefault(require("jssha"));
+-async function sha256(source) {
++import crypto from 'crypto';
++export async function sha256(source) {
+     let src;
+     if (typeof source === 'string') {
+-        src = Buffer.from(source, 'utf-8').toString('hex');
++        src = Buffer.from(source, 'utf-8');
+     }
+     else {
+-        src = source.toString('hex');
++        src = source;
+     }
+-    let hasher = new jssha_1.default('SHA-256', 'HEX');
+-    hasher.update(src);
+-    let res = hasher.getHash('HEX');
+-    return Buffer.from(res, 'hex');
++
++    return crypto.createHash('sha256').update(src).digest();
+ }
+-exports.sha256 = sha256;
+diff --git a/node_modules/@ton/crypto-primitives/dist/native/sha512.js b/node_modules/@ton/crypto-primitives/dist/native/sha512.js
+index 02f036f..7887a28 100644
+--- a/node_modules/@ton/crypto-primitives/dist/native/sha512.js
++++ b/node_modules/@ton/crypto-primitives/dist/native/sha512.js
+@@ -1,4 +1,3 @@
+-"use strict";
+ /**
+  * Copyright (c) Whales Corp.
+  * All Rights Reserved.
+@@ -6,23 +5,13 @@
+  * This source code is licensed under the MIT license found in the
+  * LICENSE file in the root directory of this source tree.
+  */
+-var __importDefault = (this && this.__importDefault) || function (mod) {
+-    return (mod && mod.__esModule) ? mod : { "default": mod };
+-};
+-Object.defineProperty(exports, "__esModule", { value: true });
+-exports.sha512 = void 0;
+-const jssha_1 = __importDefault(require("jssha"));
+-async function sha512(source) {
+-    let src;
++import crypto from 'crypto';
++export async function sha512(source) {let src;
+     if (typeof source === 'string') {
+-        src = Buffer.from(source, 'utf-8').toString('hex');
++        src = Buffer.from(source, 'utf-8');
+     }
+     else {
+-        src = source.toString('hex');
++        src = source;
+     }
+-    let hasher = new jssha_1.default('SHA-512', 'HEX');
+-    hasher.update(src);
+-    let res = hasher.getHash('HEX');
+-    return Buffer.from(res, 'hex');
++    return crypto.createHash('sha512').update(src).digest();
+ }
+-exports.sha512 = sha512;

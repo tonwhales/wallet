@@ -1,105 +1,78 @@
-import { ThemeType } from "../utils/AppConfigContext";
+import { ThemeType } from "../engine/state/theme";
 
-export type RoundButtonDisplay = 'default' | 'outline' | 'inverted' | 'pro' | 'telegram' | 'text' | 'secondary' | 'secondary_contrast' | 'disabled' | 'danger_zone';
+export type RoundButtonDisplay =
+    | 'default'
+    | 'outline'
+    | 'inverted'
+    | 'pro'
+    | 'telegram'
+    | 'text'
+    | 'secondary'
+    | 'secondary_contrast'
+    | 'disabled'
+    | 'danger_zone'
+    | 'danger_zone_text';
 
 export function roundButtonDisplays(theme: ThemeType): { [key in RoundButtonDisplay]: {
     textColor: string,
-    textPressed: string,
     backgroundColor: string,
-    backgroundPressedColor: string,
     borderColor: string,
-    borderPressedColor: string
 } } {
     return {
         default: {
             backgroundColor: theme.accent,
             borderColor: theme.accent,
-            textColor: theme.item,
-
-            backgroundPressedColor: theme.accentDark,
-            borderPressedColor: theme.accentDark,
-            textPressed: theme.item,
+            textColor: theme.textUnchangeable,
         },
         disabled: {
-            backgroundColor: theme.disabled,
-            borderColor: theme.disabled,
-            textColor: theme.item,
-
-            backgroundPressedColor: theme.accentDark,
-            borderPressedColor: theme.accentDark,
-            textPressed: theme.item,
+            backgroundColor: theme.accentDisabled,
+            borderColor: theme.accentDisabled,
+            textColor: theme.textUnchangeable,
         },
         secondary: {
-            backgroundColor: theme.secondaryButton,
-            borderColor: theme.secondaryButton,
-            textColor: theme.secondaryButtonText,
-
-            backgroundPressedColor: theme.selector,
-            borderPressedColor: theme.selector,
-            textPressed: theme.secondaryButtonText,
+            backgroundColor: theme.surfaceOnElevation,
+            borderColor: theme.surfaceOnElevation,
+            textColor: theme.textThird,
         },
         secondary_contrast: {
-            backgroundColor: theme.secondaryButton,
-            borderColor: theme.secondaryButton,
-            textColor: theme.textColor,
-
-            backgroundPressedColor: theme.selector,
-            borderPressedColor: theme.selector,
-            textPressed: theme.secondaryButtonText,
+            backgroundColor: theme.surfaceOnElevation,
+            borderColor: theme.surfaceOnElevation,
+            textColor: theme.textPrimary,
         },
         pro: {
-            backgroundColor: theme.textColor,
-            borderColor: theme.textColor,
-            textColor: theme.item,
-
-            backgroundPressedColor: theme.pressedRoundButton,
-            borderPressedColor: theme.pressedRoundButton,
-            textPressed: theme.item,
+            backgroundColor: theme.textPrimary,
+            borderColor: theme.textPrimary,
+            textColor: theme.surfaceOnBg,
         },
         telegram: {
             backgroundColor: theme.telegram,
             borderColor: theme.telegram,
-            textColor: theme.item,
-
-            backgroundPressedColor: theme.pressedRoundButton,
-            borderPressedColor: theme.pressedRoundButton,
-            textPressed: theme.item,
+            textColor: theme.surfaceOnBg,
         },
         outline: {
-            backgroundColor: theme.background,
+            backgroundColor: theme.backgroundPrimary,
             borderColor: theme.accent,
             textColor: theme.accent,
-
-            backgroundPressedColor: theme.accentDark,
-            borderPressedColor: theme.accentDark,
-            textPressed: theme.accent,
         },
         inverted: {
-            backgroundColor: theme.item,
-            borderColor: theme.item,
+            backgroundColor: theme.surfaceOnBg,
+            borderColor: theme.surfaceOnBg,
             textColor: theme.accent,
-
-            backgroundPressedColor: theme.divider,
-            borderPressedColor: theme.divider,
-            textPressed: theme.accent,
         },
         text: {
             backgroundColor: theme.transparent,
             borderColor: theme.transparent,
-            textColor: theme.accentText,
-
-            backgroundPressedColor: theme.divider,
-            borderPressedColor: theme.divider,
-            textPressed: theme.accent,
+            textColor: theme.accent,
+        },
+        danger_zone_text: {
+            backgroundColor: theme.transparent,
+            borderColor: theme.transparent,
+            textColor: theme.accentRed,
         },
         danger_zone: {
-            backgroundColor: theme.item,
-            borderColor: theme.item,
-            textColor: theme.dangerZone,
-
-            backgroundPressedColor: theme.divider,
-            borderPressedColor: theme.divider,
-            textPressed: theme.accent,
+            backgroundColor: theme.surfaceOnBg,
+            borderColor: theme.surfaceOnBg,
+            textColor: theme.accentRed,
         },
     }
 }

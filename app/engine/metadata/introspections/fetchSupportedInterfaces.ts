@@ -1,4 +1,5 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
+import { TonClient4 } from '@ton/ton';
 
 export async function fetchSupportedInterfaces(client: TonClient4, seqno: number, address: Address) {
 

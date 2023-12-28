@@ -22,6 +22,8 @@ import java.util.List;
 import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
 
+import com.shopify.reactnativeperformance.ReactNativePerformance;
+
 public class MainApplication extends Application implements ReactApplication {
     private final ReactNativeHost mReactNativeHost = new ReactNativeHostWrapper(
             this,
@@ -64,6 +66,7 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     public void onCreate() {
+        ReactNativePerformance.onAppStarted();
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
         if (BuildConfig.IS_NEW_ARCHITECTURE_ENABLED) {

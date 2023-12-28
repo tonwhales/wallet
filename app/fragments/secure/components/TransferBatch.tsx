@@ -1,19 +1,10 @@
-import BN from "bn.js";
-import React from "react";
-import { Alert, Platform, View, Text, ScrollView, Pressable } from "react-native";
-import { Address, Cell, CellMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, SendMode, StateInit, toNano } from "ton";
+import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
+import { Alert, View, Text, ScrollView, Pressable, Image } from "react-native";
 import { MixpanelEvent, trackEvent } from "../../../analytics/mixpanel";
 import { contractFromPublicKey } from "../../../engine/contractFromPublicKey";
-import { useEngine } from "../../../engine/Engine";
-import { ContractMetadata } from "../../../engine/metadata/Metadata";
-import { useItem } from "../../../engine/persistence/PersistedItem";
-import { usePrice } from "../../../engine/PriceContext";
-import { JettonMasterState } from "../../../engine/sync/startJettonMasterSync";
-import { parseMessageBody } from "../../../engine/transactions/parseMessageBody";
+import { SupportedMessage, parseMessageBody } from "../../../engine/transactions/parseMessageBody";
 import { parseBody } from "../../../engine/transactions/parseWalletTransaction";
 import { resolveOperation } from "../../../engine/transactions/resolveOperation";
-import { createWalletTransferV4, internalFromSignRawMessage } from "../../../engine/utils/createWalletTransferV4";
-import { LocalizedResources } from "../../../i18n/schema";
 import { t } from "../../../i18n/t";
 import { KnownWallet, KnownWallets } from "../../../secure/KnownWallets";
 import { getCurrentAddress } from "../../../storage/appState";
@@ -21,23 +12,32 @@ import { WalletKeys } from "../../../storage/walletKeys";
 import { warn } from "../../../utils/log";
 import { backoff } from "../../../utils/time";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { ItemAddress } from "../../../components/ItemAddress";
 import { ItemCollapsible } from "../../../components/ItemCollapsible";
-import { ItemDivider } from "../../../components/ItemDivider";
 import { ItemGroup } from "../../../components/ItemGroup";
-import { ItemLarge } from "../../../components/ItemLarge";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { RoundButton } from "../../../components/RoundButton";
-import { TransferComponent } from "../../../components/transactions/TransferComponent";
 import { WImage } from "../../../components/WImage";
-import Question from '../../../../assets/ic_question.svg';
-import TonSign from '../../../../assets/ic_ton_sign.svg';
-import LottieView from 'lottie-react-native';
-import SignLock from '../../../../assets/ic_sign_lock.svg';
-import { formatCurrency } from "../../../utils/formatCurrency";
-import { fromBNWithDecimals } from "../../../utils/withDecimals";
-import { useAppConfig } from "../../../utils/AppConfigContext";
 import { useKeysAuth } from "../../../components/secure/AuthWalletKeys";
+import { AddressComponent } from "../../../components/address/AddressComponent";
+import { confirmAlert } from "../../../utils/confirmAlert";
+import { useAppData, useAppManifest, useClient4, useCommitCommand, useNetwork, useRegisterPending, useSelectedAccount, useServerConfig, useTheme } from "../../../engine/hooks";
+import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
+import { getJettonMaster } from "../../../engine/getters/getJettonMaster";
+import { Address, Cell, MessageRelaxed, SendMode, beginCell, external, fromNano, storeMessage, internal, toNano, loadStateInit, comment } from "@ton/core";
+import { ContractMetadata } from "../../../engine/metadata/Metadata";
+import { getAccountLite } from "../../../engine/getters/getAccountLite";
+import { fetchSeqno } from "../../../engine/api/fetchSeqno";
+import { getLastBlock } from "../../../engine/accountWatcher";
+import { StoredOperation } from "../../../engine/types";
+import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
+import { OrderMessage } from "../TransferFragment";
+import { fromBnWithDecimals } from "../../../utils/withDecimals";
+import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
+import { AppInfo } from "../../../components/ConnectedAppButton";
+import { ItemDivider } from "../../../components/ItemDivider";
+
+import IcAlert from '@assets/ic-alert.svg';
+import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 type Props = {
     text: string | null,
@@ -46,34 +46,56 @@ type Props = {
         messages: {
             addr: {
                 address: Address;
-                balance: BN,
+                balance: bigint,
                 active: boolean
             },
             metadata: ContractMetadata,
             restricted: boolean,
-            amount: BN,
+            amount: bigint,
             amountAll: boolean,
             payload: Cell | null,
             stateInit: Cell | null,
         }[],
         app?: {
+            url: string,
             domain: string,
             title: string
         }
     },
-    fees: BN,
+    fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
-    totalAmount: BN
+    totalAmount: bigint
 }
 
-export const TransferBatch = React.memo((props: Props) => {
+export const TransferBatch = memo((props: Props) => {
     const authContext = useKeysAuth();
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
-    const [price, currency] = usePrice();
+    const client = useClient4(isTestnet);
+    const selected = useSelectedAccount();
+    const commitCommand = useCommitCommand();
+    const registerPending = useRegisterPending();
+    const [walletSettings,] = useWalletSettings(selected?.address);
+    const [addressBook,] = useAddressBook();
+    const contacts = addressBook.contacts;
+    const denyList = addressBook.denyList;
+    const serverConfig = useServerConfig();
+
+    const appData = useAppData(props.order.app?.url || '');
+    const appManifest = useAppManifest(props.order.app?.url || '');
+
+    let app: AppInfo = useMemo(() => {
+        if (appData) {
+            return { ...appData, type: 'app-data' };
+        } else if (appManifest) {
+            return { ...appManifest, type: 'app-manifest' };
+        } else {
+            return null;
+        }
+    }, [appData, appManifest]);
+
     const {
         text,
         order,
@@ -84,43 +106,52 @@ export const TransferBatch = React.memo((props: Props) => {
         totalAmount
     } = props;
 
-    const { internals, totalJettons, gas } = React.useMemo(() => {
-        const temp = [];
-        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: BN, gas: BN }>();
+    const { internals, totalJettons, gas } = useMemo(() => {
+        const temp: {
+            message: OrderMessage;
+            operation: StoredOperation;
+            parsedBody: SupportedMessage | null;
+            known: KnownWallet | undefined;
+            spam: boolean;
+            jettonAmount: bigint | null;
+            contact: AddressContact | null;
+            jettonMaster: JettonMasterState | null;
+        }[] = [];
+        const totalJettons = new Map<string, { jettonMaster: JettonMasterState, jettonAmount: bigint, gas: bigint }>();
         let gas = {
-            total: new BN(0),
+            total: BigInt(0),
             unusual: false
         };
         for (const message of order.messages) {
             let body = message.payload ? parseBody(message.payload) : null;
-            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell, message.metadata.interfaces) : null;
+            let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
 
             // Read jetton master
             let jettonMaster: JettonMasterState | null = null;
             if (message.metadata.jettonWallet) {
-                jettonMaster = engine.persistence.jettonMasters.item(message.metadata.jettonWallet!.master).value;
+                jettonMaster = getJettonMaster(message.metadata.jettonWallet!.master, isTestnet) || null;
             }
 
-            let jettonAmount: BN | null = null;
+            let jettonAmount: bigint | null = null;
             try {
                 if (jettonMaster && message.payload) {
                     const temp = message.payload;
                     if (temp) {
                         const parsing = temp.beginParse();
-                        parsing.readUint(32);
-                        parsing.readUint(64);
-                        jettonAmount = parsing.readCoins();
+                        parsing.loadUint(32);
+                        parsing.loadUint(64);
+                        jettonAmount = parsing.loadCoins();
                     }
                 }
-            } catch (e) {
-                console.warn(e);
+            } catch {
+                console.warn('Failed to parse jetton amount');
             }
 
             if (jettonAmount && jettonMaster && message.metadata.jettonWallet) {
-                const addr = message.metadata.jettonWallet?.master.toFriendly({ testOnly: AppConfig.isTestnet });
+                const addr = message.metadata.jettonWallet?.master.toString({ testOnly: isTestnet });
                 const value = totalJettons.get(addr);
                 if (!!value) {
-                    value.jettonAmount = value.jettonAmount.add(jettonAmount);
+                    value.jettonAmount = value.jettonAmount + jettonAmount;
                     totalJettons.set(addr, value);
                 } else {
                     totalJettons.set(addr, {
@@ -130,9 +161,9 @@ export const TransferBatch = React.memo((props: Props) => {
                     });
                 }
 
-                gas.total = gas.total.add(message.amount);
+                gas.total = gas.total + message.amount;
 
-                if (message.amount.gt(toNano('0.2'))) {
+                if (message.amount > toNano('0.2')) {
                     gas.unusual = true;
                 }
             }
@@ -142,22 +173,21 @@ export const TransferBatch = React.memo((props: Props) => {
                 body: body,
                 amount: message.amount,
                 account: message.addr.address,
-                metadata: message.metadata,
-                jettonMaster
-            });
+            }, isTestnet);
 
-            const contact = (engine.products.settings.addressBook.value.contacts ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const friendlyTarget = message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet });
+            const friendlyTarget = message.addr.address.toString({ testOnly: isTestnet });
+            const contact = contacts[operation.address];
+
             let known: KnownWallet | undefined = undefined;
-            if (KnownWallets(AppConfig.isTestnet)[friendlyTarget]) {
-                known = KnownWallets(AppConfig.isTestnet)[friendlyTarget];
-            } else if (operation.title) {
-                known = { name: operation.title };
-            } else if (!!contact) { // Resolve contact known wallet
+
+            if (KnownWallets(isTestnet)[friendlyTarget]) {
+                known = KnownWallets(isTestnet)[friendlyTarget];
+            }
+            if (!!contact) { // Resolve contact known wallet
                 known = { name: contact.name }
             }
-            const isSpam = !!(engine.products.settings.addressBook.value.denyList ?? {})[operation.address.toFriendly({ testOnly: AppConfig.isTestnet })];
-            const spam = !!engine.persistence.serverConfig.item().value?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
+            const isSpam = !!(denyList ?? {})[operation.address];
+            const spam = !!serverConfig.data?.wallets.spam.find((s) => s === friendlyTarget) || isSpam;
 
             temp.push({
                 message,
@@ -166,7 +196,7 @@ export const TransferBatch = React.memo((props: Props) => {
                 known,
                 spam,
                 jettonAmount,
-                contact,
+                contact: null,
                 jettonMaster
             });
         }
@@ -174,60 +204,48 @@ export const TransferBatch = React.memo((props: Props) => {
         return { internals: temp, totalJettons, gas };
     }, []);
 
-    const jettonsGasAlert = React.useCallback(() => {
-        Alert.alert(t('transfer.unusualJettonsGasTitle', { amount: fromNano(gas.total) }),
-            t('transfer.unusualJettonsGasMessage'),
-            [{ text: t('common.gotIt') }])
+    const jettonsGasAlert = useCallback(() => {
+        navigation.navigateAlert({
+            title: t('transfer.unusualJettonsGasTitle', { amount: fromNano(gas.total) }),
+            message: t('transfer.unusualJettonsGasMessage'),
+        })
     }, [gas]);
 
     // Tracking
-    const success = React.useRef(false);
-    React.useEffect(() => {
+    const success = useRef(false);
+    useEffect(() => {
         if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { order }, AppConfig.isTestnet);
+            trackEvent(MixpanelEvent.TransferCancel, { order }, isTestnet);
         }
     }, []);
 
 
     // Confirmation
-    const doSend = React.useCallback(async () => {
-        async function confirm(title: LocalizedResources, message?: string) {
-            return await new Promise<boolean>(resolve => {
-                Alert.alert(t(title), `${message ? message + ' ' : ''}${t('transfer.confirm')}`, [{
-                    text: t('common.yes'),
-                    style: 'destructive',
-                    onPress: () => {
-                        resolve(true)
-                    }
-                }, {
-                    text: t('common.no'),
-                    onPress: () => {
-                        resolve(false);
-                    }
-                }])
-            });
-        }
-
+    const doSend = useCallback(async () => {
         // Load contract
         const acc = getCurrentAddress();
         const contract = await contractFromPublicKey(acc.publicKey);
 
-        const messages: InternalMessage[] = [];
+        if (!selected) {
+            return;
+        }
+
+        const messages: MessageRelaxed[] = [];
         for (const i of internals) {
             const target = i.message.addr.address;
             const restricted = i.message.restricted;
 
-            // Check if same address
+            // Check if transfering to yourself
             if (target.equals(contract.address)) {
-                let allowSendingToYourself = await new Promise((resolve, reject) => {
+                let allowSendingToYourself = await new Promise((resolve) => {
                     Alert.alert(t('transfer.error.sendingToYourself'), undefined, [
                         {
                             onPress: () => resolve(true),
-                            text: t('transfer.continueAnyway')
+                            text: t('common.continueAnyway')
                         },
                         {
                             onPress: () => resolve(false),
-                            text: t('transfer.cancel'),
+                            text: t('common.cancel'),
                             isPreferred: true,
                         }
                     ]);
@@ -239,7 +257,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Check if restricted
             if (restricted) {
-                let cont = await confirm('transfer.error.addressCantReceive');
+                let cont = await confirmAlert('transfer.error.addressCantReceive');
                 if (!cont) {
                     return;
                 }
@@ -247,7 +265,7 @@ export const TransferBatch = React.memo((props: Props) => {
 
             // Check if restricted
             if (restricted) {
-                let cont = await confirm('transfer.error.addressCantReceive');
+                let cont = await confirmAlert('transfer.error.addressCantReceive');
                 if (!cont) {
                     return;
                 }
@@ -259,14 +277,22 @@ export const TransferBatch = React.memo((props: Props) => {
                 bounce = false;
             }
 
+            const internalStateInit = !!i.message.stateInit
+                ? loadStateInit(i.message.stateInit.asSlice())
+                : null;
+
+            const body = !!order.messages[0].payload
+                ? order.messages[0].payload
+                : text ? comment(text) : null;
+
             // Create message
-            const msg = internalFromSignRawMessage({
-                target: i.message.addr.address.toFriendly({ testOnly: AppConfig.isTestnet }),
-                amount: i.message.amount,
-                payload: i.message.payload,
-                amountAll: i.message.amountAll,
-                stateInit: i.message.stateInit
-            }, bounce);
+            const msg = internal({
+                to: i.message.addr.address,
+                value: i.message.amount,
+                init: internalStateInit,
+                bounce,
+                body,
+            });
 
             if (msg) {
                 messages.push(msg);
@@ -274,14 +300,30 @@ export const TransferBatch = React.memo((props: Props) => {
 
         }
 
+        const account = getAccountLite(selected.addressString);
+
         // Check amount
-        if (account.balance.lt(totalAmount)) {
+        if (account!.balance < totalAmount) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
-        if (totalAmount.eq(new BN(0))) {
-            Alert.alert(t('transfer.error.zeroCoins'));
-            return;
+        if (totalAmount === 0n) {
+            let allowSeingZero = await new Promise((resolve) => {
+                Alert.alert(t('transfer.error.zeroCoinsAlert'), undefined, [
+                    {
+                        onPress: () => resolve(true),
+                        text: t('common.continueAnyway')
+                    },
+                    {
+                        onPress: () => resolve(false),
+                        text: t('common.cancel'),
+                        isPreferred: true,
+                    }
+                ]);
+            });
+            if (!allowSeingZero) {
+                return;
+            }
         }
 
 
@@ -293,15 +335,18 @@ export const TransferBatch = React.memo((props: Props) => {
             return;
         }
 
+        let seqno = await fetchSeqno(client, await getLastBlock(), selected.address);
+
         // Create transfer
         let transfer: Cell;
         try {
-            transfer = createWalletTransferV4({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
+            transfer = contract.createTransfer({
+                seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                messages
+                sendMode: order.messages[0].amountAll
+                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
+                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                messages,
             });
         } catch (e) {
             warn('Failed to create transfer');
@@ -309,53 +354,45 @@ export const TransferBatch = React.memo((props: Props) => {
         }
 
         // Create external message
-        let extMessage = new ExternalMessage({
+        const extMessage = external({
             to: contract.address,
-            body: new CommonMessageInfo({
-                stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                body: new CellMessage(transfer)
-            })
+            body: transfer,
+            init: seqno === 0 ? contract.init : undefined
         });
-        let msg = new Cell();
-        extMessage.writeTo(msg);
+
+        let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
         // Sending transaction
-        await backoff('transfer', () => engine.client4.sendMessage(msg.toBoc({ idx: false })));
+        await backoff('transfer', () => client.sendMessage(msg.toBoc({ idx: false })));
 
         // Notify job
         if (job) {
-            await engine.products.apps.commitCommand(true, job, transfer);
+            await commitCommand(true, job, transfer);
         }
 
         // Notify callback
         if (callback) {
             try {
                 callback(true, transfer);
-            } catch (e) {
-                warn(e);
-                // Ignore on error
+            } catch {
+                warn('Failed to execute callback');
             }
         }
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { order }, AppConfig.isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { order }, isTestnet);
 
         // Register pending
-        engine.products.main.registerPending({
-            id: 'pending-' + account.seqno,
-            lt: null,
-            fees: fees,
-            amount: totalAmount.mul(new BN(-1)),
-            address: null,
-            seqno: account.seqno,
-            kind: 'out',
-            body: null,
+        registerPending({
+            id: 'pending-' + seqno,
             status: 'pending',
+            fees: fees,
+            amount: totalAmount * (BigInt(-1)),
+            address: null,
+            seqno: seqno,
+            body: { type: 'batch' },
             time: Math.floor(Date.now() / 1000),
-            bounced: false,
-            prev: null,
-            mentioned: [],
             hash: msg.hash(),
         });
 
@@ -367,52 +404,97 @@ export const TransferBatch = React.memo((props: Props) => {
         } else {
             navigation.popToTop();
         }
-    }, []);
+    }, [registerPending]);
 
-    const anim = React.useRef<LottieView>(null);
-
-    React.useLayoutEffect(() => {
-        setTimeout(() => {
-            anim.current?.play()
-        }, 300);
-    }, []);
-
-    return (
-        <>
-            {!!order.app && (
+    let appInfo = !!order.app && (
+        <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+            <View style={{
+                backgroundColor: theme.divider,
+                height: 54,
+                position: 'absolute', left: 0, right: 0
+            }} />
+            <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                <WImage
+                    heigh={68}
+                    width={68}
+                    borderRadius={34}
+                />
+                <Text style={{
+                    fontSize: 17,
+                    fontWeight: '600',
+                    flexShrink: 1,
+                    color: theme.textPrimary,
+                    textAlign: 'center'
+                }}>
+                    {t('transfer.requestsToSign', { app: order.app.title })}
+                </Text>
                 <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                    paddingHorizontal: Platform.OS === 'ios' ? 40 + 8 : 16,
+                    alignItems: 'center',
+                    flexDirection: 'row',
+                    flexShrink: 1,
                 }}>
                     <Text style={{
                         textAlign: 'center',
-                        fontSize: 14,
-                        fontWeight: '600'
+                        fontSize: 17,
+                        fontWeight: '400',
+                        marginLeft: 4,
+                        color: theme.textPrimary
                     }}>
-                        {t('transfer.requestsToSign', { app: order.app.title })}
+                        {order.app.domain}
+                    </Text>
+                </View>
+            </View>
+        </ItemGroup>
+    );
+
+    if (app) {
+        appInfo = (
+            <ItemGroup style={{ marginBottom: 16, marginTop: 16, paddingTop: 27 }}>
+                <View style={{
+                    backgroundColor: theme.divider,
+                    height: 54,
+                    position: 'absolute', left: 0, right: 0
+                }} />
+                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <WImage
+                        heigh={68}
+                        width={68}
+                        borderRadius={34}
+                        src={app.type === 'app-data' ? app.image?.preview256 : app.iconUrl}
+                    />
+                    <Text style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                        flexShrink: 1,
+                        color: theme.textPrimary,
+                        textAlign: 'center'
+                    }}>
+                        {t('products.transactionRequest.title')}
                     </Text>
                     <View style={{
-                        justifyContent: 'center',
                         alignItems: 'center',
                         flexDirection: 'row',
-                        marginTop: 6
+                        flexShrink: 1,
                     }}>
-                        <SignLock />
                         <Text style={{
                             textAlign: 'center',
-                            fontSize: 14,
+                            fontSize: 17,
                             fontWeight: '400',
                             marginLeft: 4,
-                            color: Theme.labelSecondary
+                            color: theme.textPrimary
                         }}>
-                            {order.app.domain}
+                            {app.type === 'app-data' ? app.title : app.name}
                         </Text>
                     </View>
                 </View>
-            )}
+            </ItemGroup>
+        )
+    }
+
+    return (
+        <>
             <ScrollView
-                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
+                style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                 contentContainerStyle={{ alignItems: 'center', paddingHorizontal: 16 }}
                 contentInsetAdjustmentBehavior="never"
                 keyboardShouldPersistTaps="always"
@@ -421,209 +503,421 @@ export const TransferBatch = React.memo((props: Props) => {
                 alwaysBounceVertical={false}
             >
                 <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 28 }}>
-                        <LottieView
-                            ref={anim}
-                            source={require('../../../../assets/animations/sign.json')}
-                            style={{ width: 120, height: 120 }}
-                            autoPlay={false}
-                            loop={false}
-                        />
-                        {Platform.OS === 'ios' && (
-                            <Text style={{
-                                fontWeight: '700',
-                                fontSize: 30,
-                                textAlign: 'center'
-                            }}>
-                                {order.messages.length > 1 ? t('transfer.confirmManyTitle', { count: order.messages.length }) : t('transfer.confirmTitle')}
-                            </Text>
-                        )}
-                    </View>
-                    <ItemGroup style={{ marginBottom: 16, marginTop: 30 }}>
-                        <Text style={{
-                            fontWeight: '700',
-                            fontSize: 20,
-                            color: Theme.textColor,
-                            marginHorizontal: 16,
-                            marginVertical: 16,
+                    {appInfo}
+                    <ItemGroup style={{ marginBottom: 16, marginTop: !!appInfo ? 0 : 16, paddingHorizontal: 20 }}>
+                        <View style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            marginBottom: Array.from(totalJettons).length > 0 ? 16 : 0
                         }}>
-                            {t('transfer.txsSummary')}
-                        </Text>
-                        <View>
                             <View style={{
-                                flexDirection: 'row',
-                                marginHorizontal: 16,
-                                alignItems: 'center'
+                                backgroundColor: theme.ton,
+                                height: 48, width: 48,
+                                borderRadius: 24,
+                                justifyContent: 'center',
+                                alignItems: 'center',
                             }}>
-                                <View style={{
-                                    backgroundColor: Theme.accent,
-                                    height: 20, width: 20,
-                                    borderRadius: 20,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    marginRight: 12
-                                }}>
-                                    <TonSign height={10} width={10} color={'white'} />
-                                </View>
-                                <Text style={{
-                                    fontWeight: '700',
-                                    fontSize: 20,
-                                    color: Theme.textColor
-                                }}>
-                                    {fromNano(totalAmount) + ' TON'}
-                                </Text>
+                                <IcTonIcon height={48} width={48} color={'white'} />
                             </View>
-                            <PriceComponent
-                                amount={totalAmount}
-                                style={{
-                                    backgroundColor: Theme.transparent,
-                                    paddingHorizontal: 0,
-                                    marginLeft: 48, marginTop: 4
-                                }}
-                                textStyle={{ color: Theme.textColor, fontWeight: '400', fontSize: 14 }}
-                            />
+                            <View style={{ justifyContent: 'center', marginLeft: 16 }}>
+                                <Text style={{
+                                    fontWeight: '600',
+                                    fontSize: 17, lineHeight: 24,
+                                    color: theme.textPrimary
+                                }}>
+                                    {'-' + fromNano(totalAmount) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    amount={totalAmount}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0, marginTop: 2,
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0
+                                    }}
+                                    prefix={'-'}
+                                    textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 17, lineHeight: 24 }}
+                                    theme={theme}
+                                />
+                            </View>
                         </View>
-                        {totalJettons.size > 0 && (
-                            Array.from(totalJettons).map((value) => {
-                                return (
+                        {Array.from(totalJettons).map((value, index) => {
+                            return (
+                                <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: index < Array.from(totalJettons).length - 1 ? 16 : 0 }}>
                                     <View
-                                        key={value[0]}
                                         style={{
-                                            minHeight: 40,
-                                            flexDirection: 'row',
-                                            marginHorizontal: 16,
-                                            marginBottom: 16,
-                                            alignItems: 'center'
-                                        }}>
-                                        <View style={{
-                                            backgroundColor: Theme.accent,
-                                            height: 20, width: 20,
-                                            borderRadius: 20,
+                                            backgroundColor: theme.surfaceOnElevation,
+                                            height: 48, width: 48,
+                                            borderRadius: 24,
                                             justifyContent: 'center',
-                                            alignItems: 'center', marginTop: 2
-                                        }}>
-                                            <WImage
-                                                src={value[1].jettonMaster.image?.preview256}
-                                                blurhash={value[1].jettonMaster.image?.blurhash}
-                                                width={20}
-                                                heigh={20}
-                                                borderRadius={20}
-                                            />
-                                        </View>
-                                        <View style={{ marginLeft: 12 }}>
-                                            <Text style={{
-                                                fontWeight: '700',
-                                                fontSize: 20,
-                                                color: Theme.textColor,
-                                                marginLeft: 2
-                                            }}>
-                                                {`${fromBNWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals)} ${value[1].jettonMaster.symbol}`}
-                                            </Text>
-                                        </View>
+                                            alignItems: 'center',
+                                        }}
+                                        key={value[0]}
+                                    >
+                                        <WImage
+                                            src={value[1].jettonMaster.image?.preview256}
+                                            blurhash={value[1].jettonMaster.image?.blurhash}
+                                            width={48}
+                                            heigh={48}
+                                            borderRadius={24}
+                                        />
                                     </View>
-                                )
-                            })
-                        )}
-                        <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginTop: totalJettons.size > 0 ? 0 : 16 }} />
-                        <ItemCollapsible title={t('transfer.gasDetails')} hideDivider>
-                            {totalJettons.size > 0 && (
-                                <>
-                                    <View style={{ flexDirection: 'column', paddingHorizontal: 16, alignItems: 'flex-start' }}>
-                                        <View style={{ height: 30, flexDirection: 'row' }}>
-                                            <Text style={{
-                                                fontSize: 14,
-                                                fontWeight: '500',
-                                                color: Theme.textSecondary,
-                                                alignSelf: 'center',
-                                                flexGrow: 1, flexBasis: 0
-                                            }}>
-                                                {t('transfer.jettonGas')}
-                                            </Text>
-                                        </View>
-                                        <View style={{ flexDirection: 'column', paddingBottom: 4 }}>
-                                            <View style={{ paddingBottom: gas.unusual ? 0 : 6 }}>
-                                                <Text style={{
-                                                    fontSize: 16,
-                                                    color: gas.unusual ? Theme.warningSecondary : Theme.textColor,
-                                                    fontWeight: gas.unusual ? '700' : '400'
-                                                }}>
-                                                    {(!AppConfig.isTestnet && price)
-                                                        ? fromNano(gas.total) + ' TON' + ` (${formatCurrency((parseFloat(fromNano(gas.total.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, false)})`
-                                                        : fromNano(gas.total) + ' TON'
-                                                    }
-                                                </Text>
-                                            </View>
-                                        </View>
-                                        {gas.unusual && (
+                                    <Text
+                                        key={`jetton-amount-${index}`}
+                                        style={{
+                                            fontWeight: '600',
+                                            fontSize: 17, lineHeight: 24,
+                                            color: theme.textPrimary,
+                                            marginLeft: 16
+                                        }}
+                                    >
+                                        {'-' + fromBnWithDecimals(value[1].jettonAmount, value[1].jettonMaster.decimals) + ' ' + value[1].jettonMaster.symbol}
+                                    </Text>
+                                </View>
+                            )
+                        })}
+                    </ItemGroup>
+                    <ItemGroup style={{ marginBottom: 16 }}>
+                        <View style={{ paddingHorizontal: 10, justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('common.from')}
+                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    <AddressComponent address={selected!.address} end={4} />
+                                </Text>
+                                {walletSettings?.name && (
+                                    <Text
+                                        style={{
+                                            fontSize: 17, lineHeight: 24, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                            flexShrink: 1, marginLeft: 6
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode={'tail'}
+                                    >
+                                        {walletSettings.name}
+                                    </Text>
+                                )}
+                            </View>
+                        </View>
+                    </ItemGroup>
+                    <ItemCollapsible titleComponent={
+                        <View style={{ justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('transfer.feeTotalTitle')}
+                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {fromNano(fees + gas.total) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    amount={fees + gas.total}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0,
+                                        alignSelf: 'flex-end',
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                        marginLeft: 6
+                                    }}
+                                    textStyle={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                        flexShrink: 1
+                                    }}
+                                    theme={theme}
+                                />
+                            </View>
+                        </View>
+                    }>
+                        <View style={{ justifyContent: 'center' }}>
+                            <Text style={{
+                                fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                color: theme.textSecondary,
+                            }}>
+                                {t('transfer.feeTitle')}
+                            </Text>
+                            <View style={{ flexDirection: 'row' }}>
+                                <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                    {fromNano(fees) + ' TON'}
+                                </Text>
+                                <PriceComponent
+                                    amount={fees}
+                                    style={{
+                                        backgroundColor: theme.transparent,
+                                        paddingHorizontal: 0,
+                                        alignSelf: 'flex-end',
+                                        paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                        marginLeft: 6
+                                    }}
+                                    textStyle={{
+                                        fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                        color: theme.textSecondary,
+                                        flexShrink: 1
+                                    }}
+                                    theme={theme}
+                                />
+                            </View>
+                        </View>
+                        {gas.total > 0n && (
+                            <>
+                                <ItemDivider marginHorizontal={0} />
+                                <View style={{ justifyContent: 'center' }}>
+                                    <Text style={{
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: theme.textSecondary,
+                                    }}>
+                                        {t('transfer.gasFee')}
+                                    </Text>
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text style={{ fontSize: 17, fontWeight: '400', lineHeight: 24, color: theme.textPrimary }}>
+                                            {fromNano(gas.total) + ' TON'}
+                                        </Text>
+                                        <PriceComponent
+                                            amount={gas.total}
+                                            style={{
+                                                backgroundColor: theme.transparent,
+                                                paddingHorizontal: 0,
+                                                alignSelf: 'flex-end',
+                                                paddingLeft: 0, height: undefined, paddingVertical: 0,
+                                                marginLeft: 6
+                                            }}
+                                            textStyle={{
+                                                fontSize: 17, fontWeight: '400', lineHeight: 24,
+                                                color: theme.textSecondary,
+                                                flexShrink: 1
+                                            }}
+                                            theme={theme}
+                                        />
+                                    </View>
+                                    {gas.unusual && (
+                                        <View style={{ flexDirection: 'row', paddingHorizontal: 10, justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Pressable
                                                 onPress={jettonsGasAlert}
                                                 style={({ pressed }) => {
                                                     return {
                                                         alignSelf: 'flex-start',
                                                         flexDirection: 'row',
-                                                        borderRadius: 6, borderWidth: 1,
-                                                        borderColor: Theme.warningSecondaryBorder,
-                                                        paddingHorizontal: 8, paddingVertical: 4,
-                                                        marginBottom: 16,
-                                                        justifyContent: 'center', alignItems: 'center',
-                                                        opacity: pressed ? 0.3 : 1
+                                                        width: '100%',
+                                                        borderRadius: 12,
+                                                        marginTop: 16,
+                                                        paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
+                                                        justifyContent: 'space-between', alignItems: 'center',
+                                                        backgroundColor: 'white',
+                                                        opacity: pressed ? 0.5 : 1
                                                     }
                                                 }}
                                             >
                                                 <Text style={{
-                                                    fontSize: 14,
+                                                    fontSize: 15, lineHeight: 20,
                                                     fontWeight: '400',
-                                                    color: Theme.warningSecondary
+                                                    color: theme.accentRed
                                                 }}>
                                                     {t('transfer.unusualJettonsGas')}
                                                 </Text>
-                                                <Question style={{ marginLeft: 5 }} />
+                                                <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
                                             </Pressable>
-                                        )}
+                                        </View>
+                                    )}
+                                </View>
+                            </>
+                        )}
+                    </ItemCollapsible>
+
+                    {internals.map((i, index) => {
+                        return (
+                            <>
+                                <ItemCollapsible
+                                    style={{ marginTop: 16 }}
+                                    titleStyle={{
+                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                        color: theme.textSecondary,
+                                    }}
+                                    title={t('common.transaction') + ` #${index + 1}`}
+                                >
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                        }}>
+                                            {t('common.amount')}
+                                        </Text>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                                {i.jettonAmount
+                                                    ? fromNano(i.jettonAmount) + (i.jettonMaster?.symbol ?? '')
+                                                    : fromNano(i.message.amount) + ' TON'
+                                                }
+                                            </Text>
+                                            {!i.jettonAmount && (
+                                                <PriceComponent
+                                                    amount={i.message.amount}
+                                                    style={{
+                                                        backgroundColor: theme.transparent,
+                                                        paddingHorizontal: 0,
+                                                        alignSelf: 'flex-end'
+                                                    }}
+                                                    textStyle={{
+                                                        fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                        color: theme.textSecondary,
+                                                        flexShrink: 1
+                                                    }}
+                                                    theme={theme}
+                                                />
+                                            )}
+                                        </View>
                                     </View>
-                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginBottom: 6 }} />
-                                </>
-                            )}
-                            <ItemLarge
-                                title={t('transfer.feeTotalTitle')}
-                                text={fromNano(fees) + ' TON'}
-                            />
-                        </ItemCollapsible>
-                    </ItemGroup>
-                    <ItemGroup>
-                        {internals.map((i, index) => {
-                            return (
-                                <TransferComponent
-                                    key={'transfer' + index}
-                                    transfer={i}
-                                    first={index === 0}
-                                    last={index >= internals.length - 1}
-                                    index={index}
-                                />
-                            );
-                        })}
-                    </ItemGroup>
-                    <ItemGroup style={{
-                        marginTop: 16
-                    }}>
-                        <ItemCollapsible title={t('transfer.moreDetails')}>
-                            {internals.map((i, index) => {
-                                return (
-                                    <>
-                                        <ItemAddress
-                                            key={'address' + index}
-                                            title={`#${index + 1} ` + t('common.walletAddress')}
-                                            text={i.operation.address.toFriendly({ testOnly: AppConfig.isTestnet })}
-                                        />
-                                        {index < internals.length - 1 && (<ItemDivider key={`div-${index}`} />)}
-                                    </>
-                                );
-                            })}
-                        </ItemCollapsible>
-                    </ItemGroup>
+                                    <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <Text style={{
+                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                            color: theme.textSecondary,
+                                        }}>
+                                            {t('common.to')}
+                                        </Text>
+                                        <View style={{ alignItems: 'flex-end' }}>
+                                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                                <AddressComponent address={Address.parse(i.operation.address)} start={10} end={4} />
+                                            </Text>
+                                            {i.known && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: theme.textSecondary,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {i.known?.name}
+                                                    </Text>
+                                                    <View style={{
+                                                        justifyContent: 'center', alignItems: 'center',
+                                                        height: 18, width: 18, borderRadius: 9,
+                                                        marginLeft: 6,
+                                                        backgroundColor: theme.surfaceOnBg
+                                                    }}>
+                                                        <Image
+                                                            source={require('@assets/ic-verified.png')}
+                                                            style={{ height: 18, width: 18 }}
+                                                        />
+                                                    </View>
+                                                </View>
+                                            )}
+                                            {(!i.message.addr.active) && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: theme.textSecondary,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {t('transfer.addressNotActive')}
+                                                    </Text>
+                                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                                </View>
+                                            )}
+                                            {i.spam && (
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text
+                                                        style={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: theme.textSecondary,
+                                                            flexShrink: 1
+                                                        }}
+                                                        numberOfLines={1}
+                                                        ellipsizeMode={'tail'}
+                                                    >
+                                                        {'SPAM'}
+                                                    </Text>
+                                                </View>
+                                            )}
+                                        </View>
+                                    </View>
+                                    {!!i.jettonAmount && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: theme.textSecondary,
+                                                }}>
+                                                    {t('transfer.gasFee')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                                        {fromNano(i.message.amount) + ' TON'}
+                                                    </Text>
+                                                    <PriceComponent
+                                                        amount={i.message.amount}
+                                                        style={{
+                                                            backgroundColor: theme.transparent,
+                                                            paddingHorizontal: 0,
+                                                            alignSelf: 'flex-end'
+                                                        }}
+                                                        textStyle={{
+                                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                            color: theme.textSecondary,
+                                                            flexShrink: 1
+                                                        }}
+                                                        theme={theme}
+                                                    />
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+                                    {!!i.operation.op && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: theme.textSecondary,
+                                                }}>
+                                                    {t('transfer.purpose')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                                        {t(i.operation.op.res, i.operation.op.options)}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+                                    {!!i.operation.comment && (
+                                        <>
+                                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{
+                                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
+                                                    color: theme.textSecondary,
+                                                }}>
+                                                    {t('transfer.commentLabel')}
+                                                </Text>
+                                                <View style={{ alignItems: 'flex-end' }}>
+                                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
+                                                        {i.operation.comment}
+                                                    </Text>
+                                                </View>
+                                            </View>
+                                        </>
+                                    )}
+                                </ItemCollapsible>
+                            </>
+                        );
+                    })}
                     <View style={{ height: 56 }} />
-                </View>
-            </ScrollView>
+                </View >
+            </ScrollView >
             <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
                 <RoundButton
                     title={t('common.confirm')}

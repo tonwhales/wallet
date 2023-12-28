@@ -1,23 +1,30 @@
 import * as React from 'react';
 import { Alert } from 'react-native';
-import { useEngine } from './engine/Engine';
 import { t } from './i18n/t';
 import { useTypedNavigation } from './utils/useTypedNavigation';
 import { ResolvedUrl } from './utils/resolveUrl';
-import BN from 'bn.js';
+import { Queries } from './engine/queries';
+import { useClient4 } from './engine/hooks';
+import { useSelectedAccount } from './engine/hooks';
+import { jettonWalletAddressQueryFn } from './engine/hooks/jettons/useJettonWalletAddress';
+import { useQueryClient } from '@tanstack/react-query';
+import { Address } from '@ton/core';
 
 export function useLinkNavigator(isTestnet: boolean) {
     const navigation = useTypedNavigation();
-    const engine = useEngine();
+    const client = useClient4(isTestnet);
+    const selected = useSelectedAccount();
+    const queryClient = useQueryClient();
 
-    const handler = React.useCallback((resolved: ResolvedUrl) => {
+    const handler = React.useCallback(async (resolved: ResolvedUrl) => {
         if (resolved.type === 'transaction') {
             if (resolved.payload) {
                 navigation.navigateTransfer({
                     order: {
+                        type: 'order',
                         messages: [{
-                            target: resolved.address.toFriendly({ testOnly: isTestnet }),
-                            amount: resolved.amount || new BN(0),
+                            target: resolved.address.toString({ testOnly: isTestnet }),
+                            amount: resolved.amount || BigInt(0),
                             amountAll: false,
                             stateInit: resolved.stateInit,
                             payload: resolved.payload,
@@ -29,7 +36,7 @@ export function useLinkNavigator(isTestnet: boolean) {
                 });
             } else {
                 navigation.navigateSimpleTransfer({
-                    target: resolved.address.toFriendly({ testOnly: isTestnet }),
+                    target: resolved.address.toString({ testOnly: isTestnet }),
                     comment: resolved.comment,
                     amount: resolved.amount,
                     stateInit: resolved.stateInit,
@@ -40,24 +47,28 @@ export function useLinkNavigator(isTestnet: boolean) {
             }
         }
         if (resolved.type === 'jetton-transaction') {
-            const jettons = engine.products.main.getJettons().jettons;
-            const jetton = jettons.find((j) => {
-                return j.master.equals(resolved.jettonMaster);
+            if (!selected) {
+                return;
+            }
+
+            // TODO: replace with getter
+            const jettonWallet = await queryClient.fetchQuery({
+                queryKey: Queries.Jettons().Address(selected!.addressString).Wallet(resolved.jettonMaster.toString({ testOnly: isTestnet })),
+                queryFn: jettonWalletAddressQueryFn(client, resolved.jettonMaster.toString({ testOnly: isTestnet }), selected!.addressString, isTestnet)
             });
 
-            // TODO: try fetching jetton master on SimpleTransferFragment
-            if (!jetton) {
+            if (!jettonWallet) {
                 Alert.alert(t('transfer.wrongJettonTitle'), t('transfer.wrongJettonMessage'));
                 return;
             }
 
             navigation.navigateSimpleTransfer({
-                target: resolved.address.toFriendly({ testOnly: isTestnet }),
+                target: resolved.address.toString({ testOnly: isTestnet }),
                 comment: resolved.comment,
                 amount: resolved.amount,
                 stateInit: null,
                 job: null,
-                jetton: jetton.wallet,
+                jetton: Address.parse(jettonWallet),
                 callback: null
             });
         }

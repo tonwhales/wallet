@@ -1,34 +1,37 @@
 import * as React from 'react';
 import { fragment } from '../../fragment';
-import { Platform, View } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
 import { ConnectAppComponent } from './components/ConnectAppComponent';
-import { useAppConfig } from '../../utils/AppConfigContext';
+import { useAppManifest } from '../../engine/hooks';
+import { useTheme } from '../../engine/hooks';
+import { useMemo } from 'react';
+import { useTonConnectExtensions } from '../../engine/hooks';
+import { extensionKey } from '../../engine/hooks/dapps/useAddExtension';
+import { StatusBar } from 'expo-status-bar';
 
 export const ConnectAppFragment = fragment(() => {
-    const engine = useEngine();
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const url = (useRoute().params as any).url as string;
-    const appData = engine.products.tonConnect.useAppManifest(url);
-    const safeArea = useSafeAreaInsets();
+    const appKey = extensionKey(url)
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const manifestUrl = useMemo(() => {
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
+    }, [inastalledConnectApps, appKey]);
+    const appManifest = useAppManifest(manifestUrl ?? '');
 
-    if (!appData) {
+    if (!appManifest) {
         throw Error('No App Data');
     }
     return (
         <View style={{
             flex: 1,
-            paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
-            backgroundColor: Theme.background
+            backgroundColor: theme.backgroundPrimary
         }}>
-            <StatusBar style={'dark'} />
-
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ConnectAppComponent
                 endpoint={url}
-                title={appData.name}
+                title={appManifest.name}
             />
         </View>
     );

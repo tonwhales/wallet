@@ -1,6 +1,6 @@
 import axios from "axios";
 import * as t from 'io-ts';
-import { Address } from "ton";
+import { Address } from "@ton/core";
 
 export const walletConfigCodec = t.type({
     pools: t.array(t.string),
@@ -12,8 +12,8 @@ export type WalletConfig = {
     recommended: string
 }
 
-export async function fetchWalletConfig(address: Address, isTestnet: boolean) {
-    let res = (await axios.get('https://connect.tonhubapi.com/config/' + address.toFriendly({ testOnly: isTestnet }))).data;
+export async function fetchWalletConfig(address: string) {
+    let res = (await axios.get('https://connect.tonhubapi.com/config/' + address)).data;
     if (!walletConfigCodec.is(res)) {
         throw Error('Invalid config');
     }

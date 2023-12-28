@@ -1,14 +1,14 @@
-import React from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { Text, Platform } from "react-native";
 import LottieView from 'lottie-react-native';
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
 
-export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string, onSuccess: () => void }) => {
-    const { Theme } = useAppConfig();
-    const animRef = React.useRef<LottieView>(null);
+export const PasscodeSuccess = memo(({ title, onSuccess }: { title: string, onSuccess: () => void }) => {
+    const theme = useTheme();
+    const animRef = useRef<LottieView>(null);
 
-    React.useEffect(() => {
+    useEffect(() => {
         if (Platform.OS === 'ios') {
             setTimeout(() => animRef.current?.play(), 300);
         }
@@ -32,7 +32,7 @@ export const PasscodeSuccess = React.memo(({ title, onSuccess }: { title: string
             <Text style={{
                 fontWeight: '600',
                 fontSize: 17, marginBottom: 160, marginTop: 16,
-                color: Theme.textColor
+                color: theme.textPrimary
             }}>
                 {title}
             </Text>

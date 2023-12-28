@@ -7,42 +7,43 @@ import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { useLinkNavigator } from "../../../useLinkNavigator";
-import { useEngine } from '../../../engine/Engine';
 import { protectNavigation } from './protect/protectNavigation';
-import { RoundButton } from '../../../components/RoundButton';
-import { t } from '../../../i18n/t';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
-import { useDAppBridge } from '../../../engine/tonconnect/useInjectConnectEngine';
-import { useAppConfig } from '../../../utils/AppConfigContext';
+import { useDAppBridge } from '../../../engine/hooks';
+import { useTheme } from '../../../engine/hooks';
+import { useNetwork } from '../../../engine/hooks';
+import { ScreenHeader } from '../../../components/ScreenHeader';
+import { memo, useCallback, useMemo, useState } from 'react';
 
-export const ConnectAppComponent = React.memo((props: {
+export const ConnectAppComponent = memo((props: {
     endpoint: string,
     title: string,
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
-    // 
     // Track events
-    // 
     const domain = extractDomain(props.endpoint);
     const navigation = useTypedNavigation();
-    const start = React.useMemo(() => {
-        return Date.now();
-    }, []);
-    const close = React.useCallback(() => {
+    const start = useMemo(() => Date.now(), []);
+    const close = useCallback(() => {
         navigation.goBack();
-        trackEvent(MixpanelEvent.AppClose, { url: props.endpoint, domain, duration: Date.now() - start, protocol: 'tonconnect' }, AppConfig.isTestnet);
+        trackEvent(
+            MixpanelEvent.AppClose,
+            {
+                url: props.endpoint,
+                domain,
+                duration: Date.now() - start,
+                protocol: 'tonconnect'
+            },
+            isTestnet
+        );
     }, []);
-    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, AppConfig.isTestnet);
-
-    //
-    // View
-    //
+    useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, isTestnet);
 
     const safeArea = useSafeAreaInsets();
-    let [loaded, setLoaded] = React.useState(false);
-    const webRef = React.useRef<WebView>(null);
+    let [loaded, setLoaded] = useState(false);
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
@@ -51,25 +52,22 @@ export const ConnectAppComponent = React.memo((props: {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: Theme.background,
+            backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             justifyContent: 'center',
             opacity: withTiming(opacity.value, { duration: 300 }),
         };
     });
 
-    //
     // Navigation
-    //
-
-    const linkNavigator = useLinkNavigator(AppConfig.isTestnet);
-    const loadWithRequest = React.useCallback((event: ShouldStartLoadRequest): boolean => {
+    const linkNavigator = useLinkNavigator(isTestnet);
+    const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
         if (extractDomain(event.url) === extractDomain(props.endpoint)) {
             return true;
         }
 
         // Resolve internal url
-        const resolved = resolveUrl(event.url, AppConfig.isTestnet);
+        const resolved = resolveUrl(event.url, isTestnet);
         if (resolved) {
             linkNavigator(resolved);
             return false;
@@ -86,26 +84,32 @@ export const ConnectAppComponent = React.memo((props: {
         return false;
     }, []);
 
-    //
     // Injection
-    //
-
-    const engine = useEngine();
     const { ref, isConnected, disconnect, ...webViewProps } = useDAppBridge(
         props.endpoint,
-        engine,
         navigation
     );
 
+    const endpoint = useMemo(() => {
+        const url = new URL(props.endpoint);
+        url.searchParams.set('utm_source', 'tonhub');
+        url.searchParams.set('utm_content', 'extension');
+        return url.toString();
+    }, [props.endpoint]);
+
     return (
         <>
-            <View style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
-                <View style={{ height: safeArea.top }} />
+            <View style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}>
+                <ScreenHeader
+                    style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                    onBackPressed={close}
+                    title={props.title}
+                />
                 <WebView
                     ref={ref}
-                    source={{ uri: props.endpoint }}
+                    source={{ uri: endpoint }}
                     startInLoadingState={true}
-                    style={{ backgroundColor: Theme.background, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
+                    style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
                     onLoadEnd={() => {
                         setLoaded(true);
                         opacity.value = 0;
@@ -124,26 +128,9 @@ export const ConnectAppComponent = React.memo((props: {
                     style={animatedStyles}
                     pointerEvents={loaded ? 'none' : 'box-none'}
                 >
-                    <ActivityIndicator size="large" color={Theme.accent} />
+                    <ActivityIndicator size="large" color={theme.accent} />
                 </Animated.View>
 
-            </View>
-            <View style={{ flexDirection: 'row', height: 50 + safeArea.bottom, alignItems: 'center', justifyContent: 'center', paddingBottom: safeArea.bottom, backgroundColor: Theme.background }}>
-                <RoundButton
-                    title={t('common.close')}
-                    display="secondary"
-                    size="normal"
-                    style={{ paddingHorizontal: 8 }}
-                    onPress={close}
-                />
-                <View style={{
-                    position: 'absolute',
-                    top: 0.5, left: 0, right: 0,
-                    height: 0.5,
-                    width: '100%',
-                    backgroundColor: Theme.headerDivider,
-                    opacity: 0.08
-                }} />
             </View>
         </>
     );

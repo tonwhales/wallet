@@ -1,38 +1,38 @@
 import { BN } from "bn.js";
-import { toNano } from "ton";
+import { toNano } from "@ton/core";
 
 export function parseAmountToBn(amount: string) {
     if (amount === '') {
-        return new BN(0);
+        return BigInt(0);
     }
 
-    let value = amount.replace(',', '.');
+    let value = amount.replace(',', '.').replace(/ /g, '');
 
     return toNano(value);
 }
 
 export function parseAmountToNumber(amount: string) {
     if (amount === '') return 0;
-    let value = parseFloat(amount.replace(',', '.'));
+    let value = parseFloat(amount.replace(',', '.').replace(/ /g, ''));
     if (isNaN(value)) return 0;
-    return parseFloat(value.toFixed(8));
+    return parseFloat(value.toFixed(9));
 }
 
 export function parseAmountToValidBN(amount: string) {
     try {
         return parseAmountToBn(amount);
     } catch (error) {
-        return new BN(0);
+        return BigInt(0);
     }
 }
 
 export function toFixedBN(amount: number) {
     if (amount > 0.000001) {
         try {
-            return toNano(parseFloat(amount.toFixed(8)))
+            return toNano(parseFloat(amount.toFixed(9)))
         } catch (e) {
-            return new BN(0);
+            return BigInt(0);
         }
     }
-    return new BN(0);
+    return BigInt(0);
 }

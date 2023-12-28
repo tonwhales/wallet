@@ -1,14 +1,24 @@
-import React from "react";
-import { Pressable, View, Text, ActivityIndicator } from "react-native";
+import React, { memo, useCallback, useState } from "react";
+import { Pressable, View, Text } from "react-native";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { t } from "../../../i18n/t";
-import { LedgerAccount } from "./LedgerSelectAccount";
-import { useAppConfig } from "../../../utils/AppConfigContext";
+import { LedgerAccount } from "../LedgerSelectAccountFragment";
+import Chevron from '@assets/ic-chevron-down.svg';
+import CircularProgress from "../../../components/CircularProgress/CircularProgress";
+import { useTheme } from "../../../engine/hooks";
 
-export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: LedgerAccount, onSelect: (acc: LedgerAccount) => Promise<any>, loadingAcc?: number }) => {
-    const { Theme } = useAppConfig();
-    const [loading, setLoading] = React.useState(false);
-    const doAction = React.useCallback(() => {
+export const AccountButton = memo(({
+    acc,
+    onSelect,
+    loadingAcc
+}: {
+    acc: LedgerAccount,
+    onSelect: (acc: LedgerAccount) => Promise<any>,
+    loadingAcc?: number
+}) => {
+    const theme = useTheme();
+    const [loading, setLoading] = useState(false);
+    const doAction = useCallback(() => {
         if (!!loadingAcc && loadingAcc !== acc.i) {
             return;
         }
@@ -25,64 +35,83 @@ export const AccountButton = React.memo(({ acc, onSelect, loadingAcc }: { acc: L
     return (
         <Pressable onPress={doAction} style={({ pressed }) => {
             return {
-                opacity: (pressed && loadingAcc === undefined) || (loadingAcc !== undefined && loadingAcc !== acc.i) ? 0.3 : 1
+                opacity: (pressed && loadingAcc === undefined) || (loadingAcc !== undefined && loadingAcc !== acc.i) ? 0.5 : 1
             };
         }}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                paddingHorizontal: 16,
-                paddingVertical: 12,
-                backgroundColor: Theme.item,
-                marginVertical: 5,
-                borderRadius: 14,
+                padding: 20,
+                backgroundColor: theme.surfaceOnElevation,
+                marginVertical: 8,
+                borderRadius: 20,
             }}>
-                <View>
-                    <Text style={{
-                        fontWeight: '700',
-                        fontSize: 16,
-                        color: Theme.textColor,
-                        marginBottom: 8
-                    }}>
-                        <ValueComponent
-                            value={acc.balance}
-                            precision={3}
-                        />
-                        {' TON'}
-                    </Text>
-                    <Text style={{
-                        fontWeight: '400',
-                        fontSize: 16,
-                        color: Theme.textColor,
-                    }}>
-                        {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
-                    </Text>
-                </View>
-                <Text style={{
-                    fontWeight: '400',
-                    fontSize: 16,
-                    color: Theme.accent,
-                }}>
-                    {t('common.connect')}
-                </Text>
                 {loading && (
-                    <View style={{
-                        position: 'absolute', left: 0, right: 0, bottom: 0, top: 0,
-                        alignItems: 'center', justifyContent: 'center',
-                        flexDirection: 'row',
-                        backgroundColor: Theme.item, borderRadius: 14
-                    }}>
+                    <View>
                         <Text style={{
-                            fontWeight: '400',
-                            fontSize: 16,
-                            color: Theme.accent,
-                            marginRight: 8
+                            fontWeight: '600',
+                            fontSize: 17, lineHeight: 24,
+                            color: theme.textPrimary
                         }}>
                             {t('hardwareWallet.actions.confirmOnLedger')}
                         </Text>
-                        <ActivityIndicator color={Theme.accent} size='small' />
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 15, lineHeight: 20,
+                            color: theme.textSecondary,
+                        }}>
+                            {t('hardwareWallet.connection')}
+                        </Text>
                     </View>
+                )}
+                {!loading && (
+                    <View>
+                        <Text style={{
+                            fontWeight: '600',
+                            fontSize: 17, lineHeight: 24,
+                            color: theme.textPrimary
+                        }}>
+                            <ValueComponent
+                                value={acc.balance}
+                                precision={3}
+                            />
+                            {' TON'}
+                        </Text>
+                        <Text style={{
+                            fontWeight: '400',
+                            fontSize: 15, lineHeight: 20,
+                            color: theme.textSecondary,
+                        }}>
+                            {acc.addr.address.slice(0, 6) + '...' + acc.addr.address.slice(acc.addr.address.length - 6)}
+                        </Text>
+                    </View>
+                )}
+                <View style={{ flexGrow: 1 }} />
+                {loading ? (
+                    <CircularProgress
+                        style={{
+                            transform: [{ rotate: '-90deg' }],
+                        }}
+                        progress={100}
+                        animateFromValue={0}
+                        duration={6000}
+                        size={24}
+                        width={2}
+                        color={theme.accent}
+                        backgroundColor={theme.transparent}
+                        fullColor={null}
+                        loop={true}
+                        containerColor={theme.transparent}
+                    />
+                ) : (
+                    <Chevron
+                        height={16} width={16}
+                        style={{
+                            height: 16, width: 16,
+                            transform: [{ rotate: '-90deg' }],
+                        }}
+                    />
                 )}
             </View>
         </Pressable>

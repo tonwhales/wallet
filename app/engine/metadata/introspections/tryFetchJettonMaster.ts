@@ -1,14 +1,14 @@
-import BN from "bn.js";
-import { Address, Slice, TonClient4 } from "ton";
+import { Address, Slice } from "@ton/core";
 import { warn } from "../../../utils/log";
 import { ContentSource, JettonMaster } from "../Metadata";
+import { TonClient4 } from '@ton/ton';
 
 function parseString(slice: Slice) {
-    let res = slice.readBuffer(Math.floor(slice.remaining / 8)).toString();
+    let res = slice.loadBuffer(Math.floor(slice.remainingBits / 8)).toString();
     let rr = slice;
     if (rr.remainingRefs > 0) {
-        rr = rr.readRef();
-        res += rr.readBuffer(Math.floor(rr.remaining / 8)).toString();
+        rr = rr.loadRef().beginParse();
+        res += rr.loadBuffer(Math.floor(rr.remainingBits / 8)).toString();
     }
     return res;
 }
@@ -38,15 +38,15 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
     }
 
     // Parsing
-    let totalSupply: BN;
+    let totalSupply: bigint;
     let mintalbe: boolean;
     let owner: Address | null;
     let content: ContentSource | null;
     try {
 
         totalSupply = walletData.result[0].value;
-        mintalbe = !walletData.result[1].value.eq(new BN(0));
-        let _owner = walletData.result[2].cell.beginParse().readAddress();
+        mintalbe = walletData.result[1].value !== 0n;
+        let _owner = walletData.result[2].cell.beginParse().loadAddress();
         if (!_owner) {
             owner = null;
         } else {
@@ -54,7 +54,7 @@ export async function tryFetchJettonMaster(client: TonClient4, seqno: number, ad
         }
 
         let cs = walletData.result[3].cell.beginParse();
-        let kind = cs.readUintNumber(8);
+        let kind = cs.loadUint(8);
         if (kind === 1) {
             let res = parseString(cs);
             content = { type: 'offchain', link: res };

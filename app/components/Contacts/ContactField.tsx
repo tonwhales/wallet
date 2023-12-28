@@ -1,11 +1,11 @@
-import React, { useState } from "react";
-import { View, Text } from "react-native";
-import { useEngine } from "../../engine/Engine";
+import React, { forwardRef, memo, useState } from "react";
+import { TextInput } from "react-native";
 import { t } from "../../i18n/t";
-import { ATextInput, ATextInputRef } from "../ATextInput";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { ATextInput } from "../ATextInput";
+import { useTheme } from '../../engine/hooks';
+import { useContactField } from '../../engine/hooks';
 
-export const ContactField = React.memo((props: {
+export const ContactField = memo(forwardRef((props: {
     input: {
         onFocus?: (index: number) => void,
         onBlur?: (index: number) => void,
@@ -16,13 +16,11 @@ export const ContactField = React.memo((props: {
     },
     fieldKey: string,
     index: number,
-    refs: React.RefObject<ATextInputRef>[],
     onFieldChange: (index: number, value: string) => void,
-}) => {
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
+}, ref: React.ForwardedRef<TextInput>) => {
+    const theme = useTheme();
     const [value, setValue] = useState(props.input.value || '');
-    let label = engine.products.settings.useContactField(props.fieldKey);
+    let label = useContactField(props.fieldKey);
 
     if (props.fieldKey === 'lastName') {
         label = t('contacts.lastName');
@@ -33,56 +31,36 @@ export const ContactField = React.memo((props: {
     }
 
     return (
-        <>
-            <ATextInput
-                key={`input-${props.index}`}
-                index={props.index}
-                ref={props.refs[props.index]}
-                onFocus={props.input.onFocus}
-                onSubmit={props.input.onSubmit}
-                blurOnSubmit={false}
-                returnKeyType={props.refs.length - 1 === props.index ? 'done' : 'next'}
-                value={value}
-                onValueChange={(newValue: string) => {
-                    setValue(newValue);
-                    props.onFieldChange(props.index - 1, newValue);
-                }}
-                placeholder={label}
-                keyboardType={'default'}
-                preventDefaultHeight
-                editable={props.input.editable}
-                enabled={props.input.enabled}
-                label={
-                    <View style={{
-                        flexDirection: 'row',
-                        width: '100%',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        overflow: 'hidden',
-                    }}>
-                        <Text style={{
-                            fontWeight: '500',
-                            fontSize: 12,
-                            color: Theme.label,
-                            alignSelf: 'flex-start',
-                        }}>
-                            {label}
-                        </Text>
-                    </View>
+        <ATextInput
+            ref={ref}
+            inputStyle={{
+                fontSize: 17,
+                fontWeight: '400', color: theme.textPrimary
+            }}
+            style={{ paddingHorizontal: 16 }}
+            maxLength={126}
+            label={label}
+            multiline={false}
+            blurOnSubmit={true}
+            editable={props.input.editable}
+            value={value}
+            onFocus={() => {
+                if (props.input.onFocus) {
+                    props.input.onFocus(props.index);
                 }
-                multiline
-                autoCorrect={false}
-                autoComplete={'off'}
-                style={{
-                    backgroundColor: Theme.transparent,
-                    paddingHorizontal: 0,
-                    marginHorizontal: 16,
-                }}
-            />
-            {(props.index + 1 < props.refs.length) && (
-                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: Theme.divider, marginLeft: 15 }} />
-            )}
-        </>
+            }}
+            onBlur={() => {
+                if (props.input.onBlur) {
+                    props.input.onBlur(props.index);
+                }
+            }}
+            onValueChange={setValue}
+            onSubmit={() => {
+                if (props.input.onSubmit) {
+                    props.input.onSubmit(props.index);
+                }
+            }}
+        />
     )
 
-});
+}));

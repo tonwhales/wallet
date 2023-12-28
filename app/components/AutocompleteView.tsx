@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { ThemeType, useAppConfig } from '../utils/AppConfigContext';
+import { ThemeType } from '../engine/state/theme';
+import { useTheme } from '../engine/hooks';
 
 const height = 50;
 
@@ -31,7 +32,7 @@ function WordComponent(props: {
                     flexBasis: 0,
                     backgroundColor: props.text && props.highlight ? props.theme.divider : undefined
                 }}>
-                    <Text style={{ fontSize: 16 }}>
+                    <Text style={{ fontSize: 16, color: props.theme.textPrimary }}>
                         {props.text}
                     </Text>
                 </View>
@@ -44,7 +45,7 @@ export const AutocompleteView = React.memo((props: {
     suggestions: string[],
     onSelected: (value: string) => void
 }) => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
 
     if (!props.suggestions || props.suggestions.length === 0) {
         return null;
@@ -70,7 +71,7 @@ export const AutocompleteView = React.memo((props: {
         <View
             style={{
                 height: height,
-                backgroundColor: Theme.item,
+                backgroundColor: theme.surfaceOnBg,
                 flexDirection: 'row',
                 alignSelf: 'stretch',
                 alignItems: 'stretch',
@@ -86,11 +87,11 @@ export const AutocompleteView = React.memo((props: {
                 // paddingVertical: 4,
             }}
         >
-            <WordComponent theme={Theme} text={word0} onSelected={props.onSelected} />
-            <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
-            <WordComponent theme={Theme} text={word1} onSelected={props.onSelected} highlight={true} />
-            <View style={{ width: 1, backgroundColor: Theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
-            <WordComponent theme={Theme} text={word2} onSelected={props.onSelected} />
+            <WordComponent theme={theme} text={word0} onSelected={props.onSelected} />
+            <View style={{ width: 1, backgroundColor: theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
+            <WordComponent theme={theme} text={word1} onSelected={props.onSelected} highlight={true} />
+            <View style={{ width: 1, backgroundColor: theme.divider, marginHorizontal: 4, marginVertical: 8 }} />
+            <WordComponent theme={theme} text={word2} onSelected={props.onSelected} />
         </View>
     );
 });

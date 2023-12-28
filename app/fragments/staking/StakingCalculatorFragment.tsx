@@ -1,83 +1,88 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Address, fromNano } from "ton";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { ATextInput } from "../../components/ATextInput";
-import { CloseButton } from "../../components/CloseButton";
-import { PriceComponent } from "../../components/PriceComponent";
 import { RoundButton } from "../../components/RoundButton";
-import { StakingCalcComponent } from "../../components/Staking/StakingCalcComponent";
-import { useEngine } from "../../engine/Engine";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
 import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
+import { ValueComponent } from "../../components/ValueComponent";
+import { TransferAction } from "./StakingTransferFragment";
+import { usePrice, useStakingPool, useTheme } from "../../engine/hooks";
+import { Address, fromNano, toNano } from "@ton/core";
+import { useLedgerTransport } from "../ledger/components/TransportContext";
+import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
+import { StatusBar } from "expo-status-bar";
 
 export const StakingCalculatorFragment = fragment(() => {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     const params = useParams<{ target: Address }>();
-    const engine = useEngine();
-    const pool = engine.products.whalesStakingPools.usePool(params.target);
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
     const safeArea = useSafeAreaInsets();
+    const [price, currency] = usePrice();
+    const ledgerContext = useLedgerTransport();
+    const route = useRoute();
 
-    const [amount, setAmount] = useState(pool?.member.balance ? fromNano(pool.member.balance) : '');
+    const isLedger = route.name === 'LedgerStakingCalculator';
 
-    const onChangeAmount = useCallback(
-        (value: string) => {
-            let amount = value;
-            if (amount.length <= 10) {
-                setAmount(amount);
-                return;
-            }
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch { }
+    }, [ledgerContext?.addr?.address]);
 
-            if (amount.includes(',')) {
-                amount = amount.replace(',', '.');
-                const parts = amount.split('.');
-                if (parts.length === 2) {
-                    if (parts[0].length <= 10) {
-                        setAmount(amount);
-                    } else {
-                        setAmount((prev) => prev);
-                    }
-                }
-            }
+    const pool = useStakingPool(params.target, ledgerAddress);
 
-            if (amount.includes('.')) {
-                const parts = amount.split('.');
-                if (parts.length === 2) {
-                    if (parts[0].length <= 10) {
-                        setAmount(amount);
-                    } else {
-                        setAmount((prev) => prev);
-                    }
-                }
-            }
-        }, [setAmount]);
+    const [amount, setAmount] = useState(pool?.member?.balance ? fromNano(pool.member.balance) : '');
+
+    const validAmount = useMemo(() => {
+        let value: bigint | null = null;
+        if (amount.length === 0) {
+            return 0n;
+        }
+        try {
+            const valid = amount.replace(',', '.').replaceAll(' ', '');
+            value = toNano(valid);
+            return value;
+        } catch {
+            return null;
+        }
+    }, [amount]);
+
+    const priceText = useMemo(() => {
+        if (!amount || !validAmount) {
+            return;
+        }
+
+        const isNeg = validAmount < 0n;
+        const abs = isNeg ? -validAmount : validAmount;
+
+        return formatCurrency(
+            (parseFloat(fromNano(validAmount)) * (price ? price?.price.usd * price.price.rates[currency] : 0)).toFixed(2),
+            currency,
+            isNeg
+        );
+    }, [amount, price, currency, validAmount]);
 
     return (
         <>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <AndroidToolbar
-                style={{ marginTop: safeArea.top }}
-                pageTitle={t('products.staking.calc.text')}
+            <StatusBar style={Platform.select({
+                android: theme.style === 'dark' ? 'light' : 'dark',
+                ios: 'light'
+            })} />
+            <ScreenHeader
+                title={t('products.staking.calc.text')}
+                onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
-            {Platform.OS === 'ios' && (
-                <View style={{
-                    paddingTop: 12,
-                    paddingBottom: 17,
-                }}>
-                    <Text style={{ textAlign: 'center', lineHeight: 32, fontWeight: '600', fontSize: 17 }}>
-                        {t('products.staking.calc.text')}
-                    </Text>
-                </View>
-            )}
             <ScrollView
                 style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', }}
                 contentInset={{ bottom: keyboard.keyboardShown ? (keyboard.keyboardHeight - safeArea.bottom) : 0.1 /* Some weird bug on iOS */, top: 0.1 /* Some weird bug on iOS */ }}
@@ -87,68 +92,66 @@ export const StakingCalculatorFragment = fragment(() => {
                 automaticallyAdjustContentInsets={false}
                 scrollEventThrottle={16}
             >
-                <View
-                    style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}
-                >
-                    <View style={{
-                        marginBottom: 0,
-                        backgroundColor: Theme.item,
-                        borderRadius: 14,
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        padding: 15,
-                    }}>
+                <View style={{ flexGrow: 1, flexBasis: 0, alignSelf: 'stretch', flexDirection: 'column' }}>
+                    <View
+                        style={{
+                            marginVertical: 16,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 20,
+                            justifyContent: 'center',
+                            padding: 20
+                        }}
+                    >
                         <View style={{
                             flexDirection: 'row',
-                            width: '100%',
+                            marginBottom: 12,
                             justifyContent: 'space-between'
                         }}>
                             <Text style={{
                                 fontWeight: '400',
-                                fontSize: 16,
-                                color: Theme.textSubtitle,
+                                fontSize: 15, lineHeight: 20,
+                                color: theme.textSecondary,
                             }}>
-                                {t('common.amount')}
+                                {`${t('common.balance')}: `}
+                                <ValueComponent
+                                    precision={4}
+                                    value={pool?.member?.balance || 0n}
+                                    centFontStyle={{ opacity: 0.5 }}
+                                />
                             </Text>
                         </View>
-                        <View style={{ width: '100%' }}>
-                            <View style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center'
-                            }}>
-                                <ATextInput
-                                    index={0}
-                                    value={amount}
-                                    onValueChange={onChangeAmount}
-                                    placeholder={'0'}
-                                    keyboardType={'numeric'}
-                                    textAlign={'left'}
-                                    style={{ paddingHorizontal: 0, backgroundColor: Theme.transparent, marginTop: 4, flexShrink: 1 }}
-                                    inputStyle={{ color: Theme.accent, flexGrow: 1, paddingTop: 0 }}
-                                    fontWeight={'800'}
-                                    fontSize={30}
-                                    editable={true}
-                                    enabled={true}
-                                    preventDefaultHeight
-                                    preventDefaultLineHeight
-                                    preventDefaultValuePadding
-                                    blurOnSubmit={false}
-                                />
-                            </View>
-                            <PriceComponent
-                                amount={parseAmountToValidBN(amount)}
-                                style={{
-                                    backgroundColor: Theme.transparent,
-                                    paddingHorizontal: 0
-                                }}
-                                textStyle={{ color: Theme.priceSecondary, fontWeight: '400' }}
-                            />
-                        </View>
+                        <ATextInput
+                            index={0}
+                            value={amount}
+                            onValueChange={(newVal) => {
+                                const formatted = formatInputAmount(newVal, 9, { skipFormattingDecimals: true }, amount);
+                                const temp = formatted.replace(',', '.').replaceAll(' ', '');
+
+                                if (temp.split('.')[0].length > 10) { // 10 digits before dot bigger is unreallistic
+                                    return;
+                                }
+                                setAmount(formatted);
+                            }}
+                            keyboardType={'numeric'}
+                            style={{
+                                backgroundColor: theme.backgroundPrimary,
+                                paddingHorizontal: 16, paddingVertical: 14,
+                                borderRadius: 16,
+                            }}
+                            inputStyle={{
+                                fontSize: 17, fontWeight: '400',
+                                color: theme.textPrimary,
+                                width: 'auto',
+                                flexShrink: 1
+                            }}
+                            suffix={priceText}
+                            hideClearButton
+                            prefix={'TON'}
+                        />
                     </View>
-                    {!!pool && (
+                    {!!pool && validAmount !== null && (
                         <StakingCalcComponent
-                            amount={amount}
+                            amount={validAmount}
                             pool={pool}
                         />
                     )}
@@ -163,20 +166,21 @@ export const StakingCalculatorFragment = fragment(() => {
                 keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
             >
                 <RoundButton
-                    title={t('common.back')}
-                    action={async () => navigation.goBack()}
+                    title={t('products.staking.calc.goToTopUp')}
+                    onPress={() => {
+                        navigation.replace(
+                            isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
+                            {
+                                target: params.target,
+                                amount: (pool?.params.minStake ?? 0n) + (pool?.params?.receiptPrice ?? 0n) + (pool?.params?.depositFee ?? 0n),
+                                lockAddress: true,
+                                lockComment: true,
+                                action: 'top_up' as TransferAction,
+                            }
+                        )
+                    }}
                 />
             </KeyboardAvoidingView>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
         </>
 
     );

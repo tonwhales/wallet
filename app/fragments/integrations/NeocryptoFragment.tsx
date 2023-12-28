@@ -1,9 +1,7 @@
-import { StatusBar } from "expo-status-bar";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { memo, useCallback, useMemo, useState } from "react";
 import { View, Text, Image, Platform, Pressable, Alert, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { CheckBox } from "../../components/CheckBox";
 import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { RoundButton } from "../../components/RoundButton";
@@ -14,42 +12,27 @@ import { storage } from "../../storage/storage";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useTheme } from '../../engine/hooks';
+import { useNetwork } from "../../engine/hooks/network/useNetwork";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 const Logo = require('../../../assets/known/neocrypto_logo.png');
+
 export const skipLegalNeocrypto = 'skip_legal_neocrypto';
 
-export const ConfirmLegal = React.memo((
-    {
-        onOpenBuy
-    }: {
-        onOpenBuy: () => void
-    }
-) => {
-    const { Theme } = useAppConfig();
+export const ConfirmLegal = memo(({ onOpenBuy }: { onOpenBuy: () => void }) => {
+    const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(false);
     const [doNotShow, setDoNotShow] = useState(storage.getBoolean(skipLegalNeocrypto));
 
-    const privacy = 'https://neocrypto.net/privacypolicy.html';
-    const terms = 'https://neocrypto.net/terms.html';
+    const privacy = 'https://neocrypto.net/policy/privacy.pdf';
+    const terms = 'https://neocrypto.net/policy/term-of-use.pdf';
 
-    const onDoNotShowToggle = useCallback((newVal: boolean) => {
-        setDoNotShow(newVal);
-    }, []);
-
-    const openTerms = useCallback(
-        () => {
-            openWithInApp(terms);
-        },
-        [],
-    );
-    const openPrivacy = useCallback(
-        () => {
-            openWithInApp(privacy)
-        },
-        [],
-    );
+    const onDoNotShowToggle = useCallback((newVal: boolean) => { setDoNotShow(newVal) }, []);
+    const openTerms = useCallback(() => { openWithInApp(terms) }, []);
+    const openPrivacy = useCallback(() => { openWithInApp(privacy) }, []);
 
     const onOpen = useCallback(() => {
         if (accepted) {
@@ -79,7 +62,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '800',
                         fontSize: 24,
                         textAlign: 'center',
-                        color: Theme.textColor,
+                        color: theme.textPrimary,
                         marginTop: 16,
                         marginHorizontal: 24
                     }}>
@@ -89,6 +72,7 @@ export const ConfirmLegal = React.memo((
                         fontWeight: '400',
                         fontSize: 16,
                         marginTop: 24,
+                        color: theme.textSecondary
                     }}>
                         {t('neocrypto.description')}
                     </Text>
@@ -102,18 +86,17 @@ export const ConfirmLegal = React.memo((
                             checked={accepted}
                             onToggle={(newVal) => setAccepted(newVal)}
                             text={
-                                <Text>
+                                <Text style={{ color: theme.textSecondary }}>
                                     {t('neocrypto.termsAndPrivacy')}
-
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: theme.accent }}
                                         onPress={openTerms}
                                     >
                                         {t('legal.termsOfService')}
                                     </Text>
                                     {' ' + t('common.and') + ' '}
                                     <Text
-                                        style={{ color: Theme.linkText }}
+                                        style={{ color: theme.accent }}
                                         onPress={openPrivacy}
                                     >
                                         {t('legal.privacyPolicy')}
@@ -124,7 +107,16 @@ export const ConfirmLegal = React.memo((
                         <CheckBox
                             checked={doNotShow}
                             onToggle={onDoNotShowToggle}
-                            text={t('neocrypto.doNotShow')}
+                            text={
+                                <Text style={{
+                                    fontWeight: '400',
+                                    fontSize: 16,
+                                    marginLeft: 16,
+                                    color: theme.textSecondary
+                                }}>
+                                    {t('neocrypto.doNotShow')}
+                                </Text>
+                            }
                             style={{
                                 marginTop: 16
                             }}
@@ -132,7 +124,7 @@ export const ConfirmLegal = React.memo((
                     </View>
                 </View>
             </ScrollView>
-            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
+            <View style={{ height: 64, marginTop: 16, marginBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom, alignSelf: 'stretch', paddingHorizontal: 16 }}>
                 <RoundButton
                     disabled={!accepted}
                     title={t('common.continue')}
@@ -144,23 +136,8 @@ export const ConfirmLegal = React.memo((
 });
 
 export const NeocryptoFragment = fragment(() => {
-    const { Theme, AppConfig } = useAppConfig();
-
-    if (AppConfig.isTestnet) {
-        return (
-            <View style={{
-                flexGrow: 1,
-                justifyContent: 'center',
-                alignItems: 'center'
-            }}>
-                <Text style={{
-                    color: Theme.textColor
-                }}>
-                    {'Neocrypto service availible only on mainnet'}
-                </Text>
-            </View>
-        );
-    }
+    const theme = useTheme();
+    const { isTestnet } = useNetwork();
 
     const params = useParams<{
         amount?: string,
@@ -172,11 +149,9 @@ export const NeocryptoFragment = fragment(() => {
     const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalNeocrypto));
     const [loading, setloading] = useState(false);
 
-    const wref = React.useRef<WebView>(null);
-
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
-        address: address.address.toFriendly({ testOnly: AppConfig.isTestnet }),
+        address: address.address.toString({ testOnly: isTestnet }),
         cur_from: 'USD',
         cur_to: 'TON',
         fix_cur_to: 'true',
@@ -184,30 +159,37 @@ export const NeocryptoFragment = fragment(() => {
         ...params
     }), [params]);
 
-    const main = `https://neocrypto.net/tonhub.html?${queryParams.toString()}`;
+    const main = `https://buy.neocrypto.net?${queryParams.toString()}`;
 
     const onOpenBuy = useCallback(() => {
         setAccepted(true);
     }, []);
 
+    if (isTestnet) {
+        return (
+            <View style={{
+                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center'
+            }}>
+                <Text style={{
+                    color: theme.textPrimary
+                }}>
+                    {'Neocrypto service availible only on mainnet'}
+                </Text>
+            </View>
+        );
+    }
+
     return (
         <View style={{
-            flex: 1,
-            backgroundColor: Theme.background,
             flexGrow: 1,
             paddingTop: Platform.OS === 'android' ? safeArea.top : undefined,
         }}>
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             {!accepted && (
                 <>
-                    <AndroidToolbar />
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        {Platform.OS === 'ios' && (
-                            <Text style={{ color: Theme.textColor, fontWeight: '600', fontSize: 17, marginTop: 12, lineHeight: 32 }}>
-                                {'Neorcypto'}
-                            </Text>
-                        )}
-                    </View>
+                    <ScreenHeader onClosePressed={navigation.goBack} title={'Neocrypto'} />
                     <ConfirmLegal onOpenBuy={onOpenBuy} />
                 </>
             )}
@@ -221,33 +203,33 @@ export const NeocryptoFragment = fragment(() => {
                     {loading && <LoadingIndicator simple style={{
                         position: 'absolute', top: 0, left: 0, right: 0, bottom: 0
                     }} />}
+                    <Pressable
+                        style={({ pressed }) => {
+                            return {
+                                opacity: pressed ? 0.5 : 1,
+                                position: 'absolute',
+                                top: Platform.OS === 'android' ? safeArea.top + 16 : 16,
+                                right: 16
+                            }
+                        }}
+                        onPress={() => {
+                            Alert.alert(t('neocrypto.confirm.title'), t('neocrypto.confirm.message'), [{
+                                text: t('common.close'),
+                                style: 'destructive',
+                                onPress: () => {
+                                    navigation.goBack();
+                                }
+                            }, {
+                                text: t('common.cancel'),
+                            }]);
+                        }}
+                    >
+                        <Image source={require('../../../assets/ic_close.png')} style={{
+                            height: 32, width: 32
+                        }} />
+                    </Pressable>
                 </View>
             )}
-            <Pressable
-                style={({ pressed }) => {
-                    return {
-                        opacity: pressed ? 0.5 : 1,
-                        position: 'absolute',
-                        top: Platform.OS === 'android' ? safeArea.top + 16 : 16,
-                        right: 16
-                    }
-                }}
-                onPress={() => {
-                    Alert.alert(t('neocrypto.confirm.title'), t('neocrypto.confirm.message'), [{
-                        text: t('common.close'),
-                        style: 'destructive',
-                        onPress: () => {
-                            navigation.goBack();
-                        }
-                    }, {
-                        text: t('common.cancel'),
-                    }]);
-                }}
-            >
-                <Image source={require('../../../assets/ic_close.png')} style={{
-                    height: 32, width: 32
-                }} />
-            </Pressable>
         </View>
     );
 })

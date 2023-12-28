@@ -1,30 +1,38 @@
-import React, { useEffect, useRef, useState } from "react"
-import { StyleProp, View, ViewStyle } from "react-native"
+import React, { memo, useEffect, useRef, useState } from "react"
+import { StyleProp, View, ViewStyle, Image } from "react-native"
 import { avatarHash } from "../utils/avatarHash";
-import { avatarColors, avatarImages } from "./Avatar";
+import { Avatar, avatarColors } from "./Avatar";
 import { KnownWallets } from "../secure/KnownWallets";
-import { KnownAvatar } from "./KnownAvatar";
-import CircularProgress, { defaultDuration, easeOutQuart } from "./CircularProgress/CircularProgress";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useNetwork, useTheme, useWalletSettings } from "../engine/hooks";
+import Animated, { Easing, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
 
 const Color = require('color');
 
-export const PendingTransactionAvatar = React.memo(({
+export const PendingTransactionAvatar = memo(({
     style,
     avatarId,
-    address
+    address,
+    kind
 }: {
     style?: StyleProp<ViewStyle>,
     avatarId: string,
-    address?: string
+    address?: string,
+    kind: 'in' | 'out'
 }) => {
-    const { Theme, AppConfig } = useAppConfig();
-    const ref = useRef<CircularProgress>(null);
+    const theme = useTheme();
+    const network = useNetwork();
+    const [walletSettings,] = useWalletSettings(address);
     let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
-    let Img = avatarImages[avatarHash(avatarId, avatarImages.length)];
 
-    let size = Math.floor(42 * 0.6);
-    let known = address ? KnownWallets(AppConfig.isTestnet)[address] : undefined;
+    const rotation = useSharedValue(0);
+
+    const animatedRotation = useAnimatedStyle(() => {
+        return {
+            transform: [{ rotate: `${rotation.value * 360}deg` }],
+        }
+    }, []);
+
+    let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
     let lighter = Color(color).lighten(0.4).hex();
     let darker = Color(color).lighten(0.2).hex();
 
@@ -33,36 +41,15 @@ export const PendingTransactionAvatar = React.memo(({
         darker = known.colors.secondary;
     }
 
-
-    const [progressParams, setProgressParams] = useState({
-        tintColor: darker,
-        backgroundColor: lighter,
-    });
-
     useEffect(() => {
-        const timerId = setInterval(() => {
-            if (progressParams.tintColor === darker) {
-                setProgressParams({
-                    tintColor: lighter,
-                    backgroundColor: darker,
-                });
-            } else {
-                setProgressParams({
-                    tintColor: darker,
-                    backgroundColor: lighter,
-                });
-            }
-            ref.current?.animateTo(100, defaultDuration, easeOutQuart);
-        }, defaultDuration, defaultDuration);
-
-        return () => {
-            clearInterval(timerId);
-        }
-    }, [progressParams]);
+        rotation.value = withRepeat(
+            withTiming(rotation.value + 1, { duration: 1500, easing: Easing.linear }),
+            -1,
+        );
+    }, []);
 
     return (
-        <View style={{ flex: 1, height: 42, width: 42, justifyContent: 'center', alignItems: 'center' }}>
-            <View style={{ width: 39, height: 39, borderRadius: 39, backgroundColor: color }} />
+        <View style={[{ flex: 1, height: 46, width: 46, justifyContent: 'center', alignItems: 'center' }, style]}>
             <View style={{
                 position: 'absolute',
                 top: 0, left: 0,
@@ -70,32 +57,39 @@ export const PendingTransactionAvatar = React.memo(({
                 alignItems: 'center',
                 justifyContent: 'center'
             }}>
-                {!known && (<Img
-                    width={size}
-                    height={size}
-                    color="white"
-                />)}
-                {known && <KnownAvatar size={42} wallet={known} />}
+                <Avatar
+                    address={address}
+                    size={46}
+                    id={avatarId}
+                    hash={walletSettings.avatar}
+                    borderWith={0}
+                    backgroundColor={theme.backgroundPrimary}
+                    theme={theme}
+                    isTestnet={network.isTestnet}
+                    hashColor
+                />
             </View>
-            <CircularProgress
-                ref={ref}
-                style={{
+            <Animated.View style={[
+                {
+                    height: 20,
+                    width: 20,
                     position: 'absolute',
-                    top: 0, left: 0,
-                    right: 0, bottom: 0,
-                    transform: [{ rotate: '-90deg' }]
-                }}
-                progress={100}
-                animateFromValue={0}
-                duration={defaultDuration}
-                size={42}
-                width={3}
-                color={progressParams.tintColor}
-                backgroundColor={progressParams.backgroundColor}
-                fullColor={null}
-                loop={true}
-                containerColor={Theme.transparent}
-            />
+                    bottom: -2, right: -2,
+                },
+                animatedRotation
+            ]}>
+                <View
+                    style={{
+                        backgroundColor: '#FF9A50',
+                        height: 20, width: 20,
+                        borderRadius: 10,
+                        borderWidth: 2, borderColor: theme.surfaceOnElevation,
+                        justifyContent: 'center', alignItems: 'center'
+                    }}
+                >
+                    <Image style={{ height: 10, width: 10 }} source={require('@assets/ic-pending-arch.png')} />
+                </View>
+            </Animated.View>
         </View>
     )
 })

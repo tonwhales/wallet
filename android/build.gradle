@@ -6,7 +6,7 @@ buildscript {
         minSdkVersion = 24
         compileSdkVersion = 34
         targetSdkVersion = 33
-        kotlinVersion = "1.6.21"
+        kotlinVersion = "1.8.10"
         ndkVersion = "24.0.8215888"
     }
     repositories {
@@ -29,6 +29,10 @@ buildscript {
             mavenCentral()
             mavenLocal()
             jcenter()
+            maven {
+                // expo-camera bundles a custom com.google.android:cameraview
+                url "$rootDir/../node_modules/expo-camera/android/maven"
+            }
         }
     }
 }

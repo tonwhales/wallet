@@ -1,38 +1,34 @@
-import BN from 'bn.js';
-import { StatusBar } from 'expo-status-bar';
 import * as React from 'react';
 import { Platform, View, Alert } from "react-native";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Address, Cell, CellMessage, CommentMessage, CommonMessageInfo, ExternalMessage, fromNano, InternalMessage, parseSupportedMessage, resolveKnownInterface, SendMode, StateInit } from 'ton';
-import { AndroidToolbar } from '../../components/topbar/AndroidToolbar';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useRoute } from '@react-navigation/native';
-import { useEngine } from '../../engine/Engine';
 import { getCurrentAddress } from '../../storage/appState';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { LoadingIndicator } from '../../components/LoadingIndicator';
-import { CloseButton } from '../../components/CloseButton';
 import { Order } from './ops/Order';
-import { useItem } from '../../engine/persistence/PersistedItem';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
-import { JettonMasterState } from '../../engine/sync/startJettonMasterSync';
-import { estimateFees } from '../../engine/estimate/estimateFees';
 import { DNS_CATEGORY_WALLET, resolveDomain, validateDomain } from '../../utils/dns/dns';
 import { TransferSingle } from './components/TransferSingle';
 import { TransferBatch } from './components/TransferBatch';
-import { createWalletTransferV4, internalFromSignRawMessage } from '../../engine/utils/createWalletTransferV4';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
-import { parseMessageBody } from '../../engine/transactions/parseMessageBody';
-import { useAppConfig } from '../../utils/AppConfigContext';
-
-export type ATextInputRef = {
-    focus: () => void;
-}
+import { ScreenHeader } from '../../components/ScreenHeader';
+import { TransferSkeleton } from '../../components/skeletons/TransferSkeleton';
+import { useEffect, useMemo, useState } from 'react';
+import { useClient4, useCommitCommand, useConfig, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { fetchSeqno } from '../../engine/api/fetchSeqno';
+import { JettonMasterState } from '../../engine/metadata/fetchJettonMasterContent';
+import { OperationType } from '../../engine/transactions/parseMessageBody';
+import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
+import { Address, Cell, MessageRelaxed, loadStateInit, comment, internal, external, SendMode, storeMessage, storeMessageRelaxed, CommonMessageInfoRelaxedInternal } from '@ton/core';
+import { getLastBlock } from '../../engine/accountWatcher';
+import { estimateFees } from '../../utils/estimateFees';
+import { internalFromSignRawMessage } from '../../utils/internalFromSignRawMessage';
+import { StatusBar } from 'expo-status-bar';
 
 export type TransferFragmentProps = {
     text: string | null,
@@ -42,52 +38,67 @@ export type TransferFragmentProps = {
     back?: number
 };
 
-export type ConfirmLoadedProps = {
+export type OrderMessage = {
+    addr: {
+        address: Address;
+        balance: bigint,
+        active: boolean
+    },
+    metadata: ContractMetadata,
+    restricted: boolean,
+    amount: bigint,
+    amountAll: boolean,
+    payload: Cell | null,
+    stateInit: Cell | null,
+}
+
+export type ConfirmLoadedPropsSingle = {
     type: 'single',
     target: {
         isTestOnly: boolean;
         address: Address;
-        balance: BN,
+        balance: bigint,
         active: boolean,
         domain?: string
+    },
+    jettonTarget?: {
+        isTestOnly: boolean;
+        address: Address;
+        balance: bigint;
+        active: boolean;
+        domain?: string | undefined;
     },
     text: string | null,
     order: Order,
     job: string | null,
-    fees: BN,
+    fees: bigint,
     metadata: ContractMetadata,
     restricted: boolean,
     jettonMaster: JettonMasterState | null
     callback: ((ok: boolean, result: Cell | null) => void) | null
     back?: number
-} | {
+}
+
+export type ConfirmLoadedPropsBatch = {
     type: 'batch',
     text: string | null,
     job: string | null,
     order: {
-        messages: {
-            addr: {
-                address: Address;
-                balance: BN,
-                active: boolean
-            },
-            metadata: ContractMetadata,
-            restricted: boolean,
-            amount: BN,
-            amountAll: boolean,
-            payload: Cell | null,
-            stateInit: Cell | null,
-        }[],
+        messages: OrderMessage[],
         app?: {
             domain: string,
-            title: string
+            title: string,
+            url: string
         }
     },
-    fees: BN,
+    fees: bigint,
     callback: ((ok: boolean, result: Cell | null) => void) | null,
     back?: number,
-    totalAmount: BN
+    totalAmount: bigint
 };
+
+
+export type ConfirmLoadedProps = ConfirmLoadedPropsSingle | ConfirmLoadedPropsBatch;
 
 const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
     if (props.type === 'single') {
@@ -98,25 +109,27 @@ const TransferLoaded = React.memo((props: ConfirmLoadedProps) => {
 });
 
 export const TransferFragment = fragment(() => {
-    const { AppConfig } = useAppConfig();
+    const { isTestnet } = useNetwork();
+    const theme = useTheme();
     const params: TransferFragmentProps = useRoute().params! as any;
-    const engine = useEngine();
-    const account = useItem(engine.model.wallet(engine.address));
+    const selectedAccount = useSelectedAccount();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
+    const client = useClient4(isTestnet);
+    const commitCommand = useCommitCommand();
 
     // Memmoize all parameters just in case
-    const from = React.useMemo(() => getCurrentAddress(), []);
-    const text = React.useMemo(() => params.text, []);
-    const order = React.useMemo(() => params.order, []);
-    const job = React.useMemo(() => params.job, []);
-    const callback = React.useMemo(() => params.callback, []);
+    const from = useMemo(() => getCurrentAddress(), []);
+    const text = useMemo(() => params.text, []);
+    const order = useMemo(() => params.order, []);
+    const job = useMemo(() => params.job, []);
+    const callback = useMemo(() => params.callback, []);
 
     // Auto-cancel job on unmount
-    React.useEffect(() => {
+    useEffect(() => {
         return () => {
             if (params && params.job) {
-                engine.products.apps.commitCommand(false, params.job, new Cell());
+                commitCommand(false, params.job, new Cell());
             }
             if (params && params.callback) {
                 params.callback(false, null);
@@ -125,9 +138,9 @@ export const TransferFragment = fragment(() => {
     }, []);
 
     // Fetch all required parameters
-    const [loadedProps, setLoadedProps] = React.useState<ConfirmLoadedProps | null>(null);
-    const netConfig = engine.products.config.useConfig();
-    React.useEffect(() => {
+    const [loadedProps, setLoadedProps] = useState<ConfirmLoadedProps | null>(null);
+    const netConfig = useConfig();
+    useEffect(() => {
 
         // Await data
         if (!netConfig) {
@@ -139,19 +152,72 @@ export const TransferFragment = fragment(() => {
         backoff('transfer', async () => {
             // Get contract
             const contract = contractFromPublicKey(from.publicKey);
-            const tonDnsRootAddress = netConfig.rootDnsAddress;
+            const tonDnsRootAddress = Address.parse(netConfig.rootDnsAddress);
+
+            const emptySecret = Buffer.alloc(64);
 
             if (order.messages.length === 1) {
                 let target = Address.parseFriendly(
-                    Address.parse(params.order.messages[0].target).toFriendly({ testOnly: AppConfig.isTestnet })
+                    Address.parse(params.order.messages[0].target).toString({ testOnly: isTestnet })
                 );
+
+                // Fetch data
+                const [
+                    config,
+                    [metadata, state, seqno]
+                ] = await Promise.all([
+                    backoff('transfer', () => fetchConfig()),
+                    backoff('transfer', async () => {
+                        let block = await backoff('transfer', () => client.getLastBlock());
+                        return Promise.all([
+                            backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, isTestnet, true)),
+                            backoff('transfer', () => client.getAccount(block.last.seqno, target.address)),
+                            backoff('transfer', () => fetchSeqno(client, block.last.seqno, target.address))
+                        ])
+                    }),
+                ]);
+
+                let jettonMaster: JettonMasterState | null = null;
+                let jettonTarget: typeof target | null = null;
+                let jettonTargetState: typeof state | null = null;
+
+                // Read jetton master
+                if (metadata.jettonWallet) {
+                    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
+                    if (body && body.type === 'payload') {
+                        const temp = order.messages[0].payload;
+                        let sc = temp?.beginParse();
+                        if (sc) {
+                            if (sc.remainingBits > 32) {
+                                let op = sc.loadUint(32);
+                                // Jetton transfer op
+                                if (op === OperationType.JettonTransfer) {
+                                    let queryId = sc.loadUint(64);
+                                    let amount = sc.loadCoins();
+                                    let jettonTargetAddress = sc.loadAddress();
+
+                                    if (jettonTargetAddress) {
+                                        jettonTarget = Address.parseFriendly(jettonTargetAddress.toString({ testOnly: isTestnet }));
+                                    }
+
+                                    jettonMaster = await fetchJettonMaster(metadata.jettonWallet!.master, isTestnet);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (jettonTarget) {
+                    let block = await backoff('transfer', () => client.getLastBlock());
+                    jettonTargetState = await backoff('transfer', () => client.getAccount(block.last.seqno, target.address));
+                }
 
                 if (order.domain) {
                     try {
                         const tonZoneMatch = order.domain.match(/\.ton$/);
                         const tMeZoneMatch = order.domain.match(/\.t\.me$/);
-                        let zone = null;
-                        let domain = null;
+                        let zone: string | null = null;
+                        let domain: string | null = null;
                         if (tonZoneMatch || tMeZoneMatch) {
                             zone = tonZoneMatch ? '.ton' : '.t.me';
                             domain = zone === '.ton'
@@ -163,12 +229,18 @@ export const TransferFragment = fragment(() => {
                             throw Error('Invalid domain');
                         }
 
+                        domain = domain.toLowerCase();
+
                         const valid = validateDomain(domain);
                         if (!valid) {
                             throw Error('Invalid domain');
                         }
 
-                        const resolvedDomainWallet = await resolveDomain(engine.client4, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                        const resolvedDomainWallet = await resolveDomain(client, tonDnsRootAddress, order.domain, DNS_CATEGORY_WALLET);
+                        if (!resolvedDomainWallet) {
+                            throw Error('Error resolving domain wallet');
+                        }
+
                         if (!resolvedDomainWallet) {
                             throw Error('Error resolving domain wallet');
                         }
@@ -176,7 +248,11 @@ export const TransferFragment = fragment(() => {
                         if (
                             !resolvedDomainWallet
                             || !Address.isAddress(resolvedDomainWallet)
-                            || !resolvedDomainWallet.equals(target!.address)
+                            || (
+                                !!jettonTarget
+                                    ? !resolvedDomainWallet.equals(jettonTarget.address)
+                                    : !resolvedDomainWallet.equals(target!.address)
+                            )
                         ) {
                             throw Error('Error resolving wallet address');
                         }
@@ -189,38 +265,32 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
+                const internalStateInit = order.messages[0].stateInit
+                    ? loadStateInit(order.messages[0].stateInit.asSlice())
+                    : null;
+
+                const body = order.messages[0].payload
+                    ? order.messages[0].payload
+                    : comment(text || '');
+
                 // Create transfer
-                let intMessage = new InternalMessage({
+                let intMessage = internal({
                     to: target.address,
                     value: order.messages[0].amount,
                     bounce: false,
-                    body: new CommonMessageInfo({
-                        stateInit: order.messages[0].stateInit ? new CellMessage(order.messages[0].stateInit) : null,
-                        body: order.messages[0].payload ? new CellMessage(order.messages[0].payload) : new CommentMessage(text || '')
-                    })
-                });
-                let transfer = await contract.createTransfer({
-                    seqno: account.seqno,
-                    walletId: contract.source.walletId,
-                    secretKey: null,
-                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
-                    order: intMessage
+                    init: internalStateInit,
+                    body,
                 });
 
-                // Fetch data
-                const [
-                    config,
-                    [metadata, state]
-                ] = await Promise.all([
-                    backoff('transfer', () => fetchConfig()),
-                    backoff('transfer', async () => {
-                        let block = await backoff('transfer', () => engine.client4.getLastBlock());
-                        return Promise.all([
-                            backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, target.address)),
-                            backoff('transfer', () => engine.client4.getAccount(block.last.seqno, target.address))
-                        ])
-                    }),
-                ])
+                const accSeqno = await backoff('transfer-seqno', async () => fetchSeqno(client, await getLastBlock(), contract.address));
+
+                let transfer = contract.createTransfer({
+                    seqno: accSeqno,
+                    secretKey: emptySecret,
+                    sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                    messages: [intMessage]
+                });
+
                 if (exited) {
                     return;
                 }
@@ -234,40 +304,19 @@ export const TransferFragment = fragment(() => {
                     }
                 }
 
-                // Read jetton master
-                let jettonMaster: JettonMasterState | null = null;
-                if (metadata.jettonWallet) {
-                    let body = order.messages[0].payload ? parseBody(order.messages[0].payload) : null;
-                    if (body && body.type === 'payload') {
-                        const temp = order.messages[0].payload;
-                        let sc = temp?.beginParse();
-                        if (sc) {
-                            if (sc.remaining > 32) {
-                                let op = sc.readUintNumber(32);
-                                // Jetton transfer op
-                                if (op === 0xf8a7ea5) {
-                                    jettonMaster = engine
-                                        .persistence
-                                        .jettonMasters
-                                        .item(metadata.jettonWallet!.master).value;
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Estimate fee
-                let inMsg = new Cell();
-                new ExternalMessage({
+                const externalMessage = external({
                     to: contract.address,
-                    body: new CommonMessageInfo({
-                        stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                        body: new CellMessage(transfer)
-                    })
-                }).writeTo(inMsg);
-                let outMsg = new Cell();
-                intMessage.writeTo(outMsg);
-                let fees = estimateFees(netConfig!, inMsg, [outMsg], [state!.account.storageStat]);
+                    body: transfer,
+                    init: seqno === 0 ? contract.init : null
+                });
+
+                let inMsg = new Cell().asBuilder();
+                storeMessage(externalMessage)(inMsg);
+
+                let outMsg = new Cell().asBuilder();
+                storeMessageRelaxed(intMessage)(outMsg);
+
+                let fees = estimateFees(netConfig!, inMsg.endCell(), [outMsg.endCell()], [state!.account.storageStat]);
 
                 // Set state
                 setLoadedProps({
@@ -276,10 +325,17 @@ export const TransferFragment = fragment(() => {
                     target: {
                         isTestOnly: target.isTestOnly,
                         address: target.address,
-                        balance: new BN(state.account.balance.coins, 10),
+                        balance: BigInt(state.account.balance.coins),
                         active: state.account.state.type === 'active',
                         domain: order.domain
                     },
+                    jettonTarget: !!jettonTarget ? {
+                        isTestOnly: jettonTarget.isTestOnly,
+                        address: jettonTarget.address,
+                        balance: BigInt(jettonTargetState!.account.balance.coins),
+                        active: jettonTargetState!.account.state.type === 'active',
+                        domain: order.domain
+                    } : undefined,
                     order,
                     text,
                     job,
@@ -296,22 +352,37 @@ export const TransferFragment = fragment(() => {
                 return;
             }
 
-            const block = await backoff('transfer', () => engine.client4.getLastBlock());
+            const block = await backoff('transfer', () => client.getLastBlock());
             const config = await backoff('transfer', () => fetchConfig());
 
             const outMsgs: Cell[] = [];
-            const storageStats = [];
-            const inMsgs: InternalMessage[] = [];
-            const messages = [];
-            let totalAmount = new BN(0);
+            const storageStats: ({
+                lastPaid: number;
+                duePayment: string | null;
+                used: {
+                    bits: number;
+                    cells: number;
+                    publicCells: number;
+                }
+            } | null)[] = [];
+            const inMsgs: MessageRelaxed[] = [];
+            const messages: OrderMessage[] = [];
+            let totalAmount = BigInt(0);
             for (let i = 0; i < order.messages.length; i++) {
                 const msg = internalFromSignRawMessage(order.messages[i]);
                 if (msg) {
                     inMsgs.push(msg);
+
+                    if (!Address.isAddress(msg.info.dest)) {
+                        continue;
+                    }
+
+                    const to = msg.info.dest as Address;
+
                     // Fetch data
                     const [metadata, state] = await Promise.all([
-                        backoff('transfer', () => fetchMetadata(engine.client4, block.last.seqno, msg.to)),
-                        backoff('transfer', () => engine.client4.getAccount(block.last.seqno, msg.to))
+                        backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet, true)),
+                        backoff('transfer', () => client.getAccount(block.last.seqno, to))
                     ]);
 
                     storageStats.push(state!.account.storageStat);
@@ -319,23 +390,24 @@ export const TransferFragment = fragment(() => {
                     // Check if wallet is restricted
                     let restricted = false;
                     for (let r of config.wallets.restrict_send) {
-                        if (Address.parse(r).equals(msg.to)) {
+                        if (Address.parse(r).equals(to)) {
                             restricted = true;
                             break;
                         }
                     }
-                    let outMsg = new Cell();
-                    msg.writeTo(outMsg);
-                    outMsgs.push(outMsg);
-                    totalAmount = totalAmount.add(msg.value);
+                    let outMsg = new Cell().asBuilder();
+                    storeMessageRelaxed(msg)(outMsg);
+
+                    outMsgs.push(outMsg.endCell());
+                    totalAmount = totalAmount + (msg.info as CommonMessageInfoRelaxedInternal).value.coins;
 
                     messages.push({
                         ...order.messages[i],
                         metadata,
                         restricted,
                         addr: {
-                            address: msg.to,
-                            balance: new BN(state.account.balance.coins, 10),
+                            address: to,
+                            balance: BigInt(state.account.balance.coins),
                             active: state.account.state.type === 'active',
                         },
                     });
@@ -354,7 +426,7 @@ export const TransferFragment = fragment(() => {
                     }]);
                     exited = true;
                     if (params && params.job) {
-                        engine.products.apps.commitCommand(false, params.job, new Cell());
+                        commitCommand(false, params.job, new Cell());
                     }
                     if (params && params.callback) {
                         params.callback(false, null);
@@ -365,25 +437,25 @@ export const TransferFragment = fragment(() => {
             }
 
             // Create transfer
-            let transfer = await createWalletTransferV4({
-                seqno: account.seqno,
-                walletId: contract.source.walletId,
-                secretKey: null,
-                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATLY,
+            const accountSeqno = await fetchSeqno(client, block.last.seqno, contract.address);
+            let transfer = await contract.createTransfer({
+                seqno: accountSeqno,
+                secretKey: emptySecret,
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages: inMsgs
             });
 
-            // Estimate fee
-            let inMsg = new Cell();
-            new ExternalMessage({
+            const externalMessage = external({
                 to: contract.address,
-                body: new CommonMessageInfo({
-                    stateInit: account.seqno === 0 ? new StateInit({ code: contract.source.initialCode, data: contract.source.initialData }) : null,
-                    body: new CellMessage(transfer)
-                })
-            }).writeTo(inMsg);
+                body: transfer,
+                init: accountSeqno === 0 ? contract.init : null
+            });
 
-            let fees = estimateFees(netConfig!, inMsg, outMsgs, storageStats);
+            // Estimate fee
+            let inMsg = new Cell().asBuilder();
+            storeMessage(externalMessage)(inMsg);
+
+            let fees = estimateFees(netConfig!, inMsg.endCell(), outMsgs, storageStats);
 
             // Set state
             setLoadedProps({
@@ -402,26 +474,29 @@ export const TransferFragment = fragment(() => {
         return () => {
             exited = true;
         };
-    }, [netConfig]);
+    }, [netConfig, selectedAccount]);
 
     return (
-        <>
-            <AndroidToolbar style={{ marginTop: safeArea.top }} pageTitle={t('transfer.confirmTitle')} />
-            <StatusBar style={Platform.OS === 'ios' ? 'light' : 'dark'} />
-            <View style={{ flexGrow: 1, flexBasis: 0, paddingBottom: safeArea.bottom }}>
-                {!loadedProps && (<View style={{ flexGrow: 1, alignItems: 'center', justifyContent: 'center' }}><LoadingIndicator simple={true} /></View>)}
-                {!!loadedProps && <TransferLoaded {...loadedProps} />}
+        <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
+            <ScreenHeader
+                style={[{ paddingLeft: 16 }, Platform.select({ android: { paddingTop: safeArea.top } })]}
+                onBackPressed={navigation.goBack}
+                onClosePressed={() => navigation.navigateAndReplaceAll('Home')}
+            />
+            <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom }}>
+                {!loadedProps ? (
+                    <View style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    }}>
+                        <View style={{ flexGrow: 1, alignItems: 'center' }}>
+                            <TransferSkeleton />
+                        </View>
+                    </View>
+                ) : (
+                    <TransferLoaded {...loadedProps} />
+                )}
             </View>
-            {
-                Platform.OS === 'ios' && (
-                    <CloseButton
-                        style={{ position: 'absolute', top: 12, right: 10 }}
-                        onPress={() => {
-                            navigation.goBack();
-                        }}
-                    />
-                )
-            }
-        </>
+        </View>
     );
 });

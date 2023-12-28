@@ -1,51 +1,101 @@
-import BN from "bn.js"
-import React from "react"
+import React, { memo, useMemo } from "react"
 import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
-import { fromNano } from "ton"
-import { usePrice } from "../engine/PriceContext"
 import { formatCurrency } from "../utils/formatCurrency"
-import { useAppConfig } from "../utils/AppConfigContext"
+import { usePrice, useTheme } from "../engine/hooks";
+import { fromNano } from "@ton/core";
+import { ThemeType } from "../engine/state/theme";
 
-export const PriceComponent = React.memo((
+import TonSign from '@assets/ic_ton_sign.svg';
+import { PerfView } from "./basic/PerfView";
+import { PerfText } from "./basic/PerfText";
+
+export const PriceComponent = memo((
     {
         amount,
         style,
         textStyle,
+        centsTextStyle,
         prefix,
-        suffix
+        suffix,
+        currencyCode,
+        showSign,
+        theme
     }: {
-        amount: BN,
+        amount: bigint,
         style?: StyleProp<ViewStyle>,
         textStyle?: StyleProp<TextStyle>,
+        centsTextStyle?: StyleProp<TextStyle>,
         prefix?: string,
-        suffix?: string
+        suffix?: string,
+        currencyCode?: string,
+        showSign?: boolean,
+        theme: ThemeType
     }
 ) => {
-    const { Theme } = useAppConfig();
     const [price, currency] = usePrice();
+
+    const isNeg = amount < 0;
+    const abs = isNeg ? -amount : amount;
+
+    const fullText = useMemo(() => {
+        if (!price) {
+            return '';
+        }
+        const priceUSD = price.price.usd;
+        const rates = price.price.rates;
+
+        const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];
+        const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
+        return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
+    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg]);
+
+    const decimalPoint = fullText.match(/[.,]/)?.[0];
+    const parts = fullText.split(decimalPoint ?? /[.,]/);
+    const integer = parts[0];
+    const cents = parts[1];
 
     if (!price) {
         return <></>;
     }
 
     return (
-        <View style={[{
-            backgroundColor: Theme.accent,
-            borderRadius: 9,
-            height: 24,
-            justifyContent: 'center',
-            alignItems: 'flex-start',
+        <PerfView style={[{
+            backgroundColor: theme.accent,
+            borderRadius: 16,
+            height: 28,
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            alignItems: 'center',
             alignSelf: 'flex-start',
-            paddingVertical: 4, paddingHorizontal: 8
+            paddingVertical: 4,
+            paddingHorizontal: 12,
+            paddingLeft: showSign ? 2 : 12
         }, style]}>
-            <Text style={[{
-                color: Theme.item,
-                fontSize: 14, fontWeight: '600',
+            {showSign && (
+                <PerfView style={{
+                    height: 24, width: 24,
+                    justifyContent: 'center', alignItems: 'center',
+                    backgroundColor: theme.ton, borderRadius: 12,
+                    marginRight: 6
+                }}>
+                    <TonSign
+                        height={12}
+                        width={12}
+                        style={{ marginTop: 2, height: 12, width: 12 }}
+                    />
+                </PerfView>
+            )}
+            <PerfText style={[{
+                color: theme.surfaceOnBg,
+                fontSize: 15, fontWeight: '500',
                 textAlign: "center",
-                lineHeight: 16
+                lineHeight: 20
             }, textStyle]}>
-                {`${prefix ?? ''}${formatCurrency((parseFloat(fromNano(amount.abs())) * price.price.usd * price.price.rates[currency]).toFixed(2), currency, amount.isNeg())}${suffix ?? ''}`}
-            </Text>
-        </View>
+                {`${integer}${decimalPoint ?? ','}`}
+                <PerfText style={centsTextStyle}>
+                    {cents}
+                </PerfText>
+            </PerfText>
+        </PerfView>
     )
 })

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { useAppConfig } from '../utils/AppConfigContext';
+import { useTheme } from '../engine/hooks';
 
 
 export function GhostButton(props: { onClick: () => void, icon?: any, text: string, loading?: boolean }) {
-    const { Theme } = useAppConfig();
+    const theme = useTheme();
     return (
         <TouchableOpacity onPress={props.onClick}>
             <View
@@ -13,7 +13,7 @@ export function GhostButton(props: { onClick: () => void, icon?: any, text: stri
                     marginHorizontal: 16,
                     borderRadius: 18,
                     borderWidth: 1,
-                    borderColor: Theme.divider,
+                    borderColor: theme.divider,
                     alignSelf: 'stretch',
                     flexDirection: 'row',
                     alignItems: 'center'
@@ -63,10 +63,10 @@ export function GhostButton(props: { onClick: () => void, icon?: any, text: stri
                 )}
                 <View style={{ marginRight: 16 }}>
                 
-                    {loading && (<ActivityIndicator color={Theme.loader} />)}
+                    {loading && (<ActivityIndicator color={theme.loader} />)}
                 </View> */}
                 <View style={{ marginRight: 16 }}>
-                    {props.loading && (<ActivityIndicator color={Theme.loader} />)}
+                    {props.loading && (<ActivityIndicator color={theme.accent} />)}
                 </View>
             </View>
         </TouchableOpacity>

@@ -1,38 +1,30 @@
 import * as React from 'react';
 import { GlobalLoaderProvider } from './components/useGlobalLoader';
-import { Host } from 'react-native-portalize';
-import { Context } from 'react-native-portalize/lib/Host';
 import { useTrackScreen } from './analytics/mixpanel';
 import { useRoute } from '@react-navigation/native';
-import { useAppConfig } from './utils/AppConfigContext';
 import { AuthWalletKeysContextProvider } from './components/secure/AuthWalletKeys';
+import { useNetwork } from './engine/hooks';
+import { ToastProvider } from './components/toast/ToastProvider';
 
-export function systemFragment<T = {}>(Component: React.ComponentType<T>, doNotTrack?: boolean): React.ComponentType<T> {
-    return React.memo((props) => {
-        const ctx = React.useContext(Context);
-        const { AppConfig } = useAppConfig();
+export function systemFragment<T>(
+    Component: React.ComponentType<T>,
+    doNotTrack?: boolean
+): React.ComponentType<React.PropsWithRef<T & JSX.IntrinsicAttributes>> {
+    return React.memo((props: T & JSX.IntrinsicAttributes) => {
+        const { isTestnet } = useNetwork();
 
         const route = useRoute();
         const name = route.name;
         if (!doNotTrack) {
-            useTrackScreen(name, AppConfig.isTestnet);
+            useTrackScreen(name, isTestnet);
         }
 
-        if (ctx) {
-            return (
-                <AuthWalletKeysContextProvider>
-                    <GlobalLoaderProvider>
-                        <Component {...props} />
-                    </GlobalLoaderProvider>
-                </AuthWalletKeysContextProvider>
-            );
-        }
         return (
             <AuthWalletKeysContextProvider>
                 <GlobalLoaderProvider>
-                    <Host>
+                    <ToastProvider>
                         <Component {...props} />
-                    </Host>
+                    </ToastProvider>
                 </GlobalLoaderProvider>
             </AuthWalletKeysContextProvider>
         );

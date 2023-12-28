@@ -1,33 +1,38 @@
-import React, { useMemo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
-import { AppData } from "../engine/api/fetchAppData";
-import { useEngine } from "../engine/Engine";
-import { AppManifest } from "../engine/api/fetchManifest";
-import { extractDomain } from "../engine/utils/extractDomain";
 import { t } from "../i18n/t";
 import { WImage } from "./WImage";
-import { useAppConfig } from "../utils/AppConfigContext";
+import { useTheme } from '../engine/hooks';
+import { AppData } from '../engine/api/fetchAppData';
+import { AppManifest } from '../engine/api/fetchManifest';
+import { useAppData } from '../engine/hooks';
+import { useAppManifest } from '../engine/hooks';
+import { extractDomain } from '../engine/utils/extractDomain';
+import { useTonConnectExtensions } from "../engine/hooks/dapps/useTonConnectExtenstions";
+import { extensionKey } from "../engine/hooks/dapps/useAddExtension";
 
-type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
+export type AppInfo = (AppData & { type: 'app-data' }) | (AppManifest & { type: 'app-manifest' }) | null;
 
-export const ConnectedAppButton = React.memo((
-    {
-        name,
-        url,
-        tonconnect,
-        onRevoke
-    }: {
-        name: string,
-        url: string,
-        tonconnect?: boolean,
-        onRevoke?: () => void,
-    }
-) => {
-    const { Theme } = useAppConfig();
-    const engine = useEngine();
-    const appData = engine.products.extensions.useAppData(url);
-    const appManifest = engine.products.tonConnect.useAppManifest(url);
-    let app: AppInfo = useMemo(() => {
+export const ConnectedAppButton = memo(({
+    name,
+    url,
+    tonconnect,
+    onRevoke
+}: {
+    name?: string | null,
+    url: string,
+    tonconnect?: boolean,
+    onRevoke?: () => void,
+}) => {
+    const theme = useTheme();
+    const appData = useAppData(url);
+    const [inastalledConnectApps,] = useTonConnectExtensions();
+    const appKey = extensionKey(url)
+    const manifestUrl = useMemo(() => {
+        return inastalledConnectApps?.[appKey]?.manifestUrl;
+    }, [inastalledConnectApps, appKey]);
+    const appManifest = useAppManifest(manifestUrl ?? '');
+    const app: AppInfo = useMemo(() => {
         if (appData) {
             return { ...appData, type: 'app-data' };
         } else if (appManifest && tonconnect) {
@@ -35,12 +40,24 @@ export const ConnectedAppButton = React.memo((
         } else {
             return null;
         }
-    }, [appData, appManifest, tonconnect]);
+    }, [appData, appManifest, tonconnect, name]);
+
+    const title = useMemo(() => {
+        if (!app) {
+            return name;
+        }
+        if (app.type === 'app-data') {
+            return app.title;
+        } else {
+            return app.name;
+        }
+    }, [app, name]);
+
 
     return (
         <View style={{
             height: 62, borderRadius: 14,
-            backgroundColor: Theme.item, flexDirection: 'row',
+            backgroundColor: theme.surfaceOnElevation, flexDirection: 'row',
             alignItems: 'center',
             padding: 10
         }}>
@@ -60,10 +77,10 @@ export const ConnectedAppButton = React.memo((
                     height: 42
                 }}
             >
-                {!!name && (
+                {!!title && (
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.textColor,
+                        color: theme.textPrimary,
                         fontWeight: '600',
                         flex: 1,
                         marginBottom: 3
@@ -71,13 +88,13 @@ export const ConnectedAppButton = React.memo((
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
                     >
-                        {name}
+                        {title}
                     </Text>
                 )}
                 {!!url && (
                     <Text style={{
                         fontSize: 16,
-                        color: Theme.price,
+                        color: theme.textSecondary,
                         fontWeight: '400',
                     }}
                         numberOfLines={1}
@@ -102,7 +119,7 @@ export const ConnectedAppButton = React.memo((
                 <Text
                     style={{
                         fontWeight: '500',
-                        color: Theme.delete,
+                        color: theme.accentRed,
                         fontSize: 16
                     }}
                 >

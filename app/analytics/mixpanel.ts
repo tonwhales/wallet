@@ -2,7 +2,7 @@ import { useFocusEffect } from "@react-navigation/native";
 import { Mixpanel, MixpanelProperties } from "mixpanel-react-native";
 import { useCallback, useEffect } from "react";
 import { warn } from "../utils/log";
-import { initialAppConfig } from "../utils/AppConfigContext";
+import { IS_SANDBOX } from '../engine/state/network';
 
 export enum MixpanelEvent {
     Reset = 'reset',
@@ -11,10 +11,12 @@ export enum MixpanelEvent {
     NotificationReceived = 'notification_received',
     AppOpen = 'app_open',
     AppClose = 'app_close',
-    ZenPay = 'zen_pay',
-    ZenPayInfo = 'zen_pay_info',
-    ZenPayInfoClose = 'zen_pay_info_close',
-    ZenPayClose = 'zen_pay_close',
+    Holders = 'holders',
+    HoldersEnrollment = 'holders_entrollment',
+    HoldersInfo = 'holders_info',
+    HoldersInfoClose = 'holders_info_close',
+    HoldersEnrollmentClose = 'holders_entrollment_close',
+    HoldersClose = 'holders_close',
     AppInstall = 'app_install',
     AppInstallCancel = 'app_install_cancel',
     AppUninstall = 'app_uninstall',
@@ -25,7 +27,7 @@ export enum MixpanelEvent {
 
 let mixpanel = __DEV__
     ? new Mixpanel("b4b856b618ade30de503c189af079566") // Dev mode
-    : initialAppConfig.isTestnet
+    : IS_SANDBOX
         ? new Mixpanel("3f9efc81525f5bc5e5d047595d4d8ac9") // Sandbox
         : new Mixpanel("67a554fa4f2b98ae8785878bb4de73dc"); // Production
 mixpanel.init();
@@ -43,7 +45,7 @@ export function trackScreen(screen: string, properties?: MixpanelProperties, isT
 }
 
 export function mixpanelInst(isTestnet?: boolean) {
-    if (isTestnet !== initialAppConfig.isTestnet) {
+    if (isTestnet !== IS_SANDBOX) {
         mixpanel = __DEV__
             ? new Mixpanel("b4b856b618ade30de503c189af079566") // Dev mode
             : isTestnet

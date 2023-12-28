@@ -1,17 +1,19 @@
-import React, { } from "react"
+import React, { memo } from "react"
 import { View, Pressable } from "react-native"
 import { PasscodeKey, PasscodeKeyButton } from "./PasscodeKeyButton";
+import { useTheme } from "../../engine/hooks";
 
-export const PasscodeKeyboard = React.memo(({
+export const PasscodeKeyboard = memo(({
     onKeyPress,
     leftIcon
 }: {
     onKeyPress: (key: PasscodeKey) => void,
     leftIcon?: any,
 }) => {
+    const theme = useTheme();
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
             <View style={{ flexDirection: 'row' }}>
                 <PasscodeKeyButton
                     key={PasscodeKey.One}
@@ -63,16 +65,23 @@ export const PasscodeKeyboard = React.memo(({
                     onPress={() => onKeyPress(PasscodeKey.Nine)}
                 />
             </View>
-            <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 }}>
-                {!!leftIcon && (
+            <View style={{ flexDirection: 'row', marginTop: 12 }}>
+                {!!leftIcon ? (
                     <Pressable
                         onPress={() => onKeyPress(PasscodeKey.LeftActionKey)}
                         style={({ pressed }) => {
-                            return { opacity: pressed ? 0.5 : 1, height: 60, width: 100, justifyContent: 'center', alignItems: 'center' }
+                            return {
+                                height: 60, width: 60,
+                                marginHorizontal: 30, borderRadius: 30,
+                                justifyContent: 'center', alignItems: 'center',
+                                backgroundColor: pressed ? theme.border : undefined,
+                            }
                         }}
                     >
                         {leftIcon}
                     </Pressable>
+                ) : (
+                    <View style={{ flexGrow: 1 }} />
                 )}
                 <PasscodeKeyButton
                     key={PasscodeKey.Zero}

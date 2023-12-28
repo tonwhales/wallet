@@ -1,6 +1,6 @@
 // Word search trie impl from https://en.wikipedia.org/wiki/Trie
 
-import { wordlist } from 'ton-crypto/dist/mnemonic/wordlist';
+import { wordlist } from '@ton/crypto/dist/mnemonic/wordlist';
 
 export class TrieNode {
     key: any;

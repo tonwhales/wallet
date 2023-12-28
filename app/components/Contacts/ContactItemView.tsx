@@ -1,70 +1,127 @@
-import React, { useCallback, useMemo } from "react";
-import { TouchableHighlight, useWindowDimensions, View, Text } from "react-native";
-import { Address } from "ton";
-import { AddressContact } from "../../engine/products/SettingsProduct";
+import React, { memo, useCallback, useMemo } from "react";
+import { View, Text, Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AddressComponent } from "../AddressComponent";
 import { Avatar } from "../Avatar";
-import { useAppConfig } from "../../utils/AppConfigContext";
+import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
+import Animated from "react-native-reanimated";
+import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
+import { Address } from "@ton/core";
+import { AddressComponent } from "../address/AddressComponent";
 
-export const ContactItemView = React.memo(({ addr, contact }: { addr: string, contact: AddressContact }) => {
-    const { Theme } = useAppConfig();
+export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
+    const { isTestnet } = useNetwork();
+    const theme = useTheme();
     const address = useMemo(() => Address.parse(addr), [addr])
-    const dimentions = useWindowDimensions();
-    const fontScaleNormal = dimentions.fontScale <= 1;
+    const contact = useContact(addr);
+    const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
+
     const navigation = useTypedNavigation();
 
+    const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
+
     const lastName = useMemo(() => {
-        if (contact.fields) {
+        if (contact?.fields) {
             return contact.fields.find((f) => f.key === 'lastName')?.value;
         }
     }, [contact]);
 
-    const onContact = useCallback(() => {
+    const onPress = useCallback(() => {
+        if (action) {
+            action(address);
+            return;
+        }
         navigation.navigate('Contact', { address: addr });
-    }, [addr]);
+    }, [addr, action, address]);
 
     return (
-        <TouchableHighlight
-            onPress={onContact}
-            underlayColor={Theme.selector}
-            style={{ backgroundColor: Theme.item, borderRadius: 14, marginVertical: 4 }}
+        <Pressable
+            onPress={onPress}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
         >
-            <View style={{ alignSelf: 'stretch', flexDirection: 'row', height: fontScaleNormal ? 62 : undefined, minHeight: fontScaleNormal ? undefined : 62 }}>
-                <View style={{ width: 42, height: 42, borderRadius: 21, borderWidth: 0, marginVertical: 10, marginLeft: 10, marginRight: 10 }}>
+            <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
+                <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
                         address={addr}
                         id={addr}
-                        size={42}
+                        size={46}
+                        borderWith={0}
+                        theme={theme}
+                        isTestnet={isTestnet}
+                        hashColor
                     />
                 </View>
-                <View style={{ flexDirection: 'column', flexGrow: 1, flexBasis: 0 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginTop: 10, marginRight: 10 }}>
-                        <View style={{
-                            flexDirection: 'row',
-                            flexGrow: 1, flexBasis: 0, marginRight: 16,
-                        }}>
+                <View style={{ flexGrow: 1, justifyContent: 'center' }}>
+                    {contact?.name ? (
+                        <>
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text
+                                    style={{ flex: 1, color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    ellipsizeMode={'tail'}
+                                    numberOfLines={1}
+                                >
+                                    {contact?.name + (lastName ? ` ${lastName}` : '')}
+                                </Text>
+                                {isSpam && (
+                                    <View style={{
+                                        backgroundColor: theme.backgroundPrimaryInverted,
+                                        borderRadius: 100,
+                                        height: 15,
+                                        marginLeft: 10,
+                                        paddingHorizontal: 5,
+                                        justifyContent: 'center',
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 10,
+                                            fontWeight: '500',
+                                            color: theme.textPrimaryInverted
+                                        }}>
+                                            {'SPAM'}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
                             <Text
-                                style={{ color: Theme.textColor, fontSize: 16, fontWeight: '600' }}
-                                ellipsizeMode={'tail'}
+                                style={{ color: theme.textSecondary, fontSize: 15, lineHeight: 20, fontWeight: '400' }}
+                                ellipsizeMode={'middle'}
                                 numberOfLines={1}
                             >
-                                {contact.name + (lastName ? ` ${lastName}` : '')}
+                                <AddressComponent address={address} />
                             </Text>
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', alignItems: 'baseline', marginRight: 10, marginBottom: fontScaleNormal ? undefined : 10 }}>
-                        <Text
-                            style={{ color: Theme.textSecondary, fontSize: 13, flexGrow: 1, flexBasis: 0, marginRight: 16 }}
-                            ellipsizeMode="middle"
-                            numberOfLines={1}
-                        >
-                            <AddressComponent address={address} />
-                        </Text>
-                    </View>
-                    <View style={{ flexGrow: 1 }} />
+                        </>
+                    )
+                        : (
+                            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                                <Text
+                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    ellipsizeMode={'middle'}
+                                    numberOfLines={1}
+                                >
+                                    <AddressComponent address={address} />
+                                </Text>
+                                {isSpam && (
+                                    <View style={{
+                                        backgroundColor: theme.backgroundPrimaryInverted,
+                                        borderRadius: 100,
+                                        height: 15,
+                                        marginLeft: 10,
+                                        paddingHorizontal: 5,
+                                        justifyContent: 'center',
+                                    }}>
+                                        <Text style={{
+                                            fontSize: 10,
+                                            fontWeight: '500',
+                                            color: theme.textPrimaryInverted
+                                        }}>
+                                            {'SPAM'}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        )
+                    }
                 </View>
-            </View>
-        </TouchableHighlight>
+            </Animated.View>
+        </Pressable>
     );
 });

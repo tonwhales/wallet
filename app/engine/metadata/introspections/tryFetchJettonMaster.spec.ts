@@ -1,4 +1,5 @@
-import { Address, TonClient4 } from "ton";
+import { Address } from "@ton/core";
+import { TonClient4 } from "@ton/ton";
 import { tryFetchJettonMaster } from "./tryFetchJettonMaster";
 
 const client = new TonClient4({ endpoint: 'https://mainnet-v4.tonhubapi.com' });

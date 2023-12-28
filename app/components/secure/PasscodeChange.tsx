@@ -77,7 +77,7 @@ export const PasscodeChange = memo(() => {
     const acc = getCurrentAddress();
     const dimentions = useDimensions();
     const [isFirstRender, setFirstRender] = useState(true);
-    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 4;
+    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
     const navigation = useTypedNavigation();
     const toaster = useToaster();

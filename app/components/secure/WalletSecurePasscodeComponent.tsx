@@ -251,8 +251,11 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             } else {
                 // Generate New Key
                 try {
-                    secretKeyEnc = await generateNewKeyAndEncryptWithPasscode(Buffer.from(props.mnemonics), passcode);
-                    setPascodeState(PasscodeState.Set);
+                    secretKeyEnc = await generateNewKeyAndEncryptWithPasscode(
+                        Buffer.from(props.mnemonics),
+                        passcode,
+                        setPascodeState
+                    );
                 } catch {
                     // Ignore
                     warn('Failed to generate new key');

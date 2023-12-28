@@ -144,8 +144,7 @@ export const PasscodeChange = memo(() => {
                                 throw new Error('Passcodes do not match');
                             }
 
-                            updatePasscode(state.prev, newPasscode);
-                            setPascodeState(PasscodeState.Set);
+                            updatePasscode(state.prev, newPasscode, setPascodeState);
 
                             toaster.show({
                                 message: t('security.passcodeSettings.success'),

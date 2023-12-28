@@ -576,7 +576,11 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if (validAmount !== balance && balance < validAmount) {
+        if (
+            validAmount !== balance
+            && balance < validAmount
+            || balance === 0n
+        ) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -625,7 +629,17 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, commentString, accountLite, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
+    }, [
+        amount, target, domain, commentString,
+        accountLite,
+        stateInit,
+        order,
+        callback,
+        jettonState,
+        ledgerAddress,
+        isLedger,
+        balance
+    ]);
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);

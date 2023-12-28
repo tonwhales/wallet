@@ -80,6 +80,7 @@ export const WalletHeader = memo(() => {
                             backgroundColor={theme.iconUnchangeable}
                             theme={theme}
                             isTestnet={network.isTestnet}
+                            hashColor
                         />
                     </View>
                 </Pressable>

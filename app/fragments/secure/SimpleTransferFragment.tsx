@@ -127,6 +127,11 @@ export const SimpleTransferFragment = fragment(() => {
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
+
+        if (!amount) {
+            return null;
+        }
+
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
             // Manage jettons with decimals

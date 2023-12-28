@@ -16,7 +16,7 @@ import { PrivacyFragment } from './fragments/onboarding/PrivacyFragment';
 import { TermsFragment } from './fragments/onboarding/TermsFragment';
 import { resolveOnboarding } from './fragments/resolveOnboarding';
 import { DeveloperToolsFragment } from './fragments/dev/DeveloperToolsFragment';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
 import { getPendingGrant, getPendingRevoke, removePendingGrant, removePendingRevoke } from './storage/appState';
 import { EdgeInsets, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { backoff } from './utils/time';
@@ -280,6 +280,8 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('AppStartAuth', AppStartAuthFragment),
 ];
 
+export const navigationRef = createNavigationContainerRef<any>();
+
 export const Navigation = memo(() => {
     const safeArea = useSafeAreaInsets();
     const navigationTheme = useNavigationTheme();
@@ -391,6 +393,7 @@ export const Navigation = memo(() => {
             <NavigationContainer
                 theme={navigationTheme}
                 onReady={onMounted}
+                ref={navigationRef}
             >
                 <Stack.Navigator
                     initialRouteName={initial}

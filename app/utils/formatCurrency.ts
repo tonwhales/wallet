@@ -26,10 +26,15 @@ export const CurrencySymbols: { [key: string]: { symbol: string, end?: boolean, 
   [PrimaryCurrency.Jpy]: { symbol: '¥', end: true, label: 'Japanese Yen' },
 };
 
+export function formatAmount(amount: string) {
+  const { decimalSeparator } = getNumberFormatSettings();
+  return amount.replace('.', decimalSeparator);
+}
+
 export function formatInputAmount(
   raw: string,
   decimals: number,
-  formatting: {
+  formatting?: {
     skipFormattingReal?: boolean,
     skipFormattingDecimals?: boolean,
     trimSeparator?: boolean,
@@ -56,7 +61,7 @@ export function formatInputAmount(
   }
 
 
-  const { skipFormattingReal, skipFormattingDecimals, trimSeparator } = formatting;
+  const { skipFormattingReal, skipFormattingDecimals, trimSeparator } = formatting || {};
   const { decimalSeparator } = getNumberFormatSettings();
 
   if (raw.endsWith(',') || raw.endsWith('.')) {
@@ -65,14 +70,10 @@ export function formatInputAmount(
 
   raw = raw.replaceAll(' ', '');
 
-  if (decimalSeparator === ',') {
-    // remove non-numeric charsets
-    raw = raw.replace(/[^0-9\,]/g, '');
-    raw = raw.replace(/\,/g, '.');
-  } else {
-    // remove non-numeric charsets
-    raw = raw.replace(/[^0-9\.]/g, '');
-  }
+  // remove non-numeric charsets except comma and dot
+  raw = raw.replace(/[^0-9\,\.]/g, '');
+  // replace all comma with dot
+  raw = raw.replace(/\,/g, '.');
   // allow only one leading zero
   raw = raw.replace(/^([0]+)/, '0');
   // prepend zero before leading comma

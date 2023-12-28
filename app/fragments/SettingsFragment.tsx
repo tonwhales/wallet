@@ -18,7 +18,7 @@ import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
@@ -32,6 +32,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
+import { useLedgerTransport } from './ledger/components/TransportContext';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -47,6 +48,19 @@ export const SettingsFragment = fragment(() => {
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
+
+    // Ledger
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerSettings';
+    const ledgerContext = useLedgerTransport();
+    React.useEffect(() => {
+        if (!isLedger) return;
+
+        ledgerContext?.setFocused(true);
+        return () => {
+            ledgerContext?.setFocused(false);
+        }
+    }, [isLedger]);
 
     const onVersionTap = useMemo(() => {
         let count = 0;
@@ -96,6 +110,10 @@ export const SettingsFragment = fragment(() => {
         });
     }, []);
 
+    const onAccountPress = useCallback(() => {
+        navigation.navigate('AccountSelector');
+    }, []);
+
     useTrackScreen('More', network.isTestnet);
 
     useFocusEffect(() => {
@@ -106,12 +124,16 @@ export const SettingsFragment = fragment(() => {
         <View style={{ flexGrow: 1 }}>
             <View style={{ marginTop: safeArea.top, alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
                 <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-                <View style={{
-                    flexDirection: 'row',
-                    backgroundColor: theme.surfaceOnElevation,
-                    borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
-                    alignItems: 'center'
-                }}>
+                <Pressable
+                    style={({ pressed }) => ({
+                        flexDirection: 'row',
+                        backgroundColor: theme.surfaceOnElevation,
+                        borderRadius: 32, paddingHorizontal: 12, paddingVertical: 4,
+                        alignItems: 'center',
+                        opacity: pressed ? 0.8 : 1,
+                    })}
+                    onPress={onAccountPress}
+                >
                     <Text
                         style={{
                             fontWeight: '500',
@@ -122,7 +144,7 @@ export const SettingsFragment = fragment(() => {
                         ellipsizeMode='tail'
                         numberOfLines={1}
                     >
-                        {walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`}
+                        {isLedger ? 'Ledger' : (walletSettings?.name || `${t('common.wallet')} ${currentWalletIndex + 1}`)}
                     </Text>
                     {syncState === 'updating' && (
                         <ReAnimatedCircularProgress
@@ -145,7 +167,7 @@ export const SettingsFragment = fragment(() => {
                             <View style={{ backgroundColor: theme.accentGreen, width: 8, height: 8, borderRadius: 4 }} />
                         </View>
                     )}
-                </View>
+                </Pressable>
             </View>
             <ScrollView
                 contentContainerStyle={{ flexGrow: 1 }}
@@ -164,11 +186,13 @@ export const SettingsFragment = fragment(() => {
                     justifyContent: 'center',
                     alignItems: 'center',
                 }}>
-                    <ItemButton
-                        leftIconComponent={<IcSecurity width={24} height={24} />}
-                        title={t('security.title')}
-                        onPress={() => navigation.navigate('Security')}
-                    />
+                    {!isLedger && (
+                        <ItemButton
+                            leftIconComponent={<IcSecurity width={24} height={24} />}
+                            title={t('security.title')}
+                            onPress={() => navigation.navigate('Security')}
+                        />
+                    )}
                     {oldWalletsBalance > 0n && (
                         <ItemButton
                             leftIcon={require('@assets/ic-wallets.png')}
@@ -265,24 +289,41 @@ export const SettingsFragment = fragment(() => {
                         />
                     </View>
                 )}
-                <View style={{
-                    marginBottom: 4,
-                    backgroundColor: theme.border,
-                    borderRadius: 20,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                }}>
-                    <ItemButton
-                        dangerZone
-                        title={t('common.logout')}
-                        onPress={() => navigation.navigate('Logout')}
-                    />
-                    <ItemButton
-                        dangerZone
-                        title={t('settings.deleteAccount')}
-                        onPress={() => navigation.navigate('DeleteAccount')}
-                    />
-                </View>
+
+                {isLedger ? (
+                    <View style={{
+                        marginBottom: 4,
+                        backgroundColor: theme.border,
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <ItemButton
+                            dangerZone
+                            title={t('common.logout')}
+                            onPress={() => ledgerContext.reset()}
+                        />
+                    </View>
+                ) : (
+                    <View style={{
+                        marginBottom: 4,
+                        backgroundColor: theme.border,
+                        borderRadius: 20,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}>
+                        <ItemButton
+                            dangerZone
+                            title={t('common.logout')}
+                            onPress={() => navigation.navigate('Logout')}
+                        />
+                        <ItemButton
+                            dangerZone
+                            title={t('settings.deleteAccount')}
+                            onPress={() => navigation.navigate('DeleteAccount')}
+                        />
+                    </View>
+                )}
                 <Pressable
                     onPress={onVersionTap}
                     style={{

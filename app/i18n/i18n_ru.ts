@@ -149,6 +149,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "invalidAmount": "Неверное количество",
             "sendingToYourself": "Адреса отправителя и адрес получателя совпадают. Укажите другой адрес.",
             "zeroCoins": "Сумма перевода должна быть больше нуля",
+            "zeroCoinsAlert": "Вы пытаетесь отправить ноль монет",
             "notEnoughCoins": "На вашем балансе недостаточно средств",
             "addressIsForTestnet": "Адрес получателя относится к тестовой сети",
             "addressCantReceive": "Адрес получателя не может принимать монеты",
@@ -264,7 +265,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "txPreview": {
         "sendAgain": "Повторить",
         "blockchainFee": "Комиссия сети",
-        "blockchainFeeDescription": "Эту комиссию еще называют GAS. Она необходима для успешной обработки транзакции в блокчейне TON. Размер Gas зависит от объема работы, которую необходимо выполнить валидаторам, чтобы включить транзакцию в блок."
+        "blockchainFeeDescription": "Эту комиссию еще называют GAS. Она необходима для успешной обработки транзакции в блокчейне TON. Размер GAS зависит от объема работы, которую необходимо выполнить валидаторам, чтобы включить транзакцию в блок."
     },
     "qr": {
         "title": "Наведите камеру на QR-код",
@@ -468,6 +469,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "account": 'Счет',
                 "basicAccount": 'Базовый счет',
                 "proAccount": 'Pro счет',
+                "noCards": "Нет карт",
             },
             "pageTitles": {
                 "general": "Tonhub Cards",
@@ -856,13 +858,15 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "ledger": "Ledger",
         "title": "Подключить Ledger",
         "description": "Ваш аппаратный Ledger кошелёк",
-        "installation": "Если вы впервые подключаете Ledger, то прочитайте",
+        "installation": "Убедитесь, что Ledger разблокирован и Bluetooth включен",
         "installationGuide": "Руководство по подключению TON Ledger",
         "connectionDescriptionAndroid": "Подключите ваш Ledger через USB или Bluetooth",
         "connectionDescriptionIOS": "Подключите ваш Ledger через Bluetooth",
         "connectionHIDDescription_1": "1. Включите устройство и разблокируйте его",
         "connectionHIDDescription_2": "2. Нажмите \"Продолжить\"",
-        "chooseAccountDescription": "Откройте приложение на вашем Ledger и выберите аккаунт, который вы хотите использовать",
+        "chooseAccountDescription": "Выберите аккаунт, который вы хотите использовать",
+        "unlockLedgerDescription": "Разблокируйте ваш Ledger",
+        "openTheAppDescription": "Откройте приложение TON на вашем Ledger",
         "bluetoothScanDescription_1": "1. Включите устройство и разблокируйте его",
         "bluetoothScanDescription_2": "2. Убедитесь, что bluetooth включен",
         "bluetoothScanDescription_3": "3. Нажмите \"Начать поиск\" для поиска доступных устройств и выберите подходящий Ledger Nano X",

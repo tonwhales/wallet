@@ -96,12 +96,13 @@ export const HoldersAccountItem = memo((props: {
         >
             <Animated.View style={animatedStyle}>
                 <TouchableOpacity
-                    style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnElevation, borderRadius: 20, }}
+                    style={{ borderRadius: 20, overflow: 'hidden' }}
                     onPressIn={onPressIn}
                     onPressOut={onPressOut}
                     onPress={onPress}
+                    activeOpacity={0.8}
                 >
-                    <View>
+                    <View style={{ flexGrow: 1, paddingTop: 20, backgroundColor: theme.surfaceOnBg }}>
                         <View style={{ flexDirection: 'row', flexGrow: 1, alignItems: 'center', paddingHorizontal: 20 }}>
                             <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0 }}>
                                 <IcTonIcon width={46} height={46} />
@@ -152,7 +153,9 @@ export const HoldersAccountItem = memo((props: {
                             style={[{ height: 46, marginTop: 10 }, Platform.select({ android: { marginLeft: 78 } })]}
                             contentContainerStyle={{ gap: 8 }}
                             contentInset={Platform.select({ ios: { left: 78 } })}
+                            contentOffset={Platform.select({ ios: { x: -78, y: 0 } })}
                             showsHorizontalScrollIndicator={false}
+                            alwaysBounceHorizontal={props.account.cards.length > 0}
                         >
                             {props.account.cards.map((card,) => {
                                 return (
@@ -162,10 +165,15 @@ export const HoldersAccountItem = memo((props: {
                                     />
                                 )
                             })}
+                            {props.account.cards.length === 0 && (
+                                <PerfText style={[{ color: theme.textSecondary }, Typography.medium17_24]}>
+                                    {t('products.holders.accounts.noCards')}
+                                </PerfText>
+                            )}
                         </ScrollView>
                     </View>
                 </TouchableOpacity>
             </Animated.View>
-        </Swipeable>
+        </Swipeable >
     );
 });

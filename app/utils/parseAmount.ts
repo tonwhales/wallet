@@ -6,16 +6,16 @@ export function parseAmountToBn(amount: string) {
         return BigInt(0);
     }
 
-    let value = amount.replace(',', '.');
+    let value = amount.replace(',', '.').replace(/ /g, '');
 
     return toNano(value);
 }
 
 export function parseAmountToNumber(amount: string) {
     if (amount === '') return 0;
-    let value = parseFloat(amount.replace(',', '.'));
+    let value = parseFloat(amount.replace(',', '.').replace(/ /g, ''));
     if (isNaN(value)) return 0;
-    return parseFloat(value.toFixed(8));
+    return parseFloat(value.toFixed(9));
 }
 
 export function parseAmountToValidBN(amount: string) {
@@ -29,7 +29,7 @@ export function parseAmountToValidBN(amount: string) {
 export function toFixedBN(amount: number) {
     if (amount > 0.000001) {
         try {
-            return toNano(parseFloat(amount.toFixed(8)))
+            return toNano(parseFloat(amount.toFixed(9)))
         } catch (e) {
             return BigInt(0);
         }

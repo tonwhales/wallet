@@ -175,7 +175,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                                                 : t('security.auth.biometricsCorrupted.restore'),
                                             onPress: () => {
                                                 resolve();
-                                                logOutAndReset();
+                                                logOutAndReset(true);
                                                 navigation.navigateAndReplaceAll('Welcome');
                                             },
                                             style: 'destructive'

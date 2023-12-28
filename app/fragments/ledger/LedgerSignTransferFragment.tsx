@@ -206,7 +206,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                 body: signed,
                 init: accountSeqno === 0 ? source.init : null
             });
-            
+
             let msg = beginCell().store(storeMessage(extMessage)).endCell();
 
             // Transfer
@@ -385,10 +385,11 @@ export const LedgerSignTransferFragment = fragment(() => {
                 body: payload
             });
 
-            let seqno = await backoff('transfer', () => fetchSeqno(client, 0, contract.address));
-            let transfer = await contract.createTransfer({
+            let block = await backoff('transfer', () => client.getLastBlock());
+            let seqno = await backoff('transfer', async () => fetchSeqno(client, block.last.seqno, contract.address));
+            let transfer = contract.createTransfer({
                 seqno: seqno,
-                secretKey: Buffer.from('abacaba'),
+                secretKey: Buffer.alloc(64),
                 sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages: [intMessage]
             });
@@ -400,7 +401,6 @@ export const LedgerSignTransferFragment = fragment(() => {
             ] = await Promise.all([
                 backoff('transfer', () => fetchConfig()),
                 backoff('transfer', async () => {
-                    let block = await backoff('transfer', () => client.getLastBlock());
                     return Promise.all([
                         backoff('transfer', () => fetchMetadata(client, block.last.seqno, target.address, network.isTestnet, true)),
                         backoff('transfer', () => client.getAccount(block.last.seqno, target.address))

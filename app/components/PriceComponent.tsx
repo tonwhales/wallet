@@ -43,10 +43,11 @@ export const PriceComponent = memo((
         }
         const priceUSD = price.price.usd;
         const rates = price.price.rates;
+
         const formattedAmount = parseFloat(fromNano(abs)) * priceUSD * rates[currencyCode || currency];
         const formattedCurrency = formatCurrency(formattedAmount.toFixed(2), currencyCode || currency, isNeg);
         return `${prefix ?? ''}${formattedCurrency}${suffix ?? ''}`;
-    }, [amount, price, currencyCode, currency, prefix, suffix]);
+    }, [amount, price, currencyCode, currency, prefix, suffix, abs, isNeg]);
 
     const decimalPoint = fullText.match(/[.,]/)?.[0];
     const parts = fullText.split(decimalPoint ?? /[.,]/);

@@ -16,7 +16,7 @@ describe('toBnWithDecimals', () => {
         let res0 = toBnWithDecimals('7', 0)!;
         expect(res0).not.toBeNull();
         expect(res0).not.toBeUndefined();
-        expect(res0 === 0n).toBe(true);
+        expect(res0 === bn0).toBe(true);
 
         let res1 = toBnWithDecimals('9.9', 1)!;
         expect(res1).not.toBeNull();
@@ -62,14 +62,14 @@ describe('toBnWithDecimals', () => {
             toBnWithDecimals('0.01', 1)
             expect(true).toBe(false);
         } catch (e: any) {
-            expect(e.message).toBe("while converting number 0.01 to wei, fraction.length > baseLength");
+            expect(e.message).toBe("Invalid number");
         }
 
         try {
             toBnWithDecimals('0.00000000001', 10)
             expect(true).toBe(false);
         } catch (e: any) {
-            expect(e.message).toBe("while converting number 0.00000000001 to wei, fraction.length > baseLength");
+            expect(e.message).toBe("Invalid number");
         }
     });
 });
@@ -129,7 +129,7 @@ describe('fromBNWithDecimals', () => {
             fromBnWithDecimals('jshdkfshjddk', 0)
             expect(true).toBe(false);
         } catch (e: any) {
-            expect(e.message).toBe("[number-to-bn] while converting number \"jshdkfshjddk\" to BN.js instance, error: invalid number value. Value must be an integer, hex string, BN or BigNumber instance. Note, decimals are not supported.");
+            expect(e.message).toBe("Cannot convert jshdkfshjddk to a BigInt");
         }
     });
 });

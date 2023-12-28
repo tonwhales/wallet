@@ -173,6 +173,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 replyItems = replyBuilder.createReplyItems(
                     acc.address.toString({ testOnly: isTestnet, urlSafe: true, bounceable: true }),
                     Uint8Array.from(walletKeys.keyPair.secretKey),
+                    Uint8Array.from(walletKeys.keyPair.publicKey),
                     stateInitStr,
                     isTestnet
                 );
@@ -228,12 +229,18 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                         autoConnectDisabled: false,
                         manifestUrl: state.manifestUrl
                     },
-                    connection: {
-                        type: TonConnectBridgeType.Remote,
-                        sessionKeyPair: sessionCrypto.stringifyKeypair(),
-                        clientSessionId: state.clientSessionId,
-                        replyItems,
-                    },
+                    connections: [
+                        {
+                            type: TonConnectBridgeType.Remote,
+                            sessionKeyPair: sessionCrypto.stringifyKeypair(),
+                            clientSessionId: state.clientSessionId,
+                            replyItems,
+                        },
+                        {
+                            type: TonConnectBridgeType.Injected,
+                            replyItems,
+                        }
+                    ],
                 });
 
                 // Send connect response

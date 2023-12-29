@@ -271,8 +271,8 @@ export const ReceiveFragment = fragment(() => {
                         }}
                     />
                 </View>
-            </ScrollView >
+            </ScrollView>
             <View style={{ flexGrow: 1 }} />
-        </View >
+        </View>
     );
 });

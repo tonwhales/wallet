@@ -440,7 +440,9 @@ export const StakingFragment = fragment(() => {
                 {network.isTestnet && (
                     <RestrictedPoolBanner type={'team'} />
                 )}
-                <StakingAnalyticsComponent pool={targetPool} />
+                {__DEV__ && (
+                    <StakingAnalyticsComponent pool={targetPool} />
+                )}
                 <View style={Platform.select({ android: { height: safeArea.bottom + 186 } })} />
             </Animated.ScrollView >
         </View>

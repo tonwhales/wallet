@@ -31,8 +31,8 @@ export const PasscodeSetupFragment = systemFragment(() => {
 
     const onPasscodeConfirmed = useCallback(async (passcode: string) => {
         try {
-            await encryptAndStoreAppKeyWithPasscode(passcode);
-        } catch (e) {
+            await encryptAndStoreAppKeyWithPasscode(passcode, setPasscodeState);
+        } catch {
             warn(`Failed to load wallet keys on PasscodeSetup ${init ? 'init' : 'change'}`);
             throw Error('Failed to load wallet keys');
         }

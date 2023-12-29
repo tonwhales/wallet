@@ -15,6 +15,7 @@ import { TransactionsSkeleton } from "../../../components/skeletons/Transactions
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -44,7 +45,8 @@ type TransactionListItemProps = {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
-    appState: AppState
+    appState: AppState,
+    showActionSheetWithOptions?: (options: ActionSheetOptions, callback: (i?: number | undefined) => void | Promise<void>) => void,
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -71,7 +73,8 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.spamWallets === next.spamWallets
-        && prev.appState === next.appState;
+        && prev.appState === next.appState
+        && prev.showActionSheetWithOptions === next.showActionSheetWithOptions;
 });
 TransactionListItem.displayName = 'TransactionListItem';
 
@@ -101,6 +104,7 @@ export const WalletTransactions = memo((props: {
     const [addressBook, updateAddressBook] = useAddressBook();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
+    const { showActionSheetWithOptions } = useActionSheet();
 
     const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
         let addr = '';
@@ -186,6 +190,7 @@ export const WalletTransactions = memo((props: {
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
                     appState={appState}
+                    showActionSheetWithOptions={showActionSheetWithOptions}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

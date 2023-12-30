@@ -1,8 +1,9 @@
 import { MixpanelEvent, mixpanelFlush, mixpanelReset, trackEvent } from "../../../analytics/mixpanel";
 import { getAppState } from "../../../storage/appState";
+import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
 import { sharedStoragePersistence, storage, storagePersistence } from "../../../storage/storage";
 import { queryClient } from "../../clients";
-import { useSetAppState } from "../appstate";
+import { useSetAppState, useSetBiometricsState, useSetPasscodeState } from "../appstate";
 import { useClearHolders } from "../holders";
 import { useNetwork } from "../network";
 
@@ -10,6 +11,8 @@ export function useLogoutAndReset() {
     const { isTestnet } = useNetwork();
     const clearHolders = useClearHolders();
     const setAppState = useSetAppState();
+    const setBiometricsState = useSetBiometricsState();
+    const setPasscodeState = useSetPasscodeState();
 
     return (full?: boolean) => {
         const appState = getAppState();
@@ -25,6 +28,8 @@ export function useLogoutAndReset() {
             queryClient.cancelQueries();
 
             setAppState({ addresses: [], selected: -1 }, isTestnet);
+            setBiometricsState(BiometricsState.NotSet);
+            setPasscodeState(PasscodeState.NotSet);
             return;
         }
 
@@ -38,6 +43,8 @@ export function useLogoutAndReset() {
             storagePersistence.clearAll();
 
             setAppState({ addresses: [], selected: -1 }, isTestnet);
+            setBiometricsState(BiometricsState.NotSet);
+            setPasscodeState(PasscodeState.NotSet);
             return;
         }
 

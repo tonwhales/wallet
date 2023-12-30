@@ -1,5 +1,6 @@
 import { mixpanelFlush, mixpanelReset } from "../../../analytics/mixpanel";
 import { getAppState } from "../../../storage/appState";
+import { BiometricsState, PasscodeState } from '../../../storage/secureStorage';
 import { storage, storagePersistence } from "../../../storage/storage";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { queryClient } from "../../clients";
@@ -7,10 +8,15 @@ import { clearDomainKeysState } from "../../state/domainKeys";
 import { deleteHoldersToken } from "../holders/useHoldersAccountStatus";
 import { useNetwork } from "../network";
 import { useSetAppState } from "./useSetAppState";
+import { useSetBiometricsState } from './useSetBiometricsState';
+import { useSetPasscodeState } from './useSetPasscodeState';
 
 export function useDeleteCurrentAccount() {
     const { isTestnet } = useNetwork();
     const setAppState = useSetAppState();
+    const setBiometricsState = useSetBiometricsState();
+    const setPasscodeState = useSetPasscodeState();
+
     const navigation = useTypedNavigation();
     return () => {
         const appState = getAppState();
@@ -45,7 +51,12 @@ export function useDeleteCurrentAccount() {
             // clear all storage including app key and go to welcome screen
             storagePersistence.clearAll();
             storage.clearAll();
+
+            // Reset biometrics state to defaults
             setAppState({ addresses: [], selected: -1 }, isTestnet);
+            setPasscodeState(PasscodeState.NotSet);
+            setBiometricsState(BiometricsState.NotSet);
+
             navigation.navigateAndReplaceAll('Welcome');
         }
     }

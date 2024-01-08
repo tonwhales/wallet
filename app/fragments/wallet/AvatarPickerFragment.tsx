@@ -5,13 +5,13 @@ import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { useCallback, useState } from "react";
-import { Avatar, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export const AvatarPickerFragment = fragment(() => {
-    const { callback, hash } = useParams<{ callback: (newHash: number) => void, hash: number }>();
+    const { callback, hash, initColor } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number }>();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -20,13 +20,14 @@ export const AvatarPickerFragment = fragment(() => {
     const address = selected!.address;
 
     const [hashState, setHash] = useState(hash);
+    const [selectedColor, setColor] = useState(initColor);
 
     const onSave = useCallback(() => {
-        if (hashState !== hash) {
+        if (hashState !== hash || selectedColor !== initColor) {
             navigation.goBack();
-            callback(hashState);
+            callback(hashState, selectedColor);
         }
-    }, [hashState]);
+    }, [hashState, selectedColor]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -57,7 +58,7 @@ export const AvatarPickerFragment = fragment(() => {
                         }
                     >
                         <Text style={{
-                            color: hashState !== hash ? theme.accent : theme.textSecondary,
+                            color: (hashState !== hash || selectedColor !== initColor) ? theme.accent : theme.textSecondary,
                             fontSize: 17, lineHeight: 24,
                             fontWeight: '500',
                         }}>
@@ -75,7 +76,8 @@ export const AvatarPickerFragment = fragment(() => {
                     theme={theme}
                     isTestnet={isTestnet}
                     id={address.toString({ testOnly: isTestnet })}
-                    hashColor
+                    // hashColor
+                    backgroundColor={avatarColors[selectedColor]}
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
@@ -83,6 +85,29 @@ export const AvatarPickerFragment = fragment(() => {
                 borderTopLeftRadius: 20, borderTopRightRadius: 20,
                 paddingTop: 20, paddingBottom: 16
             }}>
+                <ScrollView
+                    contentContainerStyle={{ marginHorizontal: 16, paddingRight: 16 }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                >
+                    {avatarColors.map((color, index) => {
+                        return (
+                            <Pressable
+                                key={`color-${index}`}
+                                onPress={() => setColor(index)}
+                                style={{
+                                    justifyContent: 'center', alignItems: 'center',
+                                    width: 54, height: 54,
+                                    marginRight: 8,
+                                    borderWidth: index === selectedColor ? 2 : 0,
+                                    borderColor: theme.accent,
+                                    borderRadius: 27,
+                                    backgroundColor: color
+                                }}
+                            />
+                        )
+                    })}
+                </ScrollView>
                 <ScrollView
                     contentContainerStyle={{ margin: 16, paddingVertical: 16, paddingRight: 16 }}
                     horizontal
@@ -110,7 +135,8 @@ export const AvatarPickerFragment = fragment(() => {
                                     theme={theme}
                                     isTestnet={isTestnet}
                                     id={address.toString({ testOnly: isTestnet })}
-                                    hashColor
+                                    // hashColor
+                                    backgroundColor={avatarColors[selectedColor]}
                                 />
                             </Pressable>
                         )

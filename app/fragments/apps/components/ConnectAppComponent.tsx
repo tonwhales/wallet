@@ -1,8 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, View } from 'react-native';
+import { ActivityIndicator, Linking, View, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
@@ -42,22 +41,7 @@ export const ConnectAppComponent = memo((props: {
     }, []);
     useTrackEvent(MixpanelEvent.AppOpen, { url: props.endpoint, domain, protocol: 'tonconnect' }, isTestnet);
 
-    const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = useState(false);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: theme.backgroundPrimary,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300 }),
-        };
-    });
 
     // Navigation
     const linkNavigator = useLinkNavigator(isTestnet);
@@ -110,10 +94,7 @@ export const ConnectAppComponent = memo((props: {
                     source={{ uri: endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
-                    onLoadEnd={() => {
-                        setLoaded(true);
-                        opacity.value = 0;
-                    }}
+                    onLoadEnd={() => setLoaded(true)}
                     contentInset={{ top: 0, bottom: 0 }}
                     autoManageStatusBarEnabled={false}
                     allowFileAccessFromFileURLs={false}
@@ -123,14 +104,16 @@ export const ConnectAppComponent = memo((props: {
                     onShouldStartLoadWithRequest={loadWithRequest}
                     {...webViewProps}
                 />
-
-                <Animated.View
-                    style={animatedStyles}
-                    pointerEvents={loaded ? 'none' : 'box-none'}
-                >
-                    <ActivityIndicator size="large" color={theme.accent} />
-                </Animated.View>
-
+                {!loaded && (
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                        style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <ActivityIndicator size="large" color={theme.accent} />
+                    </Animated.View>
+                )}
             </View>
         </>
     );

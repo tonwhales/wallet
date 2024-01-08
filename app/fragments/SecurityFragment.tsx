@@ -193,7 +193,8 @@ export const SecurityFragment = fragment(() => {
                             )}
                             {(biometricsState === BiometricsState.NotSet) && (
                                 <ItemButton
-                                    leftIconComponent={biometricsProps.icon}
+                                    leftIconComponent={deviceEncryption === 'face' ? undefined : biometricsProps.icon}
+                                    leftIcon={deviceEncryption === 'face' ? require('@assets/ic-secure-face.png') : undefined}
                                     title={biometricsProps.buttonText}
                                     onPress={() => navigation.navigate('BiometricsSetup')}
                                 />

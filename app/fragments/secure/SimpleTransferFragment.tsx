@@ -981,7 +981,7 @@ export const SimpleTransferFragment = fragment(() => {
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                         style={[
                             seletectInputStyles.comment,
-                            { backgroundColor: theme.elevation, flex: 1 }
+                            { flex: 1 }
                         ]}
                     >
                         <View style={{

@@ -26,6 +26,7 @@ export const HardwareWalletFragment = fragment(() => {
     const searchHID = useCallback(async () => {
         setBleLocked(true);
         await ledgerContext?.startHIDSearch(navigation);
+        setBleLocked(false);
     }, [ledgerContext]);
 
     const searchBLE = useCallback(() => {
@@ -70,15 +71,16 @@ export const HardwareWalletFragment = fragment(() => {
                 <View style={{
                     paddingHorizontal: 16,
                     justifyContent: 'center', alignItems: 'center',
-                    marginTop: 41, marginBottom: 33,
+                    marginTop: 41, marginBottom: 33
                 }}>
                     <Image
                         style={{
                             width: dimentions.screen.width - 32,
-                            height: undefined,
-                            aspectRatio: 1,
-                            borderRadius: 20,
+                            height: dimentions.screen.width - 32,
+                            overflow: 'hidden'
                         }}
+                        height={dimentions.screen.width - 32}
+                        width={dimentions.screen.width - 32}
                         source={
                             Platform.select({
                                 ios: theme.style === 'dark'
@@ -117,7 +119,7 @@ export const HardwareWalletFragment = fragment(() => {
                             fontSize: 17, lineHeight: 24,
                             textAlign: 'center'
                         }}>
-                            {t('hardwareWallet.installation')}
+                            {t(`hardwareWallet.${Platform.OS === 'android' ? 'installationAndroid' : 'installationIOS'}`)}
                         </Text>
                         <Pressable
                             style={({ pressed }) => {

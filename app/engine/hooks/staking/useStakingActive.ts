@@ -15,8 +15,8 @@ export function useStakingActive(address?: Address) {
 
     for (let pool of knownPools) {
         let member = members.find(a => a?.pool === pool.toString({ testOnly: isTestnet }));
-        if (member && member.balance > 0n) {
-            pools.push({ address: pool, balance: member.balance });
+        if (member && (member.balance > 0n || member.pendingDeposit > 0n)) {
+            pools.push({ address: pool, balance: member.balance + member.pendingDeposit });
         }
     }
 

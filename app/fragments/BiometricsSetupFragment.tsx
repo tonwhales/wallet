@@ -79,7 +79,11 @@ export const BiometricsSetupFragment = systemFragment(() => {
             setLoading(true);
             try {
                 try {
-                    const authRes = await authContext.authenticateWithPasscode({ backgroundColor: theme.elevation, cancelable: true });
+                    const authRes = await authContext.authenticateWithPasscode({
+                        backgroundColor: theme.elevation,
+                        cancelable: true,
+                        containerStyle: { paddingBottom: safeArea.bottom + 56 }
+                    });
                     await encryptAndStoreAppKeyWithBiometrics(authRes.passcode);
 
                     setBiometricsState(BiometricsState.InUse);

@@ -179,7 +179,7 @@ export const SpamFilterFragment = fragment(() => {
                         }}>
                             <ItemSwitch
                                 title={t('spamFilter.dontShowComments')}
-                                value={!dontShowComments}
+                                value={dontShowComments}
                                 onChange={() => {
                                     setDontShowComments(!dontShowComments)
                                 }}

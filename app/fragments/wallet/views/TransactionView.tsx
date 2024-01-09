@@ -1,17 +1,16 @@
 import * as React from 'react';
-import { Platform, Pressable, Share, Text } from 'react-native';
+import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
-import { confirmAlert } from '../../../utils/confirmAlert';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
 import { TransactionDescription } from '../../../engine/types';
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatTime } from '../../../utils/dates';
@@ -19,7 +18,6 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { ActionSheetOptions } from '@expo/react-native-action-sheet';
 
 export function TransactionView(props: {
     own: Address,
@@ -28,6 +26,7 @@ export function TransactionView(props: {
     theme: ThemeType,
     navigation: TypedNavigation,
     onPress: (src: TransactionDescription) => void,
+    onLongPress?: (src: TransactionDescription) => void,
     ledger?: boolean,
     addToDenyList: (address: string | Address, reason: string) => void,
     spamMinAmount: bigint,
@@ -36,8 +35,7 @@ export function TransactionView(props: {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
-    appState?: AppState,
-    showActionSheetWithOptions?: (options: ActionSheetOptions, callback: (i?: number | undefined) => void | Promise<void>) => void,
+    appState?: AppState
 }) {
     const {
         theme, navigation,
@@ -104,117 +102,13 @@ export function TransactionView(props: {
             && !isTestnet
         ) && kind !== 'out';
 
-    // Address actions
-    const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
-
-    const txId = useMemo(() => {
-        return `${tx.base.lt}_${tx.base.hash}`;
-    }, [tx]);
-
-    const explorerTxLink = useMemo(() => {
-        return `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
-            + `${props.own.toString({ testOnly: isTestnet })}/`
-            + `${txId}`
-    }, [txId, isTestnet, props.own]);
-
-    const onShare = useCallback((link: string) => {
-        let title = t('receive.share.title');
-        if (link === explorerTxLink) {
-            title = t('txActions.share.transaction');
-        }
-        if (link === addressLink) {
-            title = t('txActions.share.address');
-        }
-        if (Platform.OS === 'ios') {
-            Share.share({ title: title, url: link });
-        } else {
-            Share.share({ title: title, message: link });
-        }
-    }, [explorerTxLink, addressLink]);
-
-    const onMarkAddressSpam = useCallback(async () => {
-        const confirmed = await confirmAlert('spamFilter.blockConfirm');
-        if (confirmed) {
-            addToDenyList(opAddress, 'spam');
-        }
-    }, [addToDenyList]);
-
-    const onAddressContact = useCallback((addr: Address) => {
-        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
-    }, []);
-
-    const onRepeatTx = useCallback(() => {
-        const amount = BigInt(tx.base.parsed.amount);
-        navigation.navigateSimpleTransfer({
-            target: opAddress,
-            comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
-            amount: amount < 0n ? -amount : amount,
-            job: null,
-            stateInit: null,
-            jetton: null,
-            callback: null
-        })
-    }, [tx, operation]);
-
-    const actionSheetOptions: ActionSheetOptions = {
-        options: [
-            t('common.cancel'),
-            t('txActions.addressShare'),
-            !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
-            t('txActions.txShare'),
-            ...(!spam ? [t('txActions.addressMarkSpam')] : []),
-            ...((kind === 'out' && !props.ledger) ? [t('txActions.txRepeat')] : []),
-        ],
-        userInterfaceStyle: theme.style,
-        cancelButtonIndex: 0,
-        destructiveButtonIndex: !spam ? 4 : undefined,
-    }
-
-    const handleAction = useCallback((eN?: number) => {
-        switch (eN) {
-            case 1: {
-                onShare(addressLink);
-                break;
-            }
-            case 2: {
-                onAddressContact(Address.parse(opAddress));
-                break;
-            }
-            case 3: {
-                if (explorerTxLink) {
-                    onShare(explorerTxLink);
-                }
-                break;
-            }
-            case 4: {
-                if (!spam) {
-                    onMarkAddressSpam();
-                } else if (kind === 'out' && !props.ledger) {
-                    onRepeatTx();
-                }
-                break;
-            }
-            case 5: {
-                if (kind === 'out' && !props.ledger) {
-                    onRepeatTx();
-                }
-                break;
-            }
-            default:
-                break;
-        }
-    }, [addressLink, explorerTxLink, onShare, onMarkAddressSpam, onAddressContact]);
-
     return (
         <Pressable
             onPress={() => props.onPress(props.tx)}
             style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
             onLongPress={() => {
-                if (props.showActionSheetWithOptions) {
-                    props.showActionSheetWithOptions(
-                        actionSheetOptions,
-                        handleAction
-                    );
+                if (props.onLongPress) {
+                    props.onLongPress(props.tx);
                 }
             }}
         >

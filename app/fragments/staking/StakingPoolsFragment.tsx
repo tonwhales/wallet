@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { TopBar } from "../../components/topbar/TopBar";
-import { useRoute } from "@react-navigation/native";
+import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
 import { StakingPool } from "./components/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -15,7 +15,7 @@ import { Address } from "@ton/core";
 import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper';
@@ -65,7 +65,12 @@ export const StakingPoolsFragment = fragment(() => {
     ).filter((v) => !!v) as (StakingPoolMember)[];
 
     const poolsWithStake = useMemo(() => {
-        return memberData.filter((v) => v.balance > 0n);
+        return memberData.filter(
+            (v) => v.balance > 0n
+                || v.pendingDeposit > 0n
+                || v.pendingWithdraw > 0n
+                || v.withdraw > 0n
+        );
     }, [memberData]);
 
     const items: ReactElement[] = [];
@@ -107,7 +112,7 @@ export const StakingPoolsFragment = fragment(() => {
                     key={`active-${p.pool}`}
                     address={Address.parse(p.pool)}
                     isLedger={isLedger}
-                    balance={p.balance}
+                    balance={p.balance + p.pendingDeposit + p.pendingWithdraw + p.withdraw}
                 />
             );
             processed.add(p.pool);
@@ -353,6 +358,13 @@ export const StakingPoolsFragment = fragment(() => {
             </View>
         );
     }
+
+    // weird bug with status bar not changing color with component
+    useFocusEffect(() => {
+        setTimeout(() => {
+            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+        }, 10);
+    });
 
     return (
         <View style={{

@@ -325,13 +325,12 @@ export const DeleteAccountFragment = fragment(() => {
                         <View style={{ paddingHorizontal: 6 }}>
                             <ATextInput
                                 value={recipientString}
-                                onValueChange={setRecipientString}
+                                onValueChange={(newVal) => setRecipientString(newVal.trim())}
                                 keyboardType={'ascii-capable'}
                                 multiline
                                 autoCorrect={false}
                                 autoComplete={'off'}
                                 textContentType={'none'}
-                                maxLength={48}
                                 style={{
                                     paddingHorizontal: 10,
                                 }}

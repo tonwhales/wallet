@@ -7,7 +7,6 @@ import { RoundButton } from "../../components/RoundButton";
 import { t } from "../../i18n/t";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { useAppState, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { useParams } from "../../utils/useParams";
@@ -25,9 +24,19 @@ export const AccountSelectorFragment = fragment(() => {
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
-    const ledgerConnected = !!ledgerContext?.tonTransport;
+    const isLedgerConnected = useMemo(() => {
+        if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
+            return false;
+        }
+        try {
+            Address.parse(ledgerContext.addr?.address);
+            return true;
+        } catch {
+            return false;
+        }
+    }, [ledgerContext]);
 
-    const addressesCount = appState.addresses.length + (ledgerConnected ? 1 : 0);
+    const addressesCount = appState.addresses.length + (isLedgerConnected ? 1 : 0);
 
     const heightMultiplier = useMemo(() => {
         const heightDependentMultiplier = dimentions.height > 800 ? 0 : .1;
@@ -42,11 +51,11 @@ export const AccountSelectorFragment = fragment(() => {
             multiplier = .8;
         }
         return multiplier;
-    }, [addressesCount, ledgerConnected, dimentions.height]);
+    }, [addressesCount, isLedgerConnected, dimentions.height]);
 
     const isScrollMode = useMemo(() => {
-        return addressesCount + (ledgerConnected ? 1 : 0) > 3;
-    }, [addressesCount, ledgerConnected]);
+        return addressesCount + (isLedgerConnected ? 1 : 0) > 3;
+    }, [addressesCount, isLedgerConnected]);
 
     const onAddNewAccount = useCallback(() => {
         const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];

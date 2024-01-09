@@ -215,7 +215,7 @@ export const StakingPool = memo((props: {
                                     fontWeight: '600',
                                     lineHeight: 24,
                                     fontSize: 17,
-                                    alignSelf: 'flex-start'
+                                    alignSelf: 'flex-end'
                                 }}>
                                     <ValueComponent
                                         precision={3}

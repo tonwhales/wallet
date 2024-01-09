@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View, Image } from 'react-native';
+import { ActivityIndicator, Linking, NativeSyntheticEvent, Platform, Share, View, Image, StyleSheet } from 'react-native';
 import WebView from 'react-native-webview';
-import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { ShouldStartLoadRequest, WebViewMessageEvent } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { resolveUrl } from '../../../utils/resolveUrl';
@@ -24,7 +24,6 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { DomainSubkey, getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -73,23 +72,8 @@ export const AppComponent = memo((props: {
     }, [props]);
 
     // View
-    const safeArea = useSafeAreaInsets();
     let [loaded, setLoaded] = useState(false);
     const webRef = useRef<WebView>(null);
-    const opacity = useSharedValue(1);
-    const animatedStyles = useAnimatedStyle(() => {
-        return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: props.color,
-            alignItems: 'center',
-            justifyContent: 'center',
-            opacity: withTiming(opacity.value, { duration: 300 }),
-        };
-    });
 
     //
     // Navigation
@@ -235,10 +219,7 @@ export const AppComponent = memo((props: {
                     source={{ uri: props.endpoint }}
                     startInLoadingState={true}
                     style={{ backgroundColor: theme.backgroundPrimary, flexGrow: 1, flexBasis: 0, alignSelf: 'stretch' }}
-                    onLoadEnd={() => {
-                        setLoaded(true);
-                        opacity.value = 0;
-                    }}
+                    onLoadEnd={() => setLoaded(true)}
                     contentInset={{ top: 0, bottom: 0 }}
                     autoManageStatusBarEnabled={false}
                     allowFileAccessFromFileURLs={false}
@@ -249,6 +230,16 @@ export const AppComponent = memo((props: {
                     onShouldStartLoadWithRequest={loadWithRequest}
                     onMessage={handleWebViewMessage}
                 />
+                {!loaded && (
+                    <Animated.View
+                        entering={FadeIn}
+                        exiting={FadeOut}
+                        style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
+                        pointerEvents={loaded ? 'none' : 'box-none'}
+                    >
+                        <ActivityIndicator size="large" color={theme.accent} />
+                    </Animated.View>
+                )}
             </View>
         </>
     );

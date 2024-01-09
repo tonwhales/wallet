@@ -90,7 +90,13 @@ export const ReceiveFragment = fragment(() => {
                 onClosePressed={navigation.goBack}
             />
             <ScrollView style={{ flexGrow: 1, width: '100%' }}>
-                <View ref={imageRef} style={{ backgroundColor: theme.elevation }}>
+                <View
+                    ref={imageRef}
+                    style={Platform.select({
+                        ios: { backgroundColor: theme.elevation },
+                        android: { backgroundColor: theme.backgroundPrimary }
+                    })}
+                >
                     <Text style={{
                         color: theme.textSecondary,
                         fontSize: 17,

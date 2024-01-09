@@ -1,12 +1,11 @@
 import * as React from 'react';
-import { Platform, Text, View, ScrollView, Alert, ToastAndroid } from 'react-native';
+import { Platform, Text, View, ScrollView, Alert } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RoundButton } from '../../components/RoundButton';
 import { getAppState, getBackup, markAddressSecured } from '../../storage/appState';
 import { t } from '../../i18n/t';
-import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import { systemFragment } from '../../systemFragment';
 import { useRoute } from '@react-navigation/native';
 import { useKeysAuth } from '../../components/secure/AuthWalletKeys';
@@ -17,7 +16,7 @@ import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
 import { Avatar } from '../../components/Avatar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
-import { useNetwork, useTheme } from '../../engine/hooks';
+import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { StatusBar } from 'expo-status-bar';
@@ -33,17 +32,24 @@ export const WalletBackupFragment = systemFragment(() => {
     const logout = route.name === 'WalletBackupLogout';
     const back = route.params && (route.params as any).back === true;
     const [mnemonics, setMnemonics] = useState<string[] | null>(null);
-    const address = useMemo(() => getBackup(), []);
+    const selectedAccount = useSelectedAccount();
+    const address = useMemo(() => {
+        if (!selectedAccount) {
+            return getBackup().address;
+        } else {
+            return selectedAccount.address;
+        }
+    }, [selectedAccount]);
     const authContext = useKeysAuth();
     const toaster = useToaster();
-    const [walletSettings, setSettings] = useWalletSettings(address.address);
+    const [walletSettings, setSettings] = useWalletSettings(address);
 
     const onComplete = useCallback(() => {
         let state = getAppState();
         if (!state) {
             throw Error('Invalid state');
         }
-        markAddressSecured(address.address);
+        markAddressSecured(address);
         if (back) {
             navigation.goBack();
         } else {
@@ -170,13 +176,14 @@ export const WalletBackupFragment = systemFragment(() => {
                             position: 'absolute', top: -34, alignSelf: 'center'
                         }}>
                             <Avatar
-                                id={address.address.toString({ testOnly: network.isTestnet })}
+                                id={address.toString({ testOnly: network.isTestnet })}
                                 hash={walletSettings.avatar}
                                 size={77}
                                 borderColor={theme.elevation}
                                 borderWith={3}
                                 theme={theme}
                                 isTestnet={network.isTestnet}
+                                hashColor
                             />
                         </View>
                     )}

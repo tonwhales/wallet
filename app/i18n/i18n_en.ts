@@ -795,7 +795,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
-            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding.',
+            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction.',
         },
         checkRecipient: 'Check recipient',
         checkRecipientDescription: 'To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding',

@@ -137,8 +137,16 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, [ledgerConnection]);
 
     const startHIDSearch = useCallback(async () => {
-        let hid = await TransportHID.create();
-        setLedgerConnection({ type: 'hid', transport: hid, device: null });
+        let hid: Transport | undefined;
+        try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
+            await TransportHID.create();
+        } catch {
+            // Retry to account for first failed create with connect permission request
+            hid = await TransportHID.create();
+        }
+        if (hid) {
+            setLedgerConnection({ type: 'hid', transport: hid, device: null });
+        }
     }, []);
 
     const startBleSearch = useCallback(() => {

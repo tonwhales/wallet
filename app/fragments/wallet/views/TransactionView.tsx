@@ -106,11 +106,7 @@ export function TransactionView(props: {
         <Pressable
             onPress={() => props.onPress(props.tx)}
             style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
-            onLongPress={() => {
-                if (props.onLongPress) {
-                    props.onLongPress(props.tx);
-                }
-            }}
+            onLongPress={() => props.onLongPress?.(props.tx)}
         >
             <PerfView style={{
                 alignSelf: 'stretch',

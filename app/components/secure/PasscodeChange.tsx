@@ -1,16 +1,17 @@
 import React, { memo, useLayoutEffect, useReducer, useState } from "react";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import Animated, { SlideInRight, SlideOutLeft } from "react-native-reanimated";
 import { PasscodeInput } from "../passcode/PasscodeInput";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { PasscodeSuccess } from "../passcode/PasscodeSuccess";
 import { getCurrentAddress } from "../../storage/appState";
-import { SecureAuthenticationCancelledError, loadWalletKeys } from "../../storage/walletKeys";
-import { passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
+import { loadWalletKeys } from "../../storage/walletKeys";
+import { PasscodeState, passcodeLengthKey, updatePasscode } from "../../storage/secureStorage";
 import { storage } from "../../storage/storage";
 import { ToastDuration, useToaster } from "../toast/ToastProvider";
 import { useDimensions } from "@react-native-community/hooks";
+import { useSetPasscodeState } from "../../engine/hooks";
 
 type Action =
     | { type: 'auth', input: string }
@@ -77,8 +78,9 @@ export const PasscodeChange = memo(() => {
     const acc = getCurrentAddress();
     const dimentions = useDimensions();
     const [isFirstRender, setFirstRender] = useState(true);
-    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 4;
+    const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
     const [state, dispatch] = useReducer(reduceSteps(), { step: 'auth', input: '', passcodeLength });
+    const setPascodeState = useSetPasscodeState();
     const navigation = useTypedNavigation();
     const toaster = useToaster();
 
@@ -142,7 +144,7 @@ export const PasscodeChange = memo(() => {
                                 throw new Error('Passcodes do not match');
                             }
 
-                            updatePasscode(state.prev, newPasscode);
+                            updatePasscode(state.prev, newPasscode, setPascodeState);
 
                             toaster.show({
                                 message: t('security.passcodeSettings.success'),

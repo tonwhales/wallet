@@ -127,6 +127,11 @@ export const SimpleTransferFragment = fragment(() => {
 
     const validAmount = useMemo(() => {
         let value: bigint | null = null;
+
+        if (!amount) {
+            return null;
+        }
+
         try {
             const valid = amount.replace(',', '.').replaceAll(' ', '');
             // Manage jettons with decimals
@@ -571,7 +576,7 @@ export const SimpleTransferFragment = fragment(() => {
         }
 
         // Check amount
-        if (validAmount !== balance && balance < validAmount) {
+        if (balance < validAmount || balance === 0n) {
             Alert.alert(t('transfer.error.notEnoughCoins'));
             return;
         }
@@ -620,7 +625,17 @@ export const SimpleTransferFragment = fragment(() => {
             callback,
             back: params && params.back ? params.back + 1 : undefined
         })
-    }, [amount, target, domain, commentString, accountLite, stateInit, order, callback, jettonState, ledgerAddress, isLedger]);
+    }, [
+        amount, target, domain, commentString,
+        accountLite,
+        stateInit,
+        order,
+        callback,
+        jettonState,
+        ledgerAddress,
+        isLedger,
+        balance
+    ]);
 
     const onFocus = useCallback((index: number) => {
         setSelectedInput(index);
@@ -966,7 +981,7 @@ export const SimpleTransferFragment = fragment(() => {
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                         style={[
                             seletectInputStyles.comment,
-                            { backgroundColor: theme.elevation, flex: 1 }
+                            { flex: 1 }
                         ]}
                     >
                         <View style={{

@@ -140,7 +140,7 @@ export const LegalFragment = systemFragment(() => {
                     <Text style={{
                         color: theme.textSecondary,
                     }}>
-                        {t('legal.subtitle') + ' '}
+                        {t('legal.subtitle')}
                     </Text>
                     <Text
                         style={{ color: theme.accent }}

@@ -69,6 +69,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                 scrollEventThrottle={16}
                 decelerationRate={'normal'}
                 alwaysBounceVertical={true}
+                overScrollMode={'never'}
             >
                 {Platform.OS === 'ios' && (
                     <View

@@ -1,4 +1,4 @@
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useMemo } from "react";
 import { View, Text, Pressable, Image, Alert } from "react-native";
 import { ellipsiseAddress } from "../WalletAddress";
 import { WalletItem } from "./WalletItem";
@@ -17,7 +17,17 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
     const appState = useAppState();
 
     const ledgerContext = useLedgerTransport();
-    const ledgerConnected = !!ledgerContext?.tonTransport;
+    const connectedLedgerAddress = useMemo(() => {
+        if (!ledgerContext?.tonTransport || !ledgerContext.addr?.address) {
+            return null;
+        }
+        try {
+            Address.parse(ledgerContext.addr.address);
+            return ledgerContext.addr.address;
+        } catch {
+            return null;
+        }
+    }, [ledgerContext]);
 
     const onLedgerSelect = useCallback(async () => {
         if (!!onSelect) {
@@ -51,7 +61,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                     />
                 )
             })}
-            {ledgerConnected && (
+            {!!connectedLedgerAddress && (
                 <Pressable
                     style={{
                         backgroundColor: theme.surfaceOnElevation,
@@ -94,7 +104,7 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                             {'Ledger'}
                         </Text>
                         <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
-                            {ellipsiseAddress(ledgerContext.addr?.address ?? '')}
+                            {ellipsiseAddress(connectedLedgerAddress)}
                         </Text>
                     </View>
                     <View style={{

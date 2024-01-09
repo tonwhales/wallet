@@ -43,7 +43,7 @@ export const DeleteAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const authContext = useKeysAuth();
     const selected = useSelectedAccount();
-    const account = useAccountLite(selected!.address);
+    const account = useAccountLite(selected?.address);
     const keyboard = useKeyboard();
     const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
 
@@ -325,13 +325,12 @@ export const DeleteAccountFragment = fragment(() => {
                         <View style={{ paddingHorizontal: 6 }}>
                             <ATextInput
                                 value={recipientString}
-                                onValueChange={setRecipientString}
+                                onValueChange={(newVal) => setRecipientString(newVal.trim())}
                                 keyboardType={'ascii-capable'}
                                 multiline
                                 autoCorrect={false}
                                 autoComplete={'off'}
                                 textContentType={'none'}
-                                maxLength={48}
                                 style={{
                                     paddingHorizontal: 10,
                                 }}

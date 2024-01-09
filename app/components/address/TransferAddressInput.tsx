@@ -72,12 +72,15 @@ export function addressInputReducer() {
                 if (action.input === state.input) {
                     return state;
                 }
-                if (action.input.length === 48) {
+                try {
+                    Address.parse(action.input);
                     return {
                         input: action.input,
                         domain: undefined,
                         target: action.input
                     };
+                } catch {
+                    // ignore
                 }
                 return {
                     input: action.input,
@@ -237,7 +240,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         />
                     </View>
                 </View>
-                {!props.validAddress && (props.target.length === 48) && (
+                {!props.validAddress && (props.target.length >= 48) && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>
                         <PerfText style={{
                             color: theme.accentRed,

@@ -273,8 +273,8 @@ export const ContactFragment = fragment(() => {
                     }}>
                         <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
                             <Avatar
-                                address={address}
-                                id={address}
+                                address={parsed ? parsed.toString({ testOnly: isTestnet }) : ''}
+                                id={parsed ? parsed.toString({ testOnly: isTestnet }) : ''}
                                 size={100}
                                 image={undefined}
                                 borderWith={2}
@@ -428,7 +428,7 @@ export const ContactFragment = fragment(() => {
                                 <ATextInput
                                     ref={refs[params.isNew ? 1 : 0]}
                                     value={name}
-                                    onValueChange={setName}
+                                    onValueChange={(newValue) => setName(newValue.trimStart())}
                                     label={t('contacts.name')}
                                     style={{ paddingHorizontal: 16 }}
                                     blurOnSubmit={true}
@@ -474,10 +474,9 @@ export const ContactFragment = fragment(() => {
                                         <ATextInput
                                             ref={refs[0]}
                                             value={address}
-                                            maxLength={48}
                                             style={{ paddingHorizontal: 16 }}
                                             keyboardType={'ascii-capable'}
-                                            onValueChange={setAddress}
+                                            onValueChange={(newValue) => setAddress(newValue.trim())}
                                             label={t('common.walletAddress')}
                                             blurOnSubmit={true}
                                             editable={editing}
@@ -485,7 +484,7 @@ export const ContactFragment = fragment(() => {
                                             onFocus={() => onFocus(0)}
                                         />
                                     </View>
-                                    {address.length === 48 && !parsed && (
+                                    {address.length >= 48 && !parsed && (
                                         <Animated.View entering={FadeIn} exiting={FadeOut}>
                                             <Text style={{
                                                 color: theme.accentRed,

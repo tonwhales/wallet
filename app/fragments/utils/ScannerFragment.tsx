@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image, Dimensions } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -46,7 +46,13 @@ export const ScannerFragment = systemFragment(() => {
     // Possible causes: 
     // 1. Different camera manufacturers support different aspect ratios. 
     // 2. Different phone manufacturers design screens with varying aspect ratios.
-    const { ratio, imagePadding, setCameraReady } = useCameraAspectRatio(cameraRef);
+    const { ratio, imagePadding, prepareRatio } = useCameraAspectRatio();
+
+    const onCameraReady = useCallback(() => {
+        if (!!cameraRef.current) {
+            prepareRatio(cameraRef.current);
+        }
+    }, [cameraRef.current]);
 
     const onReadFromMedia = useCallback(async () => {
         try {
@@ -180,7 +186,7 @@ export const ScannerFragment = systemFragment(() => {
                         Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
                     ]}
                     flashMode={flashOn ? FlashMode.torch : FlashMode.off}
-                    onCameraReady={setCameraReady}
+                    onCameraReady={onCameraReady}
                     ratio={ratio}
                 />
             </View>

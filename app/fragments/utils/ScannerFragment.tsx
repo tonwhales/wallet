@@ -229,8 +229,10 @@ export const ScannerFragment = systemFragment(() => {
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <Camera
                     onBarCodeScanned={!isActive ? undefined : onScanned}
-                    style={[StyleSheet.absoluteFill, { marginTop: imagePadding, marginBottom: imagePadding }]}
-                    // style={[StyleSheet.absoluteFill]}
+                    style={[
+                        StyleSheet.absoluteFill,
+                        Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
+                    ]}
                     flashMode={flashOn ? FlashMode.torch : FlashMode.off}
                     onCameraReady={setCameraReady}
                     ratio={ratio}
@@ -266,8 +268,7 @@ export const ScannerFragment = systemFragment(() => {
                 {
                     flexDirection: 'row',
                     justifyContent: 'space-between', alignItems: 'center',
-                    paddingHorizontal: 16,
-                    marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
+                    paddingHorizontal: 16
                 },
                 Platform.select({
                     android: { marginBottom: imagePadding + 16 },

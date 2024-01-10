@@ -8,5 +8,5 @@ export type CloudExtension = {
 }
 
 export function useExtensions() {
-    return useCloudValue<{ installed: { [key: string]: CloudExtension } }>('wallet.extensions.v2', (src) => { src.installed = {} });
+    return useCloudValue<{ installed: { [key: string]: CloudExtension } }>('wallet.extensions.v3', (src) => { src.installed = {} });
 }

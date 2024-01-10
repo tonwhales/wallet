@@ -39,7 +39,7 @@ export const LedgerHomeFragment = fragment(() => {
         } catch { }
     }, [ledgerContext?.addr?.address]);
 
-    const account = useAccountLite(address!)!;
+    const account = useAccountLite(address!, true)!;
     const staking = useStaking(address!);
 
     const stakingBalance = useMemo(() => {

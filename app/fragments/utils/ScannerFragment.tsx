@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image } from 'react-native';
+import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
 import * as IntentLauncher from 'expo-intent-launcher';
@@ -37,6 +37,14 @@ export const ScannerFragment = systemFragment(() => {
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
+
+    // Screen Ratio and image padding
+    const [camera, setCamera] = useState<Camera | null>(null);
+    const [imagePadding, setImagePadding] = useState(0);
+    const [ratio, setRatio] = useState('4:3');  // default is 4:3
+    const { height, width } = Dimensions.get('window');
+    const screenRatio = height / width;
+    const [isRatioSet, setIsRatioSet] = useState(false);
 
     const onReadFromMedia = useCallback(async () => {
         try {
@@ -157,6 +165,63 @@ export const ScannerFragment = systemFragment(() => {
         rectSize
     ), 16, 16);
 
+    // Android only
+    // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
+    // Possible causes: 
+    // 1. Different camera manufacturers support different aspect ratios. 
+    // 2. Different phone manufacturers design screens with varying aspect ratios.
+
+    // set the camera ratio and padding.
+    // this code assumes a portrait mode screen
+    const prepareRatio = async () => {
+        let desiredRatio = '4:3';  // Start with the system default
+        // This issue only affects Android
+        if (Platform.OS === 'android') {
+            const ratios = await camera?.getSupportedRatiosAsync();
+
+            // Calculate the width/height of each of the supported camera ratios
+            // These width/height are measured in landscape mode
+            // find the ratio that is closest to the screen ratio without going over
+            let distances: { [key: string]: number } = {};
+            let realRatios: { [key: string]: number } = {};
+            let minDistance = null;
+            for (const ratio of (ratios ?? [])) {
+                const parts = ratio.split(':');
+                const realRatio = parseInt(parts[0]) / parseInt(parts[1]);
+                realRatios[ratio] = realRatio;
+                // ratio can't be taller than screen, so we don't want an abs()
+                const distance = screenRatio - realRatio;
+                distances[ratio] = distance;
+                if (minDistance == null) {
+                    minDistance = ratio;
+                } else {
+                    if (distance >= 0 && distance < distances[minDistance]) {
+                        minDistance = ratio;
+                    }
+                }
+            }
+            // set the best match
+            desiredRatio = minDistance ?? '4:3';
+            //  calculate the difference between the camera width and the screen height
+            const remainder = Math.floor(
+                (height - realRatios[desiredRatio] * width) / 2
+            );
+            // set the preview padding and preview ratio
+            setImagePadding(remainder);
+            setRatio(desiredRatio);
+            // Set a flag so we don't do this 
+            // calculation each time the screen refreshes
+            setIsRatioSet(true);
+        }
+    };
+
+    // the camera must be loaded in order to access the supported ratios
+    const setCameraReady = async () => {
+        if (!isRatioSet) {
+            await prepareRatio();
+        }
+    };
+
     return (
         <View style={styles.container}>
             {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
@@ -164,8 +229,14 @@ export const ScannerFragment = systemFragment(() => {
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <Camera
                     onBarCodeScanned={!isActive ? undefined : onScanned}
-                    style={StyleSheet.absoluteFill}
+                    style={[StyleSheet.absoluteFill, { marginTop: imagePadding, marginBottom: imagePadding }]}
+                    // style={[StyleSheet.absoluteFill]}
                     flashMode={flashOn ? FlashMode.torch : FlashMode.off}
+                    onCameraReady={setCameraReady}
+                    ratio={ratio}
+                    ref={(ref) => {
+                        setCamera(ref);
+                    }}
                 />
             </View>
 
@@ -191,12 +262,18 @@ export const ScannerFragment = systemFragment(() => {
                 </Text>
             </View>
             <View style={{ flexGrow: 1 }} />
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingHorizontal: 16,
-                marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
-            }}>
+            <View style={[
+                {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingHorizontal: 16,
+                    marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
+                },
+                Platform.select({
+                    android: { marginBottom: imagePadding + 16 },
+                    ios: { marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24 },
+                }),
+            ]}>
                 <Pressable style={(props) => {
                     return {
                         opacity: props.pressed ? 0.5 : 1,
@@ -233,7 +310,13 @@ export const ScannerFragment = systemFragment(() => {
                 </Pressable>
             </View>
             <ScreenHeader
-                style={{ position: 'absolute', top: Platform.OS === 'android' ? 32 : 0, left: 0, right: 0 }}
+                style={[
+                    { position: 'absolute', left: 0, right: 0 },
+                    Platform.select({
+                        android: { top: imagePadding },
+                        ios: { top: 0 },
+                    })
+                ]}
                 onClosePressed={() => {
                     setActive(false);
                     setTimeout(() => {

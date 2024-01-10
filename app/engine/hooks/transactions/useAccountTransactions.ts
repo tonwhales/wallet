@@ -36,13 +36,13 @@ export function parseStoredMetadata(metadata: StoredContractMetadata): ContractM
 }
 
 
-export function useAccountTransactions(client: TonClient4, account: string): {
+export function useAccountTransactions(client: TonClient4, account: string, refetchOnMount: boolean = false): {
     data: TransactionDescription[] | null,
     next: () => void,
     hasNext: boolean,
     loading: boolean
 } {
-    let raw = useRawAccountTransactions(client, account);
+    let raw = useRawAccountTransactions(client, account, refetchOnMount);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
     let { baseTxs, mentioned } = useMemo(() => {

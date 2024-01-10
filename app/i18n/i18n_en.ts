@@ -439,7 +439,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 cooldownInactive: 'Inactive',
                 cooldownDescription: 'All transactions take effect instantly during this period',
                 cooldownAlert: 'At the beginning of each staking cycle, the Simplified Period is active. During this period you don\'t have to wait for the cycle to end in order to withdraw or top up - it happens instantly, and you don\'t have to send a second transaction to withdraw, which halves the withdrawal fee. You can transfer funds from one pool to another without losing cycle profits if the Simplified Period is active in both pools',
-                lockedAlert: 'While the staking sycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends'
+                lockedAlert: 'While the staking cycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends'
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             tryAgainLater: 'Please, try again later',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
@@ -21,6 +21,7 @@ import { Typography } from '../../components/styles';
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
+import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-cam-dark.webp'),
@@ -38,13 +39,14 @@ export const ScannerFragment = systemFragment(() => {
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
 
-    // Screen Ratio and image padding
-    const [camera, setCamera] = useState<Camera | null>(null);
-    const [imagePadding, setImagePadding] = useState(0);
-    const [ratio, setRatio] = useState('4:3');  // default is 4:3
-    const { height, width } = Dimensions.get('window');
-    const screenRatio = height / width;
-    const [isRatioSet, setIsRatioSet] = useState(false);
+    const cameraRef = useRef<Camera>(null);
+    
+    // Screen Ratio and image padding for Android
+    // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
+    // Possible causes: 
+    // 1. Different camera manufacturers support different aspect ratios. 
+    // 2. Different phone manufacturers design screens with varying aspect ratios.
+    const { ratio, imagePadding, setCameraReady } = useCameraAspectRatio(cameraRef);
 
     const onReadFromMedia = useCallback(async () => {
         try {
@@ -165,69 +167,13 @@ export const ScannerFragment = systemFragment(() => {
         rectSize
     ), 16, 16);
 
-    // Android only
-    // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
-    // Possible causes: 
-    // 1. Different camera manufacturers support different aspect ratios. 
-    // 2. Different phone manufacturers design screens with varying aspect ratios.
-
-    // set the camera ratio and padding.
-    // this code assumes a portrait mode screen
-    const prepareRatio = async () => {
-        let desiredRatio = '4:3';  // Start with the system default
-        // This issue only affects Android
-        if (Platform.OS === 'android') {
-            const ratios = await camera?.getSupportedRatiosAsync();
-
-            // Calculate the width/height of each of the supported camera ratios
-            // These width/height are measured in landscape mode
-            // find the ratio that is closest to the screen ratio without going over
-            let distances: { [key: string]: number } = {};
-            let realRatios: { [key: string]: number } = {};
-            let minDistance = null;
-            for (const ratio of (ratios ?? [])) {
-                const parts = ratio.split(':');
-                const realRatio = parseInt(parts[0]) / parseInt(parts[1]);
-                realRatios[ratio] = realRatio;
-                // ratio can't be taller than screen, so we don't want an abs()
-                const distance = screenRatio - realRatio;
-                distances[ratio] = distance;
-                if (minDistance == null) {
-                    minDistance = ratio;
-                } else {
-                    if (distance >= 0 && distance < distances[minDistance]) {
-                        minDistance = ratio;
-                    }
-                }
-            }
-            // set the best match
-            desiredRatio = minDistance ?? '4:3';
-            //  calculate the difference between the camera width and the screen height
-            const remainder = Math.floor(
-                (height - realRatios[desiredRatio] * width) / 2
-            );
-            // set the preview padding and preview ratio
-            setImagePadding(remainder);
-            setRatio(desiredRatio);
-            // Set a flag so we don't do this 
-            // calculation each time the screen refreshes
-            setIsRatioSet(true);
-        }
-    };
-
-    // the camera must be loaded in order to access the supported ratios
-    const setCameraReady = async () => {
-        if (!isRatioSet) {
-            await prepareRatio();
-        }
-    };
-
     return (
         <View style={styles.container}>
             {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
 
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <Camera
+                    ref={cameraRef}
                     onBarCodeScanned={!isActive ? undefined : onScanned}
                     style={[
                         StyleSheet.absoluteFill,
@@ -236,9 +182,6 @@ export const ScannerFragment = systemFragment(() => {
                     flashMode={flashOn ? FlashMode.torch : FlashMode.off}
                     onCameraReady={setCameraReady}
                     ratio={ratio}
-                    ref={(ref) => {
-                        setCamera(ref);
-                    }}
                 />
             </View>
 

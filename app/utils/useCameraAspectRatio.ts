@@ -23,7 +23,7 @@ export function useCameraAspectRatio(cameraRef: React.RefObject<Camera>) {
             // find the ratio that is closest to the screen ratio without going over
             let distances: { [key: string]: number } = {};
             let realRatios: { [key: string]: number } = {};
-            let minDistance = null;
+            let minDistance: string | null = null;
             for (const ratio of (ratios ?? [])) {
                 const parts = ratio.split(':');
                 const realRatio = parseInt(parts[0]) / parseInt(parts[1]);

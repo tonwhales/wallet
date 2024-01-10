@@ -19,7 +19,7 @@ const PrefetchTransactions = ({ address }: { address: string }) => {
     let isTestnet = useNetwork().isTestnet;
     let client = useClient4(isTestnet);
 
-    useAccountTransactions(client, address);
+    useAccountTransactions(client, address, true);
 
     return null;
 }

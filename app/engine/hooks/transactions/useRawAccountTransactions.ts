@@ -196,11 +196,12 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
 
 const TRANSACTIONS_LENGTH = 16;
 
-export function useRawAccountTransactions(client: TonClient4, account: string) {
+export function useRawAccountTransactions(client: TonClient4, account: string, refetchOnMount: boolean = false) {
     const { isTestnet } = useNetwork();
 
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),
+        refetchOnMount: refetchOnMount,
         getNextPageParam: (last) => {
             if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;

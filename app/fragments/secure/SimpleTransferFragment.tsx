@@ -833,7 +833,10 @@ export const SimpleTransferFragment = fragment(() => {
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                                 onPress={() => navigation.navigate(
                                     'Assets',
-                                    { callback: onAssetSelected, selectedJetton: jettonState?.master }
+                                    {
+                                        callback: onAssetSelected,
+                                        selectedJetton: jettonState ? Address.parse(jettonState.master.address) : undefined
+                                    }
                                 )}
                             >
                                 <View style={{

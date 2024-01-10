@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Text, View, StyleSheet, Pressable, Platform, Linking, Alert, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Application from 'expo-application';
@@ -17,6 +17,7 @@ import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import { Camera, FlashMode } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
+import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
@@ -37,6 +38,21 @@ export const ScannerFragment = systemFragment(() => {
     const [hasPermission, setHasPermission] = useState<null | boolean>(null);
     const [isActive, setActive] = useState(true);
     const [flashOn, setFlashOn] = useState(false);
+
+    const cameraRef = useRef<Camera>(null);
+
+    // Screen Ratio and image padding for Android
+    // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
+    // Possible causes: 
+    // 1. Different camera manufacturers support different aspect ratios. 
+    // 2. Different phone manufacturers design screens with varying aspect ratios.
+    const { ratio, imagePadding, prepareRatio } = useCameraAspectRatio();
+
+    const onCameraReady = useCallback(() => {
+        if (!!cameraRef.current) {
+            prepareRatio(cameraRef.current);
+        }
+    }, []);
 
     const onReadFromMedia = useCallback(async () => {
         try {
@@ -163,9 +179,15 @@ export const ScannerFragment = systemFragment(() => {
 
             <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
                 <Camera
+                    ref={cameraRef}
                     onBarCodeScanned={!isActive ? undefined : onScanned}
-                    style={StyleSheet.absoluteFill}
+                    style={[
+                        StyleSheet.absoluteFill,
+                        Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
+                    ]}
                     flashMode={flashOn ? FlashMode.torch : FlashMode.off}
+                    onCameraReady={onCameraReady}
+                    ratio={ratio}
                 />
             </View>
 
@@ -191,12 +213,17 @@ export const ScannerFragment = systemFragment(() => {
                 </Text>
             </View>
             <View style={{ flexGrow: 1 }} />
-            <View style={{
-                flexDirection: 'row',
-                justifyContent: 'space-between', alignItems: 'center',
-                paddingHorizontal: 16,
-                marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24
-            }}>
+            <View style={[
+                {
+                    flexDirection: 'row',
+                    justifyContent: 'space-between', alignItems: 'center',
+                    paddingHorizontal: 16
+                },
+                Platform.select({
+                    android: { marginBottom: imagePadding + 16 },
+                    ios: { marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24 },
+                }),
+            ]}>
                 <Pressable style={(props) => {
                     return {
                         opacity: props.pressed ? 0.5 : 1,
@@ -233,7 +260,13 @@ export const ScannerFragment = systemFragment(() => {
                 </Pressable>
             </View>
             <ScreenHeader
-                style={{ position: 'absolute', top: Platform.OS === 'android' ? 32 : 0, left: 0, right: 0 }}
+                style={[
+                    { position: 'absolute', left: 0, right: 0 },
+                    Platform.select({
+                        android: { top: imagePadding },
+                        ios: { top: 0 },
+                    })
+                ]}
                 onClosePressed={() => {
                     setActive(false);
                     setTimeout(() => {

@@ -14,6 +14,7 @@ import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useKeyboard } from "@react-native-community/hooks";
 
 export const WalletSettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -24,6 +25,7 @@ export const WalletSettingsFragment = fragment(() => {
     const selected = useSelectedAccount();
     const address = selected!.address;
     const safeArea = useSafeAreaInsets();
+    const keyboard = useKeyboard();
 
     const [walletSettings, setSettings] = useWalletSettings(address);
 
@@ -165,7 +167,11 @@ export const WalletSettingsFragment = fragment(() => {
                                     {
                                         message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
                                         type: 'default',
-                                        duration: ToastDuration.SHORT
+                                        duration: ToastDuration.SHORT,
+                                        marginBottom: Platform.select({
+                                            ios: keyboard.keyboardShown ? keyboard.keyboardHeight + 16 : 0,
+                                            android: keyboard.keyboardShown ? keyboard.keyboardHeight : 0
+                                        })
                                     }
                                 );
                             }}

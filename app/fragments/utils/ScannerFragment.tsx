@@ -52,7 +52,7 @@ export const ScannerFragment = systemFragment(() => {
         if (!!cameraRef.current) {
             prepareRatio(cameraRef.current);
         }
-    }, [cameraRef.current]);
+    }, []);
 
     const onReadFromMedia = useCallback(async () => {
         try {

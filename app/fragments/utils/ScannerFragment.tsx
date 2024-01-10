@@ -17,11 +17,11 @@ import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
 import { Camera, FlashMode } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
+import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
 import Photo from '../../../assets/ic-photo.svg';
-import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
 
 const EmptyIllustrations = {
     dark: require('@assets/empty-cam-dark.webp'),
@@ -40,7 +40,7 @@ export const ScannerFragment = systemFragment(() => {
     const [flashOn, setFlashOn] = useState(false);
 
     const cameraRef = useRef<Camera>(null);
-    
+
     // Screen Ratio and image padding for Android
     // The issue arises from the discrepancy between the camera preview's aspect ratio and the screen's aspect ratio. 
     // Possible causes: 

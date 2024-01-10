@@ -61,5 +61,5 @@ export function useCameraAspectRatio(cameraRef: React.RefObject<Camera>) {
         }
     };
 
-    return { isRatioSet, cameraRef, ratio, imagePadding, setCameraReady };
+    return { isRatioSet, ratio, imagePadding, setCameraReady };
 }

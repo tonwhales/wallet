@@ -1,24 +1,36 @@
 import { createContext, useEffect, useMemo, useRef, useState } from 'react';
 import { ThemeStyle, ThemeType, baseTheme, darkTheme, themeStyleState } from './state/theme';
 import { useRecoilValue } from 'recoil';
-import { useColorScheme } from 'react-native';
+import { Platform, useColorScheme } from 'react-native';
+import { AndroidAppearance } from '../modules/AndroidAppearance';
+import { changeNavBarColor } from '../modules/NavBar';
 
 export const ThemeContext = createContext<ThemeType>(baseTheme);
 
+function usePlatformColorScheme() {
+    const colorScheme = useColorScheme();
+    const andColorScheme = AndroidAppearance.useColorScheme();
+
+    return Platform.select({ ios: colorScheme, android: andColorScheme });
+}
+
 function useForegroundColorScheme() {
-    const colorScheme = useColorScheme()
-    const [currentColorScheme, setCurrentColorScheme] = useState(colorScheme)
-    const onColorSchemeChange = useRef<NodeJS.Timeout>()
+    const colorScheme = usePlatformColorScheme();
+    const [currentColorScheme, setCurrentColorScheme] = useState(colorScheme);
+    const onColorSchemeChange = useRef<NodeJS.Timeout>();
 
     // Add a 300ms delay before switching color scheme
     // Cancel if color scheme immediately switches back
     useEffect(() => {
         if (colorScheme !== currentColorScheme) {
-            onColorSchemeChange.current = setTimeout(() => setCurrentColorScheme(colorScheme), 300)
+            onColorSchemeChange.current = setTimeout(() => {
+                changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : 'white');
+                setCurrentColorScheme(colorScheme);
+            }, 300);
         } else if (onColorSchemeChange.current) {
-            clearTimeout(onColorSchemeChange.current)
+            clearTimeout(onColorSchemeChange.current);
         }
-    }, [colorScheme]);
+    }, [colorScheme, currentColorScheme]);
 
     return currentColorScheme;
 }

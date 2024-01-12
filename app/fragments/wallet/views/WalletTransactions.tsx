@@ -18,15 +18,12 @@ import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sh
 import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallets } from "../../../secure/KnownWallets";
+import { Typography } from "../../../components/styles";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
-            <Text style={{
-                fontSize: 20,
-                fontWeight: '600',
-                lineHeight: 28, color: theme.textPrimary
-            }}>
+            <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                 {title}
             </Text>
         </View>

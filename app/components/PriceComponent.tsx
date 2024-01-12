@@ -1,13 +1,13 @@
 import React, { memo, useMemo } from "react"
-import { View, Text, StyleProp, ViewStyle, TextStyle } from "react-native"
+import { StyleProp, ViewStyle, TextStyle } from "react-native"
 import { formatCurrency } from "../utils/formatCurrency"
-import { usePrice, useTheme } from "../engine/hooks";
+import { usePrice } from "../engine/hooks";
 import { fromNano } from "@ton/core";
 import { ThemeType } from "../engine/state/theme";
-
-import TonSign from '@assets/ic_ton_sign.svg';
 import { PerfView } from "./basic/PerfView";
 import { PerfText } from "./basic/PerfText";
+
+import TonSign from '@assets/ic_ton_sign.svg';
 
 export const PriceComponent = memo((
     {

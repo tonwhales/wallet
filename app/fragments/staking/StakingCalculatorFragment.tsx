@@ -1,20 +1,19 @@
 import { useKeyboard } from "@react-native-community/hooks";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Platform, View, Text, ScrollView, KeyboardAvoidingView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { ATextInput } from "../../components/ATextInput";
 import { RoundButton } from "../../components/RoundButton";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { parseAmountToValidBN } from "../../utils/parseAmount";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import { formatCurrency, formatInputAmount } from "../../utils/formatCurrency";
 import { ValueComponent } from "../../components/ValueComponent";
 import { TransferAction } from "./StakingTransferFragment";
-import { usePrice, useStakingPool, useTheme } from "../../engine/hooks";
+import { useNetwork, usePrice, useSelectedAccount, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingCalcComponent } from "../../components/staking/StakingCalcComponent";
@@ -29,6 +28,8 @@ export const StakingCalculatorFragment = fragment(() => {
     const [price, currency] = usePrice();
     const ledgerContext = useLedgerTransport();
     const route = useRoute();
+    const network = useNetwork();
+    const selected = useSelectedAccount();
 
     const isLedger = route.name === 'LedgerStakingCalculator';
 
@@ -38,6 +39,21 @@ export const StakingCalculatorFragment = fragment(() => {
             return Address.parse(ledgerContext?.addr?.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
+
+    const config = useStakingWalletConfig(
+        isLedger
+            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
+            : selected!.address.toString({ testOnly: network.isTestnet })
+    );
+
+    const available = useMemo(() => {
+        if (network.isTestnet) {
+            return true;
+        }
+        return !!config?.pools.find((v2) => {
+            return Address.parse(v2).equals(params.target)
+        })
+    }, [config, params.target, network]);
 
     const pool = useStakingPool(params.target, ledgerAddress);
 
@@ -132,6 +148,7 @@ export const StakingCalculatorFragment = fragment(() => {
                                 }
                                 setAmount(formatted);
                             }}
+                            autoFocus
                             keyboardType={'numeric'}
                             style={{
                                 backgroundColor: theme.backgroundPrimary,
@@ -167,12 +184,17 @@ export const StakingCalculatorFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('products.staking.calc.goToTopUp')}
+                    disabled={!available}
                     onPress={() => {
                         navigation.replace(
                             isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
                             {
                                 target: params.target,
-                                amount: (pool?.params.minStake ?? 0n) + (pool?.params?.receiptPrice ?? 0n) + (pool?.params?.depositFee ?? 0n),
+                                amount:
+                                    (pool?.params.minStake ?? 0n)
+                                    + (pool?.params?.receiptPrice ?? 0n)
+                                    + (pool?.params?.depositFee ?? 0n)
+                                    + (validAmount ?? 0n),
                                 lockAddress: true,
                                 lockComment: true,
                                 action: 'top_up' as TransferAction,

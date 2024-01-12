@@ -24,7 +24,7 @@ function useForegroundColorScheme() {
     useEffect(() => {
         if (colorScheme !== currentColorScheme) {
             onColorSchemeChange.current = setTimeout(() => {
-                changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : 'white');
+                changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
                 setCurrentColorScheme(colorScheme);
             }, 300);
         } else if (onColorSchemeChange.current) {

@@ -214,8 +214,10 @@ export const TransferBatch = memo((props: Props) => {
     // Tracking
     const success = useRef(false);
     useEffect(() => {
-        if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { order }, isTestnet);
+        return () => {
+            if (!success.current) {
+                trackEvent(MixpanelEvent.TransferCancel, { target: 'batch', amount: totalAmount.toString(10) }, isTestnet);
+            }
         }
     }, []);
 
@@ -381,7 +383,7 @@ export const TransferBatch = memo((props: Props) => {
 
         // Track
         success.current = true;
-        trackEvent(MixpanelEvent.Transfer, { order }, isTestnet);
+        trackEvent(MixpanelEvent.Transfer, { target: 'batch', amount: totalAmount.toString(10) }, isTestnet);
 
         // Register pending
         registerPending({

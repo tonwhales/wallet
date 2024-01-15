@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { changeNavBarColor } from '../../../components/modules/NavBar';
 import { ThemeStyle } from '../../state/theme';
 import { useTheme } from './useTheme';
 import { DefaultTheme } from '@react-navigation/native';
@@ -13,7 +12,6 @@ export function useNavigationTheme(): NavigationThemeType {
     const [themeStyle,] = useThemeStyle();
 
     useEffect(() => {
-        changeNavBarColor(theme.surfaceOnBg);
         if (themeStyle !== ThemeStyle.System && Platform.OS === 'android') {
             SystemUI.setBackgroundColorAsync(theme.backgroundPrimary);
         } else {

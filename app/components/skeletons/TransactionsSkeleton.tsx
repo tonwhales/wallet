@@ -1,7 +1,6 @@
 import React from "react";
 import { memo, useEffect } from "react";
 import Animated, { Easing, Extrapolation, FadeIn, FadeOut, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from "react-native-reanimated";
-import { usePulsatingStyle } from "./usePulsatingStyle";
 import { View } from "react-native";
 import { useTheme } from "../../engine/hooks";
 import { ThemeType } from "../../engine/state/theme";
@@ -9,7 +8,7 @@ import { ThemeType } from "../../engine/state/theme";
 const SectionHeader = memo(({ theme }: { theme: ThemeType }) => {
     const rndmWith = Math.floor(Math.random() * 100) + 100;
     return (
-        <View style={{ width: '100%', paddingVertical: 8, opacity: 0.3 }}>
+        <View style={{ width: '100%', paddingVertical: 8, opacity: 0.3, marginTop: 24 }}>
             <View style={{ borderRadius: 12, height: 24, width: rndmWith, backgroundColor: theme.textSecondary }} />
         </View>
     )

@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useAppState, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAccountTransactions, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
@@ -22,24 +22,23 @@ export const AddressSearch = memo(({
     account,
     query,
     onSelect,
-    transfer
+    transfer,
+    myWallets
 }: {
     account: Address,
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
-    transfer?: boolean
+    transfer?: boolean,
+    myWallets: {
+        address: Address;
+        addressString: string;
+        index: number;
+    }[]
 }) => {
     const theme = useTheme();
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
-    const appState = useAppState();
-    const selectedIndex = appState.selected;
-    const myWallets = appState.addresses.map((acc, index) => ({
-        address: acc.address,
-        addressString: acc.address.toString({ testOnly: network.isTestnet }),
-        index: index
-    })).filter((acc) => acc.index !== selectedIndex);
     const client = useClient4(network.isTestnet);
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();

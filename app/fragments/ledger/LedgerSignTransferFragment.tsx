@@ -117,8 +117,10 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
     // Tracking
     const success = useRef(false);
     useEffect(() => {
-        if (!success.current) {
-            trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
+        return () => {
+            if (!success.current) {
+                trackEvent(MixpanelEvent.TransferCancel, { target: order.target, amount: order.amount.toString(10) });
+            }
         }
     }, []);
 

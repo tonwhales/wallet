@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useAppState, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAccountTransactions, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
@@ -22,13 +22,13 @@ export const AddressSearch = memo(({
     account,
     query,
     onSelect,
-    transfer,myWallets
+    transfer,
+    myWallets
 }: {
     account: Address,
     query?: string,
     onSelect?: (item: AddressSearchItem) => void,
     transfer?: boolean,
-
     myWallets: {
         address: Address;
         addressString: string;

@@ -81,7 +81,8 @@ export const SecurityFragment = fragment(() => {
 
     }, [deviceEncryption, passcodeState]);
 
-    const [biometricsToggleValue, setBiometricsToggleValue] = useState<boolean>(biometricsState === BiometricsState.InUse);
+    const useBiometrics = (biometricsState === BiometricsState.InUse || biometricsState === null);
+    const [biometricsToggleValue, setBiometricsToggleValue] = useState<boolean>(useBiometrics);
 
     useEffect(() => {
         const updateDeviceEncryption = () => {

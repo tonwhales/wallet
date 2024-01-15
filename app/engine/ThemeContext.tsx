@@ -22,15 +22,14 @@ function useForegroundColorScheme() {
     // Add a 300ms delay before switching color scheme
     // Cancel if color scheme immediately switches back
     useEffect(() => {
-        if (colorScheme !== currentColorScheme) {
-            onColorSchemeChange.current = setTimeout(() => {
-                changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
-                setCurrentColorScheme(colorScheme);
-            }, 300);
-        } else if (onColorSchemeChange.current) {
+        if (onColorSchemeChange.current) {
             clearTimeout(onColorSchemeChange.current);
         }
-    }, [colorScheme, currentColorScheme]);
+        onColorSchemeChange.current = setTimeout(() => {
+            changeNavBarColor(colorScheme === 'dark' ? '#1C1C1E' : '#F7F8F9');
+            setCurrentColorScheme(colorScheme);
+        }, 300);
+    }, [colorScheme]);
 
     return currentColorScheme;
 }

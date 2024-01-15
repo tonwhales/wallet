@@ -10,7 +10,6 @@ export namespace AndroidAppearance {
             }
             const eventEmitter = new NativeEventEmitter(NativeModules.AppearanceModule);
             let eventListener = eventEmitter.addListener('appearanceStyleChanged', newStyle => {
-                console.log('Appearance style changed to ' + newStyle);
                 if (newStyle === 'light' || newStyle === 'dark') {
                     setColorScheme(newStyle);
                 }

@@ -473,11 +473,14 @@ export const TransferSingleView = memo(({
                                                     paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
                                                     justifyContent: 'space-between', alignItems: 'center',
                                                     backgroundColor: 'white',
-                                                    opacity: pressed ? 0.5 : 1
+                                                    opacity: pressed ? 0.5 : 1,
+                                                    overflow: 'hidden'
                                                 };
                                             }}
                                         >
                                             <Text style={{
+                                                flexShrink: 1,
+                                                flexGrow: 1,
                                                 fontSize: 15, lineHeight: 20,
                                                 fontWeight: '400',
                                                 color: theme.accentRed

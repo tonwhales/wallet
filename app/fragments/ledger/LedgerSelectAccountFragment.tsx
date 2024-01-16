@@ -252,6 +252,13 @@ export const LedgerSelectAccountFragment = fragment(() => {
     );
 
     useEffect(() => {
+        ledgerContext?.setFocused(true);
+        return () => {
+            ledgerContext?.setFocused(false);
+        }
+    }, []);
+
+    useEffect(() => {
         if (!!ledgerContext?.addr) {
             navigation.navigateLedgerApp();
         }

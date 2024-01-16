@@ -5,6 +5,7 @@ import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollaps
 import { JettonProductItem } from "./JettonProductItem";
 import { useJettons, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useMarkJettonActive } from "../../engine/hooks/jettons/useMarkJettonActive";
+import { Typography } from "../styles";
 
 import Show from '@assets/ic-show.svg';
 
@@ -29,12 +30,7 @@ export const JettonsHiddenComponent = memo(() => {
                 marginBottom: 4,
                 paddingHorizontal: 16,
             }}>
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                    color: theme.textPrimary,
-                    lineHeight: 24,
-                }}>
+                <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('jetton.hidden')}
                 </Text>
                 <Pressable
@@ -45,12 +41,7 @@ export const JettonsHiddenComponent = memo(() => {
                     }}
                     onPress={() => setCollapsed(!collapsed)}
                 >
-                    <Text style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        lineHeight: 20,
-                        color: theme.accent,
-                    }}>
+                    <Text style={[{ color: theme.accent }, Typography.medium17_24]}>
                         {collapsed ? t('common.show') : t('common.hide')}
                     </Text>
                 </Pressable>

@@ -88,6 +88,29 @@ export const StakingCalculatorFragment = fragment(() => {
         );
     }, [amount, price, currency, validAmount]);
 
+    const transferAmount = useMemo(() => {
+        console.log(pool?.params);
+        if (!pool?.params) {
+            return validAmount ?? 0n;
+        }
+
+        let value = 0n;
+
+        if (!validAmount) {
+            value += pool.params.minStake;
+        } else if (validAmount < pool.params.minStake) {
+            value += pool.params.minStake;
+        } else {
+            value += validAmount;
+        }
+
+        value += pool.params.receiptPrice;
+        value += pool.params.depositFee;
+
+        return value;
+
+    }, [validAmount, pool?.params]);
+
     return (
         <>
             <StatusBar style={Platform.select({
@@ -190,11 +213,7 @@ export const StakingCalculatorFragment = fragment(() => {
                             isLedger ? 'LedgerStakingTransfer' : 'StakingTransfer',
                             {
                                 target: params.target,
-                                amount:
-                                    (pool?.params.minStake ?? 0n)
-                                    + (pool?.params?.receiptPrice ?? 0n)
-                                    + (pool?.params?.depositFee ?? 0n)
-                                    + (validAmount ?? 0n),
+                                amount: transferAmount,
                                 lockAddress: true,
                                 lockComment: true,
                                 action: 'top_up' as TransferAction,

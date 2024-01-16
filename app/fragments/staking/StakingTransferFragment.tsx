@@ -535,7 +535,10 @@ export const StakingTransferFragment = fragment(() => {
                     marginHorizontal: 16, marginTop: 16,
                     marginBottom: safeArea.bottom + 16,
                 }}
-                keyboardVerticalOffset={Platform.OS === 'ios' ? 64 : 16}
+                keyboardVerticalOffset={Platform.select({
+                    ios: safeArea.top + 16,
+                    android: 16
+                })}
             >
                 <RoundButton
                     title={t('common.continue')}

@@ -14,7 +14,7 @@ import IcCheck from "@assets/ic-check.svg";
 export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address) => void }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const prevScreen = useNavigationState((state) => state.routes[state.index  - 1]?.name);
+    const prevScreen = useNavigationState((state) => state.routes[state.index - 1]?.name);
     const isPrevScreenLedger = prevScreen?.startsWith('Ledger') ?? false;
 
     const appState = useAppState();
@@ -79,17 +79,13 @@ export const WalletSelector = memo(({ onSelect }: { onSelect?: (address: Address
                 >
                     <View style={{
                         height: 46, width: 46,
-                        backgroundColor: theme.accent,
                         borderRadius: 23,
                         marginRight: 12,
                         justifyContent: 'center',
-                        alignItems: 'center'
+                        alignItems: 'center', overflow: 'hidden'
                     }}>
                         <Image
-                            style={{
-                                width: 46,
-                                height: 46,
-                            }}
+                            style={{ width: 46, height: 46 }}
                             source={require('@assets/ledger_device.png')}
                         />
                     </View>

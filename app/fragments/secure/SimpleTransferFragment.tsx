@@ -244,7 +244,7 @@ export const SimpleTransferFragment = fragment(() => {
             // Resolve jetton order
             if (jettonState) {
                 return createLedgerJettonOrder({
-                    wallet: params!.jetton!,
+                    wallet: jettonState.walletAddress,
                     target: target,
                     domain: domain,
                     responseTarget: ledgerAddress,
@@ -295,7 +295,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
 
     // Estimate fee
     const config = useConfig();

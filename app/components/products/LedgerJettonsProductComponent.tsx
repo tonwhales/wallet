@@ -34,6 +34,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
                             key={'jt' + j.wallet.toString()}
                             jetton={j}
                             last={index === jettons.length - 1}
+                            ledger
                         />
                     );
                 })}
@@ -156,6 +157,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
                             key={'jt' + j.wallet.toFriendly()}
                             jetton={j}
                             last={index === jettons.length - 1}
+                            ledger
                         />
                     )
                 }}

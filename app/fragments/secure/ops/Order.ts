@@ -1,7 +1,6 @@
 import { Address, beginCell, Cell, comment } from "@ton/core";
 import { OperationType } from "../../../engine/transactions/parseMessageBody";
 import { TonPayloadFormat } from '@ton-community/ton-ledger';
-/// mport { TonPayloadFormat } from "ton-ledger";
 
 export type Order = {
     type: 'order';
@@ -61,23 +60,22 @@ export function createLedgerJettonOrder(args: {
     //              response_destination:MsgAddress custom_payload:(Maybe ^Cell)
     //              forward_ton_amount:(VarUInteger 16) forward_payload:(Either Cell ^Cell)
     //              = InternalMsgBody;
-    const msg = beginCell()
-        .storeUint(OperationType.JettonTransfer, 32)
-        .storeUint(0, 64)
-        .storeCoins(args.amount)
-        .storeAddress(Address.parse(args.target))
-        .storeAddress(args.responseTarget)
-        .storeMaybeRef(null)
-        .storeCoins(args.tonAmount)
-        .storeMaybeRef(payload)
-        .endCell();
 
     return {
         type: 'ledger',
         target: args.wallet.toString({ testOnly: isTestnet }),
         domain: args.domain,
         amount: args.txAmount,
-        payload: { type: 'comment', text: args.text || '' }, // TODO: upgrade to new ton-ledger
+        payload: {
+            type: 'jetton-transfer',
+            queryId: null,
+            amount: args.amount,
+            destination: Address.parse(args.target),
+            responseDestination: args.responseTarget,
+            customPayload: null,
+            forwardAmount: args.tonAmount,
+            forwardPayload: payload
+        },
         amountAll: false,
         stateInit: null,
     }

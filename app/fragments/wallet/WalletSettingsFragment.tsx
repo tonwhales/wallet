@@ -1,4 +1,4 @@
-import { Pressable, View, Text, Platform, ScrollView } from "react-native";
+import { Pressable, View, Text, Platform, ScrollView, KeyboardAvoidingView } from "react-native";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { getAppState } from "../../storage/appState";
@@ -15,6 +15,8 @@ import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useKeyboard } from "@react-native-community/hooks";
+import { Typography } from "../../components/styles";
+import { RoundButton } from "../../components/RoundButton";
 
 export const WalletSettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -34,7 +36,6 @@ export const WalletSettingsFragment = fragment(() => {
         : avatarHash(address.toString({ testOnly: isTestnet }), avatarImages.length);
 
     const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
-    const [nameFocused, setNameFocused] = useState(false);
     const [avatar, setAvatar] = useState(initHash);
 
     const hasChanges = useMemo(() => {
@@ -43,7 +44,10 @@ export const WalletSettingsFragment = fragment(() => {
 
     const onSave = useCallback(() => {
         if (name !== walletSettings?.name || avatar !== initHash) {
-            setSettings({ name, avatar });
+            setSettings({
+                name: name.trim(),
+                avatar
+            });
         }
         navigation.goBack();
     }, [name, avatar, walletSettings, setSettings]);
@@ -60,45 +64,12 @@ export const WalletSettingsFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                onBackPressed={() => navigation.goBack()}
-                style={[
-                    { paddingHorizontal: 16 },
-                    Platform.select({ android: { paddingTop: safeArea.top } }),
-                ]}
+                onClosePressed={navigation.goBack}
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
                 title={walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`}
-                rightButton={
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                                backgroundColor: theme.surfaceOnElevation,
-                                borderRadius: 100,
-                                justifyContent: 'center', alignItems: 'center',
-                                paddingVertical: 4, paddingHorizontal: 12,
-                            }
-                        }}
-                        onPress={onSave}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                    >
-                        <Text style={{
-                            color: hasChanges ? theme.textPrimary : theme.textSecondary,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {t('contacts.save')}
-                        </Text>
-                    </Pressable>
-                }
             />
             <ScrollView
                 contentInsetAdjustmentBehavior={'never'}
-                keyboardShouldPersistTaps={'always'}
-                keyboardDismissMode={'none'}
             >
                 <View style={{
                     marginTop: 16,
@@ -123,12 +94,10 @@ export const WalletSettingsFragment = fragment(() => {
                             id={address.toString({ testOnly: isTestnet })}
                             hashColor
                         />
-                        <Text style={{
-                            color: theme.accent,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                            marginTop: 12,
-                        }}>
+                        <Text style={[
+                            { color: theme.accent, marginTop: 12 },
+                            Typography.medium17_24
+                        ]}>
                             {t('wallets.settings.changeAvatar')}
                         </Text>
                     </Pressable>
@@ -145,9 +114,9 @@ export const WalletSettingsFragment = fragment(() => {
                             editable={true}
                             value={name}
                             style={{ paddingHorizontal: 16 }}
-                            onValueChange={setName}
-                            onFocus={() => setNameFocused(true)}
-                            onBlur={() => setNameFocused(false)}
+                            onValueChange={(newValue) => {
+                                setName(newValue.trimStart());
+                            }}
                         />
                     </View>
                     <View style={{
@@ -157,7 +126,10 @@ export const WalletSettingsFragment = fragment(() => {
                         marginTop: 20,
                         width: '100%', borderRadius: 20
                     }}>
-                        <Text style={{ color: theme.textSecondary, fontSize: 13, lineHeight: 18, fontWeight: '500' }}>
+                        <Text style={[
+                            { color: theme.textSecondary },
+                            Typography.medium13_18
+                        ]}>
                             {t('common.walletAddress')}
                         </Text>
                         <Text
@@ -169,19 +141,33 @@ export const WalletSettingsFragment = fragment(() => {
                                         type: 'default',
                                         duration: ToastDuration.SHORT,
                                         marginBottom: Platform.select({
-                                            ios: keyboard.keyboardShown ? keyboard.keyboardHeight + 16 : 0,
-                                            android: keyboard.keyboardShown ? keyboard.keyboardHeight : 0
+                                            ios: keyboard.keyboardShown ? keyboard.keyboardHeight + 16 : safeArea.bottom + 16,
+                                            android: keyboard.keyboardShown ? keyboard.keyboardHeight : 16
                                         })
                                     }
                                 );
                             }}
-                            style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '400' }}
+                            style={[
+                                { color: theme.textPrimary },
+                                Typography.regular17_24
+                            ]}
                         >
                             {address.toString({ testOnly: isTestnet })}
                         </Text>
                     </View>
                 </View>
             </ScrollView>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
+            >
+                <RoundButton
+                    title={t('contacts.save')}
+                    disabled={!hasChanges}
+                    onPress={onSave}
+                />
+            </KeyboardAvoidingView>
         </View>
     )
 });

@@ -128,12 +128,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const theme = useTheme();
     const [walletSettings,] = useWalletSettings(props?.validAddress ?? '');
 
-    const selectedIndex = appState.selected;
     const myWallets = appState.addresses.map((acc, index) => ({
         address: acc.address,
         addressString: acc.address.toString({ testOnly: props.isTestnet }),
         index: index
-    })).filter((acc) => acc.index !== selectedIndex);
+    })).filter((acc) => !acc.address.equals(props.acc));
     const own = !!myWallets.find((acc) => {
         if (props.validAddress) {
             return acc.address.equals(props.validAddress);

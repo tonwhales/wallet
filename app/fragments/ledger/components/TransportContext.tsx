@@ -120,40 +120,31 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, []);
 
     const onDisconnect = useCallback(() => {
-        const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
-        const isCurrentScreenLedger = currentRoute?.startsWith('Ledger') ?? false;
-
         const maxReconnectAttempts = ledgerConnection?.type === 'hid' ? 1 : 2;
 
-        // Try to reconnect if we haven't reached the max attempts and Ledger screens are focused,
+        // Try to reconnect if we haven't reached the max attempts,
         // on device unlocked or ton app opened events
         if (
             reconnectAttempts.current < maxReconnectAttempts
-            && isCurrentScreenLedger
         ) {
             reconnectAttempts.current++;
             (async () => {
-                if (ledgerConnection?.type === 'hid') {
-                    try {
-                        console.warn('[ledger] reconnect #' + reconnectAttempts.current);
-                        if (!ledgerConnection) return;
-                        startHIDSearch();
-                        reconnectAttempts.current = 0;
-                    } catch {
-                        console.warn('[ledger] reconnect failed');
-                        await delay(1000);
-                    }
-                    return;
-                }
-
                 try {
-                    console.warn('[ledger] reconnect #' + reconnectAttempts.current);
                     if (!ledgerConnection) return;
-                    const transport = await TransportBLE.open(ledgerConnection.device.id);
-                    setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
+                    console.warn('[ledger] reconnect #' + reconnectAttempts.current);
+
+                    let timeoutAwaiter = new Promise<TransportBLE>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 10000));
+                    if (ledgerConnection.type === 'hid') {
+                        await Promise.race([startHIDSearch(), timeoutAwaiter]);
+                    } else {
+                        const transport = await Promise.race([TransportBLE.open(ledgerConnection.device.id), timeoutAwaiter]);
+                        setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
+                    }
                     reconnectAttempts.current = 0;
                 } catch {
                     console.warn('[ledger] reconnect failed');
+                    await delay(1000);
+                    onDisconnect();
                 }
             })();
             return;

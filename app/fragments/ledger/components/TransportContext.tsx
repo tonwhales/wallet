@@ -10,6 +10,7 @@ import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permis
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
+import { useNavigationState } from "@react-navigation/native";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -76,8 +77,6 @@ export const TransportContext = createContext<
         bleSearchState: BLESearchState,
         startHIDSearch: (navigation: TypedNavigation) => Promise<void>,
         startBleSearch: () => void,
-        focused: boolean,
-        setFocused: (focused: boolean) => void,
         reset: () => void,
     }
     | null
@@ -97,7 +96,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
 
-    const focused = useRef(false);
     const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback(() => {
@@ -105,7 +103,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         setTonTransport(null);
         setAddr(null);
         setSearch(0);
-        focused.current = false;
         dispatchBleState({ type: 'reset' });
         reconnectAttempts.current = 0;
     }, []);
@@ -124,13 +121,16 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     }, []);
 
     const onDisconnect = useCallback(() => {
+        const currentRoute = navigationRef.current?.getCurrentRoute()?.name;
+        const isCurrentScreenLedger = currentRoute?.startsWith('Ledger') ?? false;
+
         const maxReconnectAttempts = ledgerConnection?.type === 'hid' ? 1 : 2;
 
         // Try to reconnect if we haven't reached the max attempts and Ledger screens are focused,
         // on device unlocked or ton app opened events
         if (
             reconnectAttempts.current < maxReconnectAttempts
-            && focused.current
+            && isCurrentScreenLedger
         ) {
             reconnectAttempts.current++;
             (async () => {
@@ -300,8 +300,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 startHIDSearch,
                 startBleSearch,
                 bleSearchState: bleState,
-                focused: focused.current,
-                setFocused: (newFocused: boolean) => focused.current = newFocused,
                 reset,
             }}
         >

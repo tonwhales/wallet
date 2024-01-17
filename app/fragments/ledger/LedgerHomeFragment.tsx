@@ -84,13 +84,6 @@ export const LedgerHomeFragment = fragment(() => {
         );
     }, []);
 
-    useEffect(() => {
-        ledgerContext?.setFocused(true);
-        return () => {
-            ledgerContext?.setFocused(false);
-        }
-    }, []);
-
     if (
         !ledgerContext?.tonTransport
         || !ledgerContext.addr

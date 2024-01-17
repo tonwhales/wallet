@@ -29,13 +29,6 @@ export const LedgerAppFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
 
-    useEffect(() => {
-        ledgerContext?.setFocused(true);
-        return () => {
-            ledgerContext?.setFocused(false);
-        }
-    }, []);
-
     if (
         !ledgerContext?.tonTransport
         || !ledgerContext.addr

@@ -4,6 +4,7 @@ import { t } from "../../i18n/t";
 import { HoldersAccountItem } from "./HoldersAccountItem";
 import { AnimatedChildrenCollapsible } from "../animated/AnimatedChildrenCollapsible";
 import { useHoldersAccounts, useHoldersHiddenAccounts, useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { Typography } from "../styles";
 
 import Show from '@assets/ic-show.svg';
 
@@ -44,12 +45,7 @@ export const HoldersHiddenAccounts = memo(() => {
                 marginBottom: 4,
                 paddingHorizontal: 16
             }}>
-                <Text style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                    color: theme.textPrimary,
-                    lineHeight: 24,
-                }}>
+                <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('products.holders.hiddenCards')}
                 </Text>
                 <Pressable
@@ -60,12 +56,7 @@ export const HoldersHiddenAccounts = memo(() => {
                     }}
                     onPress={() => setCollapsed(!collapsed)}
                 >
-                    <Text style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        lineHeight: 20,
-                        color: theme.accent,
-                    }}>
+                    <Text style={[{ color: theme.accent }, Typography.medium17_24]}>
                         {collapsed ? t('common.show') : t('common.hide')}
                     </Text>
                 </Pressable>

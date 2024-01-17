@@ -89,7 +89,6 @@ export const StakingCalculatorFragment = fragment(() => {
     }, [amount, price, currency, validAmount]);
 
     const transferAmount = useMemo(() => {
-        console.log(pool?.params);
         if (!pool?.params) {
             return validAmount ?? 0n;
         }

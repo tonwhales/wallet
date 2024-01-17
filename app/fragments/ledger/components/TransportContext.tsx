@@ -10,7 +10,6 @@ import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permis
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
-import { useNavigationState } from "@react-navigation/native";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };

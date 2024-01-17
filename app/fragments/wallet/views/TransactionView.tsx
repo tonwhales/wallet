@@ -18,6 +18,7 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
+import { useWalletSettings } from '../../../engine/hooks';
 
 export function TransactionView(props: {
     own: Address,
@@ -53,6 +54,8 @@ export function TransactionView(props: {
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+
+    const [walletSettings,] = useWalletSettings(opAddress);
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
@@ -90,6 +93,9 @@ export function TransactionView(props: {
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
+    }
+    if (!!walletSettings?.name) {
+        known = { name: walletSettings.name }
     }
 
     let spam =
@@ -139,13 +145,17 @@ export function TransactionView(props: {
                             theme={theme}
                             isTestnet={isTestnet}
                             hashColor
+                            hash={walletSettings?.avatar}
                         />
                     )}
                 </PerfView>
                 <PerfView style={{ flex: 1, marginRight: 4 }}>
                     <PerfView style={{ flexDirection: 'row', alignItems: 'center' }}>
                         <PerfText
-                            style={{ color: theme.textPrimary, fontSize: 17, fontWeight: '600', lineHeight: 24, flexShrink: 1 }}
+                            style={[
+                                { color: theme.textPrimary, flexShrink: 1 },
+                                Typography.semiBold17_24
+                            ]}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
@@ -163,11 +173,10 @@ export function TransactionView(props: {
                                 height: 15
                             }}>
                                 <PerfText
-                                    style={{
-                                        color: theme.textPrimaryInverted,
-                                        fontSize: 10,
-                                        fontWeight: '500'
-                                    }}
+                                    style={[
+                                        { color: theme.textPrimaryInverted },
+                                        Typography.medium10_12
+                                    ]}
                                 >
                                     {'SPAM'}
                                 </PerfText>
@@ -175,15 +184,11 @@ export function TransactionView(props: {
                         )}
                     </PerfView>
                     <PerfText
-                        style={{
-                            color: theme.textSecondary,
-                            fontSize: 15,
-                            marginRight: 8,
-                            lineHeight: 20,
-                            fontWeight: '400',
-                            marginTop: 2
-                        }}
-                        ellipsizeMode="middle"
+                        style={[
+                            { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
+                            Typography.regular15_20
+                        ]}
+                        ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
                         {known
@@ -195,7 +200,10 @@ export function TransactionView(props: {
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
                     {parsed.status === 'failed' ? (
-                        <PerfText style={{ color: theme.accentRed, fontWeight: '600', fontSize: 17, lineHeight: 24 }}>
+                        <PerfText style={[
+                            { color: theme.accentRed },
+                            Typography.semiBold17_24
+                        ]}>
                             {t('tx.failed')}
                         </PerfText>
                     ) : (
@@ -236,11 +244,10 @@ export function TransactionView(props: {
                                 alignSelf: 'flex-end',
                             }}
                             theme={theme}
-                            textStyle={{
-                                color: theme.textSecondary,
-                                fontWeight: '400',
-                                fontSize: 15, lineHeight: 20
-                            }}
+                            textStyle={[
+                                { color: theme.textSecondary },
+                                Typography.regular15_20
+                            ]}
                         />
                     )}
                 </PerfView>
@@ -256,7 +263,10 @@ export function TransactionView(props: {
                     <PerfText
                         numberOfLines={1}
                         ellipsizeMode={'tail'}
-                        style={{ color: theme.textPrimary, fontSize: 15, maxWidth: 400, lineHeight: 20 }}
+                        style={[
+                            { color: theme.textPrimary, maxWidth: 400 },
+                            Typography.regular15_20
+                        ]}
                     >
                         {operation.comment}
                     </PerfText>

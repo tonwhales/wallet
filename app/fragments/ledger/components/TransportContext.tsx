@@ -9,6 +9,7 @@ import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { navigationRef } from '../../../Navigation';
+import { delay } from "teslabot";
 
 export type TypedTransport = { type: 'hid' | 'ble', transport: Transport, device: any }
 export type LedgerAddress = { acc: number, address: string, publicKey: Buffer };
@@ -75,8 +76,6 @@ export const TransportContext = createContext<
         bleSearchState: BLESearchState,
         startHIDSearch: (navigation: TypedNavigation) => Promise<void>,
         startBleSearch: () => void,
-        focused: boolean,
-        setFocused: (focused: boolean) => void,
         reset: () => void,
     }
     | null
@@ -96,8 +95,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
     const [bleState, dispatchBleState] = useReducer(bleSearchStateReducer, null);
     const [bleSearch, setSearch] = useState<number>(0);
 
-    // idk what is this
-    const [focused, setFocused] = useState(false);
     const reconnectAttempts = useRef<number>(0);
 
     const reset = useCallback(() => {
@@ -105,23 +102,50 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         setTonTransport(null);
         setAddr(null);
         setSearch(0);
-        setFocused(false);
         dispatchBleState({ type: 'reset' });
         reconnectAttempts.current = 0;
     }, []);
 
+    const startHIDSearch = useCallback(async () => {
+        let hid: Transport | undefined;
+        try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
+            hid = await TransportHID.create();
+        } catch {
+            // Retry to account for first failed create with connect permission request
+            hid = await TransportHID.create();
+        }
+
+        if (hid) {
+            setLedgerConnection({ type: 'hid', transport: hid, device: null });
+        }
+    }, []);
+
     const onDisconnect = useCallback(() => {
-        if (reconnectAttempts.current < 2) {
+        const maxReconnectAttempts = ledgerConnection?.type === 'hid' ? 1 : 2;
+
+        // Try to reconnect if we haven't reached the max attempts,
+        // on device unlocked or ton app opened events
+        if (
+            reconnectAttempts.current < maxReconnectAttempts
+        ) {
             reconnectAttempts.current++;
             (async () => {
                 try {
-                    console.warn('[ledger] reconnect #' + reconnectAttempts.current);
                     if (!ledgerConnection) return;
-                    const transport = await TransportBLE.open(ledgerConnection.device.id);
-                    setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
+                    console.warn('[ledger] reconnect #' + reconnectAttempts.current);
+
+                    let timeoutAwaiter = new Promise<TransportBLE>((_, reject) => setTimeout(() => reject(new Error('Timeout of 10000 ms occured')), 10000));
+                    if (ledgerConnection.type === 'hid') {
+                        await Promise.race([startHIDSearch(), timeoutAwaiter]);
+                    } else {
+                        const transport = await Promise.race([TransportBLE.open(ledgerConnection.device.id), timeoutAwaiter]);
+                        setLedgerConnection({ type: 'ble', transport, device: ledgerConnection.device });
+                    }
                     reconnectAttempts.current = 0;
                 } catch {
                     console.warn('[ledger] reconnect failed');
+                    await delay(1000);
+                    onDisconnect();
                 }
             })();
             return;
@@ -135,19 +159,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
             }
         }]);
     }, [ledgerConnection]);
-
-    const startHIDSearch = useCallback(async () => {
-        let hid: Transport | undefined;
-        try { // For some reason, the first time this is called, it fails and only requests permission to connect the HID device
-            await TransportHID.create();
-        } catch {
-            // Retry to account for first failed create with connect permission request
-            hid = await TransportHID.create();
-        }
-        if (hid) {
-            setLedgerConnection({ type: 'hid', transport: hid, device: null });
-        }
-    }, []);
 
     const startBleSearch = useCallback(() => {
         setSearch((prevSearch) => prevSearch + 1);
@@ -280,8 +291,6 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 startHIDSearch,
                 startBleSearch,
                 bleSearchState: bleState,
-                focused,
-                setFocused,
                 reset,
             }}
         >

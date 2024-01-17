@@ -126,7 +126,7 @@ const LedgerHint = ({ state, theme }: { state: 'locked-device' | 'closed-app' | 
             setDotCount(0);
             return;
         }
-        
+
         let interval = setInterval(() => {
             setDotCount((prev) => (prev + 1) % 4);
         }, 300);
@@ -152,13 +152,7 @@ const LedgerHint = ({ state, theme }: { state: 'locked-device' | 'closed-app' | 
     text += new Array(dotCount).fill('.').join('');
 
     return (
-        <Text style={{
-            fontWeight: '400',
-            fontSize: 17, lineHeight: 24,
-            color: theme.textSecondary,
-            marginBottom: 16,
-            marginHorizontal: 16
-        }}>
+        <Text style={[{ color: theme.textSecondary, marginBottom: 16, marginHorizontal: 16 }, Typography.regular17_24]}>
             {text}
         </Text>
     );
@@ -273,12 +267,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                     Platform.select({ android: { paddingTop: safeArea.top } })
                 ]}
             />
-            <Text style={{
-                color: theme.textPrimary,
-                fontWeight: '600',
-                fontSize: 32, lineHeight: 38,
-                marginVertical: 16, marginHorizontal: 16
-            }}>
+            <Text style={[{ color: theme.textPrimary, marginVertical: 16, marginHorizontal: 16 }, Typography.semiBold32_38]}>
                 {ledgerContext?.tonTransport?.transport.deviceModel?.productName}
             </Text>
             <LedgerHint state={connectionState} theme={theme} />

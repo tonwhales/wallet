@@ -34,7 +34,7 @@
     "@tanstack/query-sync-storage-persister": "^4.32.6",
     "@tanstack/react-query": "^4.32.6",
     "@tanstack/react-query-persist-client": "^4.32.6",
-    "@ton-community/ton-ledger": "^7.0.0",
+    "@ton-community/ton-ledger": "^7.0.1",
     "@ton/core": "^0.53.0",
     "@ton/crypto": "^3.2.0",
     "@ton/ton": "^13.9.0",

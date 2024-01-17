@@ -4,13 +4,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { contractFromPublicKey } from '../../engine/contractFromPublicKey';
 import { backoff } from '../../utils/time';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
 import { fetchConfig } from '../../engine/api/fetchConfig';
 import { t } from '../../i18n/t';
 import { KnownWallet, KnownWallets } from '../../secure/KnownWallets';
 import { fragment } from '../../fragment';
 import { ContractMetadata } from '../../engine/metadata/Metadata';
-import { CloseButton } from '../../components/navigation/CloseButton';
 import { parseBody } from '../../engine/transactions/parseWalletTransaction';
 import { fetchMetadata } from '../../engine/metadata/fetchMetadata';
 import { resolveOperation } from '../../engine/transactions/resolveOperation';
@@ -37,6 +36,9 @@ import { Address, Cell, SendMode, WalletContractV4, beginCell, external, interna
 import { fetchJettonMaster } from '../../engine/getters/getJettonMaster';
 import { estimateFees } from '../../utils/estimateFees';
 import { TransferSingleView } from '../secure/components/TransferSingleView';
+import { RoundButton } from '../../components/RoundButton';
+import { ScrollView } from 'react-native-gesture-handler';
+import { StatusBar } from 'expo-status-bar';
 
 export type LedgerSignTransferParams = {
     order: LedgerOrder,
@@ -190,6 +192,10 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
                     payload: order.payload ? order.payload : undefined,
                 });
             } catch (error) {
+                if (error instanceof Error && error.name === 'LockedDeviceError') {
+                    Alert.alert(t('hardwareWallet.unlockLedgerDescription'));
+                    return;
+                }
                 const focused = navigation.baseNavigation().isFocused();
                 Alert.alert(t('hardwareWallet.errors.transactionRejected'), undefined, [{
                     text: focused ? t('common.back') : undefined,
@@ -250,26 +256,33 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         }
     }, []);
 
-    useEffect(() => {
-        // Start transfer confirmation via Ledger
-        doSend();
-    }, []);
-
     return (
-        <TransferSingleView
-            operation={operation}
-            order={order}
-            amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
-            jettonAmountString={jettonAmountString}
-            target={target}
-            fees={fees}
-            jettonMaster={jettonMaster}
-            walletSettings={walletSettings}
-            text={text}
-            known={known}
-            isSpam={spam}
-            isLedger
-        />
+        <View style={{ flexGrow: 1 }}>
+            <ScrollView
+                style={{ flexBasis: 0 }}
+                contentContainerStyle={{ paddingBottom: 56 }}
+            >
+                <TransferSingleView
+                    operation={operation}
+                    order={order}
+                    amount={order.amountAll ? (account?.balance ?? 0n) : order.amount}
+                    jettonAmountString={jettonAmountString}
+                    target={target}
+                    fees={fees}
+                    jettonMaster={jettonMaster}
+                    walletSettings={walletSettings}
+                    text={text}
+                    known={known}
+                    isSpam={spam}
+                    isLedger
+                />
+            </ScrollView>
+            <RoundButton
+                action={doSend}
+                title={t('hardwareWallet.actions.confirmOnLedger')}
+                style={{ marginHorizontal: 16, marginBottom: 16 }}
+            />
+        </View>
     );
 });
 
@@ -297,13 +310,14 @@ export const LedgerSignTransferFragment = fragment(() => {
     const netConfig = useConfig();
 
     // Sign/Transfer state
-    const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent'>('confirm');
+    const [transferState, setTransferState] = useState<'confirm' | 'sending' | 'sent' | null>(null);
 
     const transferStateTitle = useMemo(() => {
         switch (transferState) {
             case 'confirm': return t('hardwareWallet.actions.confirmOnLedger');
             case 'sending': return t('hardwareWallet.actions.sending');
             case 'sent': return t('hardwareWallet.actions.sent');
+            default: return '';
         }
     }, [transferState]);
 
@@ -467,11 +481,11 @@ export const LedgerSignTransferFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
+            <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             <ScreenHeader
-                style={{ paddingLeft: 16 }}
+                style={[{ paddingLeft: 16 }, Platform.select({ android: { paddingTop: safeArea.top } })]}
                 onBackPressed={navigation.goBack}
-                onClosePressed={() => navigation.navigateAndReplaceAll('LedgerHome')}
-                titleComponent={!!loadedProps && (
+                titleComponent={!!loadedProps && !!transferState && (
                     <Animated.View
                         entering={FadeInDown} exiting={FadeOutDown}
                         style={{
@@ -521,7 +535,6 @@ export const LedgerSignTransferFragment = fragment(() => {
                     />
                 )}
             </View>
-            <CloseButton style={{ position: 'absolute', top: 22, right: 16 }} />
         </View>
     );
 });

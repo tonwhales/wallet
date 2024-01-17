@@ -21,8 +21,9 @@ export const JettonProductItem = memo((props: {
     first?: boolean,
     rightAction?: () => void
     rightActionIcon?: any,
-    single?: boolean
-    card?: boolean
+    single?: boolean,
+    card?: boolean,
+    ledger?: boolean
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -40,6 +41,18 @@ export const JettonProductItem = memo((props: {
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const onPress = useCallback(() => {
+        if (props.ledger) {
+            navigation.navigate('LedgerSimpleTransfer', {
+                amount: null,
+                target: null,
+                comment: null,
+                jetton: props.jetton.wallet,
+                stateInit: null,
+                job: null,
+                callback: null
+            });
+            return
+        }
         navigation.navigateSimpleTransfer({
             amount: null,
             target: null,
@@ -49,7 +62,7 @@ export const JettonProductItem = memo((props: {
             job: null,
             callback: null
         });
-    }, [props.jetton]);
+    }, [props.jetton, props.ledger]);
 
     return (
         (props.rightAction) ? (

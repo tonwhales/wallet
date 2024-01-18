@@ -7,7 +7,8 @@ export function useCameraAspectRatio() {
     const [previewSettings, setPreviewSettings] = useState<{
         imagePadding: number;
         ratio: string | undefined;
-    }>({ imagePadding: 0, ratio: undefined });
+        ready: boolean;
+    }>({ imagePadding: 0, ratio: undefined, ready: false });
     const { height, width } = Dimensions.get('window');
     const screenRatio = height / width;
 
@@ -46,9 +47,9 @@ export function useCameraAspectRatio() {
                 (height - realRatios[desiredRatio] * width) / 2
             );
             // set padding and ratio
-            setPreviewSettings({ imagePadding: remainder, ratio: desiredRatio });
+            setPreviewSettings({ imagePadding: remainder, ratio: desiredRatio, ready: true });
         }
     };
 
-    return { ratio: previewSettings.ratio, imagePadding: previewSettings.imagePadding, prepareRatio };
+    return { ratio: previewSettings.ratio, imagePadding: previewSettings.imagePadding, prepareRatio, ready: previewSettings.ready };
 }

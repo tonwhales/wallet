@@ -17,7 +17,6 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
     const theme = useTheme();
     const navigation = useTypedNavigation();
 
-
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
     const onTonPress = useCallback(() => {
@@ -31,7 +30,6 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
             callback: null
         });
     }, []);
-
 
     const tonItem = useMemo(() => {
         return (
@@ -126,7 +124,7 @@ export const LedgerProductsComponent = React.memo(({ account }: { account: Accou
                         <LedgerStakingProductComponent key={'pool'} />
                     </View>
 
-                    <View style={{ marginTop: 8 }}>
+                    <View style={{ marginTop: 16 }}>
                         <LedgerJettonsProductComponent key={'jettons'} />
                     </View>
                 </View>

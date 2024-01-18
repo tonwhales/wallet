@@ -10,7 +10,7 @@ import { systemFragment } from '../../systemFragment';
 import { RoundButton } from '../../components/RoundButton';
 import { useDimensions } from '@react-native-community/hooks';
 import { ScreenHeader } from '../../components/ScreenHeader';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { Easing, FadeIn, FadeOut, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { Canvas, rrect, rect, DiffRect } from '@shopify/react-native-skia';
 import * as RNImagePicker from 'expo-image-picker';
 import { BarCodeScanner, BarCodeScannerResult } from 'expo-barcode-scanner';
@@ -18,6 +18,7 @@ import { Camera, FlashMode } from 'expo-camera';
 import { useTheme } from '../../engine/hooks';
 import { Typography } from '../../components/styles';
 import { useCameraAspectRatio } from '../../utils/useCameraAspectRatio';
+import { changeNavBarColor } from '../../modules/NavBar';
 
 import FlashOn from '../../../assets/ic-flash-on.svg';
 import FlashOff from '../../../assets/ic-flash-off.svg';
@@ -46,11 +47,21 @@ export const ScannerFragment = systemFragment(() => {
     // Possible causes: 
     // 1. Different camera manufacturers support different aspect ratios. 
     // 2. Different phone manufacturers design screens with varying aspect ratios.
-    const { ratio, imagePadding, prepareRatio } = useCameraAspectRatio();
+    const { ratio, imagePadding, prepareRatio, ready } = useCameraAspectRatio();
 
-    const onCameraReady = useCallback(() => {
+    const sharedOpacity = useSharedValue(1);
+    const animShutterStyle = useAnimatedStyle(() => {
+        return {
+            opacity: withTiming(sharedOpacity.value, { duration: 350, easing: Easing.linear }),
+        };
+    });
+
+    const onCameraReady = useCallback(async () => {
         if (!!cameraRef.current) {
             prepareRatio(cameraRef.current);
+            setTimeout(() => { // adding a delay to account for the camera aspect ratio change
+                sharedOpacity.value = 0;
+            }, 300);
         }
     }, []);
 
@@ -100,70 +111,6 @@ export const ScannerFragment = systemFragment(() => {
         }
     }, [route]);
 
-    if (!hasPermission) {
-        return (
-            <View style={[{ flexGrow: 1 }, Platform.select({ android: { paddingTop: safeArea.top } })]}>
-                {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
-                <ScreenHeader
-                    tintColor={'white'}
-                    onClosePressed={() => {
-                        setActive(false);
-                        setTimeout(() => {
-                            navigation.goBack();
-                        }, 10);
-                    }}
-                />
-                <View style={{ flexGrow: 1 }} />
-                <View style={{
-                    justifyContent: 'center', alignItems: 'center',
-                    paddingHorizontal: 16,
-                }}>
-                    <View style={{
-                        justifyContent: 'center', alignItems: 'center',
-                        width: dimensions.screen.width - 32,
-                        height: (dimensions.screen.width - 32) * 0.91,
-                        borderRadius: 20, overflow: 'hidden',
-                        marginBottom: 32,
-                    }}>
-                        <Image
-                            resizeMode={'center'}
-                            style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
-                            source={EmptyIllustrations[theme.style]}
-                        />
-                    </View>
-                    <Text
-                        style={[
-                            { textAlign: 'center', color: theme.textPrimary, marginHorizontal: 16 },
-                            Typography.semiBold32_38
-                        ]}
-                    >
-                        {hasPermission === null ? t('qr.requestingPermission') : t('qr.noPermission')}
-                    </Text>
-                </View>
-                <View style={{ flexGrow: 1 }} />
-                {hasPermission !== null && (
-                    <View style={{ paddingHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom }}>
-                        <RoundButton
-                            title={t('qr.requestPermission')}
-                            style={{ marginBottom: 32, marginTop: 16 }}
-                            onPress={(async () => {
-                                if (Platform.OS === 'ios') {
-                                    Linking.openURL('app-settings:');
-                                } else if (Platform.OS === 'android') {
-                                    const pkg = Application.applicationId;
-                                    IntentLauncher.startActivityAsync(
-                                        IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
-                                        { data: 'package:' + pkg }
-                                    );
-                                }
-                            })}
-                        />
-                    </View>
-                )}
-            </View>
-        );
-    }
-
     const rectSize = dimensions.screen.width - (45 * 2);
     const topLeftOuter0 = rrect(rect(0, 0, dimensions.screen.height, dimensions.screen.height), 10, 10);
     const topLeftInner0 = rrect(rect(
@@ -173,108 +120,191 @@ export const ScannerFragment = systemFragment(() => {
         rectSize
     ), 16, 16);
 
+    useEffect(() => {
+        // Change the nav bar color to dark when the scanner is active
+        // to avoid the white nav bar on Android
+        if (Platform.OS === 'android') {
+            let color = theme.style === 'dark' ? '#1C1C1E' : '#F7F8F9';
+            if (hasPermission) {
+                color = '#1A1A1A';
+            }
+            changeNavBarColor(color, undefined, true);
+
+            return () => {
+                changeNavBarColor(theme.style === 'dark' ? '#1C1C1E' : '#F7F8F9', undefined, true);
+            }
+        }
+    }, [hasPermission, theme]);
+
     return (
-        <View style={styles.container}>
-            {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
-
-            <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
-                <Camera
-                    ref={cameraRef}
-                    onBarCodeScanned={!isActive ? undefined : onScanned}
-                    style={[
-                        StyleSheet.absoluteFill,
-                        Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
-                    ]}
-                    flashMode={flashOn ? FlashMode.torch : FlashMode.off}
-                    onCameraReady={onCameraReady}
-                    ratio={ratio}
-                />
-            </View>
-
-            <Canvas style={{
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                justifyContent: 'center', alignItems: 'center',
-                paddingHorizontal: 16,
-            }}>
-                <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
-            </Canvas>
-            <View style={{
-                position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                justifyContent: 'center', alignItems: 'center',
-                paddingTop: rectSize / 2 + 16 + safeArea.top + safeArea.bottom,
-            }}>
-                <Text style={{
-                    fontWeight: '500',
-                    fontSize: 17,
-                    color: 'white',
-                    textAlign: 'center',
-                }}>
-                    {t('qr.title')}
-                </Text>
-            </View>
-            <View style={{ flexGrow: 1 }} />
-            <View style={[
-                {
-                    flexDirection: 'row',
-                    justifyContent: 'space-between', alignItems: 'center',
-                    paddingHorizontal: 16
-                },
-                Platform.select({
-                    android: { marginBottom: imagePadding + 16 },
-                    ios: { marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24 },
-                }),
-            ]}>
-                <Pressable style={(props) => {
-                    return {
-                        opacity: props.pressed ? 0.5 : 1,
-                        width: 48, height: 48,
-                        borderRadius: 24,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+        <>
+            {!hasPermission ? (
+                <View style={[{ flexGrow: 1 }, Platform.select({ android: { paddingTop: safeArea.top } })]}>
+                    {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
+                    <ScreenHeader
+                        tintColor={'white'}
+                        onClosePressed={() => {
+                            setActive(false);
+                            setTimeout(() => {
+                                navigation.goBack();
+                            }, 10);
+                        }}
+                    />
+                    <View style={{ flexGrow: 1 }} />
+                    <View style={{
                         justifyContent: 'center', alignItems: 'center',
-                    }
-                }}
-                    onPress={onReadFromMedia}
-                >
-                    <Photo height={24} width={24} style={{ height: 24, width: 24 }} />
-                </Pressable>
-                <Pressable style={(props) => {
-                    return {
-                        opacity: props.pressed ? 0.5 : 1,
-                        width: 48, height: 48,
-                        borderRadius: 24,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        justifyContent: 'center', alignItems: 'center',
-                    }
-                }}
-                    onPress={() => { setFlashOn(!flashOn); }}
-                >
-                    {flashOn
-                        ? <Animated.View entering={FadeIn} exiting={FadeOut}>
-                            <FlashOn height={24} width={24} style={{ height: 24, width: 24 }} />
-                        </Animated.View>
-                        : <Animated.View entering={FadeIn} exiting={FadeOut}>
-                            <FlashOff height={24} width={24} style={{ height: 24, width: 24 }} />
-                        </Animated.View>
-                    }
+                        paddingHorizontal: 16,
+                    }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.91,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginBottom: 32,
+                        }}>
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <Text
+                            style={[
+                                { textAlign: 'center', color: theme.textPrimary, marginHorizontal: 16 },
+                                Typography.semiBold32_38
+                            ]}
+                        >
+                            {hasPermission === null ? t('qr.requestingPermission') : t('qr.noPermission')}
+                        </Text>
+                    </View>
+                    <View style={{ flexGrow: 1 }} />
+                    {hasPermission !== null && (
+                        <View style={{ paddingHorizontal: 16, marginBottom: safeArea.bottom === 0 ? 16 : safeArea.bottom }}>
+                            <RoundButton
+                                title={t('qr.requestPermission')}
+                                style={{ marginBottom: 32, marginTop: 16 }}
+                                onPress={(async () => {
+                                    if (Platform.OS === 'ios') {
+                                        Linking.openURL('app-settings:');
+                                    } else if (Platform.OS === 'android') {
+                                        const pkg = Application.applicationId;
+                                        IntentLauncher.startActivityAsync(
+                                            IntentLauncher.ActivityAction.APPLICATION_DETAILS_SETTINGS,
+                                            { data: 'package:' + pkg }
+                                        );
+                                    }
+                                })}
+                            />
+                        </View>
+                    )}
+                </View>
+            ) : (
+                <View style={styles.container}>
+                    {Platform.OS === 'ios' ? <StatusBar style={'light'} /> : null}
 
-                </Pressable>
-            </View>
-            <ScreenHeader
-                style={[
-                    { position: 'absolute', left: 0, right: 0 },
-                    Platform.select({
-                        android: { top: imagePadding },
-                        ios: { top: 0 },
-                    })
-                ]}
-                onClosePressed={() => {
-                    setActive(false);
-                    setTimeout(() => {
-                        navigation.goBack();
-                    }, 10);
-                }}
-            />
-        </View>
+                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
+                        <Camera
+                            ref={cameraRef}
+                            onBarCodeScanned={!isActive ? undefined : onScanned}
+                            style={[
+                                StyleSheet.absoluteFill,
+                                Platform.select({ android: { marginTop: imagePadding, marginBottom: imagePadding } })
+                            ]}
+                            flashMode={flashOn ? FlashMode.torch : FlashMode.off}
+                            onCameraReady={onCameraReady}
+                            ratio={ratio}
+                        />
+                        {Platform.OS === 'android' && (
+                            <Animated.View style={[
+                                StyleSheet.absoluteFill,
+                                animShutterStyle,
+                                { backgroundColor: '#1A1A1A' }
+                            ]} />
+                        )}
+                    </View>
+
+                    <Canvas style={{
+                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                        justifyContent: 'center', alignItems: 'center',
+                        paddingHorizontal: 16,
+                    }}>
+                        <DiffRect key={'dr-top-left'} inner={topLeftInner0} outer={topLeftOuter0} color={'rgba(0,0,0,0.5)'} />
+                    </Canvas>
+                    <View style={{
+                        position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
+                        justifyContent: 'center', alignItems: 'center',
+                        paddingTop: rectSize / 2 + 16 + safeArea.top + safeArea.bottom,
+                    }}>
+                        <Text style={{
+                            fontWeight: '500',
+                            fontSize: 17,
+                            color: 'white',
+                            textAlign: 'center',
+                        }}>
+                            {t('qr.title')}
+                        </Text>
+                    </View>
+                    <View style={{ flexGrow: 1 }} />
+                    <View style={[
+                        {
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center',
+                            paddingHorizontal: 16
+                        },
+                        Platform.select({
+                            android: { marginBottom: imagePadding + 16, opacity: ready ? 1 : 0 },
+                            ios: { marginBottom: safeArea.bottom === 0 ? 24 : safeArea.bottom + 24 },
+                        }),
+                    ]}>
+                        <Pressable style={(props) => {
+                            return {
+                                opacity: props.pressed ? 0.5 : 1,
+                                width: 48, height: 48,
+                                borderRadius: 24,
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                justifyContent: 'center', alignItems: 'center',
+                            }
+                        }}
+                            onPress={onReadFromMedia}
+                        >
+                            <Photo height={24} width={24} style={{ height: 24, width: 24 }} />
+                        </Pressable>
+                        <Pressable style={(props) => {
+                            return {
+                                opacity: props.pressed ? 0.5 : 1,
+                                width: 48, height: 48,
+                                borderRadius: 24,
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                justifyContent: 'center', alignItems: 'center',
+                            }
+                        }}
+                            onPress={() => { setFlashOn(!flashOn); }}
+                        >
+                            {flashOn
+                                ? <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                    <FlashOn height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Animated.View>
+                                : <Animated.View entering={FadeIn} exiting={FadeOut}>
+                                    <FlashOff height={24} width={24} style={{ height: 24, width: 24 }} />
+                                </Animated.View>
+                            }
+                        </Pressable>
+                    </View>
+                    <ScreenHeader
+                        style={[
+                            { position: 'absolute', top: 0, left: 0, right: 0 },
+                            Platform.select({ android: { top: imagePadding, opacity: ready ? 1 : 0 } })
+                        ]}
+                        onClosePressed={() => {
+                            setActive(false);
+                            setTimeout(() => {
+                                navigation.goBack();
+                            }, 10);
+                        }}
+                    />
+                </View>
+            )}
+        </>
     );
 });
 

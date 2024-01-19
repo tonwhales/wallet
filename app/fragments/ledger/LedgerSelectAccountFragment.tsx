@@ -192,7 +192,6 @@ export const LedgerSelectAccountFragment = fragment(() => {
                         if (cancelled) return;
 
                         if (!isAppOpen) {
-                            // TODO: ask to open app
                             console.warn('[ledger] closed app');
                             setConnectionState('closed-app');
                             return;
@@ -238,8 +237,20 @@ export const LedgerSelectAccountFragment = fragment(() => {
             await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
             ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
             setSelected(undefined);
-        } catch {
+        } catch (e) {
             setSelected(undefined);
+            let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
+
+            if (!isAppOpen) {
+                console.warn('[ledger] closed app');
+                setConnectionState('closed-app');
+                return;
+            }
+
+            if (e instanceof Error && e.name === 'LockedDeviceError') {
+                console.warn('[ledger] locked device');
+                setConnectionState('locked-device');
+            }
         }
     }), [ledgerContext?.tonTransport]);
 
@@ -252,27 +263,27 @@ export const LedgerSelectAccountFragment = fragment(() => {
     // Reseting ledger context on back navigation if no address selected
     useFocusEffect(
         useCallback(() => {
-          const onBackPress = () => {
-            if (!ledgerContext.addr) {
-                const lastConnectionType = ledgerContext.ledgerConnection?.type;
-                ledgerContext.reset();
+            const onBackPress = () => {
+                if (!ledgerContext.addr) {
+                    const lastConnectionType = ledgerContext.ledgerConnection?.type;
+                    ledgerContext.reset();
 
-                // Restart new search, we are navigating back to the search screen
-                if (lastConnectionType === 'ble') {
-                    ledgerContext.startBleSearch();
-                } else if (lastConnectionType === 'hid') {
-                    ledgerContext.startHIDSearch();
+                    // Restart new search, we are navigating back to the search screen
+                    if (lastConnectionType === 'ble') {
+                        ledgerContext.startBleSearch();
+                    } else if (lastConnectionType === 'hid') {
+                        ledgerContext.startHIDSearch();
+                    }
                 }
-            }
-          };
-    
-          navigation.base.addListener('beforeRemove', onBackPress);
-    
-          return () => {
-            navigation.base.removeListener('beforeRemove', onBackPress);
-          };
+            };
+
+            navigation.base.addListener('beforeRemove', onBackPress);
+
+            return () => {
+                navigation.base.removeListener('beforeRemove', onBackPress);
+            };
         }, [navigation, ledgerContext])
-      );
+    );
 
     return (
         <View style={{

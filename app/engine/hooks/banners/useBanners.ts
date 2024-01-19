@@ -7,11 +7,10 @@ import { Platform } from "react-native";
 
 export function useBanners() {
     return useQuery({
-        queryKey: Queries.Banners(),
+        queryKey: Queries.Banners(i18n.language),
         refetchOnWindowFocus: true,
         refetchOnMount: true,
-        // staleTime: 5 * 60 * 1000,
-        staleTime: 1000,
+        staleTime: 5 * 60 * 1000, // 5 minutes
         queryFn: async () => {
             const language = i18n.language;
             const version = Application.nativeApplicationVersion ?? '1.0.0';

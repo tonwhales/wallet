@@ -27,7 +27,6 @@ export type AdsBannersResponse = z.infer<typeof bannersResponseCodec>;
 export async function fetchBanners(params: BannersRequestParams) {
     let res = await axios.get('https://connect.tonhubapi.com/ads/banners', { params });
 
-
     if (res.status !== 200) {
         return null;
     }

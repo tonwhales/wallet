@@ -47,5 +47,5 @@ export const Queries = {
     }),
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
 
-    Banners: () => (['banners']),
+    Banners: (language: string) => (['banners', language]),
 }

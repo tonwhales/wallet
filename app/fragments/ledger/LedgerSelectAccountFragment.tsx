@@ -226,53 +226,25 @@ export const LedgerSelectAccountFragment = fragment(() => {
         return cancelWork;
     }, [ledgerContext?.tonTransport]);
 
-    const onLoadAccount = useCallback((async (acc: LedgerAccount) => {
-        if (!ledgerContext?.tonTransport) {
-            Alert.alert(t('hardwareWallet.errors.noDevice'));
-            ledgerContext?.setLedgerConnection(null);
-            return;
-        }
-        setSelected(acc.i);
-        let path = pathFromAccountNumber(acc.i, network.isTestnet);
-        try {
-            await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
-            ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
-            setSelected(undefined);
-        } catch {
-            setSelected(undefined);
-        }
-    }), [ledgerContext?.tonTransport]);
-
-    useEffect(() => {
-        if (!!ledgerContext?.addr) {
-            navigation.navigateLedgerApp();
-        }
-    }, [ledgerContext?.addr]);
-
-    // Reseting ledger context on back navigation if no address selected
-    useFocusEffect(
-        useCallback(() => {
-          const onBackPress = () => {
-            if (!ledgerContext.addr) {
-                const lastConnectionType = ledgerContext.ledgerConnection?.type;
-                ledgerContext.reset();
-
-                // Restart new search, we are navigating back to the search screen
-                if (lastConnectionType === 'ble') {
-                    ledgerContext.startBleSearch();
-                } else if (lastConnectionType === 'hid') {
-                    ledgerContext.startHIDSearch();
-                }
+    const onLoadAccount = React.useCallback(
+        (async (acc: LedgerAccount) => {
+            if (!ledgerContext?.tonTransport) {
+                Alert.alert(t('hardwareWallet.errors.noDevice'));
+                ledgerContext?.setLedgerConnection(null);
+                return;
             }
-          };
-    
-          navigation.base.addListener('beforeRemove', onBackPress);
-    
-          return () => {
-            navigation.base.removeListener('beforeRemove', onBackPress);
-          };
-        }, [navigation, ledgerContext])
-      );
+            setSelected(acc.i);
+            let path = pathFromAccountNumber(acc.i, network.isTestnet);
+            try {
+                await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
+                ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+                setSelected(undefined);
+            } catch {
+                setSelected(undefined);
+            }
+        }),
+        [ledgerContext?.tonTransport],
+    );
 
     return (
         <View style={{

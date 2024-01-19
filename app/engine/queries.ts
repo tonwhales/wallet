@@ -46,4 +46,6 @@ export const Queries = {
         Stats: () => ['apps', url, 'stats'],
     }),
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
+
+    Banners: () => (['banners']),
 }

@@ -23,6 +23,7 @@ export enum MixpanelEvent {
     Connect = 'connect',
     Transfer = 'transfer',
     TransferCancel = 'transfer_cancel',
+    ProductBannerClick = 'product_banner_click',
 }
 
 let mixpanel = __DEV__
@@ -59,7 +60,7 @@ export function mixpanelInst(isTestnet?: boolean) {
     return mixpanel;
 }
 
-export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProperties, isTestnet?: boolean,) {
+export function trackEvent(eventName: MixpanelEvent, properties?: MixpanelProperties, isTestnet?: boolean) {
     try {
         mixpanelInst(isTestnet).track(eventName, properties);
     } catch (error) {

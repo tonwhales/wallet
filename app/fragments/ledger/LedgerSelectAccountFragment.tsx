@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +15,6 @@ import { StatusBar } from "expo-status-bar";
 import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
-import { useFocusEffect } from "@react-navigation/native";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -245,6 +244,12 @@ export const LedgerSelectAccountFragment = fragment(() => {
         }),
         [ledgerContext?.tonTransport],
     );
+
+    useEffect(() => {
+        if (!!ledgerContext?.addr) {
+            navigation.navigateLedgerApp();
+        }
+    }, [ledgerContext?.addr]);
 
     return (
         <View style={{

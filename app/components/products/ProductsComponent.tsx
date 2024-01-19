@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, usePrice, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -24,13 +24,15 @@ import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
 import { openWithInApp } from "../../utils/openWithInApp"
 import { ProductAd } from "../../engine/api/fetchBanners"
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
+import i18n from 'i18next';
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
+    const [,currency] = usePrice();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
@@ -166,8 +168,18 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             { product: product.id, address: selected.addressString },
             isTestnet
         );
-        openWithInApp(product.url);
-    }, []);
+
+        const query = new URLSearchParams({
+            address: encodeURIComponent(selected.addressString),
+            ref: 'tonhub',
+            refId: encodeURIComponent(product.id),
+            lang: i18n.language,
+            currency: currency,
+            themeStyle: theme.style === 'dark' ? 'dark' : 'light',
+        });
+
+        openWithInApp(`${product.url}?${query.toString()}`);
+    }, [selected, currency, theme]);
 
     return (
         <View>

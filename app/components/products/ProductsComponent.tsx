@@ -26,13 +26,14 @@ import { openWithInApp } from "../../utils/openWithInApp"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 import i18n from 'i18next';
+import { usePermissions } from "expo-notifications"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
-    const [,currency] = usePrice();
+    const [, currency] = usePrice();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
@@ -41,6 +42,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners().data;
+    const [pushPemissions,] = usePermissions();
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
@@ -169,6 +171,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             isTestnet
         );
 
+        const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
+
         const query = new URLSearchParams({
             address: encodeURIComponent(selected.addressString),
             ref: 'tonhub',
@@ -176,10 +180,11 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             lang: i18n.language,
             currency: currency,
             themeStyle: theme.style === 'dark' ? 'dark' : 'light',
+            pushNotifications: pushNotifications ? 'true' : 'false',
         });
 
         openWithInApp(`${product.url}?${query.toString()}`);
-    }, [selected, currency, theme]);
+    }, [selected, currency, theme, pushPemissions]);
 
     return (
         <View>

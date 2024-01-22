@@ -1,63 +1,21 @@
+import React, { useCallback, useMemo, useRef } from "react";
 import { Linking, Platform, View } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar } from "expo-status-bar";
-import { useDAppBridge, useNetwork, useThemeStyle } from "../../engine/hooks";
+import { useNetwork, usePrice, useThemeStyle } from "../../engine/hooks";
 import { extractDomain } from "../../engine/utils/extractDomain";
-import React, { useCallback, useMemo } from "react";
-import { ShouldStartLoadRequest, WebViewMessageEvent } from "react-native-webview/lib/WebViewTypes";
+import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { getDomainKey } from "../../engine/state/domainKeys";
-import { DAppWebview, DAppWebviewProps } from "../../components/webview/DappWebview";
-import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
-import { warn } from "../../utils/log";
-import { createInjectSource, dispatchResponse } from "../apps/components/inject/createInjectSource";
+import { DAppWebview } from "../../components/webview/DAppWebview";
 import { getCurrentAddress } from "../../storage/appState";
-import { contractFromPublicKey, walletConfigFromContract } from "../../engine/contractFromPublicKey";
-import { createDomainSignature } from "../../engine/utils/createDomainSignature";
-import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
-
-function injectSourceFromDomain(domain: string, isTestnet: boolean, safeArea: EdgeInsets) {
-    const currentAccount = getCurrentAddress();
-    const contract = contractFromPublicKey(currentAccount.publicKey);
-    const config = walletConfigFromContract(contract);
-
-    const walletConfig = config.walletConfig;
-    const walletType = config.type;
-
-    const domainKey = getDomainKey(domain);
-
-    if (!domainKey) {
-        return '';
-    }
-
-    const domainSign = createDomainSignature(domain, domainKey);
-    return createInjectSource({
-        config: {
-            version: 1,
-            platform: Platform.OS,
-            platformVersion: Platform.Version,
-            network: isTestnet ? 'testnet' : 'mainnet',
-            address: currentAccount.address.toString({ testOnly: isTestnet }),
-            publicKey: currentAccount.publicKey.toString('base64'),
-            walletConfig,
-            walletType,
-            signature: domainSign.signature,
-            time: domainSign.time,
-            subkey: {
-                domain: domainSign.subkey.domain,
-                publicKey: domainSign.subkey.publicKey,
-                time: domainSign.subkey.time,
-                signature: domainSign.subkey.signature
-            }
-        },
-        safeArea: safeArea
-    });
-}
+import { usePermissions } from "expo-notifications";
+import i18n from 'i18next';
+import WebView from "react-native-webview";
 
 export type DAppWebViewFragmentParams = {
     url: string;
@@ -68,63 +26,44 @@ export type DAppWebViewFragmentParams = {
     };
     useMainButton?: boolean;
     useStatusBar?: boolean;
-    engine?: 'ton-x' | 'ton-connect'
+    refId?: string;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, useMainButton, useStatusBar, engine, header } = useParams<DAppWebViewFragmentParams>();
+    const { url, useMainButton, useStatusBar, header, refId } = useParams<DAppWebViewFragmentParams>();
     const [themeStyle,] = useThemeStyle();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
-    const safeArea = useSafeAreaInsets();
+    const [pushPemissions,] = usePermissions();
+    const [, currency] = usePrice();
 
-    const domain = useMemo(() => {
-        try {
-            return extractDomain(url);
-        } catch {
-            return '';
-        }
-    }, [url]);
     const endpoint = useMemo(() => {
         try {
+            const selected = getCurrentAddress();
+            const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
+
             const source = new URL(url);
+
+            source.searchParams.set('address', encodeURIComponent(selected.addressString));
             source.searchParams.set('utm_source', 'tonhub');
             source.searchParams.set('utm_content', 'extension');
+            source.searchParams.set('ref', 'tonhub');
+            source.searchParams.set('lang', i18n.language);
+            source.searchParams.set('currency', currency);
+            source.searchParams.set('themeStyle', themeStyle === 'dark' ? 'dark' : 'light');
+            source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
+
+            if (refId) {
+                source.searchParams.set('refId', encodeURIComponent(refId));
+            }
+
             return source.toString();
         } catch {
             return url;
         }
-    }, [url]);
+    }, [url, pushPemissions, currency]);
 
-    // Injection
-    const { ref: webViewRef, isConnected, disconnect, ...tonConnectProps } = useDAppBridge(url, navigation);
-    const injectionEngine = useInjectEngine(domain, header?.title ?? '', isTestnet, url);
-
-    const webViewProps: DAppWebviewProps = useMemo(() => {
-        if (!engine) {
-            // reusing ref from DAppBridge
-            return { ref: webViewRef, useStatusBar, useMainButton }
-        }
-
-        if (engine === 'ton-connect') {
-            return {
-                useStatusBar,
-                useMainButton,
-                ref: webViewRef,
-                ...tonConnectProps
-            };
-        }
-
-        const injectSource = injectSourceFromDomain(domain, isTestnet, safeArea);
-
-        return {
-            ref: webViewRef,
-            useStatusBar,
-            useMainButton,
-            injectionEngine,
-            injectedJavaScriptBeforeContentLoaded: injectSource,
-        }
-    }, [engine, isTestnet, injectionEngine, useMainButton, useStatusBar, webViewRef, domain, safeArea]);
+    const webViewRef = useRef<WebView>(null);
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
@@ -173,9 +112,11 @@ export const DAppWebViewFragment = fragment(() => {
                 />
             )}
             <DAppWebview
+                ref={webViewRef}
                 source={{ uri: endpoint }}
+                useStatusBar={useStatusBar}
+                useMainButton={useMainButton}
                 onShouldStartLoadWithRequest={loadWithRequest}
-                {...webViewProps}
             />
         </View>
     );

@@ -63,7 +63,7 @@ export const WebViewErrorComponent = memo(({
                     {networkState.isInternetReachable ? (
                         <LottieView
                             ref={animRef}
-                            source={require('../../../../assets/animations/melted.json')}
+                            source={require('@assets/animations/melted.json')}
                             style={{ width: 172, height: 172 }}
                             autoPlay={true}
                         />

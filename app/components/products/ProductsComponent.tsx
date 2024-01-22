@@ -171,19 +171,13 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             isTestnet
         );
 
-        const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
-
-        const query = new URLSearchParams({
-            address: encodeURIComponent(selected.addressString),
-            ref: 'tonhub',
-            refId: encodeURIComponent(product.id),
-            lang: i18n.language,
-            currency: currency,
-            themeStyle: theme.style === 'dark' ? 'dark' : 'light',
-            pushNotifications: pushNotifications ? 'true' : 'false',
+        navigation.navigateDAppWebView({
+            url: product.url,
+            refId: product.id,
+            useMainButton: true,
+            useStatusBar: true
         });
 
-        openWithInApp(`${product.url}?${query.toString()}`);
     }, [selected, currency, theme, pushPemissions]);
 
     return (

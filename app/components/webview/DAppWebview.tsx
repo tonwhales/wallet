@@ -1,5 +1,5 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useMemo, useReducer } from "react";
-import { KeyboardAvoidingView, Platform, View } from "react-native";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useMemo, useReducer, useState } from "react";
+import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator } from "react-native";
 import WebView, { WebViewMessageEvent, WebViewProps } from "react-native-webview";
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
@@ -7,7 +7,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
+import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
 import { dispatchMainButtonResponse, dispatchResponse, mainButtonAPI, statusBarAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
@@ -21,14 +21,36 @@ export type DAppWebviewProps = WebViewProps & {
     useStatusBar?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
+    loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
 }
+
+export type WebViewLoaderProps<T> = { loaded: boolean } & T;
+
+function WebViewLoader(props: WebViewLoaderProps<{}>) {
+    const theme = useTheme();
+
+    if (props.loaded) {
+        return null;
+    }
+    return (
+        <Animated.View
+            exiting={FadeOut}
+            style={[StyleSheet.absoluteFill, { justifyContent: 'center', alignItems: 'center', backgroundColor: theme.backgroundPrimary }]}
+            pointerEvents={props.loaded ? 'none' : 'box-none'}
+        >
+            <ActivityIndicator size="large" color={theme.accent} />
+        </Animated.View>
+    );
+};
 
 export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: ForwardedRef<WebView>) => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
-    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
+    const bottomMargin = (safeArea.bottom || 32);
+
+    const [loaded, setLoaded] = useState(false);
 
     const keyboardVerticalOffset = useMemo(() => {
         return Platform.select({ ios: bottomMargin + (keyboard.keyboardShown ? 32 : 0) });
@@ -60,11 +82,10 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         let id: number;
         try {
             let parsed = JSON.parse(nativeEvent.data);
-
             let processed = false;
 
+            // Main button API
             if (props.useMainButton && ref) {
-                // Main button API
                 processed = processMainButtonMessage(
                     parsed,
                     dispatchMainButton,
@@ -73,15 +94,14 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                 );
             }
 
+            // Header StatusBar API
             if (props.useStatusBar) {
-                // Header API
                 processed = processStatusBarMessage(
                     parsed,
                     setStatusBarStyle,
                     setStatusBarBackgroundColor
                 );
             }
-
 
             if (processed) {
                 return;
@@ -152,10 +172,12 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
         ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
-        ${props.injectedJavaScriptBeforeContentLoaded || ''}
+        ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         true;
         `
     }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar]);
+
+    const Loader = props.loader ?? WebViewLoader;
 
     return (
         <View style={{
@@ -191,6 +213,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                 //
                 // Overriding passed props
                 //
+                onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView
                 onContentProcessDidTerminate={props.onContentProcessDidTerminate}
@@ -228,6 +251,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                     </Animated.View>
                 )}
             </KeyboardAvoidingView>
+            <Loader loaded={loaded} />
         </View>
     );
 }));

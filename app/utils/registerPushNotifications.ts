@@ -5,6 +5,14 @@ import { Address } from '@ton/core';
 import { getAppInstanceKeyPair } from '../storage/appState';
 import { Platform } from 'react-native';
 
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: false,
+      shouldSetBadge: false,
+    }),
+  });
+
 export const registerForPushNotificationsAsync = async () => {
     if (Device.isDevice) {
         if (Platform.OS === 'android') {
@@ -24,7 +32,9 @@ export const registerForPushNotificationsAsync = async () => {
         if (finalStatus !== 'granted') {
             return null;
         }
-        return (await Notifications.getExpoPushTokenAsync()).data;
+        return (await Notifications.getExpoPushTokenAsync({
+            projectId: '902300f2-8313-4af2-9907-b31dcd3d62f1'
+        })).data;
     } else {
         return null;
     }

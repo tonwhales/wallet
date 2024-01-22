@@ -22,7 +22,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import Animated, { Easing, Extrapolation, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { WebViewErrorComponent } from './WebViewErrorComponent';
+import { WebViewErrorComponent } from '../../../components/webview/WebViewErrorComponent';
 import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
@@ -34,7 +34,7 @@ import { useHoldersAccounts } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
 import { useKeyboard } from '@react-native-community/hooks';
-import { OfflineWebView } from './OfflineWebView';
+import { OfflineWebView } from '../../../components/webview/OfflineWebView';
 import { getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
@@ -361,8 +361,8 @@ export const HoldersAppComponent = memo((
 
         let domainSign = createDomainSignature(domain, domainKey);
 
-        return createInjectSource(
-            {
+        return createInjectSource({
+            config: {
                 version: 1,
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
@@ -380,9 +380,10 @@ export const HoldersAppComponent = memo((
                     signature: domainSign.subkey.signature
                 }
             },
-            initialInjection,
-            true
-        );
+            safeArea,
+            additionalInjections: initialInjection,
+            useMainButtonAPI: true,
+        });
     }, [status, accountsStatus]);
 
     const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);

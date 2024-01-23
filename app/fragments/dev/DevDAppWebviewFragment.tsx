@@ -224,17 +224,37 @@ export const DevDAppWebviewFragment = fragment(() => {
                                 flexDirection: 'row',
                                 marginBottom: 16, marginHorizontal: 16,
                                 paddingHorizontal: 8, paddingVertical: 4,
-                                justifyContent: 'flex-end',
+                                justifyContent: 'flex-end', alignItems: 'center',
                                 backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 8,
                                 gap: 8
                             }}>
                                 <Pressable
                                     style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
-                                    onPress={onShare}
+                                    onPress={webViewRef.current?.goBack}
                                 >
                                     <Ionicons
-                                        name={'share'}
+                                        name={'arrow-back'}
+                                        size={24}
+                                        color={theme.iconNav}
+                                    />
+                                </Pressable>
+                                <Pressable
+                                    style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
+                                    onPress={webViewRef.current?.goForward}
+                                >
+                                    <Ionicons
+                                        name={'arrow-forward'}
+                                        size={24}
+                                        color={theme.iconNav}
+                                    />
+                                </Pressable>
+                                <Pressable
+                                    style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
+                                    onPress={webViewRef.current?.stopLoading}
+                                >
+                                    <Ionicons
+                                        name={'close'}
                                         size={24}
                                         color={theme.iconNav}
                                     />
@@ -245,6 +265,18 @@ export const DevDAppWebviewFragment = fragment(() => {
                                 >
                                     <Ionicons
                                         name={'refresh'}
+                                        size={24}
+                                        color={theme.iconNav}
+                                    />
+                                </Pressable>
+                                <View style={{ flexGrow: 1 }} />
+
+                                <Pressable
+                                    style={{ padding: 8, justifyContent: 'center', alignItems: 'center' }}
+                                    onPress={onShare}
+                                >
+                                    <Ionicons
+                                        name={'share'}
                                         size={24}
                                         color={theme.iconNav}
                                     />

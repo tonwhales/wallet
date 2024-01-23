@@ -23,6 +23,63 @@
           "other_platform_oauth_client": []
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438516951269:android:fd818bfd67927d1f158c0c",
+        "android_client_info": {
+          "package_name": "com.tonhub.wallet.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438516951269:android:c7db7e5455e952fe158c0c",
+        "android_client_info": {
+          "package_name": "com.tonhub.wallet.testnet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:438516951269:android:1252c30fd7d0cc20158c0c",
+        "android_client_info": {
+          "package_name": "com.tonhub.wallet.testnet.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
     }
   ],
   "configuration_version": "1"

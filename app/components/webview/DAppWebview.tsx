@@ -19,6 +19,7 @@ import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar"
 export type DAppWebviewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
+    useToaster?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;

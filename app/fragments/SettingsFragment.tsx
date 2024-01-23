@@ -353,4 +353,4 @@ export const SettingsFragment = fragment(() => {
             </ScrollView>
         </View>
     );
-}, true);
+});

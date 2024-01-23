@@ -261,4 +261,4 @@ export const HomeFragment = fragment(() => {
             </View>
         </View>
     );
-}, true);
+});

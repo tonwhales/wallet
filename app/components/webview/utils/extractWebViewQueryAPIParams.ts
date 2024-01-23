@@ -1,7 +1,7 @@
-import { warn } from "../../utils/log";
-import { BackPolicy, HoldersQueryParams } from "./types";
+import { warn } from "../../../utils/log";
+import { BackPolicy, QueryAPI } from "../types";
 
-export type HoldersParams = {
+export type QueryAPIParams = {
     closeApp?: boolean,
     openUrl?: string | null,
     backPolicy: BackPolicy,
@@ -10,7 +10,9 @@ export type HoldersParams = {
     lockScroll?: boolean,
 }
 
-export function extractHoldersQueryParams(url: string): HoldersParams {
+export type QueryParamsState = Omit<QueryAPIParams, 'openEnrollment' | 'openUrl' | 'closeApp'>;
+
+export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
     try {
         const query = url.split('?')[1];
         const params = new URLSearchParams(query);
@@ -21,43 +23,43 @@ export function extractHoldersQueryParams(url: string): HoldersParams {
         let showKeyboardAccessoryView = false;
         let lockScroll = undefined;
 
-        if (params.has(HoldersQueryParams.CloseApp)) {
-            const queryValue = params.get(HoldersQueryParams.CloseApp);
+        if (params.has(QueryAPI.CloseApp)) {
+            const queryValue = params.get(QueryAPI.CloseApp);
             if (queryValue === 'true') {
                 closeApp = true;
             }
         }
 
-        if (params.has(HoldersQueryParams.OpenUrl)) {
-            const queryValue = params.get(HoldersQueryParams.OpenUrl);
+        if (params.has(QueryAPI.OpenUrl)) {
+            const queryValue = params.get(QueryAPI.OpenUrl);
             if (queryValue) {
                 openUrl = queryValue;
             }
         }
 
-        if (params.has(HoldersQueryParams.BackPolicy)) {
-            const queryValue = params.get(HoldersQueryParams.BackPolicy);
+        if (params.has(QueryAPI.BackPolicy)) {
+            const queryValue = params.get(QueryAPI.BackPolicy);
             if (queryValue === 'back') {
                 backPolicy = 'back';
             }
         }
 
-        if (params.has(HoldersQueryParams.OpenEnrollment)) {
-            const queryValue = params.get(HoldersQueryParams.OpenEnrollment);
+        if (params.has(QueryAPI.OpenEnrollment)) {
+            const queryValue = params.get(QueryAPI.OpenEnrollment);
             if (queryValue === 'true') {
                 openEnrollment = true;
             }
         }
 
-        if (params.has(HoldersQueryParams.ShowKeyboardAccessoryView)) {
-            const queryValue = params.get(HoldersQueryParams.ShowKeyboardAccessoryView);
+        if (params.has(QueryAPI.ShowKeyboardAccessoryView)) {
+            const queryValue = params.get(QueryAPI.ShowKeyboardAccessoryView);
             if (queryValue === 'true') {
                 showKeyboardAccessoryView = true;
             }
         }
 
-        if (params.has(HoldersQueryParams.LockScroll)) {
-            const queryValue = params.get(HoldersQueryParams.LockScroll);
+        if (params.has(QueryAPI.LockScroll)) {
+            const queryValue = params.get(QueryAPI.LockScroll);
             if (queryValue === 'false') {
                 lockScroll = false;
             } else if (queryValue === 'true') {

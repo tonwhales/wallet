@@ -1,6 +1,6 @@
-import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useMemo, useReducer, useState } from "react";
-import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator } from "react-native";
-import WebView, { WebViewMessageEvent, WebViewProps } from "react-native-webview";
+import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect, useMemo, useReducer, useState } from "react";
+import { KeyboardAvoidingView, Platform, View, StyleSheet, ActivityIndicator, BackHandler } from "react-native";
+import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "react-native-webview";
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
@@ -16,11 +16,13 @@ import { InjectEngine } from "../../fragments/apps/components/inject/InjectEngin
 import { processStatusBarMessage } from "./utils/processStatusBarMessage";
 import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
 import { processToasterMessage, useToaster } from "../toast/ToastProvider";
+import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
 
 export type DAppWebviewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useToaster?: boolean;
+    useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
@@ -73,12 +75,58 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         }
     );
 
+    const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>({
+        backPolicy: 'back',
+        showKeyboardAccessoryView: false,
+        lockScroll: true
+    });
+
+    const safelyOpenUrl = useCallback((url: string) => {
+        try {
+            let pageDomain = extractDomain(url);
+            if (
+                pageDomain.endsWith('tonsandbox.com')
+                || pageDomain.endsWith('tonwhales.com')
+                || pageDomain.endsWith('tontestnet.com')
+                || pageDomain.endsWith('tonhub.com')
+                || pageDomain.endsWith('t.me')
+            ) {
+                openWithInApp(url);
+                return;
+            }
+        } catch { }
+    }, []);
+
+    const onNavigation = useCallback((url: string) => {
+        if (!props.useQueryAPI) {
+            return;
+        }
+        const params = extractWebViewQueryAPIParams(url);
+        if (params.closeApp) {
+            navigation.goBack();
+            return;
+        }
+        setQueryAPIParams((prev) => {
+            const newValue = {
+                ...prev,
+                ...Object.fromEntries(
+                    Object.entries(params).filter(([, value]) => value !== undefined)
+                )
+            }
+            return newValue;
+        });
+        if (!!params.openUrl) {
+            safelyOpenUrl(params.openUrl);
+        }
+    }, [setQueryAPIParams, props.useQueryAPI]);
+
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {
             props.onMessage(event);
             return;
         }
         const nativeEvent = event.nativeEvent;
+        console.log('handleWebViewMessage', nativeEvent);
 
         // Resolve parameters
         let data: any;
@@ -164,6 +212,30 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         })();
     }, [props.useMainButton, props.useStatusBar, props.injectionEngine, props.onMessage, ref, navigation]);
 
+    const onHardwareBackPress = useCallback(() => {
+        if (queryAPIParams.backPolicy === 'lock') {
+            return true;
+        }
+        if (queryAPIParams.backPolicy === 'back') {
+            if (!!ref) {
+                (ref as RefObject<WebView>)?.current?.goBack();
+            }
+            return true;
+        }
+        if (queryAPIParams.backPolicy === 'close') {
+            navigation.goBack();
+            return true;
+        }
+        return false;
+    }, [queryAPIParams.backPolicy]);
+
+    useEffect(() => {
+        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
+        }
+    }, [onHardwareBackPress]);
+
     const onErrorComponentReload = useCallback(() => {
         if (!!props.onContentProcessDidTerminate) {
             props.onContentProcessDidTerminate();
@@ -222,6 +294,16 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                 //
                 // Overriding passed props
                 //
+                onLoadProgress={(event) => {
+                    if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
+                        // Searching for supported query
+                        onNavigation(event.nativeEvent.url);
+                    }
+                }}
+                onNavigationStateChange={(event: WebViewNavigation) => {
+                    // Searching for supported query
+                    onNavigation(event.url);
+                }}
                 onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView

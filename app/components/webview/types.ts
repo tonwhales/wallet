@@ -1,4 +1,4 @@
-export enum HoldersQueryParams {
+export enum QueryAPI {
     LockScroll = 'lockScroll',
     CloseApp = 'closeApp',
     OpenEnrollment = 'openEnrollment',

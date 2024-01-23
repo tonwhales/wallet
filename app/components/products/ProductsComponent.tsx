@@ -175,7 +175,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             url: product.url,
             refId: product.id,
             useMainButton: true,
-            useStatusBar: true
+            useStatusBar: true,
+            useQueryAPI: true
         });
 
     }, [selected, currency, theme, pushPemissions]);

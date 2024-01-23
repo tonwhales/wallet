@@ -26,11 +26,12 @@ export type DAppWebViewFragmentParams = {
     };
     useMainButton?: boolean;
     useStatusBar?: boolean;
+    useQueryAPI?: boolean;
     refId?: string;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, useMainButton, useStatusBar, header, refId } = useParams<DAppWebViewFragmentParams>();
+    const { url, useMainButton, useStatusBar, useQueryAPI, header, refId } = useParams<DAppWebViewFragmentParams>();
     const [themeStyle,] = useThemeStyle();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
@@ -113,6 +114,7 @@ export const DAppWebViewFragment = fragment(() => {
                 source={{ uri: endpoint }}
                 useStatusBar={useStatusBar}
                 useMainButton={useMainButton}
+                useQueryAPI={useQueryAPI}
                 onShouldStartLoadWithRequest={loadWithRequest}
             />
         </View>

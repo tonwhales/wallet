@@ -49,6 +49,7 @@ export const DevDAppWebviewFragment = fragment(() => {
     const [engine, setEngine] = useState<'ton-x' | 'ton-connect' | 'none'>('ton-connect');
     const [useMainButton, setUseMainButton] = useState(false);
     const [useStatusBar, setUseStatusBar] = useState(false);
+    const [useQueryAPI, setUseQueryAPI] = useState(false);
     const [useToaster, setUseToaster] = useState(false);
     const [isModalVisible, setModalVisible] = useState(false);
     const [renderKey, setRenderKey] = useState(0);
@@ -156,11 +157,11 @@ export const DevDAppWebviewFragment = fragment(() => {
             useToaster,
             onShouldStartLoadWithRequest: loadWithRequest
         };
-    }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, useStatusBar, useMainButton, useToaster, loadWithRequest]);
+    }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, useStatusBar, useMainButton, useQueryAPI, useToaster, loadWithRequest]);
 
     useEffect(() => {
         setRenderKey(renderKey + 1);
-    }, [webViewProps.injectedJavaScriptBeforeContentLoaded, useMainButton, useStatusBar, useToaster, url]);
+    }, [webViewProps.injectedJavaScriptBeforeContentLoaded, useMainButton, useStatusBar, useQueryAPI, useToaster, url]);
 
     const onShare = useCallback(() => {
         if (Platform.OS === 'ios') {
@@ -294,6 +295,11 @@ export const DevDAppWebviewFragment = fragment(() => {
                                 title={'Toaster API'}
                                 value={useToaster}
                                 onChange={setUseToaster}
+                            />
+                            <ItemSwitch
+                                title={'Query API'}
+                                value={useQueryAPI}
+                                onChange={setUseQueryAPI}
                             />
                             <View style={{
                                 backgroundColor: theme.surfaceOnElevation,

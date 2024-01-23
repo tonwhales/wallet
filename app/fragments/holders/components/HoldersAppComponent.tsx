@@ -13,7 +13,6 @@ import { createInjectSource, dispatchResponse } from '../../apps/components/inje
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
 import { warn } from '../../../utils/log';
 import { openWithInApp } from '../../../utils/openWithInApp';
-import { HoldersParams, extractHoldersQueryParams } from '../utils';
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
 import * as FileSystem from 'expo-file-system';
@@ -39,6 +38,7 @@ import { getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
 import DeviceInfo from 'react-native-device-info';
+import { QueryParamsState, extractWebViewQueryAPIParams } from '../../../components/webview/utils/extractWebViewQueryAPIParams';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
@@ -240,7 +240,7 @@ export const HoldersAppComponent = memo((
         }
     );
 
-    const [holdersParams, setHoldersParams] = useState<Omit<HoldersParams, 'openEnrollment' | 'openUrl' | 'closeApp'>>({
+    const [holdersParams, setHoldersParams] = useState<QueryParamsState>({
         backPolicy: 'back',
         showKeyboardAccessoryView: false,
         lockScroll: true
@@ -474,7 +474,7 @@ export const HoldersAppComponent = memo((
     }, []);
 
     const onNavigation = useCallback((url: string) => {
-        const params = extractHoldersQueryParams(url);
+        const params = extractWebViewQueryAPIParams(url);
         if (params.closeApp) {
             onCloseApp();
             return;

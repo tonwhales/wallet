@@ -7,7 +7,6 @@ import { fragment } from '../../fragment';
 import { t } from '../../i18n/t';
 import { addPendingRevoke, getConnectionReferences, removeConnectionReference, removePendingRevoke } from "../../storage/appState";
 import { backoff } from '../../utils/time';
-import { useTrackScreen } from '../../analytics/mixpanel';
 import { resolveUrl } from '../../utils/resolveUrl';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useLinkNavigator } from '../../useLinkNavigator';
@@ -153,8 +152,6 @@ export const ConnectionsFragment = fragment(() => {
     };
 
     const openScanner = useCallback(() => navigation.navigateScanner({ callback: onQRCodeRead }), []);
-
-    useTrackScreen('Browser', network.isTestnet);
 
     useFocusEffect(useCallback(() => {
         setApps(groupItems(getConnectionReferences()));

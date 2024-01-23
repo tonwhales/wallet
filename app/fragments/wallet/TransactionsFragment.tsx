@@ -11,7 +11,6 @@ import { useAccountTransactions } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
 import { useNetwork } from '../../engine/hooks';
 import { WalletTransactions } from "./views/WalletTransactions";
-import { useTrackScreen } from "../../analytics/mixpanel";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
 import { TabHeader } from "../../components/topbar/TabHeader";
 import { TabView, SceneRendererProps, TabBar } from 'react-native-tab-view';
@@ -137,7 +136,6 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
 
 export const TransactionsFragment = fragment(() => {
     const theme = useTheme();
-    const { isTestnet } = useNetwork();
     const route = useRoute();
     const isLedger = route.name === 'LedgerTransactions';
     const ledgerContext = useLedgerTransport();
@@ -157,8 +155,6 @@ export const TransactionsFragment = fragment(() => {
             return selected?.address;
         }
     }, [selected, ledgerContext?.addr]);
-
-    useTrackScreen(isLedger ? 'LedgerHistory' : 'History', isTestnet);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');

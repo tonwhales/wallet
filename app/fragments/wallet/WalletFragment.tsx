@@ -7,7 +7,6 @@ import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
 import { Suspense, memo, useCallback, useMemo } from 'react';
 import { WalletAddress } from '../../components/WalletAddress';
-import { useTrackScreen } from '../../analytics/mixpanel';
 import { WalletHeader } from './views/WalletHeader';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';
@@ -330,7 +329,6 @@ export const WalletFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
     const accountLite = useAccountLite(selectedAcc?.address);
-    useTrackScreen('Wallet', isTestnet);
 
     return (
         <>

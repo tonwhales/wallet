@@ -5,7 +5,6 @@ import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
-import { useTrackScreen } from '../analytics/mixpanel';
 import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
@@ -105,8 +104,6 @@ export const SettingsFragment = fragment(() => {
     const onAccountPress = useCallback(() => {
         navigation.navigate('AccountSelector');
     }, []);
-
-    useTrackScreen('More', network.isTestnet);
 
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');

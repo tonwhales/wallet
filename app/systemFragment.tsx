@@ -8,14 +8,14 @@ import { ToastProvider } from './components/toast/ToastProvider';
 
 export function systemFragment<T>(
     Component: React.ComponentType<T>,
-    doNotTrack?: boolean
+    track?: boolean
 ): React.ComponentType<React.PropsWithRef<T & JSX.IntrinsicAttributes>> {
     return React.memo((props: T & JSX.IntrinsicAttributes) => {
         const { isTestnet } = useNetwork();
 
         const route = useRoute();
         const name = route.name;
-        if (!doNotTrack) {
+        if (track) {
             useTrackScreen(name, isTestnet);
         }
 

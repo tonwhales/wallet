@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, usePrice, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -21,12 +21,19 @@ import { getDomainKey } from "../../engine/state/domainKeys"
 import { extractDomain } from "../../engine/utils/extractDomain"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 import { Typography } from "../styles"
+import { useBanners } from "../../engine/hooks/banners"
+import { openWithInApp } from "../../utils/openWithInApp"
+import { ProductAd } from "../../engine/api/fetchBanners"
+import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
+import i18n from 'i18next';
+import { usePermissions } from "expo-notifications"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
+    const [, currency] = usePrice();
     const { isTestnet } = useNetwork();
     const navigation = useTypedNavigation();
     const oldWalletsBalance = useOldWalletsBalances().total;
@@ -34,6 +41,8 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
+    const banners = useBanners().data;
+    const [pushPemissions,] = usePermissions();
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
@@ -155,6 +164,28 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
         )
     }, [theme, balance, onPressIn, onPressOut, animatedStyle, onTonPress]);
 
+    const onProductBannerPress = useCallback((product: ProductAd) => {
+        trackEvent(
+            MixpanelEvent.ProductBannerClick,
+            { product: product.id, address: selected.addressString },
+            isTestnet
+        );
+
+        const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
+
+        const query = new URLSearchParams({
+            address: encodeURIComponent(selected.addressString),
+            ref: 'tonhub',
+            refId: encodeURIComponent(product.id),
+            lang: i18n.language,
+            currency: currency,
+            themeStyle: theme.style === 'dark' ? 'dark' : 'light',
+            pushNotifications: pushNotifications ? 'true' : 'false',
+        });
+
+        openWithInApp(`${product.url}?${query.toString()}`);
+    }, [selected, currency, theme, pushPemissions]);
+
     return (
         <View>
             <View style={{
@@ -193,6 +224,18 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
                         </Pressable>
                     )}
                 </View>
+
+                {!!banners?.product && (
+                    <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+                        <ProductBanner
+                            title={banners.product.title}
+                            subtitle={banners.product.description}
+                            onPress={() => onProductBannerPress(banners.product!)}
+                            illustration={{ uri: banners.product.image }}
+                            reverse
+                        />
+                    </View>
+                )}
 
                 {(holdersAccounts?.accounts?.length ?? 0) === 0 && isTestnet && (
                     <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>

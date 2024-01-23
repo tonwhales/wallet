@@ -73,7 +73,7 @@ export const TransportContext = createContext<
         addr: LedgerAddress | null,
         setAddr: (addr: LedgerAddress | null) => void,
         bleSearchState: BLESearchState,
-        startHIDSearch: () => Promise<void>,
+        startHIDSearch: (navigation: TypedNavigation) => Promise<void>,
         startBleSearch: () => void,
         reset: () => void,
     }

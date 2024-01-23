@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Alert, Platform } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
@@ -15,7 +15,6 @@ import { StatusBar } from "expo-status-bar";
 import { delay } from 'teslabot';
 import { ThemeType } from '../../engine/state/theme';
 import { Typography } from '../../components/styles';
-import { useFocusEffect } from "@react-navigation/native";
 
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
@@ -225,65 +224,31 @@ export const LedgerSelectAccountFragment = fragment(() => {
         return cancelWork;
     }, [ledgerContext?.tonTransport]);
 
-    const onLoadAccount = useCallback((async (acc: LedgerAccount) => {
-        if (!ledgerContext?.tonTransport) {
-            Alert.alert(t('hardwareWallet.errors.noDevice'));
-            ledgerContext?.setLedgerConnection(null);
-            return;
-        }
-        setSelected(acc.i);
-        let path = pathFromAccountNumber(acc.i, network.isTestnet);
-        try {
-            await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
-            ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
-            setSelected(undefined);
-        } catch (e) {
-            setSelected(undefined);
-            let isAppOpen = await ledgerContext.tonTransport?.isAppOpen();
-
-            if (!isAppOpen) {
-                console.warn('[ledger] closed app');
-                setConnectionState('closed-app');
+    const onLoadAccount = React.useCallback(
+        (async (acc: LedgerAccount) => {
+            if (!ledgerContext?.tonTransport) {
+                Alert.alert(t('hardwareWallet.errors.noDevice'));
+                ledgerContext?.setLedgerConnection(null);
                 return;
             }
-
-            if (e instanceof Error && e.name === 'LockedDeviceError') {
-                console.warn('[ledger] locked device');
-                setConnectionState('locked-device');
+            setSelected(acc.i);
+            let path = pathFromAccountNumber(acc.i, network.isTestnet);
+            try {
+                await ledgerContext.tonTransport.validateAddress(path, { testOnly: network.isTestnet });
+                ledgerContext.setAddr({ address: acc.addr.address, publicKey: acc.addr.publicKey, acc: acc.i });
+                setSelected(undefined);
+            } catch {
+                setSelected(undefined);
             }
-        }
-    }), [ledgerContext?.tonTransport]);
+        }),
+        [ledgerContext?.tonTransport],
+    );
 
     useEffect(() => {
         if (!!ledgerContext?.addr) {
             navigation.navigateLedgerApp();
         }
     }, [ledgerContext?.addr]);
-
-    // Reseting ledger context on back navigation if no address selected
-    useFocusEffect(
-        useCallback(() => {
-            const onBackPress = () => {
-                if (!ledgerContext.addr) {
-                    const lastConnectionType = ledgerContext.ledgerConnection?.type;
-                    ledgerContext.reset();
-
-                    // Restart new search, we are navigating back to the search screen
-                    if (lastConnectionType === 'ble') {
-                        ledgerContext.startBleSearch();
-                    } else if (lastConnectionType === 'hid') {
-                        ledgerContext.startHIDSearch();
-                    }
-                }
-            };
-
-            navigation.base.addListener('beforeRemove', onBackPress);
-
-            return () => {
-                navigation.base.removeListener('beforeRemove', onBackPress);
-            };
-        }, [navigation, ledgerContext])
-    );
 
     return (
         <View style={{

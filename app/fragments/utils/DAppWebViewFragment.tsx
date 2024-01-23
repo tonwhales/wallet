@@ -99,10 +99,7 @@ export const DAppWebViewFragment = fragment(() => {
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={Platform.select({
-                ios: 'light',
-                android: themeStyle === 'dark' ? 'light' : 'dark',
-            })} />
+            <StatusBar style={themeStyle === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
                     style={{ paddingTop: 32, paddingHorizontal: 16 }}

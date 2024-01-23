@@ -75,6 +75,32 @@ window['main-button'] = (() => {
 })();
 `
 
+export const toasterAPI = `
+window['toaster'] = (() => {
+    let __TOASTER_AVAILIBLE = true;
+
+    const show = (props) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'toaster.show', args: props } }));
+    };
+
+    const clear = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'toaster.clear' } }));
+    };
+
+    const push = (props) => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'toaster.push', args: props } }));
+    };
+
+    const pop = () => {
+        window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'toaster.pop' } }));
+    };
+
+    const obj = { show, clear, push, pop, __TOASTER_AVAILIBLE };
+    Object.freeze(obj);
+    return obj;
+})();
+`
+
 export const statusBarAPI = (safeArea: EdgeInsets) => {
     return `
     window['tonhub'] = (() => {

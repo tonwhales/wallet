@@ -8,13 +8,14 @@ import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
-import { dispatchMainButtonResponse, dispatchResponse, mainButtonAPI, statusBarAPI } from "../../fragments/apps/components/inject/createInjectSource";
+import { dispatchMainButtonResponse, dispatchResponse, mainButtonAPI, statusBarAPI, toasterAPI } from "../../fragments/apps/components/inject/createInjectSource";
 import { warn } from "../../utils/log";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { InjectEngine } from "../../fragments/apps/components/inject/InjectEngine";
 import { processStatusBarMessage } from "./utils/processStatusBarMessage";
 import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
+import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 
 export type DAppWebviewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -50,6 +51,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
     const bottomMargin = (safeArea.bottom || 32);
+    const toaster = useToaster();
 
     const [loaded, setLoaded] = useState(false);
 
@@ -102,6 +104,11 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                     setStatusBarStyle,
                     setStatusBarBackgroundColor
                 );
+            }
+
+            // Toaster API
+            if (props.useToaster) {
+                processed = processToasterMessage(parsed, toaster);
             }
 
             if (processed) {
@@ -173,10 +180,11 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         return `
         ${props.useMainButton ? mainButtonAPI : ''}
         ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
+        ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
         true;
         `
-    }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar]);
+    }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar, props.useToaster, safeArea]);
 
     const Loader = props.loader ?? WebViewLoader;
 

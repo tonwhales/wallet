@@ -270,6 +270,24 @@ export const DeveloperToolsFragment = fragment(() => {
                             />
                         </View>
                     </View>
+                    <View style={{
+                        marginTop: 16,
+                        backgroundColor: theme.border,
+                        borderRadius: 14,
+                        overflow: 'hidden',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flexShrink: 1,
+                    }}>
+                        <View style={{ marginHorizontal: 16, width: '100%' }}>
+                            <ItemButton
+                                title={'Dev WebView'}
+                                onPress={() => {
+                                    navigation.navigate('DevDAppWebview');
+                                }}
+                            />
+                        </View>
+                    </View>
                 </ScrollView>
             </KeyboardAvoidingView>
         </View>

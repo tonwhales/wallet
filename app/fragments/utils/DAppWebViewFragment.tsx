@@ -61,6 +61,8 @@ export const DAppWebViewFragment = fragment(() => {
             source.searchParams.set('lang', i18n.language);
             source.searchParams.set('currency', currency);
             source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
+            source.searchParams.set('theme-style', theme.style === 'dark' ? 'dark' : 'light');
+            source.searchParams.set('theme', 'holders');
             source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
 
             if (refId) {
@@ -75,6 +77,7 @@ export const DAppWebViewFragment = fragment(() => {
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
+
         if (extractDomain(event.url) === extractDomain(url)) {
             return true;
         }

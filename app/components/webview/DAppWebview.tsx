@@ -253,6 +253,11 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
         ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
+        window['tonhub'] = (() => {
+            const obj = {};
+            Object.freeze(obj);
+            return obj;
+        })();
         true;
         `
     }, [props.injectedJavaScriptBeforeContentLoaded, props.useMainButton, props.useStatusBar, props.useToaster, safeArea]);

@@ -103,7 +103,7 @@ window['toaster'] = (() => {
 
 export const statusBarAPI = (safeArea: EdgeInsets) => {
     return `
-    window['tonhub'] = (() => {
+    window['status-bar'] = (() => {
         let __STATUS_BAR_AVAILIBLE = true;
         const safeArea = ${JSON.stringify(safeArea)};
 

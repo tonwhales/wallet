@@ -134,6 +134,7 @@ export const DevDAppWebviewFragment = fragment(() => {
                 useStatusBar,
                 useMainButton,
                 useToaster,
+                useQueryAPI,
                 onShouldStartLoadWithRequest: loadWithRequest,
             };
         }
@@ -147,6 +148,7 @@ export const DevDAppWebviewFragment = fragment(() => {
                 useStatusBar,
                 useMainButton,
                 useToaster,
+                useQueryAPI,
                 onShouldStartLoadWithRequest: loadWithRequest,
             }
         }
@@ -155,6 +157,7 @@ export const DevDAppWebviewFragment = fragment(() => {
             useStatusBar,
             useMainButton,
             useToaster,
+            useQueryAPI,
             onShouldStartLoadWithRequest: loadWithRequest
         };
     }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, useStatusBar, useMainButton, useQueryAPI, useToaster, loadWithRequest]);

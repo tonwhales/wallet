@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo, useRef } from "react";
-import { Linking, Platform, View } from "react-native";
+import React, { useCallback, useMemo, useState } from "react";
+import { ActivityIndicator, Linking, View } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { StatusBar } from "expo-status-bar";
-import { useNetwork, usePrice, useThemeStyle } from "../../engine/hooks";
+import { useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
 import { useLinkNavigator } from "../../useLinkNavigator";
@@ -11,14 +11,20 @@ import { resolveUrl } from "../../utils/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { DAppWebview } from "../../components/webview/DAppWebview";
+import { DAppWebview, DAppWebviewProps } from "../../components/webview/DAppWebview";
 import { getCurrentAddress } from "../../storage/appState";
 import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
-import WebView from "react-native-webview";
+import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
+import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { getDomainKey } from "../../engine/state/domainKeys";
+
+type DAppEngine = 'ton-x' | 'ton-connect';
 
 export type DAppWebViewFragmentParams = {
     url: string;
+    title?: string;
     header?: {
         title: string;
         onBack?: () => void;
@@ -27,12 +33,15 @@ export type DAppWebViewFragmentParams = {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useQueryAPI?: boolean;
+    useToaster?: boolean;
     refId?: string;
+    engine?: DAppEngine;
 }
 
 export const DAppWebViewFragment = fragment(() => {
-    const { url, useMainButton, useStatusBar, useQueryAPI, header, refId } = useParams<DAppWebViewFragmentParams>();
-    const [themeStyle,] = useThemeStyle();
+    const { url, title, useMainButton, useStatusBar, useQueryAPI, useToaster, header, refId, engine } = useParams<DAppWebViewFragmentParams>();
+    const theme = useTheme();
+    const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
     const navigation = useTypedNavigation();
     const [pushPemissions,] = usePermissions();
@@ -51,7 +60,7 @@ export const DAppWebViewFragment = fragment(() => {
             source.searchParams.set('ref', 'tonhub');
             source.searchParams.set('lang', i18n.language);
             source.searchParams.set('currency', currency);
-            source.searchParams.set('themeStyle', themeStyle === 'dark' ? 'dark' : 'light');
+            source.searchParams.set('themeStyle', theme.style === 'dark' ? 'dark' : 'light');
             source.searchParams.set('pushNotifications', pushNotifications ? 'true' : 'false');
 
             if (refId) {
@@ -62,9 +71,7 @@ export const DAppWebViewFragment = fragment(() => {
         } catch {
             return url;
         }
-    }, [url, pushPemissions, currency]);
-
-    const webViewRef = useRef<WebView>(null);
+    }, [url, pushPemissions, currency, theme.style]);
 
     const linkNavigator = useLinkNavigator(isTestnet);
     const loadWithRequest = useCallback((event: ShouldStartLoadRequest): boolean => {
@@ -96,11 +103,92 @@ export const DAppWebViewFragment = fragment(() => {
         }
 
         return header.onClose;
-    }, [header]);
+    }, []);
+
+    const domain = useMemo(() => {
+        try {
+            return extractDomain(endpoint)
+        } catch {
+            return '';
+        }
+    }, [endpoint]);
+
+    const [hasDomainKey, setHasDomainKey] = useState(!!getDomainKey(domain));
+
+    // ton-connect
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(endpoint, navigation);
+    // ton-x
+    const injectionEngine = useInjectEngine(domain, title ?? '', isTestnet, endpoint);
+
+    const webViewProps: DAppWebviewProps = useMemo(() => {
+        if (engine === 'ton-connect') {
+            return {
+                ...tonConnectWebViewProps,
+                useStatusBar,
+                useMainButton,
+                useToaster,
+                useQueryAPI,
+                onShouldStartLoadWithRequest: loadWithRequest,
+            };
+        }
+
+        if (engine === 'ton-x') {
+            const injectionSource = injectSourceFromDomain(domain, isTestnet, safeArea);
+
+            return {
+                injectionEngine,
+                injectedJavaScriptBeforeContentLoaded: injectionSource,
+                useStatusBar,
+                useMainButton,
+                useToaster,
+                useQueryAPI,
+                onShouldStartLoadWithRequest: loadWithRequest,
+            }
+        }
+
+        return {
+            useStatusBar,
+            useMainButton,
+            useToaster,
+            useQueryAPI,
+            onShouldStartLoadWithRequest: loadWithRequest
+        };
+    }, [
+        engine,
+        tonConnectWebViewProps,
+        domain,
+        isTestnet,
+        safeArea,
+        webViewRef,
+        injectionEngine,
+        useStatusBar, useMainButton, useQueryAPI, useToaster,
+        loadWithRequest,
+        hasDomainKey
+    ]);
+
+    if (engine === 'ton-x' && !hasDomainKey) {
+        navigation.navigate('Install', { url: endpoint, title: title ?? '', image: null, callback: setHasDomainKey });
+        return (
+            <View style={{ flexGrow: 1 }}>
+                <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
+                {!!header && (
+                    <ScreenHeader
+                        style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                        onBackPressed={header.onBack}
+                        onClosePressed={headerOnClose}
+                        title={header.title}
+                    />
+                )}
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color={theme.accent} />
+                </View>
+            </View>
+        );
+    }
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <StatusBar style={themeStyle === 'dark' ? 'light' : 'dark'} />
+            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
                     style={{ paddingTop: 32, paddingHorizontal: 16 }}
@@ -112,10 +200,8 @@ export const DAppWebViewFragment = fragment(() => {
             <DAppWebview
                 ref={webViewRef}
                 source={{ uri: endpoint }}
-                useStatusBar={useStatusBar}
-                useMainButton={useMainButton}
-                useQueryAPI={useQueryAPI}
-                onShouldStartLoadWithRequest={loadWithRequest}
+                {...webViewProps}
+                webviewDebuggingEnabled={isTestnet}
             />
         </View>
     );

@@ -22,10 +22,8 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
-import { openWithInApp } from "../../utils/openWithInApp"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
-import i18n from 'i18next';
 import { usePermissions } from "expo-notifications"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
@@ -175,8 +173,9 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             url: product.url,
             refId: product.id,
             useMainButton: true,
-            useStatusBar: true,
-            useQueryAPI: true
+            useStatusBar: false,
+            useQueryAPI: true,
+            useToaster: true
         });
 
     }, [selected, currency, theme, pushPemissions]);

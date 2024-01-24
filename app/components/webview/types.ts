@@ -5,6 +5,8 @@ export enum QueryAPI {
     BackPolicy = 'backPolicy',
     OpenUrl = 'openUrl',
     ShowKeyboardAccessoryView = 'showKAV',
+    MarkAsShown = 'markAsShown',
+    Subscribed = 'subscribed',
 }
 
 export type BackPolicy = 'back' | 'close' | 'lock';

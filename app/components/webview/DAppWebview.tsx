@@ -17,6 +17,7 @@ import { processStatusBarMessage } from "./utils/processStatusBarMessage";
 import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar";
 import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
+import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 
 export type DAppWebviewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -26,6 +27,7 @@ export type DAppWebviewProps = WebViewProps & {
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
+    refId?: string;
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -54,6 +56,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
     const keyboard = useKeyboard();
     const bottomMargin = (safeArea.bottom || 32);
     const toaster = useToaster();
+    const markRefIdShown = useMarkBannerHidden();
 
     const [loaded, setLoaded] = useState(false);
 
@@ -102,10 +105,16 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
             return;
         }
         const params = extractWebViewQueryAPIParams(url);
+
+        if ((params.markAsShown || params.subscribed) && !!props.refId) {
+            markRefIdShown(props.refId);
+        }
+
         if (params.closeApp) {
             navigation.goBack();
             return;
         }
+
         setQueryAPIParams((prev) => {
             const newValue = {
                 ...prev,
@@ -115,10 +124,11 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
             }
             return newValue;
         });
+
         if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, [setQueryAPIParams, props.useQueryAPI]);
+    }, [setQueryAPIParams, props.useQueryAPI, markRefIdShown, props.refId]);
 
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {

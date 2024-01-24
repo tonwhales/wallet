@@ -8,6 +8,8 @@ export type QueryAPIParams = {
     openEnrollment?: boolean,
     showKeyboardAccessoryView?: boolean,
     lockScroll?: boolean,
+    markAsShown?: boolean,
+    subscribed?: boolean,
 }
 
 export type QueryParamsState = Omit<QueryAPIParams, 'openEnrollment' | 'openUrl' | 'closeApp'>;
@@ -22,6 +24,8 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
         let openEnrollment = false;
         let showKeyboardAccessoryView = false;
         let lockScroll = undefined;
+        let markAsShown = false;
+        let subscribed = false;
 
         if (params.has(QueryAPI.CloseApp)) {
             const queryValue = params.get(QueryAPI.CloseApp);
@@ -67,13 +71,28 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
             }
         }
 
+        if (params.has(QueryAPI.MarkAsShown)) {
+            const queryValue = params.get(QueryAPI.MarkAsShown);
+            if (queryValue === 'true') {
+                markAsShown = true;
+            }
+        }
+
+        if (params.has(QueryAPI.Subscribed)) {
+            const queryValue = params.get(QueryAPI.Subscribed);
+            if (queryValue === 'true') {
+                subscribed = true;
+            }
+        }
+
         return {
             closeApp,
             openUrl,
             backPolicy,
             openEnrollment,
             showKeyboardAccessoryView,
-            lockScroll
+            lockScroll,
+            markAsShown
         }
     } catch {
         warn('Failed to extract holders query params');

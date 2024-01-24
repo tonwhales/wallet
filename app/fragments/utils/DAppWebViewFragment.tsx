@@ -205,6 +205,7 @@ export const DAppWebViewFragment = fragment(() => {
                 source={{ uri: endpoint }}
                 {...webViewProps}
                 webviewDebuggingEnabled={isTestnet}
+                refId={refId}
             />
         </View>
     );

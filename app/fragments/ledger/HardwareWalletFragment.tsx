@@ -64,6 +64,7 @@ export const HardwareWalletFragment = fragment(() => {
             navigation.navigate('LedgerSelectAccount');
         }
     }, [ledgerContext?.ledgerConnection]);
+
     return (
         <View style={{
             flex: 1,

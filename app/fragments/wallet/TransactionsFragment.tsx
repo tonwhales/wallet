@@ -184,4 +184,4 @@ export const TransactionsFragment = fragment(() => {
             </Suspense>
         )
     }
-}, true);
+});

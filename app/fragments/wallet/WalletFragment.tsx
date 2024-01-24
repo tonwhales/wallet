@@ -348,7 +348,7 @@ export const WalletFragment = fragment(() => {
             </PerformanceMeasureView>
         </>
     );
-}, true);
+});
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'WalletStack';

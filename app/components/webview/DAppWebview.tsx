@@ -126,7 +126,6 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
             return;
         }
         const nativeEvent = event.nativeEvent;
-        console.log('handleWebViewMessage', nativeEvent);
 
         // Resolve parameters
         let data: any;

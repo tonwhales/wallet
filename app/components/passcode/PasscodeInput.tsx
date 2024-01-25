@@ -69,9 +69,15 @@ export const PasscodeInput = memo((
         } else if (/\d/.test(key)) {
             setPasscode((prevPasscode) => {
                 let newState = isWrong ? '' : prevPasscode;
+
                 if (newState.length < passcodeLength) {
                     newState = newState + key;
                 }
+
+                if (prevPasscode === newState) {
+                    return prevPasscode;
+                }
+                
                 if (newState.length === passcodeLength) {
                     (async () => {
                         try {

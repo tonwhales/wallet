@@ -1,7 +1,8 @@
 {
   "expo": {
-    "name": "wallet",
-    "slug": "wallet",
+    "name": "Tonhub",
+    "slug": "tonhub",
+    "owner": "whalesorg",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -30,6 +31,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "jsEngine": "hermes"
+    "jsEngine": "hermes",
+    "extra": {
+      "eas": {
+        "projectId": "902300f2-8313-4af2-9907-b31dcd3d62f1"
+      }
+    }
   }
 }

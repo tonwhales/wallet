@@ -13,6 +13,17 @@ import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { ScrollView } from "react-native-gesture-handler";
 
+const images = {
+    ios: {
+        light: require('@assets/ledger/ledger-ios.webp'),
+        dark: require('@assets/ledger/ledger-ios-dark.webp')
+    },
+    android: {
+        light: require('@assets/ledger/ledger-and.webp'),
+        dark: require('@assets/ledger/ledger-and-dark.webp')
+    }
+}
+
 export const HardwareWalletFragment = fragment(() => {
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
@@ -25,7 +36,7 @@ export const HardwareWalletFragment = fragment(() => {
 
     const searchHID = useCallback(async () => {
         setBleLocked(true);
-        await ledgerContext?.startHIDSearch(navigation);
+        await ledgerContext?.startHIDSearch();
         setBleLocked(false);
     }, [ledgerContext]);
 
@@ -53,6 +64,7 @@ export const HardwareWalletFragment = fragment(() => {
             navigation.navigate('LedgerSelectAccount');
         }
     }, [ledgerContext?.ledgerConnection]);
+
     return (
         <View style={{
             flex: 1,
@@ -82,14 +94,7 @@ export const HardwareWalletFragment = fragment(() => {
                         height={dimentions.screen.width - 32}
                         width={dimentions.screen.width - 32}
                         source={
-                            Platform.select({
-                                ios: theme.style === 'dark'
-                                    ? require('@assets/ledger/ledger-ios-dark.webp')
-                                    : require('@assets/ledger/ledger-ios.webp'),
-                                android: theme.style === 'dark'
-                                    ? require('@assets/ledger/ledger-and-dark.webp')
-                                    : require('@assets/ledger/ledger-and.webp')
-                            })
+                            images[Platform.OS === 'android' ? 'android' : 'ios'][theme.style]
                         }
                         resizeMode={'contain'}
                     />

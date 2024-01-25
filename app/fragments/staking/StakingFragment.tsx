@@ -171,8 +171,7 @@ export const StakingFragment = fragment(() => {
                         onPress={openMoreInfo}
                         style={({ pressed }) => ({
                             opacity: pressed ? 0.5 : 1,
-                            position: 'absolute',
-                            bottom: 12, right: 0,
+                            position: 'absolute', right: 0, 
                             backgroundColor: theme.surfaceOnElevation,
                             height: 32, width: 32, borderRadius: 16,
                             justifyContent: 'center', alignItems: 'center'

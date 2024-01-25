@@ -420,6 +420,8 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE': {}, // SCALE
             'EQBjEw-SOe8yV2kIbGVZGrsPpLTaaoAOE87CGXI2ca4XdzXA': {}, // MARGA
             'EQAQXlWJvGbbFfE8F3oS8s87lIgdovS455IsWFaRdmJetTon': {}, // JetTon
+            'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw': {}, // Huebel Bolt
+            'EQD_KpO2-iFeHPT4dF0ur9E0iAFts2fwhpR2KjwAmYKpccvH': {}, // LIFEYT
         }
         : {};
 }

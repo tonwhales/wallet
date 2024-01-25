@@ -26,7 +26,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
         return (
             <View style={{
                 borderRadius: 20,
-                backgroundColor: theme.surfaceOnElevation,
+                backgroundColor: theme.surfaceOnBg
             }}>
                 {jettons.map((j, index) => {
                     return (
@@ -34,6 +34,7 @@ export const LedgerJettonsProductComponent = React.memo(() => {
                             key={'jt' + j.wallet.toString()}
                             jetton={j}
                             last={index === jettons.length - 1}
+                            ledger
                         />
                     );
                 })}
@@ -150,12 +151,14 @@ export const LedgerJettonsProductComponent = React.memo(() => {
             <AnimatedChildrenCollapsible
                 collapsed={collapsed}
                 items={jettons}
+                showDivider={false}
                 renderItem={(j, index) => {
                     return (
                         <JettonProductItem
-                            key={'jt' + j.wallet.toFriendly()}
+                            key={'jt' + j.wallet.toString()}
                             jetton={j}
                             last={index === jettons.length - 1}
+                            ledger
                         />
                     )
                 }}

@@ -1,123 +1,83 @@
 {
   "project_info": {
-    "project_number": "809209865445",
-    "project_id": "tonhub-795d9",
-    "storage_bucket": "tonhub-795d9.appspot.com"
+    "project_number": "438516951269",
+    "project_id": "tonhub-wallet",
+    "storage_bucket": "tonhub-wallet.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:809209865445:android:0a4e72fab24bc95b00200c",
+        "mobilesdk_app_id": "1:438516951269:android:8b18a2b1d6dfec52158c0c",
         "android_client_info": {
           "package_name": "com.tonhub.wallet"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:809209865445:android:81d4ca93223ac21200200c",
+        "mobilesdk_app_id": "1:438516951269:android:fd818bfd67927d1f158c0c",
         "android_client_info": {
           "package_name": "com.tonhub.wallet.debug"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:809209865445:android:737fdce79a4a046a00200c",
+        "mobilesdk_app_id": "1:438516951269:android:c7db7e5455e952fe158c0c",
         "android_client_info": {
           "package_name": "com.tonhub.wallet.testnet"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:809209865445:android:1bc9c06fbd15da1a00200c",
+        "mobilesdk_app_id": "1:438516951269:android:1252c30fd7d0cc20158c0c",
         "android_client_info": {
           "package_name": "com.tonhub.wallet.testnet.debug"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAMjCiQCAJhcnLzrRnerzxnPyceDK3k_YM"
+          "current_key": "AIzaSyBVLHssvMx6nl-J5z3rIJ0SGytcYrZ9ELc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "809209865445-6kk4ug3brojo3a7si2i61fear87m5k69.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

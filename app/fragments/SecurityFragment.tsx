@@ -81,7 +81,8 @@ export const SecurityFragment = fragment(() => {
 
     }, [deviceEncryption, passcodeState]);
 
-    const [biometricsToggleValue, setBiometricsToggleValue] = useState<boolean>(biometricsState === BiometricsState.InUse);
+    const useBiometrics = (biometricsState === BiometricsState.InUse || biometricsState === null);
+    const [biometricsToggleValue, setBiometricsToggleValue] = useState<boolean>(useBiometrics);
 
     useEffect(() => {
         const updateDeviceEncryption = () => {
@@ -172,6 +173,8 @@ export const SecurityFragment = fragment(() => {
                                 <ItemSwitch
                                     title={biometricsProps.buttonText}
                                     value={biometricsToggleValue}
+                                    // we can't disable biometrics if passcode is not set
+                                    disabled={passcodeState !== PasscodeState.Set}
                                     leftIconComponent={deviceEncryption === 'face' ? undefined : biometricsProps.icon}
                                     leftIcon={deviceEncryption === 'face' ? require('@assets/ic-secure-face.png') : undefined}
                                     onChange={async (newValue: boolean) => {

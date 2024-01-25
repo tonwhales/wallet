@@ -15,6 +15,7 @@ import { useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
 export const LedgerDeviceSelectionFragment = fragment(() => {
     const theme = useTheme();
@@ -45,6 +46,23 @@ export const LedgerDeviceSelectionFragment = fragment(() => {
             navigation.navigate('LedgerSelectAccount');
         }
     }, [ledgerContext?.ledgerConnection]);
+
+    // Reseting ledger context on back navigation & stoping all searches
+    useFocusEffect(
+        useCallback(() => {
+            const onBackPress = () => {
+                if (ledgerContext?.ledgerConnection?.type !== 'ble') {
+                    ledgerContext.reset();
+                }
+            };
+
+            navigation.base.addListener('beforeRemove', onBackPress);
+
+            return () => {
+                navigation.base.removeListener('beforeRemove', onBackPress);
+            };
+        }, [navigation, ledgerContext])
+    );
 
     if (ledgerContext?.bleSearchState?.type === 'permissions-failed') {
         return (

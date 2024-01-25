@@ -1,6 +1,7 @@
 package com.tonhub.wallet;
 
 import android.app.Application;
+import android.content.Intent;
 import android.content.res.Configuration;
 import expo.modules.ApplicationLifecycleDispatcher;
 import expo.modules.ReactNativeHostWrapper;
@@ -15,10 +16,13 @@ import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactNativeHost;
 import com.facebook.soloader.SoLoader;
 import android.content.Context;
+import android.os.Bundle;
+
 import com.facebook.react.ReactInstanceManager;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import com.tonhub.wallet.modules.appearance.AppearancePackage;
 import com.tonhub.wallet.modules.navbarcolor.NavigationBarColorPackage;
 import com.tonhub.wallet.modules.store.KeyStorePackage;
 
@@ -39,6 +43,7 @@ public class MainApplication extends Application implements ReactApplication {
                     List<ReactPackage> packages = new PackageList(this).getPackages();
                     packages.add(new KeyStorePackage());
                     packages.add(new NavigationBarColorPackage());
+                    packages.add(new AppearancePackage());
                     return packages;
                 }
 
@@ -80,6 +85,25 @@ public class MainApplication extends Application implements ReactApplication {
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig);
+
+        Intent themeStyleIntent = new Intent("THEME_STYLE_UPDATED");
+        String style = "light";
+        int currentNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+
+        switch (currentNightMode) {
+            case Configuration.UI_MODE_NIGHT_NO:
+                style = "light";
+                break;
+            case Configuration.UI_MODE_NIGHT_YES:
+                style = "dark";
+                break;
+        }
+
+        Bundle dataBundle = new Bundle();
+        dataBundle.putString("style", style);
+        themeStyleIntent.putExtras(dataBundle);
+
+        this.sendBroadcast(themeStyleIntent);
     }
 
     /**

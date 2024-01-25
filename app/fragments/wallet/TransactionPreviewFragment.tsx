@@ -64,8 +64,6 @@ const TransactionPreview = () => {
         }
     }, [ledgerContext?.addr?.address, selected]);
 
-    const [walletSettings,] = useWalletSettings(address);
-
     const params = useParams<{ transaction: TransactionDescription }>();
 
     const tx = params.transaction;
@@ -75,6 +73,9 @@ const TransactionPreview = () => {
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const fees = BigInt(tx.base.fees);
     const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+
+    const [ownWalletSettings,] = useWalletSettings(address);
+    const [opAddressWalletSettings,] = useWalletSettings(opAddress);
 
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[opAddress];
@@ -133,6 +134,9 @@ const TransactionPreview = () => {
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
     }
+    if (!!opAddressWalletSettings?.name) { // Resolve target wallet settings
+        known = { name: opAddressWalletSettings.name }
+    }
 
     let spam = useIsSpamWallet(opAddress)
         || isSpam
@@ -152,7 +156,7 @@ const TransactionPreview = () => {
             return {
                 from: {
                     address: address,
-                    name: walletSettings?.name || `${t('common.wallet')} ${index}`
+                    name: ownWalletSettings?.name || `${t('common.wallet')} ${index}`
                 },
                 to: {
                     address: Address.parse(opAddress),
@@ -168,10 +172,10 @@ const TransactionPreview = () => {
             },
             to: {
                 address: address,
-                name: walletSettings?.name || `${t('common.wallet')} ${index}`
+                name: ownWalletSettings?.name || `${t('common.wallet')} ${index}`
             }
         }
-    }, [opAddress, walletSettings, tx, known]);
+    }, [opAddress, ownWalletSettings, tx, known]);
 
     const onCopyAddress = useCallback((address: Address) => {
         copyText(address.toString({ testOnly: isTestnet }));
@@ -238,6 +242,7 @@ const TransactionPreview = () => {
                         theme={theme}
                         isTestnet={isTestnet}
                         hashColor
+                        hash={opAddressWalletSettings?.avatar}
                     />
                     <PerfText
                         style={[

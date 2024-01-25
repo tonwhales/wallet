@@ -25,6 +25,19 @@ export const JettonsProductComponent = memo(() => {
     if (visibleList.length <= 3) {
         return (
             <View style={{ marginBottom: visibleList.length > 0 ? 16 : 0 }}>
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between', alignItems: 'center',
+                        paddingHorizontal: 16,
+                        paddingVertical: 12,
+                        marginBottom: 4
+                    }}
+                >
+                    <Text style={[{ color: theme.textPrimary, }, Typography.semiBold20_28]}>
+                        {t('jetton.productButtonTitle')}
+                    </Text>
+                </View>
                 {visibleList.map((j, index) => {
                     return (
                         <JettonProductItem
@@ -87,7 +100,7 @@ export const JettonsProductComponent = memo(() => {
                             </View>
                             <View style={{ marginLeft: 12, flexShrink: 1 }}>
                                 <PerfText
-                                    style={{ color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600' }}
+                                    style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                     ellipsizeMode="tail"
                                     numberOfLines={1}
                                 >

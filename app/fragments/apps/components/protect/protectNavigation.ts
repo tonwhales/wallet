@@ -13,11 +13,16 @@ export function protectNavigation(url: string, app: string) {
         return true;
     }
     // To account for metrics redirects
-    if (pageDomain.endsWith('mc.yandex.ru')) {
+    if (pageDomain === 'mc.yandex.ru' || pageDomain.endsWith('.mc.yandex.ru')) {
         return true;
     }
     // To account for walletconnect redirects
-    if (pageDomain.endsWith('verify.walletconnect.com')) {
+    if (
+        pageDomain === '.verify.walletconnect.com'
+        || pageDomain.endsWith('.verify.walletconnect.com')
+        || pageDomain === 'verify.walletconnect.org'
+        || pageDomain.endsWith('.verify.walletconnect.org')
+    ) {
         return true;
     }
     return false;

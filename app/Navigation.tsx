@@ -317,7 +317,7 @@ export const Navigation = memo(() => {
             if (existingStatus === PermissionStatus.GRANTED || appState.addresses.length > 0) {
                 const token = await backoff('navigation', async () => {
                     try {
-                        await registerForPushNotificationsAsync();
+                        return await registerForPushNotificationsAsync();
                     } catch (e) {
                         if (e instanceof Error && e.message.includes(`Notification registration failed: "Push Notifications" capability hasn't been added`)) {
                             warn('[push-notifications] Push notifications are not enabled in this build');

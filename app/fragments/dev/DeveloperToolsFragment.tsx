@@ -283,7 +283,7 @@ export const DeveloperToolsFragment = fragment(() => {
                             <ItemButton
                                 title={'Dev WebView'}
                                 onPress={() => {
-                                    navigation.navigate('DevDAppWebview');
+                                    navigation.navigate('DevDAppWebView');
                                 }}
                             />
                         </View>

@@ -11,7 +11,7 @@ import { resolveUrl } from "../../utils/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { DAppWebview, DAppWebviewProps } from "../../components/webview/DAppWebview";
+import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
 import { getCurrentAddress } from "../../storage/appState";
 import { usePermissions } from "expo-notifications";
 import i18n from 'i18next';
@@ -123,7 +123,7 @@ export const DAppWebViewFragment = fragment(() => {
     // ton-x
     const injectionEngine = useInjectEngine(domain, title ?? '', isTestnet, endpoint);
 
-    const webViewProps: DAppWebviewProps = useMemo(() => {
+    const webViewProps: DAppWebViewProps = useMemo(() => {
         if (engine === 'ton-connect') {
             return {
                 ...tonConnectWebViewProps,
@@ -200,7 +200,7 @@ export const DAppWebViewFragment = fragment(() => {
                     title={header.title}
                 />
             )}
-            <DAppWebview
+            <DAppWebView
                 ref={webViewRef}
                 source={{ uri: endpoint }}
                 {...webViewProps}

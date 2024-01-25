@@ -19,7 +19,7 @@ import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 
-export type DAppWebviewProps = WebViewProps & {
+export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
     useStatusBar?: boolean;
     useToaster?: boolean;
@@ -49,7 +49,7 @@ function WebViewLoader(props: WebViewLoaderProps<{}>) {
     );
 };
 
-export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: ForwardedRef<WebView>) => {
+export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: ForwardedRef<WebView>) => {
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -155,7 +155,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
             }
 
             // Header StatusBar API
-            if (props.useStatusBar) {
+            if (props.useStatusBar && !processed) {
                 processed = processStatusBarMessage(
                     parsed,
                     setStatusBarStyle,
@@ -164,7 +164,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
             }
 
             // Toaster API
-            if (props.useToaster) {
+            if (props.useToaster && !processed) {
                 processed = processToasterMessage(parsed, toaster);
             }
 
@@ -198,6 +198,7 @@ export const DAppWebview = memo(forwardRef((props: DAppWebviewProps, ref: Forwar
                 }
             } catch {
                 warn('Failed to open url');
+                return;
             }
         }
 

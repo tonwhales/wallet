@@ -7,7 +7,7 @@ import { usePermissions } from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCurrentAddress } from "../../storage/appState";
 import i18n from 'i18next';
-import { DAppWebview, DAppWebviewProps } from "../../components/webview/DAppWebview";
+import { DAppWebView, DAppWebViewProps } from "../../components/webview/DAppWebView";
 import { useLinkNavigator } from "../../useLinkNavigator";
 import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
 import { extractDomain } from "../../engine/utils/extractDomain";
@@ -23,16 +23,16 @@ import { ATextInput } from "../../components/ATextInput";
 import { RoundButton } from "../../components/RoundButton";
 import { Ionicons } from '@expo/vector-icons';
 import { ScrollView } from "react-native-gesture-handler";
-
-import Chevron from '@assets/ic-chevron-down.svg';
 import { useKeysAuth } from "../../components/secure/AuthWalletKeys";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { ItemButton } from "../../components/ItemButton";
 import { t } from "../../i18n/t";
 
+import Chevron from '@assets/ic-chevron-down.svg';
+
 const engineOptions: ('ton-x' | 'ton-connect' | 'none')[] = ['ton-x', 'ton-connect', 'none'];
 
-export const DevDAppWebviewFragment = fragment(() => {
+export const DevDAppWebViewFragment = fragment(() => {
     const authContext = useKeysAuth();
     const safeArea = useSafeAreaInsets();
     const isTestnet = useNetwork().isTestnet;
@@ -127,7 +127,7 @@ export const DevDAppWebviewFragment = fragment(() => {
     // ton-x
     const injectionEngine = useInjectEngine(domain, 'DevWebView', isTestnet, endpoint);
 
-    const webViewProps: DAppWebviewProps = useMemo(() => {
+    const webViewProps: DAppWebViewProps = useMemo(() => {
         if (engine === 'ton-connect') {
             return {
                 ...tonConnectWebViewProps,
@@ -177,7 +177,7 @@ export const DevDAppWebviewFragment = fragment(() => {
     return (
         <View style={{ flexGrow: 1 }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            <DAppWebview
+            <DAppWebView
                 key={renderKey}
                 ref={webViewRef}
                 source={{ uri: endpoint }}

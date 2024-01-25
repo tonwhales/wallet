@@ -13,7 +13,7 @@ export function processMainButtonMessage(
     dispatchMainButtonResponse: (webRef: React.RefObject<WebView<{}>>) => void,
     webRef: React.MutableRefObject<any>
 ) {
-    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('main-button')) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('main-button.')) {
         const actionType = parsed.data.name.split('.')[1];
 
         if (actionType === 'onClick' && typeof parsed.id === 'number') {

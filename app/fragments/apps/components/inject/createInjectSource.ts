@@ -180,6 +180,8 @@ export function createInjectSource(sourceProps: InjectSourceProps) {
                 c(ev.data);
             }
         }
+
+        Object.freeze(config);
         
         const obj = { call, config, __IS_TON_X, __response };
         Object.freeze(obj);

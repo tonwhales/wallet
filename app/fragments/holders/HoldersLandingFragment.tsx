@@ -245,7 +245,7 @@ export const HoldersLandingFragment = fragment(() => {
 
     const onContentProcessDidTerminate = useCallback(() => {
         // In case of blank WebView without offline
-        if (!useOfflineApp) {
+        if (!useOfflineApp().stableOfflineV) {
             webRef.current?.reload();
             return;
         }
@@ -254,7 +254,7 @@ export const HoldersLandingFragment = fragment(() => {
         if (Platform.OS === 'ios') {
             setOfflineRender(offlineRender + 1);
         }
-    }, [useOfflineApp, offlineRender]);
+    }, [offlineRender]);
 
     return (
         <View style={{

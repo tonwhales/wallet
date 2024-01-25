@@ -244,17 +244,20 @@ export const HoldersLandingFragment = fragment(() => {
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
+        webRef.current?.reload();
+        // TODO: add offline support check when offline will be ready
         // In case of blank WebView without offline
-        if (!useOfflineApp().stableOfflineV) {
-            webRef.current?.reload();
-            return;
-        }
+        // if (!stableOfflineV || Platform.OS === 'android') {
+        //     webRef.current?.reload();
+        //     return;
+        // }
         // In case of iOS blank WebView with offline app
         // Re-render OfflineWebView to preserve folderPath navigation & inject last offlineRoute as initialRoute
-        if (Platform.OS === 'ios') {
-            setOfflineRender(offlineRender + 1);
-        }
-    }, [offlineRender]);
+        // if (Platform.OS === 'ios') {
+        //     setOfflineRender(offlineRender + 1);
+        // }
+        // }, [offlineRender, stableOfflineV]);
+    }, []);
 
     return (
         <View style={{

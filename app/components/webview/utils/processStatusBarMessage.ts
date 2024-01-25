@@ -6,7 +6,7 @@ export function processStatusBarMessage(
     setStatusBarStyle: (style: StatusBarStyle) => void,
     setStatusBarBackgroundColor: (backgroundColor: string, animated: boolean) => void
 ) {
-    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).indexOf('status-bar') !== -1) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('status-bar')) {
         const actionType = parsed.data.name.split('.')[1];
 
         switch (actionType) {

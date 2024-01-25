@@ -183,6 +183,7 @@ export const DevDAppWebViewFragment = fragment(() => {
                 source={{ uri: endpoint }}
                 {...webViewProps}
                 webviewDebuggingEnabled={isTestnet}
+                onContentProcessDidTerminate={webViewRef.current?.reload}
             />
             <Pressable
                 style={{ position: 'absolute', right: 16, bottom: safeArea.bottom + 16 }}

@@ -1,17 +1,17 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { View, Text, Platform, Image } from "react-native";
-import { t } from "../../../i18n/t";
-import { useTheme } from '../../../engine/hooks';
+import { t } from "../../i18n/t";
+import { useTheme } from '../../engine/hooks';
 import * as Network from 'expo-network';
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { LoadingIndicator } from "../../../components/LoadingIndicator";
-import { RoundButton } from "../../../components/RoundButton";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { LoadingIndicator } from "../LoadingIndicator";
+import { RoundButton } from "../RoundButton";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { openWithInApp } from "../../../utils/openWithInApp";
-import { ScreenHeader } from "../../../components/ScreenHeader";
-import { Typography } from "../../../components/styles";
+import { openWithInApp } from "../../utils/openWithInApp";
+import { ScreenHeader } from "../ScreenHeader";
+import { Typography } from "../styles";
 
 export const WebViewErrorComponent = memo(({
     errorDomain,
@@ -63,7 +63,7 @@ export const WebViewErrorComponent = memo(({
                     {networkState.isInternetReachable ? (
                         <LottieView
                             ref={animRef}
-                            source={require('../../../../assets/animations/melted.json')}
+                            source={require('@assets/animations/melted.json')}
                             style={{ width: 172, height: 172 }}
                             autoPlay={true}
                         />

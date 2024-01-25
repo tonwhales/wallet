@@ -4,6 +4,7 @@ import { View, Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTheme } from "../../engine/hooks";
+import { z } from "zod";
 
 import DoneIcon from '@assets/ic-done.svg';
 
@@ -22,6 +23,13 @@ export enum ToastDuration {
     LONG = 6000
 }
 
+const injectedToastPropsCodec = z.object({
+    message: z.string(),
+    type: z.union([z.literal('warning'), z.literal('default'), z.literal('error'), z.literal('success')]),
+    duration: z.union([z.literal(ToastDuration.SHORT), z.literal(ToastDuration.DEFAULT), z.literal(ToastDuration.LONG)]).optional(),
+    marginBottom: z.number().optional()
+});
+
 export type ToastProps = {
     message: string,
     type: 'warning' | 'default' | 'error' | 'success',
@@ -30,12 +38,14 @@ export type ToastProps = {
     marginBottom?: number
 }
 
-const ToastContext = createContext<{
-    show: (props: ToastProps) => void;
-    clear: () => void;
-    push: (props: ToastProps) => void;
-    pop: () => void;
-} | null>(null);
+type ToasterType = {
+    show: (props: ToastProps) => void,
+    clear: () => void,
+    push: (props: ToastProps) => void,
+    pop: () => void
+}
+
+const ToastContext = createContext<ToasterType | null>(null);
 
 export const Toast = memo(({
     message,
@@ -110,6 +120,42 @@ export const Toast = memo(({
         </View>
     );
 });
+
+
+export function processToasterMessage(parsed: any, toaster: ToasterType) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('toaster')) {
+        const actionType = parsed.data.name.split('.')[1];
+        const actionArgs = parsed.data.args;
+
+        if (actionType === 'clear') {
+            toaster.clear();
+            return true;
+        }
+
+        if (actionType === 'pop') {
+            toaster.pop();
+            return true;
+        }
+
+        const parsedArgs = injectedToastPropsCodec.safeParse(actionArgs);
+
+        if (!parsedArgs.success) {
+            return false;
+        }
+
+        if (actionType === 'show') {
+            toaster.show(parsedArgs.data);
+            return true;
+        }
+
+        if (actionType === 'push') {
+            toaster.push(parsedArgs.data);
+            return true;
+        }
+    }
+    
+    return false;
+}
 
 
 export const ToastProvider = memo((props: { children: React.ReactNode }) => {

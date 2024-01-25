@@ -85,6 +85,8 @@ import { AppStartAuthFragment } from './fragments/AppStartAuthFragment';
 import { BackupIntroFragment } from './fragments/onboarding/BackupIntroFragment';
 import { ProductsFragment } from './fragments/wallet/ProductsFragment';
 import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
+import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
+import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -195,6 +197,7 @@ const navigation = (safeArea: EdgeInsets) => [
     // Dev
     genericScreen('DeveloperTools', DeveloperToolsFragment, safeArea, true, 0),
     genericScreen('DeveloperToolsStorage', DevStorageFragment, safeArea),
+    genericScreen('DevDAppWebView', DevDAppWebViewFragment, safeArea, true, 0),
 
     modalScreen('PasscodeSetupInit', PasscodeSetupFragment, safeArea),
     modalScreen('KeyStoreMigration', KeyStoreMigrationFragment, safeArea),
@@ -278,6 +281,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('ScreenCapture', ScreenCaptureFragment, safeArea),
     transparentModalScreen('AccountSelector', AccountSelectorFragment, safeArea),
     fullScreen('AppStartAuth', AppStartAuthFragment),
+    genericScreen('DAppWebView', DAppWebViewFragment, safeArea, true, 0),
 ];
 
 export const navigationRef = createNavigationContainerRef<any>();

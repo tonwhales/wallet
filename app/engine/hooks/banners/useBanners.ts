@@ -8,18 +8,18 @@ import { useHiddenBanners } from "./useHiddenBanners";
 
 export function useBanners() {
     const hiddenBanners = useHiddenBanners();
-    
+
+    const language = i18n.language;
+    const version = Application.nativeApplicationVersion ?? '1.0.0';
+    const buildNumber = Application.nativeBuildVersion ?? '1';
+
     const query = useQuery({
-        queryKey: Queries.Banners(i18n.language),
+        queryKey: Queries.Banners(language, version, buildNumber),
         refetchOnWindowFocus: true,
         refetchOnMount: true,
         staleTime: 5 * 60 * 1000, // 5 minutes
         queryFn: async () => {
-            const language = i18n.language;
-            const version = Application.nativeApplicationVersion ?? '1.0.0';
-            const buildNumber = Application.nativeBuildVersion ?? '1';
             const platform = Platform.OS === 'ios' ? 'ios' : 'android';
-
             return await fetchBanners({ version, buildNumber, platform, language });
         },
     });

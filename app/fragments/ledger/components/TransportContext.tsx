@@ -7,7 +7,6 @@ import { t } from "../../../i18n/t";
 import { Observable, Subscription } from "rxjs";
 import { TonTransport } from '@ton-community/ton-ledger';
 import { checkMultiple, PERMISSIONS, requestMultiple } from 'react-native-permissions';
-import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { navigationRef } from '../../../Navigation';
 import { delay } from "teslabot";
 
@@ -74,7 +73,7 @@ export const TransportContext = createContext<
         addr: LedgerAddress | null,
         setAddr: (addr: LedgerAddress | null) => void,
         bleSearchState: BLESearchState,
-        startHIDSearch: (navigation: TypedNavigation) => Promise<void>,
+        startHIDSearch: () => Promise<void>,
         startBleSearch: () => void,
         reset: () => void,
     }
@@ -105,6 +104,13 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
         dispatchBleState({ type: 'reset' });
         reconnectAttempts.current = 0;
     }, []);
+
+    const onSetAddr = useCallback((addr: LedgerAddress | null) => {
+        setAddr(addr);
+        if (bleState?.type === 'ongoing') {
+            dispatchBleState({ type: 'complete' });
+        }
+    }, [bleState]);
 
     const startHIDSearch = useCallback(async () => {
         let hid: Transport | undefined;
@@ -287,7 +293,7 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                 ledgerConnection,
                 setLedgerConnection,
                 addr,
-                setAddr,
+                setAddr: onSetAddr,
                 startHIDSearch,
                 startBleSearch,
                 bleSearchState: bleState,

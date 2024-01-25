@@ -58,7 +58,9 @@ export const AccountSelectorFragment = fragment(() => {
     }, [addressesCount, isLedgerConnected]);
 
     const onAddNewAccount = useCallback(() => {
-        const options = [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
+        const options = isLedgerConnected
+            ? [t('common.cancel'), t('create.addNew'), t('welcome.importWallet')]
+            : [t('common.cancel'), t('create.addNew'), t('welcome.importWallet'), t('hardwareWallet.actions.connect')];
         const cancelButtonIndex = 0;
 
         showActionSheetWithOptions({
@@ -86,7 +88,7 @@ export const AccountSelectorFragment = fragment(() => {
                     break;
             }
         });
-    }, []);
+    }, [isLedgerConnected]);
 
     return (
         <View style={[

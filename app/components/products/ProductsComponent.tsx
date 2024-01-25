@@ -22,10 +22,8 @@ import { extractDomain } from "../../engine/utils/extractDomain"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
-import { openWithInApp } from "../../utils/openWithInApp"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
-import i18n from 'i18next';
 import { usePermissions } from "expo-notifications"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
@@ -41,7 +39,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const banners = useBanners().data;
+    const banners = useBanners();
     const [pushPemissions,] = usePermissions();
 
     const needsEnrolment = useMemo(() => {
@@ -171,19 +169,15 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             isTestnet
         );
 
-        const pushNotifications = pushPemissions?.granted && pushPemissions?.status === 'granted';
-
-        const query = new URLSearchParams({
-            address: encodeURIComponent(selected.addressString),
-            ref: 'tonhub',
-            refId: encodeURIComponent(product.id),
-            lang: i18n.language,
-            currency: currency,
-            themeStyle: theme.style === 'dark' ? 'dark' : 'light',
-            pushNotifications: pushNotifications ? 'true' : 'false',
+        navigation.navigateDAppWebView({
+            url: product.url,
+            refId: product.id,
+            useMainButton: true,
+            useStatusBar: false,
+            useQueryAPI: true,
+            useToaster: true
         });
 
-        openWithInApp(`${product.url}?${query.toString()}`);
     }, [selected, currency, theme, pushPemissions]);
 
     return (

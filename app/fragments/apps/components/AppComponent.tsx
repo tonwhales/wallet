@@ -24,6 +24,7 @@ import { memo, useCallback, useMemo, useRef, useState } from 'react';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { DomainSubkey, getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export const AppComponent = memo((props: {
     endpoint: string,
@@ -37,6 +38,7 @@ export const AppComponent = memo((props: {
     const { isTestnet } = useNetwork();
     const domain = useMemo(() => extractDomain(props.endpoint), []);
     const domainKey = getDomainKey(domain);
+    const safeArea = useSafeAreaInsets();
     //
     // Track events
     //
@@ -122,22 +124,25 @@ export const AppComponent = memo((props: {
         let domainSign = createDomainSignature(domain, domainKey);
 
         return createInjectSource({
-            version: 1,
-            platform: Platform.OS,
-            platformVersion: Platform.Version,
-            network: isTestnet ? 'testnet' : 'mainnet',
-            address: currentAccount.address.toString({ testOnly: isTestnet }),
-            publicKey: currentAccount.publicKey.toString('base64'),
-            walletConfig,
-            walletType,
-            signature: domainSign.signature,
-            time: domainSign.time,
-            subkey: {
-                domain: domainSign.subkey.domain,
-                publicKey: domainSign.subkey.publicKey,
-                time: domainSign.subkey.time,
-                signature: domainSign.subkey.signature
-            }
+            config: {
+                version: 1,
+                platform: Platform.OS,
+                platformVersion: Platform.Version,
+                network: isTestnet ? 'testnet' : 'mainnet',
+                address: currentAccount.address.toString({ testOnly: isTestnet }),
+                publicKey: currentAccount.publicKey.toString('base64'),
+                walletConfig,
+                walletType,
+                signature: domainSign.signature,
+                time: domainSign.time,
+                subkey: {
+                    domain: domainSign.subkey.domain,
+                    publicKey: domainSign.subkey.publicKey,
+                    time: domainSign.subkey.time,
+                    signature: domainSign.subkey.signature
+                }
+            },
+            safeArea: safeArea
         });
     }, [domainKey]);
     const injectionEngine = useInjectEngine(domain, props.title, isTestnet, props.endpoint);

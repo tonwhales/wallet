@@ -18,6 +18,7 @@ import { setStatusBarBackgroundColor, setStatusBarStyle } from "expo-status-bar"
 import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
+import { isSafeDomain } from "./utils/isSafeDomain";
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -87,13 +88,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const safelyOpenUrl = useCallback((url: string) => {
         try {
             let pageDomain = extractDomain(url);
-            if (
-                pageDomain.endsWith('tonsandbox.com')
-                || pageDomain.endsWith('tonwhales.com')
-                || pageDomain.endsWith('tontestnet.com')
-                || pageDomain.endsWith('tonhub.com')
-                || pageDomain.endsWith('t.me')
-            ) {
+            if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;
             }
@@ -187,12 +182,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         if (data.name === 'openUrl' && data.args.url) {
             try {
                 let pageDomain = extractDomain(data.args.url);
-                if (
-                    pageDomain.endsWith('tonsandbox.com')
-                    || pageDomain.endsWith('tonwhales.com')
-                    || pageDomain.endsWith('tontestnet.com')
-                    || pageDomain.endsWith('tonhub.com')
-                ) {
+                if (isSafeDomain(pageDomain)) {
                     openWithInApp(data.args.url);
                     return;
                 }

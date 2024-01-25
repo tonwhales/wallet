@@ -115,7 +115,12 @@ export const statusBarAPI = (safeArea: EdgeInsets) => {
             window.ReactNativeWebView.postMessage(JSON.stringify({ data: { name: 'status-bar.setStatusBarBackgroundColor', args: [backgroundColor] } }));
         };
 
-        const obj = { __STATUS_BAR_AVAILIBLE, statusBar: { setStatusBarStyle, setStatusBarBackgroundColor }, safeArea };
+        const statusBar = { setStatusBarStyle, setStatusBarBackgroundColor };
+
+        Object.freeze(statusBar);
+        Object.freeze(safeArea);
+
+        const obj = { __STATUS_BAR_AVAILIBLE, statusBar, safeArea };
 
         Object.freeze(obj);
         return obj;
@@ -175,6 +180,8 @@ export function createInjectSource(sourceProps: InjectSourceProps) {
                 c(ev.data);
             }
         }
+
+        Object.freeze(config);
         
         const obj = { call, config, __IS_TON_X, __response };
         Object.freeze(obj);

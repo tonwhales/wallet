@@ -45,6 +45,7 @@ export function normalizePath(path: string) {
 }
 
 import IcHolders from '../../../../assets/ic_holders.svg';
+import { isSafeDomain } from '../../../components/webview/utils/isSafeDomain';
 
 function PulsingCardPlaceholder() {
     const animation = useSharedValue(0);
@@ -421,12 +422,7 @@ export const HoldersAppComponent = memo((
         if (data.name === 'openUrl' && data.args.url) {
             try {
                 let pageDomain = extractDomain(data.args.url);
-                if (
-                    pageDomain.endsWith('tonsandbox.com')
-                    || pageDomain.endsWith('tonwhales.com')
-                    || pageDomain.endsWith('tontestnet.com')
-                    || pageDomain.endsWith('tonhub.com')
-                ) {
+                if (isSafeDomain(pageDomain)) {
                     openWithInApp(data.args.url);
                     return;
                 }
@@ -460,13 +456,7 @@ export const HoldersAppComponent = memo((
     const safelyOpenUrl = useCallback((url: string) => {
         try {
             let pageDomain = extractDomain(url);
-            if (
-                pageDomain.endsWith('tonsandbox.com')
-                || pageDomain.endsWith('tonwhales.com')
-                || pageDomain.endsWith('tontestnet.com')
-                || pageDomain.endsWith('tonhub.com')
-                || pageDomain.endsWith('t.me')
-            ) {
+            if (isSafeDomain(pageDomain)) {
                 openWithInApp(url);
                 return;
             }

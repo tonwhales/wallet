@@ -123,7 +123,7 @@ export const Toast = memo(({
 
 
 export function processToasterMessage(parsed: any, toaster: ToasterType) {
-    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('toaster')) {
+    if (typeof parsed.data.name === 'string' && (parsed.data.name as string).startsWith('toaster.')) {
         const actionType = parsed.data.name.split('.')[1];
         const actionArgs = parsed.data.args;
 

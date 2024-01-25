@@ -92,7 +92,8 @@ export function extractWebViewQueryAPIParams(url: string): QueryAPIParams {
             openEnrollment,
             showKeyboardAccessoryView,
             lockScroll,
-            markAsShown
+            markAsShown,
+            subscribed
         }
     } catch {
         warn('Failed to extract holders query params');

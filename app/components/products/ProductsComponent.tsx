@@ -39,7 +39,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const balance = useAccountLite(selected.address)?.balance ?? 0n;
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const banners = useBanners().data;
+    const banners = useBanners();
     const [pushPemissions,] = usePermissions();
 
     const needsEnrolment = useMemo(() => {

@@ -1,4 +1,4 @@
-import { Platform, Pressable, View, Text, ScrollView } from "react-native";
+import { Platform, Pressable, View, ScrollView, KeyboardAvoidingView } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { ScreenHeader } from "../../components/ScreenHeader";
@@ -9,6 +9,8 @@ import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { RoundButton } from "../../components/RoundButton";
+import { useDimensions } from "@react-native-community/hooks";
 
 export const AvatarPickerFragment = fragment(() => {
     const { callback, hash, initColor } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number }>();
@@ -18,6 +20,7 @@ export const AvatarPickerFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
     const address = selected!.address;
+    const dimentions = useDimensions();
 
     const [hashState, setHash] = useState(hash);
     const [selectedColor, setColor] = useState(initColor);
@@ -36,41 +39,14 @@ export const AvatarPickerFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                onBackPressed={() => navigation.goBack()}
+                onClosePressed={navigation.goBack}
                 title={t('wallets.settings.changeAvatar')}
-                style={[
-                    { paddingHorizontal: 16 },
-                    Platform.select({ android: { paddingTop: safeArea.top } }),
-                ]}
-                rightButton={
-                    <Pressable
-                        style={({ pressed }) => {
-                            return {
-                                opacity: pressed ? 0.5 : 1,
-                            }
-                        }}
-                        onPress={onSave}
-                        hitSlop={
-                            Platform.select({
-                                ios: undefined,
-                                default: { top: 16, right: 16, bottom: 16, left: 16 },
-                            })
-                        }
-                    >
-                        <Text style={{
-                            color: (hashState !== hash || selectedColor !== initColor) ? theme.accent : theme.textSecondary,
-                            fontSize: 17, lineHeight: 24,
-                            fontWeight: '500',
-                        }}>
-                            {t('common.select')}
-                        </Text>
-                    </Pressable>
-                }
+                style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
                 <Avatar
-                    size={300}
+                    size={dimentions.window.width - 32}
                     hash={hashState}
                     borderColor={theme.transparent}
                     theme={theme}
@@ -81,39 +57,14 @@ export const AvatarPickerFragment = fragment(() => {
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
-            <View style={{
-                borderTopLeftRadius: 20, borderTopRightRadius: 20,
-                paddingTop: 20, paddingBottom: 16
-            }}>
+            <View style={{ paddingVertical: 20 }}>
                 <ScrollView
-                    contentContainerStyle={{ marginHorizontal: 16, paddingRight: 16 }}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                >
-                    {avatarColors.map((color, index) => {
-                        return (
-                            <Pressable
-                                key={`color-${index}`}
-                                onPress={() => setColor(index)}
-                                style={{
-                                    justifyContent: 'center', alignItems: 'center',
-                                    width: 54, height: 54,
-                                    marginRight: 8,
-                                    borderWidth: index === selectedColor ? 2 : 0,
-                                    borderColor: theme.accent,
-                                    borderRadius: 27,
-                                    backgroundColor: color
-                                }}
-                            />
-                        )
-                    })}
-                </ScrollView>
-                <ScrollView
-                    contentContainerStyle={{ margin: 16, paddingVertical: 16, paddingRight: 16 }}
+                    contentContainerStyle={{ margin: 16, paddingRight: 16 }}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                 >
                     {avatarImages.map((avatar, index) => {
+                        const isSelected = index === hashState;
                         return (
                             <Pressable
                                 key={`avatar-${index}`}
@@ -121,10 +72,10 @@ export const AvatarPickerFragment = fragment(() => {
                                 style={{
                                     justifyContent: 'center', alignItems: 'center',
                                     width: 72, height: 72,
-                                    marginRight: 8,
-                                    borderWidth: index === hashState ? 2 : 0,
-                                    borderColor: theme.accent,
-                                    borderRadius: 36
+                                    marginRight: 12,
+                                    borderRadius: 36,
+                                    borderWidth: isSelected ? 2 : 0,
+                                    borderColor: theme.accent
                                 }}
                             >
                                 <Avatar
@@ -143,6 +94,17 @@ export const AvatarPickerFragment = fragment(() => {
                     })}
                 </ScrollView>
             </View>
+            <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'position' : undefined}
+                style={{ marginHorizontal: 16, marginTop: 16, marginBottom: safeArea.bottom + 16 }}
+                keyboardVerticalOffset={Platform.OS === 'ios' ? safeArea.top + 32 : 0}
+            >
+                <RoundButton
+                    title={t('contacts.save')}
+                    disabled={hashState === hash}
+                    onPress={onSave}
+                />
+            </KeyboardAvoidingView>
         </View>
     )
 });

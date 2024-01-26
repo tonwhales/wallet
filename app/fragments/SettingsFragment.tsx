@@ -5,7 +5,6 @@ import { ItemButton } from '../components/ItemButton';
 import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
-import { useTrackScreen } from '../analytics/mixpanel';
 import { openWithInApp } from '../utils/openWithInApp';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
@@ -53,14 +52,6 @@ export const SettingsFragment = fragment(() => {
     const route = useRoute();
     const isLedger = route.name === 'LedgerSettings';
     const ledgerContext = useLedgerTransport();
-    useEffect(() => {
-        if (!isLedger) return;
-
-        ledgerContext?.setFocused(true);
-        return () => {
-            ledgerContext?.setFocused(false);
-        }
-    }, [isLedger]);
 
     const onVersionTap = useMemo(() => {
         let count = 0;
@@ -114,15 +105,18 @@ export const SettingsFragment = fragment(() => {
         navigation.navigate('AccountSelector');
     }, []);
 
-    useTrackScreen('More', network.isTestnet);
-
     useFocusEffect(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     });
 
     return (
         <View style={{ flexGrow: 1 }}>
-            <View style={{ marginTop: safeArea.top + (Platform.OS === 'android' ? 16 : 0), alignItems: 'center', justifyContent: 'center', width: '100%', paddingVertical: 6 }}>
+            <View style={{
+                marginTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
+                alignItems: 'center', justifyContent: 'center',
+                width: '100%',
+                paddingVertical: 6
+            }}>
                 <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
                 <Pressable
                     style={({ pressed }) => ({
@@ -359,4 +353,4 @@ export const SettingsFragment = fragment(() => {
             </ScrollView>
         </View>
     );
-}, true);
+});

@@ -931,6 +931,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alreadyExistsAlertMessage: 'Wallet with this address already exists',
         settings: {
             changeAvatar: 'Change avatar',
+            selectAvatarTitle: 'Picture',
+            selectColorTitle: 'Background color',
         }
     },
     webView: {

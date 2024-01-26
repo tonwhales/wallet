@@ -930,7 +930,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "alreadyExistsAlertTitle": "Кошелек уже существует",
         "alreadyExistsAlertMessage": "Кошелек с таким адресом уже существует",
         "settings": {
-            "changeAvatar": "Изменить аватар"
+            "changeAvatar": "Изменить аватар",
+            "selectAvatarTitle": "Картинка",
+            "selectColorTitle": "Цвет фона",
         }
     },
     "webView": {

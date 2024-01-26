@@ -932,7 +932,9 @@ export type LocalizationSchema = {
         alreadyExistsAlertTitle: string,
         alreadyExistsAlertMessage: string,
         settings: {
-            changeAvatar: string
+            changeAvatar: string,
+            selectAvatarTitle: string,
+            selectColorTitle: string,
         }
     },
     webView: {

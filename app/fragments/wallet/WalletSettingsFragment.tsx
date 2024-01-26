@@ -34,21 +34,22 @@ export const WalletSettingsFragment = fragment(() => {
     const initHash = (walletSettings?.avatar !== null && walletSettings?.avatar !== undefined)
         ? walletSettings.avatar
         : avatarHash(address.toString({ testOnly: isTestnet }), avatarImages.length);
-    const initColor = avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
+    const initColorHash = walletSettings.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
 
     const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
     const [avatar, setAvatar] = useState(initHash);
-    const [selectedColor, setColor] = useState(initColor);
+    const [selectedColor, setColor] = useState(initColorHash);
 
     const hasChanges = useMemo(() => {
-        return name !== walletSettings?.name || avatar !== initHash;
-    }, [name, avatar, walletSettings]);
+        return name !== walletSettings?.name || avatar !== initHash || selectedColor !== initColorHash;
+    }, [name, avatar, walletSettings, selectedColor]);
 
     const onSave = useCallback(() => {
         if (name !== walletSettings?.name || avatar !== initHash) {
-            setSettings({
-                name: name.trim(),
-                avatar
+            setSettings({ 
+                name: name.trim(), 
+                avatar, 
+                color: selectedColor 
             });
         }
         navigation.goBack();
@@ -59,7 +60,7 @@ export const WalletSettingsFragment = fragment(() => {
             setAvatar(hash);
             setColor(color);
         };
-        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor });
+        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: initColorHash });
     }, []);
 
     return (

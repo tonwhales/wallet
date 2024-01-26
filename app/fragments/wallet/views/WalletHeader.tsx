@@ -2,7 +2,7 @@ import React from "react";
 import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";
@@ -11,6 +11,7 @@ import { useLinkNavigator } from "../../../useLinkNavigator";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../../engine/hooks";
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
+import { avatarHash } from "../../../utils/avatarHash";
 
 import NoConnection from '@assets/ic-no-connection.svg';
 
@@ -25,6 +26,9 @@ export const WalletHeader = memo(() => {
     const address = useSelectedAccount()!.address;
     const currentWalletIndex = getAppState().selected;
     const [walletSettings,] = useWalletSettings(address);
+
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const onQRCodeRead = (src: string) => {
         try {
@@ -77,10 +81,9 @@ export const WalletHeader = memo(() => {
                             size={32}
                             borderWith={0}
                             hash={walletSettings?.avatar}
-                            backgroundColor={theme.iconUnchangeable}
                             theme={theme}
                             isTestnet={network.isTestnet}
-                            hashColor
+                            backgroundColor={avatarColor}
                         />
                     </View>
                 </Pressable>

@@ -48,8 +48,7 @@ export const WalletSettingsFragment = fragment(() => {
         if (name !== walletSettings?.name || avatar !== initHash) {
             setSettings({
                 name: name.trim(),
-                avatar,
-                color: selectedColor
+                avatar
             });
         }
         navigation.goBack();

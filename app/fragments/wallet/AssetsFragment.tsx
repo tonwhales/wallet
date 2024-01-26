@@ -14,10 +14,10 @@ import { useJettons, useNetwork, useSelectedAccount, useTheme } from "../../engi
 import { Address } from "@ton/core";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { Jetton } from "../../engine/types";
-
-import TonIcon from '@assets/ic-ton-acc.svg';
 import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
+
+import TonIcon from '@assets/ic-ton-acc.svg';
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -156,7 +156,7 @@ export const AssetsFragment = fragment(() => {
                     />
                     {(isLedgerScreen ? ledgerJettons : visibleList).map((j) => {
                         const verified = KnownJettonMasters(network.isTestnet)[j.master.toString()];
-                        const selected = selectedJetton && j.master.equals(selectedJetton);
+                        const selected = !!selectedJetton && j.master.equals(selectedJetton);
                         return (
                             <SelectableButton
                                 key={'jt' + j.wallet.toString()}

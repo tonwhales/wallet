@@ -43,6 +43,7 @@ export const ItemSwitch = memo((props: {
     leftIcon?: ImageSourcePropType,
     leftIconComponent?: any,
     titleStyle?: StyleProp<TextStyle>
+    disabled?: boolean,
 }) => {
     const theme = useTheme();
     return (
@@ -56,6 +57,7 @@ export const ItemSwitch = memo((props: {
                 flexDirection: 'row',
                 padding: 20,
             }}
+            disabled={props.disabled}
         >
             <View style={{ flexDirection: 'row', flexShrink: 1, alignItems: 'center' }}>
                 {props.leftIcon && (<Image style={{ height: 24, width: 24, marginRight: 13 }} source={props.leftIcon} />)}
@@ -87,6 +89,7 @@ export const ItemSwitch = memo((props: {
                 pointerEvents={'none'}
                 value={props.value}
                 onValueChange={props.onChange}
+                disabled={props.disabled}
             />
         </Pressable>
     )

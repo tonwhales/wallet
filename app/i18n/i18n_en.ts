@@ -439,7 +439,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 cooldownInactive: 'Inactive',
                 cooldownDescription: 'All transactions take effect instantly during this period',
                 cooldownAlert: 'At the beginning of each staking cycle, the Simplified Period is active. During this period you don\'t have to wait for the cycle to end in order to withdraw or top up - it happens instantly, and you don\'t have to send a second transaction to withdraw, which halves the withdrawal fee. You can transfer funds from one pool to another without losing cycle profits if the Simplified Period is active in both pools',
-                lockedAlert: 'While the staking sycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends'
+                lockedAlert: 'While the staking cycle is in progress withdrawals and deposits are pending. All transactions take effect once the cycle ends'
             },
             minAmountWarning: 'Minimum amount is {{minAmount}} TON',
             tryAgainLater: 'Please, try again later',
@@ -795,7 +795,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         },
         confirm: {
             title: 'Are you sure you want to delete your account and all data from this application?',
-            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding.',
+            message: 'This action will delete your account and all data from this application and transfer all your TON coins to wallet address you specified.\nPlease, check the recipient address carefully before proceeding. Standard blockchain fee is charged for this transaction.',
         },
         checkRecipient: 'Check recipient',
         checkRecipientDescription: 'To make you account inactive you have to transfer all funds to another wallet (recipient address). Please, check the address carefully before proceeding',
@@ -858,7 +858,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         ledger: 'Ledger',
         title: 'Connect Ledger',
         description: 'Your hardware Ledger wallet',
-        installation: 'Make sure that Ledger is unlocked and Bluetooth enabled, learn more at',
+        installationIOS: 'Unlock Ledger, connect it to your smartphone via Bluetooth and allow Tonhub access.',
+        installationAndroid: 'Unlock Ledger, connect it to your smartphone via Bluetooth or USB cable and allow Tonhub access.',
         installationGuide: 'TON ledger connection guide',
         connectionDescriptionAndroid: 'Connect your Ledger via USB or Bluetooth',
         connectionDescriptionIOS: 'Connect your Ledger via Bluetooth',

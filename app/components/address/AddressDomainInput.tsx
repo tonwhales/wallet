@@ -214,7 +214,6 @@ export const AddressDomainInput = memo(forwardRef(({
                 value={textInput}
                 index={index}
                 ref={ref}
-                maxLength={48}
                 onFocus={(index) => {
                     setFocused(true);
                     if (onFocus) {
@@ -222,6 +221,8 @@ export const AddressDomainInput = memo(forwardRef(({
                     }
                 }}
                 onValueChange={(value) => {
+                    // Remove leading and trailing spaces
+                    value = value.trim();
                     if (value !== textInput) {
                         dispatch({
                             type: InputActionType.Input,

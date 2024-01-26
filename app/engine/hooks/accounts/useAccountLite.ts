@@ -16,7 +16,7 @@ export type AccountLite = {
     block: number;
 }
 
-export function useAccountLite(address?: Address | null): AccountLite | null {
+export function useAccountLite(address?: Address | null, refetchOnMount: boolean = false): AccountLite | null {
     let { isTestnet } = useNetwork();
     let client = useClient4(isTestnet);
 
@@ -34,6 +34,7 @@ export function useAccountLite(address?: Address | null): AccountLite | null {
 
     let query = useQuery({
         queryKey: Queries.Account(addressString).Lite(),
+        refetchOnMount: refetchOnMount,
         queryFn: async (key) => {
             let addr = key.queryKey[1];
             let last = await getLastBlock();

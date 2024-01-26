@@ -42,6 +42,10 @@ export const HoldersAccountItem = memo((props: {
         return false;
     }, [holdersAccStatus]);
 
+    const isPro = useMemo(() => {
+        return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
+    }, [props.account.cards]);
+
     const onPress = useCallback(() => {
         const domain = extractDomain(holdersUrl);
         const domainKey = getDomainKey(domain);
@@ -63,7 +67,7 @@ export const HoldersAccountItem = memo((props: {
     const title = props.account?.name
         ? props.account.name
         : t('products.holders.accounts.account');
-    const subtitle = t('products.holders.accounts.basicAccount');
+    const subtitle = isPro ? t('products.holders.accounts.proAccount') : t('products.holders.accounts.basicAccount');
 
     return (
         <Swipeable

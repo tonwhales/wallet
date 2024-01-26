@@ -2,7 +2,7 @@ import React from "react";
 import { Pressable } from "react-native";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
 import { memo } from "react";
-import { formatDate, formatTime } from "../../../utils/dates";
+import { formatTime } from "../../../utils/dates";
 import { notificationCategoryFormatter, notificationTypeFormatter } from "../../../utils/holders/notifications";
 import { HoldersNotificationIcon } from "./HoldersNotificationIcon";
 import { ValueComponent } from "../../../components/ValueComponent";
@@ -48,7 +48,7 @@ export const HoldersCardNotification = memo(({
                             marginRight: 8, marginTop: 2
                         }}
                     >
-                        {notificationCategoryFormatter(notification) + ' • ' + formatDate(notification.time / 1000) + ' • ' + formatTime(notification.time / 1000)}
+                        {notificationCategoryFormatter(notification) + ' • ' + formatTime(notification.time / 1000)}
                     </PerfText>
                 </PerfView>
                 <PerfView>

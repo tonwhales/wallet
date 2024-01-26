@@ -9,6 +9,8 @@ export function usePrice(): [PriceState, string] {
         queryFn: fetchPrice,
         refetchInterval: 1000 * 60,
         refetchOnWindowFocus: true,
+        refetchOnMount: true,
+        staleTime: 1000 * 60
     });
 
     let [currency,] = usePrimaryCurrency();

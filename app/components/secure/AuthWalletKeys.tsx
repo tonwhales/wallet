@@ -136,7 +136,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
 
         const passcodeState = getPasscodeState();
         const biometricsState = getBiometricsState();
-        const useBiometrics = (biometricsState === BiometricsState.InUse);
+        const useBiometrics = (biometricsState === BiometricsState.InUse || biometricsState === null);
         const passcodeLength = storage.getNumber(passcodeLengthKey) ?? 6;
 
         // Try to authenticate with biometrics
@@ -145,6 +145,9 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
             try {
                 const acc = getCurrentAddress();
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
+                if (biometricsState === null) {
+                    setBiometricsState(BiometricsState.InUse);
+                }
                 return keys;
             } catch (e) {
                 if (e instanceof SecureAuthenticationCancelledError) {

@@ -3,10 +3,11 @@ import { SectionList, View, Text } from "react-native"
 import { HoldersCardNotification } from "./HoldersCardNotification";
 import { formatDate } from "../../../utils/dates";
 import { CardNotification } from "../../../engine/api/holders/fetchCardsTransactions";
-import { useCardTransactions, useNetwork, useTheme } from "../../../engine/hooks";
+import { useCardTransactions } from "../../../engine/hooks";
 import { Address } from "@ton/core";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { ThemeType } from "../../../engine/state/theme";
+import { Typography } from "../../../components/styles";
 
 export const HoldersCardTransactions = memo(({
     id,
@@ -63,17 +64,8 @@ export const HoldersCardTransactions = memo(({
                 onEndReachedThreshold={0.5}
                 refreshing={notificationsState.isLoading}
                 renderSectionHeader={({ section: { title } }) => (
-                    <View style={{ width: '100%', paddingHorizontal: 16, paddingVertical: 8 }}>
-                        <View style={{
-                            position: 'absolute', top: 0, bottom: 0, left: 0, right: 0,
-                            backgroundColor: theme.backgroundPrimary,
-                            opacity: 0.91,
-                        }} />
-                        <Text style={{
-                            fontSize: 17,
-                            fontWeight: '600',
-                            lineHeight: 24, color: theme.textPrimary
-                        }}>
+                    <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
+                        <Text style={[{color: theme.textPrimary}, Typography.semiBold20_28]}>
                             {title}
                         </Text>
                     </View>

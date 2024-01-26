@@ -21,6 +21,8 @@ import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
 import { Avatar } from "../../../components/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
+import { valueText } from "../../../components/ValueComponent";
+import { toBnWithDecimals } from "../../../utils/withDecimals";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
@@ -122,6 +124,15 @@ export const TransferSingleView = memo(({
         });
     }, [amount, jettonAmountString]);
 
+    const amountText = useMemo(() => {
+        const decimals = jettonMaster?.decimals ?? 9;
+        const textArr = valueText(
+            jettonAmountString
+                ? { value: toBnWithDecimals(jettonAmountString, decimals), decimals }
+                : { value: amount, decimals: 9 }
+        );
+        return `-${textArr.join('')} ${!jettonAmountString ? 'TON' : jettonMaster?.symbol ?? ''}`
+    }, [amount, jettonAmountString, jettonMaster]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -222,11 +233,7 @@ export const TransferSingleView = memo(({
                                     lineHeight: 32
                                 }}
                             >
-                                {'-' +
-                                    (!jettonAmountString
-                                        ? (fromNano(amount) + ' TON')
-                                        : (`${jettonAmountString} ${jettonMaster?.symbol ?? ''}`))
-                                }
+                                {amountText}
                             </Text>
                         </View>
                         {!jettonAmountString && (
@@ -466,11 +473,14 @@ export const TransferSingleView = memo(({
                                                     paddingLeft: 16, paddingRight: 14, paddingVertical: 12,
                                                     justifyContent: 'space-between', alignItems: 'center',
                                                     backgroundColor: 'white',
-                                                    opacity: pressed ? 0.5 : 1
+                                                    opacity: pressed ? 0.5 : 1,
+                                                    overflow: 'hidden'
                                                 };
                                             }}
                                         >
                                             <Text style={{
+                                                flexShrink: 1,
+                                                flexGrow: 1,
                                                 fontSize: 15, lineHeight: 20,
                                                 fontWeight: '400',
                                                 color: theme.accentRed

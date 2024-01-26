@@ -1,9 +1,9 @@
 import React, { memo, useCallback, useEffect, useState } from "react";
-import { View, Image } from "react-native";
+import { View, Image, Platform } from "react-native";
 import * as SplashScreen from 'expo-splash-screen';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming, runOnJS } from "react-native-reanimated";
-import { StatusBar } from "expo-status-bar";
 import { useTheme } from "../engine/hooks";
+import { changeNavBarColor } from "../modules/NavBar";
 
 export const Splash = memo(({ hide }: { hide: boolean }) => {
     const theme = useTheme();
@@ -13,10 +13,16 @@ export const Splash = memo(({ hide }: { hide: boolean }) => {
     const onStarted = useCallback(() => {
         setTimeout(() => {
             SplashScreen.hideAsync();
+            // apply themed nav bar color after splash screen is hidden
+            changeNavBarColor(theme.style === 'dark' ? '#1C1C1E' : 'white');
         }, 100)
     }, []);
 
     useEffect(() => {
+        if (Platform.OS === 'android' && hide) {
+            onStarted();
+            return;
+        }
         if (hide && visible) {
             sharedOpacity.value = withTiming(
                 0.99,
@@ -39,6 +45,12 @@ export const Splash = memo(({ hide }: { hide: boolean }) => {
     const animatedStyle = useAnimatedStyle(() => {
         return { opacity: sharedOpacity.value };
     });
+
+    // TODO: remove this Splash component completely
+    // in the meantime, hide splash screen on android
+    if (Platform.OS === 'android') {
+        return null;
+    }
 
     if (!visible) {
         return null;

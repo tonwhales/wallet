@@ -244,7 +244,7 @@ export const SimpleTransferFragment = fragment(() => {
             // Resolve jetton order
             if (jettonState) {
                 return createLedgerJettonOrder({
-                    wallet: params!.jetton!,
+                    wallet: jettonState.walletAddress,
                     target: target,
                     domain: domain,
                     responseTarget: ledgerAddress,
@@ -295,7 +295,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
 
     // Estimate fee
     const config = useConfig();
@@ -832,8 +832,11 @@ export const SimpleTransferFragment = fragment(() => {
                             <Pressable
                                 style={({ pressed }) => ({ opacity: pressed ? 0.5 : 1 })}
                                 onPress={() => navigation.navigate(
-                                    'Assets',
-                                    { callback: onAssetSelected, selectedJetton: jettonState?.master }
+                                    isLedger ? 'LedgerAssets' : 'Assets',
+                                    {
+                                        callback: onAssetSelected,
+                                        selectedJetton: jettonState ? Address.parse(jettonState.master.address) : undefined
+                                    }
                                 )}
                             >
                                 <View style={{
@@ -981,7 +984,7 @@ export const SimpleTransferFragment = fragment(() => {
                         layout={LinearTransition.duration(300).easing(Easing.bezierFn(0.25, 0.1, 0.25, 1))}
                         style={[
                             seletectInputStyles.comment,
-                            { backgroundColor: theme.elevation, flex: 1 }
+                            { flex: 1 }
                         ]}
                     >
                         <View style={{

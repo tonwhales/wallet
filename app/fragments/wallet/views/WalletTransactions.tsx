@@ -2,8 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
-import { useTheme } from "../../../engine/hooks/theme/useTheme";
-import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp } from "react-native";
+import { SectionList, SectionListData, SectionListRenderItemInfo, View, Text, StyleProp, ViewStyle, Insets, PointProp, Platform, Share } from "react-native";
 import { formatDate, getDateKey } from "../../../utils/dates";
 import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
@@ -15,15 +14,16 @@ import { TransactionsSkeleton } from "../../../components/skeletons/Transactions
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
 import { AppState } from "../../../storage/appState";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
+import { ActionSheetOptions, useActionSheet } from "@expo/react-native-action-sheet";
+import { t } from "../../../i18n/t";
+import { confirmAlert } from "../../../utils/confirmAlert";
+import { KnownWallets } from "../../../secure/KnownWallets";
+import { Typography } from "../../../components/styles";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
         <View style={{ width: '100%', paddingVertical: 8, paddingHorizontal: 16, marginTop: 24 }}>
-            <Text style={{
-                fontSize: 20,
-                fontWeight: '600',
-                lineHeight: 28, color: theme.textPrimary
-            }}>
+            <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                 {title}
             </Text>
         </View>
@@ -35,6 +35,7 @@ type TransactionListItemProps = {
     address: Address,
     theme: ThemeType,
     onPress: (tx: TransactionDescription) => void,
+    onLongPress?: (tx: TransactionDescription) => void,
     ledger?: boolean,
     navigation: TypedNavigation,
     addToDenyList: (address: string | Address, reason: string) => void,
@@ -44,7 +45,7 @@ type TransactionListItemProps = {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
-    appState: AppState
+    appState: AppState,
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -71,7 +72,8 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.denyList === next.denyList
         && prev.contacts === next.contacts
         && prev.spamWallets === next.spamWallets
-        && prev.appState === next.appState;
+        && prev.appState === next.appState
+        && prev.onLongPress === next.onLongPress
 });
 TransactionListItem.displayName = 'TransactionListItem';
 
@@ -101,6 +103,7 @@ export const WalletTransactions = memo((props: {
     const [addressBook, updateAddressBook] = useAddressBook();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
+    const { showActionSheetWithOptions } = useActionSheet();
 
     const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
         let addr = '';
@@ -143,6 +146,123 @@ export const WalletTransactions = memo((props: {
         <SectionHeader theme={theme} title={section.section.title} />
     ), [theme]);
 
+    const onShare = useCallback((link: string, title: string) => {
+        if (Platform.OS === 'ios') {
+            Share.share({ title: title, url: link });
+        } else {
+            Share.share({ title: title, message: link });
+        }
+    }, []);
+
+    const onMarkAddressSpam = useCallback(async (address: string) => {
+        const confirmed = await confirmAlert('spamFilter.blockConfirm');
+        if (confirmed) {
+            addToDenyList(address, 'spam');
+        }
+    }, [addToDenyList]);
+
+    const onAddressContact = useCallback((addr: Address) => {
+        navigation.navigate('Contact', { address: addr.toString({ testOnly: isTestnet }) });
+    }, []);
+
+    const onRepeatTx = useCallback((tx: TransactionDescription) => {
+        const amount = BigInt(tx.base.parsed.amount);
+        const operation = tx.base.operation;
+        const item = operation.items[0];
+        const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        const jetton = item.kind === 'token' ? tx.metadata?.jettonWallet?.master : null;
+        navigation.navigateSimpleTransfer({
+            target: opAddress,
+            comment: tx.base.parsed.body && tx.base.parsed.body.type === 'comment' ? tx.base.parsed.body.comment : null,
+            amount: amount < 0n ? -amount : amount,
+            job: null,
+            stateInit: null,
+            jetton: jetton,
+            callback: null
+        })
+    }, [navigation]);
+
+    const onLongPress = (tx: TransactionDescription) => {
+        const operation = tx.base.operation;
+        const item = operation.items[0];
+        const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+        const kind = tx.base.parsed.kind;
+        const addressLink = `${(isTestnet ? 'https://test.tonhub.com/transfer/' : 'https://tonhub.com/transfer/')}${opAddress}`;
+        const txId = `${tx.base.lt}_${tx.base.hash}`;
+        const explorerTxLink = `${isTestnet ? 'https://test.tonhub.com' : 'https://tonhub.com'}/share/tx/`
+            + `${props.address.toString({ testOnly: isTestnet })}/`
+            + `${txId}`;
+        const itemAmount = BigInt(item.amount);
+        const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
+        const contact = addressBook.contacts[opAddress];
+        const isSpam = !!addressBook.denyList[opAddress]?.reason;
+
+        const spam =
+            !!spamWallets.find((i) => opAddress === i)
+            || isSpam
+            || (
+                absAmount < spamMinAmount
+                && !!tx.base.operation.comment
+                && !KnownWallets(isTestnet)[opAddress]
+                && !isTestnet
+            ) && kind !== 'out';
+
+        const canRepeat = kind === 'out'
+            && !props.ledger
+            && tx.base.parsed.body?.type !== 'payload';
+
+        const handleAction = (eN?: number) => {
+            switch (eN) {
+                case 1: {
+                    onShare(addressLink, t('txActions.share.address'));
+                    break;
+                }
+                case 2: {
+                    onAddressContact(Address.parse(opAddress));
+                    break;
+                }
+                case 3: {
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink, t('txActions.share.transaction'));
+                    }
+                    break;
+                }
+                case 4: {
+                    if (!spam) {
+                        onMarkAddressSpam(opAddress);
+                    } else if (canRepeat) {
+                        onRepeatTx(tx);
+                    }
+                    break;
+                }
+                case 5: {
+                    if (canRepeat) {
+                        onRepeatTx(tx);
+                    }
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+
+        const actionSheetOptions: ActionSheetOptions = {
+            options: [
+                t('common.cancel'),
+                t('txActions.addressShare'),
+                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
+                t('txActions.txShare'),
+                ...(!spam ? [t('txActions.addressMarkSpam')] : []),
+                ...(canRepeat ? [t('txActions.txRepeat')] : []),
+            ],
+            userInterfaceStyle: theme.style,
+            cancelButtonIndex: 0,
+            destructiveButtonIndex: !spam ? 4 : undefined,
+        }
+
+        return showActionSheetWithOptions(actionSheetOptions, handleAction);
+    }
+
     return (
         <SectionList
             style={{ flexGrow: 1 }}
@@ -176,6 +296,7 @@ export const WalletTransactions = memo((props: {
                     address={props.address}
                     theme={theme}
                     onPress={navigateToPreview}
+                    onLongPress={onLongPress}
                     ledger={props.ledger}
                     navigation={navigation}
                     addToDenyList={addToDenyList}

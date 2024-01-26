@@ -47,6 +47,7 @@ export const ItemButton = memo((props: {
                         )}
                         <Text
                             style={{
+                                flexGrow: 1, flexShrink: 1,
                                 fontSize: 17, lineHeight: 24,
                                 fontWeight: props.dangerZone ? '500' : '600',
                                 textAlignVertical: 'center',

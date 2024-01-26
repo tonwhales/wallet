@@ -6,7 +6,7 @@ import { Avatar } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
-import { useContact, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch } from "./AddressSearch";
 import { t } from "../../i18n/t";
@@ -72,12 +72,15 @@ export function addressInputReducer() {
                 if (action.input === state.input) {
                     return state;
                 }
-                if (action.input.length === 48) {
+                try {
+                    Address.parse(action.input);
                     return {
                         input: action.input,
                         domain: undefined,
                         target: action.input
                     };
+                } catch {
+                    // ignore
                 }
                 return {
                     input: action.input,
@@ -121,9 +124,20 @@ export function addressInputReducer() {
 export const TransferAddressInput = memo(forwardRef((props: TransferAddressInputProps, ref: ForwardedRef<ATextInputRef>) => {
     const isKnown: boolean = !!KnownWallets(props.isTestnet)[props.target];
     const contact = useContact(props.target);
+    const appState = useAppState();
+    const theme = useTheme();
     const [walletSettings,] = useWalletSettings(props?.validAddress ?? '');
 
-    const theme = useTheme();
+    const myWallets = appState.addresses.map((acc, index) => ({
+        address: acc.address,
+        addressString: acc.address.toString({ testOnly: props.isTestnet }),
+        index: index
+    })).filter((acc) => !acc.address.equals(props.acc));
+    const own = !!myWallets.find((acc) => {
+        if (props.validAddress) {
+            return acc.address.equals(props.validAddress);
+        }
+    });
 
     const select = useCallback(() => {
         (ref as RefObject<ATextInputRef>)?.current?.focus();
@@ -163,6 +177,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                             hash={walletSettings?.avatar}
                             isTestnet={props.isTestnet}
                             hashColor
+                            markContact={!!contact}
+                            icProps={{ isOwn: own }}
                         />
                         : <Image
                             source={require('@assets/ic-contact.png')}
@@ -213,6 +229,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                                 isTestnet={props.isTestnet}
                                 hash={walletSettings?.avatar}
                                 hashColor
+                                markContact={!!contact}
+                                icProps={{ isOwn: own }}
                             />
                             : <Image
                                 source={require('@assets/ic-contact.png')}
@@ -237,7 +255,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                         />
                     </View>
                 </View>
-                {!props.validAddress && (props.target.length === 48) && (
+                {!props.validAddress && (props.target.length >= 48) && (
                     <Animated.View entering={FadeIn} exiting={FadeOut}>
                         <PerfText style={{
                             color: theme.accentRed,
@@ -262,6 +280,7 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     }}
                     query={props.input.toLowerCase()}
                     transfer
+                    myWallets={myWallets}
                 />
             </View>
         </View>

@@ -1,20 +1,26 @@
 import * as React from 'react';
-import { useRoute } from "@react-navigation/native";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { getCurrentAddress } from '../../../storage/appState';
 import { fragment } from '../../../fragment';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { MixpanelEvent, trackEvent } from '../../../analytics/mixpanel';
 import { useKeysAuth } from '../../../components/secure/AuthWalletKeys';
 import { useAppData, useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { useAddExtension } from '../../../engine/hooks';
 import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useParams } from '../../../utils/useParams';
 
-const SignStateLoader = memo((props: { url: string, title: string | null, image: { url: string, blurhash: string } | null }) => {
+type SignStateLoaderParams = {
+    url: string,
+    title: string | null,
+    image: { url: string, blurhash: string } | null,
+    callback?: (result: boolean) => void,
+}
+
+const SignStateLoader = memo((props: SignStateLoaderParams) => {
     const authContext = useKeysAuth();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
@@ -27,12 +33,7 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
     let appData = useAppData(props.url);
 
     // Approve
-    const acc = useMemo(() => getCurrentAddress(), []);
-    let active = useRef(true);
     let success = useRef(false);
-    useEffect(() => {
-        return () => { active.current = false; };
-    }, []);
     const approve = useCallback(async () => {
 
         // Create Domain Key if Needed
@@ -46,6 +47,13 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
                 containerStyle: { paddingBottom: safeArea.bottom + 56 },
             },
         );
+
+        if (!!props.callback) {
+            navigation.goBack();
+            props.callback(!!created);
+            return;
+        }
+
         if (!created) {
             return;
         }
@@ -59,7 +67,8 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
 
         // Navigate
         navigation.replace('App', { url: props.url });
-    }, []);
+    }, [useCreateDomainKeyIfNeeded]);
+
     useEffect(() => {
         if (!success.current) {
             let domain = extractDomain(props.url);
@@ -83,12 +92,6 @@ const SignStateLoader = memo((props: { url: string, title: string | null, image:
 });
 
 export const InstallFragment = fragment(() => {
-    const params: { url: string, title: string | null, image: { url: string, blurhash: string } | null } = useRoute().params as any;
-    return (
-        <SignStateLoader
-            url={params.url}
-            image={params.image}
-            title={params.title}
-        />
-    );
+    const params = useParams<SignStateLoaderParams>();
+    return (<SignStateLoader {...params} />);
 });

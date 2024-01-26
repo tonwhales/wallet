@@ -19,7 +19,7 @@ const PrefetchTransactions = ({ address }: { address: string }) => {
     let isTestnet = useNetwork().isTestnet;
     let client = useClient4(isTestnet);
 
-    useAccountTransactions(client, address);
+    useAccountTransactions(client, address, true);
 
     return null;
 }
@@ -28,13 +28,6 @@ export const LedgerAppFragment = fragment(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const ledgerContext = useLedgerTransport();
-
-    useEffect(() => {
-        ledgerContext?.setFocused(true);
-        return () => {
-            ledgerContext?.setFocused(false);
-        }
-    }, []);
 
     if (
         !ledgerContext?.tonTransport

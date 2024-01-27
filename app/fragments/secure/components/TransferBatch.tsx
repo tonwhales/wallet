@@ -283,17 +283,13 @@ export const TransferBatch = memo((props: Props) => {
                 ? loadStateInit(i.message.stateInit.asSlice())
                 : null;
 
-            const body = !!order.messages[0].payload
-                ? order.messages[0].payload
-                : text ? comment(text) : null;
-
             // Create message
             const msg = internal({
-                to: i.message.addr.address,
+                to: target,
                 value: i.message.amount,
                 init: internalStateInit,
-                bounce,
-                body,
+                body: i.message.payload,
+                bounce
             });
 
             if (msg) {
@@ -345,9 +341,7 @@ export const TransferBatch = memo((props: Props) => {
             transfer = contract.createTransfer({
                 seqno: seqno,
                 secretKey: walletKeys.keyPair.secretKey,
-                sendMode: order.messages[0].amountAll
-                    ? SendMode.CARRY_ALL_REMAINING_BALANCE
-                    : SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
+                sendMode: SendMode.IGNORE_ERRORS | SendMode.PAY_GAS_SEPARATELY,
                 messages,
             });
         } catch (e) {

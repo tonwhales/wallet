@@ -332,13 +332,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 pointerEvents={mainButton.isVisible ? undefined : 'none'}
                 contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
-                keyboardVerticalOffset={keyboardVerticalOffset}
+                keyboardVerticalOffset={keyboard.keyboardShown ? 0 : -40}
             >
                 {mainButton && mainButton.isVisible && (
                     <Animated.View
                         style={Platform.OS === 'android'
                             ? { marginHorizontal: 16, marginBottom: 16 }
-                            : { marginBottom: 32 }
+                            : { marginBottom: 56 }
                         }
                         entering={FadeInDown}
                         exiting={FadeOutDown}

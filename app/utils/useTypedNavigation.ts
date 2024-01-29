@@ -104,7 +104,7 @@ export class TypedNavigation {
     }
 
     navigateLedgerTransfer(tx: SimpleTransferParams) {
-        this.navigate('LedgerTransfer', tx);
+        this.navigate('LedgerSimpleTransfer', tx);
     }
 
     navigateLedgerSignTransfer(params: LedgerSignTransferParams) {

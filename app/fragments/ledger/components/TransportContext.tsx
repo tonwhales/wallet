@@ -187,6 +187,25 @@ export const LedgerTransportProvider = ({ children }: { children: ReactNode }) =
                     // NB there is no "remove" case in BLE.
                 },
                 error: error => {
+                    if (error.name === 'HwTransportError') {
+                        switch (error.type) {
+                            case 'Unknown':
+                                Alert.alert(t('hardwareWallet.errors.bleTitle'), t('hardwareWallet.errors.unknown'));
+                                break;
+                            case 'LocationServicesDisabled':
+                                Alert.alert(t('hardwareWallet.errors.bleTitle'), t('hardwareWallet.errors.turnOnLocation'));
+                                break;
+                            case 'LocationServicesUnauthorized':
+                                Alert.alert(t('hardwareWallet.errors.bleTitle'), t('hardwareWallet.errors.locationServicesUnauthorized'));
+                                break;
+                            case 'BluetoothScanStartFailed':
+                                Alert.alert(t('hardwareWallet.errors.bleTitle'), t('hardwareWallet.errors.bluetoothScanFailed'));
+                                break;
+                            default:
+                                Alert.alert(t('hardwareWallet.errors.bleTitle'), t('hardwareWallet.errors.unknown'));
+                                break;
+                        }
+                    }
                     dispatchBleState({ type: 'error' });
                 }
             });

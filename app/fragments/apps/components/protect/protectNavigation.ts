@@ -18,9 +18,9 @@ export function protectNavigation(url: string, app: string) {
     }
     // To account for walletconnect redirects
     if (
-        pageDomain === '.verify.walletconnect.com'
-        || pageDomain.endsWith('.verify.walletconnect.com')
+        pageDomain === 'verify.walletconnect.com'
         || pageDomain === 'verify.walletconnect.org'
+        || pageDomain.endsWith('.verify.walletconnect.com')
         || pageDomain.endsWith('.verify.walletconnect.org')
     ) {
         return true;

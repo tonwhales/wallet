@@ -166,7 +166,13 @@ export const DappAuthComponent = memo(({
     }, [state, domain, addressString]);
 
     return (
-        <View style={{ flexGrow: 1, paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom }}>
+        <View style={[
+            { flexGrow: 1 },
+            Platform.select({
+                android: { backgroundColor: theme.backgroundPrimary },
+                ios: { paddingBottom: safeArea.bottom === 0 ? 32 : safeArea.bottom }
+            })
+        ]}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
             {Platform.OS === 'android' && (
                 <ScreenHeader
@@ -176,16 +182,26 @@ export const DappAuthComponent = memo(({
                 />
             )}
             <View style={{ flexGrow: 1 }} />
-            <View style={{
-                flexShrink: Platform.OS === 'ios' ? 1 : undefined,
-                flexGrow: Platform.OS === 'ios' ? 0 : 1,
-                backgroundColor: theme.elevation,
-                borderTopEndRadius: Platform.OS === 'android' ? 0 : 20,
-                borderTopStartRadius: Platform.OS === 'android' ? 0 : 20,
-                paddingHorizontal: 16,
-                paddingTop: Platform.OS === 'android' ? 0 : 40,
-                paddingBottom: safeArea.bottom + 16
-            }}>
+            <View style={[
+                {
+                    paddingHorizontal: 16,
+                    paddingBottom: safeArea.bottom + 16
+                },
+                Platform.select({
+                    ios: {
+                        flexGrow: 0, flexShrink: 1,
+                        backgroundColor: theme.elevation,
+                        paddingTop: 40,
+                        borderTopEndRadius: 20, borderTopStartRadius: 20
+                    },
+                    android: {
+                        flexGrow: 1, flexShrink: undefined,
+                        backgroundColor: theme.backgroundPrimary,
+                        paddingTop: 0,
+                        borderTopEndRadius: 0, borderTopStartRadius: 0
+                    }
+                })
+            ]}>
                 <View style={Platform.select({ android: { flexGrow: 1 } })}>
                     <View style={{
                         borderRadius: 20,

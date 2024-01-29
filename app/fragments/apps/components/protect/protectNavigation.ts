@@ -18,10 +18,10 @@ export function protectNavigation(url: string, app: string) {
     }
     // To account for walletconnect redirects
     if (
-        pageDomain === '.verify.walletconnect.com'
-        || pageDomain.endsWith('.verify.walletconnect.com')
-        || pageDomain === 'verify.walletconnect.org'
-        || pageDomain.endsWith('.verify.walletconnect.org')
+        pageDomain === '.walletconnect.com'
+        || pageDomain.endsWith('.walletconnect.com')
+        || pageDomain === 'walletconnect.org'
+        || pageDomain.endsWith('.walletconnect.org')
     ) {
         return true;
     }

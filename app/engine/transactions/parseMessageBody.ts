@@ -63,6 +63,9 @@ export enum OperationType {
 }
 
 export function parseMessageBody(payload: Cell): SupportedMessage | null {
+    if (payload.isExotic) {
+        return null;
+    }
     // Load OP
     let sc = payload.beginParse();
     if (sc.remainingBits < 32) {

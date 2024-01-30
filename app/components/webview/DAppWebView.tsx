@@ -265,6 +265,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
     const Loader = props.loader ?? WebViewLoader;
 
+    const onContentProcessDidTerminate = useCallback(() => {
+        dispatchMainButton({ type: 'hide'});
+        props.onContentProcessDidTerminate?.();
+    }, [props.onContentProcessDidTerminate]);
+
     return (
         <View style={{
             flex: 1,
@@ -312,9 +317,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView
-                onContentProcessDidTerminate={props.onContentProcessDidTerminate}
+                onContentProcessDidTerminate={onContentProcessDidTerminate}
                 // In case of Android blank WebView
-                onRenderProcessGone={props.onContentProcessDidTerminate}
+                onRenderProcessGone={onContentProcessDidTerminate}
                 onMessage={handleWebViewMessage}
                 renderError={(errorDomain, errorCode, errorDesc) => {
                     return (
@@ -332,16 +337,16 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 pointerEvents={mainButton.isVisible ? undefined : 'none'}
                 contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
-                keyboardVerticalOffset={keyboardVerticalOffset}
+                keyboardVerticalOffset={keyboard.keyboardShown ? 0 : -40}
             >
                 {mainButton && mainButton.isVisible && (
                     <Animated.View
                         style={Platform.OS === 'android'
                             ? { marginHorizontal: 16, marginBottom: 16 }
-                            : { marginBottom: 32 }
+                            : { marginBottom: 56 }
                         }
                         entering={FadeInDown}
-                        exiting={FadeOutDown}
+                        exiting={FadeOutDown.duration(100)}
                     >
                         <DappMainButton {...mainButton} />
                     </Animated.View>

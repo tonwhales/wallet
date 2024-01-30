@@ -270,7 +270,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "qr": {
         "title": "Наведите камеру на QR-код",
         "requestingPermission": "Получаем доступ к камере...",
-        "noPermission": "Разрешите приложению доступ к камере для сканирования QR-кодыов",
+        "noPermission": "Разрешите приложению доступ к камере для сканирования QR-кодов",
         "requestPermission": "Открыть настройки",
         "failedToReadFromImage": "Не удалось прочитать QR-код"
     },
@@ -895,6 +895,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "remove": "Вы уверены, что хотите удалить это приложение?"
         },
         "errors": {
+            "bleTitle": 'Ошибка Bluetooth',
             "noDevice": "Устройство не найдено",
             "appNotOpen": "Приложение Ton App не открыто на вашем Ledger",
             "turnOnBluetooth": "Пожалуйста, включите Bluetooth и попробуйте снова",
@@ -904,7 +905,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "transferFailed": "Ошибка отправки транзакции",
             "permissions": "Пожалуйста, предоставьте разрешение на доступ к данным о местоположении устройства и разрешение на поиск устройств рядом",
             "unknown": "Неизвестная ошибка",
-            "reboot": "Пожалуйста, перезагрузите ваше устройство и попробуйте снова"
+            "reboot": "Пожалуйста, перезагрузите ваше устройство и попробуйте снова",
+            "turnOnLocation": "Пожалуйста, включите службы геолокации и попробуйте снова, это необходимо для поиска устройств рядом",
+            "locationServicesUnauthorized": "Службы геолокации не доступны",
+            "bluetoothScanFailed": "Поиск Bluetooth не удался"
         },
         "moreAbout": "Подробнее о Ledger"
     },

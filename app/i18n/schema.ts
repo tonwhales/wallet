@@ -897,6 +897,7 @@ export type LocalizationSchema = {
             remove: string
         },
         errors: {
+            bleTitle: string,
             noDevice: string,
             appNotOpen: string,
             turnOnBluetooth: string,
@@ -907,6 +908,9 @@ export type LocalizationSchema = {
             permissions: string,
             unknown: string,
             reboot: string,
+            turnOnLocation: string,
+            locationServicesUnauthorized: string,
+            bluetoothScanFailed: string
         },
         moreAbout: string
     },

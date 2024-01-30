@@ -270,7 +270,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
     "qr": {
         "title": "Наведите камеру на QR-код",
         "requestingPermission": "Получаем доступ к камере...",
-        "noPermission": "Разрешите приложению доступ к камере для сканирования QR-кодыов",
+        "noPermission": "Разрешите приложению доступ к камере для сканирования QR-кодов",
         "requestPermission": "Открыть настройки",
         "failedToReadFromImage": "Не удалось прочитать QR-код"
     },

@@ -2,7 +2,7 @@ import React, { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, Linking, View } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
-import { StatusBar } from "expo-status-bar";
+import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
@@ -19,6 +19,7 @@ import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { getDomainKey } from "../../engine/state/domainKeys";
+import { useFocusEffect } from "@react-navigation/native";
 
 type DAppEngine = 'ton-x' | 'ton-connect';
 
@@ -168,6 +169,9 @@ export const DAppWebViewFragment = fragment(() => {
         loadWithRequest,
         hasDomainKey
     ]);
+
+    // to account for wierd statusbar bug with navigating withing the bottom bar stack
+    useFocusEffect(() => setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark'));
 
     if (engine === 'ton-x' && !hasDomainKey) {
         navigation.navigate('Install', { url: endpoint, title: title ?? '', image: null, callback: setHasDomainKey });

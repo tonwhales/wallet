@@ -1,7 +1,9 @@
 #!/bin/sh
 
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
-brew install cocoapods
+# brew install cocoapods
+# CocoaPods 1.15.0 is unstable, so we have to use 1.14.3 as prev stable
+gem install cocoapods -v 1.14.3
 # have to add node yourself
 brew install node@18
 # link it to the path

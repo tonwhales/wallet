@@ -30,6 +30,12 @@
         android:name="android.permission.ACCESS_FINE_LOCATION"
         android:maxSdkVersion="30"
         tools:node="merge" />
+    <uses-permission-sdk-23
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        tools:node="merge" />
+    <uses-permission-sdk-23
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        tools:node="merge" />
 
     <uses-feature android:name="android.hardware.bluetooth" android:required="false" />
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false" />

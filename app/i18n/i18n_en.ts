@@ -895,6 +895,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             remove: 'Are you sure want to remove this app?'
         },
         errors: {
+            bleTitle: 'Bluetooth error',
             noDevice: 'No device found',
             appNotOpen: 'Ton app is not open on Ledger',
             turnOnBluetooth: 'Please, turn Bluetooth on and try again',
@@ -905,6 +906,9 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             permissions: 'Please, allow access to bluetooth and location',
             unknown: 'Unknown error',
             reboot: 'Please, reboot your device and try again',
+            turnOnLocation: 'Please, turn on location services and try again, this is required to scan for nearby devices',
+            locationServicesUnauthorized: 'Location services are unauthorized',
+            bluetoothScanFailed: 'Bluetooth scan failed'
         },
         moreAbout: 'More about Ledger'
     },

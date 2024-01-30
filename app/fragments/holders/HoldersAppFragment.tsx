@@ -11,8 +11,9 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { getDomainKey } from '../../engine/state/domainKeys';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
+import { useFocusEffect } from '@react-navigation/native';
 
 export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
 
@@ -60,10 +61,12 @@ export const HoldersAppFragment = fragment(() => {
         }
     }, [selected, isTestnet]);
 
+    // to account for wierd statusbar bug with navigating withing the bottom bar stack
+    useFocusEffect(() => setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark'));
+
     return (
         <View style={{
-            flex: 1,
-            paddingTop: safeArea.top,
+            flexGrow: 1,
             backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />

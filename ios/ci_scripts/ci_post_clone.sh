@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 export HOMEBREW_NO_INSTALL_CLEANUP=TRUE
 # brew install cocoapods
 # CocoaPods 1.15.0 is unstable, so we have to use 1.14.3 as prev stable

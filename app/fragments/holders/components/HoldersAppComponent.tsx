@@ -521,6 +521,7 @@ export const HoldersAppComponent = memo((
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
+        dispatchMainButton({ type: 'hide' });
         webRef.current?.reload();
         // TODO: add offline support check when offline will be ready
         // In case of blank WebView without offline
@@ -661,7 +662,7 @@ export const HoldersAppComponent = memo((
                             : { marginBottom: 56 }
                         }
                         entering={FadeInDown}
-                        exiting={FadeOutDown}
+                        exiting={FadeOutDown.duration(100)}
                     >
                         <DappMainButton {...mainButton} />
                     </Animated.View>

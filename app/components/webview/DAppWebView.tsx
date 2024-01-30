@@ -265,6 +265,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
     const Loader = props.loader ?? WebViewLoader;
 
+    const onContentProcessDidTerminate = useCallback(() => {
+        dispatchMainButton({ type: 'hide'});
+        props.onContentProcessDidTerminate?.();
+    }, [props.onContentProcessDidTerminate]);
+
     return (
         <View style={{
             flex: 1,
@@ -312,9 +317,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView
-                onContentProcessDidTerminate={props.onContentProcessDidTerminate}
+                onContentProcessDidTerminate={onContentProcessDidTerminate}
                 // In case of Android blank WebView
-                onRenderProcessGone={props.onContentProcessDidTerminate}
+                onRenderProcessGone={onContentProcessDidTerminate}
                 onMessage={handleWebViewMessage}
                 renderError={(errorDomain, errorCode, errorDesc) => {
                     return (
@@ -341,7 +346,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                             : { marginBottom: 56 }
                         }
                         entering={FadeInDown}
-                        exiting={FadeOutDown}
+                        exiting={FadeOutDown.duration(100)}
                     >
                         <DappMainButton {...mainButton} />
                     </Animated.View>

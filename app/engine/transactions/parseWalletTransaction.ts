@@ -2,15 +2,14 @@ import { Cell } from "@ton/core";
 import { TxBody } from '../types';
 
 export function parseBody(cell: Cell): TxBody | null {
-    if (cell.bits.length < 32) {
-        return null;
-    }
-
     if (cell.isExotic) {
         return { type: 'payload', cell };
     }
-    
+
     let slice = cell.beginParse();
+    if (slice.remainingBits < 32) {
+        return null;
+    }
 
     // Comment
     if (slice.loadUint(32) === 0) {

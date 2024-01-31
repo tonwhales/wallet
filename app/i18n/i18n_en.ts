@@ -954,6 +954,15 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         avatar: 'This is where you can change your wallets avatar and name',
         wallet: 'This is where you can add new or switch between your wallets',
         price: 'This is where you can change your primary currency',
+    },
+    newAddressFormat: {
+        title: 'Address update',
+        fragmentTitle: 'New wallet address display format',
+        description_0: 'The new format avoids problems with sending funds to unpublished addresses.',
+        description_1: 'The old address will continue working and lead to the same wallet, and your funds will remain safe. You can switch the address to the old format or back in the app settings anytime.',
+        action: 'Use {{format}}',
+        oldAddress: 'Old address',
+        newAddress: 'New address',
     }
 };
 

@@ -6,7 +6,7 @@ import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
 import { fragment } from '../../fragment';
 import { Suspense, memo, useCallback, useMemo } from 'react';
-import { WalletAddress } from '../../components/WalletAddress';
+import { WalletAddress } from '../../components/address/WalletAddress';
 import { WalletHeader } from './views/WalletHeader';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { fullScreen } from '../../Navigation';

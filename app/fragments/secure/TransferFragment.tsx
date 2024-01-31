@@ -59,7 +59,8 @@ export type ConfirmLoadedPropsSingle = {
         address: Address;
         balance: bigint,
         active: boolean,
-        domain?: string
+        domain?: string,
+        bounceable?: boolean
     },
     jettonTarget?: {
         isTestOnly: boolean;
@@ -325,9 +326,10 @@ export const TransferFragment = fragment(() => {
                     target: {
                         isTestOnly: target.isTestOnly,
                         address: target.address,
+                        bounceable: target.isBounceable,
                         balance: BigInt(state.account.balance.coins),
                         active: state.account.state.type === 'active',
-                        domain: order.domain
+                        domain: order.domain,
                     },
                     jettonTarget: !!jettonTarget ? {
                         isTestOnly: jettonTarget.isTestOnly,

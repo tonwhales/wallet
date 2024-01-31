@@ -231,30 +231,32 @@ export const PendingTransactions = memo(() => {
         });
     }, [setPending]);
 
+    if (pending.length <= 0) {
+        return null;
+    }
+
     return (
-        <View style={{ paddingHorizontal: 16 }}>
-            {pending.length > 0 && (
-                <Animated.View
-                    entering={FadeInDown}
-                    exiting={FadeOutUp}
-                    style={{
-                        backgroundColor: theme.backgroundPrimary,
-                        justifyContent: 'flex-end',
-                        paddingBottom: 2,
-                        marginVertical: 8,
-                        marginTop: 16,
-                    }}
-                >
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        lineHeight: 28,
-                    }}>
-                        {t('wallet.pendingTransactions')}
-                    </Text>
-                </Animated.View>
-            )}
+        <View style={{ paddingHorizontal: 16, marginBottom: 10 }}>
+            <Animated.View
+                entering={FadeInDown}
+                exiting={FadeOutUp}
+                style={{
+                    backgroundColor: theme.backgroundPrimary,
+                    justifyContent: 'flex-end',
+                    paddingBottom: 2,
+                    marginVertical: 8,
+                    marginTop: 16,
+                }}
+            >
+                <Text style={{
+                    fontSize: 20,
+                    fontWeight: '600',
+                    color: theme.textPrimary,
+                    lineHeight: 28,
+                }}>
+                    {t('wallet.pendingTransactions')}
+                </Text>
+            </Animated.View>
             <PendingTransactionsView
                 theme={theme}
                 pending={pending}

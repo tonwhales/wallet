@@ -7,7 +7,7 @@ import Animated, { SensorType, useAnimatedScrollHandler, useAnimatedSensor, useA
 import { Pressable, View, Image, Text, Platform, ScrollView } from "react-native";
 import { ValueComponent } from "../../components/ValueComponent";
 import { PriceComponent } from "../../components/PriceComponent";
-import { WalletAddress } from "../../components/WalletAddress";
+import { WalletAddress } from "../../components/address/WalletAddress";
 import { LedgerWalletHeader } from "./components/LedgerWalletHeader";
 import { useAccountLite, useAccountsLite, useNetwork, useStaking, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";

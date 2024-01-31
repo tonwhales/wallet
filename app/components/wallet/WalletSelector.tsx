@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { View, Text, Pressable, Image, Alert } from "react-native";
-import { ellipsiseAddress } from "../WalletAddress";
+import { ellipsiseAddress } from "../address/WalletAddress";
 import { WalletItem } from "./WalletItem";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { useAppState, useTheme } from "../../engine/hooks";

@@ -4,13 +4,14 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
+import { useContact, useDenyAddress, useNetwork, useNewAddressFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
 
 export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
+    const [newFormat,] = useNewAddressFormat();
     const address = useMemo(() => Address.parse(addr), [addr])
     const contact = useContact(addr);
     const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
@@ -86,7 +87,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 ellipsizeMode={'middle'}
                                 numberOfLines={1}
                             >
-                                <AddressComponent address={address} />
+                                <AddressComponent address={address} bounceable={!newFormat} />
                             </Text>
                         </>
                     )
@@ -97,7 +98,7 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                     ellipsizeMode={'middle'}
                                     numberOfLines={1}
                                 >
-                                    <AddressComponent address={address} />
+                                    <AddressComponent address={address} bounceable={!newFormat} />
                                 </Text>
                                 {isSpam && (
                                     <View style={{

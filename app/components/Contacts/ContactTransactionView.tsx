@@ -6,13 +6,14 @@ import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useNetwork, useNewAddressFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export const ContactTransactionView = memo(({ address }: { address: Address }) => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
+    const [newFormat,] = useNewAddressFormat();
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
@@ -64,7 +65,7 @@ export const ContactTransactionView = memo(({ address }: { address: Address }) =
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent address={address} />
+                        <AddressComponent address={address} bounceable={!newFormat} />
                     </Text>
                 </View>
                 <View style={{

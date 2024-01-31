@@ -1,12 +1,12 @@
 import React, { memo, useCallback, useMemo } from "react";
 import { NativeSyntheticEvent, Platform, Pressable, Share, StyleProp, Text, TextProps, TextStyle, View, ViewStyle } from "react-native";
 import ContextMenu, { ContextMenuAction, ContextMenuOnPressNativeEvent } from "react-native-context-menu-view";
-import { t } from "../i18n/t";
-import { confirmAlert } from "../utils/confirmAlert";
-import { useTypedNavigation } from "../utils/useTypedNavigation";
-import { copyText } from "../utils/copyText";
-import { ToastDuration, ToastProps, useToaster } from "./toast/ToastProvider";
-import { useAddToDenyList, useNetwork, useTheme } from "../engine/hooks";
+import { t } from "../../i18n/t";
+import { confirmAlert } from "../../utils/confirmAlert";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { copyText } from "../../utils/copyText";
+import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
+import { useAddToDenyList, useNetwork, useNewAddressFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
@@ -28,14 +28,22 @@ export const WalletAddress = memo((props: {
     disableContextMenu?: boolean,
     previewBackgroundColor?: string,
     copyOnPress?: boolean,
-    copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>
+    copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>,
+    bounceable?: boolean,
 }) => {
     const toaster = useToaster();
     const network = useNetwork();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const addToDenyList = useAddToDenyList();
-    const friendlyAddress = props.address.toString({ testOnly: network.isTestnet });
+    const [newFormat,] = useNewAddressFormat();
+    const bounceable = useMemo(() => {
+        if (props.bounceable === undefined) {
+            return !newFormat;
+        }
+        return props.bounceable;
+    }, [newFormat, props.bounceable]);
+    const friendlyAddress = props.address.toString({ testOnly: network.isTestnet, bounceable });
 
     const onMarkAddressSpam = useCallback(async (addr: Address) => {
         const confirmed = await confirmAlert('spamFilter.blockConfirm');

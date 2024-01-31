@@ -12,7 +12,7 @@ import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
+import { useNetwork, useNewAddressFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
@@ -32,6 +32,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
+import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -47,6 +48,7 @@ export const SettingsFragment = fragment(() => {
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
+    const [newAddressFormat,] = useNewAddressFormat();
 
     // Ledger
     const route = useRoute();
@@ -209,6 +211,12 @@ export const SettingsFragment = fragment(() => {
                         title={t('settings.primaryCurrency')}
                         onPress={() => navigation.navigate('Currency')}
                         hint={currency}
+                    />
+                    <ItemButton
+                        leftIconComponent={<IcNewAddressFormat width={24} height={24} />}
+                        title={t('newAddressFormat.title')}
+                        onPress={() => navigation.navigate('NewAddressFormat')}
+                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: newAddressFormat ? false : true }).slice(0, 2)}
                     />
                 </View>
                 <View style={{

@@ -53,6 +53,7 @@ type ConfirmLoadedProps = {
         balance: bigint,
         active: boolean,
         domain?: string
+        bounceable?: boolean
     },
     text: string | null,
     order: LedgerOrder,
@@ -462,7 +463,8 @@ export const LedgerSignTransferFragment = fragment(() => {
                     address: target.address,
                     balance: BigInt(state.account.balance.coins),
                     active: state.account.state.type === 'active',
-                    domain: order.domain
+                    domain: order.domain,
+                    bounceable: target.isBounceable
                 },
                 order,
                 jettonMaster,

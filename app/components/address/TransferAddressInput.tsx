@@ -274,8 +274,8 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     onSelect={(item) => {
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),
-                            target: item.address.toString({ testOnly: props.isTestnet })
+                            input: item.type !== 'unknown' ? item.title : item.addr.toString({ testOnly: props.isTestnet }),
+                            target: item.addr.toString({ testOnly: props.isTestnet })
                         })
                     }}
                     query={props.input.toLowerCase()}

@@ -6,6 +6,7 @@ import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { t } from "../../i18n/t";
 
 const bannerId = 'bounceable-format-update';
 
@@ -59,10 +60,10 @@ export const AddressFormatUpdate = memo(() => {
                 }}>
                     <View>
                         <Text style={[{ color: theme.textUnchangeable }, Typography.semiBold15_20]}>
-                            {'Update your address'}
+                            {t('newAddressFormat.bannerTitle')}
                         </Text>
                         <Text style={[{ color: theme.textUnchangeable, opacity: 0.8 }, Typography.regular15_20]}>
-                            {'From EQ to UQ'}
+                            {t('newAddressFormat.bannerDescription')}
                         </Text>
                     </View>
                     <Image

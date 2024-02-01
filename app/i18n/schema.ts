@@ -964,7 +964,9 @@ export type LocalizationSchema = {
         description_1: string,
         action: string,
         oldAddress: string,
-        newAddress: string
+        newAddress: string,
+        bannerTitle: string,
+        bannerDescription: string,
     }
 };
 

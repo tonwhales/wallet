@@ -963,6 +963,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         action: 'Use {{format}}',
         oldAddress: 'Old address',
         newAddress: 'New address',
+        bannerTitle: 'Update your address',
+        bannerDescription: 'From EQ to UQ',
     }
 };
 

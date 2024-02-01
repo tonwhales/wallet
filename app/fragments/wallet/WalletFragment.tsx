@@ -150,7 +150,6 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
-                            value={address.toString({ testOnly: network.isTestnet })}
                             address={address}
                             elipsise={{ start: 4, end: 4 }}
                             style={{

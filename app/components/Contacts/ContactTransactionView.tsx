@@ -6,7 +6,7 @@ import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";
-import { useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export const ContactTransactionView = memo(({ addr }: {
@@ -19,8 +19,6 @@ export const ContactTransactionView = memo(({ addr }: {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
-    const [notBounceable,] = useNotBounceableWalletFormat();
-
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     const addressFriendly = useMemo(() => {
@@ -36,7 +34,6 @@ export const ContactTransactionView = memo(({ addr }: {
             onPress={onPress}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-
         >
             <Animated.View style={[
                 {

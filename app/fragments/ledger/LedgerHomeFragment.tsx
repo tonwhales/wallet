@@ -185,7 +185,6 @@ export const LedgerHomeFragment = fragment(() => {
                         </Pressable>
                         <View style={{ flexGrow: 1 }} />
                         <WalletAddress
-                            value={address!.toString({ testOnly: network.isTestnet })}
                             address={address!}
                             elipsise={{ start: 4, end: 4 }}
                             style={{

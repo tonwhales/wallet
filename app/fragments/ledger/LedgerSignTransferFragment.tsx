@@ -127,7 +127,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
         }
     }, []);
 
-    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: network.isTestnet, bounceable: target.bounceable });
     // Contact wallets
     const contact = useContact(friendlyTarget);
 

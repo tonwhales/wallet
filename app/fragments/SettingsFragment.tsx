@@ -48,7 +48,7 @@ export const SettingsFragment = fragment(() => {
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
-    const [newAddressFormat,] = useNotBounceableWalletFormat();
+    const [notBounceableWalletFormat,] = useNotBounceableWalletFormat();
 
     // Ledger
     const route = useRoute();
@@ -216,7 +216,7 @@ export const SettingsFragment = fragment(() => {
                         leftIconComponent={<IcNewAddressFormat width={24} height={24} />}
                         title={t('newAddressFormat.title')}
                         onPress={() => navigation.navigate('NewAddressFormat')}
-                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: newAddressFormat ? false : true }).slice(0, 2)}
+                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: notBounceableWalletFormat ? false : true }).slice(0, 2)}
                     />
                 </View>
                 <View style={{

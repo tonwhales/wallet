@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AccountButton } from "./components/AccountButton";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useAccountsLite, useNetwork, useTheme } from "../../engine/hooks";
+import { useAccountsLite, useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -20,7 +20,7 @@ import { useFocusEffect } from "@react-navigation/native";
 export type LedgerAccount = { i: number, addr: { address: string, publicKey: Buffer }, balance: bigint };
 type AccountsLite = ReturnType<typeof useAccountsLite>;
 
-const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isTestnet, onLoadAccount, loading }: {
+const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isTestnet, onLoadAccount, loading, bounceable }: {
     safeArea: EdgeInsets,
     theme: ThemeType,
     accountsLite: AccountsLite,
@@ -31,7 +31,8 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
     selected?: number,
     isTestnet: boolean,
     loading: boolean,
-    onLoadAccount: (acc: LedgerAccount) => Promise<void>
+    onLoadAccount: (acc: LedgerAccount) => Promise<void>,
+    bounceable?: boolean
 }) => {
     return (
         <ScrollView
@@ -104,7 +105,7 @@ const LedgerAccountsList = ({ safeArea, theme, accountsLite, accs, selected, isT
                             acc={{
                                 i: accs.findIndex((a) => a.address.equals(acc.address)),
                                 addr: {
-                                    address: acc.address.toString({ testOnly: isTestnet }),
+                                    address: acc.address.toString({ testOnly: isTestnet, bounceable: bounceable }),
                                     publicKey: item!.publicKey || Buffer.from([]),
                                 },
                                 balance: BigInt(acc.data?.balance.coins || 0),
@@ -165,6 +166,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
+    const [notBounceable,] = useNotBounceableWalletFormat();
 
     const [selected, setSelected] = useState<number>();
     const [accs, setAccounts] = useState<{
@@ -315,6 +317,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                     selected={selected}
                     theme={theme}
                     loading={(!accountsLite || accountsLite.length === 0) || connectionState === 'loading'}
+                    bounceable={!notBounceable}
                 />
             )}
         </View>

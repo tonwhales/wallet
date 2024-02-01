@@ -12,7 +12,7 @@ import { storage } from "../../storage/storage";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { useParams } from "../../utils/useParams";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useTheme } from '../../engine/hooks';
+import { useNotBounceableWalletFormat, useTheme } from '../../engine/hooks';
 import { useNetwork } from "../../engine/hooks/network/useNetwork";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { StatusBar } from "expo-status-bar";
@@ -148,16 +148,17 @@ export const NeocryptoFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const [accepted, setAccepted] = useState(storage.getBoolean(skipLegalNeocrypto));
     const [loading, setloading] = useState(false);
+    const [notBounceableWalletFormat,] = useNotBounceableWalletFormat();
 
     const queryParams = useMemo(() => new URLSearchParams({
         partner: 'tonhub',
-        address: address.address.toString({ testOnly: isTestnet }),
+        address: address.address.toString({ testOnly: isTestnet, bounceable: notBounceableWalletFormat }),
         cur_from: 'USD',
         cur_to: 'TON',
         fix_cur_to: 'true',
         fix_address: 'true',
         ...params
-    }), [params]);
+    }), [params, notBounceableWalletFormat]);
 
     const main = `https://buy.neocrypto.net?${queryParams.toString()}`;
 

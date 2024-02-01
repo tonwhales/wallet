@@ -92,7 +92,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         target = jettonTarget;
     }
 
-    const friendlyTarget = target.address.toString({ testOnly: isTestnet });
+    const friendlyTarget = target.address.toString({ testOnly: isTestnet, bounceable: target.bounceable });
     // Contact wallets
     const contact = useContact(friendlyTarget);
 

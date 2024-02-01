@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useNetwork, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
@@ -10,7 +10,6 @@ import { AddressComponent } from "./AddressComponent";
 export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSearchItem, onPress?: (item: AddressSearchItem) => void }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const [notBounceable,] = useNotBounceableWalletFormat();
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     return (

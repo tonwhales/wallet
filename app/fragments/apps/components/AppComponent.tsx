@@ -17,7 +17,7 @@ import { generateAppLink } from '../../../utils/generateAppLink';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import ContextMenu, { ContextMenuOnPressNativeEvent } from 'react-native-context-menu-view';
-import { useNotBounceableWalletFormat, useTheme } from '../../../engine/hooks';
+import { useBounceableWalletFormat, useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
@@ -39,7 +39,7 @@ export const AppComponent = memo((props: {
     const domain = useMemo(() => extractDomain(props.endpoint), []);
     const domainKey = getDomainKey(domain);
     const safeArea = useSafeAreaInsets();
-    const [notBounceable,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     //
     // Track events
     //
@@ -130,7 +130,7 @@ export const AppComponent = memo((props: {
                 platform: Platform.OS,
                 platformVersion: Platform.Version,
                 network: isTestnet ? 'testnet' : 'mainnet',
-                address: currentAccount.address.toString({ testOnly: isTestnet, bounceable: !notBounceable }),
+                address: currentAccount.address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
                 publicKey: currentAccount.publicKey.toString('base64'),
                 walletConfig,
                 walletType,
@@ -145,7 +145,7 @@ export const AppComponent = memo((props: {
             },
             safeArea: safeArea
         });
-    }, [domainKey, notBounceable]);
+    }, [domainKey, bounceableFormat]);
     const injectionEngine = useInjectEngine(domain, props.title, isTestnet, props.endpoint);
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         const nativeEvent = event.nativeEvent;

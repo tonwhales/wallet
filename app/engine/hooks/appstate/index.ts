@@ -9,4 +9,4 @@ export { useSetNetwork } from './useSetNetwork';
 export { useAppState } from './useAppState';
 export { useWalletsSettings } from './useWalletsSettings';
 export { useWalletSettings } from './useWalletSettings';
-export { useNotBounceableWalletFormat } from './useNotBounceableWalletFormat';
+export { useBounceableWalletFormat } from './useBounceableWalletFormat';

@@ -8,7 +8,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AccountButton } from "./components/AccountButton";
 import { fragment } from "../../fragment";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { useAccountsLite, useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useAccountsLite, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "./components/TransportContext";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
@@ -166,7 +166,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const ledgerContext = useLedgerTransport();
-    const [notBounceable,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const [selected, setSelected] = useState<number>();
     const [accs, setAccounts] = useState<{
@@ -317,7 +317,7 @@ export const LedgerSelectAccountFragment = fragment(() => {
                     selected={selected}
                     theme={theme}
                     loading={(!accountsLite || accountsLite.length === 0) || connectionState === 'loading'}
-                    bounceable={!notBounceable}
+                    bounceable={bounceableFormat}
                 />
             )}
         </View>

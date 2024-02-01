@@ -1,7 +1,7 @@
 import { Platform, View, Text } from "react-native";
 import { fragment } from "../fragment";
 import { useNetwork, useTheme } from "../engine/hooks";
-import { useNotBounceableWalletFormat, useSelectedAccount } from "../engine/hooks/appstate";
+import { useBounceableWalletFormat, useSelectedAccount } from "../engine/hooks/appstate";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../components/ScreenHeader";
@@ -15,7 +15,7 @@ export const NewAddressFormatFragment = fragment(() => {
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [newAddressFormat, setUseNewAddressFormat] = useNotBounceableWalletFormat();
+    const [bounceableFormat, setBounceableFormat] = useBounceableWalletFormat();
     const selectedAccount = useSelectedAccount();
 
     const oldAddressString = selectedAccount?.address.toString({ testOnly: network.isTestnet });
@@ -92,10 +92,10 @@ export const NewAddressFormatFragment = fragment(() => {
                     style={{ marginBottom: 8 }}
                     title={t(
                         'newAddressFormat.action',
-                        { format: (newAddressFormat ? t('newAddressFormat.oldAddress') : t('newAddressFormat.newAddress')).toLowerCase() }
+                        { format: (!bounceableFormat ? t('newAddressFormat.oldAddress') : t('newAddressFormat.newAddress')).toLowerCase() }
                     )}
                     onPress={() => {
-                        setUseNewAddressFormat(!newAddressFormat);
+                        setBounceableFormat(!bounceableFormat);
                         navigation.goBack();
                     }}
                 />

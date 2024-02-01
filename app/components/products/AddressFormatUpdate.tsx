@@ -1,23 +1,23 @@
 import { memo } from "react";
 import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
-import { useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
-const bannerId = 'address-update';
+const bannerId = 'bounceable-format-update';
 
-export const AddressUpdate = memo(() => {
+export const AddressFormatUpdate = memo(() => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();
-    const [notBounceable,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const markBannerHidden = useMarkBannerHidden();
 
-    if (hiddenBanners.includes(bannerId) || notBounceable) {
+    if (hiddenBanners.includes(bannerId) || !bounceableFormat) {
         return null;
     }
 

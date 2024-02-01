@@ -12,7 +12,7 @@ import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useNotBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
@@ -48,7 +48,7 @@ export const SettingsFragment = fragment(() => {
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
-    const [notBounceableWalletFormat,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     // Ledger
     const route = useRoute();
@@ -216,7 +216,7 @@ export const SettingsFragment = fragment(() => {
                         leftIconComponent={<IcNewAddressFormat width={24} height={24} />}
                         title={t('newAddressFormat.title')}
                         onPress={() => navigation.navigate('NewAddressFormat')}
-                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: notBounceableWalletFormat ? false : true }).slice(0, 2)}
+                        hint={seleted?.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat }).slice(0, 2)}
                     />
                 </View>
                 <View style={{

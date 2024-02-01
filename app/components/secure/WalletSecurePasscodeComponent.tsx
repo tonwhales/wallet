@@ -17,7 +17,7 @@ import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWi
 import { useCallback, useEffect, useState } from 'react';
 import { checkBiometricsPermissions, useKeysAuth } from './AuthWalletKeys';
 import { mnemonicToWalletKey } from '@ton/crypto';
-import { useNetwork, useNotBounceableWalletFormat, useSetAppState, useSetPasscodeState, useTheme } from '../../engine/hooks';
+import { useNetwork, useBounceableWalletFormat, useSetAppState, useSetPasscodeState, useTheme } from '../../engine/hooks';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
@@ -35,7 +35,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const setAppState = useSetAppState();
     const logOutAndReset = useLogoutAndReset();
     const setPascodeState = useSetPasscodeState();
-    const [, setNotBounceable] = useNotBounceableWalletFormat();
+    const [, setBounceable] = useBounceableWalletFormat();
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -266,7 +266,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
             }
 
             // Set new format for new wallets
-            setNotBounceable(true);
+            setBounceable(false);
 
             // Persist state
             setAppState({
@@ -312,7 +312,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         } finally {
             setLoading(false);
         }
-    }, [setAppState, setNotBounceable]);
+    }, [setAppState, setBounceable]);
 
     const resetConfirmedAddressState = useCallback(() => {
         if (!state) {

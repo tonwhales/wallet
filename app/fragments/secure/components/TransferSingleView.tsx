@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, useNotBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -76,7 +76,7 @@ export const TransferSingleView = memo(({
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
-    const [notBounceable,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const feesPrise = useMemo(() => {
         if (!price) {
@@ -286,7 +286,7 @@ export const TransferSingleView = memo(({
                                         <AddressComponent
                                             address={fromAddress}
                                             end={4}
-                                            bounceable={!notBounceable}
+                                            bounceable={bounceableFormat}
                                         />
                                     </Text>
 

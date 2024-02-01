@@ -27,7 +27,7 @@ import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { AddressUpdate } from "./AddressUpdate"
+import { AddressFormatUpdate } from "./AddressFormatUpdate"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -183,7 +183,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             <View style={{
                 backgroundColor: theme.backgroundPrimary,
             }}>
-                <AddressUpdate />
+                <AddressFormatUpdate />
                 <DappsRequests />
                 <PendingTransactions />
                 <View style={{

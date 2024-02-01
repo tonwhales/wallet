@@ -6,7 +6,7 @@ import { confirmAlert } from "../../utils/confirmAlert";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
-import { useAddToDenyList, useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useAddToDenyList, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
@@ -36,13 +36,13 @@ export const WalletAddress = memo((props: {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const addToDenyList = useAddToDenyList();
-    const [notBounceable,] = useNotBounceableWalletFormat();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const bounceable = useMemo(() => {
         if (props.bounceable === undefined) {
-            return !notBounceable;
+            return bounceableFormat;
         }
         return props.bounceable;
-    }, [notBounceable, props.bounceable]);
+    }, [bounceableFormat, props.bounceable]);
     const friendlyAddress = props.address.toString({ testOnly: network.isTestnet, bounceable });
 
     const onMarkAddressSpam = useCallback(async (addr: Address) => {

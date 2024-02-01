@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useClient4, useNetwork, useNewAddressFormat, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAccountTransactions, useClient4, useNetwork, useNotBounceableWalletFormat, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { WalletSettings } from "../../engine/state/walletSettings";
@@ -46,7 +46,7 @@ export const AddressSearch = memo(({
     const client = useClient4(network.isTestnet);
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
 
     const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet })).data;
 
@@ -125,17 +125,17 @@ export const AddressSearch = memo(({
                     address: Address;
                 };
                 try {
-                    addr = Address.parseFriendly(acc.address.toString({ testOnly: network.isTestnet, bounceable: !newFormat }));
+                    addr = Address.parseFriendly(acc.address.toString({ testOnly: network.isTestnet, bounceable: !notBounceable }));
                 } catch (error) {
                     return null
                 }
 
-                const searchable = `${title} ${acc.address.toString({ testOnly: network.isTestnet, bounceable: !newFormat })}`.toLowerCase();
+                const searchable = `${title} ${acc.address.toString({ testOnly: network.isTestnet, bounceable: !notBounceable })}`.toLowerCase();
 
                 return { type: 'my-wallets', addr, title, searchable, walletSettings }
             })
         ].filter((i) => !!i) as AddressSearchItem[];
-    }, [contacts, knownWallets, newFormat, network]);
+    }, [contacts, knownWallets, notBounceable, network]);
 
     const filtered = useMemo(() => {
         if (!query || query.length === 0) {
@@ -153,7 +153,7 @@ export const AddressSearch = memo(({
             searchRes: searchRes.filter((i) => i.type !== 'my-wallets'),
             myWallets: searchRes.filter((i) => i.type === 'my-wallets')
         };
-    }, [searchItems, lastTxs, query, newFormat, network]);
+    }, [searchItems, lastTxs, query, notBounceable, network]);
 
     if ((filtered.searchRes.length === 0) && filtered.recent.length === 0 && filtered.myWallets.length === 0) {
         return null;

@@ -10,7 +10,7 @@ import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
 import { ATextInput } from "../../components/ATextInput";
-import { useNetwork, useNewAddressFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useNotBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -28,7 +28,7 @@ export const WalletSettingsFragment = fragment(() => {
     const address = selected!.address;
     const safeArea = useSafeAreaInsets();
     const keyboard = useKeyboard();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
 
     const [walletSettings, setSettings] = useWalletSettings(address);
 
@@ -135,7 +135,7 @@ export const WalletSettingsFragment = fragment(() => {
                         </Text>
                         <Text
                             onPress={() => {
-                                copyText(address.toString({ testOnly: isTestnet, bounceable: !newFormat }));
+                                copyText(address.toString({ testOnly: isTestnet, bounceable: !notBounceable }));
                                 toaster.show(
                                     {
                                         message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
@@ -153,7 +153,7 @@ export const WalletSettingsFragment = fragment(() => {
                                 Typography.regular17_24
                             ]}
                         >
-                            {address.toString({ testOnly: isTestnet, bounceable: !newFormat })}
+                            {address.toString({ testOnly: isTestnet, bounceable: !notBounceable })}
                         </Text>
                     </View>
                 </View>

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Pressable, View, useWindowDimensions, Image, Text } from "react-native";
-import { useNewAddressFormat, useTheme } from "../../engine/hooks";
+import { useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Canvas, LinearGradient, Rect, vec } from "@shopify/react-native-skia";
 import { Typography } from "../styles";
 import { useHiddenBanners, useMarkBannerHidden } from "../../engine/hooks/banners";
@@ -14,10 +14,10 @@ export const AddressUpdate = memo(() => {
     const navigation = useTypedNavigation();
     const dimentions = useWindowDimensions();
     const hiddenBanners = useHiddenBanners();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
     const markBannerHidden = useMarkBannerHidden();
 
-    if (hiddenBanners.includes(bannerId) || newFormat) {
+    if (hiddenBanners.includes(bannerId) || notBounceable) {
         return null;
     }
 

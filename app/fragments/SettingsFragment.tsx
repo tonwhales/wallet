@@ -12,7 +12,7 @@ import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
 import { getAppState } from '../storage/appState';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNetwork, useNewAddressFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
+import { useNetwork, useNotBounceableWalletFormat, useOldWalletsBalances, usePrice, useSelectedAccount, useSyncState, useTheme, useThemeStyle } from '../engine/hooks';
 import * as Application from 'expo-application';
 import { ThemeStyle } from '../engine/state/theme';
 import { useWalletSettings } from '../engine/hooks/appstate/useWalletSettings';
@@ -48,7 +48,7 @@ export const SettingsFragment = fragment(() => {
     const oldWalletsBalance = useOldWalletsBalances().total;
     const syncState = useSyncState();
     const [, currency] = usePrice();
-    const [newAddressFormat,] = useNewAddressFormat();
+    const [newAddressFormat,] = useNotBounceableWalletFormat();
 
     // Ledger
     const route = useRoute();

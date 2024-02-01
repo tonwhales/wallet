@@ -45,7 +45,7 @@ export const ContactsFragment = fragment(() => {
                 addresses.add(t.base.operation.address);
             }
         });
-        return Array.from(addresses).map((addr) => Address.parse(addr));
+        return Array.from(addresses).map((addr) => Address.parseFriendly(addr));
     }, [transactions]);
 
     const contactsList = useMemo(() => {
@@ -166,7 +166,7 @@ export const ContactsFragment = fragment(() => {
                         showsVerticalScrollIndicator={true}
                     >
                         {transactionsAddresses.map((a, index) => {
-                            return (<ContactTransactionView key={`recent-${index}`} address={a} />);
+                            return (<ContactTransactionView key={`recent-${index}`} addr={a} />);
                         })}
                     </ScrollView>
                 </>

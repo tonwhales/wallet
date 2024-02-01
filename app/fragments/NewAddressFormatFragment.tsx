@@ -1,7 +1,7 @@
 import { Platform, View, Text } from "react-native";
 import { fragment } from "../fragment";
 import { useNetwork, useTheme } from "../engine/hooks";
-import { useNewAddressFormat, useSelectedAccount } from "../engine/hooks/appstate";
+import { useNotBounceableWalletFormat, useSelectedAccount } from "../engine/hooks/appstate";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../components/ScreenHeader";
@@ -15,7 +15,7 @@ export const NewAddressFormatFragment = fragment(() => {
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
-    const [newAddressFormat, setUseNewAddressFormat] = useNewAddressFormat();
+    const [newAddressFormat, setUseNewAddressFormat] = useNotBounceableWalletFormat();
     const selectedAccount = useSelectedAccount();
 
     const oldAddressString = selectedAccount?.address.toString({ testOnly: network.isTestnet });

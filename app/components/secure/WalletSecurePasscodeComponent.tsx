@@ -17,7 +17,7 @@ import { BiometricsState, PasscodeState, encryptData, generateNewKeyAndEncryptWi
 import { useCallback, useEffect, useState } from 'react';
 import { checkBiometricsPermissions, useKeysAuth } from './AuthWalletKeys';
 import { mnemonicToWalletKey } from '@ton/crypto';
-import { useNetwork, useSetAppState, useSetPasscodeState, useTheme } from '../../engine/hooks';
+import { useNetwork, useNotBounceableWalletFormat, useSetAppState, useSetPasscodeState, useTheme } from '../../engine/hooks';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { openSettings } from 'react-native-permissions';
 import { ScreenHeader } from '../ScreenHeader';
@@ -35,6 +35,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
     const setAppState = useSetAppState();
     const logOutAndReset = useLogoutAndReset();
     const setPascodeState = useSetPasscodeState();
+    const [, setNotBounceable] = useNotBounceableWalletFormat();
 
     const [state, setState] = useState<{ passcode: string, deviceEncryption: DeviceEncryption }>();
     const [loading, setLoading] = useState(false);
@@ -49,6 +50,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         navigation.navigateAndReplaceAll('Home');
     }, []);
 
+    // Create new wallet on launch if no wallets exist
     useEffect(() => {
         const appState = getAppState();
         if (appState.addresses.length <= 0) {
@@ -263,6 +265,9 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
                 }
             }
 
+            // Set new format for new wallets
+            setNotBounceable(true);
+
             // Persist state
             setAppState({
                 addresses: [
@@ -307,7 +312,7 @@ export const WalletSecurePasscodeComponent = systemFragment((props: {
         } finally {
             setLoading(false);
         }
-    }, [setAppState]);
+    }, [setAppState, setNotBounceable]);
 
     const resetConfirmedAddressState = useCallback(() => {
         if (!state) {

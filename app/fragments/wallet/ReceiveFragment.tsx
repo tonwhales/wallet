@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useNewAddressFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useNotBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
@@ -28,7 +28,7 @@ export const ReceiveFragment = fragment(() => {
     const imageRef = useRef<View>(null);
     const params = useParams<{ addr?: string, ledger?: boolean }>();
     const selected = useSelectedAccount();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
 
     const qrSize = 262;
 
@@ -44,8 +44,8 @@ export const ReceiveFragment = fragment(() => {
                 Alert.alert(t('common.error'), t('transfer.error.invalidAddress'));
             }
         }
-        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: !newFormat });
-    }, [params, selected, newFormat]);
+        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: !notBounceable });
+    }, [params, selected, notBounceable]);
 
     const isVerified = useMemo(() => {
         if (!jetton) {

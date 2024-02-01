@@ -272,11 +272,12 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 <AddressSearch
                     account={props.acc}
                     onSelect={(item) => {
+                        const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: item.type !== 'unknown' ? item.title : item.addr.toString({ testOnly: props.isTestnet }),
-                            target: item.addr.toString({ testOnly: props.isTestnet })
-                        })
+                            input: item.type !== 'unknown' ? item.title : friendly,
+                            target: friendly
+                        });
                     }}
                     query={props.input.toLowerCase()}
                     transfer

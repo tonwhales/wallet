@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useNetwork, useNewAddressFormat, useTheme } from "../../engine/hooks";
+import { useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
@@ -10,7 +10,7 @@ import { AddressComponent } from "./AddressComponent";
 export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSearchItem, onPress?: (item: AddressSearchItem) => void }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     return (
@@ -22,8 +22,8 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
-                        address={item.addr.toString({ testOnly: network.isTestnet })}
-                        id={item.addr.toString({ testOnly: network.isTestnet })}
+                        address={item.addr.address.toString({ testOnly: network.isTestnet })}
+                        id={item.addr.address.toString({ testOnly: network.isTestnet })}
                         size={46}
                         borderWith={0}
                         markContact={item.type === 'contact'}
@@ -50,7 +50,10 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent bounceable={!newFormat} address={item.addr} />
+                        <AddressComponent
+                            bounceable={item.addr.isBounceable}
+                            address={item.addr.address}
+                        />
                     </Text>
                 </View>
             </Animated.View>

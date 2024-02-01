@@ -6,7 +6,7 @@ import { confirmAlert } from "../../utils/confirmAlert";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, ToastProps, useToaster } from "../toast/ToastProvider";
-import { useAddToDenyList, useNetwork, useNewAddressFormat, useTheme } from "../../engine/hooks";
+import { useAddToDenyList, useNetwork, useNotBounceableWalletFormat, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 
 export function ellipsiseAddress(src: string, params?: { start?: number, end?: number }) {
@@ -36,13 +36,13 @@ export const WalletAddress = memo((props: {
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const addToDenyList = useAddToDenyList();
-    const [newFormat,] = useNewAddressFormat();
+    const [notBounceable,] = useNotBounceableWalletFormat();
     const bounceable = useMemo(() => {
         if (props.bounceable === undefined) {
-            return !newFormat;
+            return !notBounceable;
         }
         return props.bounceable;
-    }, [newFormat, props.bounceable]);
+    }, [notBounceable, props.bounceable]);
     const friendlyAddress = props.address.toString({ testOnly: network.isTestnet, bounceable });
 
     const onMarkAddressSpam = useCallback(async (addr: Address) => {
@@ -81,33 +81,30 @@ export const WalletAddress = memo((props: {
                 ...props.copyToastProps
             }
         );
-    }, [props.value, props.address, toaster, props.copyToastProps]);
+    }, [props.value, props.address, toaster, props.copyToastProps, friendlyAddress]);
 
-    const handleAction = useCallback(
-        (e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
-            switch (e.nativeEvent.name) {
-                case t('common.copy'): {
-                    onCopy();
-                    break;
-                }
-                case t('common.share'): {
-                    onShare();
-                    break;
-                }
-                case t('spamFilter.blockConfirm'): {
-                    onMarkAddressSpam(props.address);
-                    break;
-                }
-                case t('contacts.contact'): {
-                    onAddressContact(props.address)
-                    break;
-                }
-                default:
-                    break;
+    const handleAction = useCallback((e: NativeSyntheticEvent<ContextMenuOnPressNativeEvent>) => {
+        switch (e.nativeEvent.name) {
+            case t('common.copy'): {
+                onCopy();
+                break;
             }
-        },
-        [],
-    );
+            case t('common.share'): {
+                onShare();
+                break;
+            }
+            case t('spamFilter.blockConfirm'): {
+                onMarkAddressSpam(props.address);
+                break;
+            }
+            case t('contacts.contact'): {
+                onAddressContact(props.address)
+                break;
+            }
+            default:
+                break;
+        }
+    }, [props.address]);
 
     const actions: ContextMenuAction[] = [];
 

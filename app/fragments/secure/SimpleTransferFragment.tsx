@@ -810,6 +810,9 @@ export const SimpleTransferFragment = fragment(() => {
                         onSubmit={onSubmit}
                         onQRCodeRead={onQRCodeRead}
                         isSelected={selected === 'address'}
+                        onSearchItemSelected={() => {
+                            scrollRef.current?.scrollTo({ y: 0 });
+                        }}
                     />
                 </Animated.View>
                 {selected === 'address' && (

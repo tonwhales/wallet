@@ -782,7 +782,12 @@ export const TransferBatch = memo((props: Props) => {
                                     </Text>
                                     <View style={{ alignItems: 'flex-end' }}>
                                         <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                            <AddressComponent address={i.operation.address} start={10} end={4} />
+                                            <AddressComponent
+                                                bounceable={i.message.addr.bounceable}
+                                                address={i.message.addr.address}
+                                                start={10}
+                                                end={4}
+                                            />
                                         </Text>
                                         {i.known && (
                                             <View style={{ flexDirection: 'row' }}>

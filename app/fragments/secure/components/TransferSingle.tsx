@@ -276,6 +276,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 type: 'token',
                 master: jettonMaster,
                 target: jettonTarget.address,
+                bounceable: jettonTarget.bounceable,
                 amount: toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9),
                 comment: text,
             }
@@ -288,6 +289,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             fees: fees,
             amount: amount,
             address: target.address,
+            bounceable: target.bounceable,
             seqno: seqno,
             body: body,
             time: Math.floor(Date.now() / 1000),

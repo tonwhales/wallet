@@ -134,7 +134,13 @@ const PendingTransactionView = memo(({
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
-                            {targetFriendly ? <AddressComponent address={Address.parse(targetFriendly)} /> : t('tx.batch')}
+                            {targetFriendly
+                                ? <AddressComponent
+                                    bounceable={body?.type === 'token' ? body.bounceable : tx.bounceable}
+                                    address={Address.parse(targetFriendly)}
+                                />
+                                : t('tx.batch')
+                            }
                             {` • ${formatTime(tx.time)}`}
                         </Text>
                     )}

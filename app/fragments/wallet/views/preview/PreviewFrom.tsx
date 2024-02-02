@@ -10,26 +10,29 @@ import { Typography } from "../../../../components/styles"
 
 type PreviewFromProps = {
     from: {
-        address: Address | null;
+        address: string | null;
         name: string;
     } | {
-        address: Address;
+        address: string;
         name: string | undefined;
     }
     kind: 'in' | 'out';
     theme: ThemeType;
     isTestnet: boolean;
-    onCopyAddress: (address: Address) => void;
+    onCopyAddress: (address: string) => void;
 }
 
 export const PreviewFrom = memo((props: PreviewFromProps) => {
-    const { from, kind, theme, isTestnet, onCopyAddress } = props
+    const { from, kind, theme, isTestnet, onCopyAddress } = props;
 
-    if (!from.address) return null
+    if (!from.address) return null;
+
+    const parsedAddress = Address.parseFriendly(from.address);
+    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable: parsedAddress.isBounceable })
 
     return (
         <Pressable
-            onPress={() => onCopyAddress(from.address!)}
+            onPress={() => onCopyAddress(parsedAddressFriendly)}
             style={({ pressed }) => ({ paddingHorizontal: 10, justifyContent: 'center', opacity: pressed ? 0.5 : 1 })}
         >
             <PerfText style={[{ color: theme.textSecondary }, Typography.regular13_18]}>
@@ -39,7 +42,7 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                 <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
                     {kind === 'in' ? (
                         <PerfText>
-                            {from.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
+                            {parsedAddressFriendly.replaceAll('-', '\u2011')}
                         </PerfText>
                     ) : (
                         <>
@@ -54,7 +57,8 @@ export const PreviewFrom = memo((props: PreviewFromProps) => {
                             )}
                             <PerfText style={{ color: !!from.name ? theme.textSecondary : theme.textPrimary, }}>
                                 <AddressComponent
-                                    address={from.address}
+                                    address={parsedAddress.address}
+                                    bounceable={parsedAddress.isBounceable}
                                     end={4}
                                 />
                             </PerfText>

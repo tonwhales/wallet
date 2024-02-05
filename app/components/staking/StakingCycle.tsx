@@ -5,6 +5,7 @@ import { Countdown } from "../Countdown"
 import { StakingCycleProgress } from "./StakingCycleProgress"
 import { useTheme } from "../../engine/hooks"
 import { AboutIconButton } from "../AboutIconButton"
+import { Typography } from "../styles"
 
 export const StakingCycle = memo((
     {
@@ -42,28 +43,18 @@ export const StakingCycle = memo((
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ flex: 1, paddingRight: 20 }}>
                         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
-                            <Text style={{
-                                color: theme.textPrimary,
-                                fontWeight: '600',
-                                fontSize: 17, lineHeight: 24
-                            }}>
+                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                 {t('products.staking.nextCycle') + ' '}
                                 <Countdown
                                     left={left}
-                                    textStyle={{
-                                        color: theme.textPrimary,
-                                        fontWeight: '600',
-                                        fontSize: 17, lineHeight: 24
-                                    }}
+                                    textStyle={[{ color: theme.textPrimary }, Typography.semiBold17_24]}
                                 />
                             </Text>
                         </View>
-                        <Text style={{
+                        <Text style={[{
                             color: theme.textSecondary,
-                            fontWeight: '400',
-                            fontSize: 15, lineHeight: 20,
                             marginTop: 2
-                        }}>
+                        }, Typography.regular15_20]}>
                             {withdraw ? t('products.staking.cycleNoteWithdraw') : t('products.staking.cycleNote')}
                             <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
                                 <AboutIconButton
@@ -80,30 +71,23 @@ export const StakingCycle = memo((
             {!locked && (
                 <View style={{ flex: 1 }}>
                     <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', flexWrap: 'wrap' }}>
-                        <Text style={{
-                            color: theme.textPrimary,
-                            fontWeight: '600',
-                            fontSize: 16
-                        }}>
+                        <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                             {t('products.staking.info.cooldownTitle')}
                         </Text>
-                        <Text style={{
+                        <Text style={[{
                             color: theme.accentGreen,
-                            fontSize: 16,
                             fontVariant: ['tabular-nums']
-                        }}
+                        }, Typography.regular15_20]}
                             ellipsizeMode="tail"
                             numberOfLines={1}
                         >
                             {t('products.staking.info.cooldownActive')}
                         </Text>
                     </View>
-                    <Text style={{
+                    <Text style={[{
                         color: theme.textSecondary,
-                        fontWeight: '400',
-                        fontSize: 13,
                         marginTop: 8
-                    }}>
+                    }, Typography.regular15_20]}>
                         {t('products.staking.info.cooldownDescription')}
                         <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>
                             <AboutIconButton

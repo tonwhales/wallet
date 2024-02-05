@@ -86,7 +86,7 @@ export const StakingCycle = memo((
                     </View>
                     <Text style={[{
                         color: theme.textSecondary,
-                        marginTop: 8
+                        marginTop: 2
                     }, Typography.regular15_20]}>
                         {t('products.staking.info.cooldownDescription')}
                         <View style={{ height: 16, width: 16 + 6, alignItems: 'flex-end' }}>

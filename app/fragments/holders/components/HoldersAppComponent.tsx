@@ -36,7 +36,7 @@ export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
-import IcHolders from '../../../../assets/ic_holders.svg';
+import IcHolders from '@assets/ic_holders.svg';
 
 function PulsingCardPlaceholder(theme: ThemeType) {
     const safeArea = useSafeAreaInsets();

@@ -4,7 +4,6 @@ import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "r
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
@@ -32,6 +31,7 @@ export type DAppWebViewProps = WebViewProps & {
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
     defaultQueryParamsState?: QueryParamsState;
+    onEnroll?: () => void;
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -57,7 +57,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const keyboard = useKeyboard();
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
 
@@ -111,6 +110,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             return;
         }
 
+        if (params.openEnrollment) {
+            props.onEnroll?.();
+            return;
+        }
+
         setQueryAPIParams((prev) => {
             const newValue = {
                 ...prev,
@@ -124,7 +128,11 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, [setQueryAPIParams, props.useQueryAPI, markRefIdShown, props.refId, props.onClose]);
+    }, [
+        setQueryAPIParams, props.useQueryAPI,
+        markRefIdShown, props.refId,
+        props.onClose, props.onEnroll
+    ]);
 
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {
@@ -195,7 +203,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
         // Basic close app
         if (data.name === 'closeApp') {
+            props.onClose?.();
             navigation.goBack();
+            return;
+        }
+
+        if (data.name === 'openEnrollment') {
+            props.onEnroll?.();
             return;
         }
 
@@ -211,7 +225,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 dispatchResponse(ref as RefObject<WebView>, { id, data: res });
             }
         })();
-    }, [props.useMainButton, props.useStatusBar, props.injectionEngine, props.onMessage, ref, navigation]);
+    }, [
+        props.useMainButton, props.useStatusBar, props.injectionEngine,
+        props.onMessage,
+        ref,
+        navigation, toaster,
+        props.onClose, props.onEnroll,
+    ]);
 
     const onHardwareBackPress = useCallback(() => {
         if (queryAPIParams.backPolicy === 'lock') {
@@ -224,11 +244,12 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             return true;
         }
         if (queryAPIParams.backPolicy === 'close') {
+            props.onClose?.();
             navigation.goBack();
             return true;
         }
         return false;
-    }, [queryAPIParams.backPolicy]);
+    }, [queryAPIParams.backPolicy, props.onClose]);
 
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);

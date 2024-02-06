@@ -155,7 +155,7 @@ function PulsingCardPlaceholder(theme: ThemeType) {
     );
 }
 
-function HoldersPlaceholder() {
+export function HoldersPlaceholder() {
     const animation = useSharedValue(0);
 
     useEffect(() => {
@@ -203,6 +203,7 @@ function HoldersPlaceholder() {
 export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'account' | 'create' }) {
     const theme = useTheme();
     const navigation = useTypedNavigation();
+    const safeArea = useSafeAreaInsets();
 
     const [animationPlayed, setAnimationPlayed] = useState(loaded);
     const [showClose, setShowClose] = useState(false);
@@ -210,11 +211,8 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            paddingTop: type === 'account' ? 0 : safeArea.top,
             backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -369,11 +367,6 @@ export const HoldersAppComponent = memo((
 
         const initialInjection = `
         window.initialState = ${JSON.stringify(initialState)};
-        window['tonhub'] = (() => {
-            const obj = {};
-            Object.freeze(obj);
-            return obj;
-        })();
         `;
 
         if (!domainKey) {
@@ -444,7 +437,6 @@ export const HoldersAppComponent = memo((
     }, [
         domain,
         isTestnet,
-        safeArea,
         injectionEngine,
         loadWithRequest,
         onContentProcessDidTerminate,

@@ -19,6 +19,7 @@ import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 import { isSafeDomain } from "./utils/isSafeDomain";
+import DeviceInfo from 'react-native-device-info';
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -27,6 +28,7 @@ export type DAppWebViewProps = WebViewProps & {
     useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
+    onClose?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
 }
@@ -55,15 +57,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const keyboard = useKeyboard();
-    const bottomMargin = (safeArea.bottom || 32);
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
 
     const [loaded, setLoaded] = useState(false);
-
-    const keyboardVerticalOffset = useMemo(() => {
-        return Platform.select({ ios: bottomMargin + (keyboard.keyboardShown ? 32 : 0) });
-    }, [keyboard.keyboardShown, bottomMargin]);
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -106,6 +103,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
 
         if (params.closeApp) {
+            props.onClose?.();
             navigation.goBack();
             return;
         }
@@ -123,7 +121,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, [setQueryAPIParams, props.useQueryAPI, markRefIdShown, props.refId]);
+    }, [setQueryAPIParams, props.useQueryAPI, markRefIdShown, props.refId, props.onClose]);
 
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {
@@ -266,9 +264,19 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const Loader = props.loader ?? WebViewLoader;
 
     const onContentProcessDidTerminate = useCallback(() => {
-        dispatchMainButton({ type: 'hide'});
+        dispatchMainButton({ type: 'hide' });
         props.onContentProcessDidTerminate?.();
     }, [props.onContentProcessDidTerminate]);
+
+    const onLoadEnd = useCallback(() => {
+        try {
+            const powerState = DeviceInfo.getPowerStateSync();
+            const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
+            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+        } catch {
+            setTimeout(() => setLoaded(true), 100);
+        }
+    }, []);
 
     return (
         <View style={{
@@ -314,7 +322,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     // Searching for supported query
                     onNavigation(event.url);
                 }}
-                onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
+                onLoadEnd={onLoadEnd}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView
                 onContentProcessDidTerminate={onContentProcessDidTerminate}
@@ -333,18 +341,17 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 }}
             />
             <KeyboardAvoidingView
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+                style={{ position: 'absolute', bottom: safeArea.bottom, left: 0, right: 0 }}
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 pointerEvents={mainButton.isVisible ? undefined : 'none'}
-                contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
-                keyboardVerticalOffset={keyboard.keyboardShown ? 0 : -40}
+                contentContainerStyle={{
+                    marginHorizontal: 16,
+                    marginBottom: 16
+                }}
             >
                 {mainButton && mainButton.isVisible && (
                     <Animated.View
-                        style={Platform.OS === 'android'
-                            ? { marginHorizontal: 16, marginBottom: 16 }
-                            : { marginBottom: 56 }
-                        }
+                        style={Platform.select({ android: { marginHorizontal: 16, marginBottom: 16 } })}
                         entering={FadeInDown}
                         exiting={FadeOutDown.duration(100)}
                     >

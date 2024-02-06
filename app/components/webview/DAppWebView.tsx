@@ -31,6 +31,7 @@ export type DAppWebViewProps = WebViewProps & {
     onClose?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
+    defaultQueryParamsState?: QueryParamsState;
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -76,11 +77,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     );
 
-    const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>({
-        backPolicy: 'back',
-        showKeyboardAccessoryView: false,
-        lockScroll: false
-    });
+    const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>(
+        props.defaultQueryParamsState ?? {
+            backPolicy: 'back',
+            showKeyboardAccessoryView: false,
+            lockScroll: false
+        }
+    );
 
     const safelyOpenUrl = useCallback((url: string) => {
         try {

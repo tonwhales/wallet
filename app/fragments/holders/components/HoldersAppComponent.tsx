@@ -458,6 +458,11 @@ export const HoldersAppComponent = memo((
                 ref={webRef}
                 source={{ uri: source.url }}
                 {...webViewProps}
+                defaultQueryParamsState={{
+                    backPolicy: 'back',
+                    showKeyboardAccessoryView: false,
+                    lockScroll: true
+                }}
                 webviewDebuggingEnabled={isTestnet}
                 loader={(p) => <WebViewLoader type={props.variant.type} {...p} />}
             />

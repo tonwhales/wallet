@@ -79,7 +79,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>({
         backPolicy: 'back',
         showKeyboardAccessoryView: false,
-        lockScroll: true
+        lockScroll: false
     });
 
     const safelyOpenUrl = useCallback((url: string) => {
@@ -304,6 +304,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 keyboardDisplayRequiresUserAction={false}
                 bounces={false}
                 contentInset={{ top: 0, bottom: 0 }}
+                scrollEnabled={!queryAPIParams.lockScroll}
                 //
                 // Passed down props
                 //

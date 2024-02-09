@@ -4,14 +4,11 @@ import { t } from "../../i18n/t";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { extractDomain } from "../../engine/utils/extractDomain";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { useAppConnections, useConnectApp, useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
-import { 
-    getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";

@@ -53,6 +53,12 @@ export const StakingPoolsFragment = fragment(() => {
 
     const pools = Object.keys(KnownPools(isTestnet)).map((v) => Address.parse(v));
 
+    const liquidStaking = useLiquidStaking(
+        isLedger
+            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
+            : selected!.address.toString({ testOnly: network.isTestnet })
+    );
+
     const memberData = useStakingPoolMembers(
         client,
         isTestnet,
@@ -133,6 +139,31 @@ export const StakingPoolsFragment = fragment(() => {
             </View>
         )
     }
+
+    // Liquid staking
+    processed.add()
+    items.push(
+        <>
+            <StakingPool
+                key={`liquid`}
+                address={Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON')}
+                isLedger={isLedger}
+                balance={recommended.balance}
+            />
+            <View
+                key={'best-view'}
+                style={poolViewStyle}
+            >
+                <StakingPoolsHeader
+                    key={'best-header'}
+                    text={t('products.staking.pools.best')}
+                />
+                <View style={poolItemsStyle}>
+                    {rec}
+                </View>
+            </View >
+        </>
+    )
 
     // Recommended
     let recommended = memberData.find((v) => Address.parse(v!.pool).equals(Address.parse(config!.recommended)));

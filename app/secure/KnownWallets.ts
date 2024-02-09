@@ -400,6 +400,13 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 },
                 ic: Img_Lockups_2
             },
+            [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
+                name: 'Whales Liquidit',
+                colors: {
+                    primary: '#65C6FF',
+                    secondary: '#DEEFFC'
+                }
+            },
         }
 }
 
@@ -413,7 +420,7 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQB-MPwrd1G6WKNkLz_VnV6WqBDd142KMQv-g1O-8QUA3728': {}, // jUSDC
             'EQDo_ZJyQ_YqBzBwbVpMmhbhIddKtRP99HugZJ14aFscxi7B': {}, // jDAI
             'EQDcBkGHmC4pTf34x3Gm05XvepO5w60DNxZ-XT4I6-UGG5L5': {}, // jWBTC
-            
+
             'EQBCFwW8uFUh-amdRmNY9NyeDEaeDYXd9ggJGsicpqVcHq7B': {}, // DHD Coin
             'EQDCJL0iQHofcBBvFBHdVG233Ri2V4kCNFgfRT-gqAd3Oc86': {}, // Fanzee Token
             'EQC-tdRjjoYMz3MXKW4pj95bNZgvRyWwZ23Jix3ph7guvHxJ': {}, // KINGY

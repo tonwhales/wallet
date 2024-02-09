@@ -26,6 +26,7 @@ import { ConnectReplyBuilder } from '../../../engine/tonconnect/ConnectReplyBuil
 import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Minimizer from '../../../modules/Minimizer';
 
 type SignState = { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
@@ -53,7 +54,6 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     const authContext = useKeysAuth();
     const [state, setState] = useState<SignState>({ type: 'loading' });
     const saveAppConnection = useSaveAppConnection();
-
 
     useEffect(() => {
         (async () => {
@@ -251,9 +251,25 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                 return;
             } else if (connectProps.type === 'callback') {
                 connectProps.callback({ ok: true, replyItems });
+
                 setTimeout(() => {
+                    if (!!state.returnStrategy) {
+                        if (state.returnStrategy === 'back') {
+                            Minimizer.goBack();
+                            return;
+                        } else if (state.returnStrategy !== 'none') {
+                            try {
+                                const url = new URL(state.returnStrategy);
+                                Linking.openURL(url.toString());
+                            } catch (e) {
+                                warn('Failed to open url');
+                            }
+                        }
+                    }
+
                     navigation.goBack();
                 }, 50);
+
                 return;
             }
 

@@ -7,15 +7,18 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useAppConnections, useConnectApp, useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
-import { getDomainKey } from "../../engine/state/domainKeys";
+import { 
+    getDomainKey } from "../../engine/state/domainKeys";
 import { PerfText } from "../basic/PerfText";
 import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
+import { extensionKey } from "../../engine/hooks/dapps/useAddExtension";
+import { TonConnectBridgeType } from "../../engine/tonconnect/types";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -35,21 +38,42 @@ export const HoldersAccountItem = memo((props: {
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
 
-    const needsEnrolment = useMemo(() => {
-        if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
+    const connectApp = useConnectApp();
+    const connectAppConnections = useAppConnections();
+
+    const needsEnrollment = useMemo(() => {
+        try {
+            const app = connectApp(holdersUrl);
+
+            if (!app) {
+                return true;
+            }
+ 
+            const connections = connectAppConnections(extensionKey(app.url));
+
+            if (!connections.find((item) => item.type === TonConnectBridgeType.Injected)) {
+                return true;
+            }
+
+            if (!holdersAccStatus) {
+                return true;
+            }
+            if (holdersAccStatus.state === HoldersAccountState.NeedEnrollment) {
+                return true;
+            }
+        } catch (error) {
             return true;
         }
+
         return false;
-    }, [holdersAccStatus]);
+    }, [holdersAccStatus, connectApp, connectAppConnections]);
 
     const isPro = useMemo(() => {
         return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
     }, [props.account.cards]);
 
     const onPress = useCallback(() => {
-        const domain = extractDomain(holdersUrl);
-        const domainKey = getDomainKey(domain);
-        if (needsEnrolment || !domainKey) {
+        if (needsEnrollment) {
             navigation.navigate(
                 'HoldersLanding',
                 {
@@ -60,7 +84,7 @@ export const HoldersAccountItem = memo((props: {
             return;
         }
         navigation.navigateHolders(props.account ? { type: 'account', id: props.account.id } : { type: 'create' });
-    }, [props.account, needsEnrolment]);
+    }, [props.account, needsEnrollment]);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 

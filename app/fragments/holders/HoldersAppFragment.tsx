@@ -7,12 +7,14 @@ import { t } from '../../i18n/t';
 import { useEffect, useMemo } from 'react';
 import { extractDomain } from '../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { useAppConnections, useConnectApp, useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
 import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { getDomainKey } from '../../engine/state/domainKeys';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
+import { extensionKey } from '../../engine/hooks/dapps/useAddExtension';
+import { TonConnectBridgeType } from '../../engine/tonconnect/types';
 
 export type HoldersAppParams = { type: 'account'; id: string; } | { type: 'create' };
 
@@ -23,13 +25,20 @@ export const HoldersAppFragment = fragment(() => {
     const selected = useSelectedAccount();
     const navigation = useTypedNavigation();
     const status = useHoldersAccountStatus(selected!.address).data;
+    const connectApp = useConnectApp();
+    const connectAppConnections = useAppConnections();
 
     const needsEnrollment = useMemo(() => {
         try {
-            const domain = extractDomain(holdersUrl);
-            const domainKey = getDomainKey(domain);
+            const app = connectApp(holdersUrl);
 
-            if (!domainKey) {
+            if (!app) {
+                return true;
+            }
+
+            const connections = connectAppConnections(extensionKey(app.url));
+
+            if (!connections.find((item) => item.type === TonConnectBridgeType.Injected)) {
                 return true;
             }
 
@@ -42,8 +51,9 @@ export const HoldersAppFragment = fragment(() => {
         } catch (error) {
             return true;
         }
+
         return false;
-    }, [status]);
+    }, [status, connectApp, connectAppConnections]);
 
     useEffect(() => {
         if (needsEnrollment) {

@@ -16,13 +16,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
 import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { usePrimaryCurrency } from '../../../engine/hooks';
+import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
-import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
+import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
 import { useHoldersAccounts } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
@@ -261,20 +261,17 @@ export const HoldersAppComponent = memo((
         endpoint: string
     }
 ) => {
-    const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const acc = useMemo(() => getCurrentAddress(), []);
     const domain = useMemo(() => extractDomain(props.endpoint), []);
-
+    const lang = getLocales()[0].languageCode;
+    const acc = useMemo(() => getCurrentAddress(), []);
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
     const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
-    const domainKey = getDomainKey(domain);
-
-    const webRef = useRef<WebView>(null);
-    const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
+    
 
     const source = useMemo(() => {
         let route = '';
@@ -337,16 +334,12 @@ export const HoldersAppComponent = memo((
     //
     // Injection
     //
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(holdersUrl, navigation);
+
     const injectSource = useMemo(() => {
         if (!selectedAccount) {
             throw new Error('No account selected');
         }
-
-        const contract = contractFromPublicKey(selectedAccount.publicKey);
-        const config = walletConfigFromContract(contract);
-
-        const walletConfig = config.walletConfig;
-        const walletType = config.type;
 
         // TODO: add accounts state
         const initialState = {
@@ -363,43 +356,15 @@ export const HoldersAppComponent = memo((
                 }
                 : {},
             ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts } : {},
-        }
+        };
 
-        const initialInjection = `
-        window.initialState = ${JSON.stringify(initialState)};
-        `;
-
-        if (!domainKey) {
-            return initialInjection;
-        }
-
-        let domainSign = createDomainSignature(domain, domainKey);
-
-        return createInjectSource({
-            config: {
-                version: 1,
-                platform: Platform.OS,
-                platformVersion: Platform.Version,
-                network: isTestnet ? 'testnet' : 'mainnet',
-                address: selectedAccount.address.toString({ testOnly: isTestnet }),
-                publicKey: selectedAccount.publicKey.toString('base64'),
-                walletConfig,
-                walletType,
-                signature: domainSign.signature,
-                time: domainSign.time,
-                subkey: {
-                    domain: domainSign.subkey.domain,
-                    publicKey: domainSign.subkey.publicKey,
-                    time: domainSign.subkey.time,
-                    signature: domainSign.subkey.signature
-                }
-            },
-            safeArea,
-            additionalInjections: initialInjection,
-        });
-    }, [status, accountsStatus]);
-
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);
+        return `
+        ${tonConnectWebViewProps.injectedJavaScriptBeforeContentLoaded || ''}
+        (() => {
+            window.initialState = ${JSON.stringify(initialState)};
+        })();
+        `
+    }, [status, accountsStatus, tonConnectWebViewProps]);
 
     const onClose = useCallback(() => {
         onHoldersInvalidate(acc.addressString, isTestnet);
@@ -407,7 +372,7 @@ export const HoldersAppComponent = memo((
     }, []);
 
     const onContentProcessDidTerminate = useCallback(() => {
-        webRef.current?.reload();
+        webViewRef.current?.reload();
         // TODO: add offline support check when offline will be ready
         // In case of blank WebView without offline
         // if (!stableOfflineV || Platform.OS === 'android') {
@@ -424,7 +389,7 @@ export const HoldersAppComponent = memo((
 
     const webViewProps: DAppWebViewProps = useMemo(() => {
         return {
-            injectionEngine,
+            ...tonConnectWebViewProps,
             injectedJavaScriptBeforeContentLoaded: injectSource,
             useStatusBar: true,
             useMainButton: true,
@@ -437,7 +402,7 @@ export const HoldersAppComponent = memo((
     }, [
         domain,
         isTestnet,
-        injectionEngine,
+        tonConnectWebViewProps,
         loadWithRequest,
         onContentProcessDidTerminate,
         onClose,
@@ -447,7 +412,7 @@ export const HoldersAppComponent = memo((
     return (
         <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
             <DAppWebView
-                ref={webRef}
+                ref={webViewRef}
                 source={{ uri: source.url }}
                 {...webViewProps}
                 defaultQueryParamsState={{

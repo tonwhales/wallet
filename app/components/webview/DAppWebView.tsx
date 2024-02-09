@@ -137,7 +137,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {
             props.onMessage(event);
-            return;
         }
         const nativeEvent = event.nativeEvent;
 
@@ -276,10 +275,14 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
-        window['tonhub'] = (() => {
-            const obj = {};
-            Object.freeze(obj);
-            return obj;
+        (() => {
+            if (!window.tonhub) {
+                window['tonhub'] = (() => {
+                    const obj = {};
+                    Object.freeze(obj);
+                    return obj;
+                })();
+            }
         })();
         true;
         `

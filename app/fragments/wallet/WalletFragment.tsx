@@ -24,6 +24,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Typography } from '../../components/styles';
+import { LiquidStakingFragment } from '../staking/LiquidStakingFragment';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -353,6 +354,7 @@ const navigation = (safeArea: EdgeInsets) => [
     fullScreen('Wallet', WalletFragment),
     fullScreen('Staking', StakingFragment),
     fullScreen('StakingPools', StakingPoolsFragment),
+    fullScreen('LiquidStaking', LiquidStakingFragment)
 ]
 
 export const WalletNavigationStack = memo(() => {

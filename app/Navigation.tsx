@@ -25,14 +25,12 @@ import { AuthenticateFragment } from './fragments/secure/dapps/AuthenticateFragm
 import axios from 'axios';
 import { NeocryptoFragment } from './fragments/integrations/NeocryptoFragment';
 import { StakingTransferFragment } from './fragments/staking/StakingTransferFragment';
-import { StakingFragment } from './fragments/staking/StakingFragment';
 import { SignFragment } from './fragments/secure/SignFragment';
 import { TransferFragment } from './fragments/secure/TransferFragment';
 import { AppFragment } from './fragments/apps/AppFragment';
 import { DevStorageFragment } from './fragments/dev/DevStorageFragment';
 import { WalletUpgradeFragment } from './fragments/secure/WalletUpgradeFragment';
 import { InstallFragment } from './fragments/secure/dapps/InstallFragment';
-import { StakingPoolsFragment } from './fragments/staking/StakingPoolsFragment';
 import { SpamFilterFragment } from './fragments/SpamFilterFragment';
 import { ReviewFragment } from './fragments/apps/ReviewFragment';
 import { DeleteAccountFragment } from './fragments/DeleteAccountFragment';
@@ -87,6 +85,7 @@ import { ProductsFragment } from './fragments/wallet/ProductsFragment';
 import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFragment';
 import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
+import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -241,6 +240,7 @@ const navigation = (safeArea: EdgeInsets) => [
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
     modalScreen('StakingOperations', StakingOperationsFragment, safeArea),
     modalScreen('StakingAnalytics', StakingAnalyticsFragment, safeArea),
+    transparentModalScreen('LiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
     // Ledger
     modalScreen('Ledger', HardwareWalletFragment, safeArea),

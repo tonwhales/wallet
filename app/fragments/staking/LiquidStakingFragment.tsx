@@ -1,30 +1,27 @@
-import React, { useCallback, useMemo, useState } from "react";
-import { View, Text, Platform, Image, Pressable } from "react-native";
-import Animated from "react-native-reanimated";
+import React, { useCallback, useMemo } from "react";
+import { View, Text, Platform, Image, Pressable, ScrollView } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { PriceComponent } from "../../components/PriceComponent";
 import { ValueComponent } from "../../components/ValueComponent";
 import { WalletAddress } from "../../components/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { StakingCycle } from "../../components/staking/StakingCycle";
-import { StakingPendingComponent } from "../../components/staking/StakingPendingComponent";
 import { openWithInApp } from "../../utils/openWithInApp";
-import { useParams } from "../../utils/useParams";
-import { TransferAction } from "./StakingTransferFragment";
 import { fragment } from "../../fragment";
 import { t } from "../../i18n/t";
-import { RestrictedPoolBanner } from "../../components/staking/RestrictedPoolBanner";
-import { KnownPools } from "../../utils/KnownPools";
-import { StakingPoolType } from "./StakingPoolsFragment";
+import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { ScreenHeader } from "../../components/ScreenHeader";
 import { StakingAnalyticsComponent } from "../../components/staking/StakingAnalyticsComponent";
-import { useNetwork, usePendingTransactions, useSelectedAccount, useStakingActive, useStakingPool, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useLiquidStakingMember, useNetwork, usePendingTransactions, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
-import { Address, toNano } from "@ton/core";
+import { Address, fromNano, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
+import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
+import { Typography } from "../../components/styles";
+import { BackButton } from "../../components/navigation/BackButton";
+import { LiquidStakingMember } from "./components/LiquidStakingBalance";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -35,9 +32,8 @@ export const LiquidStakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerLiquidStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const active = useStakingActive();
+    const liquidStaking = useLiquidStaking().data;
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
-
     const ledgerContext = useLedgerTransport();
     const ledgerAddress = useMemo(() => {
         if (!isLedger || !ledgerContext?.addr?.address) return;
@@ -45,15 +41,32 @@ export const LiquidStakingFragment = fragment(() => {
             return Address.parse(ledgerContext?.addr?.address);
         } catch { }
     }, [ledgerContext?.addr?.address]);
+    const memberAddress = isLedger ? ledgerAddress : selected?.address;
+    const nominator = useLiquidStakingMember(memberAddress)?.data;
+    const apy = useStakingApy()?.apy;
 
-    const targetPool = Address.parse(params.pool);
-    const pool = useStakingPool(targetPool, ledgerAddress);
-    const member = pool?.member;
-    const config = useStakingWalletConfig(
-        isLedger
-            ? ledgerAddress!.toString({ testOnly: network.isTestnet })
-            : selected!.address.toString({ testOnly: network.isTestnet })
-    );
+    const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
+    const apyWithFee = useMemo(() => {
+        if (!!apy && !!poolFee) {
+            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
+        }
+    }, [apy, poolFee]);
+
+    const balance = useMemo(() => {
+        const bal = fromNano(nominator?.balance || 0n);
+        const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
+        return toNano(parseFloat(bal) * parseFloat(rate));
+    }, [nominator?.balance, liquidStaking?.rateWithdraw])
+
+    const { targetPool, targetPoolFriendly } = useMemo(() => {
+        const address = getLiquidStakingAddress(network.isTestnet);
+        return {
+            targetPool: address,
+            targetPoolFriendly: address.toString({ testOnly: network.isTestnet })
+        }
+    }, [network.isTestnet]);
+
+    const stakeUntil = Math.min(liquidStaking?.extras.proxyZeroStakeUntil ?? 0, liquidStaking?.extras.proxyOneStakeUntil ?? 0);
 
     const pendingPoolTxs = useMemo(() => {
         return pendingTxs.filter((tx) => {
@@ -61,368 +74,380 @@ export const LiquidStakingFragment = fragment(() => {
         });
     }, [pendingTxs, targetPool]);
 
+    const withdraws: {
+        pendingWithdraws: Map<{ round: number; pendingUntil: number }, bigint>;
+        readyToWithdraw: Map<{ round: number; pendingUntil: number }, bigint>;
+    } = useMemo(() => {
+        let temp = {
+            pendingWithdraws: new Map(),
+            readyToWithdraw: new Map()
+        };
+
+        const pending = nominator?.pendingWithdrawals;
+        if (!!pending && !!pending.keys && !!liquidStaking) {
+            for (const key of pending.keys()) {
+                if (key + 3 <= liquidStaking?.roundId) {
+                    withdraws.readyToWithdraw.set({ round: key, pendingUntil: 0 }, pending.get(key) ?? 0n);
+                } else {
+                    let readyRound = key + 2;
+                    let timeForCurrentRoundEnd = liquidStaking.extras.roundEnd - Date.now() / 1000;
+                    const roundDuration = network.isTestnet ? 2 * 60 * 60 : 18.6 * 60 * 60;
+
+                    withdraws.pendingWithdraws.set(
+                        { round: key, pendingUntil: (readyRound - liquidStaking.roundId) * roundDuration + timeForCurrentRoundEnd },
+                        pending.get(key) ?? 0n
+                    );
+                }
+            }
+        }
+
+        return temp;
+    }, [nominator, network.isTestnet, liquidStaking])
+
     const removePending = useCallback((id: string) => {
         setPending((prev) => {
             return prev.filter((tx) => tx.id !== id);
         });
     }, [setPending]);
 
-    const transferAmount = (pool?.params?.minStake ?? 0n)
-        + (pool?.params?.receiptPrice ?? 0n)
-        + (pool?.params?.depositFee ?? 0n);
+    const transferAmount = useMemo(() => {
+        return (liquidStaking?.extras.minStake ?? 0n)
+            + (liquidStaking?.extras.receiptPrice ?? 0n)
+            + (liquidStaking?.extras.depositFee ?? 0n);
+    }, [liquidStaking]);
 
     const onTopUp = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
-                target: targetPool,
-                amount: transferAmount,
-                lockAddress: true,
-                lockComment: true,
-                action: 'top_up' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            amount: transferAmount,
-            lockAddress: true,
-            lockComment: true,
-            action: 'top_up' as TransferAction,
-        });
-    }, [targetPool, pool, transferAmount]);
+        // TODO
+        // if (isLedger) {
+        //     navigation.navigate('LedgerStakingTransfer', {
+        //         target: targetPool,
+        //         amount: transferAmount,
+        //         lockAddress: true,
+        //         lockComment: true,
+        //         action: 'top_up' as TransferAction,
+        //     });
+        //     return;
+        // }
+        // navigation.navigateStaking({
+        //     target: targetPool,
+        //     amount: transferAmount,
+        //     lockAddress: true,
+        //     lockComment: true,
+        //     action: 'top_up' as TransferAction,
+        // });
+    }, [targetPool, nominator, transferAmount]);
 
     const onUnstake = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
-                target: targetPool,
-                lockAddress: true,
-                lockComment: true,
-                action: 'withdraw' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            lockAddress: true,
-            lockComment: true,
-            action: 'withdraw' as TransferAction,
-        });
-    }, [targetPool]);
+        navigation.navigate('LiquidWithdrawAction');
+    }, []);
 
     const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
-    const openPoolSelector = useCallback(() => {
-        if (active.length < 2) {
-            return;
-        }
-        navigation.navigate(
-            isLedger ? 'StakingPoolSelectorLedger' : 'StakingPoolSelector',
-            {
-                current: targetPool,
-                callback: (pool: Address) => {
-                    setParams((prev) => ({ ...prev, pool: pool.toString({ testOnly: network.isTestnet }) }));
-                }
-            },
-        )
-    }, [isLedger, targetPool, setParams, active]);
 
-    const hasStake = (member?.balance || 0n)
-        + (member?.pendingWithdraw || 0n)
-        + (member?.pendingDeposit || 0n)
-        + (member?.withdraw || 0n)
-        > 0n;
+    const hasStake = useMemo(() => {
+        return (nominator?.balance || 0n) > 0n
+            || withdraws.pendingWithdraws.size > 0
+            || withdraws.readyToWithdraw.size > 0;
+    }, [nominator, withdraws]);
 
     // weird bug with status bar not changing color with component
     useFocusEffect(() => {
         setTimeout(() => {
-            setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
+            setStatusBarStyle('light');
         }, 10);
     });
 
     return (
         <View style={{ flex: 1 }}>
-            <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            <ScreenHeader
-                style={{ marginTop: 32, paddingHorizontal: 16 }}
-                onBackPressed={navigation.goBack}
-                rightButton={
-                    <Pressable
-                        onPress={openMoreInfo}
-                        style={({ pressed }) => ({
-                            opacity: pressed ? 0.5 : 1,
-                            position: 'absolute', right: 0, 
-                            backgroundColor: theme.surfaceOnElevation,
-                            height: 32, width: 32, borderRadius: 16,
-                            justifyContent: 'center', alignItems: 'center'
-                        })}
-                    >
-                        <Image
-                            source={require('@assets/ic-info.png')}
-                            style={{
-                                tintColor: theme.iconNav,
-                                height: 16, width: 16,
-                            }}
-                        />
-                    </Pressable>
-                }
-                titleComponent={
-                    <Pressable
-                        style={({ pressed }) => ({
-                            alignItems: 'center',
-                            opacity: (pressed && active.length >= 2) ? 0.5 : 1
-                        })}
-                        onPress={openPoolSelector}
-                    >
-                        <Text style={{
-                            fontSize: 17, lineHeight: 24,
-                            color: theme.textPrimary,
-                            fontWeight: '500',
-                        }}>
-                            {KnownPools(network.isTestnet)[params.pool]?.name}
-                        </Text>
-                    </Pressable>
-                }
-            />
-            <Animated.ScrollView
-                contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 16 }}
-                style={{ flexGrow: 1 }}
-                scrollEventThrottle={16}
-                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+            <StatusBar style={'light'} />
+            <View
+                style={{
+                    backgroundColor: theme.backgroundUnchangeable,
+                    paddingTop: safeArea.top + (Platform.OS === 'ios' ? 0 : 16),
+                    paddingHorizontal: 16
+                }}
+                collapsable={false}
             >
-                <View
-                    style={{
-                        marginVertical: 16,
-                        backgroundColor: theme.cardBackground,
-                        borderRadius: 20,
-                        paddingHorizontal: 20, paddingVertical: 16,
-                        overflow: 'hidden'
-                    }}
-                    collapsable={false}
-                >
-                    <Text
-                        style={{
-                            fontSize: 15, lineHeight: 20,
-                            color: theme.textUnchangeable,
-                            opacity: 0.7,
-                        }}
-                    >
-                        {t('products.staking.balance')}
-                    </Text>
-                    <Text style={{ fontSize: 27, color: theme.textUnchangeable, fontWeight: '600', marginTop: 14 }}>
-                        <ValueComponent
-                            value={member?.balance || 0n}
-                            precision={4}
-                            centFontStyle={{ opacity: 0.5 }}
-                        />
-                        <Text style={{
-                            fontSize: 17,
-                            lineHeight: Platform.OS === 'ios' ? 24 : undefined,
-                            color: theme.textUnchangeable,
-                            marginRight: 8,
-                            fontWeight: '500',
-                            opacity: 0.5
-                        }}>{' TON'}</Text>
-                    </Text>
-                    <View
-                        style={{
-                            position: 'absolute', top: 0, left: '50%',
-                            marginTop: -20, marginLeft: -20,
-                            height: 400, width: 400,
-                            overflow: 'hidden'
-                        }}
-                        pointerEvents={'none'}
-                    >
-                        <Image
-                            source={require('@assets/shine-blur.webp')}
-                            style={{ height: 400, width: 400 }}
+                <View style={{
+                    height: 44,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    paddingVertical: 6
+                }}>
+                    <View style={{ flex: 1 }}>
+                        <BackButton
+                            iconTintColor={theme.iconUnchangeable}
+                            style={{ backgroundColor: theme.surfaceOnDark }}
+                            onPress={navigation.goBack}
                         />
                     </View>
-                    <View style={{
-                        flexDirection: 'row', alignItems: 'center',
-                        marginTop: 10
-                    }}>
-                        <Pressable
-                            style={{ flexDirection: 'row', alignItems: 'center' }}
-                            onPress={navigateToCurrencySettings}
-                        >
-                            <PriceComponent
-                                amount={member?.balance || 0n}
-                                style={{ backgroundColor: 'rgba(255,255,255, .1)' }}
-                                textStyle={{ color: theme.textUnchangeable }}
-                                theme={theme}
-                            />
-                            <PriceComponent
-                                showSign
-                                amount={toNano(1)}
-                                style={{ backgroundColor: 'rgba(255,255,255, .1)', marginLeft: 10 }}
-                                textStyle={{ color: theme.textUnchangeable }}
-                                theme={theme}
-                            />
-                        </Pressable>
+                    <View style={{ backgroundColor: theme.surfaceOnDark, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 32 }}>
+                        <Text style={[{ color: theme.textUnchangeable }, Typography.medium17_24]}>
+                            {KnownPools(network.isTestnet)[targetPoolFriendly]?.name}
+                        </Text>
                     </View>
-                    <WalletAddress
-                        value={targetPool.toString({ testOnly: network.isTestnet })}
-                        address={targetPool}
-                        elipsise
-                        style={{
-                            marginTop: 20,
-                            alignSelf: 'flex-start',
-                        }}
-                        textStyle={{
-                            fontSize: 15,
-                            lineHeight: 20,
-                            textAlign: 'left',
-                            color: theme.textSecondary,
-                            fontWeight: '400',
-                            fontFamily: undefined
-                        }}
-                        limitActions
-                        disableContextMenu
-                        copyOnPress
-                        copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
-                    />
-                </View>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        backgroundColor: theme.surfaceOnElevation,
-                        borderRadius: 20,
-                        marginBottom: 16, marginTop: 32,
-                        padding: 20
-                    }}
-                    collapsable={false}
-                >
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                    <View style={{ flexDirection: 'row', flex: 1, justifyContent: 'flex-end' }}>
                         <Pressable
-                            onPress={onTopUp}
-                            disabled={!available}
-                            style={({ pressed }) => {
-                                return {
-                                    opacity: (pressed || !available) ? 0.5 : 1,
-                                    borderRadius: 14, flex: 1, paddingVertical: 10,
-                                    marginHorizontal: 4
-                                }
-                            }}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('@assets/ic-plus.png')} />
-                                </View>
-                                <Text
-                                    style={{
-                                        fontSize: 15,
-                                        color: theme.textPrimary,
-                                        marginTop: 6,
-                                        fontWeight: '400'
-                                    }}
-                                    minimumFontScale={0.7}
-                                    adjustsFontSizeToFit
-                                    numberOfLines={1}
-                                >
-                                    {t('products.staking.actions.top_up')}
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
-                        <Pressable
-                            onPress={onUnstake}
-                            disabled={!hasStake}
-                            style={({ pressed }) => ({
-                                opacity: (!hasStake || pressed) ? 0.5 : 1,
-                                borderRadius: 14, flex: 1, paddingVertical: 10,
-                                marginHorizontal: 4
-                            })}
-                        >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('@assets/ic_receive.png')} />
-                                </View>
-                                <Text
-                                    style={{
-                                        fontSize: 15,
-                                        color: theme.textPrimary,
-                                        marginTop: 6,
-                                        fontWeight: '400'
-                                    }}
-                                >
-                                    {t('products.staking.actions.withdraw')}
-                                </Text>
-                            </View>
-                        </Pressable>
-                    </View>
-                    <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
-                        <Pressable
-                            onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
                             style={({ pressed }) => ({
                                 opacity: pressed ? 0.5 : 1,
-                                borderRadius: 14, flex: 1, paddingVertical: 10,
-                                marginHorizontal: 4
+                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                                height: 32, width: 32, justifyContent: 'center', alignItems: 'center',
+                                borderRadius: 16
                             })}
+                            onPress={openMoreInfo}
                         >
-                            <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
-                                <View style={{
-                                    backgroundColor: theme.accent,
-                                    width: 32, height: 32,
-                                    borderRadius: 16,
-                                    alignItems: 'center', justifyContent: 'center'
-                                }}>
-                                    <Image source={require('@assets/ic-staking-calc.png')} />
-                                </View>
-                                <Text
-                                    style={{
-                                        fontSize: 15,
-                                        color: theme.textPrimary,
-                                        marginTop: 6,
-                                        fontWeight: '400'
-                                    }}
-                                >
-                                    {t('products.staking.actions.calc')}
-                                </Text>
-                            </View>
+                            <Image
+                                source={require('@assets/ic-info.png')}
+                                style={{
+                                    height: 16,
+                                    width: 16,
+                                    tintColor: theme.iconUnchangeable
+                                }}
+                            />
                         </Pressable>
                     </View>
                 </View>
-                {!!pool && (
-                    <StakingCycle
-                        stakeUntil={pool.status.proxyStakeUntil}
-                        locked={pool.status.locked}
-                        style={{ marginBottom: 16 }}
+            </View>
+            <ScrollView
+                style={{ flexBasis: 0 }}
+                contentInset={{ bottom: bottomBarHeight, top: 0.1 }}
+                contentInsetAdjustmentBehavior={"never"}
+                automaticallyAdjustContentInsets={false}
+                contentContainerStyle={{ paddingBottom: 16 }}
+                showsVerticalScrollIndicator={false}
+                decelerationRate={'normal'}
+                alwaysBounceVertical={true}
+                overScrollMode={'never'}
+            >
+                {Platform.OS === 'ios' && (
+                    <View
+                        style={{
+                            backgroundColor: theme.backgroundUnchangeable,
+                            height: 1000,
+                            position: 'absolute',
+                            top: -1000,
+                            left: 0,
+                            right: 0,
+                        }}
                     />
                 )}
-                {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
-                    <PendingTransactionsView
-                        theme={theme}
-                        pending={pendingPoolTxs}
-                        removePending={removePending}
-                        style={{ marginBottom: 16 }}
-                    />
-                )}
-                <StakingPendingComponent
-                    target={targetPool}
-                    member={member}
-                />
-                {(type !== 'nominators' && !available) && (
-                    <RestrictedPoolBanner type={type} />
-                )}
-                {network.isTestnet && (
-                    <RestrictedPoolBanner type={'team'} />
-                )}
-                {__DEV__ && (
-                    <StakingAnalyticsComponent pool={targetPool} />
-                )}
+                <View collapsable={false}>
+                    <View style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingTop: 24,
+                        backgroundColor: theme.backgroundUnchangeable
+                    }}>
+                        <Text style={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}>
+                            <ValueComponent
+                                value={balance}
+                                precision={4}
+                                centFontStyle={{ opacity: 0.5 }}
+                            />
+                            <Text style={{ color: theme.textSecondary }}>{' TON'}</Text>
+                        </Text>
+                        <View style={{
+                            flexDirection: 'row', alignItems: 'center',
+                            marginTop: 10, gap: 8
+                        }}>
+                            <Pressable
+                                style={{ flexDirection: 'row', alignItems: 'center' }}
+                                onPress={navigateToCurrencySettings}
+                            >
+                                <PriceComponent
+                                    amount={balance}
+                                    style={{ backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg }}
+                                    textStyle={{ color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary }}
+                                    theme={theme}
+                                />
+                            </Pressable>
+                            <View style={{
+                                backgroundColor: theme.style === 'light' ? theme.surfaceOnDark : theme.surfaceOnBg,
+                                gap: 6,
+                                padding: 2, paddingRight: 12,
+                                borderRadius: 24,
+                                flexDirection: 'row', alignItems: 'center'
+                            }}>
+                                <Image
+                                    style={{ height: 24, width: 24 }}
+                                    source={require('@assets/ic-profit.png')}
+                                />
+                                <Text style={[{ color: theme.textUnchangeable }, Typography.medium15_20]}>
+                                    {apyWithFee}
+                                </Text>
+                            </View>
+                        </View>
+                        <WalletAddress
+                            value={targetPool.toString({ testOnly: network.isTestnet })}
+                            address={targetPool}
+                            elipsise={{ start: 4, end: 5 }}
+                            style={{
+                                marginTop: 16,
+                                alignSelf: 'center',
+                            }}
+                            textStyle={{
+                                fontSize: 15,
+                                lineHeight: 20,
+                                color: theme.textUnchangeable,
+                                fontWeight: '400',
+                                opacity: 0.5,
+                                fontFamily: undefined
+                            }}
+                            limitActions
+                            disableContextMenu
+                            copyOnPress
+                            copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
+                        />
+                    </View>
+                    <View style={{ paddingHorizontal: 16 }}>
+                        <View style={{
+                            backgroundColor: theme.backgroundUnchangeable,
+                            position: 'absolute', top: Platform.OS === 'android' ? -1 : 0, left: 0, right: 0,
+                            height: '50%',
+                            borderBottomLeftRadius: 20,
+                            borderBottomRightRadius: 20,
+                        }} />
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                backgroundColor: theme.surfaceOnElevation,
+                                borderRadius: 20,
+                                marginBottom: 16, marginTop: 32,
+                                padding: 20
+                            }}
+                            collapsable={false}
+                        >
+                            <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                                <Pressable
+                                    onPress={onTopUp}
+                                    style={({ pressed }) => {
+                                        return {
+                                            opacity: pressed ? 0.5 : 1,
+                                            borderRadius: 14, flex: 1, paddingVertical: 10,
+                                            marginHorizontal: 4
+                                        }
+                                    }}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View style={{
+                                            backgroundColor: theme.accent,
+                                            width: 32, height: 32,
+                                            borderRadius: 16,
+                                            alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <Image source={require('@assets/ic-plus.png')} />
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 15,
+                                                color: theme.textPrimary,
+                                                marginTop: 6,
+                                                fontWeight: '400'
+                                            }}
+                                            minimumFontScale={0.7}
+                                            adjustsFontSizeToFit
+                                            numberOfLines={1}
+                                        >
+                                            {t('products.staking.actions.top_up')}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                            <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                                <Pressable
+                                    onPress={onUnstake}
+                                    disabled={!hasStake}
+                                    style={({ pressed }) => ({
+                                        opacity: (!hasStake || pressed) ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 4
+                                    })}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View style={{
+                                            backgroundColor: theme.accent,
+                                            width: 32, height: 32,
+                                            borderRadius: 16,
+                                            alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <Image source={require('@assets/ic-minus.png')} />
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 15,
+                                                color: theme.textPrimary,
+                                                marginTop: 6,
+                                                fontWeight: '400'
+                                            }}
+                                        >
+                                            {t('products.staking.actions.withdraw')}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                            <View style={{ flexGrow: 1, flexBasis: 0, borderRadius: 14 }}>
+                                <Pressable
+                                    onPress={() => navigation.navigateStakingCalculator({ target: targetPool })}
+                                    style={({ pressed }) => ({
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14, flex: 1, paddingVertical: 10,
+                                        marginHorizontal: 4
+                                    })}
+                                >
+                                    <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
+                                        <View style={{
+                                            backgroundColor: theme.accent,
+                                            width: 32, height: 32,
+                                            borderRadius: 16,
+                                            alignItems: 'center', justifyContent: 'center'
+                                        }}>
+                                            <Image source={require('@assets/ic-staking-calc.png')} />
+                                        </View>
+                                        <Text
+                                            style={{
+                                                fontSize: 15,
+                                                color: theme.textPrimary,
+                                                marginTop: 6,
+                                                fontWeight: '400'
+                                            }}
+                                        >
+                                            {t('products.staking.actions.calc')}
+                                        </Text>
+                                    </View>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                    <View style={{ paddingHorizontal: 16 }}>
+                        <StakingCycle
+                            stakeUntil={stakeUntil}
+                            locked={true}
+                            style={{ marginBottom: 16 }}
+                        />
+                        {!!pendingPoolTxs && pendingPoolTxs.length > 0 && (
+                            <PendingTransactionsView
+                                theme={theme}
+                                pending={pendingPoolTxs}
+                                removePending={removePending}
+                                style={{ marginBottom: 16 }}
+                            />
+                        )}
+                        {/* <StakingPendingComponent
+                            target={targetPool}
+                            member={member}
+                        /> */}
+                        <LiquidStakingMember
+                            balance={nominator?.balance ?? 0n}
+                            rateWithdraw={liquidStaking?.rateWithdraw ?? 0n}
+                        />
+                        {__DEV__ && (
+                            <StakingAnalyticsComponent pool={targetPool} />
+                        )}
+                    </View>
+                </View>
                 <View style={Platform.select({ android: { height: safeArea.bottom + 186 } })} />
-            </Animated.ScrollView >
+            </ScrollView>
         </View>
     );
 });

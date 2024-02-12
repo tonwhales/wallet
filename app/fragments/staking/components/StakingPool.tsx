@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownPools, getLiquidStakingAddress } from "../../../utils/KnownPools";
+import { KnownPools } from "../../../utils/KnownPools";
 import { t } from "../../../i18n/t";
 import { Pressable, View, Text, Alert, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../../../components/WImage";
@@ -9,11 +9,10 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Countdown } from "../../../components/Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useLiquidStakingMember, useNetwork, useStakingApy, useStakingPool, useTheme } from "../../../engine/hooks";
-import { useLiquidStaking } from "../../../engine/hooks/staking/useLiquidStaking";
+import { useNetwork, useStakingApy, useStakingPool, useTheme } from "../../../engine/hooks";
+import { Typography } from "../../../components/styles";
 
 import StakingIcon from '@assets/ic_staking.svg';
-import { Typography } from "../../../components/styles";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(

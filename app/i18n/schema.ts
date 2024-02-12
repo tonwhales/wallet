@@ -318,6 +318,7 @@ export type LocalizationSchema = {
                 deposit: string,
                 withdraw: string,
                 calc: string,
+                swap: string
             },
             pools: {
                 title: string,
@@ -405,6 +406,10 @@ export type LocalizationSchema = {
             withdraw: string,
             sync: string,
             unstake: {
+                title: string,
+                message: string
+            },
+            unstakeLiquid: {
                 title: string,
                 message: string
             },

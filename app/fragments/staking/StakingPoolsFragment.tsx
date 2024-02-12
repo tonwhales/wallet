@@ -12,7 +12,7 @@ import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
 import { StakingPool } from "./components/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Address } from "@ton/core";
-import { useClient4, useLiquidStakingMember, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
@@ -46,7 +46,6 @@ export const StakingPoolsFragment = fragment(() => {
     const memberAddress = isLedger ? ledgerAddress : selected?.address;
 
     const config = useStakingWalletConfig(memberAddress!.toString({ testOnly: network.isTestnet }));
-    const liquidMember = useLiquidStakingMember(memberAddress)?.data;
     const members = useStakingPoolMembers(
         client,
         isTestnet,

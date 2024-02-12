@@ -387,7 +387,7 @@ export const StakingFragment = fragment(() => {
                     </View>
                 </View>
                 <View style={Platform.select({ android: { height: safeArea.bottom + 186 } })} />
-            </ScrollView >
+            </ScrollView>
         </View>
     );
 });

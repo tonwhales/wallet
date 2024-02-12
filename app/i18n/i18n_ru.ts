@@ -365,7 +365,8 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "deposit": "Депозит",
                 "top_up": "Пополнить",
                 "withdraw": "Вывести",
-                "calc": "Калькулятор"
+                "calc": "Калькулятор",
+                "swap": "Обменять"
             },
             "join": {
                 "title": "Стань валидатором TON",
@@ -405,6 +406,10 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
             "unstake": {
                 "title": "Вы уверены, что хотите запросить вывод?",
                 "message": "Обратите внимание, что при запросе на вывод, все незавершенные депозиты также будут возвращены."
+            },
+            "unstakeLiquid": {
+                "title": "Вывести wsTON",
+                "message": "Вы можете вывести средства непосредственно после завершения цикла или мгновенно обменять wsTON на TON на "
             },
             "learnMore": "Инфо",
             "moreInfo": "Больше информации",

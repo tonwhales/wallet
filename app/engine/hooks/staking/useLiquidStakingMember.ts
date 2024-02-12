@@ -22,7 +22,7 @@ export function useLiquidStakingMember(member: Address | null | undefined) {
             let walletAddress = await openedContract.getWalletAddress(member);
             let walletContract = client.open(LiquidStakingWallet.createFromAddress(walletAddress));
 
-            return await walletContract.getState();
+            return (await walletContract.getState())?.data ?? null;
         },
         refetchOnMount: true,
         refetchInterval: 10_000,

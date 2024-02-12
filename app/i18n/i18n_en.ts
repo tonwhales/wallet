@@ -366,6 +366,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 top_up: 'Top Up',
                 withdraw: 'Withdraw',
                 calc: 'Calculate',
+                swap: 'Swap instantly'
             },
             join: {
                 title: 'Become a TON validator',
@@ -405,6 +406,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
             unstake: {
                 title: 'Are you sure want to request withdrawal?',
                 message: 'Please, note that by requesting withdrawal all pending deposits will be returned too.'
+            },
+            unstakeLiquid: {
+                title: 'Wihdraw your wsTON',
+                message: 'You can withdraw funds directly after the end of the cycle or swap instantly wsTON to TON on ',
             },
             learnMore: 'Info',
             moreInfo: 'More info',

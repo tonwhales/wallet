@@ -10,10 +10,10 @@ import { Countdown } from "../../../components/Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
 import { useLiquidStakingMember, useNetwork, useStakingApy, useTheme } from "../../../engine/hooks";
 import { useLiquidStaking } from "../../../engine/hooks/staking/useLiquidStaking";
-
-import StakingIcon from '@assets/ic_staking.svg';
 import { Typography } from "../../../components/styles";
 import { ItemHeader } from "../../../components/ItemHeader";
+
+import StakingIcon from '@assets/ic_staking.svg';
 
 export const LiquidStakingPool = memo((
     props: {
@@ -29,25 +29,25 @@ export const LiquidStakingPool = memo((
     const navigation = useTypedNavigation();
     const liquidAddress = getLiquidStakingAddress(network.isTestnet);
     const poolAddressString = liquidAddress.toString({ testOnly: network.isTestnet });
-    const liquidStaking = useLiquidStaking().data;
     const nominator = useLiquidStakingMember(props.member)?.data;
+    const liquidStaking = useLiquidStaking().data;
     const apy = useStakingApy()?.apy;
 
     const balance = useMemo(() => {
-        return nominator?.data.balance ?? 0n;
+        return nominator?.balance ?? 0n;
     }, [nominator]);
 
-    const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
-    const knownPools = KnownPools(network.isTestnet);
-    const requireSource = knownPools[poolAddressString]?.requireSource;
     const stakeUntil = Math.min(liquidStaking?.extras.proxyZeroStakeUntil ?? 0, liquidStaking?.extras.proxyOneStakeUntil ?? 0);
-    const name = knownPools[poolAddressString]?.name;
-    const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
+    const poolFee = liquidStaking?.extras.poolFee ? Number(toNano(fromNano(liquidStaking?.extras.poolFee))) / 100 : undefined;
     const apyWithFee = useMemo(() => {
         if (!!apy && !!poolFee) {
             return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
         }
     }, [apy, poolFee]);
+    const knownPools = KnownPools(network.isTestnet);
+    const requireSource = knownPools[poolAddressString]?.requireSource;
+    const name = knownPools[poolAddressString]?.name;
+    const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
 
 
     const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
@@ -68,16 +68,23 @@ export const LiquidStakingPool = memo((
                 paddingTop: 16,
                 paddingBottom: 16
             }}>
-                <View style={{
-                    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-                }}>
+                <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <ItemHeader
                         title={t('products.staking.pools.liquid')}
                         style={{ flexShrink: 1 }}
+                        textStyle={{ flexGrow: 0 }}
                     />
+                    <View style={{
+                        backgroundColor: theme.accentBlue,
+                        paddingHorizontal: 8, borderRadius: 30,
+                        paddingTop: 1, paddingBottom: 3
+                    }}>
+                        <Text style={[{ color: theme.textUnchangeable }, Typography.medium13_18]}>
+                            {'Beta'}
+                        </Text>
+                    </View>
                 </View>
                 <Text style={{
-                    maxWidth: '90%',
                     fontSize: 14, color: theme.textSecondary,
                     marginTop: 2
                 }}>

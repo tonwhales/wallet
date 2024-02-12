@@ -40,7 +40,7 @@ export enum HoldersEnrollErrorType {
 
 export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType } | { type: 'success' };
 
-export function useHoldersEnroll({ acc, domain, authContext, authStyle }: HoldersEnrollParams) {
+export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const saveAppConnection = useSaveAppConnection();
     return (async () => {
@@ -152,8 +152,7 @@ export function useHoldersEnroll({ acc, domain, authContext, authStyle }: Holder
                     }, isTestnet);
 
                     setHoldersToken(acc.address.toString({ testOnly: isTestnet }), token);
-                } catch (e) {
-                    console.warn(e);
+                } catch {
                     deleteHoldersToken(acc.address.toString({ testOnly: isTestnet }));
                     return { type: 'error', error: HoldersEnrollErrorType.FetchTokenFailed };
                 }

@@ -23,6 +23,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
+import { Typography } from '../../components/styles';
 
 function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: SelectedAccount }) {
     const network = useNetwork();
@@ -102,12 +103,7 @@ function WalletComponent(props: { wallet: AccountLite | null, selectedAcc: Selec
                                     borderRadius: undefined,
                                     height: undefined,
                                 }}
-                                textStyle={{
-                                    fontSize: 32,
-                                    color: theme.textOnsurfaceOnDark,
-                                    fontWeight: '500',
-                                    lineHeight: 38
-                                }}
+                                textStyle={[{ color: theme.textOnsurfaceOnDark }, Typography.semiBold32_38]}
                                 centsTextStyle={{ color: theme.textSecondary }}
                                 theme={theme}
                             />

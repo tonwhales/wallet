@@ -13,6 +13,7 @@ import { useNetwork, useSelectedAccount, useSyncState, useTheme } from "../../..
 import { useWalletSettings } from "../../../engine/hooks/appstate/useWalletSettings";
 
 import NoConnection from '@assets/ic-no-connection.svg';
+import { Typography } from "../../../components/styles";
 
 export const WalletHeader = memo(() => {
     const network = useNetwork();
@@ -96,13 +97,11 @@ export const WalletHeader = memo(() => {
                         alignItems: 'center'
                     }}>
                         <Text
-                            style={{
-                                fontWeight: '500',
-                                fontSize: 17, lineHeight: 24,
+                            style={[{
                                 color: theme.style === 'light' ? theme.textOnsurfaceOnDark : theme.textPrimary,
                                 flexShrink: 1,
                                 marginRight: 8
-                            }}
+                            }, Typography.semiBold17_24]}
                             ellipsizeMode='tail'
                             numberOfLines={1}
                         >

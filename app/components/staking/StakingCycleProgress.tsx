@@ -35,7 +35,7 @@ export const StakingCycleProgress = React.memo((
     return (
         <ReAnimatedCircularProgress
             size={64}
-            color={'#AAA5F0'}
+            color={theme.accent}
             strokeWidth={8}
             progress={(progress / 100) - 0.05}
             backdropColor={theme.divider}

@@ -113,7 +113,7 @@ export const StakingProductComponent = memo(() => {
                         return (
                             <StakingPool
                                 key={`active-${p.address.toString()}`}
-                                address={p.address}
+                                pool={p.address}
                                 balance={p.balance}
                                 style={{
                                     backgroundColor: theme.surfaceOnBg,
@@ -207,7 +207,7 @@ export const StakingProductComponent = memo(() => {
                 {!!active && active.map((p, i) => (
                     <View key={`active-${p.address.toString()}`}>
                         <StakingPool
-                            address={p.address}
+                            pool={p.address}
                             balance={p.balance}
                             style={{
                                 backgroundColor: theme.surfaceOnBg,

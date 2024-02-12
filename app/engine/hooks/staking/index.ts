@@ -7,4 +7,4 @@ export { useStakingPoolStatus } from './useStakingPoolStatus';
 export { useStakingWalletConfig } from './useStakingWalletConfig';
 export { useNominatorInfo } from './useNominatorInfo';
 export { useStakingActive } from './useStakingActive';
-export { useLiquidStaking } from './useLiquidStaking';
+export { useLiquidStakingMember } from './useLiquidStakingMember';

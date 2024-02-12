@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownPools } from "../../../utils/KnownPools";
+import { KnownPools, getLiquidStakingAddress } from "../../../utils/KnownPools";
 import { t } from "../../../i18n/t";
 import { Pressable, View, Text, Alert, StyleProp, ViewStyle } from "react-native";
 import { WImage } from "../../../components/WImage";
@@ -9,9 +9,11 @@ import { ValueComponent } from "../../../components/ValueComponent";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { Countdown } from "../../../components/Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useNetwork, useStakingApy, useStakingPool, useTheme } from "../../../engine/hooks";
+import { useLiquidStakingMember, useNetwork, useStakingApy, useStakingPool, useTheme } from "../../../engine/hooks";
+import { useLiquidStaking } from "../../../engine/hooks/staking/useLiquidStaking";
 
 import StakingIcon from '@assets/ic_staking.svg';
+import { Typography } from "../../../components/styles";
 
 function clubAlert(navigation: TypedNavigation, pool: string) {
     Alert.alert(
@@ -50,23 +52,24 @@ function restrictedAlert(navigation: TypedNavigation, pool: string) {
 }
 
 export const StakingPool = memo((props: {
-    address: Address,
+    member: Address,
+    pool: Address,
     balance: bigint,
     restricted?: boolean,
     isLedger?: boolean,
     style?: StyleProp<ViewStyle>,
-    hideCycle?: boolean
+    hideCycle?: boolean,
 }) => {
     const theme = useTheme();
     const network = useNetwork();
     const navigation = useTypedNavigation();
-    const poolAddressString = props.address.toString({ testOnly: network.isTestnet });
-    const pool = useStakingPool(props.address);
+    const poolAddressString = props.pool.toString({ testOnly: network.isTestnet });
+    const pool = useStakingPool(props.pool, props.member);
     const poolFee = pool?.params.poolFee ? Number(toNano(fromNano(pool.params.poolFee))) / 100 : undefined;
     const knownPools = KnownPools(network.isTestnet);
 
     const stakeUntil = pool?.status.proxyStakeUntil || 0;
-    const name = knownPools[poolAddressString].name;
+    const name = knownPools[poolAddressString]?.name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
 
     const apy = useStakingApy()?.apy;
@@ -76,7 +79,7 @@ export const StakingPool = memo((props: {
         }
     }, [apy, poolFee]);
 
-    let requireSource = knownPools[poolAddressString].requireSource;
+    let requireSource = knownPools[poolAddressString]?.requireSource;
     let club: boolean | undefined;
     if (
         poolAddressString === 'EQDFvnxuyA2ogNPOoEj1lu968U4PP8_FzJfrOWUsi_o1CLUB'
@@ -117,35 +120,36 @@ export const StakingPool = memo((props: {
                 paddingTop: props.balance > 0n ? 20 : 0,
             }, props.style]}
         >
-            {!props.hideCycle && (<View style={[{
-                flexShrink: 1,
-                alignItems: 'center',
-                alignSelf: 'flex-end',
-                borderRadius: 16,
-                overflow: 'hidden',
-                backgroundColor: theme.border,
-                maxWidth: 74, justifyContent: 'center',
-            }, props.balance > 0n ? { position: 'relative', top: -10, right: -6 } : { position: 'relative', top: 10, right: -6 }]}>
-                <Text style={{
-                    paddingHorizontal: 8, paddingVertical: 1,
-                    color: theme.textPrimary,
-                    fontWeight: '400',
-                    fontSize: 13, lineHeight: 18,
-                    flexShrink: 1,
-                }}>
-                    <Countdown
-                        hidePrefix
-                        left={left}
-                        textStyle={{
+            {!props.hideCycle && (
+                <View style={[
+                    {
+                        flexShrink: 1,
+                        alignItems: 'center',
+                        alignSelf: 'flex-end',
+                        borderRadius: 16,
+                        overflow: 'hidden',
+                        backgroundColor: theme.border,
+                        maxWidth: 74, justifyContent: 'center',
+                    }, props.balance > 0n
+                        ? { position: 'relative', top: -10, right: -6 }
+                        : { position: 'relative', top: 10, right: -6 }
+                ]}>
+                    <Text style={[
+                        {
+                            paddingHorizontal: 8, paddingVertical: 1,
                             color: theme.textPrimary,
-                            fontWeight: '400',
-                            fontSize: 13, lineHeight: 18,
-                            flex: 1,
                             flexShrink: 1,
-                        }}
-                    />
-                </Text>
-            </View>)}
+                        },
+                        Typography.regular13_18
+                    ]}>
+                        <Countdown
+                            hidePrefix
+                            left={left}
+                            textStyle={[{ color: theme.textPrimary, flex: 1, flexShrink: 1 }, Typography.regular13_18]}
+                        />
+                    </Text>
+                </View>
+            )}
             <View style={{
                 alignSelf: 'stretch',
                 flexDirection: 'row',
@@ -182,23 +186,14 @@ export const StakingPool = memo((props: {
                         marginRight: 12,
                     }}>
                         <Text
-                            style={{
-                                color: theme.textPrimary,
-                                fontSize: 17, lineHeight: 24,
-                                fontWeight: '600',
-                                flexShrink: 1, marginBottom: 2
-                            }}
+                            style={[{ color: theme.textPrimary, flexShrink: 1, marginBottom: 2 }, Typography.semiBold17_24]}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
                             {name}
                         </Text>
                         <Text
-                            style={{
-                                color: theme.textSecondary,
-                                fontSize: 15, lineHeight: 20,
-                                flexShrink: 1
-                            }}
+                            style={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
                             ellipsizeMode={'tail'}
                             numberOfLines={1}
                         >
@@ -210,13 +205,7 @@ export const StakingPool = memo((props: {
                     <View>
                         {props.balance > 0n && (
                             <>
-                                <Text style={{
-                                    color: theme.textPrimary,
-                                    fontWeight: '600',
-                                    lineHeight: 24,
-                                    fontSize: 17,
-                                    alignSelf: 'flex-end'
-                                }}>
+                                <Text style={[{ color: theme.textPrimary, alignSelf: 'flex-end' }, Typography.semiBold17_24]}>
                                     <ValueComponent
                                         precision={3}
                                         value={props.balance}
@@ -235,11 +224,7 @@ export const StakingPool = memo((props: {
                                         marginTop: 2, height: 20
                                     }}
                                     theme={theme}
-                                    textStyle={{
-                                        color: theme.textSecondary,
-                                        fontWeight: '400',
-                                        fontSize: 15, lineHeight: 20
-                                    }}
+                                    textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 />
                             </>
                         )}

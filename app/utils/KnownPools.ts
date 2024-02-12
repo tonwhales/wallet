@@ -78,7 +78,7 @@ export const KnownPools: (isTestnet: boolean) => { [key: string]: StakingPool } 
                 requireSource: require('@assets/known/ic_tonkeeper_2.png')
             },
             [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
-                name: 'Whales Liquidit',
+                name: 'Whales Liquid',
                 requireSource: require('@assets/known/ic_wls.png')
             },
         }

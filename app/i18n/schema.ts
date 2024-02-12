@@ -349,6 +349,8 @@ export type LocalizationSchema = {
                 lockupsDescription: string,
                 tonkeeper: string,
                 tonkeeperDescription: string,
+                liquid: string,
+                liquidDescription: string
             },
             transfer: {
                 stakingWarning: string,

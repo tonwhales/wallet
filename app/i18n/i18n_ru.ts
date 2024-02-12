@@ -335,7 +335,9 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
                 "lockups": "Локапы",
                 "lockupsDescription": "Только для держателей крупных локапов в TON",
                 "tonkeeper": "Tonkeeper",
-                "tonkeeperDescription": "Для пользователей дружественного мобильного кошелька Tonkeeper"
+                "tonkeeperDescription": "Для пользователей дружественного мобильного кошелька Tonkeeper",
+                "liquid": "Ликвидный Стейкинг",
+                "liquidDescription": 'Отправьте TON на стейкинг и получите токены wsTON взамен'
             },
             "transfer": {
                 "stakingWarning": "Вы всегда можете внести новый депозит или увеличить существующий. Обратите внимание, что минимальная сумма составляет: {{minAmount}}",

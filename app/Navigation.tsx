@@ -86,6 +86,7 @@ import { PendingTxPreviewFragment } from './fragments/wallet/PendingTxPreviewFra
 import { DAppWebViewFragment } from './fragments/utils/DAppWebViewFragment';
 import { DevDAppWebViewFragment } from './fragments/dev/DevDAppWebViewFragment';
 import { LiquidWithdrawActionFragment } from './fragments/staking/LiquidWithdrawActionFragment';
+import { LiquidStakingTransferFragment } from './fragments/staking/LiquidStakingTransferFragment';
 
 const Stack = createNativeStackNavigator();
 Stack.Navigator.displayName = 'MainStack';
@@ -235,6 +236,7 @@ const navigation = (safeArea: EdgeInsets) => [
 
     // Staking
     modalScreen('StakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('StakingCalculator', StakingCalculatorFragment, safeArea),
     transparentModalScreen('StakingPoolSelector', StakingPoolSelectorFragment, safeArea),
     transparentModalScreen('StakingPoolSelectorLedger', StakingPoolSelectorFragment, safeArea),
@@ -253,7 +255,9 @@ const navigation = (safeArea: EdgeInsets) => [
     modalScreen('LedgerTransactionPreview', TransactionPreviewFragment, safeArea),
     modalScreen('LedgerAssets', AssetsFragment, safeArea),
     modalScreen('LedgerStakingTransfer', StakingTransferFragment, safeArea),
+    modalScreen('LedgerLiquidStakingTransfer', LiquidStakingTransferFragment, safeArea),
     modalScreen('LedgerStakingCalculator', StakingCalculatorFragment, safeArea),
+    transparentModalScreen('LedgerLiquidWithdrawAction', LiquidWithdrawActionFragment, safeArea),
 
     // Settings
     modalScreen('WalletBackup', WalletBackupFragment, safeArea),

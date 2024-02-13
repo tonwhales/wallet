@@ -337,7 +337,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 tonkeeper: 'Tonkeeper',
                 tonkeeperDescription: 'Friendly mobile wallet on TON',
                 liquid: 'Liquid Staking',
-                liquidDescription: 'Send TON to staking and get wsTON tokens instead'
+                liquidDescription: 'Send TON to staking and get wsTON tokens instead',
+                rateTitle: 'Exchange rate'
             },
             transfer: {
                 stakingWarning: 'You can always deposit new stake or increase existing one with any amount. Please note that minimum amount is: {{minAmount}}',

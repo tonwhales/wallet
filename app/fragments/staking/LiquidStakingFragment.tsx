@@ -22,6 +22,7 @@ import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
 import { LiquidStakingMember } from "./components/LiquidStakingBalance";
+import { TransferAction } from "./StakingTransferFragment";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -56,7 +57,7 @@ export const LiquidStakingFragment = fragment(() => {
         const bal = fromNano(nominator?.balance || 0n);
         const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
         return toNano(parseFloat(bal) * parseFloat(rate));
-    }, [nominator?.balance, liquidStaking?.rateWithdraw])
+    }, [nominator?.balance, liquidStaking?.rateWithdraw]);
 
     const { targetPool, targetPoolFriendly } = useMemo(() => {
         const address = getLiquidStakingAddress(network.isTestnet);
@@ -102,7 +103,7 @@ export const LiquidStakingFragment = fragment(() => {
         }
 
         return temp;
-    }, [nominator, network.isTestnet, liquidStaking])
+    }, [nominator, network.isTestnet, liquidStaking]);
 
     const removePending = useCallback((id: string) => {
         setPending((prev) => {
@@ -117,25 +118,11 @@ export const LiquidStakingFragment = fragment(() => {
     }, [liquidStaking]);
 
     const onTopUp = useCallback(() => {
-        // TODO
-        // if (isLedger) {
-        //     navigation.navigate('LedgerStakingTransfer', {
-        //         target: targetPool,
-        //         amount: transferAmount,
-        //         lockAddress: true,
-        //         lockComment: true,
-        //         action: 'top_up' as TransferAction,
-        //     });
-        //     return;
-        // }
-        // navigation.navigateStaking({
-        //     target: targetPool,
-        //     amount: transferAmount,
-        //     lockAddress: true,
-        //     lockComment: true,
-        //     action: 'top_up' as TransferAction,
-        // });
-    }, [targetPool, nominator, transferAmount]);
+        navigation.navigateLiquidStakingTransfer(
+            { amount: transferAmount, action: 'top_up' as TransferAction },
+            isLedger
+        );
+    }, [transferAmount, isLedger]);
 
     const onUnstake = useCallback(() => {
         navigation.navigate('LiquidWithdrawAction');
@@ -433,6 +420,7 @@ export const LiquidStakingFragment = fragment(() => {
                                 style={{ marginBottom: 16 }}
                             />
                         )}
+                        {/* TODO */}
                         {/* <StakingPendingComponent
                             target={targetPool}
                             member={member}

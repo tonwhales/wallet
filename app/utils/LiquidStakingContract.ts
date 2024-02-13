@@ -24,9 +24,9 @@ export function storeDeploy(queryId: bigint, gasLimit: bigint) {
     };
 }
 
-export function storeDeposit(
+export function storeLiquidDeposit(
     queryId: bigint,
-    deposit: bigint,
+    amount: bigint,
     responseAddress?: Address,
     fwdAmount: bigint = 0n
 ) {
@@ -34,27 +34,27 @@ export function storeDeposit(
         return builder
             .storeUint(2077040623, 32)
             .storeUint(queryId, 64)
-            .storeCoins(deposit)
+            .storeCoins(amount)
             .storeAddress(responseAddress)
             .storeCoins(fwdAmount);
     };
 }
 
-export function storeWithdraw(
+export function storeLiquidWithdraw(
     queryId: bigint,
-    withdraw: bigint,
+    jettonAmount: bigint,
     responseAddress?: Address
 ) {
     return (builder: Builder) => {
         return builder
             .storeUint(3665837821, 32)
             .storeUint(queryId, 64)
-            .storeCoins(withdraw)
+            .storeCoins(jettonAmount)
             .storeAddress(responseAddress);
     };
 }
 
-export function storeCollect(queryId: bigint, responseAddress?: Address) {
+export function storeLiquidCollect(queryId: bigint, responseAddress?: Address) {
     return (builder: Builder) => {
         return builder
             .storeUint(0x4a10e022, 32)
@@ -80,7 +80,7 @@ export class LiquidStakingPool implements Contract {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().store(storeDeposit(queryId, deposit, via.address)).endCell()
+            body: beginCell().store(storeLiquidDeposit(queryId, deposit, via.address)).endCell()
         });
     }
 
@@ -94,7 +94,7 @@ export class LiquidStakingPool implements Contract {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().store(storeWithdraw(queryId, withdraw, via.address)).endCell()
+            body: beginCell().store(storeLiquidWithdraw(queryId, withdraw, via.address)).endCell()
         });
     }
 
@@ -107,7 +107,7 @@ export class LiquidStakingPool implements Contract {
         await provider.internal(via, {
             value,
             sendMode: SendMode.PAY_GAS_SEPARATELY,
-            body: beginCell().store(storeCollect(queryId, via.address)).endCell()
+            body: beginCell().store(storeLiquidCollect(queryId, via.address)).endCell()
         });
     }
 

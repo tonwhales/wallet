@@ -3,25 +3,12 @@ import { View, Image, Text } from "react-native";
 import { useTheme } from "../../../engine/hooks";
 import { ValueComponent } from "../../../components/ValueComponent";
 import { Typography } from "../../../components/styles";
-import { fromNano } from "@ton/core";
 import { PriceComponent } from "../../../components/PriceComponent";
 import { ItemDivider } from "../../../components/ItemDivider";
 import { t } from "../../../i18n/t";
 
-export const LiquidStakingMember = memo((
-    {
-        balance,
-        rateWithdraw
-    }: {
-        balance: bigint,
-        rateWithdraw: bigint,
-    }
-) => {
+export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: bigint, rateWithdraw: bigint, }) => {
     const theme = useTheme();
-    const bal = fromNano(balance);
-    const rate = fromNano(rateWithdraw);
-
-    // toNano(parseFloat(bal) * parseFloat(rate))
 
     return (
         <View style={{

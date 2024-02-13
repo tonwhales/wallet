@@ -92,42 +92,29 @@ export const StakingFragment = fragment(() => {
         + (pool?.params?.depositFee ?? 0n);
 
     const onTopUp = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
+        navigation.navigateStakingTransfer(
+            {
                 target: targetPool,
                 amount: transferAmount,
                 lockAddress: true,
                 lockComment: true,
                 action: 'top_up' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            amount: transferAmount,
-            lockAddress: true,
-            lockComment: true,
-            action: 'top_up' as TransferAction,
-        });
-    }, [targetPool, pool, transferAmount]);
+            }, 
+            isLedger
+        );
+    }, [targetPool, transferAmount, isLedger]);
 
     const onUnstake = useCallback(() => {
-        if (isLedger) {
-            navigation.navigate('LedgerStakingTransfer', {
+        navigation.navigateStakingTransfer(
+            {
                 target: targetPool,
                 lockAddress: true,
                 lockComment: true,
                 action: 'withdraw' as TransferAction,
-            });
-            return;
-        }
-        navigation.navigateStaking({
-            target: targetPool,
-            lockAddress: true,
-            lockComment: true,
-            action: 'withdraw' as TransferAction,
-        });
-    }, [targetPool]);
+            },
+            isLedger
+        );
+    }, [targetPool, isLedger]);
 
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);
 
@@ -374,6 +361,7 @@ export const StakingFragment = fragment(() => {
                         <StakingPendingComponent
                             target={targetPool}
                             member={member}
+                            leder={isLedger}
                         />
                         {(type !== 'nominators' && !available) && (
                             <RestrictedPoolBanner type={type} />

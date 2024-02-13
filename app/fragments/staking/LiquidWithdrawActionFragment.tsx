@@ -8,11 +8,14 @@ import { useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Typography } from "../../components/styles";
+import { useRoute } from "@react-navigation/native";
 
 export const LiquidWithdrawActionFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
     const navigation = useTypedNavigation();
     const theme = useTheme();
+    const route = useRoute();
+    const isLedger = route.name === 'LedgerLiquidWithdrawAction';
 
     return (
         <View style={{
@@ -69,8 +72,15 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                     style={{ marginBottom: 16 }}
                     title={t('products.staking.actions.swap')}
                     onPress={() => {
-                        // open dedust.io
-                        // navigation.replace();
+                        navigation.replace('DAppWebView', {
+                            url: 'https://dedust.io',
+                            header: {
+                                title: 'DeDust.io',
+                                onClose: navigation.goBack
+                            },
+                            engine: 'ton-connect',
+                            useStatusBar: true
+                        });
                     }}
                 />
                 <RoundButton
@@ -78,8 +88,11 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                     title={t('products.staking.actions.withdraw')}
                     display={'secondary'}
                     onPress={() => {
-                        // open withdraw
-                        // navigation.replace();
+                        if (isLedger) {
+                            navigation.replace('LedgerLiquidStakingTransfer', { action: 'withdraw' });
+                            return;
+                        }
+                        navigation.replace('LiquidStakingTransfer', { action: 'withdraw' });
                     }}
                 />
             </View>

@@ -9,13 +9,13 @@ import { fragment } from "../../fragment";
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { t } from '../../i18n/t';
 import { PriceComponent } from '../../components/PriceComponent';
-import { createWithdrawStakeCell } from '../../utils/createWithdrawStakeCommand';
+import { createWithdrawStakeCell } from '../../utils/staking/createWithdrawStakeCommand';
 import { StakingCycle } from "../../components/staking/StakingCycle";
 import { StakingCalcComponent } from '../../components/staking/StakingCalcComponent';
 import { PoolTransactionInfo } from '../../components/staking/PoolTransactionInfo';
 import { parseAmountToBn } from '../../utils/parseAmount';
 import { ValueComponent } from '../../components/ValueComponent';
-import { createAddStakeCommand } from '../../utils/createAddStakeCommand';
+import { createAddStakeCommand } from '../../utils/staking/createAddStakeCommand';
 import { useParams } from '../../utils/useParams';
 import { useRoute } from '@react-navigation/native';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from 'react';
@@ -28,7 +28,7 @@ import { TonPayloadFormat } from '@ton-community/ton-ledger';
 import { AboutIconButton } from '../../components/AboutIconButton';
 import { StatusBar } from 'expo-status-bar';
 
-export type TransferAction = 'deposit' | 'withdraw' | 'top_up' | 'withdraw_ready';
+export type TransferAction = 'withdraw' | 'top_up' | 'withdraw_ready';
 
 export type StakingTransferParams = {
     target: Address,
@@ -41,8 +41,6 @@ export type StakingTransferParams = {
 
 export function actionTitle(action?: TransferAction) {
     switch (action) {
-        case 'deposit':
-            return t('products.staking.transfer.depositStakeTitle');
         case 'withdraw':
             return t('products.staking.transfer.withdrawStakeTitle');
         case 'top_up':
@@ -80,7 +78,6 @@ export const StakingTransferFragment = fragment(() => {
     const pool = useStakingPool(params.target, isLedger ? ledgerAddress : selected!.address);
     const member = pool?.member;
 
-    const [title, setTitle] = useState('');
     const [amount, setAmount] = useState(params?.amount ? fromNano(params.amount) : '');
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
 
@@ -130,10 +127,7 @@ export const StakingTransferFragment = fragment(() => {
         }
 
         // Check min stake amount
-        if (
-            (params?.action === 'deposit' || params?.action === 'top_up')
-            && value < minAmount
-        ) {
+        if (params?.action === 'top_up' && value < minAmount) {
             setMinAmountWarn(
                 t('products.staking.minAmountWarning',
                     { minAmount: fromNano(minAmount) })
@@ -206,7 +200,7 @@ export const StakingTransferFragment = fragment(() => {
             transferAmount = pool
                 ? (pool.params.withdrawFee + pool.params.receiptPrice)
                 : toNano('0.2');
-        } else if (params.action === 'deposit' || params.action === 'top_up') {
+        } else if (params.action === 'top_up') {
             payload = createAddStakeCommand();
         } else {
             throw Error('Invalid action');
@@ -308,7 +302,7 @@ export const StakingTransferFragment = fragment(() => {
 
     const onAddAll = useCallback(() => {
         let addAmount = balance;
-        if (params?.action === 'deposit' || params?.action === 'top_up') {
+        if (params?.action === 'top_up') {
             // Account for withdraw fee need to unstake 
             addAmount = addAmount
                 - (pool?.params?.withdrawFee || toNano('0.1'))
@@ -322,10 +316,6 @@ export const StakingTransferFragment = fragment(() => {
             onSetAmount(formatted);
         }
     }, [balance, params, pool]);
-
-    useEffect(() => {
-        setTitle(actionTitle(params?.action));
-    }, [params?.action]);
 
     useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
@@ -354,7 +344,7 @@ export const StakingTransferFragment = fragment(() => {
                 ios: 'light'
             })} />
             <ScreenHeader
-                title={title}
+                title={actionTitle(params?.action)}
                 onClosePressed={navigation.goBack}
                 style={Platform.select({ android: { paddingTop: safeArea.top } })}
             />
@@ -453,7 +443,7 @@ export const StakingTransferFragment = fragment(() => {
                         </Animated.View>
                     )}
 
-                    {(params?.action === 'deposit' || params?.action === 'top_up') && pool && validAmount !== null && (
+                    {params?.action === 'top_up' && pool && validAmount !== null && (
                         <>
                             <StakingCalcComponent
                                 amount={validAmount}

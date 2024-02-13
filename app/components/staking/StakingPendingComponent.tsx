@@ -12,11 +12,13 @@ export const StakingPendingComponent = memo((
     {
         member,
         target,
-        style
+        style,
+        leder
     }: {
         member?: StakingPoolMember | null,
         target: Address,
-        style?: StyleProp<ViewStyle>
+        style?: StyleProp<ViewStyle>,
+        leder?: boolean
     }
 ) => {
     const theme = useTheme();
@@ -150,14 +152,17 @@ export const StakingPendingComponent = memo((
                     )}
                     <Pressable
                         style={{ width: '100%', marginBottom: 20 }}
-                        onPress={() => navigation.navigateStaking({
-                            target: target,
-                            amount: member.withdraw,
-                            lockAmount: true,
-                            lockAddress: true,
-                            lockComment: true,
-                            action: 'withdraw_ready' as TransferAction,
-                        })}
+                        onPress={() => navigation.navigateStakingTransfer(
+                            {
+                                target: target,
+                                amount: member.withdraw,
+                                lockAmount: true,
+                                lockAddress: true,
+                                lockComment: true,
+                                action: 'withdraw_ready' as TransferAction,
+                            },
+                            leder
+                        )}
                     >
                         <View style={{
                             flexDirection: 'row', width: '100%',

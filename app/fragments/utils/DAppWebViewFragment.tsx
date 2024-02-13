@@ -198,7 +198,7 @@ export const DAppWebViewFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             {!!header && (
                 <ScreenHeader
-                    style={{ paddingTop: 32, paddingHorizontal: 16 }}
+                    style={{ paddingTop: 32 }}
                     onBackPressed={header.onBack}
                     onClosePressed={headerOnClose}
                     title={header.title}

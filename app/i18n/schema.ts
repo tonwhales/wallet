@@ -351,7 +351,8 @@ export type LocalizationSchema = {
                 tonkeeper: string,
                 tonkeeperDescription: string,
                 liquid: string,
-                liquidDescription: string
+                liquidDescription: string,
+                rateTitle: string,
             },
             transfer: {
                 stakingWarning: string,

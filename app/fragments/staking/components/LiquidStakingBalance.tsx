@@ -13,7 +13,7 @@ export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: b
     return (
         <View style={{
             borderRadius: 20,
-            backgroundColor: theme.surfaceOnElevation,
+            backgroundColor: theme.surfaceOnBg,
             padding: 20,
             marginBottom: 16,
         }}>
@@ -36,9 +36,8 @@ export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: b
                         justifyContent: 'center', alignItems: 'center',
                         bottom: -2, right: -2,
                         width: 20, height: 20, borderRadius: 20,
-                        backgroundColor: theme.surfaceOnElevation
+                        backgroundColor: theme.surfaceOnBg
                     }]}>
-
                         <Image
                             source={require('@assets/ic-verified.png')}
                             style={{ width: 20, height: 20 }}

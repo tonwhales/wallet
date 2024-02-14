@@ -39,6 +39,8 @@ const Img_Lockups_2 = require('@assets/known/ic_lockups_2.png');
 
 const Img_MEXC = require('@assets/known/ic_mexc.png');
 
+const Img_Liquid = require('@assets/known/ic_wls.png');
+
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
 export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet } = (isTestnet: boolean) => {
@@ -401,11 +403,12 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 ic: Img_Lockups_2
             },
             [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
-                name: 'Whales Liquidit',
+                name: 'Whales Liquid',
                 colors: {
                     primary: '#65C6FF',
                     secondary: '#DEEFFC'
-                }
+                },
+                ic: Img_Liquid
             },
         }
 }

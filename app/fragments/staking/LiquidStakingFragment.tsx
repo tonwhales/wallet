@@ -56,7 +56,7 @@ export const LiquidStakingFragment = fragment(() => {
     const balance = useMemo(() => {
         const bal = fromNano(nominator?.balance || 0n);
         const rate = fromNano(liquidStaking?.rateWithdraw || 0n);
-        return toNano(parseFloat(bal) * parseFloat(rate));
+        return toNano((parseFloat(bal) * parseFloat(rate)).toFixed(9));
     }, [nominator?.balance, liquidStaking?.rateWithdraw]);
 
     const { targetPool, targetPoolFriendly } = useMemo(() => {
@@ -298,7 +298,7 @@ export const LiquidStakingFragment = fragment(() => {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginBottom: 16, marginTop: 32,
                                 padding: 20

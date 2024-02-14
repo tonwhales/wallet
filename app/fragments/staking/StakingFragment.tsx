@@ -36,7 +36,6 @@ export const StakingFragment = fragment(() => {
     const isLedger = route.name === 'LedgerStaking';
     const selected = useSelectedAccount();
     const bottomBarHeight = useBottomTabBarHeight();
-    const active = useStakingActive();
     const [pendingTxs, setPending] = usePendingTransactions(selected?.addressString ?? '', network.isTestnet);
 
     const ledgerContext = useLedgerTransport();
@@ -233,7 +232,7 @@ export const StakingFragment = fragment(() => {
                         <View
                             style={{
                                 flexDirection: 'row',
-                                backgroundColor: theme.surfaceOnElevation,
+                                backgroundColor: theme.surfaceOnBg,
                                 borderRadius: 20,
                                 marginBottom: 16, marginTop: 32,
                                 padding: 20

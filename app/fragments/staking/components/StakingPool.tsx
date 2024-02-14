@@ -58,6 +58,7 @@ export const StakingPool = memo((props: {
     isLedger?: boolean,
     style?: StyleProp<ViewStyle>,
     hideCycle?: boolean,
+    iconBackgroundColor?: string,
 }) => {
     const theme = useTheme();
     const network = useNetwork();
@@ -159,9 +160,9 @@ export const StakingPool = memo((props: {
                     width: 46, height: 46,
                     borderRadius: 23,
                     borderWidth: 0,
-                    marginRight: 10,
+                    marginRight: 12,
                     alignItems: 'center', justifyContent: 'center',
-                    backgroundColor: theme.border,
+                    backgroundColor: props.iconBackgroundColor ?? theme.border,
                 }}>
                     {!requireSource
                         ? (
@@ -176,6 +177,7 @@ export const StakingPool = memo((props: {
                                 width={44}
                                 heigh={44}
                                 borderRadius={22}
+                                style={{ backgroundColor: props.iconBackgroundColor }}
                             />
                         )}
                 </View>

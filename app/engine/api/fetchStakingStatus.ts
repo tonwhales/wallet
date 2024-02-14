@@ -46,12 +46,7 @@ export type StakingStatus = {
 };
 
 export async function fetchStakingStatus(isTestnet: boolean): Promise<StakingStatus | null> {
-
-    if (isTestnet) {
-        return null;
-    }
-
-    const res = await axios.get(`${stakingIndexerUrl}/status`);
+    const res = await axios.get(`${stakingIndexerUrl}/status${isTestnet ? 'testnet' : ''}`);
 
     if (res.status !== 200) {
         throw new Error('Failed to fetch staking status');

@@ -94,7 +94,21 @@ export const LiquidStakingTransferFragment = fragment(() => {
     const liquidStaking = useLiquidStaking().data;
     const member = useLiquidStakingMember(memberAddress)?.data;
 
-    const initAmount = params.amount ? fromNano(params.amount) : '';
+    let initAmount = {
+        ton: '',
+        wsTon: ''
+    }
+
+    if (params?.action === 'top_up' && params.amount) {
+        const depostRate = liquidStaking?.rateDeposit ?? 0n;
+        const ton = fromNano(params.amount);
+        const computed = parseFloat(ton) * parseFloat(fromNano(depostRate)) || 0
+        const wsTon = fromNano(toNano(computed.toFixed(9)));
+        initAmount = {
+            ton,
+            wsTon
+        }
+    }
 
     const [amount, dispatchAmount] = useReducer(
         reduceAmountState(
@@ -102,7 +116,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
             liquidStaking?.rateDeposit ?? 0n,
             params?.action === 'withdraw' ? 'withdraw' : 'top_up'
         ),
-        params?.action === 'withdraw' ? { ton: '', wsTon: initAmount } : { ton: initAmount, wsTon: '' }
+        initAmount
     );
 
     const [minAmountWarn, setMinAmountWarn] = useState<string>();
@@ -127,7 +141,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
         }
 
         return 0n;
-    }, [params.action, member, account])
+    }, [params.action, member, account]);
 
     const onSetAmount = useCallback((action: AmountAction) => {
         setMinAmountWarn(undefined);
@@ -596,7 +610,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                             numberOfLines={1}
                                         >
                                             <Text style={{ color: theme.textSecondary }}>
-                                                {t('wallet.actions.receive')}
+                                                {t('common.send')}
                                             </Text>
                                             {' TON'}
                                         </Text>
@@ -709,7 +723,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 2 }}>
                                             <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                                 <Text style={{ color: theme.textSecondary }}>
-                                                    {t('common.send')}
+                                                    {t('wallet.actions.receive')}
                                                 </Text>
                                                 {' wsTON'}
                                             </Text>
@@ -753,7 +767,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
                         borderRadius: 20,
                         backgroundColor: theme.surfaceOnElevation,
                         padding: 20,
-                        marginBottom: 16,
+                        marginTop: 16
                     }}>
                         <Text style={[{ color: theme.textSecondary, marginBottom: 2 }, Typography.regular13_18]}>
                             {t('products.staking.pools.rateTitle')}

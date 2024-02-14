@@ -37,7 +37,7 @@ export const StakingPendingComponent = memo((
 
     return (
         <View style={[{
-            backgroundColor: theme.border,
+            backgroundColor: theme.surfaceOnBg,
             borderRadius: 20,
             justifyContent: 'center',
             alignItems: 'center',

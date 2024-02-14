@@ -449,7 +449,7 @@ export const StakingTransferFragment = fragment(() => {
                                 amount={validAmount}
                                 topUp={params?.action === 'top_up'}
                                 member={member}
-                                pool={pool}
+                                fee={pool.params.poolFee}
                             />
                             <PoolTransactionInfo pool={pool} />
                         </>

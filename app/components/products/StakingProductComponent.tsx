@@ -1,8 +1,8 @@
 import React, { memo, useMemo } from "react";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable, Image } from "react-native";
+import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
-import { useLiquidStakingMember, useNetwork, useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
+import { useLiquidStakingMember, useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
 import { StakingPool } from "../../fragments/staking/components/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
@@ -12,12 +12,12 @@ import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
+import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
+import { Address, fromNano, toNano } from "@ton/core";
+import { LiquidStakingPool } from "../../fragments/staking/components/LiquidStakingPool";
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import StakingIcon from '@assets/ic-staking.svg';
-import { getLiquidStakingAddress } from "../../utils/KnownPools";
-import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
-import { fromNano, toNano } from "@ton/core";
-import { LiquidStakingPool } from "../../fragments/staking/components/LiquidStakingPool";
 
 const style: StyleProp<ViewStyle> = {
     height: 84,
@@ -47,14 +47,24 @@ const subtitleStyle: StyleProp<TextStyle> = {
     lineHeight: 20
 }
 
-export const StakingProductComponent = memo(() => {
+export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean }) => {
     const theme = useTheme();
-    const network = useNetwork();
     const navigation = useTypedNavigation();
-    const active = useStakingActive();
+    const ledgerContext = useLedgerTransport();
     const selectedAccount = useSelectedAccount()?.address;
+
+    const ledgerAddress = useMemo(() => {
+        if (!isLedger || !ledgerContext?.addr?.address) return;
+        try {
+            return Address.parse(ledgerContext?.addr?.address);
+        } catch { }
+    }, [ledgerContext?.addr?.address]);
+
+    const account = isLedger ? ledgerAddress : selectedAccount;
+
+    const active = useStakingActive(account);
     const liquidStaking = useLiquidStaking().data;
-    const liquidNominator = useLiquidStakingMember(selectedAccount)?.data;
+    const liquidNominator = useLiquidStakingMember(account)?.data;
 
     const liquidBalance = useMemo(() => {
         const bal = fromNano(liquidNominator?.balance || 0n);
@@ -77,7 +87,7 @@ export const StakingProductComponent = memo(() => {
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
-    if (!selectedAccount) {
+    if (!account) {
         return null;
     }
 
@@ -95,12 +105,12 @@ export const StakingProductComponent = memo(() => {
                         if (p.type === 'liquid') {
                             return (
                                 <LiquidStakingPool
-                                    isLedger={false}
-                                    member={selectedAccount}
+                                    member={account}
                                     style={[style, { padding: 0, backgroundColor: theme.surfaceOnBg, marginVertical: 0, paddingHorizontal: 5 }]}
                                     hideCycle
                                     hideHeader
                                     iconBackgroundColor={theme.backgroundPrimary}
+                                    isLedger={isLedger}
                                 />
                             )
                         }
@@ -108,7 +118,7 @@ export const StakingProductComponent = memo(() => {
                         if (p.type === 'banner') {
                             return (
                                 <Pressable
-                                    onPress={() => navigation.navigate('StakingPools')}
+                                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
                                     style={({ pressed }) => {
                                         return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                                     }}
@@ -144,7 +154,7 @@ export const StakingProductComponent = memo(() => {
                         }
                         return (
                             <StakingPool
-                                member={selectedAccount}
+                                member={account}
                                 key={`active-${p.address.toString()}`}
                                 pool={p.address}
                                 balance={p.balance}
@@ -154,6 +164,7 @@ export const StakingProductComponent = memo(() => {
                                 }}
                                 iconBackgroundColor={theme.backgroundPrimary}
                                 hideCycle
+                                isLedger={isLedger}
                             />
                         )
                     }}
@@ -241,7 +252,7 @@ export const StakingProductComponent = memo(() => {
                 {!!active && active.map((p, i) => (
                     <View key={`active-${p.address.toString()}`}>
                         <StakingPool
-                            member={selectedAccount}
+                            member={account}
                             pool={p.address}
                             balance={p.balance}
                             style={{
@@ -250,6 +261,7 @@ export const StakingProductComponent = memo(() => {
                             }}
                             hideCycle
                             iconBackgroundColor={theme.backgroundPrimary}
+                            isLedger={isLedger}
                         />
                         <ItemDivider marginVertical={0} />
                     </View>
@@ -257,9 +269,9 @@ export const StakingProductComponent = memo(() => {
                 {liquidBalance > 0n && (
                     <>
                         <LiquidStakingPool
-                            isLedger={false}
-                            member={selectedAccount}
-                            style={{ backgroundColor: theme.surfaceOnBg }}
+                            isLedger={isLedger}
+                            member={account}
+                            style={{ backgroundColor: theme.surfaceOnBg, paddingTop: 10 }}
                             hideCycle
                             hideHeader
                             iconBackgroundColor={theme.backgroundPrimary}
@@ -268,7 +280,7 @@ export const StakingProductComponent = memo(() => {
                     </>
                 )}
                 <Pressable
-                    onPress={() => navigation.navigate('StakingPools')}
+                    onPress={() => navigation.navigate(isLedger ? 'LedgerStakingPools' : 'StakingPools')}
                     style={({ pressed }) => {
                         return [style, { opacity: pressed ? 0.5 : 1, backgroundColor: theme.surfaceOnBg }]
                     }}

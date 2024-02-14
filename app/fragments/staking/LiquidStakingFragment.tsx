@@ -23,6 +23,7 @@ import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
 import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
 import { TransferAction } from "./StakingTransferFragment";
+import { LiquidStakingPendingComponent } from "../../components/staking/LiquidStakingPendingComponent";
 
 export const LiquidStakingFragment = fragment(() => {
     const theme = useTheme();
@@ -75,36 +76,6 @@ export const LiquidStakingFragment = fragment(() => {
         });
     }, [pendingTxs, targetPool]);
 
-    const withdraws: {
-        pendingWithdraws: Map<{ round: number; pendingUntil: number }, bigint>;
-        readyToWithdraw: Map<{ round: number; pendingUntil: number }, bigint>;
-    } = useMemo(() => {
-        let temp = {
-            pendingWithdraws: new Map(),
-            readyToWithdraw: new Map()
-        };
-
-        const pending = nominator?.pendingWithdrawals;
-        if (!!pending && !!pending.keys && !!liquidStaking) {
-            for (const key of pending.keys()) {
-                if (key + 3 <= liquidStaking?.roundId) {
-                    withdraws.readyToWithdraw.set({ round: key, pendingUntil: 0 }, pending.get(key) ?? 0n);
-                } else {
-                    let readyRound = key + 2;
-                    let timeForCurrentRoundEnd = liquidStaking.extras.roundEnd - Date.now() / 1000;
-                    const roundDuration = network.isTestnet ? 2 * 60 * 60 : 18.6 * 60 * 60;
-
-                    withdraws.pendingWithdraws.set(
-                        { round: key, pendingUntil: (readyRound - liquidStaking.roundId) * roundDuration + timeForCurrentRoundEnd },
-                        pending.get(key) ?? 0n
-                    );
-                }
-            }
-        }
-
-        return temp;
-    }, [nominator, network.isTestnet, liquidStaking]);
-
     const removePending = useCallback((id: string) => {
         setPending((prev) => {
             return prev.filter((tx) => tx.id !== id);
@@ -133,9 +104,7 @@ export const LiquidStakingFragment = fragment(() => {
 
     const hasStake = useMemo(() => {
         return (nominator?.balance || 0n) > 0n
-            || withdraws.pendingWithdraws.size > 0
-            || withdraws.readyToWithdraw.size > 0;
-    }, [nominator, withdraws]);
+    }, [nominator]);
 
     // weird bug with status bar not changing color with component
     useFocusEffect(() => {
@@ -421,10 +390,13 @@ export const LiquidStakingFragment = fragment(() => {
                             />
                         )}
                         {/* TODO */}
-                        {/* <StakingPendingComponent
-                            target={targetPool}
-                            member={member}
-                        /> */}
+                        {!!memberAddress && (
+                            <LiquidStakingPendingComponent
+                                member={memberAddress}
+                                style={{ marginBottom: 16 }}
+                                isLedger={isLedger}
+                            />
+                        )}
                         <LiquidStakingMember
                             balance={nominator?.balance ?? 0n}
                             rateWithdraw={liquidStaking?.rateWithdraw ?? 0n}

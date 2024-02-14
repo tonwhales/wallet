@@ -360,7 +360,7 @@ export const StakingFragment = fragment(() => {
                         <StakingPendingComponent
                             target={targetPool}
                             member={member}
-                            leder={isLedger}
+                            isLedger={isLedger}
                         />
                         {(type !== 'nominators' && !available) && (
                             <RestrictedPoolBanner type={type} />

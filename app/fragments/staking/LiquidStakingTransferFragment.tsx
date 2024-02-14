@@ -179,7 +179,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
         }
 
         // Check availible 
-        if (params?.action === 'withdraw' && (!balance || balance < transferAmountTon)) {
+        if (params?.action === 'withdraw' && (!balance || balance < transferAmountWsTon)) {
             setMinAmountWarn(t('products.staking.transfer.notEnoughStaked'));
             return;
         }
@@ -349,10 +349,6 @@ export const LiquidStakingTransferFragment = fragment(() => {
     useLayoutEffect(() => {
         setTimeout(() => refs[0]?.current?.focus(), 100);
     }, []);
-
-    const withdrawFee = useMemo(() => {
-        return liquidStaking ? liquidStaking.extras.withdrawFee + liquidStaking.extras.receiptPrice : toNano('0.2');
-    }, [liquidStaking]);
 
     const priceText = useMemo(() => {
         if (!validAmount) {

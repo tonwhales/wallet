@@ -1,11 +1,11 @@
 import { memo } from "react";
 import { View, Image, Text } from "react-native";
-import { useTheme } from "../../../engine/hooks";
-import { ValueComponent } from "../../../components/ValueComponent";
-import { Typography } from "../../../components/styles";
-import { PriceComponent } from "../../../components/PriceComponent";
-import { ItemDivider } from "../../../components/ItemDivider";
-import { t } from "../../../i18n/t";
+import { useTheme } from "../../engine/hooks";
+import { ValueComponent } from "../ValueComponent";
+import { Typography } from "../styles";
+import { PriceComponent } from "../PriceComponent";
+import { ItemDivider } from "../ItemDivider";
+import { t } from "../../i18n/t";
 
 export const LiquidStakingMember = memo(({ balance, rateWithdraw }: { balance: bigint, rateWithdraw: bigint, }) => {
     const theme = useTheme();

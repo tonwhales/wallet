@@ -21,7 +21,7 @@ import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
 import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Typography } from "../../components/styles";
 import { BackButton } from "../../components/navigation/BackButton";
-import { LiquidStakingMember } from "./components/LiquidStakingBalance";
+import { LiquidStakingMember } from "../../components/staking/LiquidStakingBalance";
 import { TransferAction } from "./StakingTransferFragment";
 
 export const LiquidStakingFragment = fragment(() => {

@@ -22,7 +22,7 @@ import { Address, toNano } from "@ton/core";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import { PendingTransactionsView } from "../wallet/views/PendingTransactions";
-import { StakingPoolHeader } from "./components/StakingPoolHeader";
+import { StakingPoolHeader } from "../../components/staking/StakingPoolHeader";
 import { Typography } from "../../components/styles";
 
 export const StakingFragment = fragment(() => {

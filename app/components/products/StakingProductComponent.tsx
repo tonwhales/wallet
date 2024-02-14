@@ -3,7 +3,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { View, Text, StyleProp, ViewStyle, TextStyle, Pressable } from "react-native";
 import { t } from "../../i18n/t";
 import { useLiquidStakingMember, useSelectedAccount, useStakingActive, useStakingApy, useTheme } from "../../engine/hooks";
-import { StakingPool } from "../../fragments/staking/components/StakingPool";
+import { StakingPool } from "../staking/StakingPool";
 import { ItemDivider } from "../ItemDivider";
 import { CollapsibleCards } from "../animated/CollapsibleCards";
 import { PerfText } from "../basic/PerfText";
@@ -14,7 +14,7 @@ import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
 import { Address, fromNano, toNano } from "@ton/core";
-import { LiquidStakingPool } from "../../fragments/staking/components/LiquidStakingPool";
+import { LiquidStakingPool } from "../staking/LiquidStakingPool";
 import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 import StakingIcon from '@assets/ic-staking.svg';

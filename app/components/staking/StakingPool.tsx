@@ -1,16 +1,16 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { TypedNavigation, useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownPools } from "../../../utils/KnownPools";
-import { t } from "../../../i18n/t";
+import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
+import { KnownPools } from "../../utils/KnownPools";
+import { t } from "../../i18n/t";
 import { Pressable, View, Text, Alert, StyleProp, ViewStyle } from "react-native";
-import { WImage } from "../../../components/WImage";
-import { openWithInApp } from "../../../utils/openWithInApp";
-import { ValueComponent } from "../../../components/ValueComponent";
-import { PriceComponent } from "../../../components/PriceComponent";
-import { Countdown } from "../../../components/Countdown";
+import { WImage } from "../WImage";
+import { openWithInApp } from "../../utils/openWithInApp";
+import { ValueComponent } from "../ValueComponent";
+import { PriceComponent } from "../PriceComponent";
+import { Countdown } from "../Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useNetwork, useStakingApy, useStakingPool, useTheme } from "../../../engine/hooks";
-import { Typography } from "../../../components/styles";
+import { useNetwork, useStakingApy, useStakingPool, useTheme } from "../../engine/hooks";
+import { Typography } from "../styles";
 
 import StakingIcon from '@assets/ic_staking.svg';
 

@@ -1,17 +1,17 @@
 import { memo, useEffect, useMemo, useState } from "react";
-import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { KnownPools, getLiquidStakingAddress } from "../../../utils/KnownPools";
-import { t } from "../../../i18n/t";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
+import { KnownPools, getLiquidStakingAddress } from "../../utils/KnownPools";
+import { t } from "../../i18n/t";
 import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
-import { WImage } from "../../../components/WImage";
-import { ValueComponent } from "../../../components/ValueComponent";
-import { PriceComponent } from "../../../components/PriceComponent";
-import { Countdown } from "../../../components/Countdown";
+import { WImage } from "../WImage";
+import { ValueComponent } from "../ValueComponent";
+import { PriceComponent } from "../PriceComponent";
+import { Countdown } from "../Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useLiquidStakingMember, useNetwork, useStakingApy, useTheme } from "../../../engine/hooks";
-import { useLiquidStaking } from "../../../engine/hooks/staking/useLiquidStaking";
-import { Typography } from "../../../components/styles";
-import { ItemHeader } from "../../../components/ItemHeader";
+import { useLiquidStakingMember, useNetwork, useStakingApy, useTheme } from "../../engine/hooks";
+import { useLiquidStaking } from "../../engine/hooks/staking/useLiquidStaking";
+import { Typography } from "../styles";
+import { ItemHeader } from "../ItemHeader";
 
 import StakingIcon from '@assets/ic_staking.svg';
 

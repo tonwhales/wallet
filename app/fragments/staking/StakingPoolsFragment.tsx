@@ -8,8 +8,8 @@ import { t } from "../../i18n/t";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { TopBar } from "../../components/topbar/TopBar";
 import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { StakingPoolsHeader } from "./components/StakingPoolsHeader";
-import { StakingPool } from "./components/StakingPool";
+import { StakingPoolsHeader } from "../../components/staking/StakingPoolsHeader";
+import { StakingPool } from "../../components/staking/StakingPool";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { Address } from "@ton/core";
 import { useClient4, useNetwork, useSelectedAccount, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
@@ -17,7 +17,7 @@ import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
 import { StatusBar, setStatusBarStyle } from "expo-status-bar";
 import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
-import { LiquidStakingPool } from "./components/LiquidStakingPool";
+import { LiquidStakingPool } from "../../components/staking/LiquidStakingPool";
 
 export type StakingPoolType = 'club' | 'team' | 'nominators' | 'epn' | 'lockup' | 'tonkeeper' | 'liquid';
 

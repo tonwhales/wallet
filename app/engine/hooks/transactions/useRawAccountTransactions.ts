@@ -3,11 +3,11 @@ import { Queries } from '../../queries';
 import { Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, loadMessageRelaxed } from '@ton/core';
 import { getLastBlock } from '../../accountWatcher';
 import { useNetwork } from '../network/useNetwork';
-import { log } from '../../../utils/log';
 import { parseBody } from '../../transactions/parseWalletTransaction';
 import { resolveOperation } from '../../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
 import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, StoredTxBody, TxBody } from '../../types';
+import { fetchAccountTransactions } from '../../api/fetchAccountTransactions';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -231,15 +231,7 @@ export function useRawAccountTransactions(client: TonClient4, account: string, r
                 hash = accountLite.account.last.hash;
             }
 
-            log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
-            let txs = await client.getAccountTransactions(accountAddr, BigInt(lt), Buffer.from(hash, 'base64'));
-            if (sliceFirst) {
-                txs = txs.slice(1);
-            }
-
-            let converted = txs.map(r => rawTransactionToStoredTransaction(r.tx, r.tx.hash().toString('base64'), accountAddr, isTestnet));
-            log(`[txns-query] fetched ${lt}_${hash} ${converted.length} txns`);
-            return converted;
+            return await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
         },
         structuralSharing: (old, next) => {
             let firstOld = old?.pages[0];

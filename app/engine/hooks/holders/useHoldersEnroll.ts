@@ -52,7 +52,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
 
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
-            if (existingToken && existingToken.toString().length > 0) {
+            if (!!existingToken && existingToken.toString().length > 0) {
                 return { type: 'success' };
             } else {
 

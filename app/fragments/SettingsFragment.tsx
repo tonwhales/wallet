@@ -6,7 +6,7 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';

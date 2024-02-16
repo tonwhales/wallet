@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
-import { Avatar } from '../../../components/Avatar';
+import { Avatar, avatarColors } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
@@ -19,6 +19,7 @@ import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
 import { useWalletSettings } from '../../../engine/hooks';
+import { avatarHash } from '../../../utils/avatarHash';
 
 export function TransactionView(props: {
     own: Address,
@@ -56,6 +57,9 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const [walletSettings,] = useWalletSettings(opAddress);
+
+    const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
@@ -144,7 +148,7 @@ export function TransactionView(props: {
                             icProps={{ isOwn, backgroundColor: theme.surfaceOnBg, size: 18, borderWidth: 2 }}
                             theme={theme}
                             isTestnet={isTestnet}
-                            hashColor
+                            backgroundColor={avatarColor}
                             hash={walletSettings?.avatar}
                         />
                     )}

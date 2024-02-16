@@ -6,7 +6,6 @@ import { Address } from "@ton/core";
 import { useAccountTransactions, useClient4, useNetwork, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
-import { WalletSettings } from "../../engine/state/walletSettings";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
 
 export type AddressSearchItem = {
@@ -14,8 +13,7 @@ export type AddressSearchItem = {
     title: string,
     searchable: string,
     type: 'contact' | 'known' | 'unknown' | 'my-wallets',
-    icon?: string,
-    walletSettings?: WalletSettings
+    icon?: string
 };
 
 export const AddressSearch = memo(({
@@ -177,6 +175,7 @@ export const AddressSearch = memo(({
                             const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
                             const own = myWallets.find((acc) => acc.address.equals(address));
                             const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
+
                             let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
                             let title = t('contacts.unknown');
                             if (contact) {
@@ -202,8 +201,8 @@ export const AddressSearch = memo(({
                                         title: title,
                                         searchable: address.toString({ testOnly: network.isTestnet }),
                                         type: type,
-                                        walletSettings: settings
                                     }}
+                                    walletsSettings={walletsSettings}
                                     onPress={onSelect}
                                 />
                             )
@@ -240,6 +239,7 @@ export const AddressSearch = memo(({
                                     key={index}
                                     item={item}
                                     onPress={onSelect}
+                                    walletsSettings={walletsSettings}
                                 />
                             );
                         })}
@@ -275,6 +275,7 @@ export const AddressSearch = memo(({
                                     key={index}
                                     item={item}
                                     onPress={onSelect}
+                                    walletsSettings={walletsSettings}
                                 />
                             );
                         })}

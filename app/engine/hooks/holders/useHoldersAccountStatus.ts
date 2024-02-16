@@ -23,6 +23,7 @@ function migrateHoldersToken(addressString: string) {
         return false;
     }
     deleteHoldersToken(addressString);
+    return true;
 }
 
 export function deleteHoldersToken(address: string) {

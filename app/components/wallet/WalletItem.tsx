@@ -1,11 +1,12 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
-import { Avatar } from "../Avatar";
+import { Avatar, avatarColors } from "../Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
 import { useAppState, useNetwork, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
+import { avatarHash } from "../../utils/avatarHash";
 
 import IcCheck from "@assets/ic-check.svg";
 
@@ -28,6 +29,9 @@ export const WalletItem = memo((
     const appState = useAppState();
     const updateAppState = useSetAppState();
     const [walletSettings,] = useWalletSettings(address);
+
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const onSelectAccount = useCallback(() => {
         if (onSelect) {
@@ -75,7 +79,7 @@ export const WalletItem = memo((
                     hash={walletSettings?.avatar}
                     theme={theme}
                     isTestnet={network.isTestnet}
-                    hashColor
+                    backgroundColor={avatarColor}
                 />
             </View>
             <View style={{ justifyContent: 'center', flexGrow: 1, flexShrink: 1 }}>

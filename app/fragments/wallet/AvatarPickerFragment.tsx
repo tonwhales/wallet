@@ -1,19 +1,20 @@
-import { Platform, Pressable, View, ScrollView, KeyboardAvoidingView } from "react-native";
+import { Platform, Pressable, View, ScrollView, KeyboardAvoidingView, Text } from "react-native";
 import { fragment } from "../../fragment";
 import { useParams } from "../../utils/useParams";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useCallback, useState } from "react";
-import { Avatar, avatarImages } from "../../components/Avatar";
+import { useCallback, useMemo, useState } from "react";
+import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RoundButton } from "../../components/RoundButton";
 import { useDimensions } from "@react-native-community/hooks";
+import { Typography } from "../../components/styles";
 
 export const AvatarPickerFragment = fragment(() => {
-    const { callback, hash } = useParams<{ callback: (newHash: number) => void, hash: number }>();
+    const { callback, hash, initColor } = useParams<{ callback: (newHash: number, color: number) => void, hash: number, initColor: number }>();
     const theme = useTheme();
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -23,13 +24,18 @@ export const AvatarPickerFragment = fragment(() => {
     const dimentions = useDimensions();
 
     const [hashState, setHash] = useState(hash);
+    const [selectedColor, setColor] = useState(initColor);
+
+    const hasChanges = useMemo(() => {
+        return hashState !== hash || selectedColor !== initColor;
+    }, [hashState, selectedColor]);
 
     const onSave = useCallback(() => {
-        if (hashState !== hash) {
+        if (hashState !== hash || selectedColor !== initColor) {
             navigation.goBack();
-            callback(hashState);
+            callback(hashState, selectedColor);
         }
-    }, [hashState]);
+    }, [hashState, selectedColor]);
 
     return (
         <View style={{ flexGrow: 1 }}>
@@ -40,7 +46,7 @@ export const AvatarPickerFragment = fragment(() => {
             <ScreenHeader
                 onClosePressed={navigation.goBack}
                 title={t('wallets.settings.changeAvatar')}
-                style={Platform.select({ android: { paddingTop: safeArea.top } })}
+                style={[Platform.select({ android: { paddingTop: safeArea.top } })]}
             />
             <View style={{ flexGrow: 1 }} />
             <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -51,13 +57,16 @@ export const AvatarPickerFragment = fragment(() => {
                     theme={theme}
                     isTestnet={isTestnet}
                     id={address.toString({ testOnly: isTestnet })}
-                    hashColor
+                    backgroundColor={avatarColors[selectedColor]}
                 />
             </View>
             <View style={{ flexGrow: 1 }} />
             <View style={{ paddingVertical: 20 }}>
+                <Text style={[{ color: theme.textPrimary, marginHorizontal: 16 }, Typography.regular15_20]}>
+                    {t('wallets.settings.selectAvatarTitle')}
+                </Text>
                 <ScrollView
-                    contentContainerStyle={{ margin: 16, paddingRight: 16 }}
+                    contentContainerStyle={{ marginHorizontal: 16, marginVertical: 10, paddingRight: 16 }}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                 >
@@ -77,14 +86,46 @@ export const AvatarPickerFragment = fragment(() => {
                                 }}
                             >
                                 <Avatar
-                                    size={70}
+                                    size={68}
                                     hash={index}
                                     borderColor={theme.border}
                                     borderWith={0}
                                     theme={theme}
                                     isTestnet={isTestnet}
                                     id={address.toString({ testOnly: isTestnet })}
-                                    hashColor
+                                />
+                            </Pressable>
+                        )
+                    })}
+                </ScrollView>
+                <Text style={[{ color: theme.textPrimary, marginHorizontal: 16, marginTop: 24, marginBottom: 10 }, Typography.regular15_20]}>
+                    {t('wallets.settings.selectColorTitle')}
+                </Text>
+                <ScrollView
+                    contentContainerStyle={{ marginHorizontal: 16, paddingRight: 16 }}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                >
+                    {avatarColors.map((color, index) => {
+                        return (
+                            <Pressable
+                                key={`color-${index}`}
+                                onPress={() => setColor(index)}
+                                style={{
+                                    justifyContent: 'center', alignItems: 'center',
+                                    width: 46, height: 46,
+                                    marginRight: 12,
+                                    borderWidth: index === selectedColor ? 2 : 0,
+                                    borderColor: color,
+                                    borderRadius: 27,
+                                }}
+                            >
+                                <View
+                                    style={{
+                                        height: 34, width: 34,
+                                        borderRadius: 17,
+                                        backgroundColor: color
+                                    }}
                                 />
                             </Pressable>
                         )
@@ -98,7 +139,7 @@ export const AvatarPickerFragment = fragment(() => {
             >
                 <RoundButton
                     title={t('contacts.save')}
-                    disabled={hashState === hash}
+                    disabled={!hasChanges}
                     onPress={onSave}
                 />
             </KeyboardAvoidingView>

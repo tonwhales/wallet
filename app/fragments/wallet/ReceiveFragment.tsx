@@ -17,11 +17,11 @@ import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
-
-import TonIcon from '@assets/ic-ton-acc.svg';
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { pathFromAccountNumber } from "../../utils/pathFromAccountNumber";
 import { RoundButton } from "../../components/RoundButton";
+
+import TonIcon from '@assets/ic-ton-acc.svg';
 
 export const ReceiveFragment = fragment(() => {
     const theme = useTheme();
@@ -35,7 +35,6 @@ export const ReceiveFragment = fragment(() => {
 
     const qrSize = 262;
 
-    const [isSharing, setIsSharing] = useState(false);
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
 
     const address = useMemo(() => {
@@ -290,21 +289,16 @@ export const ReceiveFragment = fragment(() => {
                         }}
                         onScreenCapture={() => {
                             return new Promise((resolve, reject) => {
-                                setIsSharing(true);
                                 (async () => {
-                                    setTimeout(async () => {
-                                        try {
-                                            const localUri = await captureRef(imageRef, {
-                                                height: 440,
-                                                quality: 1,
-                                            });
-                                            setIsSharing(false);
-                                            resolve({ uri: localUri });
-                                        } catch {
-                                            setIsSharing(false);
-                                            reject();
-                                        }
-                                    }, 150);
+                                    try {
+                                        const localUri = await captureRef(imageRef, {
+                                            height: 440,
+                                            quality: 1,
+                                        });
+                                        resolve({ uri: localUri });
+                                    } catch {
+                                        reject();
+                                    }
                                 })();
                             })
                         }}

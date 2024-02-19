@@ -33,11 +33,9 @@ export const NewAddressFormatFragment = fragment(() => {
             <ScreenHeader
                 title={t('newAddressFormat.title')}
                 onClosePressed={navigation.goBack}
-                style={[
-                    Platform.select({ android: { marginTop: safeArea.top } })
-                ]}
+                style={Platform.select({ android: { marginTop: safeArea.top } })}
             />
-            <View style={{ paddingHorizontal: 16, gap: 12 }}>
+            <View style={{ paddingHorizontal: 16, gap: 12, marginTop: 16 }}>
                 <Text style={[{ color: theme.textPrimary, textAlign: 'center' }, Typography.semiBold32_38]}>
                     {t('newAddressFormat.fragmentTitle')}
                 </Text>

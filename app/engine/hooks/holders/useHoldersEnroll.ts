@@ -60,7 +60,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                 // Create signnature and fetch token
                 //
 
-                const manifestUrl = `${holdersUrl}/tonconnect-manifest.json`;
+                const manifestUrl = `${holdersUrl}/jsons/tonconnect-manifest.json`;
 
                 let manifest: AppManifest | null;
                 try {

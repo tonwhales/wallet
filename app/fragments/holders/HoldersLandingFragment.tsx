@@ -23,6 +23,8 @@ import { openWithInApp } from '../../utils/openWithInApp';
 import { HoldersEnrollErrorType } from '../../engine/hooks/holders/useHoldersEnroll';
 import { DAppWebView, DAppWebViewProps } from '../../components/webview/DAppWebView';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { AppManifest } from '../../engine/api/fetchManifest';
+import { getAppManifest } from '../../engine/getters/getAppManifest';
 
 export const HoldersLandingFragment = fragment(() => {
     const acc = useMemo(() => getCurrentAddress(), []);
@@ -63,8 +65,9 @@ export const HoldersLandingFragment = fragment(() => {
         isAuthenticating.current = true;
 
         try {
-            const data = await getAppData(endpoint);
-            if (!data) {
+            const manifestUrl = `${endpoint}/jsons/tonconnect-manifest.json`;
+            const manifest = await getAppManifest(manifestUrl);
+            if (!manifest) {
                 Alert.alert(
                     t('products.holders.enroll.failed.title'),
                     t('products.holders.enroll.failed.noAppData'),

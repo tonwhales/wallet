@@ -14,7 +14,6 @@ import StakingIcon from '@assets/ic-staking.svg';
 const style: StyleProp<ViewStyle> = {
     height: 84,
     borderRadius: 20,
-    marginVertical: 4,
     padding: 20
 }
 

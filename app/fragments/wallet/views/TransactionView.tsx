@@ -64,6 +64,9 @@ export function TransactionView(props: {
     const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
+    const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+
     const contact = contacts[opAddress];
     const isSpam = !!denyList[opAddress]?.reason;
 

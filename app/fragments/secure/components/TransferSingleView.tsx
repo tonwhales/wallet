@@ -19,7 +19,7 @@ import { useLedgerTransport } from "../../ledger/components/TransportContext";
 import { StoredOperation } from "../../../engine/types";
 import { AboutIconButton } from "../../../components/AboutIconButton";
 import { formatAmount, formatCurrency } from "../../../utils/formatCurrency";
-import { Avatar } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
@@ -27,6 +27,7 @@ import { toBnWithDecimals } from "../../../utils/withDecimals";
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
+import { avatarHash } from "../../../utils/avatarHash";
 
 export const TransferSingleView = memo(({
     operation,
@@ -78,6 +79,12 @@ export const TransferSingleView = memo(({
     const [price, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
+    const targetString = target.address.toString({ testOnly: isTestnet });
+    const targetWalletSettings = walletsSettings[targetString];
+
+    const avatarColorHash = targetWalletSettings?.color ?? avatarHash(targetString, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+
     const feesPrise = useMemo(() => {
         if (!price) {
             return undefined;
@@ -105,7 +112,7 @@ export const TransferSingleView = memo(({
 
     const to = {
         address: target.address,
-        name: walletsSettings[target.address.toString({ testOnly: isTestnet })]?.name
+        name: targetWalletSettings?.name
             || known?.name
             || target.domain
             || null
@@ -190,19 +197,18 @@ export const TransferSingleView = memo(({
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
                                 <Avatar
                                     size={68}
-                                    id={to.address.toString({ testOnly: isTestnet })}
-                                    address={to.address.toString({ testOnly: isTestnet })}
-                                    hash={walletsSettings[to.address.toString({ testOnly: isTestnet })]?.avatar}
+                                    id={targetString}
+                                    address={targetString}
+                                    hash={targetWalletSettings?.avatar}
                                     spam={isSpam}
                                     showSpambadge
                                     borderWith={2}
                                     borderColor={theme.surfaceOnElevation}
-                                    backgroundColor={theme.backgroundPrimary}
+                                    backgroundColor={avatarColor}
                                     markContact={!!contact}
                                     icProps={{ position: 'bottom' }}
                                     theme={theme}
                                     isTestnet={isTestnet}
-                                    hashColor
                                 />
                             </View>
                         </View>

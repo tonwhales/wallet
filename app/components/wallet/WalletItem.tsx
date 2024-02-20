@@ -34,6 +34,9 @@ export const WalletItem = memo((
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+
     const onSelectAccount = useCallback(() => {
         if (onSelect) {
             onSelect(address);

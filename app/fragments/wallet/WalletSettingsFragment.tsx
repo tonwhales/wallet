@@ -5,7 +5,7 @@ import { getAppState } from "../../storage/appState";
 import { t } from "../../i18n/t";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { avatarHash } from "../../utils/avatarHash";
-import { Avatar, avatarImages } from "../../components/Avatar";
+import { Avatar, avatarColors, avatarImages } from "../../components/Avatar";
 import { useCallback, useMemo, useState } from "react";
 import { copyText } from "../../utils/copyText";
 import { ToastDuration, useToaster } from "../../components/toast/ToastProvider";
@@ -35,27 +35,33 @@ export const WalletSettingsFragment = fragment(() => {
     const initHash = (walletSettings?.avatar !== null && walletSettings?.avatar !== undefined)
         ? walletSettings.avatar
         : avatarHash(address.toString({ testOnly: isTestnet }), avatarImages.length);
+    const initColorHash = walletSettings.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
 
     const [name, setName] = useState(walletSettings?.name ?? `${t('common.wallet')} ${appState.selected + 1}`);
     const [avatar, setAvatar] = useState(initHash);
+    const [selectedColor, setColor] = useState(initColorHash);
 
     const hasChanges = useMemo(() => {
-        return name !== walletSettings?.name || avatar !== initHash;
-    }, [name, avatar, walletSettings]);
+        return name !== walletSettings?.name || avatar !== initHash || selectedColor !== initColorHash;
+    }, [name, avatar, walletSettings, selectedColor]);
 
     const onSave = useCallback(() => {
         if (name !== walletSettings?.name || avatar !== initHash) {
-            setSettings({
-                name: name.trim(),
-                avatar
+            setSettings({ 
+                name: name.trim(), 
+                avatar, 
+                color: selectedColor 
             });
         }
         navigation.goBack();
     }, [name, avatar, walletSettings, setSettings]);
 
     const onChangeAvatar = useCallback(() => {
-        const callback = (hash: number) => setAvatar(hash);
-        navigation.navigate('AvatarPicker', { callback, hash: avatar });
+        const callback = (hash: number, color: number) => {
+            setAvatar(hash);
+            setColor(color);
+        };
+        navigation.navigate('AvatarPicker', { callback, hash: avatar, initColor: initColorHash });
     }, []);
 
     return (
@@ -93,7 +99,8 @@ export const WalletSettingsFragment = fragment(() => {
                             theme={theme}
                             isTestnet={isTestnet}
                             id={address.toString({ testOnly: isTestnet })}
-                            hashColor
+                            // hashColor
+                            backgroundColor={avatarColors[selectedColor]}
                         />
                         <Text style={[
                             { color: theme.accent, marginTop: 12 },

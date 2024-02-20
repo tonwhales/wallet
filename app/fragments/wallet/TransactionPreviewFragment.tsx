@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Avatar } from "../../components/Avatar";
+import { Avatar, avatarColors } from "../../components/Avatar";
 import { t } from "../../i18n/t";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
@@ -34,6 +34,7 @@ import { PreviewFrom } from "./views/preview/PreviewFrom";
 import { PreviewTo } from "./views/preview/PreviewTo";
 import { TxInfo } from "./views/preview/TxInfo";
 import { AddressComponent } from "../../components/address/AddressComponent";
+import { avatarHash } from "../../utils/avatarHash";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -81,6 +82,9 @@ const TransactionPreview = () => {
 
     const [ownWalletSettings,] = useWalletSettings(opAddressBounceable);
     const [opAddressWalletSettings,] = useWalletSettings(opAddressBounceable);
+
+    const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const verified = !!tx.verified
         || !!KnownJettonMasters(isTestnet)[opAddressBounceable];
@@ -237,7 +241,7 @@ const TransactionPreview = () => {
                         verified={verified}
                         borderWith={2.5}
                         borderColor={theme.surfaceOnElevation}
-                        backgroundColor={theme.elevation}
+                        backgroundColor={avatarColor}
                         markContact={!!contact}
                         icProps={{
                             isOwn: isOwn,
@@ -247,7 +251,6 @@ const TransactionPreview = () => {
                         }}
                         theme={theme}
                         isTestnet={isTestnet}
-                        hashColor
                         hash={opAddressWalletSettings?.avatar}
                     />
                     <PerfText

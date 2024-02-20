@@ -4,12 +4,28 @@ import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
 import { useNetwork, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { Avatar } from "../Avatar";
+import { Avatar, avatarColors } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
+import { WalletSettings } from "../../engine/state/walletSettings";
+import { avatarHash } from "../../utils/avatarHash";
 
-export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSearchItem, onPress?: (item: AddressSearchItem) => void }) => {
+export const AddressSearchItemView = memo(({
+    item,
+    onPress,
+    walletsSettings
+}: {
+    item: AddressSearchItem,
+    onPress?: (item: AddressSearchItem) => void,
+    walletsSettings: { [key: string]: WalletSettings }
+}) => {
     const theme = useTheme();
     const network = useNetwork();
+    const addressString = item.address.toString({ testOnly: network.isTestnet });
+    const settings = walletsSettings[addressString];
+
+    const avatarColorHash = settings?.color ?? avatarHash(addressString, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
+
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     return (
@@ -21,8 +37,8 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
-                        address={item.addr.address.toString({ testOnly: network.isTestnet })}
-                        id={item.addr.address.toString({ testOnly: network.isTestnet })}
+                        address={addressString}
+                        id={addressString}
                         size={46}
                         borderWith={0}
                         markContact={item.type === 'contact'}
@@ -30,10 +46,10 @@ export const AddressSearchItemView = memo(({ item, onPress }: { item: AddressSea
                             isOwn: item.type === 'my-wallets',
                             backgroundColor: theme.elevation
                         }}
-                        hash={item.walletSettings?.avatar}
+                        hash={settings?.avatar}
                         theme={theme}
                         isTestnet={network.isTestnet}
-                        hashColor
+                        backgroundColor={avatarColor}
                     />
                 </View>
                 <View style={{ flexShrink: 1, justifyContent: 'center' }}>

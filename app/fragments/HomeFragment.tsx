@@ -14,7 +14,7 @@ import { useLinkNavigator } from "../useLinkNavigator";
 import { getConnectionReferences } from '../storage/appState';
 import { TransactionsFragment } from './wallet/TransactionsFragment';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { ConnectionsFragment } from './connections/ConnectionsFragment';
+import { BrowserFragment } from './connections/BrowserFragment';
 import DeviceInfo from 'react-native-device-info';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 import { getDeviceScreenCurve } from '../utils/iOSDeviceCurves';
@@ -250,7 +250,7 @@ export const HomeFragment = fragment(() => {
                     <Tab.Screen
                         options={{ title: t('home.browser') }}
                         name={'Browser'}
-                        component={ConnectionsFragment}
+                        component={BrowserFragment}
                     />
                     <Tab.Screen
                         options={{ title: t('home.more') }}

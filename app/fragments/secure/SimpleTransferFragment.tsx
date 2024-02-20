@@ -949,7 +949,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: theme.backgroundPrimary,
+                                    backgroundColor: theme.elevation,
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
                                 }}

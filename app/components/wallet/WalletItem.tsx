@@ -5,7 +5,7 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useAppState, useNetwork, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useNetwork, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 
 import IcCheck from "@assets/ic-check.svg";
@@ -30,9 +30,6 @@ export const WalletItem = memo((
     const updateAppState = useSetAppState();
     const [walletSettings,] = useWalletSettings(address);
     const [bounceableFormat,] = useBounceableWalletFormat();
-
-    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
-    const avatarColor = avatarColors[avatarColorHash];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];

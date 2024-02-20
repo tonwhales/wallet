@@ -181,11 +181,12 @@ export const AddressSearch = memo(({
                         paddingHorizontal: 16,
                         paddingVertical: 8
                     } : undefined}>
-                        {filtered.recent.map((address, index) => {
-                            const contact = contacts[address.toString({ testOnly: network.isTestnet })];
-                            const known = knownWallets[address.toString({ testOnly: network.isTestnet })];
-                            const own = myWallets.find((acc) => acc.address.equals(address));
-                            const settings = walletsSettings[address.toString({ testOnly: network.isTestnet })];
+                        {filtered.recent.map((addr, index) => {
+                            const friendly = addr.address.toString({ testOnly: network.isTestnet, bounceable: addr.isBounceable });
+                            const contact = contacts[addr.address.toString({ testOnly: network.isTestnet })];
+                            const known = knownWallets[addr.address.toString({ testOnly: network.isTestnet })];
+                            const own = myWallets.find((acc) => acc.address.equals(addr.address));
+                            const settings = walletsSettings[addr.address.toString({ testOnly: network.isTestnet })];
 
                             let type: "known" | "unknown" | "contact" | "my-wallets" = 'unknown';
                             let title = t('contacts.unknown');

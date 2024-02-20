@@ -20,7 +20,7 @@ export const AddressSearchItemView = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const addressString = item.address.toString({ testOnly: network.isTestnet });
+    const addressString = item.addr.address.toString({ testOnly: network.isTestnet });
     const settings = walletsSettings[addressString];
 
     const avatarColorHash = settings?.color ?? avatarHash(addressString, avatarColors.length);

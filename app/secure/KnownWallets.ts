@@ -39,7 +39,22 @@ const Img_Lockups_2 = require('@assets/known/ic_lockups_2.png');
 
 const Img_MEXC = require('@assets/known/ic_mexc.png');
 
-const Img_Liquid = require('@assets/known/ic_wls.png');
+const Img_Telegram = require('@assets/known/ic-telegram.png');
+const Img_Fragment = require('@assets/known/ic-fragment.png');
+const Img_CryptoBot = require('@assets/known/ic-crypto-bot.png');
+const Img_WalletBot = require('@assets/known/ic-wallet-bot.png');
+const Img_EXMO_Cold_Storage = require('@assets/known/exmo-cold-storage.png');
+const Img_EXMO_Deposit = require('@assets/known/exmo-deposit.png');
+const Img_CoinEx = require('@assets/known/coinex.png');
+const Img_Huobi = require('@assets/known/huobi.png');
+const Img_Tonmobile = require('@assets/known/tonmobile.png');
+const Img_Kucoin = require('@assets/known/kucoin.png');
+const Img_Lbank = require('@assets/known/lbank-info.png');
+const Img_Rocket_Bot = require('@assets/known/rocket-bot.png');
+const Img_BitGo = require('@assets/known/bitgo.png');
+const Img_BitCom = require('@assets/known/bitcom.png');
+const Img_AvanChange = require('@assets/known/avanchange.png');
+const Img_FixedFloat = require('@assets/known/fixedfloat.png');
 
 export type KnownWallet = { name: string, ic?: any, colors?: { primary: string, secondary: string } };
 
@@ -77,38 +92,6 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                     secondary: '#BAD5E7'
                 },
                 ic: Img_Foundation
-            },
-            [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
-                name: 'EXMO Deposit',
-                colors: {
-                    primary: '#2679CD',
-                    secondary: '#DEEFFC'
-                },
-                ic: Img_EXMO
-            },
-            [Address.parse('EQB5lISMH8vLxXpqWph7ZutCS4tU4QdZtrUUpmtgDCsO73JR').toString()]: {
-                name: 'EXMO Withdraw',
-                colors: {
-                    primary: '#2679CD',
-                    secondary: '#DEEFFC'
-                },
-                ic: Img_EXMO
-            },
-            [Address.parse('EQCNGVeTuq2aCMRtw1OuvpmTQdq9B3IblyXxnhirw9ENkhLa').toString()]: {
-                name: 'EXMO Cold',
-                colors: {
-                    primary: '#2679CD',
-                    secondary: '#DEEFFC'
-                },
-                ic: Img_EXMO
-            },
-            [Address.parse('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf4a8').toString()]: {
-                name: 'OKX',
-                colors: {
-                    primary: '#7D7D7D',
-                    secondary: '#DCDCDC'
-                },
-                ic: Img_OKX
             },
             [Address.parse('EQCzFTXpNNsFu8IgJnRnkDyBCL2ry8KgZYiDi3Jt31ie8EIQ').toString()]: {
                 name: 'FTX',
@@ -402,14 +385,152 @@ export const KnownWallets: (isTestnet: boolean) => { [key: string]: KnownWallet 
                 },
                 ic: Img_Lockups_2
             },
-            [Address.parse('EQB0SoxuGDx5qjVt0P_bPICFeWdFLBmVopHhjgfs0q-wsTON').toString()]: {
-                name: 'Whales Liquid',
-                colors: {
-                    primary: '#65C6FF',
-                    secondary: '#DEEFFC'
-                },
-                ic: Img_Liquid
+
+            // Bridges
+            [Address.parse('Ef9NXAIQs12t2qIZ-sRZ26D977H65Ol6DQeXc5_gUNaUys5r').toString()]: { name: 'BSC Bridge' },
+            [Address.parse('EQAHI1vGuw7d4WG-CtfDrWqEPNtmUuKjKFEFeJmZaqqfWTvW').toString()]: { name: 'BSC Bridge Collector' },
+            [Address.parse('Ef8OvX_5ynDgbp4iqJIvWudSEanWo0qAlOjhWHtga9u2YjVp').toString()]: { name: 'BSC Bridge Governance' },
+            [Address.parse('Ef_dJMSh8riPi3BTUTtcxsWjG8RLKnLctNjAM4rw8NN-xWdr').toString()]: { name: 'ETH Bridge' },
+            [Address.parse('EQCuzvIOXLjH2tv35gY4tzhIvXCqZWDuK9kUhFGXKLImgxT5').toString()]: { name: 'ETH Bridge Collector' },
+            [Address.parse('Ef87m7_QrVM4uXAPCDM4DuF9Rj5Rwa5nHubwiQG96JmyAjQY').toString()]: { name: 'ETH Bridge Governance' },
+            [Address.parse('Ef_P2CJw784O1qVd8Qbn8RCQc4EgxAs8Ra-M3bDhZn3OfzRb').toString()]: { name: 'Bridge Oracle 0' },
+            [Address.parse('Ef8DfObDUrNqz66pr_7xMbUYckUFbIIvRh1FSNeVSLWrvo1M').toString()]: { name: 'Bridge Oracle 1' },
+            [Address.parse('Ef8JKqx4I-XECLuVhTqeY1WMgbgTp8Ld3mzN-JUogBF4ZEW-').toString()]: { name: 'Bridge Oracle 2' },
+            [Address.parse('Ef8voAFh-ByCeKD3SZhjMNzioqCmDOK6S6IaeefTwYmRhgsn').toString()]: { name: 'Bridge Oracle 3' },
+            [Address.parse('Ef_uJVTTToU8b3o7-Jr5pcUqenxWzDNYpyklvhl73KSIA17M').toString()]: { name: 'Bridge Oracle 4' },
+            [Address.parse('Ef93olLWqh1OuBSTOnJKWZ4NwxNq_ELK55_h_laNPVwxcEro').toString()]: { name: 'Bridge Oracle 5' },
+            [Address.parse('Ef_iUPZdKLOCrqcNpDuFGNEmiuBwMB18TBXNjDimewpDExgn').toString()]: { name: 'Bridge Oracle 6' },
+            [Address.parse('Ef_tTGGToGmONePskH_Y6ZG-QLV9Kcg5DIXeKwBvCX4YifKa').toString()]: { name: 'Bridge Oracle 7' },
+            [Address.parse('Ef94L53akPw-4gOk2uQOenUyDYLOaif2g2uRoiu1nv0cWYMC').toString()]: { name: 'Bridge Oracle 8' },
+            [Address.parse('EQAtkbV8ysI75e7faO8Ihu0mFtmsg-osj7gmrTg_mljVRccy').toString()]: { name: 'Orbit Bridge TON Vault' },
+            [Address.parse('EQB8mNTgoG5QxqhOdVFi6X0MOjkmGNd33ct-RGBT9ZT5oDAX').toString()]: { name: 'Orbit Bridge TON Governance' },
+            [Address.parse('EQAihs8RdUgLANjNypV5LgaUHfdoUsMVL5o06K2F-qFSki00').toString()]: { name: 'Orbit Bridge ETH Minter' },
+            [Address.parse('EQBbAqI1eVJ8PbZpKXA5njk6hq8Q6ZUxwXLZf-ntG1wf90Tm').toString()]: { name: 'Orbit Bridge ETH Governance' },
+            [Address.parse('EQAlMRLTYOoG6kM0d3dLHqgK30ol3qIYwMNtEelktzXP_pD5').toString()]: { name: 'Orbit Bridge KLAYTN Minter' },
+            [Address.parse('EQAblz6Xr6b-7eLAWeagIK2Dn-g81YiNpu0okHfc9EwY9_72').toString()]: { name: 'Orbit Bridge KLAYTN Governance' },
+            [Address.parse('EQAZPJjpx_VCoaAJW78qYtbUK59IsheysCRgzaSUcp7k_Jqd').toString()]: { name: 'Orbit Bridge POLYGON Minter' },
+            [Address.parse('EQBbdymUiXgv2FK4yGwHmXC2mvnpwxUT7U9tj-nonXXnrv0L').toString()]: { name: 'Orbit Bridge POLYGON Governance' },
+            [Address.parse('EQA4XgASzx1VSi6T0r8tv1XdHwfUEplQhjg1q09RUd8gcPhd').toString()]: { name: 'Orbit Bridge WEMIX Minter' },
+            [Address.parse('EQAj33y_sRp4Ypuz8zdSGfrhYdTgW1uLhjVHuUNBNxnOA1RW').toString()]: { name: 'Orbit Bridge WEMIX Governance' },
+
+            // Celebrities
+            [Address.parse('EQAuz15H1ZHrZ_psVrAra7HealMIVeFq0wguqlmFno1f3EJj').toString()]: {
+                name: 'Telegram Team',
+                ic: Img_Telegram
             },
+            [Address.parse('EQBAjaOyi2wGWlk-EDkSabqqnF-MrrwMadnwqrurKpkla9nE').toString()]: {
+                name: 'Fragment',
+                ic: Img_Fragment
+            },
+            [Address.parse('EQDYzZmfsrGzhObKJUw4gzdeIxEai3jAFbiGKGwxvxHinaPP').toString()]: {
+                name: 'Pavel Durov',
+                ic: { uri: 'https://t.me/i/userpic/320/onetimeusername.jpg' }
+            },
+
+            // Custodians
+            [Address.parse('EQCtiv7PrMJImWiF2L5oJCgPnzp-VML2CAt5cbn1VsKAxLiE').toString()]: {
+                name: 'CryptoBot',
+                ic: Img_CryptoBot
+            },
+            [Address.parse('EQDd3NPNrWCvTA1pOJ9WetUdDCY_pJaNZVq0JMaara-TIp90').toString()]: {
+                name: 'Wallet Bot',
+                ic: Img_WalletBot
+            },
+            [Address.parse('EQBDanbCeUqI4_v-xrnAN0_I2wRvEIaLg1Qg2ZN5c6Zl1KOh').toString()]: {
+                name: 'Wallet Bot',
+                ic: Img_WalletBot
+            },
+
+            [Address.parse('EQBfAN7LfaUYgXZNw5Wc7GBgkEX2yhuJ5ka95J1JJwXXf4a8').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+            [Address.parse('EQCFTsRSHv1SrUO88ZiOTETr35omrRj6Uav9toX8OzSKXGkS').toString()]: {
+                name: 'OKX',
+                ic: Img_OKX
+            },
+            [Address.parse('EQABMMdzRuntgt9nfRB61qd1wR-cGPagXA3ReQazVYUNrT7p').toString()]: {
+                name: 'EXMO Deposit',
+                ic: Img_EXMO_Deposit
+            },
+            [Address.parse('EQB5lISMH8vLxXpqWph7ZutCS4tU4QdZtrUUpmtgDCsO73JR').toString()]: {
+                name: 'EXMO Withdraw',
+                ic: Img_EXMO
+            },
+            [Address.parse('EQCNGVeTuq2aCMRtw1OuvpmTQdq9B3IblyXxnhirw9ENkhLa').toString()]: {
+                name: 'EXMO Cold Storage 1',
+                ic: Img_EXMO_Cold_Storage
+            },
+            [Address.parse('EQAmq4rnY6OnwwZ9iCt7Ac1dNyVMuHaPV7akfAACjv_HuO5H').toString()]: {
+                name: 'EXMO Cold Storage 2',
+                ic: Img_EXMO_Cold_Storage
+            },
+            [Address.parse('EQA0KjWeODV8CDloEp_d3fBJ71xHMVv77ydQWjVr-fAtZSqw').toString()]: {
+                name: 'CoinEx',
+                ic: Img_CoinEx
+            },
+            [Address.parse('EQBVXzBT4lcTA3S7gxrg4hnl5fnsDKj4oNEzNp09aQxkwj1f').toString()]: {
+                name: 'Huobi Deposit',
+                ic: Img_Huobi
+            },
+            [Address.parse('EQCFr3jo0DXpIBF82mVGFc3zcdRkSAtinhENPFMQ2FqzYqDB').toString()]: {
+                name: 'Huobi',
+                ic: Img_Huobi
+            },
+            [Address.parse('EQDOPNz5UIm3XuXOmCSk_1BvQLdQkMS-lmN8K404sQlyJPrd').toString()]: {
+                name: 'TonMobile Service',
+                ic: Img_Tonmobile
+            },
+            [Address.parse('EQCA1BI4QRZ8qYmskSRDzJmkucGodYRTZCf_b9hckjla6dZl').toString()]: {
+                name: 'Kucoin',
+                ic: Img_Kucoin
+            },
+            [Address.parse('EQCzflcDPbIdELlQ5hQ7ZYwQw79CW9GTAllgrvfyLbz0_OZs').toString()]: {
+                name: 'Kucoin Withdraw',
+                ic: Img_Kucoin
+            },
+            [Address.parse('EQChSx9FI4Wyu5hK0sREHh0jyuBx_fwJbfulPrujtv8dENct').toString()]: {
+                name: 'Lbank',
+                ic: Img_Lbank
+            },
+            [Address.parse('EQB1cmpxb3R-YLA3HLDV01Rx6OHpMQA_7MOglhqL2CwJx_dz').toString()]: {
+                name: 'Rocket Bot',
+                ic: Img_Rocket_Bot
+            },
+            [Address.parse('EQDB3GVLWYq4TNpPEjcu_tiQfO3wkBhlpYZJCHNz4BscJPaV').toString()]: {
+                name: 'xRocket Bot',
+                ic: { uri: 'https://static.ton-rocket.com/icons/main_bot.png' }
+            },
+            [Address.parse('EQAJfclKb4fFi0tWg-PVgwwdXxHRImLWbO9_7HZcpIlCWkTg').toString()]: {
+                name: 'BitGo FTX Bankruptcy Custody',
+                ic: Img_BitGo
+            },
+            [Address.parse('EQDD8dqOzaj4zUK6ziJOo_G2lx6qf1TEktTRkFJ7T1c_fPQb').toString()]: { name: 'Bybit' },
+            [Address.parse('EQAAi7CI6B441YOCaQEJNWcCfMFXXsdErDVPpO7sMC0WbSVp').toString()]: {
+                name: 'bit.com',
+                ic: Img_BitCom
+            },
+            [Address.parse('EQChN26L-fJm7HxrEc5uXNAqm9o2O56oiKLiOdI4NXK8mm96').toString()]: {
+                name: 'AvanChange',
+                ic: Img_AvanChange
+            },
+            [Address.parse('EQAYgkeNrvG37SAMu9wgG9TtCyTC5fGkx8Fa6347GnWRk0v_').toString()]: { name: 'Coinone Deposit' },
+            [Address.parse('EQCk0gcrHtwTVfx_vuAJW-7HiJotPPqp7c8s6eEoYxq71hcS').toString()]: { name: 'Coinone Withdrawal' },
+            [Address.parse('EQDz9O0JE6tVXQI3RQWPGmxVpJ1Idlk8ub2rH3gKmbGFvCuG').toString()]: { name: 'Paribu' },
+            [Address.parse('EQD5hzUJ3lovl_eygF9feq-rRH9DyR51HMjvq8bS6gnXimGv').toString()]: { name: 'BingX' },
+            [Address.parse('EQDftQdPITnb-x8-gj3f15dtpQbn94F1yYxiftLoQPeGBizQ').toString()]: {
+                name: 'FixedFloat',
+                ic: Img_FixedFloat
+            },
+            [Address.parse('EQC0lrj3O0af8GotieYsTXChA_wijIIVN7Sd_wkgYLwoH07q').toString()]: { name: 'Gate.io' },
+
+            // Defi
+            [Address.parse('EQCjk1hh952vWaE9bRguFkAhDAL5jj3xj9p0uPWrFBq_GEMS').toString()]: { name: 'Getgems Marketplace' },
+            [Address.parse('EQBYTuYbLf8INxFtD8tQeNk5ZLy-nAX9ahQbG_yl1qQ-GEMS').toString()]: { name: 'Getgems Sales' },
+            [Address.parse('0:4d695da777df8e1839965cd8a9e928b3b328321ab85dec243e86427ac66edbe8').toString()]: { name: 'OTC Market' },
+            [Address.parse('EQAWcJ0nO3WtNlSmUjKcqv4735YCviRqu7LMNJoPXsdHVLC9').toString()]: { name: 'Megaton Finance' },
+            [Address.parse('EQAxC3GzQBgjlvW6CJAwgaHvarTfVxo8p7Be_6RMSjsPki6s').toString()]: { name: 'Megaton Finance Dex' },
+            [Address.parse('EQB3ncyBUTjZUA5EnFKR5_EnOMI9V1tTEAAPaiU71gc4TiUt').toString()]: { name: 'STON.fi Dex' },
         }
 }
 
@@ -432,6 +553,8 @@ export const KnownJettonMasters: (isTestnet: boolean) => { [key: string]: any } 
             'EQAQXlWJvGbbFfE8F3oS8s87lIgdovS455IsWFaRdmJetTon': {}, // JetTon
             'EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw': {}, // Huebel Bolt
             'EQD_KpO2-iFeHPT4dF0ur9E0iAFts2fwhpR2KjwAmYKpccvH': {}, // LIFEYT
+            'EQCBdxpECfEPH2wUxi1a6QiOkSf-5qDjUWqLCUuKtD-GLINT': {}, // GLINT
+            'EQC47093oX5Xhb0xuk2lCr2RhS8rj-vul61u4W2UH5ORmG_O': {}, // GRAM
         }
         : {};
 }

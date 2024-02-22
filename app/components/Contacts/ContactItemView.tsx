@@ -4,17 +4,16 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useContact, useDenyAddress, useNetwork, useBounceableWalletFormat, useTheme } from "../../engine/hooks";
+import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
 
-export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
+export const ContactItemView = memo(({ addressFriendly, action }: { addressFriendly: string, action?: (address: Address) => void }) => {
     const { isTestnet } = useNetwork();
     const theme = useTheme();
-    const [bounceableFormat,] = useBounceableWalletFormat();
-    const address = useMemo(() => Address.parse(addr), [addr])
-    const contact = useContact(addr);
-    const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
+    const addr = useMemo(() => Address.parseFriendly(addressFriendly), [addressFriendly]);
+    const contact = useContact(addressFriendly);
+    const isSpam = useDenyAddress(addr.address.toString({ testOnly: isTestnet }));
 
     const navigation = useTypedNavigation();
 
@@ -28,11 +27,11 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
 
     const onPress = useCallback(() => {
         if (action) {
-            action(address);
+            action(addr.address);
             return;
         }
-        navigation.navigate('Contact', { address: addr });
-    }, [addr, action, address]);
+        navigation.navigate('Contact', { address: addressFriendly });
+    }, [addressFriendly, action, addr]);
 
     return (
         <Pressable
@@ -43,8 +42,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
-                        address={addr}
-                        id={addr}
+                        address={addr.address.toString({ testOnly: isTestnet })}
+                        id={addr.address.toString({ testOnly: isTestnet })}
                         size={46}
                         borderWith={0}
                         theme={theme}
@@ -87,7 +86,10 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 ellipsizeMode={'middle'}
                                 numberOfLines={1}
                             >
-                                <AddressComponent address={address} bounceable={bounceableFormat} />
+                                <AddressComponent
+                                    address={addr.address}
+                                    bounceable={addr.isBounceable}
+                                />
                             </Text>
                         </>
                     )
@@ -98,7 +100,10 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                     ellipsizeMode={'middle'}
                                     numberOfLines={1}
                                 >
-                                    <AddressComponent address={address} bounceable={bounceableFormat} />
+                                    <AddressComponent
+                                        address={addr.address}
+                                        bounceable={addr.isBounceable}
+                                    />
                                 </Text>
                                 {isSpam && (
                                     <View style={{

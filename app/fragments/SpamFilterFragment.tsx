@@ -192,8 +192,8 @@ export const SpamFilterFragment = fragment(() => {
                             {denyList.map((d) => {
                                 return (
                                     <ContactItemView
-                                        key={`contact-${d[0]}`}
-                                        addr={d}
+                                        key={`contact-${d}`}
+                                        addressFriendly={d}
                                         action={() => onUnblock(d)}
                                     />
                                 );

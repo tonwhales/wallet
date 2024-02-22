@@ -179,7 +179,7 @@ export const ContactsFragment = fragment(() => {
                         return (
                             <ContactItemView
                                 key={`contact-${d[0]}`}
-                                addr={d[0]}
+                                addressFriendly={d[0]}
                                 action={callback}
                             />
                         );

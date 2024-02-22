@@ -22,7 +22,8 @@ export const PendingTransactionAvatar = memo(({
     const theme = useTheme();
     const network = useNetwork();
     const [walletSettings,] = useWalletSettings(address);
-    let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
+    const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const rotation = useSharedValue(0);
 
@@ -33,8 +34,8 @@ export const PendingTransactionAvatar = memo(({
     }, []);
 
     let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
-    let lighter = Color(color).lighten(0.4).hex();
-    let darker = Color(color).lighten(0.2).hex();
+    let lighter = Color(avatarColor).lighten(0.4).hex();
+    let darker = Color(avatarColor).lighten(0.2).hex();
 
     if (known && known.colors) {
         lighter = known.colors.primary;
@@ -63,10 +64,9 @@ export const PendingTransactionAvatar = memo(({
                     id={avatarId}
                     hash={walletSettings.avatar}
                     borderWith={0}
-                    backgroundColor={theme.backgroundPrimary}
+                    backgroundColor={avatarColor}
                     theme={theme}
                     isTestnet={network.isTestnet}
-                    hashColor
                 />
             </View>
             <Animated.View style={[

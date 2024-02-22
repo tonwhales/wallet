@@ -13,7 +13,7 @@ import { extractDomain } from '../../utils/extractDomain';
 import { useDisconnectApp } from './useDisconnect';
 import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjectedBridge } from '../../tonconnect/types';
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
-import { checkProtocolVersionCapability, setLastEventId, verifyConnectRequest } from '../../tonconnect/utils';
+import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {

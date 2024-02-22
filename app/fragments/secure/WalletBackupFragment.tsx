@@ -13,7 +13,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
-import { Avatar } from '../../components/Avatar';
+import { Avatar, avatarColors } from '../../components/Avatar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
@@ -21,6 +21,7 @@ import { MnemonicsView } from '../../components/secure/MnemonicsView';
 import { ToastDuration, useToaster } from '../../components/toast/ToastProvider';
 import { StatusBar } from 'expo-status-bar';
 import { useWalletSettings } from '../../engine/hooks/appstate/useWalletSettings';
+import { avatarHash } from '../../utils/avatarHash';
 
 export const WalletBackupFragment = systemFragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -42,7 +43,11 @@ export const WalletBackupFragment = systemFragment(() => {
     }, [selectedAccount]);
     const authContext = useKeysAuth();
     const toaster = useToaster();
-    const [walletSettings, setSettings] = useWalletSettings(address);
+    const [walletSettings,] = useWalletSettings(address);
+
+    const addressString = address.toString({ testOnly: network.isTestnet });
+    const avatarColorHash = walletSettings?.color ?? avatarHash(addressString, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const onComplete = useCallback(() => {
         let state = getAppState();
@@ -176,14 +181,14 @@ export const WalletBackupFragment = systemFragment(() => {
                             position: 'absolute', top: -34, alignSelf: 'center'
                         }}>
                             <Avatar
-                                id={address.toString({ testOnly: network.isTestnet })}
+                                id={addressString}
                                 hash={walletSettings.avatar}
                                 size={77}
                                 borderColor={theme.elevation}
                                 borderWith={3}
                                 theme={theme}
                                 isTestnet={network.isTestnet}
-                                hashColor
+                                backgroundColor={avatarColor}
                             />
                         </View>
                     )}

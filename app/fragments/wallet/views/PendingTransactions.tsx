@@ -18,7 +18,7 @@ import { ItemDivider } from "../../../components/ItemDivider";
 import { formatTime } from "../../../utils/dates";
 import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
-import { useSelectedAccount } from "../../../engine/hooks";
+import { useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
 
 const PendingTransactionView = memo(({
@@ -26,13 +26,15 @@ const PendingTransactionView = memo(({
     first,
     last,
     single,
-    onRemove
+    onRemove,
+    viewType = 'main'
 }: {
     tx: PendingTransaction,
     first?: boolean,
     last?: boolean,
     single?: boolean,
     onRemove?: (id: string) => void,
+    viewType?: 'history' | 'main'
 }) => {
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -40,6 +42,7 @@ const PendingTransactionView = memo(({
     const body = tx.body;
     const targetFriendly = body?.type === 'token' ? body.target.toString({ testOnly: isTestnet }) : tx.address?.toString({ testOnly: isTestnet });
     const contact = useContact(targetFriendly);
+    const [settings,] = useWalletSettings(targetFriendly);
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
@@ -60,6 +63,10 @@ const PendingTransactionView = memo(({
 
     useEffect(() => {
         if (onRemove && tx.status === 'sent') {
+            if (viewType === 'history') {
+                onRemove(tx.id);
+                return;
+            }
             setTimeout(() => {
                 onRemove(tx.id);
             }, 15000);
@@ -71,7 +78,8 @@ const PendingTransactionView = memo(({
             entering={FadeInDown}
             exiting={FadeOutUp}
             style={{
-                paddingHorizontal: 20, paddingVertical: 20,
+                paddingHorizontal: viewType === 'main' ? 20 : undefined,
+                paddingVertical: 20,
                 maxHeight: 86
             }}
         >
@@ -102,6 +110,7 @@ const PendingTransactionView = memo(({
                             verified
                             size={46}
                             borderWith={0}
+                            hash={settings?.avatar}
                             id={targetFriendly ?? 'batch'}
                             theme={theme}
                             isTestnet={isTestnet}
@@ -191,20 +200,25 @@ export const PendingTransactionsView = memo((
         theme,
         pending,
         removePending,
-        style
+        style,
+        viewType = 'main'
     }: {
         theme: ThemeType,
         pending: PendingTransaction[],
         removePending: (id: string) => void,
         style?: StyleProp<ViewStyle>,
+        viewType?: 'history' | 'main'
     }
 ) => {
     return (
-        <View style={[{
-            overflow: 'hidden',
-            backgroundColor: theme.surfaceOnBg,
-            borderRadius: 20,
-        }, style]}>
+        <View style={[
+            {
+                overflow: 'hidden',
+                backgroundColor: viewType === 'main' ? theme.surfaceOnBg : undefined,
+                borderRadius: 20,
+            },
+            style
+        ]}>
             {pending.map((tx, i) => (
                 <PendingTransactionView
                     key={tx.id}
@@ -212,6 +226,7 @@ export const PendingTransactionsView = memo((
                     first={i === 0}
                     last={i === pending.length - 1}
                     onRemove={() => removePending(tx.id)}
+                    viewType={viewType}
                 />
             ))}
         </View>
@@ -219,10 +234,10 @@ export const PendingTransactionsView = memo((
 });
 PendingTransactionsView.displayName = 'PendingTransactionsView';
 
-export const PendingTransactions = memo(() => {
+export const PendingTransactions = memo(({ address, viewType = 'main' }: { address?: string, viewType?: 'history' | 'main' }) => {
     const account = useSelectedAccount();
     const network = useNetwork();
-    const [pending, setPending] = usePendingTransactions(account?.addressString ?? '', network.isTestnet);
+    const [pending, setPending] = usePendingTransactions(address ?? account?.addressString ?? '', network.isTestnet);
     const theme = useTheme();
 
     const removePending = useCallback((id: string) => {
@@ -259,6 +274,7 @@ export const PendingTransactions = memo(() => {
                 theme={theme}
                 pending={pending}
                 removePending={removePending}
+                viewType={viewType}
             />
         </View>
     );

@@ -80,7 +80,7 @@ export const Avatar = memo((props: {
     },
     theme: ThemeType,
     isTestnet: boolean,
-    hashColor?: boolean
+    hashColor?: { hash: number } | boolean
 }) => {
     const theme = props.theme;
     const isTestnet = props.isTestnet;

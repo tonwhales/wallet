@@ -22,6 +22,7 @@ import { TransactionsSkeleton } from "../../components/skeletons/TransactionsSke
 import { HoldersAccount } from "../../engine/api/holders/fetchAccounts";
 import { setStatusBarStyle } from "expo-status-bar";
 import { ThemeType } from "../../engine/state/theme";
+import { PendingTransactions } from "./views/PendingTransactions";
 
 function TransactionsComponent(props: { account: Address, isLedger?: boolean, theme: ThemeType }) {
     const safeArea = useSafeAreaInsets();
@@ -115,6 +116,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                 loading={txs.loading}
                                 ledger={props.isLedger}
                                 theme={theme}
+                                header={<PendingTransactions viewType={'history'} />}
                             />
                         )
                     } else {

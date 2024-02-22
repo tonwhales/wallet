@@ -14,6 +14,19 @@ const holdersAccountStatus = z.union([
 
 export type HoldersAccountStatus = z.infer<typeof holdersAccountStatus>;
 
+// Migrate holders token from ton-x to ton-connect
+// user will be prompted to re-enroll
+const migrationKey = 'holders-token-ton-connect';
+function migrateHoldersToken(addressString: string) {
+    const key = `${migrationKey}-${addressString}`;
+    if (storage.getBoolean(key)) {
+        return false;
+    }
+    deleteHoldersToken(addressString);
+    storage.set(key, true);
+    return true;
+}
+
 export function deleteHoldersToken(address: string) {
     storage.delete(`holders-jwt-${address}`);
 }
@@ -23,6 +36,10 @@ export function setHoldersToken(address: string, token: string) {
 }
 
 export function getHoldersToken(address: string) {
+    // Migate to ton-connect
+    if (migrateHoldersToken(address)) {
+        return null;
+    }
     return storage.getString(`holders-jwt-${address}`);
 }
 

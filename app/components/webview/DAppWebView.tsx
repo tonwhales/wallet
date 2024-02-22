@@ -4,7 +4,6 @@ import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "r
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";

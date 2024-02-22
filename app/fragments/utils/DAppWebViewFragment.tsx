@@ -210,6 +210,11 @@ export const DAppWebViewFragment = fragment(() => {
                 {...webViewProps}
                 webviewDebuggingEnabled={isTestnet}
                 refId={refId}
+                defaultQueryParamsState={{
+                    backPolicy: 'back',
+                    showKeyboardAccessoryView: false,
+                    lockScroll: true
+                }}
             />
         </View>
     );

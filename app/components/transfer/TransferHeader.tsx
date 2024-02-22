@@ -2,11 +2,14 @@ import { memo } from "react";
 import { Text } from "react-native";
 import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 import { ThemeType } from "../../engine/state/theme";
-import { Avatar } from "../Avatar";
+import { Avatar, avatarColors } from "../Avatar";
 import { useWalletSettings } from "../../engine/hooks";
+import { avatarHash } from "../../utils/avatarHash";
 
 export const TransferHeader = memo(({ theme, isTestnet, addressFriendly }: { theme: ThemeType, isTestnet: boolean, addressFriendly: string }) => {
     const [walletSettings,] = useWalletSettings(addressFriendly);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(addressFriendly, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     return (
         <Animated.View
@@ -31,7 +34,7 @@ export const TransferHeader = memo(({ theme, isTestnet, addressFriendly }: { the
                 theme={theme}
                 isTestnet={isTestnet}
                 hash={walletSettings?.avatar}
-                hashColor
+                backgroundColor={avatarColor}
             />
             <Text style={{
                 fontSize: 17, lineHeight: 24,

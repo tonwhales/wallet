@@ -474,6 +474,8 @@ PODS:
     - React
   - react-native-fast-pbkdf2 (0.3.1):
     - React-Core
+  - react-native-minimizer (1.3.0):
+    - React
   - react-native-mmkv (2.6.3):
     - MMKV (>= 1.2.13)
     - React-Core
@@ -742,6 +744,7 @@ DEPENDENCIES:
   - react-native-blurhash (from `../node_modules/react-native-blurhash`)
   - react-native-context-menu-view (from `../node_modules/react-native-context-menu-view`)
   - react-native-fast-pbkdf2 (from `../node_modules/react-native-fast-pbkdf2`)
+  - react-native-minimizer (from `../node_modules/react-native-minimizer`)
   - react-native-mmkv (from `../node_modules/react-native-mmkv`)
   - react-native-pager-view (from `../node_modules/react-native-pager-view`)
   - react-native-quick-base64 (from `../node_modules/react-native-quick-base64`)
@@ -920,6 +923,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-context-menu-view"
   react-native-fast-pbkdf2:
     :path: "../node_modules/react-native-fast-pbkdf2"
+  react-native-minimizer:
+    :path: "../node_modules/react-native-minimizer"
   react-native-mmkv:
     :path: "../node_modules/react-native-mmkv"
   react-native-pager-view:
@@ -1076,6 +1081,7 @@ SPEC CHECKSUMS:
   react-native-blurhash: a59e6bf8117a0304488ed576abd440f4b0777a8c
   react-native-context-menu-view: 2ae33d47b93dadab8bce27cddc1506f17411f7e5
   react-native-fast-pbkdf2: 44d6ffa0346863e14100294004a1595ec76b2e9f
+  react-native-minimizer: bd07450123d8c685acb2dff64f0213b0c7b5dbd6
   react-native-mmkv: 2e5bf67513cc8deed86fcffe87e12b8cc250dfab
   react-native-pager-view: 02a5c4962530f7efc10dd51ee9cdabeff5e6c631
   react-native-quick-base64: a5dbe4528f1453e662fcf7351029500b8b63e7bb

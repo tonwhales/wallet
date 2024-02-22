@@ -114,18 +114,4 @@ export class ConnectReplyBuilder {
 
     return replyItems;
   }
-
-  static createAutoConnectReplyItems(addr: string, publicKey: Uint8Array, walletStateInit: string, isTestnet: boolean): ConnectItemReply[] {
-    const address = Address.parse(addr).toRawString();
-
-    return [
-      {
-        name: 'ton_addr',
-        address,
-        network: ConnectReplyBuilder.getNetwork(isTestnet),
-        walletStateInit,
-        publicKey: Buffer.from(publicKey).toString('hex'),
-      },
-    ];
-  }
 }

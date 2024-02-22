@@ -8,6 +8,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { useNetwork, useTheme } from "../../engine/hooks";
 
 import IcClose from '@assets/ic-close.svg';
+import { Typography } from "../styles";
 
 const wasHiddenKey = 'pool-banner-hidden';
 
@@ -65,25 +66,21 @@ export const RestrictedPoolBanner = memo(({ type }: { type: 'club' | 'team' }) =
                     </Canvas>
                 </View>
                 <View style={{ flexShrink: 1, marginRight: 8, paddingVertical: 20 }}>
-                    <Text style={{
-                        fontSize: 16,
+                    <Text style={[{
                         color: theme.white,
-                        fontWeight: '600',
                         flexGrow: 1,
                         flexBasis: 0
-                    }}>
+                    }, Typography.semiBold17_24]}>
                         {type === 'club' && t('products.staking.pools.clubBanner')}
                         {type === 'team' && t('products.staking.pools.teamBanner')}
                     </Text>
-                    <Text style={{
-                        fontSize: 14,
+                    <Text style={[{
                         opacity: 0.8,
                         color: theme.white,
-                        fontWeight: '500',
-                        marginTop: 12,
+                        marginTop: 2,
                         flexGrow: 1,
                         flexBasis: 0
-                    }}>
+                    }, Typography.regular15_20]}>
                         {type === 'club' && t('products.staking.pools.clubBannerDescription')}
                         {type === 'team' && t('products.staking.pools.teamBannerDescription')}
                     </Text>

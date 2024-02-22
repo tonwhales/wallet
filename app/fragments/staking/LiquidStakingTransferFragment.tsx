@@ -148,6 +148,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
         dispatchAmount(action);
     }, []);
 
+    const depositFee = useMemo(() => {
+        return (liquidStaking?.extras.depositFee ?? toNano('0.1'))
+            + (liquidStaking?.extras.receiptPrice ?? toNano('0.1'));
+    }, [liquidStaking]);
+
     const doContinue = useCallback(async () => {
 
         if (params.action !== 'withdraw' && params.action !== 'top_up') {
@@ -160,8 +165,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
         let transferAmountTon: bigint;
         let transferAmountWsTon: bigint;
         let minAmount = liquidStaking?.extras.minStake ?? toNano('1');
-        minAmount += liquidStaking?.extras.receiptPrice ?? toNano('0.1');
-        minAmount += liquidStaking?.extras.depositFee ?? toNano('0.1');
+        minAmount += depositFee;
 
         try {
             // transferAmount = parseAmountToBn(amount);
@@ -273,7 +277,7 @@ export const LiquidStakingTransferFragment = fragment(() => {
             job: null,
             callback: null
         });
-    }, [amount, params, member, liquidStaking, balance, network]);
+    }, [amount, params, member, liquidStaking, balance, network, depositFee]);
 
     //
     // Scroll state tracking
@@ -813,7 +817,11 @@ export const LiquidStakingTransferFragment = fragment(() => {
                             </View>
                             <AboutIconButton
                                 title={params.action === 'withdraw' ? t('products.staking.info.withdrawFee') : t('products.staking.info.depositFee')}
-                                description={params.action === 'withdraw' ? t('products.staking.info.withdrawFeeDescription') : t('products.staking.info.depositFeeDescription')}
+                                description={
+                                    params.action === 'withdraw'
+                                        ? t('products.staking.info.withdrawFeeDescription')
+                                        : t('products.staking.info.depositFeeDescription', { amount: fromNano(depositFee) })
+                                }
                                 style={{ height: 24, width: 24, position: undefined }}
                                 size={24}
                             />

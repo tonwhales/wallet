@@ -207,7 +207,7 @@ function invalidateTransactions(account: string) {
 
     if (!lastVersion || lastVersion < currentTransactionsVersion) {
         storage.set(key, currentTransactionsVersion);
-        queryClient.resetQueries(Queries.Transactions(account));
+        queryClient.removeQueries(Queries.Transactions(account));
     }
 }
 

@@ -8,6 +8,8 @@ import { resolveOperation } from '../../transactions/resolveOperation';
 import { TonClient4 } from '@ton/ton';
 import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, StoredTxBody, TxBody } from '../../types';
 import { fetchAccountTransactions } from '../../api/fetchAccountTransactions';
+import { storage } from '../../../storage/storage';
+import { queryClient } from '../../clients';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -196,8 +198,23 @@ function rawTransactionToStoredTransaction(tx: Transaction, hash: string, own: A
 
 const TRANSACTIONS_LENGTH = 16;
 
+const currentTransactionsVersion = 1;
+const transactionsKey = (account: string) => `transactions-version-${account}`;
+
+function invalidateTransactions(account: string) {
+    const key = transactionsKey(account);
+    const lastVersion = storage.getNumber(key);
+
+    if (!lastVersion || lastVersion < currentTransactionsVersion) {
+        storage.set(key, currentTransactionsVersion);
+        queryClient.invalidateQueries(Queries.Transactions(account));
+    }
+}
+
 export function useRawAccountTransactions(client: TonClient4, account: string, refetchOnMount: boolean = false) {
     const { isTestnet } = useNetwork();
+
+    invalidateTransactions(account);
 
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),

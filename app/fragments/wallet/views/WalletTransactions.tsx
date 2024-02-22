@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useRef } from "react";
 import { Address } from "@ton/core";
 import { TypedNavigation } from "../../../utils/useTypedNavigation";
 import { EdgeInsets } from "react-native-safe-area-context";
@@ -8,7 +8,7 @@ import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAppState, useDontShowComments, useNetwork, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { useAppState, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -103,6 +103,9 @@ export const WalletTransactions = memo((props: {
     const [addressBook, updateAddressBook] = useAddressBook();
     const spamWallets = useServerConfig().data?.wallets?.spam ?? [];
     const appState = useAppState();
+    const [pending,] = usePendingTransactions(props.address, isTestnet);
+    const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
+
     const { showActionSheetWithOptions } = useActionSheet();
 
     const addToDenyList = useCallback((address: string | Address, reason: string = 'spam') => {
@@ -263,8 +266,16 @@ export const WalletTransactions = memo((props: {
         return showActionSheetWithOptions(actionSheetOptions, handleAction);
     }
 
+    useEffect(() => {
+        // Scroll to top when new pending transactions appear
+        if (pending.length > 0) {
+            ref.current?.scrollToLocation({ sectionIndex: 0, itemIndex: 0, animated: true });
+        }
+    }, [pending]);
+
     return (
         <SectionList
+            ref={ref}
             style={{ flexGrow: 1 }}
             contentContainerStyle={[
                 props.sectionedListProps?.contentContainerStyle

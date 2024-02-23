@@ -1,6 +1,8 @@
 import axios from "axios";
 import { stakingIndexerUrl } from "./fetchStakingNominator";
 import { Address } from "@ton/core";
+import { TonClient4 } from "@ton/ton";
+import { fetchStakingStatusV4 } from "./fetchStakingStatusV4";
 
 export type StakingStatus = {
     electorsEndBefore: number;
@@ -16,8 +18,6 @@ export type StakingStatus = {
     maxMainValidators: number;
     validationFrom: number;
     validationUntil: number;
-    // previousBonuses: string,
-    // previousStake: string,
     electionEntities: { key: string; amount: bigint; address: string; adnl: string }[];
     validators: {
         key: number;
@@ -45,14 +45,17 @@ export type StakingStatus = {
     }[];
 };
 
-export async function fetchStakingStatus(isTestnet: boolean): Promise<StakingStatus | null> {
-    const res = await axios.get(`${stakingIndexerUrl}/status${isTestnet ? 'testnet' : ''}`);
+export async function fetchStakingStatus(client: TonClient4, isTestnet: boolean): Promise<StakingStatus | null> {
+    try {
+        const res = await axios.get(`${stakingIndexerUrl}/status${isTestnet ? 'testnet' : ''}`);
 
-    if (res.status !== 200) {
-        throw new Error('Failed to fetch staking status');
+        if (res.status !== 200) {
+            throw new Error('Failed to fetch staking status');
+        }
+
+        return res.data.status.data as StakingStatus;
+    } catch { // fallback to v4
+        const seqno = (await client.getLastBlock()).last.seqno;
+        return await fetchStakingStatusV4(client, seqno, 5, isTestnet);
     }
-
-    const status = res.data.status.data as StakingStatus;
-
-    return status;
 }

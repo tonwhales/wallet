@@ -96,7 +96,7 @@ export const StakingProductComponent = memo(({ isLedger }: { isLedger?: boolean 
             <View style={{ marginBottom: 16 }}>
                 <CollapsibleCards
                     title={t('products.staking.title')}
-                    items={[...active, { type: 'banner' }, liquidBalance > 0n ? { type: 'liquid' } : null]}
+                    items={[...active, liquidBalance > 0n ? { type: 'liquid' } : null, { type: 'banner' }]}
                     renderItem={(p: any) => {
                         if (!p) {
                             return null

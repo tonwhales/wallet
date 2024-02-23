@@ -21,6 +21,7 @@ import IcConnectLine from '@assets/ic-connect-line.svg';
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+import { SelectedAccount } from "../../../engine/types";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -61,7 +62,7 @@ export const DappAuthComponent = memo(({
     setAddExtension
 }: {
     state: SignState,
-    onApprove: () => Promise<void>,
+    onApprove: (selectedAccount?: SelectedAccount) => Promise<void>,
     onCancel?: () => void,
     addExtension?: boolean,
     setAddExtension?: (add: boolean) => void,

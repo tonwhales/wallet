@@ -12,6 +12,7 @@ import { useCreateDomainKeyIfNeeded } from '../../../engine/hooks';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useParams } from '../../../utils/useParams';
+import { SelectedAccount } from '../../../engine/types';
 
 type SignStateLoaderParams = {
     url: string,
@@ -34,7 +35,7 @@ const SignStateLoader = memo((props: SignStateLoaderParams) => {
 
     // Approve
     let success = useRef(false);
-    const approve = useCallback(async () => {
+    const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 
         // Create Domain Key if Needed
         let domain = extractDomain(props.url);
@@ -45,6 +46,7 @@ const SignStateLoader = memo((props: SignStateLoaderParams) => {
             {
                 backgroundColor: theme.elevation,
                 containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                selectedAccount
             },
         );
 

@@ -27,6 +27,7 @@ import { tonConnectDeviceInfo } from '../../../engine/tonconnect/config';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Minimizer from '../../../modules/Minimizer';
+import { SelectedAccount } from '../../../engine/types';
 
 type SignState = { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }
@@ -120,13 +121,12 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
     }, []);
 
     // Approve
-    const acc = useMemo(() => getCurrentAddress(), []);
     let active = useRef(true);
     useEffect(() => {
         return () => { active.current = false; };
     }, []);
 
-    const approve = useCallback(async () => {
+    const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 
         if (state.type !== 'initing') {
             return;
@@ -140,6 +140,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
         }
 
         try {
+            const acc = selectedAccount ?? getCurrentAddress();
             const contract = contractFromPublicKey(acc.publicKey);
             const config = walletConfigFromContract(contract);
 
@@ -156,6 +157,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     cancelable: true,
                     backgroundColor: theme.elevation,
                     containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                    selectedAccount: acc
                 });
             } catch (e) {
                 warn('Failed to load wallet keys');

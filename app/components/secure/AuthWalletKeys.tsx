@@ -16,6 +16,7 @@ import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { useBiometricsState, useSelectedAccount, useSetBiometricsState, useTheme } from '../../engine/hooks';
 import { useLogoutAndReset } from '../../engine/hooks/accounts/useLogoutAndReset';
 import { CloseButton } from '../navigation/CloseButton';
+import { SelectedAccount } from '../../engine/types';
 
 type EnteringAnimation = BaseAnimationBuilder
     | typeof BaseAnimationBuilder
@@ -31,6 +32,7 @@ export type AuthParams = {
     description?: string,
     enteringAnimation?: EnteringAnimation,
     containerStyle?: StyleProp<ViewStyle>,
+    selectedAccount?: SelectedAccount
 }
 
 export type AuthProps =
@@ -116,7 +118,6 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
     const { showActionSheetWithOptions } = useActionSheet();
     const safeAreaInsets = useSafeAreaInsets();
     const theme = useTheme();
-    const acc = useSelectedAccount();
     const logOutAndReset = useLogoutAndReset();
     const biometricsState = useBiometricsState();
     const setBiometricsState = useSetBiometricsState();
@@ -143,7 +144,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         // If biometrics are not available, shows proper alert to user or throws an error
         if (useBiometrics) {
             try {
-                const acc = getCurrentAddress();
+                const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 if (biometricsState === null) {
                     setBiometricsState(BiometricsState.InUse);
@@ -237,7 +238,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         }
 
         throw Error('Failed to load keys');
-    }, [auth, acc]);
+    }, [auth]);
 
     // Passcode only auth
     const authenticateWithPasscode = useCallback((style?: AuthParams) => {
@@ -321,7 +322,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
                                 return;
                             }
 
-                            const acc = getCurrentAddress();
+                            const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
                             try {
                                 const keys = await loadWalletKeys(acc.secretKeyEnc, pass);
                                 if (auth.returns === 'keysWithPasscode') {

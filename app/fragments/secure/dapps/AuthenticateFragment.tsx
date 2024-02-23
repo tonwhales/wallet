@@ -23,6 +23,7 @@ import { useAddExtension } from '../../../engine/hooks';
 import { getAppData } from '../../../engine/getters/getAppData';
 import { DappAuthComponent } from './DappAuthComponent';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SelectedAccount } from '../../../engine/types';
 
 type SignState = { type: 'loading' }
     | { type: 'expired' }
@@ -82,7 +83,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
     useEffect(() => {
         return () => { active.current = false; };
     }, []);
-    const approve = useCallback(async () => {
+    const approve = useCallback(async (selectedAccount?: SelectedAccount) => {
 
         if (state.type !== 'initing') {
             return;
@@ -115,6 +116,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
                 cancelable: true,
                 backgroundColor: theme.elevation,
                 containerStyle: { paddingBottom: safeArea.bottom + 56 },
+                selectedAccount
             });
         } catch (e) {
             warn('Failed to load wallet keys');

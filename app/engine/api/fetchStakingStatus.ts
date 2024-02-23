@@ -56,6 +56,6 @@ export async function fetchStakingStatus(client: TonClient4, isTestnet: boolean)
         return res.data.status.data as StakingStatus;
     } catch { // fallback to v4
         const seqno = (await client.getLastBlock()).last.seqno;
-        return await fetchStakingStatusV4(client, seqno, 5, isTestnet);
+        return await fetchStakingStatusV4(client, seqno);
     }
 }

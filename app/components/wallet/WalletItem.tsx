@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { Avatar, avatarColors } from "../Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../WalletAddress";
@@ -15,12 +15,14 @@ export const WalletItem = memo((
         index,
         address,
         selected,
-        onSelect
+        onSelect,
+        style
     }: {
         index: number
         address: Address,
         selected?: boolean,
         onSelect?: (address: Address) => void
+        style?: StyleProp<ViewStyle>
     }
 ) => {
     const theme = useTheme();
@@ -53,7 +55,7 @@ export const WalletItem = memo((
 
     return (
         <Pressable
-            style={{
+            style={[{
                 backgroundColor: theme.surfaceOnElevation,
                 padding: 20,
                 marginBottom: 16,
@@ -61,7 +63,7 @@ export const WalletItem = memo((
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between'
-            }}
+            }, style]}
             onPress={onSelectAccount}
         >
             <View style={{

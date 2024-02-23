@@ -144,7 +144,7 @@ export const AuthWalletKeysContextProvider = memo((props: { children?: any }) =>
         // If biometrics are not available, shows proper alert to user or throws an error
         if (useBiometrics) {
             try {
-                const acc = auth?.params?.selectedAccount ?? getCurrentAddress();
+                const acc = style?.selectedAccount ?? getCurrentAddress();
                 const keys = await loadWalletKeys(acc.secretKeyEnc);
                 if (biometricsState === null) {
                     setBiometricsState(BiometricsState.InUse);

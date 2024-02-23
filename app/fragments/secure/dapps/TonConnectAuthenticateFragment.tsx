@@ -159,7 +159,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     containerStyle: { paddingBottom: safeArea.bottom + 56 },
                     selectedAccount: acc
                 });
-            } catch (e) {
+            } catch {
                 warn('Failed to load wallet keys');
                 return;
             }
@@ -179,7 +179,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     stateInitStr,
                     isTestnet
                 );
-            } catch (e) {
+            } catch {
                 warn('Failed to create reply items');
                 return;
             }
@@ -224,6 +224,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
                 // Save connection
                 saveAppConnection({
+                    address: acc.addressString,
                     app: {
                         name: state.app.name,
                         url: state.app.url,
@@ -277,7 +278,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
 
             // Should not happen
             setState({ type: 'failed', returnStrategy: state.returnStrategy });
-        } catch (e) {
+        } catch {
             warn('Failed to approve');
             setState({ type: 'failed', returnStrategy: state.returnStrategy });
         }

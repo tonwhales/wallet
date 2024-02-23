@@ -1,11 +1,11 @@
-import { atom, selector } from "recoil";
+import { atom, atomFamily, selector, selectorFamily } from "recoil";
 import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
 import { CHAIN } from "@tonconnect/protocol";
 import { ConnectedApp } from "../hooks/dapps/useTonConnectExtenstions";
 import { CONNECT_ITEM_ERROR_CODES, ConnectedAppConnection, ConnectedAppConnectionRemote, SendTransactionRequest, TonConnectBridgeType } from '../tonconnect/types';
 import { selectedAccountSelector } from "./appState";
-import { getCurrentAddressNullable } from "../../storage/appState";
+import { getAppState, getCurrentAddressNullable } from "../../storage/appState";
 
 const appConnectionsKey = 'connectConnectedApps';
 const pendingRequestsKey = 'connectPendingRequests';
@@ -266,5 +266,43 @@ export const connectExtensionsSelector = selector<{ [key: string]: ConnectedApp 
   },
   set: ({ set }, newValue) => {
     set(connectExtensionsState, newValue);
+  }
+});
+
+export type ConnectedAppsMap = { [appKey: string]: ConnectedApp }
+export type FullExtensionsMap = { [address: string]: ConnectedAppsMap }
+
+const connectExtensionsMapAtom = atom<FullExtensionsMap>({
+  key: 'tonconnect/extensions/map',
+  default: (() => {
+    let res: FullExtensionsMap = {};
+    const appState = getAppState();
+    if (!appState) {
+      return res;
+    }
+
+    for (const address of appState.addresses) {
+      res[address.addressString] = getStoredConnectExtensions(address.addressString);
+    }
+  })(),
+  effects: [({ onSet }) => {
+    onSet((newValue) => {
+      for (const address in newValue) {
+        storeConnectExtensions(newValue[address], address);
+      }
+    });
+  }]
+});
+
+export const connectExtensionsFamily = selectorFamily<ConnectedAppsMap, string>({
+  key: 'tonconnect/extensions/family',
+  get: (address: string) => ({ get }) => {
+    const state = get(connectExtensionsMapAtom);
+    return state[address] || {};
+  },
+  set: (address: string) => ({ set, get }, newValue) => {
+    const currentState = get(connectExtensionsMapAtom);
+    const newState: FullExtensionsMap = { ...currentState, [address]: newValue as ConnectedAppsMap };
+    set(connectExtensionsMapAtom, newState);
   }
 });

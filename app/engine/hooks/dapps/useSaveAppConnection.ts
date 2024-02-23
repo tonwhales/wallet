@@ -1,4 +1,4 @@
-import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
+import { ConnectedApp, useSetTonConnectExtensions, useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { ConnectedAppConnection } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
@@ -6,16 +6,19 @@ import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 export function useSaveAppConnection() {
     const [, updateExtensions] = useTonConnectExtensions();
     const setConnections = useSetAppsConnectionsState();
+    const updateAddressExtensions = useSetTonConnectExtensions();
     return (async ({
+        address,
         app,
         connections
     }: {
+        address?: string,
         app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl: string },
         connections: ConnectedAppConnection[]
     }) => {
         let key = extensionKey(app.url);
 
-        updateExtensions((doc) => {
+        const extensionsUpdater = (doc: {[key: string]: ConnectedApp}) => {
             let temp = { ...doc };
             if (!!doc[key]) {
                 temp[key].iconUrl = app.iconUrl;
@@ -38,7 +41,14 @@ export function useSaveAppConnection() {
 
                 return temp;
             }
-        });
+        };
+
+        if (!!address) {
+            updateAddressExtensions(address, extensionsUpdater)
+        } else {
+            updateExtensions(extensionsUpdater);
+        }
+
 
         setConnections((prev) => {
             if (prev[key]) {

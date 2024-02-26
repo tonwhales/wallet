@@ -233,6 +233,7 @@ export const StakingFragment = fragment(() => {
                             disableContextMenu
                             copyOnPress
                             copyToastProps={{ marginBottom: bottomBarHeight + 16 }}
+                            bounceable={true}
                         />
                     </View>
                     <View style={{ paddingHorizontal: 16 }}>

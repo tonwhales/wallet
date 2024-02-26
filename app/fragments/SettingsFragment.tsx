@@ -20,6 +20,7 @@ import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { useFocusEffect, useRoute } from '@react-navigation/native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useLedgerTransport } from './ledger/components/TransportContext';
+import { Typography } from '../components/styles';
 
 import IcSecurity from '@assets/settings/ic-security.svg';
 import IcSpam from '@assets/settings/ic-spam.svg';
@@ -32,7 +33,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
-import { Typography } from '../components/styles';
+import IcNewAddressFormat from '@assets/settings/ic-address-update.svg';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();

@@ -1,13 +1,14 @@
-import React, { memo } from "react";
+import React, { memo, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 
 export const AddressSearchItemView = memo(({
     item,
@@ -20,11 +21,20 @@ export const AddressSearchItemView = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
+    const [bounceableFormat,] = useBounceableWalletFormat();
     const addressString = item.addr.address.toString({ testOnly: network.isTestnet });
+    const contractInfo = useContractInfo(addressString);
+
     const settings = walletsSettings[addressString];
 
     const avatarColorHash = settings?.color ?? avatarHash(addressString, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
+
+    const bounceable = useMemo(() => {
+        return (contractInfo?.kind === 'wallet')
+            ? bounceableFormat
+            : item.addr.isBounceable;
+    }, [bounceableFormat, contractInfo, item.addr.isBounceable]);
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
@@ -66,7 +76,7 @@ export const AddressSearchItemView = memo(({
                         numberOfLines={1}
                     >
                         <AddressComponent
-                            bounceable={item.addr.isBounceable}
+                            bounceable={bounceable}
                             address={item.addr.address}
                         />
                     </Text>

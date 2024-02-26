@@ -17,9 +17,10 @@ import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
-import { useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
+import { useBounceableWalletFormat, useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
+import { useContractInfo } from "../engine/hooks/metadata/useContractInfo";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -31,7 +32,7 @@ const requiredFields = [
 
 export const ContactFragment = fragment(() => {
     const toaster = useToaster();
-    const params = useParams<{ address: string, isNew?: boolean }>();
+    const params = useParams<{ address?: string, isNew?: boolean }>();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -49,6 +50,19 @@ export const ContactFragment = fragment(() => {
     const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
     const contact = useContact(params.address);
+    const contractInfo = useContractInfo(params.address ?? '');
+    const [bounceableFormat,] = useBounceableWalletFormat();
+
+    const addressString = useMemo(() => {
+        if (!parsed || params.isNew) {
+            return null;
+        }
+        const bounceable = (contractInfo?.kind === 'wallet')
+            ? bounceableFormat
+            : true;
+        const friendly = parsed.address.toString({ testOnly: isTestnet, bounceable });
+        return `${friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 6)}`;
+    }, [params.address, params.isNew, contractInfo, bounceableFormat, parsed, isTestnet]);
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);
@@ -304,7 +318,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                        {addressString}
                                     </Text>
                                     <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
                                 </Pressable>
@@ -462,7 +476,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                        {addressString}
                                     </Text>
                                 </View>
                             )}

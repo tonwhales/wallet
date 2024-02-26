@@ -9,6 +9,10 @@ import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import { Typography } from "../components/styles";
 import { RoundButton } from "../components/RoundButton";
+import { useCallback, useMemo } from "react";
+import { useAddressBookContext } from "../engine/AddressBookContext";
+import { queryClient } from "../engine/clients";
+import { Queries } from "../engine/queries";
 
 export const NewAddressFormatFragment = fragment(() => {
     const theme = useTheme();
@@ -17,9 +21,28 @@ export const NewAddressFormatFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const [bounceableFormat, setBounceableFormat] = useBounceableWalletFormat();
     const selectedAccount = useSelectedAccount();
+    const addressBook = useAddressBookContext().state;
+    const contacts = addressBook.contacts;
 
-    const oldAddressString = selectedAccount?.address.toString({ testOnly: network.isTestnet });
-    const newAddressString = selectedAccount?.address.toString({ testOnly: network.isTestnet, bounceable: false });
+    const { oldAddressString, newAddressString } = useMemo(() => {
+        return {
+            oldAddressString: selectedAccount?.address.toString({ testOnly: network.isTestnet }),
+            newAddressString: selectedAccount?.address.toString({ testOnly: network.isTestnet, bounceable: false })
+        }
+    }, [selectedAccount, network.isTestnet]);
+
+    const switchFormat = useCallback(async () => {
+        // Prefetch contacts contract info for current account at least
+        Object.keys(contacts).forEach((contactEntrie) => {
+            if (!queryClient.getQueryData(Queries.ContractInfo(contactEntrie[0]))) {
+                queryClient.prefetchQuery(Queries.ContractInfo(contactEntrie[0]));
+            }
+        });
+
+        // Switch the format
+        setBounceableFormat(!bounceableFormat);
+        navigation.goBack();
+    }, [bounceableFormat, setBounceableFormat, contacts]);
 
     return (
         <View style={{
@@ -92,10 +115,7 @@ export const NewAddressFormatFragment = fragment(() => {
                         'newAddressFormat.action',
                         { format: (!bounceableFormat ? t('newAddressFormat.oldAddress') : t('newAddressFormat.newAddress')).toLowerCase() }
                     )}
-                    onPress={() => {
-                        setBounceableFormat(!bounceableFormat);
-                        navigation.goBack();
-                    }}
+                    action={switchFormat}
                 />
             </View>
         </View>

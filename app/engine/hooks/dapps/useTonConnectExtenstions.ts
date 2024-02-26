@@ -1,5 +1,6 @@
 import { SetterOrUpdater, useRecoilCallback, useRecoilState } from "recoil";
-import { connectExtensionsFamily, connectExtensionsSelector } from "../../state/tonconnect";
+import { ConnectedAppsMap, connectExtensionsFamily } from "../../state/tonconnect";
+import { useSelectedAccount } from "../appstate";
 
 export type ConnectedApp = {
   date: number,
@@ -10,13 +11,9 @@ export type ConnectedApp = {
   manifestUrl: string
 }
 
-export function useTonConnectExtensions(): [{ [key: string]: ConnectedApp; }, SetterOrUpdater<{ [key: string]: ConnectedApp }>] {
-  const [value, update] = useRecoilState(connectExtensionsSelector);
-  return [value || {}, update]
-}
-
-export function useTonConenectExtensions(address: string) {
-  const [value, update] = useRecoilState(connectExtensionsFamily(address));
+export function useTonConnectExtensions(address?: string): [ConnectedAppsMap, SetterOrUpdater<ConnectedAppsMap>] {
+  const account = useSelectedAccount();
+  const [value, update] = useRecoilState(connectExtensionsFamily(address ?? account!.addressString));
   return [value || {}, update];
 }
 

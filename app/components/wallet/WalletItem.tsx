@@ -16,13 +16,15 @@ export const WalletItem = memo((
         address,
         selected,
         onSelect,
-        style
+        style,
+        hideSelect
     }: {
         index: number
         address: Address,
         selected?: boolean,
         onSelect?: (address: Address) => void
-        style?: StyleProp<ViewStyle>
+        style?: StyleProp<ViewStyle>,
+        hideSelect?: boolean
     }
 ) => {
     const theme = useTheme();
@@ -101,16 +103,18 @@ export const WalletItem = memo((
                     {ellipsiseAddress(address.toString({ testOnly: network.isTestnet }))}
                 </Text>
             </View>
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 24, width: 24,
-                backgroundColor: selected ? theme.accent : theme.divider,
-                borderRadius: 12
-            }}>
-                {selected && (
-                    <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
-                )}
-            </View>
+            {!hideSelect && (
+                <View style={{
+                    justifyContent: 'center', alignItems: 'center',
+                    height: 24, width: 24,
+                    backgroundColor: selected ? theme.accent : theme.divider,
+                    borderRadius: 12
+                }}>
+                    {selected && (
+                        <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                    )}
+                </View>
+            )}
         </Pressable>
     )
 })

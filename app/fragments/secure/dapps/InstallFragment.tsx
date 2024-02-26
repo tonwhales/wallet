@@ -89,6 +89,7 @@ const SignStateLoader = memo((props: SignStateLoaderParams) => {
             }}
             onApprove={approve}
             onCancel={navigation.goBack}
+            single
         />
     )
 });

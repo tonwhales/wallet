@@ -13,7 +13,7 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-import { useAppState, useNetwork, useTheme } from "../../../engine/hooks";
+import { useAppState, useTheme } from "../../../engine/hooks";
 import { CheckBox } from "../../../components/CheckBox";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
@@ -24,10 +24,10 @@ import { ScrollView } from "react-native-gesture-handler";
 import { WalletItem } from "../../../components/wallet/WalletItem";
 import { Address } from "@ton/core";
 import Collapsible from "react-native-collapsible";
+import Animated, { FadeOutDown } from "react-native-reanimated";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
-import Animated, { FadeInDown, FadeOutDown } from "react-native-reanimated";
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -65,13 +65,15 @@ export const DappAuthComponent = memo(({
     onApprove,
     onCancel,
     addExtension,
-    setAddExtension
+    setAddExtension,
+    single
 }: {
     state: SignState,
     onApprove: (selectedAccount?: SelectedAccount) => Promise<void>,
     onCancel?: () => void,
     addExtension?: boolean,
     setAddExtension?: (add: boolean) => void,
+    single?: boolean
 }) => {
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
@@ -259,51 +261,66 @@ export const DappAuthComponent = memo(({
                         </>
                     )}
                 </View>
-                <ScrollView
-                    style={[
-                        { flexBasis: 0 },
-                        Platform.select({ android: { marginTop: 24 } })
-                    ]}
-                    showsVerticalScrollIndicator={false}
-                    contentContainerStyle={{ gap: 16 }}
-                    contentInset={{ top: 24 }}
-                >
-                    {appState.addresses.slice(0, 2).map((addr, index) => {
-                        return (
-                            <WalletItem
-                                index={index}
-                                selected={selectedAccount?.address.equals(addr.address)}
-                                address={addr.address}
-                                onSelect={onAddressSelected}
-                                style={{ marginBottom: 0 }}
-                            />
-                        )
-                    })}
-                    {!showMore && (
-                        <Animated.View
-                            exiting={FadeOutDown}
-                        >
-                            <Text
-                                style={[{ color: theme.accent }, Typography.medium15_20]}
-                                onPress={() => setShowMore(!showMore)}
-                            >
-                                {t('auth.apps.moreWallets', { count: appState.addresses.length - 2 })}
-                            </Text>
-                        </Animated.View>
-                    )}
-                    <Collapsible collapsed={!showMore}>
-                        {appState.addresses.slice(2).map((addr, index) => {
+                {single ? (
+                    <>
+                        <WalletItem
+                            index={0}
+                            address={selectedAccount.address}
+                            onSelect={onAddressSelected}
+                            style={{ marginBottom: 0, marginTop: 16 }}
+                            hideSelect
+                        />
+                        <View style={{ flexGrow: 1 }} />
+                    </>
+                ) : (
+                    <ScrollView
+                        style={
+                            [
+                                { flexBasis: 0 },
+                                Platform.select({ android: { marginTop: 24 } })
+                            ]
+                        }
+                        showsVerticalScrollIndicator={false}
+                        contentContainerStyle={{ gap: 16 }}
+                        contentInset={{ top: 24 }}
+                    >
+                        {appState.addresses.slice(0, 2).map((addr, index) => {
                             return (
                                 <WalletItem
                                     index={index}
                                     selected={selectedAccount?.address.equals(addr.address)}
                                     address={addr.address}
                                     onSelect={onAddressSelected}
+                                    style={{ marginBottom: 0 }}
                                 />
-                            );
+                            )
                         })}
-                    </Collapsible>
-                </ScrollView>
+                        {!showMore && (
+                            <Animated.View
+                                exiting={FadeOutDown}
+                            >
+                                <Text
+                                    style={[{ color: theme.accent }, Typography.medium15_20]}
+                                    onPress={() => setShowMore(!showMore)}
+                                >
+                                    {t('auth.apps.moreWallets', { count: appState.addresses.length - 2 })}
+                                </Text>
+                            </Animated.View>
+                        )}
+                        <Collapsible collapsed={!showMore}>
+                            {appState.addresses.slice(2).map((addr, index) => {
+                                return (
+                                    <WalletItem
+                                        index={index}
+                                        selected={selectedAccount?.address.equals(addr.address)}
+                                        address={addr.address}
+                                        onSelect={onAddressSelected}
+                                    />
+                                );
+                            })}
+                        </Collapsible>
+                    </ScrollView>
+                )}
                 <View>
                     <View style={{ flexDirection: 'row', marginBottom: 24 }}>
                         <Image
@@ -313,7 +330,7 @@ export const DappAuthComponent = memo(({
                                 width: 24,
                             }}
                         />
-                        <Text style={[Typography.regular13_18, { color: theme.textSecondary, marginTop: 4 }]}>
+                        <Text style={[Typography.regular13_18, { color: theme.textSecondary, marginTop: 4, flexShrink: 1 }]}>
                             {t('auth.apps.connectionSecureDescription')}
                         </Text>
                     </View>

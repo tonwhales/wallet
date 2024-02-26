@@ -309,6 +309,7 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
             state={{ ...state, connector: 'ton-connect' }}
             onApprove={approve}
             onCancel={onCancel}
+            single={connectProps.type === 'callback'}
         />
     )
 });

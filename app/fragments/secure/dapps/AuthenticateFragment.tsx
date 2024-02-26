@@ -255,6 +255,7 @@ const SignStateLoader = memo((props: { session: string, endpoint: string }) => {
             onCancel={navigation.goBack}
             setAddExtension={state.type === 'initing' && state.app?.extension ? setAddExt : undefined}
             addExtension={state.type === 'initing' && state.app?.extension ? addExt : undefined}
+            single
         />
     )
 });

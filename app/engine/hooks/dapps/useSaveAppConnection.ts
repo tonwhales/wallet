@@ -4,15 +4,15 @@ import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 
 export function useSaveAppConnection() {
-    const [, updateExtensions] = useTonConnectExtensions();
-    const setConnections = useSetAppsConnectionsState();
     const updateAddressExtensions = useSetTonConnectExtensions();
+    const setConnections = useSetAppsConnectionsState();
+    
     return (async ({
         address,
         app,
         connections
     }: {
-        address?: string,
+        address: string,
         app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl: string },
         connections: ConnectedAppConnection[]
     }) => {
@@ -43,12 +43,7 @@ export function useSaveAppConnection() {
             return temp;
         };
 
-        if (!!address) {
-            updateAddressExtensions(address, extensionsUpdater);
-        } else {
-            updateExtensions(extensionsUpdater);
-        }
-
+        updateAddressExtensions(address, extensionsUpdater);
 
         setConnections((prev) => {
             if (prev[key]) {

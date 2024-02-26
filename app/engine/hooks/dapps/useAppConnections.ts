@@ -4,7 +4,7 @@ import { useSelectedAccount } from "..";
 
 export function useAppsConnections() {
     const currentAccount = useSelectedAccount();
-    return useRecoilValue(connectionsMapAtom)[currentAccount?.addressString ?? ''];
+    return useRecoilValue(connectionsMapAtom)[currentAccount?.addressString ?? ''] ?? {};
 }
 
 export function useAppConnections() {

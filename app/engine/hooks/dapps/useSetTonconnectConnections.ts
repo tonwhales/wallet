@@ -1,9 +1,19 @@
 import { useRecoilCallback } from "recoil";
-import { connectionsSelector } from "../../state/tonconnect";
 import { ConnectedAppConnection } from '../../tonconnect/types';
+import { connectionsFamily } from "../../state/tonconnect";
 
 export function useSetAppsConnectionsState() {
-    return useRecoilCallback(({ set }) => (updater: (prev: { [key: string]: ConnectedAppConnection[] }) => { [key: string]: ConnectedAppConnection[] }) => {
-        set(connectionsSelector, updater);
-    }, []);
+    const callback = useRecoilCallback(({ set }) => (
+        udater: (doc: { [key: string]: ConnectedAppConnection[] }) => { [x: string]: ConnectedAppConnection[] },
+        address: string
+    ) => {
+        set(connectionsFamily(address), udater);
+    });
+
+    return (
+        address: string,
+        updater: (doc: { [key: string]: ConnectedAppConnection[] }) => { [x: string]: ConnectedAppConnection[] },
+    ) => {
+        callback(updater, address);
+    };
 }

@@ -81,52 +81,49 @@ function getConnectionsState(address?: string) {
   return {};
 }
 
-function storeConnectionsState(state: { [key: string]: ConnectedAppConnection[] }, address?: string) {
-  if (!!address) {
-    storagePersistence.set(`${address}/${appConnectionsKey}`, JSON.stringify(state));
-  }
+function storeConnectionsState(address: string, state: { [key: string]: ConnectedAppConnection[] }) {
+  storagePersistence.set(`${address}/${appConnectionsKey}`, JSON.stringify(state));
 }
 
-function getConnectionsForCurrent() {
-  const selected = getCurrentAddressNullable();
-  const state = getConnectionsState(selected?.addressString);
-  return state;
-}
+export type ConnectionsMap = { [appKey: string]: ConnectedAppConnection[] }
+export type FullConnectionsMap = { [address: string]: ConnectionsMap }
 
-function storeConnectionsForCurrent(newValue: { [key: string]: ConnectedAppConnection[] }) {
-  const selected = getCurrentAddressNullable();
-  storeConnectionsState(newValue, selected?.addressString);
-}
+const connectionsMapAtom = atom<FullConnectionsMap>({
+  key: 'tonconnect/connections/map',
+  default: (() => {
+    let res: FullConnectionsMap = {};
+    const appState = getAppState();
 
-const connnectionsState = atom({
-  key: 'tonconnect/connections/state',
-  default: getConnectionsForCurrent(),
+    if (!appState) {
+      return res;
+    }
+
+    for (const address of appState.addresses) {
+      res[address.addressString] = getConnectionsState(address.addressString);
+    }
+
+    return res;
+  })(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
-      storeConnectionsForCurrent(newValue);
-    })
+      for (const address in newValue) {
+        storeConnectionsState(address, newValue[address]);
+      }
+    });
   }]
 });
 
-export const connectionsSelector = selector<{ [key: string]: ConnectedAppConnection[] }>({
-  key: 'tonconnect/connections/selector',
-  get: ({ get }) => {
-    const apps = get(connectExtensionsState);
-    const state = get(connnectionsState);
-
-    // filter connections that are not in apps
-    const filtered = Object.keys(state).reduce((acc, key) => {
-      if (apps[key]) {
-        acc[key] = state[key];
-      }
-      return acc;
-    }, {} as { [key: string]: ConnectedAppConnection[] });
-
-    return filtered;
+export const connectionsFamily = selectorFamily<ConnectionsMap, string>({
+  key: 'tonconnect/connections/family',
+  get: (address: string) => ({ get }) => {
+    const state = get(connectionsMapAtom);
+    return state[address] || {};
   },
-  set: ({ set }, newValue) => {
-    set(connnectionsState, newValue);
-  },
+  set: (address: string) => ({ set, get }, newValue) => {
+    const currentState = get(connectionsMapAtom);
+    const newState: FullConnectionsMap = { ...currentState, [address]: newValue as ConnectionsMap };
+    set(connectionsMapAtom, newState);
+  }
 });
 
 function getPendingRequestsState(address?: string) {
@@ -151,38 +148,57 @@ function getPendingRequestsState(address?: string) {
   return [];
 }
 
-function storePendingRequestsState(newState: SendTransactionRequest[], address?: string) {
-  if (!!address) {
-    storagePersistence.set(`${address}/${pendingRequestsKey}`, JSON.stringify(newState));
-  }
+function storePendingRequestsState(address: string, newState: SendTransactionRequest[]) {
+  storagePersistence.set(`${address}/${pendingRequestsKey}`, JSON.stringify(newState));
 }
 
-function getPendingRequestsForCurrent() {
-  const selected = getCurrentAddressNullable();
-  const state = getPendingRequestsState(selected?.addressString);
-  return state;
-}
+export type SendTransactionRequestsMap = { [address: string]: SendTransactionRequest[] }
 
-function storePendingRequestsForCurrent(newValue: SendTransactionRequest[]) {
-  const selected = getCurrentAddressNullable();
-  storePendingRequestsState(newValue, selected?.addressString);
-}
-
-const pendingRequestsState = atom({
+const pendingRequestsState = atom<SendTransactionRequestsMap>({
   key: 'tonconnect/pendingRequests/state',
-  default: getPendingRequestsForCurrent(),
+  default: (() => {
+    const appState = getAppState();
+    if (!appState) {
+      return {};
+    }
+
+    const res: SendTransactionRequestsMap = {};
+
+    for (const address of appState.addresses) {
+      res[address.addressString] = getPendingRequestsState(address.addressString);
+    }
+
+    return res;
+  })(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
-      storePendingRequestsForCurrent(newValue);
+      for (const address in newValue) {
+        storePendingRequestsState(address, newValue[address]);
+      }
     })
   }]
+});
+
+export const pendingRequestsFamily = selectorFamily<SendTransactionRequest[], string>({
+  key: 'tonconnect/pendingRequests/family',
+  get: (address: string) => ({ get }) => {
+    const state = get(pendingRequestsState);
+    return state[address] || {};
+  },
+  set: (address: string) => ({ set, get }, newValue) => {
+    const currentState = get(pendingRequestsState);
+    const newState: SendTransactionRequestsMap = { ...currentState, [address]: newValue as SendTransactionRequest[] };
+    set(pendingRequestsState, newState);
+  }
 });
 
 export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
   key: 'tonconnect/pendingRequests/selector',
   get: ({ get }) => {
-    const connections = get(connectionsSelector);
-    const state = get(pendingRequestsState);
+    const currentAccount = get(selectedAccountSelector);
+    const key = currentAccount?.addressString ?? ''
+    const connections = get(connectionsFamily(key));
+    const state = get(pendingRequestsFamily(key));
 
     // filter requests that are not in connections
     const filtered = state.filter((request) => {
@@ -193,8 +209,9 @@ export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
 
     return filtered;
   },
-  set: ({ set }, newValue) => {
-    set(pendingRequestsState, newValue);
+  set: ({ set, get }, newValue) => {
+    const currentAccount = get(selectedAccountSelector);
+    set(pendingRequestsFamily(currentAccount?.addressString ?? ''), newValue);
   }
 });
 
@@ -232,42 +249,6 @@ function storeConnectExtensions(newState: { [key: string]: ConnectedApp }, addre
     storagePersistence.set(`${address}/${connectExtensionsKey}`, JSON.stringify(newState));
   }
 }
-
-function storeExtensionsForCurrent(newValue: { [key: string]: ConnectedApp }) {
-  const selected = getCurrentAddressNullable();
-  storeConnectExtensions(newValue, selected?.addressString);
-}
-
-export function loadExtensionsStored() {
-  const selected = getCurrentAddressNullable();
-  const state = getStoredConnectExtensions(selected?.addressString);
-  return state;
-}
-
-export const connectExtensionsState = atom({
-  key: 'tonconnect/extensions/state',
-  default: loadExtensionsStored(),
-  effects: [({ onSet }) => {
-    onSet((newValue) => {
-      storeExtensionsForCurrent(newValue);
-    })
-  }]
-});
-
-export const connectExtensionsSelector = selector<{ [key: string]: ConnectedApp }>({
-  key: 'tonconnect/extensions/selector',
-  get: ({ get }) => {
-    const selected = get(selectedAccountSelector);
-    if (!selected) {
-      return {};
-    }
-    const state = get(connectExtensionsState);
-    return state;
-  },
-  set: ({ set }, newValue) => {
-    set(connectExtensionsState, newValue);
-  }
-});
 
 export type ConnectedAppsMap = { [appKey: string]: ConnectedApp }
 export type FullExtensionsMap = { [address: string]: ConnectedAppsMap }

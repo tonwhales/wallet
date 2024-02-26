@@ -6,7 +6,7 @@ import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 export function useSaveAppConnection() {
     const updateAddressExtensions = useSetTonConnectExtensions();
     const setConnections = useSetAppsConnectionsState();
-    
+
     return (async ({
         address,
         app,
@@ -45,17 +45,20 @@ export function useSaveAppConnection() {
 
         updateAddressExtensions(address, extensionsUpdater);
 
-        setConnections((prev) => {
-            if (prev[key]) {
+        setConnections(
+            address,
+            (prev) => {
+                if (prev[key]) {
+                    return {
+                        ...prev,
+                        [key]: [...prev[key], ...connections]
+                    }
+                }
                 return {
                     ...prev,
-                    [key]: [...prev[key], ...connections]
+                    [key]: [...connections]
                 }
-            }
-            return {
-                ...prev,
-                [key]: [...connections]
-            }
-        });
+            },
+        );
     });
 }

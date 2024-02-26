@@ -15,6 +15,7 @@ import { ConnectEventError, SignRawParams, TonConnectBridgeType, TonConnectInjec
 import { CURRENT_PROTOCOL_VERSION, tonConnectDeviceInfo } from '../../tonconnect/config';
 import { checkProtocolVersionCapability, verifyConnectRequest } from '../../tonconnect/utils';
 import { useWebViewBridge } from './useWebViewBridge';
+import { getCurrentAddress } from '../../../storage/appState';
 
 export function useDAppBridge(endpoint: string, navigation: TypedNavigation): any {
     const saveAppConnection = useSaveAppConnection();
@@ -62,7 +63,9 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
                     const event = await new Promise<ConnectEvent>((resolve, reject) => {
                         const callback = (result: TonConnectAuthResult) => {
                             if (result.ok) {
+                                const currentAccount = getCurrentAddress();
                                 saveAppConnection({
+                                    address: currentAccount.addressString,
                                     app: {
                                         name: manifest.name,
                                         url: manifest.url,

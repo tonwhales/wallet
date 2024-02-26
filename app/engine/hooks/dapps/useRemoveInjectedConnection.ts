@@ -1,3 +1,4 @@
+import { getCurrentAddress } from "../../../storage/appState";
 import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { TonConnectBridgeType } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
@@ -9,15 +10,20 @@ export function useRemoveInjectedConnection() {
 
     return (endpoint: string) => {
         let key = extensionKey(endpoint);
-    
+
         const app = extensions[key];
         if (!app) {
             return;
         }
 
-        setConnections((prev) => {
-            prev[key] = (prev[key] ?? []).filter((item) => item.type !== TonConnectBridgeType.Injected);
-            return prev;
-        });
+        const currentAccount = getCurrentAddress();
+
+        setConnections(
+            currentAccount.addressString,
+            (prev) => {
+                prev[key] = (prev[key] ?? []).filter((item) => item.type !== TonConnectBridgeType.Injected);
+                return prev;
+            }
+        );
     }
 }

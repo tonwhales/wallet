@@ -113,6 +113,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                 }
 
                 await saveAppConnection({
+                    address: acc.addressString,
                     app: {
                         name: manifest.name,
                         // todo: use manifest.url instead of holdersUrl on stabel static endpoint

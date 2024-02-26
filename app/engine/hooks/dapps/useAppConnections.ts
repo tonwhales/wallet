@@ -1,12 +1,15 @@
 import { useRecoilValue } from "recoil";
-import { connectionsSelector } from "../../state/tonconnect";
+import { connectionsFamily } from "../../state/tonconnect";
+import { useSelectedAccount } from "..";
 
 export function useAppsConnections() {
-    return useRecoilValue(connectionsSelector);
+    const currentAccount = useSelectedAccount();
+    return useRecoilValue(connectionsFamily(currentAccount?.addressString ?? ''));
 }
 
 export function useAppConnections() {
-    const state = useRecoilValue(connectionsSelector);
+    const currentAccount = useSelectedAccount();
+    const state = useRecoilValue(connectionsFamily(currentAccount?.addressString ?? ''));
     return (key: string) => {
         return state[key] || [];
     }

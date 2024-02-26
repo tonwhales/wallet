@@ -20,6 +20,7 @@ import { Avatar } from "../../../components/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { useSelectedAccount, useWalletSettings } from "../../../engine/hooks";
 import { ThemeType } from "../../../engine/state/theme";
+import { Typography } from "../../../components/styles";
 
 const PendingTransactionView = memo(({
     tx,
@@ -103,6 +104,7 @@ const PendingTransactionView = memo(({
                             kind={'out'}
                             address={targetFriendly}
                             avatarId={targetFriendly ?? 'batch'}
+                            style={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                         />
                     ) : (
                         <Avatar
@@ -116,6 +118,7 @@ const PendingTransactionView = memo(({
                             isTestnet={isTestnet}
                             backgroundColor={theme.backgroundPrimary}
                             hashColor
+                            icProps={{ backgroundColor: viewType === 'main' ? theme.surfaceOnBg : theme.backgroundPrimary }}
                         />
                     )}
                 </View>
@@ -255,17 +258,11 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
                     style={{
                         backgroundColor: theme.backgroundPrimary,
                         justifyContent: 'flex-end',
-                        paddingBottom: 2,
-                        marginVertical: 8,
-                        marginTop: 16,
+                        paddingVertical: 16,
+                        marginTop: 20,
                     }}
                 >
-                    <Text style={{
-                        fontSize: 20,
-                        fontWeight: '600',
-                        color: theme.textPrimary,
-                        lineHeight: 28,
-                    }}>
+                    <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                         {t('wallet.pendingTransactions')}
                     </Text>
                 </Animated.View>

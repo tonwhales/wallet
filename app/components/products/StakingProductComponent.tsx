@@ -16,9 +16,8 @@ import Animated from "react-native-reanimated";
 import StakingIcon from '@assets/ic-staking.svg';
 
 const style: StyleProp<ViewStyle> = {
-    height: 84,
+    height: 86,
     borderRadius: 20,
-    marginVertical: 4,
     padding: 20
 }
 

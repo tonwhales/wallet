@@ -27,11 +27,7 @@ export const PendingTransactionAvatar = memo(({
 
     const rotation = useSharedValue(0);
 
-    const animatedRotation = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${rotation.value * 360}deg` }],
-        }
-    }, []);
+    const animatedRotation = useAnimatedStyle(() => ({ transform: [{ rotate: `${rotation.value * 360}deg` }] }), []);
 
     let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
     let lighter = Color(avatarColor).lighten(0.4).hex();
@@ -83,7 +79,8 @@ export const PendingTransactionAvatar = memo(({
                         backgroundColor: '#FF9A50',
                         height: 20, width: 20,
                         borderRadius: 10,
-                        borderWidth: 2, borderColor: theme.surfaceOnElevation,
+                        borderWidth: 2,
+                        borderColor: (style as ViewStyle)?.backgroundColor ?? theme.surfaceOnElevation,
                         justifyContent: 'center', alignItems: 'center'
                     }}
                 >

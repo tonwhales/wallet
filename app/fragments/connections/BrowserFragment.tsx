@@ -58,7 +58,7 @@ const EmptyIllustrations = {
     light: require('@assets/empty-connections.webp')
 }
 
-export const ConnectionsFragment = fragment(() => {
+export const BrowserFragment = fragment(() => {
     const theme = useTheme();
     const network = useNetwork();
     const safeArea = useSafeAreaInsets();
@@ -180,7 +180,7 @@ export const ConnectionsFragment = fragment(() => {
                             style={{
                                 height: 22,
                                 width: 22,
-                                tintColor: theme.iconPrimary
+                                tintColor: theme.iconNav
                             }}
                         />
                     </Pressable>

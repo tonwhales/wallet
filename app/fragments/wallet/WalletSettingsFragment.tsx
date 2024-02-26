@@ -42,19 +42,23 @@ export const WalletSettingsFragment = fragment(() => {
     const [selectedColor, setColor] = useState(initColorHash);
 
     const hasChanges = useMemo(() => {
-        return name !== walletSettings?.name || avatar !== initHash || selectedColor !== initColorHash;
-    }, [name, avatar, walletSettings, selectedColor]);
+        return (
+            name !== walletSettings?.name
+            || avatar !== initHash
+            || selectedColor !== initColorHash
+        );
+    }, [name, avatar, walletSettings, selectedColor, initHash, initColorHash]);
 
     const onSave = useCallback(() => {
-        if (name !== walletSettings?.name || avatar !== initHash) {
-            setSettings({ 
-                name: name.trim(), 
-                avatar, 
-                color: selectedColor 
+        if (hasChanges) {
+            setSettings({
+                name: name.trim(),
+                avatar,
+                color: selectedColor
             });
+            navigation.goBack();
         }
-        navigation.goBack();
-    }, [name, avatar, walletSettings, setSettings]);
+    }, [hasChanges, setSettings]);
 
     const onChangeAvatar = useCallback(() => {
         const callback = (hash: number, color: number) => {

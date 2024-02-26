@@ -5,7 +5,8 @@ import { useTheme } from "../../engine/hooks";
 
 export const BackButton = React.memo((props: {
     onPress?: () => void,
-    style?: StyleProp<ViewStyle>
+    style?: StyleProp<ViewStyle>,
+    iconTintColor?: string,
 }) => {
     const theme = useTheme();
     const navigation = useTypedNavigation();
@@ -28,7 +29,7 @@ export const BackButton = React.memo((props: {
         >
             <Image
                 style={{
-                    tintColor: theme.textSecondary,
+                    tintColor: props.iconTintColor ?? theme.textSecondary,
                     height: 10, width: 6,
                     justifyContent: 'center', alignItems: 'center',
                     left: -1

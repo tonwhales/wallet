@@ -40,9 +40,9 @@ export function TransactionView(props: {
     appState?: AppState
 }) {
     const {
-        theme, navigation,
+        theme,
         tx,
-        denyList, addToDenyList,
+        denyList,
         spamMinAmount, dontShowComments, spamWallets,
         contacts,
         isTestnet,
@@ -118,7 +118,11 @@ export function TransactionView(props: {
     return (
         <Pressable
             onPress={() => props.onPress(props.tx)}
-            style={{ paddingHorizontal: 16, paddingVertical: 20, paddingBottom: operation.comment ? 0 : undefined }}
+            style={{ 
+                paddingHorizontal: 16, 
+                paddingVertical: 20, 
+                paddingBottom: operation.comment ? 0 : undefined
+            }}
             onLongPress={() => props.onLongPress?.(props.tx)}
         >
             <PerfView style={{
@@ -148,7 +152,12 @@ export function TransactionView(props: {
                             borderWith={0}
                             spam={spam}
                             markContact={!!contact}
-                            icProps={{ isOwn, backgroundColor: theme.surfaceOnBg, size: 18, borderWidth: 2 }}
+                            icProps={{
+                                isOwn,
+                                backgroundColor: theme.backgroundPrimary,
+                                size: 18,
+                                borderWidth: 2
+                            }}
                             theme={theme}
                             isTestnet={isTestnet}
                             backgroundColor={avatarColor}

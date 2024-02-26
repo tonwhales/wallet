@@ -4,7 +4,6 @@ import WebView, { WebViewMessageEvent, WebViewNavigation, WebViewProps } from "r
 import { useTheme } from "../../engine/hooks";
 import { WebViewErrorComponent } from "./WebViewErrorComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useKeyboard } from "@react-native-community/hooks";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { DappMainButton, processMainButtonMessage, reduceMainButton } from "../DappMainButton";
 import Animated, { FadeInDown, FadeOut, FadeOutDown } from "react-native-reanimated";
@@ -19,6 +18,7 @@ import { processToasterMessage, useToaster } from "../toast/ToastProvider";
 import { QueryParamsState, extractWebViewQueryAPIParams } from "./utils/extractWebViewQueryAPIParams";
 import { useMarkBannerHidden } from "../../engine/hooks/banners/useHiddenBanners";
 import { isSafeDomain } from "./utils/isSafeDomain";
+import DeviceInfo from 'react-native-device-info';
 
 export type DAppWebViewProps = WebViewProps & {
     useMainButton?: boolean;
@@ -27,8 +27,11 @@ export type DAppWebViewProps = WebViewProps & {
     useQueryAPI?: boolean;
     injectionEngine?: InjectEngine;
     onContentProcessDidTerminate?: () => void;
+    onClose?: () => void;
     loader?: (props: WebViewLoaderProps<{}>) => JSX.Element;
     refId?: string;
+    defaultQueryParamsState?: QueryParamsState;
+    onEnroll?: () => void;
 }
 
 export type WebViewLoaderProps<T> = { loaded: boolean } & T;
@@ -54,16 +57,10 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const navigation = useTypedNavigation();
-    const keyboard = useKeyboard();
-    const bottomMargin = (safeArea.bottom || 32);
     const toaster = useToaster();
     const markRefIdShown = useMarkBannerHidden();
 
     const [loaded, setLoaded] = useState(false);
-
-    const keyboardVerticalOffset = useMemo(() => {
-        return Platform.select({ ios: bottomMargin + (keyboard.keyboardShown ? 32 : 0) });
-    }, [keyboard.keyboardShown, bottomMargin]);
 
     const [mainButton, dispatchMainButton] = useReducer(
         reduceMainButton(),
@@ -79,11 +76,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
     );
 
-    const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>({
-        backPolicy: 'back',
-        showKeyboardAccessoryView: false,
-        lockScroll: true
-    });
+    const [queryAPIParams, setQueryAPIParams] = useState<QueryParamsState>(
+        props.defaultQueryParamsState ?? {
+            backPolicy: 'back',
+            showKeyboardAccessoryView: false,
+            lockScroll: false
+        }
+    );
 
     const safelyOpenUrl = useCallback((url: string) => {
         try {
@@ -106,7 +105,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         }
 
         if (params.closeApp) {
+            props.onClose?.();
             navigation.goBack();
+            return;
+        }
+
+        if (params.openEnrollment) {
+            props.onEnroll?.();
             return;
         }
 
@@ -123,12 +128,15 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         if (!!params.openUrl) {
             safelyOpenUrl(params.openUrl);
         }
-    }, [setQueryAPIParams, props.useQueryAPI, markRefIdShown, props.refId]);
+    }, [
+        setQueryAPIParams, props.useQueryAPI,
+        markRefIdShown, props.refId,
+        props.onClose, props.onEnroll
+    ]);
 
     const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
         if (props.onMessage) {
             props.onMessage(event);
-            return;
         }
         const nativeEvent = event.nativeEvent;
 
@@ -194,7 +202,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
 
         // Basic close app
         if (data.name === 'closeApp') {
+            props.onClose?.();
             navigation.goBack();
+            return;
+        }
+
+        if (data.name === 'openEnrollment') {
+            props.onEnroll?.();
             return;
         }
 
@@ -210,7 +224,13 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 dispatchResponse(ref as RefObject<WebView>, { id, data: res });
             }
         })();
-    }, [props.useMainButton, props.useStatusBar, props.injectionEngine, props.onMessage, ref, navigation]);
+    }, [
+        props.useMainButton, props.useStatusBar, props.injectionEngine,
+        props.onMessage,
+        ref,
+        navigation, toaster,
+        props.onClose, props.onEnroll,
+    ]);
 
     const onHardwareBackPress = useCallback(() => {
         if (queryAPIParams.backPolicy === 'lock') {
@@ -223,11 +243,12 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             return true;
         }
         if (queryAPIParams.backPolicy === 'close') {
+            props.onClose?.();
             navigation.goBack();
             return true;
         }
         return false;
-    }, [queryAPIParams.backPolicy]);
+    }, [queryAPIParams.backPolicy, props.onClose]);
 
     useEffect(() => {
         BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
@@ -254,10 +275,14 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         ${props.useStatusBar ? statusBarAPI(safeArea) : ''}
         ${props.useToaster ? toasterAPI : ''}
         ${props.injectedJavaScriptBeforeContentLoaded ?? ''}
-        window['tonhub'] = (() => {
-            const obj = {};
-            Object.freeze(obj);
-            return obj;
+        (() => {
+            if (!window.tonhub) {
+                window['tonhub'] = (() => {
+                    const obj = {};
+                    Object.freeze(obj);
+                    return obj;
+                })();
+            }
         })();
         true;
         `
@@ -266,9 +291,19 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
     const Loader = props.loader ?? WebViewLoader;
 
     const onContentProcessDidTerminate = useCallback(() => {
-        dispatchMainButton({ type: 'hide'});
+        dispatchMainButton({ type: 'hide' });
         props.onContentProcessDidTerminate?.();
     }, [props.onContentProcessDidTerminate]);
+
+    const onLoadEnd = useCallback(() => {
+        try {
+            const powerState = DeviceInfo.getPowerStateSync();
+            const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
+            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+        } catch {
+            setTimeout(() => setLoaded(true), 100);
+        }
+    }, []);
 
     return (
         <View style={{
@@ -296,6 +331,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 keyboardDisplayRequiresUserAction={false}
                 bounces={false}
                 contentInset={{ top: 0, bottom: 0 }}
+                scrollEnabled={!queryAPIParams.lockScroll}
                 //
                 // Passed down props
                 //
@@ -314,7 +350,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                     // Searching for supported query
                     onNavigation(event.url);
                 }}
-                onLoadEnd={() => setTimeout(() => setLoaded(true), 300)}
+                onLoadEnd={onLoadEnd}
                 injectedJavaScriptBeforeContentLoaded={injectedJavaScriptBeforeContentLoaded}
                 // In case of iOS blank WebView
                 onContentProcessDidTerminate={onContentProcessDidTerminate}
@@ -333,18 +369,17 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                 }}
             />
             <KeyboardAvoidingView
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
+                style={{ position: 'absolute', bottom: safeArea.bottom, left: 0, right: 0 }}
                 behavior={Platform.OS === 'ios' ? 'position' : undefined}
                 pointerEvents={mainButton.isVisible ? undefined : 'none'}
-                contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 86 : 0 }}
-                keyboardVerticalOffset={keyboard.keyboardShown ? 0 : -40}
+                contentContainerStyle={{
+                    marginHorizontal: 16,
+                    marginBottom: 16
+                }}
             >
                 {mainButton && mainButton.isVisible && (
                     <Animated.View
-                        style={Platform.OS === 'android'
-                            ? { marginHorizontal: 16, marginBottom: 16 }
-                            : { marginBottom: 56 }
-                        }
+                        style={Platform.select({ android: { marginHorizontal: 16, marginBottom: 16 } })}
                         entering={FadeInDown}
                         exiting={FadeOutDown.duration(100)}
                     >

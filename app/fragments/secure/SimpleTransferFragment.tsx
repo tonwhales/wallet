@@ -243,6 +243,8 @@ export const SimpleTransferFragment = fragment(() => {
         if (isLedger && ledgerAddress) {
             // Resolve jetton order
             if (jettonState) {
+                const txForwardAmount = toNano('0.05')
+                    + (estimation ?? toNano('0.1'));
                 return createLedgerJettonOrder({
                     wallet: jettonState.walletAddress,
                     target: target,
@@ -250,8 +252,8 @@ export const SimpleTransferFragment = fragment(() => {
                     responseTarget: ledgerAddress,
                     text: commentString,
                     amount: validAmount,
-                    tonAmount: toNano(0.1),
-                    txAmount: toNano(0.2),
+                    tonAmount: 1n,
+                    txAmount: txForwardAmount,
                     payload: null
                 }, network.isTestnet);
             }
@@ -270,6 +272,9 @@ export const SimpleTransferFragment = fragment(() => {
 
         // Resolve jetton order
         if (jettonState) {
+            const txForwardAmount = toNano('0.05')
+                + (estimation ?? toNano('0.1'));
+
             return createJettonOrder({
                 wallet: jettonState.walletAddress,
                 target: target,
@@ -277,8 +282,8 @@ export const SimpleTransferFragment = fragment(() => {
                 responseTarget: acc!.address,
                 text: commentString,
                 amount: validAmount,
-                tonAmount: toNano(0.1),
-                txAmount: toNano(0.2),
+                tonAmount: 1n,
+                txAmount: txForwardAmount,
                 payload: null
             }, network.isTestnet);
         }
@@ -295,7 +300,7 @@ export const SimpleTransferFragment = fragment(() => {
             app: params?.app
         });
 
-    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress]);
+    }, [validAmount, target, domain, commentString, stateInit, jettonState, params?.app, acc, ledgerAddress, estimation]);
 
     // Estimate fee
     const config = useConfig();
@@ -952,7 +957,7 @@ export const SimpleTransferFragment = fragment(() => {
                                 }}
                                 keyboardType={'numeric'}
                                 style={{
-                                    backgroundColor: theme.backgroundPrimary,
+                                    backgroundColor: theme.elevation,
                                     paddingHorizontal: 16, paddingVertical: 14,
                                     borderRadius: 16,
                                 }}

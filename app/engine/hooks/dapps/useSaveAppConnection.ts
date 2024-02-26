@@ -1,4 +1,4 @@
-import { ConnectedApp, useSetTonConnectExtensions, useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
+import { ConnectedApp, useSetTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { ConnectedAppConnection } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";

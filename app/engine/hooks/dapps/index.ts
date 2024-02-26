@@ -21,5 +21,5 @@ export { useRemoveExtension } from './useRemoveExtension';
 export { useRemoveInjectedConnection } from './useRemoveInjectedConnection';
 export { useSaveAppConnection } from './useSaveAppConnection';
 export { useSetAppsConnectionsState } from './useSetTonconnectConnections';
-export { useTonConnectExtensions } from './useTonConnectExtenstions';
+export { useConnectExtensions as useTonConnectExtensions } from './useTonConnectExtenstions';
 export { useWebViewBridge } from './useWebViewBridge';

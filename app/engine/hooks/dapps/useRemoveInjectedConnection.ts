@@ -1,11 +1,11 @@
 import { getCurrentAddress } from "../../../storage/appState";
-import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
+import { useConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { TonConnectBridgeType } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 
 export function useRemoveInjectedConnection() {
-    const [extensions,] = useTonConnectExtensions();
+    const [extensions,] = useConnectExtensions();
     const setConnections = useSetAppsConnectionsState();
 
     return (endpoint: string) => {

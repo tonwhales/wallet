@@ -1,5 +1,5 @@
 import { SetterOrUpdater, useRecoilCallback, useRecoilState } from "recoil";
-import { ConnectedAppsMap, connectExtensionsFamily } from "../../state/tonconnect";
+import { ConnectedAppsMap, connectExtensionsMapAtom } from "../../state/tonconnect";
 import { useSelectedAccount } from "../appstate";
 
 export type ConnectedApp = {
@@ -11,17 +11,34 @@ export type ConnectedApp = {
   manifestUrl: string
 }
 
-export function useTonConnectExtensions(address?: string): [ConnectedAppsMap, SetterOrUpdater<ConnectedAppsMap>] {
+export function useConnectExtensions(address?: string): [
+  ConnectedAppsMap,
+  (updater: (prev: ConnectedAppsMap) => ConnectedAppsMap) => void
+] {
   const account = useSelectedAccount();
-  const [value, update] = useRecoilState(connectExtensionsFamily(address ?? account!.addressString));
-  return [value || {}, update];
+  const [value, update] = useRecoilState(connectExtensionsMapAtom);
+
+  const extensions = value[address ?? account!.addressString];
+  const setterUpdater = (updater: (prev: ConnectedAppsMap) => ConnectedAppsMap) => {
+    update((state) => {
+      const newState = { ...state };
+      newState[address ?? account!.addressString] = updater(newState[address ?? account!.addressString] || {});
+      return newState;
+    });
+  }
+
+  return [extensions || {}, setterUpdater];
 }
 
 type Updater = (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp };
 
 export function useSetTonConnectExtensions() {
   const callback = useRecoilCallback(({ set }) => (udater: (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp }, address: string) => {
-    set(connectExtensionsFamily(address), udater);
+    set(connectExtensionsMapAtom, (state) => {
+      const newState = { ...state };
+      newState[address] = udater(newState[address] || {});
+      return newState;
+    });
   });
   return (address: string, updater: Updater) => {
     callback(updater, address);

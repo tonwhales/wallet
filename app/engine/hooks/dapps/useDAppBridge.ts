@@ -260,5 +260,4 @@ export function useDAppBridge(endpoint: string, navigation: TypedNavigation): an
         isConnected,
         disconnect,
     };
-    return {} as any;
 }

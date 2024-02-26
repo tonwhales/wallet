@@ -80,7 +80,7 @@ export const DappAuthComponent = memo(({
     const theme = useTheme();
     const appState = useAppState();
 
-    const [showMore, setShowMore] = useState(false);
+    const [showMore, setShowMore] = useState(appState.addresses.length > 2 ? false : true);
     const [selectedAccount, setSelectedAccount] = useState(getCurrentAddress());
 
     const onAddressSelected = useCallback((address: Address) => {

@@ -284,6 +284,8 @@ const connectExtensionsMapAtom = atom<FullExtensionsMap>({
     for (const address of appState.addresses) {
       res[address.addressString] = getStoredConnectExtensions(address.addressString);
     }
+
+    return res;
   })(),
   effects: [({ onSet }) => {
     onSet((newValue) => {

@@ -1,5 +1,5 @@
 import { SetterOrUpdater, useRecoilCallback, useRecoilState } from "recoil";
-import { ConnectedAppsMap, connectExtensionsFamily, connectExtensionsSelector } from "../../state/tonconnect";
+import { connectExtensionsFamily, connectExtensionsSelector } from "../../state/tonconnect";
 
 export type ConnectedApp = {
   date: number,
@@ -25,7 +25,7 @@ type Updater = (doc: { [key: string]: ConnectedApp }) => { [x: string]: Connecte
 export function useSetTonConnectExtensions() {
   const callback = useRecoilCallback(({ set }) => (udater: (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp }, address: string) => {
     set(connectExtensionsFamily(address), udater);
-  })
+  });
   return (address: string, updater: Updater) => {
     callback(updater, address);
   };

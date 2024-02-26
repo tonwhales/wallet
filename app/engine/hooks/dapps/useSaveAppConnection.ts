@@ -18,7 +18,10 @@ export function useSaveAppConnection() {
     }) => {
         let key = extensionKey(app.url);
 
-        const extensionsUpdater = (doc: {[key: string]: ConnectedApp}) => {
+        const extensionsUpdater = (doc: { [key: string]: ConnectedApp }) => {
+            if (!doc) {
+                doc = {};
+            }
             let temp = { ...doc };
             if (!!doc[key]) {
                 temp[key].iconUrl = app.iconUrl;
@@ -26,8 +29,6 @@ export function useSaveAppConnection() {
                 temp[key].date = Date.now();
                 temp[key].autoConnectDisabled = app.autoConnectDisabled;
                 temp[key].manifestUrl = app.manifestUrl;
-
-                return temp;
             } else {
                 delete temp[key];
                 temp[key] = {
@@ -38,13 +39,12 @@ export function useSaveAppConnection() {
                     autoConnectDisabled: app.autoConnectDisabled,
                     manifestUrl: app.manifestUrl
                 }
-
-                return temp;
             }
+            return temp;
         };
 
         if (!!address) {
-            updateAddressExtensions(address, extensionsUpdater)
+            updateAddressExtensions(address, extensionsUpdater);
         } else {
             updateExtensions(extensionsUpdater);
         }

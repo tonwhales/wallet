@@ -89,7 +89,6 @@ export const DappAuthComponent = memo(({
     }, [appState]);
 
     const doApprove = useCallback(async () => {
-        console.log('selectedAccount', selectedAccount)
         await onApprove(selectedAccount);
     }, [selectedAccount, onApprove]);
 

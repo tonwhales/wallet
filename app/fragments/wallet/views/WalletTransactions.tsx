@@ -19,6 +19,7 @@ import { t } from "../../../i18n/t";
 import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
+import { warn } from "../../../utils/log";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -269,9 +270,9 @@ export const WalletTransactions = memo((props: {
     useEffect(() => {
         // Scroll to top when new pending transactions appear
         if (pending.length > 0) {
-            ref.current?.scrollToLocation({ sectionIndex: 0, itemIndex: 0, animated: true });
+            ref.current?.scrollToLocation({ sectionIndex: -1, itemIndex: 0, animated: true });
         }
-    }, [pending]);
+    }, [pending.length]);
 
     return (
         <SectionList
@@ -286,6 +287,9 @@ export const WalletTransactions = memo((props: {
             removeClippedSubviews={true}
             stickySectionHeadersEnabled={false}
             initialNumToRender={15}
+            onScrollToIndexFailed={() => {
+                warn('Failed to scroll to index');
+            }}
             getItemCount={(data) => data.reduce((acc: number, item: { data: any[], title: string }) => acc + item.data.length + 1, 0)}
             renderSectionHeader={renderSectionHeader}
             ListHeaderComponent={props.header}

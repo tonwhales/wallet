@@ -33,9 +33,10 @@ export async function onBlockMissed(client: TonClient4, lastBlock: number, newBl
                 }
             }
         } catch {
-            await invalidateAllAccounts();
+            // Invalidate all in case of error
+            invalidateAllAccounts();
         }
     } else {
-        await invalidateAllAccounts();
+        invalidateAllAccounts();
     }
 }

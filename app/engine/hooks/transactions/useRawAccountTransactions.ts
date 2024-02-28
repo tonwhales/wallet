@@ -1,15 +1,14 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Queries } from '../../queries';
-import { Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, loadMessageRelaxed } from '@ton/core';
-import { getLastBlock } from '../../accountWatcher';
-import { useNetwork } from '../network/useNetwork';
+import { Address, CommonMessageInfo, ExternalAddress, Message, StateInit, Transaction, fromNano, loadMessageRelaxed } from '@ton/core';
 import { parseBody } from '../../transactions/parseWalletTransaction';
 import { resolveOperation } from '../../transactions/resolveOperation';
-import { TonClient4 } from '@ton/ton';
 import { StoredMessage, StoredMessageInfo, StoredStateInit, StoredTransaction, StoredTxBody, TxBody } from '../../types';
 import { fetchAccountTransactions } from '../../api/fetchAccountTransactions';
 import { storage } from '../../../storage/storage';
 import { queryClient } from '../../clients';
+import { useClient4, useNetwork } from '..';
+import { getLastBlock } from '../../accountWatcher';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -213,6 +212,7 @@ function invalidateTransactions(account: string) {
 
 export function useRawAccountTransactions(account: string, refetchOnMount: boolean = false) {
     const { isTestnet } = useNetwork();
+    const client = useClient4(isTestnet);
 
     invalidateTransactions(account);
 
@@ -231,9 +231,31 @@ export function useRawAccountTransactions(account: string, refetchOnMount: boole
         },
         queryFn: async (ctx) => {
             let accountAddr = Address.parse(account);
-            let params = { lt: ctx.pageParam?.lt, hash: ctx.pageParam?.hash };
+            let lt: string;
+            let hash: string;
+            let sliceFirst: boolean = false;
 
-            return await fetchAccountTransactions(accountAddr, isTestnet, params);
+            if (ctx.pageParam?.lt && ctx.pageParam?.hash) {
+                lt = ctx.pageParam.lt;
+                hash = ctx.pageParam.hash;
+                sliceFirst = true;
+            } else {
+                let accountLite = await client.getAccountLite(await getLastBlock(), accountAddr);
+                if (!accountLite.account.last) {
+                    return [];
+                }
+
+                lt = accountLite.account.last.lt;
+                hash = accountLite.account.last.hash;
+            }
+
+            let txs = await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
+
+            if (sliceFirst) {
+                txs = txs.slice(1);
+            }
+
+            return txs;
         },
         structuralSharing: (old, next) => {
             let firstOld = old?.pages[0];

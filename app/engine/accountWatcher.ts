@@ -3,7 +3,7 @@ import { BlocksWatcher } from './blocks/BlocksWatcher';
 import { onAccountTouched } from './effects/onAccountTouched';
 import { storage } from '../storage/storage';
 import { onBlockMissed } from './effects/onBlockMissed';
-import { useNetwork, useSelectedAccount } from './hooks';
+import { useFilteredHints, useNetwork, useSelectedAccount } from './hooks';
 import { clients } from './clients';
 import { useSetRecoilState } from 'recoil';
 import { blockWatcherAtom } from './state/blockWatcherState';
@@ -24,6 +24,12 @@ export function useBlocksWatcher() {
     const setState = useSetRecoilState(blockWatcherAtom);
     const ledger = useLedgerTransport().addr;
     const selectedAccount = useSelectedAccount();
+    const hints = useFilteredHints(
+        selectedAccount?.addressString ?? '',
+        (a) => !!a.jettonWallet
+            && a.jettonWallet?.owner === (selectedAccount?.addressString ?? '')
+            && !!a.jettonWallet.master
+    ).map(a => a.address);
 
     useEffect(() => {
         let watcher = new BlocksWatcher(isTestnet ? 'testnet-v4.tonhubapi.com' : 'mainnet-v4.tonhubapi.com');
@@ -39,44 +45,31 @@ export function useBlocksWatcher() {
             lastBlockPromise = Promise.resolve(data.seqno);
 
             const lastBlockKey = `lastBlock-${selectedAccount?.addressString || ''}`;
+            const lastBlock = storage.getNumber(lastBlockKey) || data.seqno;
 
-            let lastBlock = storage.getNumber(lastBlockKey) || data.seqno;
             storage.set(lastBlockKey, data.seqno);
+
+            const accsToSync = [
+                ...hints,
+                ...(selectedAccount ? [selectedAccount.addressString] : []),
+                ...(ledger ? [Address.parse(ledger.address).toString({ testOnly: isTestnet })] : []),
+            ].map(a => Address.parse(a).toString({ testOnly: isTestnet }));
+            
             if (lastBlock < data.seqno) {
-                onBlockMissed(
-                    client, lastBlock, data.seqno, isTestnet,
-                    [
-                        ...(selectedAccount ? [selectedAccount.addressString] : []),
-                        ...(ledger ? [Address.parse(ledger.address).toString({ testOnly: isTestnet })] : [])
-                    ]
-                );
+                onBlockMissed(client, lastBlock, data.seqno, isTestnet, accsToSync);
             }
-
-            let addresses = Object.keys(data.changed);
+            
+            let addresses = Object.keys(data.changed)
+            .map((a) => Address.parse(a).toString({ testOnly: isTestnet }))
+            .filter((a) => accsToSync.includes(a));
+            
             for (let address of addresses) {
-                const parsed = Address.parse(address);
-
-                let isIndexable = false;
-
-                if (selectedAccount?.address.equals(parsed)) {
-                    isIndexable = true;
-                } else if (ledger) {
-                    try {
-                        const ledgerAddress = Address.parse(ledger.address);
-                        if (ledgerAddress.equals(parsed)) {
-                            isIndexable = true;
-                        }
-                    } catch { }
-                }
-
-                if (isIndexable) {
-                    onAccountTouched(address, isTestnet);
-                }
+                onAccountTouched(address, isTestnet);
             }
         });
 
         return () => {
             watcher.stop();
         };
-    }, [isTestnet, ledger, selectedAccount]);
+    }, [isTestnet, ledger, selectedAccount, hints]);
 }

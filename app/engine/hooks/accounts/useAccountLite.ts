@@ -27,7 +27,7 @@ export function useAccountLite(address?: Address | null, refetchOnMount: boolean
         if (address instanceof Address) {
             return address.toString({ testOnly: isTestnet });
         }
-        return '';
+        return address;
     }, [address, isTestnet]);
 
     

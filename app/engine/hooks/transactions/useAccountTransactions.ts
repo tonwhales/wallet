@@ -42,7 +42,7 @@ export function useAccountTransactions(client: TonClient4, account: string, refe
     hasNext: boolean,
     loading: boolean
 } {
-    let raw = useRawAccountTransactions(client, account, refetchOnMount);
+    let raw = useRawAccountTransactions(account, refetchOnMount);
 
     // We should memoize to prevent recalculation if metadatas and jettons are updated
     let { baseTxs, mentioned } = useMemo(() => {

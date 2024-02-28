@@ -211,7 +211,7 @@ function invalidateTransactions(account: string) {
     }
 }
 
-export function useRawAccountTransactions(client: TonClient4, account: string, refetchOnMount: boolean = false) {
+export function useRawAccountTransactions(account: string, refetchOnMount: boolean = false) {
     const { isTestnet } = useNetwork();
 
     invalidateTransactions(account);
@@ -231,24 +231,9 @@ export function useRawAccountTransactions(client: TonClient4, account: string, r
         },
         queryFn: async (ctx) => {
             let accountAddr = Address.parse(account);
-            let lt: string;
-            let hash: string;
-            let sliceFirst: boolean = false;
-            if (ctx.pageParam?.lt && ctx.pageParam?.hash) {
-                lt = ctx.pageParam.lt;
-                hash = ctx.pageParam.hash;
-                sliceFirst = true;
-            } else {
-                let accountLite = await client.getAccountLite(await getLastBlock(), accountAddr);
-                if (!accountLite.account.last) {
-                    return [];
-                }
+            let params = { lt: ctx.pageParam?.lt, hash: ctx.pageParam?.hash };
 
-                lt = accountLite.account.last.lt;
-                hash = accountLite.account.last.hash;
-            }
-
-            return await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
+            return await fetchAccountTransactions(accountAddr, isTestnet, params);
         },
         structuralSharing: (old, next) => {
             let firstOld = old?.pages[0];

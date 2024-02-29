@@ -684,6 +684,7 @@ export type LocalizationSchema = {
         depositOk: string,
         withdraw: string,
         withdrawAll: string,
+        withdrawLiquid: string,
         withdrawCompleted: string,
         withdrawRequested: string,
         upgrade: string,

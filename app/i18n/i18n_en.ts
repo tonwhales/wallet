@@ -682,6 +682,7 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         depositOk: 'Deposit accepted',
         withdraw: 'Withdrawal request of {{coins}} TON',
         withdrawAll: 'Request withdraw of all coins',
+        withdrawLiquid: 'Withdraw',
         withdrawCompleted: 'Withdraw completed',
         withdrawRequested: 'Withdraw requested',
         upgrade: 'Upgrade code to {{hash}}',

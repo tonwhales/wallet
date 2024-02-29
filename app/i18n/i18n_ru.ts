@@ -681,6 +681,7 @@ const schema: PrepareSchema<LocalizationSchema, '_0' | '_1' | '_2'> = {
         "deposit": "Депозит",
         "depositOk": "Депозит принят",
         "withdraw": "Запрос вывода {{coins}} TON",
+        "withdrawLiquid": "Запрос вывода",
         "withdrawAll": "Запрос вывода всех монет",
         "withdrawCompleted": "Вывод завершен",
         "withdrawRequested": "Запрос на вывод принят",

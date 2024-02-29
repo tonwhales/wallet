@@ -79,6 +79,16 @@ export const DappAuthComponent = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const appState = useAppState();
+    const accounts = useMemo(() => appState.addresses
+        .map((a, i) => ({ ...a, index: i }))
+        .sort((a, b) => {
+            if (a.index === appState.selected) {
+                return -1;
+            } else if (b.index === appState.selected) {
+                return 1;
+            }
+            return 0;
+        }), [appState]);
 
     const [showMore, setShowMore] = useState(appState.addresses.length > 2 ? false : true);
     const [selectedAccount, setSelectedAccount] = useState(getCurrentAddress());
@@ -123,7 +133,7 @@ export const DappAuthComponent = memo(({
             ios: (dAppIconColors as IOSImageColors).primary,
         }) || '#3CADF5';
 
-        if (color === '#000000' || color === '#FFFFFF' || color === '#E4E6EA') {
+        if (color === '#FFFFFF' || color === '#E4E6EA') {
             color = Platform.select({
                 android: (dAppIconColors as AndroidImageColors).average,
                 ios: (dAppIconColors as IOSImageColors).background,
@@ -284,9 +294,10 @@ export const DappAuthComponent = memo(({
                         contentContainerStyle={{ gap: 16 }}
                         contentInset={{ top: 24 }}
                     >
-                        {appState.addresses.slice(0, 2).map((addr, index) => {
+                        {accounts.slice(0, 2).map((addr, index) => {
                             return (
                                 <WalletItem
+                                    key={addr.address.toString()}
                                     index={index}
                                     selected={selectedAccount?.address.equals(addr.address)}
                                     address={addr.address}
@@ -303,14 +314,15 @@ export const DappAuthComponent = memo(({
                                     style={[{ color: theme.accent }, Typography.medium15_20]}
                                     onPress={() => setShowMore(!showMore)}
                                 >
-                                    {t('auth.apps.moreWallets', { count: appState.addresses.length - 2 })}
+                                    {t('auth.apps.moreWallets', { count: accounts.length - 2 })}
                                 </Text>
                             </Animated.View>
                         )}
                         <Collapsible collapsed={!showMore}>
-                            {appState.addresses.slice(2).map((addr, index) => {
+                            {accounts.slice(2).map((addr, index) => {
                                 return (
                                     <WalletItem
+                                        key={addr.address.toString()}
                                         index={index}
                                         selected={selectedAccount?.address.equals(addr.address)}
                                         address={addr.address}

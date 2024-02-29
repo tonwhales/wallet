@@ -8,7 +8,7 @@ import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAppState, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -47,6 +47,7 @@ type TransactionListItemProps = {
     isTestnet: boolean,
     spamWallets: string[],
     appState: AppState,
+    bounceableFormat: boolean,
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -75,6 +76,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.spamWallets === next.spamWallets
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
+        && prev.bounceableFormat === next.bounceableFormat
 });
 TransactionListItem.displayName = 'TransactionListItem';
 
@@ -106,6 +108,7 @@ export const WalletTransactions = memo((props: {
     const appState = useAppState();
     const [pending,] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -322,6 +325,7 @@ export const WalletTransactions = memo((props: {
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
                     appState={appState}
+                    bounceableFormat={bounceableFormat}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

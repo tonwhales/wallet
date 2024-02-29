@@ -20,15 +20,17 @@ type PreviewFromProps = {
     theme: ThemeType;
     isTestnet: boolean;
     onCopyAddress: (address: string) => void;
+    bounceableFormat: boolean;
 }
 
 export const PreviewFrom = memo((props: PreviewFromProps) => {
-    const { from, kind, theme, isTestnet, onCopyAddress } = props;
+    const { from, kind, theme, isTestnet, onCopyAddress, bounceableFormat } = props;
 
     if (!from.address) return null;
 
     const parsedAddress = Address.parseFriendly(from.address);
-    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable: parsedAddress.isBounceable })
+    const bounceable = bounceableFormat || parsedAddress.isBounceable;
+    const parsedAddressFriendly = parsedAddress.address.toString({ testOnly: isTestnet, bounceable });
 
     return (
         <Pressable

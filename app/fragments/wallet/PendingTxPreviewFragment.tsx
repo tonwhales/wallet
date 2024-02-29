@@ -302,6 +302,7 @@ const PendingTxPreview = () => {
                         kind={'out'}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     {!!participants.to && (
                         <>
@@ -319,6 +320,7 @@ const PendingTxPreview = () => {
                                 kind={'out'}
                                 theme={theme}
                                 isTestnet={isTestnet}
+                                bounceableFormat={bounceableFormat}
                             />
                         </>
                     )}

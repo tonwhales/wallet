@@ -365,6 +365,7 @@ const TransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     {(!!participants.to.address && !!participants.from.address) && (
                         <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
@@ -375,6 +376,7 @@ const TransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                     <TxInfo

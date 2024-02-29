@@ -37,7 +37,8 @@ export function TransactionView(props: {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
-    appState?: AppState
+    appState?: AppState,
+    bounceableFormat: boolean
 }) {
     const {
         theme,
@@ -118,9 +119,9 @@ export function TransactionView(props: {
     return (
         <Pressable
             onPress={() => props.onPress(props.tx)}
-            style={{ 
-                paddingHorizontal: 16, 
-                paddingVertical: 20, 
+            style={{
+                paddingHorizontal: 16,
+                paddingVertical: 20,
                 paddingBottom: operation.comment ? 0 : undefined
             }}
             onLongPress={() => props.onLongPress?.(props.tx)}
@@ -199,7 +200,7 @@ export function TransactionView(props: {
                             </PerfView>
                         )}
                     </PerfView>
-                    <PerfText
+                    <Text
                         style={[
                             { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
                             Typography.regular15_20
@@ -211,11 +212,11 @@ export function TransactionView(props: {
                             ? known.name
                             : <AddressComponent
                                 address={parsedOpAddr.address}
-                                bounceable={parsedOpAddr.isBounceable}
+                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
                             />
                         }
                         {` • ${formatTime(tx.base.time)}`}
-                    </PerfText>
+                    </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
                     {parsed.status === 'failed' ? (

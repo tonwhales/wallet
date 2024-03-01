@@ -10,6 +10,7 @@ import { BarCodeScanner } from 'expo-barcode-scanner';
 import { HoldersAppParams } from '../fragments/holders/HoldersAppFragment';
 import { useMemo } from 'react';
 import { DAppWebViewFragmentParams } from '../fragments/utils/DAppWebViewFragment';
+import { LiquidStakingTransferParams } from '../fragments/staking/LiquidStakingTransferFragment';
 
 type Base = NavigationProp<ParamListBase>;
 
@@ -77,8 +78,28 @@ export class TypedNavigation {
         this.navigate('Transfer', tx);
     }
 
-    navigateStaking(params: StakingTransferParams) {
+    navigateStakingTransfer(params: StakingTransferParams, ledger?: boolean) {
+        if (ledger) {
+            this.navigate('LedgerStakingTransfer', params);
+            return;
+        }
         this.navigate('StakingTransfer', params);
+    }
+
+    navigateLiquidStakingTransfer(params: LiquidStakingTransferParams, ledger?: boolean) {
+        if (ledger) {
+            this.navigate('LedgerLiquidStakingTransfer', params);
+            return;
+        }
+        this.navigate('LiquidStakingTransfer', params);
+    }
+
+    navigateLiquidWithdrawAction(isLedger?: boolean) {
+        if (isLedger) {
+            this.navigate('LedgerLiquidWithdrawAction');
+            return;
+        }
+        this.navigate('LiquidWithdrawAction');
     }
 
     navigateSimpleTransfer(tx: SimpleTransferParams) {

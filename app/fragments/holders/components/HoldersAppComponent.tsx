@@ -1,61 +1,53 @@
 import * as React from 'react';
-import { Linking, Platform, View, BackHandler, KeyboardAvoidingView } from 'react-native';
+import { Linking, Platform, View } from 'react-native';
 import WebView from 'react-native-webview';
-import { ShouldStartLoadRequest, WebViewMessageEvent, WebViewNavigation } from 'react-native-webview/lib/WebViewTypes';
+import { ShouldStartLoadRequest } from 'react-native-webview/lib/WebViewTypes';
 import { extractDomain } from '../../../engine/utils/extractDomain';
 import { useTypedNavigation } from '../../../utils/useTypedNavigation';
 import { MixpanelEvent, trackEvent, useTrackEvent } from '../../../analytics/mixpanel';
 import { resolveUrl } from '../../../utils/resolveUrl';
 import { protectNavigation } from '../../apps/components/protect/protectNavigation';
 import { walletConfigFromContract, contractFromPublicKey } from '../../../engine/contractFromPublicKey';
-import { dispatchMainButtonResponse } from '../../apps/components/inject/createInjectSource';
-import { createInjectSource, dispatchResponse } from '../../apps/components/inject/createInjectSource';
+import { createInjectSource } from '../../apps/components/inject/createInjectSource';
 import { useInjectEngine } from '../../apps/components/inject/useInjectEngine';
-import { warn } from '../../../utils/log';
-import { openWithInApp } from '../../../utils/openWithInApp';
 import { getLocales } from 'react-native-localize';
 import { useLinkNavigator } from '../../../useLinkNavigator';
-import * as FileSystem from 'expo-file-system';
-import { DappMainButton, processMainButtonMessage, reduceMainButton } from '../../../components/DappMainButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HoldersAppParams } from '../HoldersAppFragment';
-import Animated, { Easing, Extrapolation, FadeIn, FadeInDown, FadeOutDown, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
-import { WebViewErrorComponent } from '../../../components/webview/WebViewErrorComponent';
-import { useOfflineApp, usePrimaryCurrency } from '../../../engine/hooks';
+import Animated, { Easing, Extrapolation, interpolate, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
+import { useDAppBridge, usePrimaryCurrency } from '../../../engine/hooks';
 import { useTheme } from '../../../engine/hooks';
 import { useNetwork } from '../../../engine/hooks';
 import { useSelectedAccount } from '../../../engine/hooks';
 import { getCurrentAddress } from '../../../storage/appState';
 import { useHoldersAccountStatus } from '../../../engine/hooks';
-import { HoldersAccountState } from '../../../engine/api/holders/fetchAccountState';
+import { HoldersAccountState, holdersUrl } from '../../../engine/api/holders/fetchAccountState';
 import { useHoldersAccounts } from '../../../engine/hooks';
 import { createDomainSignature } from '../../../engine/utils/createDomainSignature';
 import { getHoldersToken } from '../../../engine/hooks/holders/useHoldersAccountStatus';
-import { useKeyboard } from '@react-native-community/hooks';
-import { OfflineWebView } from '../../../components/webview/OfflineWebView';
 import { getDomainKey } from '../../../engine/state/domainKeys';
 import { ScreenHeader } from '../../../components/ScreenHeader';
 import { onHoldersInvalidate } from '../../../engine/effects/onHoldersInvalidate';
-import DeviceInfo from 'react-native-device-info';
-import { QueryParamsState, extractWebViewQueryAPIParams } from '../../../components/webview/utils/extractWebViewQueryAPIParams';
+import { DAppWebView, DAppWebViewProps } from '../../../components/webview/DAppWebView';
+import { ThemeType } from '../../../engine/state/theme';
 
 export function normalizePath(path: string) {
     return path.replaceAll('.', '_');
 }
 
-import IcHolders from '../../../../assets/ic_holders.svg';
-import { isSafeDomain } from '../../../components/webview/utils/isSafeDomain';
+import IcHolders from '@assets/ic_holders.svg';
 
-function PulsingCardPlaceholder() {
+function PulsingCardPlaceholder(theme: ThemeType) {
+    const safeArea = useSafeAreaInsets();
     const animation = useSharedValue(0);
 
     useEffect(() => {
         animation.value =
             withRepeat(
                 withTiming(1, {
-                    duration: 250,
-                    easing: Easing.linear,
+                    duration: 450,
+                    easing: Easing.bezier(0.42, 0, 1, 1)
                 }),
                 -1,
                 true,
@@ -63,12 +55,6 @@ function PulsingCardPlaceholder() {
     }, []);
 
     const animatedStyles = useAnimatedStyle(() => {
-        const opacity = interpolate(
-            animation.value,
-            [0, 1],
-            [1, 0.75],
-            Extrapolation.CLAMP
-        );
         const scale = interpolate(
             animation.value,
             [0, 1],
@@ -76,27 +62,100 @@ function PulsingCardPlaceholder() {
             Extrapolation.CLAMP,
         )
         return {
-            width: 268, height: 153, position: 'absolute', backgroundColor: '#eee', top: 80, borderRadius: 21,
-            opacity: opacity,
             transform: [{ scale: scale }],
         };
     }, []);
 
     return (
-        <Animated.View style={animatedStyles}>
-            <View style={{ width: 90, height: 20, backgroundColor: 'white', top: 22, left: 16, borderRadius: 8 }} />
-            <View style={{ marginTop: 4, width: 60, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
-            <View style={{ display: 'flex', flexDirection: 'row', marginTop: 32 }}>
-                <View>
-                    <View style={{ width: 68, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
-                    <View style={{ marginTop: 4, width: 90, height: 16, backgroundColor: 'white', top: 22, left: 16, borderRadius: 6 }} />
+        <Animated.View style={[
+            { flexGrow: 1, width: '100%' },
+            {
+                opacity: interpolate(
+                    animation.value,
+                    [0, 1],
+                    [1, 0.75],
+                    Extrapolation.CLAMP
+                )
+            }
+        ]}>
+            <View
+                style={{
+                    backgroundColor: theme.backgroundUnchangeable,
+                    height: 324,
+                    position: 'absolute',
+                    top: -30 - 36 - safeArea.top,
+                    left: -4,
+                    right: -4,
+                    borderRadius: 20,
+                    alignItems: 'center',
+                    paddingHorizontal: 20,
+                    borderBottomLeftRadius: 28,
+                    borderBottomRightRadius: 28,
+                }}
+            />
+            <Animated.View style={[
+                {
+                    height: 44,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    paddingHorizontal: 22,
+                    marginTop: -12
+                },
+                animatedStyles
+            ]}>
+                <View style={{
+                    width: 32, height: 32,
+                    backgroundColor: theme.textSecondary,
+                    borderRadius: 16
+                }} />
+                <View style={{ height: 36, flexGrow: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ backgroundColor: theme.textSecondary, height: 28, width: 132, borderRadius: 20 }} />
                 </View>
-            </View>
+                <View style={{ width: 32, height: 32, }} />
+            </Animated.View>
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.textSecondary,
+                        height: 38,
+                        width: 142,
+                        borderRadius: 8,
+                        marginTop: 24,
+                        alignSelf: 'center'
+                    },
+                    animatedStyles
+                ]}
+            />
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.textSecondary,
+                        height: 26,
+                        width: 78,
+                        borderRadius: 20,
+                        marginTop: 20,
+                        alignSelf: 'center'
+                    },
+                    animatedStyles
+                ]}
+            />
+            <Animated.View
+                style={[
+                    {
+                        backgroundColor: theme.surfaceOnBg,
+                        height: 96,
+                        borderRadius: 20,
+                        marginTop: 24,
+                        marginHorizontal: 20
+                    },
+                    animatedStyles
+                ]}
+            />
         </Animated.View>
     );
 }
 
-function HoldersPlaceholder() {
+export function HoldersPlaceholder() {
     const animation = useSharedValue(0);
 
     useEffect(() => {
@@ -115,7 +174,7 @@ function HoldersPlaceholder() {
         const opacity = interpolate(
             animation.value,
             [0, 1],
-            [1, 0.8],
+            [1, 0.9],
             Extrapolation.CLAMP
         );
         const scale = interpolate(
@@ -152,11 +211,8 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
     const opacity = useSharedValue(1);
     const animatedStyles = useAnimatedStyle(() => {
         return {
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+            paddingTop: type === 'account' ? 0 : safeArea.top,
             backgroundColor: theme.backgroundPrimary,
             alignItems: 'center',
             opacity: withTiming(opacity.value, { duration: 150, easing: Easing.bezier(0.42, 0, 1, 1) }),
@@ -192,8 +248,7 @@ export function WebViewLoader({ loaded, type }: { loaded: boolean, type: 'accoun
                 onBackPressed={showClose ? navigation.goBack : undefined}
                 style={{ paddingHorizontal: 16, width: '100%' }}
             />
-            {type === 'account' ? <PulsingCardPlaceholder /> : <HoldersPlaceholder />}
-
+            {type === 'account' ? <PulsingCardPlaceholder {...theme} /> : <HoldersPlaceholder />}
         </Animated.View>
     );
 }
@@ -206,46 +261,17 @@ export const HoldersAppComponent = memo((
         endpoint: string
     }
 ) => {
-    const safeArea = useSafeAreaInsets();
+    const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
-    const acc = useMemo(() => getCurrentAddress(), []);
     const domain = useMemo(() => extractDomain(props.endpoint), []);
-
+    const lang = getLocales()[0].languageCode;
+    const acc = useMemo(() => getCurrentAddress(), []);
     const status = useHoldersAccountStatus(acc.address.toString({ testOnly: isTestnet })).data;
     const accountsStatus = useHoldersAccounts(acc.address.toString({ testOnly: isTestnet })).data;
-    const domainKey = getDomainKey(domain);
-
-    const webRef = useRef<WebView>(null);
-    const navigation = useTypedNavigation();
-    const lang = getLocales()[0].languageCode;
     const [currency,] = usePrimaryCurrency();
     const selectedAccount = useSelectedAccount();
-    const keyboard = useKeyboard();
-    const bottomMargin = (safeArea.bottom === 0 ? 32 : safeArea.bottom);
-
-    // TODO
-    const stableOfflineV = useOfflineApp().stableOfflineV;
-
-    const [mainButton, dispatchMainButton] = React.useReducer(
-        reduceMainButton(),
-        {
-            text: '',
-            textColor: theme.surfaceOnBg,
-            color: theme.accent,
-            disabledColor: theme.surfaceOnElevation,
-            isVisible: false,
-            isActive: false,
-            isProgressVisible: false,
-            onPress: undefined,
-        }
-    );
-
-    const [holdersParams, setHoldersParams] = useState<QueryParamsState>({
-        backPolicy: 'back',
-        showKeyboardAccessoryView: false,
-        lockScroll: true
-    });
+    
 
     const source = useMemo(() => {
         let route = '';
@@ -279,11 +305,6 @@ export const HoldersAppComponent = memo((
     useTrackEvent(MixpanelEvent.Holders, { url: props.variant.type }, isTestnet);
 
     //
-    // View
-    //
-    const [loaded, setLoaded] = useState(false);
-
-    //
     // Navigation
     //
     const linkNavigator = useLinkNavigator(isTestnet);
@@ -313,21 +334,11 @@ export const HoldersAppComponent = memo((
     //
     // Injection
     //
+    const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(holdersUrl, navigation);
+
     const injectSource = useMemo(() => {
         if (!selectedAccount) {
             throw new Error('No account selected');
-        }
-
-        const contract = contractFromPublicKey(selectedAccount.publicKey);
-        const config = walletConfigFromContract(contract);
-
-        const walletConfig = config.walletConfig;
-        const walletType = config.type;
-
-        let suspended = false;
-
-        if (!!status && typeof (status as any).suspended === 'boolean') {
-            suspended = (status as any).suspended;
         }
 
         // TODO: add accounts state
@@ -345,184 +356,23 @@ export const HoldersAppComponent = memo((
                 }
                 : {},
             ...accountsStatus?.type === 'private' ? { accountsList: accountsStatus.accounts } : {},
-        }
+        };
 
-        const initialInjection = `
-        window.initialState = ${JSON.stringify(initialState)};
-        window['tonhub'] = (() => {
-            const obj = {};
-            Object.freeze(obj);
-            return obj;
+        return `
+        ${tonConnectWebViewProps.injectedJavaScriptBeforeContentLoaded || ''}
+        (() => {
+            window.initialState = ${JSON.stringify(initialState)};
         })();
-        `;
+        `
+    }, [status, accountsStatus, tonConnectWebViewProps]);
 
-        if (!domainKey) {
-            return initialInjection;
-        }
-
-        let domainSign = createDomainSignature(domain, domainKey);
-
-        return createInjectSource({
-            config: {
-                version: 1,
-                platform: Platform.OS,
-                platformVersion: Platform.Version,
-                network: isTestnet ? 'testnet' : 'mainnet',
-                address: selectedAccount.address.toString({ testOnly: isTestnet }),
-                publicKey: selectedAccount.publicKey.toString('base64'),
-                walletConfig,
-                walletType,
-                signature: domainSign.signature,
-                time: domainSign.time,
-                subkey: {
-                    domain: domainSign.subkey.domain,
-                    publicKey: domainSign.subkey.publicKey,
-                    time: domainSign.subkey.time,
-                    signature: domainSign.subkey.signature
-                }
-            },
-            safeArea,
-            additionalInjections: initialInjection,
-            useMainButtonAPI: true,
-        });
-    }, [status, accountsStatus]);
-
-    const injectionEngine = useInjectEngine(extractDomain(props.endpoint), props.title, isTestnet, props.endpoint);
-    const handleWebViewMessage = useCallback((event: WebViewMessageEvent) => {
-        const nativeEvent = event.nativeEvent;
-
-        // Resolve parameters
-        let data: any;
-        let id: number;
-        try {
-            let parsed = JSON.parse(nativeEvent.data);
-            // Main button API
-            const processed = processMainButtonMessage(
-                parsed,
-                dispatchMainButton,
-                dispatchMainButtonResponse,
-                webRef
-            );
-
-            if (processed) {
-                return;
-            }
-
-            if (typeof parsed.id !== 'number') {
-                warn('Invalid operation id');
-                return;
-            }
-            id = parsed.id;
-            data = parsed.data;
-        } catch (e) {
-            warn(e);
-            return;
-        }
-
-        if (data.name === 'openUrl' && data.args.url) {
-            try {
-                let pageDomain = extractDomain(data.args.url);
-                if (isSafeDomain(pageDomain)) {
-                    openWithInApp(data.args.url);
-                    return;
-                }
-            } catch {
-                warn('Failed to open url');
-            }
-        }
-        if (data.name === 'closeApp') {
-            navigation.goBack();
-            return;
-        }
-
-        // Execute
-        (async () => {
-            let res = { type: 'error', message: 'Unknown error' };
-            try {
-                res = await injectionEngine.execute(data);
-            } catch {
-                warn('Failed to execute inject engine operation');
-            }
-            dispatchResponse(webRef, { id, data: res });
-        })();
-    }, []);
-
-    const onCloseApp = useCallback(() => {
+    const onClose = useCallback(() => {
         onHoldersInvalidate(acc.addressString, isTestnet);
-        navigation.goBack();
         trackEvent(MixpanelEvent.HoldersClose, { type: props.variant.type, duration: Date.now() - start }, isTestnet);
     }, []);
 
-    const safelyOpenUrl = useCallback((url: string) => {
-        try {
-            let pageDomain = extractDomain(url);
-            if (isSafeDomain(pageDomain)) {
-                openWithInApp(url);
-                return;
-            }
-        } catch { }
-    }, []);
-
-    const onNavigation = useCallback((url: string) => {
-        const params = extractWebViewQueryAPIParams(url);
-        if (params.closeApp) {
-            onCloseApp();
-            return;
-        }
-        setHoldersParams((prev) => {
-            const newValue = {
-                ...prev,
-                ...Object.fromEntries(
-                    Object.entries(params).filter(([, value]) => value !== undefined)
-                )
-            }
-            return newValue;
-        });
-        if (!!params.openUrl) {
-            safelyOpenUrl(params.openUrl);
-        }
-    }, [setHoldersParams]);
-
-    const onHardwareBackPress = useCallback(() => {
-        if (holdersParams.backPolicy === 'lock') {
-            return true;
-        }
-        if (holdersParams.backPolicy === 'back') {
-            if (webRef.current) {
-                webRef.current.goBack();
-            }
-            return true;
-        }
-        if (holdersParams.backPolicy === 'close') {
-            navigation.goBack();
-            return true;
-        }
-        return false;
-    }, [holdersParams.backPolicy]);
-
-    useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', onHardwareBackPress);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', onHardwareBackPress);
-        }
-    }, [onHardwareBackPress]);
-
-    const folderPath = `${FileSystem.cacheDirectory}holders`;
-    const [offlineRender, setOfflineRender] = useState(0);
-
-    const onLoadEnd = useCallback(() => {
-        try {
-            const powerState = DeviceInfo.getPowerStateSync();
-            const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
-            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
-        } catch {
-            setTimeout(() => setLoaded(true), 100);
-        }
-    }, []);
-
     const onContentProcessDidTerminate = useCallback(() => {
-        dispatchMainButton({ type: 'hide' });
-        webRef.current?.reload();
+        webViewRef.current?.reload();
         // TODO: add offline support check when offline will be ready
         // In case of blank WebView without offline
         // if (!stableOfflineV || Platform.OS === 'android') {
@@ -537,137 +387,42 @@ export const HoldersAppComponent = memo((
         // }, [offlineRender, stableOfflineV]);
     }, []);
 
+    const webViewProps: DAppWebViewProps = useMemo(() => {
+        return {
+            ...tonConnectWebViewProps,
+            injectedJavaScriptBeforeContentLoaded: injectSource,
+            useStatusBar: true,
+            useMainButton: true,
+            useToaster: true,
+            useQueryAPI: true,
+            onShouldStartLoadWithRequest: loadWithRequest,
+            onContentProcessDidTerminate,
+            onClose,
+        }
+    }, [
+        domain,
+        isTestnet,
+        tonConnectWebViewProps,
+        loadWithRequest,
+        onContentProcessDidTerminate,
+        onClose,
+        injectSource
+    ]);
+
     return (
-        <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1, paddingTop: safeArea.top }}>
-            {!!stableOfflineV ? (
-                <OfflineWebView
-                    key={`offline-rendered-${offlineRender}`}
-                    ref={webRef}
-                    uri={`${folderPath}${normalizePath(stableOfflineV)}/index.html`}
-                    baseUrl={`${folderPath}${normalizePath(stableOfflineV)}/`}
-                    initialRoute={source.initialRoute}
-                    queryParams={source.queryParams}
-                    style={{
-                        backgroundColor: theme.backgroundPrimary,
-                        flexGrow: 1, flexBasis: 0, height: '100%',
-                        alignSelf: 'stretch',
-                        marginTop: Platform.OS === 'ios' ? 0 : 8,
-                    }}
-                    onLoadEnd={onLoadEnd}
-                    onLoadProgress={(event) => {
-                        if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                            // Searching for supported query
-                            onNavigation(event.nativeEvent.url);
-                        }
-                    }}
-                    onNavigationStateChange={(event: WebViewNavigation) => {
-                        // Searching for supported query
-                        onNavigation(event.url);
-                    }}
-                    // Locking scroll, it's handled within the Web App
-                    scrollEnabled={!holdersParams.lockScroll}
-                    contentInset={{ top: 0, bottom: 0 }}
-                    autoManageStatusBarEnabled={false}
-                    decelerationRate="normal"
-                    allowsInlineMediaPlayback={true}
-                    injectedJavaScriptBeforeContentLoaded={injectSource}
-                    onShouldStartLoadWithRequest={loadWithRequest}
-                    // In case of iOS blank WebView
-                    onContentProcessDidTerminate={onContentProcessDidTerminate}
-                    // In case of Android blank WebView
-                    onRenderProcessGone={onContentProcessDidTerminate}
-                    onMessage={handleWebViewMessage}
-                    keyboardDisplayRequiresUserAction={false}
-                    hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
-                    renderError={(errorDomain, errorCode, errorDesc) => {
-                        return (
-                            <WebViewErrorComponent
-                                onReload={onContentProcessDidTerminate}
-                                errorDomain={errorDomain}
-                                errorCode={errorCode}
-                                errorDesc={errorDesc}
-                            />
-                        )
-                    }}
-                    bounces={false}
-                    startInLoadingState={true}
-                />
-            ) : (
-                <Animated.View style={{ flexGrow: 1, flexBasis: 0, height: '100%', }} entering={FadeIn}>
-                    <WebView
-                        ref={webRef}
-                        source={{ uri: source.url }}
-                        startInLoadingState={true}
-                        style={{
-                            backgroundColor: theme.surfaceOnBg,
-                            flexGrow: 1, flexBasis: 0, height: '100%',
-                            alignSelf: 'stretch',
-                            marginTop: Platform.OS === 'ios' ? 0 : 8,
-                        }}
-                        onLoadEnd={onLoadEnd}
-                        onLoadProgress={(event) => {
-                            if (Platform.OS === 'android' && event.nativeEvent.progress === 1) {
-                                // Searching for supported query
-                                onNavigation(event.nativeEvent.url);
-                            }
-                        }}
-                        onNavigationStateChange={(event: WebViewNavigation) => {
-                            // Searching for supported query
-                            onNavigation(event.url);
-                        }}
-                        // Locking scroll, it's handled within the Web App
-                        scrollEnabled={!holdersParams.lockScroll}
-                        contentInset={{ top: 0, bottom: 0 }}
-                        autoManageStatusBarEnabled={false}
-                        allowFileAccessFromFileURLs={false}
-                        allowUniversalAccessFromFileURLs={false}
-                        decelerationRate="normal"
-                        allowsInlineMediaPlayback={true}
-                        injectedJavaScriptBeforeContentLoaded={injectSource}
-                        onShouldStartLoadWithRequest={loadWithRequest}
-                        // In case of iOS blank WebView
-                        onContentProcessDidTerminate={onContentProcessDidTerminate}
-                        // In case of Android blank WebView
-                        onRenderProcessGone={onContentProcessDidTerminate}
-                        onMessage={handleWebViewMessage}
-                        keyboardDisplayRequiresUserAction={false}
-                        hideKeyboardAccessoryView={!holdersParams.showKeyboardAccessoryView}
-                        bounces={false}
-                        renderError={(errorDomain, errorCode, errorDesc) => {
-                            return (
-                                <WebViewErrorComponent
-                                    onReload={onContentProcessDidTerminate}
-                                    errorDomain={errorDomain}
-                                    errorCode={errorCode}
-                                    errorDesc={errorDesc}
-                                />
-                            )
-                        }}
-                        webviewDebuggingEnabled={isTestnet}
-                    />
-                </Animated.View>
-            )}
-            <WebViewLoader type={props.variant.type} loaded={loaded} />
-            <KeyboardAvoidingView
-                style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
-                behavior={Platform.OS === 'ios' ? 'position' : undefined}
-                pointerEvents={mainButton.isVisible ? undefined : 'none'}
-                contentContainerStyle={{ marginHorizontal: 16, marginBottom: !mainButton.isVisible ? 0 : 0 }}
-                keyboardVerticalOffset={keyboard.keyboardShown ? 0 : -40}
-            >
-                {mainButton && mainButton.isVisible && (
-                    <Animated.View
-                        style={Platform.OS === 'android'
-                            ? { marginHorizontal: 16, marginBottom: 16 }
-                            : { marginBottom: 56 }
-                        }
-                        entering={FadeInDown}
-                        exiting={FadeOutDown.duration(100)}
-                    >
-                        <DappMainButton {...mainButton} />
-                    </Animated.View>
-                )}
-            </KeyboardAvoidingView>
+        <View style={{ backgroundColor: theme.backgroundPrimary, flex: 1 }}>
+            <DAppWebView
+                ref={webViewRef}
+                source={{ uri: source.url }}
+                {...webViewProps}
+                defaultQueryParamsState={{
+                    backPolicy: 'back',
+                    showKeyboardAccessoryView: false,
+                    lockScroll: true
+                }}
+                webviewDebuggingEnabled={isTestnet}
+                loader={(p) => <WebViewLoader type={props.variant.type} {...p} />}
+            />
         </View>
     );
 });

@@ -325,10 +325,10 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 joinTeam: 'Join',
                 clubBanner: 'Join our Club',
                 clubBannerLearnMore: 'Learn about our club',
-                clubBannerDescription: 'If you are not participating in our Club membership your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
+                clubBannerDescription: 'For our Whales Club members',
                 teamBanner: 'Join our Team',
                 teamBannerLearnMore: 'Learn about our team',
-                teamBannerDescription: 'If you are not a part of our team or one of top 15 Club members your deposited funds will be held on the Staking Balance but will not be staked on this pool.',
+                teamBannerDescription: 'For our team and TOP 15 the Whales Club members',
                 epnPartners: 'ePN Partners',
                 epnPartnersDescription: 'Join over 200,000 webmasters',
                 moreAboutEPN: 'Info',
@@ -935,6 +935,8 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         alreadyExistsAlertMessage: 'Wallet with this address already exists',
         settings: {
             changeAvatar: 'Change avatar',
+            selectAvatarTitle: 'Picture',
+            selectColorTitle: 'Background color',
         }
     },
     webView: {

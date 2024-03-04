@@ -22,19 +22,16 @@ export const PendingTransactionAvatar = memo(({
     const theme = useTheme();
     const network = useNetwork();
     const [walletSettings,] = useWalletSettings(address);
-    let color = avatarColors[avatarHash(avatarId, avatarColors.length)];
+    const avatarColorHash = walletSettings?.color ?? avatarHash(avatarId, avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const rotation = useSharedValue(0);
 
-    const animatedRotation = useAnimatedStyle(() => {
-        return {
-            transform: [{ rotate: `${rotation.value * 360}deg` }],
-        }
-    }, []);
+    const animatedRotation = useAnimatedStyle(() => ({ transform: [{ rotate: `${rotation.value * 360}deg` }] }), []);
 
     let known = address ? KnownWallets(network.isTestnet)[address] : undefined;
-    let lighter = Color(color).lighten(0.4).hex();
-    let darker = Color(color).lighten(0.2).hex();
+    let lighter = Color(avatarColor).lighten(0.4).hex();
+    let darker = Color(avatarColor).lighten(0.2).hex();
 
     if (known && known.colors) {
         lighter = known.colors.primary;
@@ -63,10 +60,9 @@ export const PendingTransactionAvatar = memo(({
                     id={avatarId}
                     hash={walletSettings.avatar}
                     borderWith={0}
-                    backgroundColor={theme.backgroundPrimary}
+                    backgroundColor={avatarColor}
                     theme={theme}
                     isTestnet={network.isTestnet}
-                    hashColor
                 />
             </View>
             <Animated.View style={[
@@ -83,7 +79,8 @@ export const PendingTransactionAvatar = memo(({
                         backgroundColor: '#FF9A50',
                         height: 20, width: 20,
                         borderRadius: 10,
-                        borderWidth: 2, borderColor: theme.surfaceOnElevation,
+                        borderWidth: 2,
+                        borderColor: (style as ViewStyle)?.backgroundColor ?? theme.surfaceOnElevation,
                         justifyContent: 'center', alignItems: 'center'
                     }}
                 >

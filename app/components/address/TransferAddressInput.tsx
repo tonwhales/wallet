@@ -2,7 +2,7 @@ import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } fro
 import { Platform, Pressable, View, Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
-import { Avatar } from "../Avatar";
+import { Avatar, avatarColors } from "../Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
@@ -11,6 +11,7 @@ import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 import { AddressSearch } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
+import { avatarHash } from "../../utils/avatarHash";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
 
@@ -126,7 +127,11 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const contact = useContact(props.target);
     const appState = useAppState();
     const theme = useTheme();
-    const [walletSettings,] = useWalletSettings(props?.validAddress ?? '');
+    const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
+    const [walletSettings,] = useWalletSettings(validAddressFriendly);
+
+    const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
+    const avatarColor = avatarColors[avatarColorHash];
 
     const myWallets = appState.addresses.map((acc, index) => ({
         address: acc.address,
@@ -166,17 +171,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     }}
                     onPress={select}
                 >
-                    {!!props.validAddress
+                    {!!validAddressFriendly
                         ? <Avatar
                             size={46}
-                            id={props.validAddress.toString({ testOnly: props.isTestnet })}
-                            address={props.validAddress.toString({ testOnly: props.isTestnet })}
-                            backgroundColor={props.theme.elevation}
+                            id={validAddressFriendly}
+                            address={validAddressFriendly}
                             borderColor={props.theme.elevation}
                             theme={theme}
                             hash={walletSettings?.avatar}
                             isTestnet={props.isTestnet}
-                            hashColor
+                            backgroundColor={avatarColor}
                             markContact={!!contact}
                             icProps={{ isOwn: own }}
                         />
@@ -218,17 +222,16 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                     flexDirection: 'row', alignItems: 'center'
                 }}>
                     <View style={{ marginLeft: 20 }}>
-                        {!!props.validAddress
+                        {!!validAddressFriendly
                             ? <Avatar
                                 size={46}
-                                id={props.validAddress.toString({ testOnly: props.isTestnet })}
-                                address={props.validAddress.toString({ testOnly: props.isTestnet })}
-                                backgroundColor={props.theme.elevation}
+                                id={validAddressFriendly}
+                                address={validAddressFriendly}
                                 borderColor={props.theme.elevation}
                                 theme={theme}
                                 isTestnet={props.isTestnet}
                                 hash={walletSettings?.avatar}
-                                hashColor
+                                backgroundColor={avatarColor}
                                 markContact={!!contact}
                                 icProps={{ isOwn: own }}
                             />

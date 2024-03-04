@@ -42,11 +42,10 @@ export const StakingPoolsHeader = memo((props: {
                 )}
             </View>
             {!!props.description && (
-                <Text style={{
-                    maxWidth: '70%',
-                    fontSize: 14, color: theme.textSecondary,
+                <Text style={[{
+                    color: theme.textSecondary,
                     marginTop: 2
-                }}>
+                }, Typography.regular15_20]}>
                     {props.description}
                 </Text>
             )}

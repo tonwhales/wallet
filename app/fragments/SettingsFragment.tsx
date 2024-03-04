@@ -6,7 +6,7 @@ import { fragment } from '../fragment';
 import { useTypedNavigation } from '../utils/useTypedNavigation';
 import { t } from '../i18n/t';
 import { openWithInApp } from '../utils/openWithInApp';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import * as StoreReview from 'expo-store-review';
 import { ReAnimatedCircularProgress } from '../components/CircularProgress/ReAnimatedCircularProgress';
@@ -32,6 +32,7 @@ import IcTelegram from '@assets/settings/ic-tg.svg';
 import IcRateApp from '@assets/settings/ic-rate-app.svg';
 import IcNoConnection from '@assets/settings/ic-no-connection.svg';
 import IcTheme from '@assets/settings/ic-theme.svg';
+import { Typography } from '../components/styles';
 
 export const SettingsFragment = fragment(() => {
     const theme = useTheme();
@@ -324,6 +325,8 @@ export const SettingsFragment = fragment(() => {
                         bottom: 14,
                         flexShrink: 1,
                         alignSelf: 'center',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         borderRadius: 20,
                         overflow: 'hidden',
                         marginTop: 36, marginBottom: 32,
@@ -332,22 +335,17 @@ export const SettingsFragment = fragment(() => {
                     }}
                 >
                     <Image
-                        style={{
-                            height: 48
-                        }}
+                        style={{ height: 24, width: 24 }}
                         resizeMode={'contain'}
-                        source={theme.style === ThemeStyle.Dark ? require('@assets/ic-splash-dark.png') : require('@assets/ic-splash.png')}
+                        source={require('@assets/ic-more-version.png')}
                     />
+                    <Text style={[{ color: theme.textPrimary, marginTop: 8 }, Typography.medium17_24]}>
+                        {Application.applicationName}
+                    </Text>
                     <Text
-                        style={{
-                            color: theme.textSecondary,
-                            fontSize: 13,
-                            lineHeight: 18,
-                            fontWeight: '400',
-                            alignSelf: 'center',
-                        }}
+                        style={[{ color: theme.textSecondary, alignSelf: 'center' }, Typography.regular13_18]}
                     >
-                        v{Application.nativeApplicationVersion} {network.isTestnet ? `(${Application.nativeBuildVersion})` : ''}
+                        Version {Application.nativeApplicationVersion} {network.isTestnet ? `(${Application.nativeBuildVersion})` : ''}
                     </Text>
                 </Pressable>
             </ScrollView>

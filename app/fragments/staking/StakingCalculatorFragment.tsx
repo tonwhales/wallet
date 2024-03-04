@@ -213,6 +213,7 @@ export const StakingCalculatorFragment = fragment(() => {
                     </View>
                     {(isLiquid ? !!liquidStaking : !!pool) && (validAmount !== null) && (
                         <StakingCalcComponent
+                            poolAddressString={params.target.toString({ testOnly: network.isTestnet })}
                             amount={validAmount}
                             fee={isLiquid ? toNano(fromNano(liquidStaking!.extras.poolFee)) : pool!.params.poolFee}
                         />

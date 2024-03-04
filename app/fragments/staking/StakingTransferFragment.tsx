@@ -446,12 +446,16 @@ export const StakingTransferFragment = fragment(() => {
                     {params?.action === 'top_up' && pool && validAmount !== null && (
                         <>
                             <StakingCalcComponent
+                                poolAddressString={params.target.toString({ testOnly: network.isTestnet })}
                                 amount={validAmount}
                                 topUp={params?.action === 'top_up'}
                                 member={member}
                                 fee={pool.params.poolFee}
                             />
-                            <PoolTransactionInfo pool={pool} />
+                            <PoolTransactionInfo
+                                poolAddressString={params.target.toString({ testOnly: network.isTestnet })}
+                                pool={pool}
+                            />
                         </>
                     )}
                     {(params?.action === 'withdraw' || params?.action === 'withdraw_ready') && (

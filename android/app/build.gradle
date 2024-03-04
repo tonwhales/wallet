@@ -120,12 +120,16 @@ android {
             keyPassword 'android'
         }
         release {
-	    if (project.hasProperty('TONHUB_UPLOAD_STORE_FILE')) {
-                storeFile file(TONHUB_UPLOAD_STORE_FILE)
-                storePassword keystorePass
-                keyAlias TONHUB_UPLOAD_KEY_ALIAS
-                keyPassword keystorePass
-	    }
+            storeFile file('debug.keystore')
+            storePassword 'android'
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+//	    if (project.hasProperty('TONHUB_UPLOAD_STORE_FILE')) {
+//                storeFile file(TONHUB_UPLOAD_STORE_FILE)
+//                storePassword keystorePass
+//                keyAlias TONHUB_UPLOAD_KEY_ALIAS
+//                keyPassword keystorePass
+//	    }
 	}
     }
     buildTypes {

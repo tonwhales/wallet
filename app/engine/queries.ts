@@ -14,7 +14,7 @@ export const Queries = {
 
     StakingChart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime', member: string) => ['staking', 'chart', pool, fixedPeriod, member, 'askdjsd'],
     StakingMember: (pool: string, member: string) => ['staking', 'member', pool, member],
-    StakingStatus: (seqno: string) => ['staking', 'status', seqno],
+    StakingStatus: (network: 'mainnet' | 'testnet') => ['staking', 'status', network],
     StakingLiquid: (pool: string) => ['staking', 'liquid', pool],
     StakingLiquidMember: (pool: string, member: string) => ['staking', 'liquid', pool, member],
 
@@ -49,6 +49,7 @@ export const Queries = {
         Stats: () => ['apps', url, 'stats'],
     }),
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
+    PoolApy: (pool: string) => (['staking', 'poolApy', pool]),
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
 }

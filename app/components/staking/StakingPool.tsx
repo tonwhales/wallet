@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useState } from "react";
+import { memo, useMemo } from "react";
 import { TypedNavigation, useTypedNavigation } from "../../utils/useTypedNavigation";
 import { KnownPools } from "../../utils/KnownPools";
 import { t } from "../../i18n/t";
@@ -7,10 +7,10 @@ import { WImage } from "../WImage";
 import { openWithInApp } from "../../utils/openWithInApp";
 import { ValueComponent } from "../ValueComponent";
 import { PriceComponent } from "../PriceComponent";
-import { Countdown } from "../Countdown";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useNetwork, useStakingApy, useStakingPool, useTheme } from "../../engine/hooks";
+import { useNetwork, usePoolApy, useStakingPool, useTheme } from "../../engine/hooks";
 import { Typography } from "../styles";
+import { StakingPoolCountdown } from "./StakingPoolCountdown";
 
 import StakingIcon from '@assets/ic_staking.svg';
 
@@ -72,12 +72,12 @@ export const StakingPool = memo((props: {
     const name = knownPools[poolAddressString]?.name;
     const sub = poolFee ? `${t('products.staking.info.poolFeeTitle')}: ${poolFee}%` : poolAddressString.slice(0, 10) + '...' + poolAddressString.slice(poolAddressString.length - 6);
 
-    const apy = useStakingApy()?.apy;
+    const poolApy = usePoolApy(poolAddressString);
     const apyWithFee = useMemo(() => {
-        if (!!apy && !!poolFee) {
-            return `${t('common.apy')} ≈ ${(apy - apy * (poolFee / 100)).toFixed(2)}%`;
+        if (!!poolApy && !!poolFee) {
+            return `${t('common.apy')} ≈ ${(poolApy - poolApy * (poolFee / 100)).toFixed(2)}%`;
         }
-    }, [apy, poolFee]);
+    }, [poolApy, poolFee]);
 
     let requireSource = knownPools[poolAddressString]?.requireSource;
     let club: boolean | undefined;
@@ -87,17 +87,6 @@ export const StakingPool = memo((props: {
     ) {
         club = true;
     }
-
-    const [left, setLeft] = useState(Math.floor(stakeUntil - (Date.now() / 1000)));
-
-    useEffect(() => {
-        const timerId = setInterval(() => {
-            setLeft(Math.floor((stakeUntil) - (Date.now() / 1000)));
-        }, 1000);
-        return () => {
-            clearInterval(timerId);
-        };
-    }, [stakeUntil]);
 
     return (
         <Pressable
@@ -142,10 +131,9 @@ export const StakingPool = memo((props: {
                         },
                         Typography.regular13_18
                     ]}>
-                        <Countdown
-                            hidePrefix
-                            left={left}
-                            textStyle={[{ color: theme.textPrimary, flex: 1, flexShrink: 1 }, Typography.regular13_18]}
+                        <StakingPoolCountdown
+                            theme={theme}
+                            stakeUntil={stakeUntil}
                         />
                     </Text>
                 </View>

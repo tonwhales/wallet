@@ -3,21 +3,20 @@ import { fragment } from "../../fragment";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { memo, useCallback, useMemo } from "react";
-import { AndroidToolbar } from "../../components/topbar/AndroidToolbar";
 import { t } from "../../i18n/t";
 import { KnownPools } from "../../utils/KnownPools";
 import { WImage } from "../../components/WImage";
 import { useParams } from "../../utils/useParams";
 import { useRoute } from "@react-navigation/native";
 import { Address, fromNano, toNano } from "@ton/core";
-import { useClient4, useNetwork, useSelectedAccount, useStakingApy, useStakingPool, useStakingPoolMembers, useStakingWalletConfig, useTheme } from "../../engine/hooks";
+import { useClient4, useNetwork, usePoolApy, useSelectedAccount, useStakingPool, useStakingPoolMembers, useTheme } from "../../engine/hooks";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
 import { StakingPoolMember } from "../../engine/types";
+import { ScreenHeader } from "../../components/ScreenHeader";
+import { StatusBar } from "expo-status-bar";
 
 import StakingIcon from '@assets/ic_staking.svg';
 import IcCheck from "@assets/ic-check.svg";
-import { ScreenHeader } from "../../components/ScreenHeader";
-import { StatusBar } from "expo-status-bar";
 
 const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool: Address, onSelect: () => void }) => {
     const theme = useTheme();
@@ -25,7 +24,7 @@ const PoolItem = memo(({ selected, pool, onSelect }: { selected?: boolean, pool:
     const knownPools = KnownPools(network.isTestnet);
     const selectedAcc = useSelectedAccount();
     const poolState = useStakingPool(pool, selectedAcc!.address);
-    const apy = useStakingApy()?.apy;
+    const apy = usePoolApy(pool.toString({ testOnly: network.isTestnet }));
 
     const poolFirendly = pool.toString({ testOnly: network.isTestnet });
     const name = knownPools[poolFirendly].name;

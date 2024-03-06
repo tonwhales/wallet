@@ -38,7 +38,10 @@ export const WalletItem = memo((
             onSelect(address);
             return;
         }
-        if (selected) return;
+        if (selected) {
+            navigation.navigateAndReplaceAll('Home');
+            return;
+        };
         const index = appState.addresses.findIndex((a) => a.address.equals(address));
 
         if (index < 0) {

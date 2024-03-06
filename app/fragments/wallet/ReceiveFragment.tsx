@@ -10,13 +10,14 @@ import { ShareButton } from "../../components/ShareButton";
 import { WImage } from "../../components/WImage";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
-import { KnownJettonMasters } from "../../secure/KnownWallets";
+import { KnownJettonMasters, KnownJettonTickers } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
 import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
 import { StatusBar } from "expo-status-bar";
+import { Typography } from "../../components/styles";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
 
@@ -70,6 +71,19 @@ export const ReceiveFragment = fragment(() => {
         return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
             + `/${friendly}`
     }, [jetton, network]);
+
+    const isSCAM = useMemo(() => {
+        const masterAddress = jetton?.master;
+
+        if (!masterAddress || !jetton.data.symbol) {
+            return false;
+        }
+
+        const isKnown = !!KnownJettonMasters(network.isTestnet)[masterAddress.toString({ testOnly: network.isTestnet })];
+        const isSCAM = !isKnown && KnownJettonTickers.includes(jetton.data.symbol);
+
+        return isSCAM;
+    }, [network, jetton]);
 
     return (
         <View
@@ -166,7 +180,7 @@ export const ReceiveFragment = fragment(() => {
                                             {!jetton && (
                                                 <TonIcon width={46} height={46} style={{ height: 46, width: 46 }} />
                                             )}
-                                            {isVerified && (
+                                            {isVerified ? (
                                                 <View style={{
                                                     justifyContent: 'center', alignItems: 'center',
                                                     height: 20, width: 20, borderRadius: 10,
@@ -178,16 +192,31 @@ export const ReceiveFragment = fragment(() => {
                                                         style={{ height: 20, width: 20 }}
                                                     />
                                                 </View>
-                                            )}
+                                            ) : (isSCAM && (
+                                                <View style={{
+                                                    justifyContent: 'center', alignItems: 'center',
+                                                    height: 20, width: 20, borderRadius: 10,
+                                                    position: 'absolute', right: -2, bottom: -2,
+                                                    backgroundColor: theme.surfaceOnBg
+                                                }}>
+                                                    <Image
+                                                        source={require('@assets/ic-jetton-scam.png')}
+                                                        style={{ height: 20, width: 20 }}
+                                                    />
+                                                </View>
+                                            ))}
                                         </View>
                                         <View style={{ justifyContent: 'space-between' }}>
-                                            <Text style={{
-                                                fontSize: 17,
-                                                color: theme.textPrimary,
-                                                fontWeight: '600',
-                                                lineHeight: 24
-                                            }}>
+                                            <Text style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                                 {`${jetton?.data.symbol ?? `TON ${t('common.wallet')}`}`}
+                                                {isSCAM && (
+                                                    <>
+                                                        {' • '}
+                                                        <Text style={{ color: theme.accentRed }}>
+                                                            {'SCAM'}
+                                                        </Text>
+                                                    </>
+                                                )}
                                             </Text>
                                             <Text
                                                 style={{

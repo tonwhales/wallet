@@ -4,7 +4,7 @@ import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
 import { Avatar, avatarColors } from '../../../components/Avatar';
 import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
-import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
+import { KnownJettonMasters, KnownJettonTickers, KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
@@ -112,12 +112,33 @@ export function TransactionView(props: {
             && !isTestnet
         ) && kind !== 'out';
 
+    const amountColor = (kind === 'in')
+        ? (spam ? theme.textPrimary : theme.accentGreen)
+        : theme.textPrimary;
+
+    const isSCAMJetton = useMemo(() => {
+        const masterAddress = tx.metadata?.jettonWallet?.master;
+
+        if (!masterAddress || !tx.masterMetadata?.symbol || item.kind !== 'token') {
+            return false;
+        }
+
+        const isKnown = !!KnownJettonMasters(isTestnet)[masterAddress.toString({ testOnly: isTestnet })];
+        const isSCAM = !isKnown && KnownJettonTickers.includes(tx.masterMetadata?.symbol);
+
+        return isSCAM;
+    }, [isTestnet, tx]);
+
+    const symbolText = `${(item.kind === 'token')
+        ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}`
+        : ' TON'}${isSCAMJetton ? ' • ' : ''}`;
+
     return (
         <Pressable
             onPress={() => props.onPress(props.tx)}
-            style={{ 
-                paddingHorizontal: 16, 
-                paddingVertical: 20, 
+            style={{
+                paddingHorizontal: 16,
+                paddingVertical: 20,
                 paddingBottom: operation.comment ? 0 : undefined
             }}
             onLongPress={() => props.onLongPress?.(props.tx)}
@@ -221,17 +242,7 @@ export function TransactionView(props: {
                         </PerfText>
                     ) : (
                         <Text
-                            style={[
-                                {
-                                    color: kind === 'in'
-                                        ? spam
-                                            ? theme.textPrimary
-                                            : theme.accentGreen
-                                        : theme.textPrimary,
-                                    marginRight: 2,
-                                },
-                                Typography.semiBold17_24
-                            ]}
+                            style={[{ color: amountColor, marginRight: 2 }, Typography.semiBold17_24]}
                             numberOfLines={1}
                         >
                             {kind === 'in' ? '+' : '-'}
@@ -242,7 +253,12 @@ export function TransactionView(props: {
                                 centFontStyle={{ fontSize: 15 }}
                             />
                             <Text style={{ fontSize: 15 }}>
-                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                {symbolText}
+                                {isSCAMJetton && (
+                                    <Text style={{ color: theme.accentRed }}>
+                                        {'SCAM'}
+                                    </Text>
+                                )}
                             </Text>
                         </Text>
                     )}

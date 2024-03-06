@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from "react";
-import { Platform, ScrollView, Text } from "react-native";
+import { Platform, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
 import { getAppState } from "../../storage/appState";
@@ -9,7 +9,7 @@ import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar, avatarColors } from "../../components/Avatar";
 import { t } from "../../i18n/t";
-import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
+import { KnownJettonMasters, KnownJettonTickers, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
 import { PriceComponent } from "../../components/PriceComponent";
 import { copyText } from "../../utils/copyText";
@@ -190,11 +190,30 @@ const TransactionPreview = () => {
         });
     }, []);
 
-    const stringText = valueText({
+    const amountText = valueText({
         value: item.amount,
         precision: 9,
         decimals: item.kind === 'token' && jetton ? jetton.decimals : undefined,
     });
+
+    const amountColor = kind === 'in'
+        ? spam
+            ? theme.textPrimary
+            : theme.accentGreen
+        : theme.textPrimary
+
+    const isSCAMJetton = useMemo(() => {
+        const masterAddress = tx.metadata?.jettonWallet?.master;
+
+        if (!masterAddress || !jetton?.symbol) {
+            return false;
+        }
+
+        const isKnown = !!KnownJettonMasters(isTestnet)[masterAddress.toString({ testOnly: isTestnet })];
+        const isSCAM = !isKnown && KnownJettonTickers.includes(jetton.symbol);
+
+        return isSCAM;
+    }, [isTestnet, tx]);
 
     return (
         <PerfView
@@ -300,24 +319,26 @@ const TransactionPreview = () => {
                         </PerfText>
                     ) : (
                         <>
-                            <Text
-                                minimumFontScale={0.4}
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                style={[
+                            <View style={{ marginTop: 12, flexDirection: 'row', alignItems: 'center' }}>
+                                <Text
+                                    minimumFontScale={0.4}
+                                    adjustsFontSizeToFit={true}
+                                    numberOfLines={1}
+                                    style={[{ color: amountColor }, Typography.semiBold27_32]}
+                                >
                                     {
-                                        color: kind === 'in'
-                                            ? spam
-                                                ? theme.textPrimary
-                                                : theme.accentGreen
-                                            : theme.textPrimary,
-                                        marginTop: 12,
-                                    },
-                                    Typography.semiBold27_32
-                                ]}
-                            >
-                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
-                            </Text>
+                                        `${amountText[0]}${amountText[1]}${item.kind === 'ton'
+                                            ? ' TON'
+                                            : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
+                                        + (isSCAMJetton ? ' • ' : '')
+                                    }
+                                </Text>
+                                {isSCAMJetton && (
+                                    <Text style={[{ color: theme.accentRed }, Typography.semiBold27_32]}>
+                                        {'SCAM'}
+                                    </Text>
+                                )}
+                            </View>
                             {item.kind === 'ton' && (
                                 <PriceComponent
                                     style={{

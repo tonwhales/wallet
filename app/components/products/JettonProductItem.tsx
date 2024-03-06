@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { KnownJettonMasters } from '../../secure/KnownWallets';
+import { KnownJettonMasters, KnownJettonTickers } from '../../secure/KnownWallets';
 import { useTypedNavigation } from '../../utils/useTypedNavigation';
 import { View, Pressable, Image, Text } from 'react-native';
 import { ValueComponent } from '../ValueComponent';
@@ -14,6 +14,7 @@ import { PerfText } from '../basic/PerfText';
 import { useJettonSwap } from '../../engine/hooks/jettons/useJettonSwap';
 import { PriceComponent } from '../PriceComponent';
 import { fromNano, toNano } from '@ton/core';
+import { Typography } from '../styles';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -37,6 +38,7 @@ export const JettonProductItem = memo((props: {
     const swipableRef = useRef<Swipeable>(null);
 
     const isKnown = !!KnownJettonMasters(isTestnet)[props.jetton.master.toString({ testOnly: isTestnet })];
+    const isSCAM = !isKnown && KnownJettonTickers.includes(props.jetton.symbol);
 
     const { onPressIn, onPressOut, animatedStyle } = useAnimatedPressedInOut();
 
@@ -140,7 +142,7 @@ export const JettonProductItem = memo((props: {
                                     heigh={46}
                                     borderRadius={23}
                                 />
-                                {isKnown && (
+                                {isKnown ? (
                                     <View style={{
                                         justifyContent: 'center', alignItems: 'center',
                                         height: 20, width: 20, borderRadius: 10,
@@ -152,7 +154,19 @@ export const JettonProductItem = memo((props: {
                                             style={{ height: 20, width: 20 }}
                                         />
                                     </View>
-                                )}
+                                ) : (isSCAM && (
+                                    <View style={{
+                                        justifyContent: 'center', alignItems: 'center',
+                                        height: 20, width: 20, borderRadius: 10,
+                                        position: 'absolute', right: -2, bottom: -2,
+                                        backgroundColor: theme.surfaceOnBg
+                                    }}>
+                                        <Image
+                                            source={require('@assets/ic-jetton-scam.png')}
+                                            style={{ height: 20, width: 20 }}
+                                        />
+                                    </View>
+                                ))}
                             </View>
                             <View style={{ marginLeft: 12, flex: 1 }}>
                                 <PerfText
@@ -164,9 +178,17 @@ export const JettonProductItem = memo((props: {
                                 </PerfText>
                                 <PerfText
                                     numberOfLines={1} ellipsizeMode={'tail'}
-                                    style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 >
                                     <PerfText style={{ flexShrink: 1 }}>
+                                        {isSCAM && (
+                                            <>
+                                                <PerfText style={{ color: theme.accentRed }}>
+                                                    {'SCAM'}
+                                                </PerfText>
+                                                {props.jetton.description ? ' • ' : ''}
+                                            </>
+                                        )}
                                         {props.jetton.description}
                                     </PerfText>
                                 </PerfText>

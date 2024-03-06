@@ -312,6 +312,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             jettonAmountString={jettonAmountString}
             target={target}
             fees={fees}
+            metadata={metadata}
             jettonMaster={jettonMaster}
             doSend={doSend}
             walletSettings={walletSettings}

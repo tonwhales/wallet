@@ -78,7 +78,10 @@ export const LiquidWithdrawActionFragment = fragment(() => {
                                 onClose: navigation.goBack
                             },
                             engine: 'ton-connect',
-                            useStatusBar: true
+                            useStatusBar: true,
+                            defaultQueryParamsState: {
+                                lockScroll: false
+                            }
                         });
                     }}
                 />

@@ -96,7 +96,7 @@ export class TypedNavigation {
 
     navigateLiquidWithdrawAction(isLedger?: boolean) {
         if (isLedger) {
-            this.navigate('LedgerLiquidWithdrawAction');
+            this.navigate('LedgerLiquidStakingTransfer', { action: 'withdraw' });
             return;
         }
         this.navigate('LiquidWithdrawAction');

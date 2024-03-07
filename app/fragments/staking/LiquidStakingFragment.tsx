@@ -96,8 +96,8 @@ export const LiquidStakingFragment = fragment(() => {
     }, [transferAmount, isLedger]);
 
     const onUnstake = useCallback(() => {
-        navigation.navigate('LiquidWithdrawAction');
-    }, []);
+        navigation.navigateLiquidWithdrawAction(isLedger);
+    }, [isLedger]);
 
     const openMoreInfo = useCallback(() => openWithInApp(network.isTestnet ? 'https://test.tonwhales.com/staking' : 'https://tonwhales.com/staking'), [network.isTestnet]);
     const navigateToCurrencySettings = useCallback(() => navigation.navigate('Currency'), []);

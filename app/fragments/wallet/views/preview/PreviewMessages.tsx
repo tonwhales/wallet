@@ -68,7 +68,7 @@ const MessagePreview = memo(({
                 const to = message.info.dest;
                 const block = await backoff('transfer', () => client.getLastBlock());
                 const [metadata, state] = await Promise.all([
-                    backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet, true)),
+                    backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet)),
                     backoff('transfer', () => client.getAccount(block.last.seqno, to)),
                 ]);
 
@@ -137,7 +137,7 @@ const MessagePreview = memo(({
                 if (!amount && operation.items[0].kind === 'ton') {
                     amount = BigInt(operation.items[0].amount);
                 }
-                
+
                 if (!jettonAmount && operation.items[0].kind === 'token') {
                     jettonAmount = BigInt(operation.items[0].amount);
                 }
@@ -190,7 +190,7 @@ const MessagePreview = memo(({
                                 <View style={{ alignItems: 'flex-end' }}>
                                     <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
                                         {prepared.jettonAmount
-                                            ? fromNano(prepared.jettonAmount) + (prepared.jettonMaster?.symbol ?? '')
+                                            ? fromNano(prepared.jettonAmount) + (` ${prepared.jettonMaster?.symbol}` ?? '')
                                             : fromNano(prepared.amount) + ' TON'
                                         }
                                     </Text>

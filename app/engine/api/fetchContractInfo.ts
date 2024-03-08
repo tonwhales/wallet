@@ -6,7 +6,7 @@ const contractInfoCodec = z.object({
     name: z.string(),
     kind: contractKindCodec.optional(),
     version: z.string().optional().nullable(),
-});
+}).nullable();
 
 export async function fetchContractInfo(addressString: string) {
     const res = await axios.get(`https://connect.tonhubapi.com/contract/info/${addressString}`);

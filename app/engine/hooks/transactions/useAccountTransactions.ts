@@ -1,4 +1,4 @@
-import { Address } from '@ton/core';
+import { Address, Cell, MessageRelaxed, loadMessageRelaxed } from '@ton/core';
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { ContractMetadata } from '../../metadata/Metadata';
 import { useContractMetadatas } from '../metadata/useContractMetadatas';
@@ -84,6 +84,10 @@ export function useAccountTransactions(account: string, refetchOnMount: boolean 
 
             const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;
 
+            const outRelaxed = base.outMessages.map(m => (
+                { ...m, body: Cell.fromBoc(Buffer.from(m.body, 'base64'))[0] }
+            ) as MessageRelaxed);
+
             return ({
                 id: `${base.lt}_${base.hash}`,
                 base: base,
@@ -93,6 +97,8 @@ export function useAccountTransactions(account: string, refetchOnMount: boolean 
                 verified: null,
                 op: null,
                 title: null,
+                outMessagesCount: base.outMessagesCount,
+                outMessages: outRelaxed,
             });
         }) || null;
     }, [baseTxs, metadatasMap, jettonMasterMetadatas]);

@@ -208,14 +208,19 @@ export function TransactionView(props: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        {known
-                            ? known.name
-                            : <AddressComponent
-                                address={parsedOpAddr.address}
-                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
-                            />
-                        }
-                        {` • ${formatTime(tx.base.time)}`}
+                        {tx.outMessagesCount <= 1 && (
+                            <>
+                                {known
+                                    ? known.name
+                                    : <AddressComponent
+                                        address={parsedOpAddr.address}
+                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                    />
+                                }
+                                {' • '}
+                            </>
+                        )}
+                        {`${formatTime(tx.base.time)}`}
                     </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
@@ -241,19 +246,25 @@ export function TransactionView(props: {
                             ]}
                             numberOfLines={1}
                         >
-                            {kind === 'in' ? '+' : '-'}
-                            <ValueComponent
-                                value={absAmount}
-                                decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
-                                precision={3}
-                                centFontStyle={{ fontSize: 15 }}
-                            />
-                            <Text style={{ fontSize: 15 }}>
-                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
-                            </Text>
+                            {tx.outMessagesCount > 1 ? (
+                                `${tx.outMessagesCount} ${t('common.messages').toLowerCase()}`
+                            ) : (
+                                <>
+                                    {kind === 'in' ? '+' : '-'}
+                                    <ValueComponent
+                                        value={absAmount}
+                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        precision={3}
+                                        centFontStyle={{ fontSize: 15 }}
+                                    />
+                                    <Text style={{ fontSize: 15 }}>
+                                        {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                    </Text>
+                                </>
+                            )}
                         </Text>
                     )}
-                    {item.kind !== 'token' && (
+                    {item.kind !== 'token' && tx.outMessagesCount <= 1 && (
                         <PriceComponent
                             amount={absAmount}
                             prefix={kind === 'in' ? '+' : '-'}

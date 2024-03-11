@@ -30,11 +30,9 @@ export const AddressSearchItemView = memo(({
     const avatarColorHash = settings?.color ?? avatarHash(addressString, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const bounceable = useMemo(() => {
-        return (contractInfo?.kind === 'wallet')
-            ? bounceableFormat
-            : item.addr.isBounceable;
-    }, [bounceableFormat, contractInfo, item.addr.isBounceable]);
+    const bounceable = (contractInfo?.kind === 'wallet')
+        ? bounceableFormat
+        : item.addr.isBounceable
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 

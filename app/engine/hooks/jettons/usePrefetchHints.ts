@@ -79,7 +79,7 @@ export function jettonWalletQueryFn(client: TonClient4, wallet: string, isTestne
 const currentJettonsVersion = 1;
 const jettonsVersionKey = 'jettons-version';
 
-function invalidateJettonsData(queryClient: QueryClient) {
+function invalidateJettonsDataIfVersionChanged(queryClient: QueryClient) {
     try {
         const lastVersion = storage.getNumber(jettonsVersionKey);
     
@@ -105,7 +105,7 @@ export function usePrefetchHints(queryClient: QueryClient, address?: string) {
 
         (async () => {
             // Invalidate jettons data if version is changed
-            invalidateJettonsData(queryClient);
+            invalidateJettonsDataIfVersionChanged(queryClient);
 
             // Prefetch contract metadata and jetton master content
             await Promise.all(hints.map(async hint => {

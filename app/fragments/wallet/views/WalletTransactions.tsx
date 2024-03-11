@@ -8,7 +8,7 @@ import { TransactionView } from "./TransactionView";
 import { ThemeType } from "../../../engine/state/theme";
 import { TransactionDescription } from '../../../engine/types';
 import { AddressContact, useAddressBook } from "../../../engine/hooks/contacts/useAddressBook";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount } from "../../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePendingTransactions, useServerConfig, useSpamMinAmount, useWalletsSettings } from "../../../engine/hooks";
 import { TransactionsEmptyState } from "./TransactionsEmptyStateView";
 import { TransactionsSkeleton } from "../../../components/skeletons/TransactionsSkeleton";
 import { ReAnimatedCircularProgress } from "../../../components/CircularProgress/ReAnimatedCircularProgress";
@@ -20,6 +20,7 @@ import { confirmAlert } from "../../../utils/confirmAlert";
 import { KnownWallets } from "../../../secure/KnownWallets";
 import { Typography } from "../../../components/styles";
 import { warn } from "../../../utils/log";
+import { WalletSettings } from "../../../engine/state/walletSettings";
 
 const SectionHeader = memo(({ theme, title }: { theme: ThemeType, title: string }) => {
     return (
@@ -48,6 +49,7 @@ type TransactionListItemProps = {
     spamWallets: string[],
     appState: AppState,
     bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
 }
 
 const TransactionListItem = memo(({ item, section, index, theme, ...props }: SectionListRenderItemInfo<TransactionDescription, { title: string }> & TransactionListItemProps) => {
@@ -77,6 +79,7 @@ const TransactionListItem = memo(({ item, section, index, theme, ...props }: Sec
         && prev.appState === next.appState
         && prev.onLongPress === next.onLongPress
         && prev.bounceableFormat === next.bounceableFormat
+        && prev.walletsSettings === next.walletsSettings
 });
 TransactionListItem.displayName = 'TransactionListItem';
 
@@ -109,6 +112,7 @@ export const WalletTransactions = memo((props: {
     const [pending,] = usePendingTransactions(props.address, isTestnet);
     const ref = useRef<SectionList<TransactionDescription, { title: string }>>(null);
     const [bounceableFormat,] = useBounceableWalletFormat();
+    const [walletsSettings,] = useWalletsSettings();
 
     const { showActionSheetWithOptions } = useActionSheet();
 
@@ -326,6 +330,7 @@ export const WalletTransactions = memo((props: {
                     spamWallets={spamWallets}
                     appState={appState}
                     bounceableFormat={bounceableFormat}
+                    walletsSettings={walletsSettings}
                 />
             )}
             onEndReached={() => props.onLoadMore()}

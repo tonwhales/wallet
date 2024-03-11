@@ -151,5 +151,5 @@ export type TransactionDescription = {
     title: string | null;
     verified: boolean | null;
     outMessagesCount: number;
-    outMessages: MessageRelaxed[];
+    outMessages: StoredMessage[];
 };

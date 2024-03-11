@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Image } from 'react-native';
-import { avatarHash } from '../utils/avatarHash';
-import { KnownWallets } from '../secure/KnownWallets';
+import { avatarHash } from '../../utils/avatarHash';
+import { KnownWallets } from '../../secure/KnownWallets';
 import { KnownAvatar } from './KnownAvatar';
 import FastImage from 'react-native-fast-image';
 import { memo } from 'react';
-import { PerfText } from './basic/PerfText';
-import { PerfView } from './basic/PerfView';
-import { ThemeType } from '../engine/state/theme';
+import { PerfText } from '../basic/PerfText';
+import { PerfView } from '../basic/PerfView';
+import { ThemeType } from '../../engine/state/theme';
 
 export const avatarImages = [
     require('@assets/avatars/0.png'),
@@ -57,6 +57,14 @@ export const avatarColors = [
     '#FFA766'
 ];
 
+export type AvatarIcProps = {
+    isOwn?: boolean,
+    borderWidth?: number,
+    position?: 'top' | 'bottom' | 'left' | 'right',
+    backgroundColor?: string,
+    size?: number,
+};
+
 export const Avatar = memo((props: {
     size: number,
     id: string,
@@ -71,13 +79,7 @@ export const Avatar = memo((props: {
     borderColor?: string,
     borderWith?: number,
     backgroundColor?: string,
-    icProps?: {
-        isOwn?: boolean,
-        borderWidth?: number,
-        position?: 'top' | 'bottom' | 'left' | 'right',
-        backgroundColor?: string,
-        size?: number,
-    },
+    icProps?: AvatarIcProps,
     theme: ThemeType,
     isTestnet: boolean,
     hashColor?: { hash: number } | boolean

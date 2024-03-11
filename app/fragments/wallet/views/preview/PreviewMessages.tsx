@@ -1,7 +1,6 @@
-import { Address, CommonMessageInfoRelaxedInternal, MessageRelaxed, fromNano, toNano } from "@ton/core";
+import { Address, Cell, fromNano, toNano } from "@ton/core";
 import { memo, useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
-import { ItemGroup } from "../../../../components/ItemGroup";
+import { View, Text, Image, ActivityIndicator } from "react-native";
 import { ThemeType } from "../../../../engine/state/theme";
 import { fetchMetadata } from "../../../../engine/metadata/fetchMetadata";
 import { TonClient4 } from "@ton/ton";
@@ -19,8 +18,10 @@ import { ItemCollapsible } from "../../../../components/ItemCollapsible";
 import { t } from "../../../../i18n/t";
 import { AddressComponent } from "../../../../components/address/AddressComponent";
 import { PriceComponent } from "../../../../components/PriceComponent";
-import { StoredOperation } from "../../../../engine/types/transactions";
+import { StoredMessage, StoredOperation } from "../../../../engine/types/transactions";
 import { fetchContractInfo } from "../../../../engine/api/fetchContractInfo";
+import { Typography } from "../../../../components/styles";
+import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
 
 import IcAlert from '@assets/ic-alert.svg';
 
@@ -38,7 +39,7 @@ type PreparedMessage = {
     contact: null,
     jettonMaster: JettonMasterState | null,
     gas: { amount: bigint | null, unusual: boolean },
-    amount: bigint,
+    amount: bigint
 }
 
 const MessagePreview = memo(({
@@ -52,7 +53,7 @@ const MessagePreview = memo(({
     serverConfig
 }: {
     index: number
-    message: MessageRelaxed,
+    message: StoredMessage,
     theme: ThemeType,
     client: TonClient4,
     isTestnet: boolean,
@@ -65,16 +66,18 @@ const MessagePreview = memo(({
     useEffect(() => {
         (async () => {
             if (message.info.type === 'internal') {
-                const to = message.info.dest;
+                const to = Address.parse(message.info.dest);
                 const block = await backoff('transfer', () => client.getLastBlock());
                 const [metadata, state] = await Promise.all([
                     backoff('transfer', () => fetchMetadata(client, block.last.seqno, to, isTestnet)),
                     backoff('transfer', () => client.getAccount(block.last.seqno, to)),
                 ]);
 
-                let body = message.body ? parseBody(message.body) : null;
-                let parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
-                let amount = message.info.value.coins ?? 0n;
+                // check for empty body
+                const bodyCell = Cell.fromBoc(Buffer.from(message.body, 'base64'))[0];
+                const body = parseBody(bodyCell);
+                const parsedBody = body && body.type === 'payload' ? parseMessageBody(body.cell) : null;
+                let amount = BigInt(message.info.value || '0');
 
                 // Read jetton master
                 let jettonMaster: JettonMasterState | null = null;
@@ -85,7 +88,7 @@ const MessagePreview = memo(({
                 let jettonAmount: bigint | null = null;
                 try {
                     if (jettonMaster && message.body) {
-                        const temp = message.body;
+                        const temp = bodyCell;
                         if (temp) {
                             const parsing = temp.beginParse();
                             parsing.loadUint(32);
@@ -173,28 +176,113 @@ const MessagePreview = memo(({
             title={t('common.transaction') + ` #${index + 1}`}
         >
             {prepared === 'loading' ? (
-                <View>
-
-                </View>
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <ActivityIndicator color={theme.textPrimary} size='small' />
+                </Animated.View>
             ) : (
-                <>
-                    {(prepared.jettonAmount || prepared.amount) && (
-                        <>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('common.amount')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {prepared.jettonAmount
-                                            ? fromNano(prepared.jettonAmount) + (` ${prepared.jettonMaster?.symbol}` ?? '')
-                                            : fromNano(prepared.amount) + ' TON'
-                                        }
+                <Animated.View entering={FadeIn} exiting={FadeOut}>
+                    <>
+                        {(prepared.jettonAmount || prepared.amount) && (
+                            <>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                        {t('common.amount')}
                                     </Text>
-                                    {!prepared.jettonAmount && (
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                            {prepared.jettonAmount
+                                                ? fromNano(prepared.jettonAmount) + (` ${prepared.jettonMaster?.symbol}` ?? '')
+                                                : fromNano(prepared.amount) + ' TON'
+                                            }
+                                        </Text>
+                                        {!prepared.jettonAmount && (
+                                            <PriceComponent
+                                                amount={prepared.amount}
+                                                style={{
+                                                    backgroundColor: theme.transparent,
+                                                    paddingHorizontal: 0,
+                                                    alignSelf: 'flex-end'
+                                                }}
+                                                textStyle={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
+                                                theme={theme}
+                                            />
+                                        )}
+                                    </View>
+                                </View>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                            </>
+                        )}
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                {t('common.to')}
+                            </Text>
+                            <View style={{ alignItems: 'flex-end' }}>
+                                <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                    <AddressComponent
+                                        bounceable={prepared.target.bounceable}
+                                        address={prepared.target.address}
+                                        start={10}
+                                        end={4}
+                                    />
+                                </Text>
+                                {prepared.known && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {prepared.known?.name}
+                                        </Text>
+                                        <View style={{
+                                            justifyContent: 'center', alignItems: 'center',
+                                            height: 18, width: 18, borderRadius: 9,
+                                            marginLeft: 6,
+                                            backgroundColor: theme.surfaceOnBg
+                                        }}>
+                                            <Image
+                                                source={require('@assets/ic-verified.png')}
+                                                style={{ height: 18, width: 18 }}
+                                            />
+                                        </View>
+                                    </View>
+                                )}
+                                {(!prepared.target.active) && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {t('transfer.addressNotActive')}
+                                        </Text>
+                                        <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                    </View>
+                                )}
+                                {prepared.spam && (
+                                    <View style={{ flexDirection: 'row' }}>
+                                        <Text
+                                            style={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
+                                            numberOfLines={1}
+                                            ellipsizeMode={'tail'}
+                                        >
+                                            {'SPAM'}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                        {!!prepared.jettonAmount && (
+                            <>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                        {t('transfer.gasFee')}
+                                    </Text>
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                            {fromNano(prepared.amount) + ' TON'}
+                                        </Text>
                                         <PriceComponent
                                             amount={prepared.amount}
                                             style={{
@@ -202,163 +290,45 @@ const MessagePreview = memo(({
                                                 paddingHorizontal: 0,
                                                 alignSelf: 'flex-end'
                                             }}
-                                            textStyle={{
-                                                fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                                color: theme.textSecondary,
-                                                flexShrink: 1
-                                            }}
+                                            textStyle={[{ color: theme.textSecondary, flexShrink: 1 }, Typography.regular15_20]}
                                             theme={theme}
-                                        />
-                                    )}
-                                </View>
-                            </View>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                        </>
-                    )}
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <Text style={{
-                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                            color: theme.textSecondary,
-                        }}>
-                            {t('common.to')}
-                        </Text>
-                        <View style={{ alignItems: 'flex-end' }}>
-                            <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                <AddressComponent
-                                    bounceable={prepared.target.bounceable}
-                                    address={prepared.target.address}
-                                    start={10}
-                                    end={4}
-                                />
-                            </Text>
-                            {prepared.known && (
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text
-                                        style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        {prepared.known?.name}
-                                    </Text>
-                                    <View style={{
-                                        justifyContent: 'center', alignItems: 'center',
-                                        height: 18, width: 18, borderRadius: 9,
-                                        marginLeft: 6,
-                                        backgroundColor: theme.surfaceOnBg
-                                    }}>
-                                        <Image
-                                            source={require('@assets/ic-verified.png')}
-                                            style={{ height: 18, width: 18 }}
                                         />
                                     </View>
                                 </View>
-                            )}
-                            {(!prepared.target.active) && (
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text
-                                        style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        {t('transfer.addressNotActive')}
+                            </>
+                        )}
+                        {!!prepared.operation.op && (
+                            <>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                        {t('transfer.purpose')}
                                     </Text>
-                                    <IcAlert style={{ height: 18, width: 18, marginLeft: 6 }} height={18} width={18} />
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                            {t(prepared.operation.op.res, prepared.operation.op.options)}
+                                        </Text>
+                                    </View>
                                 </View>
-                            )}
-                            {prepared.spam && (
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Text
-                                        style={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        numberOfLines={1}
-                                        ellipsizeMode={'tail'}
-                                    >
-                                        {'SPAM'}
+                            </>
+                        )}
+                        {!!prepared.operation.comment && (
+                            <>
+                                <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Text style={[{ color: theme.textSecondary }, Typography.regular15_20]}>
+                                        {t('transfer.commentLabel')}
                                     </Text>
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <Text style={[{ color: theme.textPrimary }, Typography.medium17_24]}>
+                                            {prepared.operation.comment}
+                                        </Text>
+                                    </View>
                                 </View>
-                            )}
-                        </View>
-                    </View>
-                    {!!prepared.jettonAmount && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('transfer.gasFee')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {fromNano(prepared.amount) + ' TON'}
-                                    </Text>
-                                    <PriceComponent
-                                        amount={prepared.amount}
-                                        style={{
-                                            backgroundColor: theme.transparent,
-                                            paddingHorizontal: 0,
-                                            alignSelf: 'flex-end'
-                                        }}
-                                        textStyle={{
-                                            fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                            color: theme.textSecondary,
-                                            flexShrink: 1
-                                        }}
-                                        theme={theme}
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    )}
-                    {!!prepared.operation.op && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('transfer.purpose')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {t(prepared.operation.op.res, prepared.operation.op.options)}
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    )}
-                    {!!prepared.operation.comment && (
-                        <>
-                            <View style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16 }} />
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <Text style={{
-                                    fontSize: 15, lineHeight: 20, fontWeight: '400',
-                                    color: theme.textSecondary,
-                                }}>
-                                    {t('transfer.commentLabel')}
-                                </Text>
-                                <View style={{ alignItems: 'flex-end' }}>
-                                    <Text style={{ fontSize: 17, fontWeight: '500', lineHeight: 24, color: theme.textPrimary }}>
-                                        {prepared.operation.comment}
-                                    </Text>
-                                </View>
-                            </View>
-                        </>
-                    )}
-                </>
+                            </>
+                        )}
+                    </>
+                </Animated.View>
             )}
         </ItemCollapsible>
     );
@@ -369,9 +339,9 @@ export const PreviewMessages = memo(({
     theme,
     addressBook
 }: {
-    outMessages: MessageRelaxed[],
+    outMessages: StoredMessage[],
     theme: ThemeType,
-    addressBook: AddressBook
+    addressBook: AddressBook,
 }) => {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);

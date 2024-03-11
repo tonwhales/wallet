@@ -1,8 +1,8 @@
-import React from "react";
+import React, { memo } from "react";
 import { Image } from 'react-native';
-import { KnownWallet } from "../secure/KnownWallets";
+import { KnownWallet } from "../../secure/KnownWallets";
 
-export const KnownAvatar = React.memo((props: { size: number, wallet: KnownWallet }) => {
+export const KnownAvatar = memo((props: { size: number, wallet: KnownWallet }) => {
     return (
         <Image
             style={{

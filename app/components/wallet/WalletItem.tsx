@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
 import { Pressable, View, Text } from "react-native";
-import { Avatar, avatarColors } from "../Avatar";
+import { Avatar, avatarColors } from "../avatar/Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";

@@ -2,7 +2,7 @@ import { ForwardedRef, RefObject, forwardRef, memo, useCallback, useEffect } fro
 import { Platform, Pressable, View, Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Address } from "@ton/core";
-import { Avatar, avatarColors } from "../Avatar";
+import { Avatar, avatarColors } from "../avatar/Avatar";
 import { AddressDomainInput } from "./AddressDomainInput";
 import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";

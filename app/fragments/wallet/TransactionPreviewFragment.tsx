@@ -7,7 +7,7 @@ import { useParams } from "../../utils/useParams";
 import { valueText } from "../../components/ValueComponent";
 import { formatDate, formatTime } from "../../utils/dates";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { Avatar, avatarColors } from "../../components/Avatar";
+import { Avatar, avatarColors } from "../../components/avatar/Avatar";
 import { t } from "../../i18n/t";
 import { KnownJettonMasters, KnownWallet, KnownWallets } from "../../secure/KnownWallets";
 import { RoundButton } from "../../components/RoundButton";
@@ -36,6 +36,7 @@ import { TxInfo } from "./views/preview/TxInfo";
 import { AddressComponent } from "../../components/address/AddressComponent";
 import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
+import { Ionicons } from '@expo/vector-icons';
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -234,27 +235,52 @@ const TransactionPreview = () => {
                     justifyContent: 'center', alignItems: 'center'
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
-                    <Avatar
-                        size={68}
-                        id={opAddressBounceable}
-                        address={opAddressBounceable}
-                        spam={spam}
-                        showSpambadge
-                        verified={verified}
-                        borderWith={2.5}
-                        borderColor={theme.surfaceOnElevation}
-                        backgroundColor={avatarColor}
-                        markContact={!!contact}
-                        icProps={{
-                            isOwn: isOwn,
-                            borderWidth: 2,
-                            position: 'bottom',
-                            size: 28
-                        }}
-                        theme={theme}
-                        isTestnet={isTestnet}
-                        hash={opAddressWalletSettings?.avatar}
-                    />
+                    {tx.outMessagesCount > 1 ? (
+                        <PerfView style={{
+                            height: 68,
+                            width: 68,
+                            backgroundColor: theme.surfaceOnElevation,
+                            borderRadius: 68,
+                            justifyContent: 'center', alignItems: 'center',
+                        }}>
+                            <PerfView style={{
+                                height: 65,
+                                width: 65,
+                                backgroundColor: avatarColor,
+                                borderRadius: 65,
+                                justifyContent: 'center', alignItems: 'center',
+                                paddingTop: 8
+                            }}>
+                                <Ionicons
+                                    name="git-network-outline"
+                                    size={42}
+                                    color="black"
+                                />
+                            </PerfView>
+                        </PerfView>
+                    ) : (
+                        <Avatar
+                            size={68}
+                            id={opAddressBounceable}
+                            address={opAddressBounceable}
+                            spam={spam}
+                            showSpambadge
+                            verified={verified}
+                            borderWith={2.5}
+                            borderColor={theme.surfaceOnElevation}
+                            backgroundColor={avatarColor}
+                            markContact={!!contact}
+                            icProps={{
+                                isOwn: isOwn,
+                                borderWidth: 2,
+                                position: 'bottom',
+                                size: 28
+                            }}
+                            theme={theme}
+                            isTestnet={isTestnet}
+                            hash={opAddressWalletSettings?.avatar}
+                        />
+                    )}
                     <PerfText
                         style={[
                             {
@@ -351,11 +377,54 @@ const TransactionPreview = () => {
                     )}
                 </PerfView>
                 {tx.outMessagesCount > 1 ? (
-                    <PreviewMessages
-                        outMessages={messages}
-                        theme={theme}
-                        addressBook={addressBook.state}
-                    />
+                    <>
+                        <PreviewMessages
+                            outMessages={messages}
+                            theme={theme}
+                            addressBook={addressBook.state}
+                        />
+                        <ItemGroup style={{ marginTop: 16 }}>
+                            <TxInfo
+                                lt={tx.base.lt}
+                                address={address?.toString({ testOnly: isTestnet }) || ''}
+                                hash={tx.base.hash}
+                                toaster={toaster}
+                                theme={theme}
+                                isTestnet={isTestnet}
+                            />
+                        </ItemGroup>
+                        <PerfView style={{
+                            backgroundColor: theme.surfaceOnElevation,
+                            padding: 20, borderRadius: 20,
+                            marginTop: 16,
+                            flexDirection: 'row',
+                            justifyContent: 'space-between', alignItems: 'center'
+                        }}>
+                            <PerfView>
+                                <PerfText
+                                    style={[{ color: theme.textSecondary, marginBottom: 2 }, Typography.regular13_18]}>
+                                    {t('txPreview.blockchainFee')}
+                                </PerfText>
+                                <PerfText style={[{ color: theme.textPrimary }, Typography.regular17_24]}>
+                                    {tx.base.fees
+                                        ? <>
+                                            {`${formatAmount(fromNano(fees))}`}
+                                            <PerfText style={{ color: theme.textSecondary }}>
+                                                {` ${feesPrise}`}
+                                            </PerfText>
+                                        </>
+                                        : '...'
+                                    }
+                                </PerfText>
+                            </PerfView>
+                            <AboutIconButton
+                                title={t('txPreview.blockchainFee')}
+                                description={t('txPreview.blockchainFeeDescription')}
+                                style={{ height: 24, width: 24, position: undefined, marginRight: 8 }}
+                                size={24}
+                            />
+                        </PerfView>
+                    </>
                 ) : (
                     <>
                         {!(dontShowComments && isSpam) && (!!operation.comment) && (

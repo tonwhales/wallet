@@ -2,7 +2,7 @@ import React from "react";
 import { memo, useCallback } from "react";
 import { Pressable, View, Text, Image, Platform } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Avatar, avatarColors } from "../../../components/Avatar";
+import { Avatar, avatarColors } from "../../../components/avatar/Avatar";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { getAppState } from "../../../storage/appState";
 import { resolveUrl } from "../../../utils/resolveUrl";

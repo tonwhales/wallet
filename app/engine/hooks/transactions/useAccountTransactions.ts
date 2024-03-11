@@ -84,10 +84,6 @@ export function useAccountTransactions(account: string, refetchOnMount: boolean 
 
             const jettonMasterMetadata = jettonMasterAddress ? jettonMasterMetadatas.find(a => a.data?.address === jettonMasterAddress)?.data ?? null : null;
 
-            const outRelaxed = base.outMessages.map(m => (
-                { ...m, body: Cell.fromBoc(Buffer.from(m.body, 'base64'))[0] }
-            ) as MessageRelaxed);
-
             return ({
                 id: `${base.lt}_${base.hash}`,
                 base: base,
@@ -98,7 +94,7 @@ export function useAccountTransactions(account: string, refetchOnMount: boolean 
                 op: null,
                 title: null,
                 outMessagesCount: base.outMessagesCount,
-                outMessages: outRelaxed,
+                outMessages: base.outMessages,
             });
         }) || null;
     }, [baseTxs, metadatasMap, jettonMasterMetadatas]);

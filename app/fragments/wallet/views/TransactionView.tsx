@@ -2,15 +2,15 @@ import * as React from 'react';
 import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
-import { Avatar, avatarColors } from '../../../components/Avatar';
-import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
+import { Avatar, avatarColors } from '../../../components/avatar/Avatar';
+import { PendingTransactionAvatar } from '../../../components/avatar/PendingTransactionAvatar';
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
 import { TransactionDescription } from '../../../engine/types';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatTime } from '../../../utils/dates';
@@ -18,8 +18,67 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
+import { WalletSettings } from '../../../engine/state/walletSettings';
+import { Ionicons } from '@expo/vector-icons';
+import { BatchAvatars } from '../../../components/avatar/BatchAvatar';
+
+const TxAvatar = memo((
+    {
+        status,
+        parsedAddressFriendly,
+        kind,
+        spam,
+        isOwn,
+        theme,
+        isTestnet,
+        walletSettings,
+        markContact,
+        avatarColor
+    }: {
+        status: "failed" | "pending" | "success",
+        parsedAddressFriendly: string,
+        kind: "in" | "out",
+        spam: boolean,
+        isOwn: boolean,
+        theme: ThemeType,
+        isTestnet: boolean,
+        walletSettings?: WalletSettings,
+        markContact?: boolean,
+        avatarColor: string
+    }
+) => {
+    if (status === "pending") {
+        return (
+            <PendingTransactionAvatar
+                kind={kind}
+                address={parsedAddressFriendly}
+                avatarId={parsedAddressFriendly}
+            />
+        );
+    }
+
+    return (
+        <Avatar
+            size={48}
+            address={parsedAddressFriendly}
+            id={parsedAddressFriendly}
+            borderWith={0}
+            spam={spam}
+            markContact={markContact}
+            icProps={{
+                isOwn,
+                backgroundColor: theme.backgroundPrimary,
+                size: 18,
+                borderWidth: 2
+            }}
+            theme={theme}
+            isTestnet={isTestnet}
+            backgroundColor={avatarColor}
+            hash={walletSettings?.avatar}
+        />
+    );
+});
 
 export function TransactionView(props: {
     own: Address,
@@ -38,7 +97,8 @@ export function TransactionView(props: {
     isTestnet: boolean,
     spamWallets: string[],
     appState?: AppState,
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
 }) {
     const {
         theme,
@@ -60,13 +120,17 @@ export function TransactionView(props: {
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
-    const [walletSettings,] = useWalletSettings(parsedAddressFriendly);
+    const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     const contact = contacts[parsedAddressFriendly];
     const isSpam = !!denyList[parsedAddressFriendly]?.reason;
+
+    const ourMsgs = useMemo(() => {
+
+    }, [tx.outMessages]);
 
     // Operation
     const op = useMemo(() => {
@@ -139,30 +203,21 @@ export function TransactionView(props: {
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {parsed.status === 'pending' ? (
-                        <PendingTransactionAvatar
-                            kind={kind}
-                            address={parsedAddressFriendly}
-                            avatarId={parsedAddressFriendly}
+                    {tx.outMessagesCount > 1 ? (
+                        <BatchAvatars
                         />
                     ) : (
-                        <Avatar
-                            size={48}
-                            address={parsedAddressFriendly}
-                            id={parsedAddressFriendly}
-                            borderWith={0}
+                        <TxAvatar
+                            status={parsed.status}
+                            parsedAddressFriendly={parsedAddressFriendly}
+                            kind={kind}
                             spam={spam}
-                            markContact={!!contact}
-                            icProps={{
-                                isOwn,
-                                backgroundColor: theme.backgroundPrimary,
-                                size: 18,
-                                borderWidth: 2
-                            }}
+                            isOwn={isOwn}
                             theme={theme}
                             isTestnet={isTestnet}
-                            backgroundColor={avatarColor}
-                            hash={walletSettings?.avatar}
+                            walletSettings={walletSettings}
+                            markContact={!!contact}
+                            avatarColor={avatarColor}
                         />
                     )}
                 </PerfView>

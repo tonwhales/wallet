@@ -29,7 +29,7 @@ export const WalletAddress = memo((props: {
     previewBackgroundColor?: string,
     copyOnPress?: boolean,
     copyToastProps?: Omit<ToastProps, 'message' | 'type' | 'duration'>,
-    bounceable?: boolean,
+    bounceable?: boolean
 }) => {
     const toaster = useToaster();
     const network = useNetwork();
@@ -37,12 +37,9 @@ export const WalletAddress = memo((props: {
     const navigation = useTypedNavigation();
     const addToDenyList = useAddToDenyList();
     const [bounceableFormat,] = useBounceableWalletFormat();
-    const bounceable = useMemo(() => {
-        if (props.bounceable === undefined) {
-            return bounceableFormat;
-        }
-        return props.bounceable;
-    }, [bounceableFormat, props.bounceable]);
+    const bounceable = (props.bounceable === undefined)
+        ? bounceableFormat
+        : props.bounceable;
     const friendlyAddress = props.address.toString({ testOnly: network.isTestnet, bounceable });
 
     const onMarkAddressSpam = useCallback(async (addr: Address) => {

@@ -21,11 +21,9 @@ export const ContactItemView = memo(({ addressFriendly, action }: { addressFrien
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
-    const bounceable = useMemo(() => {
-        return (contractInfo?.kind === 'wallet')
-            ? bounceableFormat
-            : true;
-    }, [contractInfo, bounceableFormat]);
+    const bounceable = (contractInfo?.kind === 'wallet')
+        ? bounceableFormat
+        : true;
 
     const lastName = useMemo(() => {
         if (contact?.fields) {

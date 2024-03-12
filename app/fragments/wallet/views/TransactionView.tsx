@@ -21,7 +21,7 @@ import { Typography } from '../../../components/styles';
 import { avatarHash } from '../../../utils/avatarHash';
 import { WalletSettings } from '../../../engine/state/walletSettings';
 import { Ionicons } from '@expo/vector-icons';
-import { BatchAvatars } from '../../../components/avatar/BatchAvatar';
+import { BatchAvatars } from '../../../components/avatar/BatchAvatars';
 
 const TxAvatar = memo((
     {
@@ -128,10 +128,6 @@ export function TransactionView(props: {
     const contact = contacts[parsedAddressFriendly];
     const isSpam = !!denyList[parsedAddressFriendly]?.reason;
 
-    const ourMsgs = useMemo(() => {
-
-    }, [tx.outMessages]);
-
     // Operation
     const op = useMemo(() => {
         if (operation.op) {
@@ -205,6 +201,23 @@ export function TransactionView(props: {
                 }}>
                     {tx.outMessagesCount > 1 ? (
                         <BatchAvatars
+                            messages={tx.outMessages}
+                            size={46}
+                            icProps={{
+                                backgroundColor: theme.backgroundPrimary,
+                                size: 18,
+                                borderWidth: 2
+                            }}
+                            theme={theme}
+                            isTestnet={isTestnet}
+                            denyList={denyList}
+                            contacts={contacts}
+                            spamWallets={spamWallets}
+                            ownAccounts={props.appState?.addresses ?? []}
+                            walletsSettings={props.walletsSettings}
+                            backgroundColor={theme.surfaceOnBg}
+                            borderColor={theme.surfaceOnBg}
+                            borderWidth={0}
                         />
                     ) : (
                         <TxAvatar

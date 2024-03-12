@@ -17,9 +17,8 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useNetwork, usePrice, useSelectedAccount, useServerConfig, useSpamMinAmount, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
-import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
 import { BigMath } from "../../utils/BigMath";
 import { useLedgerTransport } from "../ledger/components/TransportContext";
@@ -36,7 +35,7 @@ import { TxInfo } from "./views/preview/TxInfo";
 import { AddressComponent } from "../../components/address/AddressComponent";
 import { avatarHash } from "../../utils/avatarHash";
 import { PreviewMessages } from "./views/preview/PreviewMessages";
-import { Ionicons } from '@expo/vector-icons';
+import { BatchAvatars } from "../../components/avatar/BatchAvatars";
 
 const TransactionPreview = () => {
     const theme = useTheme();
@@ -83,8 +82,9 @@ const TransactionPreview = () => {
     const parsedAddress = parsedOpAddr.address;
     const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
 
-    const [ownWalletSettings,] = useWalletSettings(opAddressBounceable);
-    const [opAddressWalletSettings,] = useWalletSettings(opAddressBounceable);
+    const [walletsSettings,] = useWalletsSettings();
+    const ownWalletSettings = walletsSettings[opAddressBounceable];
+    const opAddressWalletSettings = walletsSettings[opAddressBounceable];
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -150,7 +150,8 @@ const TransactionPreview = () => {
         known = { name: opAddressWalletSettings.name }
     }
 
-    let spam = useIsSpamWallet(opAddressBounceable)
+    const config = useServerConfig().data;
+    const spam = config?.wallets?.spam?.includes(opAddressBounceable)
         || isSpam
         || (
             BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
@@ -236,28 +237,25 @@ const TransactionPreview = () => {
                 }}>
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     {tx.outMessagesCount > 1 ? (
-                        <PerfView style={{
-                            height: 68,
-                            width: 68,
-                            backgroundColor: theme.surfaceOnElevation,
-                            borderRadius: 68,
-                            justifyContent: 'center', alignItems: 'center',
-                        }}>
-                            <PerfView style={{
-                                height: 65,
-                                width: 65,
-                                backgroundColor: avatarColor,
-                                borderRadius: 65,
-                                justifyContent: 'center', alignItems: 'center',
-                                paddingTop: 8
-                            }}>
-                                <Ionicons
-                                    name="git-network-outline"
-                                    size={42}
-                                    color="black"
-                                />
-                            </PerfView>
-                        </PerfView>
+                        <BatchAvatars
+                            messages={tx.outMessages}
+                            size={68}
+                            icProps={{
+                                size: 28,
+                                borderWidth: 2,
+                                position: 'bottom'
+                            }}
+                            showSpambadge
+                            theme={theme}
+                            isTestnet={isTestnet}
+                            denyList={addressBook.state.denyList}
+                            contacts={addressBook.state.contacts}
+                            spamWallets={config?.wallets?.spam ?? []}
+                            ownAccounts={appState.addresses}
+                            walletsSettings={walletsSettings}
+                            backgroundColor={theme.surfaceOnBg}
+                            borderWidth={2.5}
+                        />
                     ) : (
                         <Avatar
                             size={68}
@@ -334,55 +332,55 @@ const TransactionPreview = () => {
                             {t('tx.failed')}
                         </PerfText>
                     ) : (
-                        <>
-                            <Text
-                                minimumFontScale={0.4}
-                                adjustsFontSizeToFit={true}
-                                numberOfLines={1}
-                                style={[
-                                    {
-                                        color: kind === 'in'
-                                            ? spam
-                                                ? theme.textPrimary
-                                                : theme.accentGreen
-                                            : theme.textPrimary,
-                                        marginTop: 12,
-                                    },
-                                    Typography.semiBold27_32
-                                ]}
-                            >
-                                {tx.outMessagesCount > 1 ? (
-                                    `${tx.outMessagesCount} ${t('common.messages').toLowerCase()}`
-                                ) : (
-                                    `${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`
+                        tx.outMessagesCount > 1 ? (null) : (
+                            <>
+                                <Text
+                                    minimumFontScale={0.4}
+                                    adjustsFontSizeToFit={true}
+                                    numberOfLines={1}
+                                    style={[
+                                        {
+                                            color: kind === 'in'
+                                                ? spam
+                                                    ? theme.textPrimary
+                                                    : theme.accentGreen
+                                                : theme.textPrimary,
+                                            marginTop: 12,
+                                        },
+                                        Typography.semiBold27_32
+                                    ]}
+                                >
+                                    {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                                </Text>
+                                {item.kind === 'ton' && tx.outMessagesCount <= 1 && (
+                                    <PriceComponent
+                                        style={{
+                                            backgroundColor: theme.transparent,
+                                            paddingHorizontal: 0,
+                                            alignSelf: 'center',
+                                            paddingVertical: 0,
+                                            height: 'auto',
+                                            paddingLeft: 0
+                                        }}
+                                        theme={theme}
+                                        prefix={kind === 'in' ? '+' : ''}
+                                        textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
+                                        amount={BigInt(item.amount)}
+                                    />
                                 )}
-                            </Text>
-                            {item.kind === 'ton' && tx.outMessagesCount <= 1 && (
-                                <PriceComponent
-                                    style={{
-                                        backgroundColor: theme.transparent,
-                                        paddingHorizontal: 0,
-                                        alignSelf: 'center',
-                                        paddingVertical: 0,
-                                        height: 'auto',
-                                        paddingLeft: 0
-                                    }}
-                                    theme={theme}
-                                    prefix={kind === 'in' ? '+' : ''}
-                                    textStyle={[{ color: theme.textSecondary }, Typography.regular17_24]}
-                                    amount={BigInt(item.amount)}
-                                />
-                            )}
-                        </>
+                            </>
+                        )
                     )}
                 </PerfView>
                 {tx.outMessagesCount > 1 ? (
                     <>
-                        <PreviewMessages
-                            outMessages={messages}
-                            theme={theme}
-                            addressBook={addressBook.state}
-                        />
+                        <PerfView style={{ marginTop: 16 }}>
+                            <PreviewMessages
+                                outMessages={messages}
+                                theme={theme}
+                                addressBook={addressBook.state}
+                            />
+                        </PerfView>
                         <ItemGroup style={{ marginTop: 16 }}>
                             <TxInfo
                                 lt={tx.base.lt}

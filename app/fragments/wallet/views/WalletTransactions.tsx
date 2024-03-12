@@ -225,7 +225,9 @@ export const WalletTransactions = memo((props: {
         const handleAction = (eN?: number) => {
             switch (eN) {
                 case 1: {
-                    onShare(addressLink, t('txActions.share.address'));
+                    if (explorerTxLink) {
+                        onShare(explorerTxLink, t('txActions.share.transaction'));
+                    }
                     break;
                 }
                 case 2: {
@@ -233,9 +235,7 @@ export const WalletTransactions = memo((props: {
                     break;
                 }
                 case 3: {
-                    if (explorerTxLink) {
-                        onShare(explorerTxLink, t('txActions.share.transaction'));
-                    }
+                    onShare(addressLink, t('txActions.share.address'));
                     break;
                 }
                 case 4: {
@@ -258,11 +258,14 @@ export const WalletTransactions = memo((props: {
         }
 
         const actionSheetOptions: ActionSheetOptions = {
-            options: [
+            options: tx.outMessagesCount > 1 ? [
                 t('common.cancel'),
-                t('txActions.addressShare'),
-                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
                 t('txActions.txShare'),
+            ] : [
+                t('common.cancel'),
+                t('txActions.txShare'),
+                !!contact ? t('txActions.addressContactEdit') : t('txActions.addressContact'),
+                t('txActions.addressShare'),
                 ...(!spam ? [t('txActions.addressMarkSpam')] : []),
                 ...(canRepeat ? [t('txActions.txRepeat')] : []),
             ],

@@ -1,5 +1,4 @@
 import { memo, useMemo } from "react";
-import { View } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
 import { Avatar, AvatarIcProps, avatarColors } from "./Avatar";
 import { PerfView } from "../basic/PerfView";
@@ -9,10 +8,9 @@ import { AddressContact } from "../../engine/hooks/contacts/useAddressBook";
 import { Address, Cell } from "@ton/core";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { StoredMessage } from "../../engine/types/transactions";
-import { useAccountLite, useContractMetadata } from "../../engine/hooks";
 import { resolveOperation } from "../../engine/transactions/resolveOperation";
 import { parseBody } from "../../engine/transactions/parseWalletTransaction";
-import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
+import { SelectedAccount } from "../../engine/types";
 
 export const BatchAvatar = memo(({
     message,
@@ -20,12 +18,13 @@ export const BatchAvatar = memo(({
     icProps,
     theme,
     isTestnet,
-    borderWith,
+    borderWidth,
     walletsSettings,
     denyList,
     contacts,
     spamWallets,
-    showSpambadge
+    showSpambadge,
+    ownAccounts
 }: {
     message: StoredMessage,
     size: number,
@@ -33,18 +32,16 @@ export const BatchAvatar = memo(({
     theme: ThemeType,
     isTestnet: boolean,
     borderColor?: string,
-    borderWith?: number,
+    borderWidth?: number,
     backgroundColor?: string,
     walletsSettings?: { [key: string]: WalletSettings },
     denyList: { [key: string]: { reason: string | null } },
     contacts: { [key: string]: AddressContact },
     spamWallets: string[],
-    showSpambadge?: boolean
+    showSpambadge?: boolean,
+    ownAccounts: SelectedAccount[]
 }) => {
     const addressString = message.info.type === 'internal' ? message.info.dest : null;
-    const metadata = useContractMetadata(addressString);
-    // const account = useAccountLite(addressString);
-    // const contractInfo = useContractInfo(addressString);
 
     const address = useMemo(() => {
         if (!addressString) {
@@ -69,16 +66,15 @@ export const BatchAvatar = memo(({
         return null;
     }
 
+    // to get jetton destination address
     const operation = resolveOperation({
         body: body,
         amount: amount,
         account: address,
     }, isTestnet);
 
-
     const friendlyTarget = operation.address;
     const target = Address.parse(friendlyTarget);
-    // const bounceable = contractInfo?.kind !== 'wallet';
     const opAddressBounceable = target.toString({ testOnly: isTestnet });
     const verified = !!KnownJettonMasters(isTestnet)[opAddressBounceable];
     const walletSettings = walletsSettings?.[opAddressBounceable];
@@ -86,20 +82,17 @@ export const BatchAvatar = memo(({
     const avatarColor = avatarColors[avatarColorHash];
     const spam = !!denyList[opAddressBounceable] || spamWallets.includes(addressString);
     const contact = contacts[opAddressBounceable];
-
-    if (message.info.type !== 'internal') {
-        return null;
-    }
+    const isOwn = !!ownAccounts.find((a) => a.address.equals(target));
 
     return (
         <Avatar
             size={size}
             address={opAddressBounceable}
             id={opAddressBounceable}
-            borderWith={borderWith}
+            borderWith={borderWidth}
             spam={spam}
             markContact={!!contact}
-            icProps={icProps}
+            icProps={{ ...icProps, isOwn }}
             theme={theme}
             isTestnet={isTestnet}
             backgroundColor={avatarColor}
@@ -117,13 +110,14 @@ export const BatchAvatars = memo(({
     theme,
     isTestnet,
     borderColor,
-    borderWith,
+    borderWidth,
     backgroundColor,
     walletsSettings,
     denyList,
     contacts,
     spamWallets,
-    showSpambadge
+    showSpambadge,
+    ownAccounts
 }: {
     messages: StoredMessage[],
     size: number,
@@ -131,52 +125,67 @@ export const BatchAvatars = memo(({
     theme: ThemeType,
     isTestnet: boolean,
     borderColor?: string,
-    borderWith?: number,
+    borderWidth?: number,
     backgroundColor?: string,
     walletsSettings?: { [key: string]: WalletSettings },
     denyList: { [key: string]: { reason: string | null } },
     contacts: { [key: string]: AddressContact },
     spamWallets: string[],
-    showSpambadge?: boolean
+    showSpambadge?: boolean,
+    ownAccounts: SelectedAccount[]
 }) => {
 
     if (messages.length <= 1) {
         return null;
     }
 
-    const innerSize = size - (borderWith ?? 0) * 2;
+    const innerSize = size - (borderWidth ?? 2);
+    let avatarSizeCoefficient = 2;
+    if (messages.length === 3) {
+        avatarSizeCoefficient = 2.3;
+    } else if (messages.length === 4) {
+        avatarSizeCoefficient = 2.6;
+    }
+    const avatarSize = (innerSize) / avatarSizeCoefficient;
 
     return (
         <PerfView style={{
             backgroundColor: borderColor ?? theme.surfaceOnElevation,
             height: size,
             width: size,
-            borderRadius: Math.floor(size / 2)
+            borderRadius: size,
+            justifyContent: 'center', alignItems: 'center',
+            overflow: 'hidden'
         }}>
             <PerfView style={{
                 height: innerSize,
                 width: innerSize,
-                borderRadius: Math.floor(size / 2),
+                borderRadius: innerSize / 2,
+                overflow: 'hidden',
                 backgroundColor: backgroundColor ?? theme.backgroundPrimary,
-                flexDirection: 'row',
-                flexWrap: 'wrap'
+                display: 'flex', flexDirection: 'row', flexWrap: 'wrap',
+                alignItems: 'center', justifyContent: 'center', alignContent: 'center',
+                paddingTop: messages.length === 3 ? size * 0.07 : 0
             }}>
                 {messages.map((message, index) => {
                     return (
-                        <BatchAvatar
-                            key={index}
-                            message={message}
-                            size={innerSize / 2}
-                            icProps={icProps}
-                            theme={theme}
-                            isTestnet={isTestnet}
-                            borderWith={borderWith}
-                            walletsSettings={walletsSettings}
-                            denyList={denyList}
-                            contacts={contacts}
-                            spamWallets={spamWallets}
-                            showSpambadge={showSpambadge}
-                        />
+                        <PerfView style={{ marginTop: messages.length === 3 ? -size * 0.056 : 0 }}>
+                            <BatchAvatar
+                                key={`batch-avatar-${index}`}
+                                message={message}
+                                size={avatarSize}
+                                icProps={icProps}
+                                theme={theme}
+                                isTestnet={isTestnet}
+                                borderWidth={0}
+                                walletsSettings={walletsSettings}
+                                denyList={denyList}
+                                contacts={contacts}
+                                spamWallets={spamWallets}
+                                showSpambadge={showSpambadge}
+                                ownAccounts={ownAccounts}
+                            />
+                        </PerfView>
                     );
                 })}
             </PerfView>

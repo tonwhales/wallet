@@ -1,4 +1,4 @@
-import React, { memo, useMemo } from "react";
+import React, { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
@@ -38,7 +38,11 @@ export const AddressSearchItemView = memo(({
 
     return (
         <Pressable
-            onPress={() => onPress ? onPress(item) : undefined}
+            onPress={
+                () => onPress
+                    ? onPress({ ...item, addr: { ...item.addr, isBounceable: bounceable } })
+                    : undefined
+            }
             onPressIn={onPressIn}
             onPressOut={onPressOut}
         >

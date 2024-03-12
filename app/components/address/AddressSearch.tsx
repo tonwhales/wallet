@@ -216,7 +216,7 @@ export const AddressSearch = memo(({
                                     walletsSettings={walletsSettings}
                                     onPress={onSelect}
                                 />
-                            )
+                            );
                         })}
                     </View>
                 </View>

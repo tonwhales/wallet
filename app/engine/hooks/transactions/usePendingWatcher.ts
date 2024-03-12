@@ -1,6 +1,6 @@
 import { useAccountLite } from "../accounts/useAccountLite";
 import { useSelectedAccount } from "../appstate/useSelectedAccount";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { useClient4, useNetwork } from '../network';
 import { useWalletV4 } from '../accounts/useWalletV4';

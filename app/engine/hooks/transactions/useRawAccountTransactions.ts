@@ -9,6 +9,7 @@ import { storage } from '../../../storage/storage';
 import { queryClient } from '../../clients';
 import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
+import { log } from '../../../utils/log';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -248,6 +249,8 @@ export function useRawAccountTransactions(account: string, refetchOnMount: boole
                 lt = accountLite.account.last.lt;
                 hash = accountLite.account.last.hash;
             }
+
+            log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             let txs = await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
 

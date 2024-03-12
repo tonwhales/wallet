@@ -29,7 +29,7 @@ export function useAccountLite(address?: string | Address | null, options: { ref
         }
         return address;
     }, [address, isTestnet]);
-    
+
     let query = useQuery({
         queryKey: Queries.Account(addressString).Lite(),
         refetchOnMount: options.refetchOnMount,

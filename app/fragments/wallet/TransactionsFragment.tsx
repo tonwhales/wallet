@@ -29,7 +29,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const { isTestnet } = useNetwork();
     const address = props.account;
     const theme = props.theme
-    const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), true);
+    const txs = useAccountTransactions(address.toString({ testOnly: isTestnet }), { refetchOnMount: true });
     const holdersAccounts = useHoldersAccounts(address).data;
     const holdersCards = holdersAccounts?.type === 'private'
         ? ((holdersAccounts?.accounts ?? []) as HoldersAccount[]).map((a) => a.cards).flat()

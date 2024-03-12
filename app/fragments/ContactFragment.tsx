@@ -53,7 +53,7 @@ export const ContactFragment = fragment(() => {
     const contractInfo = useContractInfo(params.address ?? '');
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const addressString = useMemo(() => {
+    const shortAddressStr = useMemo(() => {
         if (!parsed || params.isNew) {
             return null;
         }
@@ -318,7 +318,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {addressString}
+                                        {shortAddressStr}
                                     </Text>
                                     <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
                                 </Pressable>
@@ -476,7 +476,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {addressString}
+                                        {shortAddressStr}
                                     </Text>
                                 </View>
                             )}

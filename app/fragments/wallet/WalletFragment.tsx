@@ -321,7 +321,6 @@ const skeleton = (
 )
 
 export const WalletFragment = fragment(() => {
-    const { isTestnet } = useNetwork();
     const selectedAcc = useSelectedAccount();
     const accountLite = useAccountLite(selectedAcc?.address);
 

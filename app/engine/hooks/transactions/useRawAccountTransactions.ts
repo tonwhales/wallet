@@ -9,6 +9,8 @@ import { storage } from '../../../storage/storage';
 import { queryClient } from '../../clients';
 import { useClient4, useNetwork } from '..';
 import { getLastBlock } from '../../accountWatcher';
+import { log } from '../../../utils/log';
+import { useEffect } from 'react';
 
 function externalAddressToStored(address?: ExternalAddress | null) {
     if (!address) {
@@ -200,7 +202,7 @@ const TRANSACTIONS_LENGTH = 16;
 const currentTransactionsVersion = 1;
 const transactionsKey = (account: string) => `transactions-version-${account}`;
 
-function invalidateTransactions(account: string) {
+function invalidateTransactionsIfVersionChanged(account: string) {
     const key = transactionsKey(account);
     const lastVersion = storage.getNumber(key);
 
@@ -210,15 +212,17 @@ function invalidateTransactions(account: string) {
     }
 }
 
-export function useRawAccountTransactions(account: string, refetchOnMount: boolean = false) {
+export function useRawAccountTransactions(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }) {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
 
-    invalidateTransactions(account);
+    useEffect(() => {
+        invalidateTransactionsIfVersionChanged(account);
+    }, [account]);
 
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),
-        refetchOnMount: refetchOnMount,
+        refetchOnMount: options.refetchOnMount,
         getNextPageParam: (last) => {
             if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;
@@ -248,6 +252,8 @@ export function useRawAccountTransactions(account: string, refetchOnMount: boole
                 lt = accountLite.account.last.lt;
                 hash = accountLite.account.last.hash;
             }
+
+            log(`[txns-query] fetching ${lt}_${hash} ${sliceFirst ? 'sliceFirst' : ''}`);
 
             let txs = await fetchAccountTransactions(accountAddr, isTestnet, { lt, hash });
 

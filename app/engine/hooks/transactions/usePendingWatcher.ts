@@ -1,6 +1,6 @@
 import { useAccountLite } from "../accounts/useAccountLite";
 import { useSelectedAccount } from "../appstate/useSelectedAccount";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { useRawAccountTransactions } from './useRawAccountTransactions';
 import { useClient4, useNetwork } from '../network';
 import { useWalletV4 } from '../accounts/useWalletV4';
@@ -14,11 +14,9 @@ export function usePendingWatcher() {
 
     const v4 = useWalletV4(client, account?.addressString || '');
     const lite = useAccountLite(account?.address || null);
-    const firstTransaction = useRawAccountTransactions(account?.addressString || '', true).data?.pages[0]?.[0];
+    const firstTransaction = useRawAccountTransactions(account?.addressString || '', { refetchOnMount: true }).data?.pages[0]?.[0];
 
-    const txsInSync = useMemo(() => {
-        return firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
-    }, [firstTransaction, lite, v4.data]);
+    const txsInSync = firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
 
     useEffect(() => {
         // transactions are not in sync - skip

@@ -31,18 +31,20 @@ export const NewAddressFormatFragment = fragment(() => {
         }
     }, [selectedAccount, network.isTestnet]);
 
-    const switchFormat = useCallback(async () => {
+    const onFormatSwitch = useCallback(() => {
         // Prefetch contacts contract info for current account at least
-        Object.keys(contacts).forEach((contactEntrie) => {
-            if (!queryClient.getQueryData(Queries.ContractInfo(contactEntrie[0]))) {
-                queryClient.prefetchQuery(Queries.ContractInfo(contactEntrie[0]));
+        Object.keys(contacts).forEach((contractEntry) => {
+            if (!queryClient.getQueryData(Queries.ContractInfo(contractEntry[0]))) {
+                queryClient.prefetchQuery(Queries.ContractInfo(contractEntry[0]));
             }
         });
+    }, [contacts]);
 
-        // Switch the format
-        setBounceableFormat(!bounceableFormat);
+    const switchFormat = useCallback(async () => {
+        setBounceableFormat((prevFormat) => !prevFormat);
+        onFormatSwitch();
         navigation.goBack();
-    }, [bounceableFormat, setBounceableFormat, contacts]);
+    }, [setBounceableFormat, onFormatSwitch]);
 
     return (
         <View style={{

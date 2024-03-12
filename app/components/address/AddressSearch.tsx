@@ -3,7 +3,7 @@ import { memo, useMemo } from "react";
 import { AddressSearchItemView } from "./AddressSearchItemView";
 import { Platform, Text, View } from "react-native";
 import { Address } from "@ton/core";
-import { useAccountTransactions, useClient4, useNetwork, useBounceableWalletFormat, useTheme, useWalletsSettings } from "../../engine/hooks";
+import { useAccountTransactions, useNetwork, useBounceableWalletFormat, useTheme, useWalletsSettings } from "../../engine/hooks";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { t } from "../../i18n/t";
 import { useAddressBookContext } from "../../engine/AddressBookContext";
@@ -41,12 +41,11 @@ export const AddressSearch = memo(({
     const network = useNetwork();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
-    const client = useClient4(network.isTestnet);
     const knownWallets = KnownWallets(network.isTestnet);
     const [walletsSettings,] = useWalletsSettings();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const txs = useAccountTransactions(client, account.toString({ testOnly: network.isTestnet })).data;
+    const txs = useAccountTransactions(account.toString({ testOnly: network.isTestnet })).data;
 
     const lastTxs = useMemo(() => {
         // first two txs

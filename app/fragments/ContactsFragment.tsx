@@ -8,7 +8,7 @@ import { fragment } from "../fragment";
 import { t } from "../i18n/t";
 import { useTypedNavigation } from "../utils/useTypedNavigation";
 import LottieView from 'lottie-react-native';
-import { useClient4, useNetwork, useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
+import { useSelectedAccount, useTheme, useAccountTransactions } from '../engine/hooks';
 import { ScreenHeader, useScreenHeader } from "../components/ScreenHeader";
 import { ContactTransactionView } from "../components/Contacts/ContactTransactionView";
 import { useParams } from "../utils/useParams";
@@ -23,16 +23,14 @@ const EmptyIllustrations = {
 
 export const ContactsFragment = fragment(() => {
     const navigation = useTypedNavigation();
-    const { isTestnet } = useNetwork();
     const { callback } = useParams<{ callback?: (address: Address) => void }>();
     const theme = useTheme();
     const safeArea = useSafeAreaInsets();
     const addressBook = useAddressBookContext().state;
     const contacts = addressBook.contacts;
     const account = useSelectedAccount();
-    const client = useClient4(isTestnet);
     const dimensions = useDimensions();
-    const transactions = useAccountTransactions(client, account?.addressString ?? '').data ?? [];
+    const transactions = useAccountTransactions(account?.addressString ?? '').data ?? [];
 
     const [search, setSearch] = useState('');
     const [searchFocused, setSearchFocused] = useState(false);

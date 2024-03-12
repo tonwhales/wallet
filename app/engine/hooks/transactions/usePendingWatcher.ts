@@ -14,7 +14,7 @@ export function usePendingWatcher() {
 
     const v4 = useWalletV4(client, account?.addressString || '');
     const lite = useAccountLite(account?.address || null);
-    const firstTransaction = useRawAccountTransactions(account?.addressString || '', true).data?.pages[0]?.[0];
+    const firstTransaction = useRawAccountTransactions(account?.addressString || '', { refetchOnMount: true }).data?.pages[0]?.[0];
 
     const txsInSync = firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
 

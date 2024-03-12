@@ -212,7 +212,7 @@ function invalidateTransactionsIfVersionChanged(account: string) {
     }
 }
 
-export function useRawAccountTransactions(account: string, refetchOnMount: boolean = false) {
+export function useRawAccountTransactions(account: string, options: { refetchOnMount: boolean } = { refetchOnMount: false }) {
     const { isTestnet } = useNetwork();
     const client = useClient4(isTestnet);
 
@@ -222,7 +222,7 @@ export function useRawAccountTransactions(account: string, refetchOnMount: boole
 
     let query = useInfiniteQuery<StoredTransaction[]>({
         queryKey: Queries.Transactions(account),
-        refetchOnMount: refetchOnMount,
+        refetchOnMount: options.refetchOnMount,
         getNextPageParam: (last) => {
             if (!last || !last[TRANSACTIONS_LENGTH - 2]) {
                 return undefined;

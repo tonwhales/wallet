@@ -16,9 +16,7 @@ export function usePendingWatcher() {
     const lite = useAccountLite(account?.address || null);
     const firstTransaction = useRawAccountTransactions(account?.addressString || '', true).data?.pages[0]?.[0];
 
-    const txsInSync = useMemo(() => {
-        return firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
-    }, [firstTransaction, lite, v4.data]);
+    const txsInSync = firstTransaction?.hash === lite?.last?.hash && (v4.data?.last || 0) >= (lite?.block || 0);
 
     useEffect(() => {
         // transactions are not in sync - skip

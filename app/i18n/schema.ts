@@ -688,7 +688,9 @@ export type LocalizationSchema = {
         token: string,
         productButtonTitle: string,
         productButtonSubtitle: string,
-        hidden: string
+        hidden: string,
+        liquidPoolDescriptionDedust: string
+        liquidPoolDescriptionStonFi: string
     },
     connections: {
         extensions: string,

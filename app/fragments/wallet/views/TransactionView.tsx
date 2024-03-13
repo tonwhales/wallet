@@ -9,7 +9,7 @@ import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
-import { TransactionDescription } from '../../../engine/types';
+import { Jetton, TransactionDescription } from '../../../engine/types';
 import { useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
@@ -37,7 +37,8 @@ export function TransactionView(props: {
     contacts: { [key: string]: AddressContact },
     isTestnet: boolean,
     spamWallets: string[],
-    appState?: AppState
+    appState?: AppState,
+    jettons: Jetton[]
 }) {
     const {
         theme,
@@ -57,6 +58,10 @@ export function TransactionView(props: {
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
     const [walletSettings,] = useWalletSettings(opAddress);
+    const jetton = props.jettons.find((j) =>
+        !!tx.metadata?.jettonWallet?.master
+        && j.master.equals(tx.metadata?.jettonWallet?.master)
+    );
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -115,9 +120,9 @@ export function TransactionView(props: {
     return (
         <Pressable
             onPress={() => props.onPress(props.tx)}
-            style={{ 
-                paddingHorizontal: 16, 
-                paddingVertical: 20, 
+            style={{
+                paddingHorizontal: 16,
+                paddingVertical: 20,
                 paddingBottom: operation.comment ? 0 : undefined
             }}
             onLongPress={() => props.onLongPress?.(props.tx)}
@@ -242,7 +247,7 @@ export function TransactionView(props: {
                                 centFontStyle={{ fontSize: 15 }}
                             />
                             <Text style={{ fontSize: 15 }}>
-                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                {item.kind === 'token' ? `${jetton?.symbol}` : ' TON'}
                             </Text>
                         </Text>
                     )}

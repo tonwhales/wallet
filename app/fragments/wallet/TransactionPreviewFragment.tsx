@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useDontShowComments, useIsSpamWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
@@ -65,6 +65,7 @@ const TransactionPreview = () => {
         }
     }, [ledgerContext?.addr?.address, selected]);
 
+    const jettons = useJettons(address!.toString({ testOnly: isTestnet }));
     const params = useParams<{ transaction: TransactionDescription }>();
 
     const tx = params.transaction;
@@ -105,7 +106,11 @@ const TransactionPreview = () => {
         );
     }, [price, currency, fees]);
 
-    let jetton = tx.masterMetadata;
+    let jetton = jettons.find((j) =>
+        !!tx.metadata?.jettonWallet?.master
+        && j.master.equals(tx.metadata?.jettonWallet?.master)
+    );
+
     let op: string;
     if (tx.op) {
         op = tx.op;
@@ -316,7 +321,7 @@ const TransactionPreview = () => {
                                     Typography.semiBold27_32
                                 ]}
                             >
-                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : (jetton?.symbol ? ' ' + jetton?.symbol : '')}`}
+                                {`${stringText[0]}${stringText[1]}${item.kind === 'ton' ? ' TON' : jetton?.symbol}`}
                             </Text>
                             {item.kind === 'ton' && (
                                 <PriceComponent

@@ -5,7 +5,7 @@ import { LoadingIndicator } from "../../components/LoadingIndicator";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { t } from "../../i18n/t";
-import { useHoldersAccounts, useTheme } from '../../engine/hooks';
+import { useHoldersAccounts, useJettons, useTheme } from '../../engine/hooks';
 import { useSelectedAccount } from '../../engine/hooks';
 import { useAccountTransactions } from '../../engine/hooks';
 import { useClient4 } from '../../engine/hooks';
@@ -31,6 +31,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
     const address = props.account;
     const theme = props.theme
     const client = useClient4(isTestnet);
+    const jettons = useJettons(address.toString({ testOnly: isTestnet }));
     const txs = useAccountTransactions(client, address.toString({ testOnly: isTestnet }));
     const holdersAccounts = useHoldersAccounts(address).data;
     const holdersCards = holdersAccounts?.type === 'private'
@@ -117,6 +118,7 @@ function TransactionsComponent(props: { account: Address, isLedger?: boolean, th
                                 ledger={props.isLedger}
                                 theme={theme}
                                 header={<PendingTransactions viewType={'history'} />}
+                                jettons={jettons}
                             />
                         )
                     } else {

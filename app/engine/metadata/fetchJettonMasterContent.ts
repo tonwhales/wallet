@@ -36,8 +36,7 @@ export type JettonMasterState = z.infer<typeof masterContentCodec>;
 
 export async function fetchJettonMasterContent(address: Address, isTestnet: boolean) {
     const res = await axios.get(
-        // `https://connect.tonhubapi.com/v2/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
-        `http://10.100.102.3:3000/v2/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
+        `https://connect.tonhubapi.com/v2/jettons/metadata?address=${address.toString({ testOnly: isTestnet })}`,
         { timeout: 5000 }
     );
 
@@ -51,6 +50,7 @@ export async function fetchJettonMasterContent(address: Address, isTestnet: bool
             });
             return null;
         }
+
         return parsed.data as JettonMasterState;
     }
 

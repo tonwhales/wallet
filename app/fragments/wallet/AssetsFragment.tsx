@@ -18,6 +18,7 @@ import { StatusBar } from "expo-status-bar";
 import { Platform } from "react-native";
 
 import TonIcon from '@assets/ic-ton-acc.svg';
+import { JettonIcon } from "../../components/products/JettonIcon";
 
 export const AssetsFragment = fragment(() => {
     const safeArea = useSafeAreaInsets();
@@ -164,27 +165,13 @@ export const AssetsFragment = fragment(() => {
                                 subtitle={j.description}
                                 onSelect={() => onSelected(j)}
                                 icon={
-                                    <View style={{ width: 46, height: 46 }}>
-                                        <WImage
-                                            src={j.icon ? j.icon : undefined}
-                                            width={46}
-                                            heigh={46}
-                                            borderRadius={23}
-                                        />
-                                        {verified && (
-                                            <View style={{
-                                                justifyContent: 'center', alignItems: 'center',
-                                                height: 20, width: 20, borderRadius: 10,
-                                                position: 'absolute', right: -2, bottom: -2,
-                                                backgroundColor: theme.surfaceOnBg
-                                            }}>
-                                                <Image
-                                                    source={require('@assets/ic-verified.png')}
-                                                    style={{ height: 20, width: 20 }}
-                                                />
-                                            </View>
-                                        )}
-                                    </View>
+                                    <JettonIcon
+                                        size={46}
+                                        jetton={j}
+                                        theme={theme}
+                                        isTestnet={network.isTestnet}
+                                        backgroundColor={theme.elevation}
+                                    />
                                 }
                                 hideSelection={!callback}
                                 selected={selected}

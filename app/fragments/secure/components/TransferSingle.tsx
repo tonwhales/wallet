@@ -43,7 +43,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
         job,
         fees,
         metadata,
-        jettonMaster,
+        jetton,
         callback,
         back
     } = props;
@@ -61,14 +61,14 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
 
     const jettonAmountString = useMemo(() => {
         try {
-            if (jettonMaster && order.messages[0].payload) {
+            if (jetton && order.messages[0].payload) {
                 const temp = order.messages[0].payload;
                 if (temp) {
                     const parsing = temp.beginParse();
                     parsing.skip(32);
                     parsing.skip(64);
                     const unformatted = parsing.loadCoins();
-                    return fromBnWithDecimals(unformatted, jettonMaster.decimals);
+                    return fromBnWithDecimals(unformatted, jetton.decimals);
                 }
             }
         } catch (e) {
@@ -158,8 +158,8 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             }
         }
         if (
-            jettonTarget && jettonMaster && jettonAmountString
-            && toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9) === 0n
+            jettonTarget && jetton && jettonAmountString
+            && toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9) === 0n
         ) {
             Alert.alert(t('transfer.error.zeroCoins'));
             return;
@@ -271,12 +271,12 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 : null
             );
 
-        if (jettonTarget && jettonMaster && jettonAmountString) {
+        if (jettonTarget && jetton && jettonAmountString) {
             body = {
                 type: 'token',
-                master: jettonMaster,
+                master: jetton,
                 target: jettonTarget.address,
-                amount: toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9),
+                amount: toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9),
                 comment: text,
             }
         }
@@ -312,7 +312,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
             jettonAmountString={jettonAmountString}
             target={target}
             fees={fees}
-            jettonMaster={jettonMaster}
+            jetton={jetton}
             doSend={doSend}
             walletSettings={walletSettings}
             text={text}

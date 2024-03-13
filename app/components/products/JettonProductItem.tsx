@@ -14,6 +14,7 @@ import { PriceComponent } from '../PriceComponent';
 import { fromNano, toNano } from '@ton/core';
 import { t } from '../../i18n/t';
 import { JettonIcon } from './JettonIcon';
+import { Typography } from '../styles';
 
 export const JettonProductItem = memo((props: {
     jetton: Jetton,
@@ -140,7 +141,7 @@ export const JettonProductItem = memo((props: {
                                 jetton={props.jetton}
                                 theme={theme}
                                 isTestnet={isTestnet}
-                                backgroundColor={theme.elevation}
+                                backgroundColor={theme.surfaceOnElevation}
                             />
                             <View style={{ marginLeft: 12, flex: 1 }}>
                                 <PerfText
@@ -152,7 +153,7 @@ export const JettonProductItem = memo((props: {
                                 </PerfText>
                                 <PerfText
                                     numberOfLines={1} ellipsizeMode={'tail'}
-                                    style={{ fontSize: 15, fontWeight: '400', lineHeight: 20, color: theme.textSecondary }}
+                                    style={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                 >
                                     <PerfText style={{ flexShrink: 1 }}>
                                         {description}
@@ -160,19 +161,19 @@ export const JettonProductItem = memo((props: {
                                 </PerfText>
                             </View>
                             <View style={{ alignItems: 'flex-end' }}>
-                                <PerfText style={{
-                                    color: theme.textPrimary, fontSize: 17, lineHeight: 24, fontWeight: '600',
-                                }}>
+                                <PerfText style={[{ color: theme.textPrimary }, Typography.semiBold17_24]}>
                                     <ValueComponent
                                         value={balance}
                                         decimals={props.jetton.decimals}
                                         precision={1}
                                     />
-                                    <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
-                                        {symbol}
-                                    </Text>
+                                    {!!swapAmount && symbol.length <= 5 && (
+                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                            {symbol}
+                                        </Text>
+                                    )}
                                 </PerfText>
-                                {!!swapAmount && (
+                                {!!swapAmount ? (
                                     <PriceComponent
                                         amount={toNano(swapAmount)}
                                         style={{
@@ -181,9 +182,16 @@ export const JettonProductItem = memo((props: {
                                             alignSelf: 'flex-end',
                                             height: undefined
                                         }}
-                                        textStyle={{ color: theme.textSecondary, fontWeight: '400', fontSize: 15, lineHeight: 20 }}
+                                        textStyle={[{ color: theme.textSecondary }, Typography.regular15_20]}
                                         theme={theme}
                                     />
+                                ) : (symbol.length > 5
+                                    ? (
+                                        <Text style={{ color: theme.textSecondary, fontSize: 15 }}>
+                                            {symbol}
+                                        </Text>
+                                    )
+                                    : null
                                 )}
                             </View>
                         </View>

@@ -1,4 +1,4 @@
-import { atom, selector, selectorFamily } from "recoil";
+import { atom, selector } from "recoil";
 import { storagePersistence } from "../../storage/storage";
 import { z } from "zod";
 import { CHAIN } from "@tonconnect/protocol";
@@ -89,25 +89,27 @@ function storeConnectionsState(address: string, state: { [key: string]: Connecte
 export type ConnectionsMap = { [appKey: string]: ConnectedAppConnection[] }
 export type FullConnectionsMap = { [address: string]: ConnectionsMap }
 
+function getFullConnectionsMap() {
+  let res: FullConnectionsMap = {};
+  const appState = getAppState();
+
+  if (!appState) {
+    return res;
+  }
+
+  const isTestnet = getIsTestnet();
+
+  for (const acc of appState.addresses) {
+    const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
+    res[accString] = getConnectionsState(accString);
+  }
+
+  return res;
+}
+
 export const connectionsMapAtom = atom<FullConnectionsMap>({
   key: 'tonconnect/connections/map',
-  default: (() => {
-    let res: FullConnectionsMap = {};
-    const appState = getAppState();
-
-    if (!appState) {
-      return res;
-    }
-
-    const isTestnet = getIsTestnet();
-
-    for (const acc of appState.addresses) {
-      const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
-      res[accString] = getConnectionsState(accString);
-    }
-
-    return res;
-  })(),
+  default: getFullConnectionsMap(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
       for (const address in newValue) {
@@ -145,25 +147,27 @@ function storePendingRequestsState(address: string, newState: SendTransactionReq
 
 export type SendTransactionRequestsMap = { [address: string]: SendTransactionRequest[] }
 
+function getSendTransactionRequestsMap() {
+  const appState = getAppState();
+  if (!appState) {
+    return {};
+  }
+
+  const res: SendTransactionRequestsMap = {};
+
+  const isTestnet = getIsTestnet();
+
+  for (const acc of appState.addresses) {
+    const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
+    res[accString] = getPendingRequestsState(accString);
+  }
+
+  return res;
+}
+
 const pendingRequestsState = atom<SendTransactionRequestsMap>({
   key: 'tonconnect/pendingRequests/state',
-  default: (() => {
-    const appState = getAppState();
-    if (!appState) {
-      return {};
-    }
-
-    const res: SendTransactionRequestsMap = {};
-
-    const isTestnet = getIsTestnet();
-
-    for (const acc of appState.addresses) {
-      const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
-      res[accString] = getPendingRequestsState(accString);
-    }
-
-    return res;
-  })(),
+  default: getSendTransactionRequestsMap(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
       for (const address in newValue) {
@@ -199,7 +203,7 @@ export const pendingRequestsSelector = selector<SendTransactionRequest[]>({
     const currentAccount = get(selectedAccountSelector);
     set(pendingRequestsState, (state) => {
       const key = currentAccount?.addressString || '';
-      return { ...state, [key]: newValue as SendTransactionRequest[]};
+      return { ...state, [key]: newValue as SendTransactionRequest[] };
     });
   }
 });
@@ -240,25 +244,27 @@ function storeConnectExtensions(newState: { [key: string]: ConnectedApp }, addre
 export type ConnectedAppsMap = { [appKey: string]: ConnectedApp }
 export type FullExtensionsMap = { [address: string]: ConnectedAppsMap }
 
+function getFullExtensionsMap() {
+  let res: FullExtensionsMap = {};
+  const appState = getAppState();
+
+  if (!appState) {
+    return res;
+  }
+
+  const isTestnet = getIsTestnet();
+
+  for (const acc of appState.addresses) {
+    const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
+    res[accString] = getStoredConnectExtensions(accString);
+  }
+
+  return res;
+}
+
 export const connectExtensionsMapAtom = atom<FullExtensionsMap>({
   key: 'tonconnect/extensions/map',
-  default: (() => {
-    let res: FullExtensionsMap = {};
-    const appState = getAppState();
-
-    if (!appState) {
-      return res;
-    }
-
-    const isTestnet = getIsTestnet();
-
-    for (const acc of appState.addresses) {
-      const accString = acc?.address.toString({ testOnly: isTestnet }) || '';
-      res[accString] = getStoredConnectExtensions(accString);
-    }
-
-    return res;
-  })(),
+  default: getFullExtensionsMap(),
   effects: [({ onSet }) => {
     onSet((newValue) => {
       for (const address in newValue) {

@@ -16,13 +16,15 @@ export function useConnectExtensions(address?: string): [
   (updater: (prev: ConnectedAppsMap) => ConnectedAppsMap) => void
 ] {
   const account = useSelectedAccount();
-  const [value, update] = useRecoilState(connectExtensionsMapAtom);
+  const [fullMap, update] = useRecoilState(connectExtensionsMapAtom);
 
-  const extensions = value[address ?? account!.addressString];
+  const key = address ?? account?.addressString;
+  const extensions = key ? fullMap[address ?? account!.addressString] : {};
   const setterUpdater = (updater: (prev: ConnectedAppsMap) => ConnectedAppsMap) => {
     update((state) => {
+      if (!key) return state;
       const newState = { ...state };
-      newState[address ?? account!.addressString] = updater(newState[address ?? account!.addressString] || {});
+      newState[key] = updater(newState[key] || {});
       return newState;
     });
   }

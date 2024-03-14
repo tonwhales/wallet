@@ -35,10 +35,10 @@ export function useConnectExtensions(address?: string): [
 type Updater = (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp };
 
 export function useSetTonConnectExtensions() {
-  const callback = useRecoilCallback(({ set }) => (udater: (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp }, address: string) => {
+  const callback = useRecoilCallback(({ set }) => (updater: (doc: { [key: string]: ConnectedApp }) => { [x: string]: ConnectedApp }, address: string) => {
     set(connectExtensionsMapAtom, (state) => {
       const newState = { ...state };
-      newState[address] = udater(newState[address] || {});
+      newState[address] = updater(newState[address] || {});
       return newState;
     });
   });

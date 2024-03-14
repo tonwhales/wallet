@@ -238,7 +238,7 @@ const LedgerTransferLoaded = memo((props: ConfirmLoadedProps & ({ setTransferSta
 
                     if (BigInt(account.account.last.lt) < BigInt(lite.account.last?.lt || '0')) {
                         setTransferState('sent');
-                        navigation.goBack();
+                        navigation.popToTop();
                         return;
                     }
 

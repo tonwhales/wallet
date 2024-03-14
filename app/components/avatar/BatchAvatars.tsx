@@ -18,6 +18,7 @@ export const BatchAvatar = memo(({
     icProps,
     theme,
     isTestnet,
+    borderColor,
     borderWidth,
     walletsSettings,
     denyList,
@@ -90,6 +91,7 @@ export const BatchAvatar = memo(({
             address={opAddressBounceable}
             id={opAddressBounceable}
             borderWith={borderWidth}
+            borderColor={borderColor}
             spam={spam}
             markContact={!!contact}
             icProps={{ ...icProps, isOwn }}
@@ -167,12 +169,12 @@ export const BatchAvatars = memo(({
                 alignItems: 'center', justifyContent: 'center', alignContent: 'center',
                 paddingTop: messages.length === 3 ? size * 0.07 : 0
             }}>
-                {messages.map((message, index) => {
-                    return (
-                        <PerfView style={{ marginTop: messages.length === 3 ? -size * 0.056 : 0 }}>
+                {messages.length === 2 ? (
+                    <>
+                        <PerfView style={{ position: 'absolute', left: '10%', top: '10%' }}>
                             <BatchAvatar
-                                key={`batch-avatar-${index}`}
-                                message={message}
+                                key={`batch-avatar-${0}`}
+                                message={messages[0]}
                                 size={avatarSize}
                                 icProps={icProps}
                                 theme={theme}
@@ -186,8 +188,49 @@ export const BatchAvatars = memo(({
                                 ownAccounts={ownAccounts}
                             />
                         </PerfView>
-                    );
-                })}
+                        <PerfView style={{ position: 'absolute', right: '10%', bottom: '10%' }}>
+                            <BatchAvatar
+                                key={`batch-avatar-${1}`}
+                                message={messages[1]}
+                                size={avatarSize}
+                                icProps={icProps}
+                                theme={theme}
+                                isTestnet={isTestnet}
+                                walletsSettings={walletsSettings}
+                                denyList={denyList}
+                                contacts={contacts}
+                                spamWallets={spamWallets}
+                                showSpambadge={showSpambadge}
+                                ownAccounts={ownAccounts}
+                                borderColor={backgroundColor ?? theme.backgroundPrimary}
+                                borderWidth={1}
+                            />
+                        </PerfView>
+                    </>
+                ) :
+                    (
+                        messages.map((message, index) => {
+                            return (
+                                <PerfView style={{ marginTop: messages.length === 3 ? -size * 0.056 : 0 }}>
+                                    <BatchAvatar
+                                        key={`batch-avatar-${index}`}
+                                        message={message}
+                                        size={avatarSize}
+                                        icProps={icProps}
+                                        theme={theme}
+                                        isTestnet={isTestnet}
+                                        borderWidth={0}
+                                        walletsSettings={walletsSettings}
+                                        denyList={denyList}
+                                        contacts={contacts}
+                                        spamWallets={spamWallets}
+                                        showSpambadge={showSpambadge}
+                                        ownAccounts={ownAccounts}
+                                    />
+                                </PerfView>
+                            );
+                        })
+                    )}
             </PerfView>
         </PerfView>
     );

@@ -13,14 +13,14 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-import { useNetwork, useTheme } from "../../../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useTheme } from "../../../engine/hooks";
 import { CheckBox } from "../../../components/CheckBox";
-
-import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
+
+import TonhubLogo from '@assets/tonhub-logo.svg';
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -70,15 +70,16 @@ export const DappAuthComponent = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const network = useNetwork();
+    const [bounceable,] = useBounceableWalletFormat();
 
     const addressString = useMemo(() => {
         const address = getCurrentAddress().address;
-        const friendly = address?.toString({ testOnly: network.isTestnet });
+        const friendly = address?.toString({ testOnly: network.isTestnet, bounceable });
         if (!friendly) {
             return '';
         }
         return `${friendly.slice(0, 4)}...${friendly?.slice(-4)}`;
-    }, []);
+    }, [bounceable]);
 
     const name = useMemo(() => {
         if (state.type !== 'initing') {

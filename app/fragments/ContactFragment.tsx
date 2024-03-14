@@ -17,9 +17,10 @@ import { ItemDivider } from "../components/ItemDivider";
 import Share from 'react-native-share';
 import { ToastDuration, useToaster } from "../components/toast/ToastProvider";
 import { ATextInput } from "../components/ATextInput";
-import { useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
+import { useBounceableWalletFormat, useContact, useNetwork, useRemoveContact, useSetContact, useTheme } from "../engine/hooks";
 import { Address } from "@ton/core";
 import { StatusBar } from "expo-status-bar";
+import { useContractInfo } from "../engine/hooks/metadata/useContractInfo";
 
 import CopyIcon from '@assets/ic-copy.svg';
 import ShareIcon from '@assets/ic-share-contact.svg';
@@ -31,7 +32,7 @@ const requiredFields = [
 
 export const ContactFragment = fragment(() => {
     const toaster = useToaster();
-    const params = useParams<{ address: string, isNew?: boolean }>();
+    const params = useParams<{ address?: string, isNew?: boolean }>();
     const navigation = useTypedNavigation();
     const theme = useTheme();
     const { isTestnet } = useNetwork();
@@ -39,7 +40,7 @@ export const ContactFragment = fragment(() => {
     const [address, setAddress] = useState(params.address ?? '');
     const parsed = useMemo(() => {
         try {
-            return Address.parse(address);
+            return Address.parseFriendly(address);
         } catch {
             return null;
         }
@@ -49,6 +50,19 @@ export const ContactFragment = fragment(() => {
     const removeContact = useRemoveContact();
     const safeArea = useSafeAreaInsets();
     const contact = useContact(params.address);
+    const contractInfo = useContractInfo(params.address ?? '');
+    const [bounceableFormat,] = useBounceableWalletFormat();
+
+    const shortAddressStr = useMemo(() => {
+        if (!parsed || params.isNew) {
+            return null;
+        }
+        const bounceable = (contractInfo?.kind === 'wallet')
+            ? bounceableFormat
+            : true;
+        const friendly = parsed.address.toString({ testOnly: isTestnet, bounceable });
+        return `${friendly.slice(0, 6) + '...' + friendly.slice(friendly.length - 6)}`;
+    }, [params.address, params.isNew, contractInfo, bounceableFormat, parsed, isTestnet]);
 
     const [editing, setEditing] = useState(!contact);
     const [name, setName] = useState(contact?.name);
@@ -83,7 +97,7 @@ export const ContactFragment = fragment(() => {
             }
         }
 
-        setContact(parsed.toString({ testOnly: isTestnet }), { name, fields });
+        setContact(parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }), { name, fields });
         setEditing(false);
     }, [editing, fields, name, parsed]);
 
@@ -94,7 +108,7 @@ export const ContactFragment = fragment(() => {
         }
         const confirmed = await confirmAlert('contacts.delete');
         if (confirmed) {
-            removeContact(parsed.toString({ testOnly: isTestnet }));
+            removeContact(parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }));
             navigation.goBack();
         }
     }, [parsed]);
@@ -161,7 +175,7 @@ export const ContactFragment = fragment(() => {
         if (!parsed) {
             return;
         }
-        copyText(parsed.toString({ testOnly: isTestnet }));
+        copyText(parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }));
 
         toaster.show(
             {
@@ -178,7 +192,7 @@ export const ContactFragment = fragment(() => {
         }
         Share.open({
             title: t('contacts.title'),
-            message: `${name} \n${parsed.toString({ testOnly: isTestnet })}`
+            message: `${name} \n${parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable })}`
         });
     }, [parsed]);
 
@@ -273,8 +287,8 @@ export const ContactFragment = fragment(() => {
                     }}>
                         <View style={{ width: 100, height: 100, borderRadius: 50, borderWidth: 0, alignItems: 'center', justifyContent: 'center', marginTop: 16 }}>
                             <Avatar
-                                address={parsed ? parsed.toString({ testOnly: isTestnet }) : ''}
-                                id={parsed ? parsed.toString({ testOnly: isTestnet }) : ''}
+                                address={parsed ? parsed.address.toString({ testOnly: isTestnet }) : ''}
+                                id={parsed ? parsed.address.toString({ testOnly: isTestnet }) : ''}
                                 size={100}
                                 image={undefined}
                                 borderWith={2}
@@ -304,7 +318,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                        {shortAddressStr}
                                     </Text>
                                     <CopyIcon style={{ height: 12, width: 12, marginLeft: 12 }} height={12} width={12} color={theme.iconPrimary} />
                                 </Pressable>
@@ -326,12 +340,15 @@ export const ContactFragment = fragment(() => {
                                     onPress={() => {
                                         navigation.navigate(
                                             'Assets',
-                                            { target: parsed.toString({ testOnly: isTestnet }) }
+                                            { target: parsed.address.toString({ testOnly: isTestnet, bounceable: parsed.isBounceable }) }
                                         );
                                     }}
-                                    style={({ pressed }) => {
-                                        return { opacity: pressed ? 0.5 : 1, borderRadius: 14, padding: 10, flexGrow: 1 }
-                                    }}
+                                    style={({ pressed }) => ({
+                                        opacity: pressed ? 0.5 : 1,
+                                        borderRadius: 14,
+                                        padding: 10,
+                                        flexGrow: 1
+                                    })}
                                 >
                                     <View style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 14 }}>
                                         <View
@@ -459,7 +476,7 @@ export const ContactFragment = fragment(() => {
                                         marginTop: 4,
                                         color: theme.textSecondary
                                     }}>
-                                        {`${address.slice(0, 6) + '...' + address.slice(address.length - 6)}`}
+                                        {shortAddressStr}
                                     </Text>
                                 </View>
                             )}

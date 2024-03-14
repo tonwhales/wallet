@@ -42,7 +42,8 @@ export type OrderMessage = {
     addr: {
         address: Address;
         balance: bigint,
-        active: boolean
+        active: boolean,
+        bounceable?: boolean,
     },
     metadata: ContractMetadata,
     restricted: boolean,
@@ -59,10 +60,12 @@ export type ConfirmLoadedPropsSingle = {
         address: Address;
         balance: bigint,
         active: boolean,
-        domain?: string
+        domain?: string,
+        bounceable?: boolean
     },
     jettonTarget?: {
         isTestOnly: boolean;
+        bounceable?: boolean;
         address: Address;
         balance: bigint;
         active: boolean;
@@ -157,9 +160,7 @@ export const TransferFragment = fragment(() => {
             const emptySecret = Buffer.alloc(64);
 
             if (order.messages.length === 1) {
-                let target = Address.parseFriendly(
-                    Address.parse(params.order.messages[0].target).toString({ testOnly: isTestnet })
-                );
+                let target = Address.parseFriendly(params.order.messages[0].target);
 
                 // Fetch data
                 const [
@@ -325,12 +326,14 @@ export const TransferFragment = fragment(() => {
                     target: {
                         isTestOnly: target.isTestOnly,
                         address: target.address,
+                        bounceable: target.isBounceable,
                         balance: BigInt(state.account.balance.coins),
                         active: state.account.state.type === 'active',
-                        domain: order.domain
+                        domain: order.domain,
                     },
                     jettonTarget: !!jettonTarget ? {
                         isTestOnly: jettonTarget.isTestOnly,
+                        bounceable: jettonTarget.isBounceable,
                         address: jettonTarget.address,
                         balance: BigInt(jettonTargetState!.account.balance.coins),
                         active: jettonTargetState!.account.state.type === 'active',
@@ -369,6 +372,12 @@ export const TransferFragment = fragment(() => {
             const messages: OrderMessage[] = [];
             let totalAmount = BigInt(0);
             for (let i = 0; i < order.messages.length; i++) {
+
+                let parsedDestFriendly: { isBounceable: boolean; isTestOnly: boolean; address: Address; } | undefined;
+                try {
+                    parsedDestFriendly = Address.parseFriendly(order.messages[i].target)
+                } catch { }
+                
                 const msg = internalFromSignRawMessage(order.messages[i]);
                 if (msg) {
                     inMsgs.push(msg);
@@ -409,6 +418,7 @@ export const TransferFragment = fragment(() => {
                             address: to,
                             balance: BigInt(state.account.balance.coins),
                             active: state.account.state.type === 'active',
+                            bounceable: parsedDestFriendly?.isBounceable
                         },
                     });
                 } else {

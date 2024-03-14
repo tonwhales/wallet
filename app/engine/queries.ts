@@ -15,7 +15,7 @@ export const Queries = {
 
     StakingChart: (pool: string, fixedPeriod: 'week' | 'month' | 'year' | 'allTime', member: string) => ['staking', 'chart', pool, fixedPeriod, member, 'askdjsd'],
 
-    Transactions: (address: string) => ['transactions', address, 'v2'],
+    Transactions: (address: string) => ['transactions', address],
     Holders: (address: string) => ({
         All: () => ['holders', address],
         Status: () => ['holders', address, 'status'],

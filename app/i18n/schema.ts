@@ -969,6 +969,20 @@ export type LocalizationSchema = {
         newAddress: string,
         bannerTitle: string,
         bannerDescription: string,
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: string,
+                exchange: string,
+                defi: string,
+                nft: string,
+                games: string,
+                social: string,
+                utils: string,
+                services: string,
+            }
+        }
     }
 };
 

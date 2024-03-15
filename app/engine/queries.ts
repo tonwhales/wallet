@@ -49,4 +49,5 @@ export const Queries = {
     APY: (network: 'mainnet' | 'testnet') => (['staking', 'apy', network]),
 
     Banners: (language: string, version: string, buildNumber: string) => (['banners', language, version, buildNumber]),
+    BrowserListings: (network: 'mainnet' | 'testnet') => (['browserListings', network]),
 }

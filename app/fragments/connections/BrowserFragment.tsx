@@ -22,6 +22,8 @@ import { getCachedAppData } from '../../engine/getters/getAppData';
 import { setStatusBarStyle } from 'expo-status-bar';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useDimensions } from '@react-native-community/hooks';
+import { useBrowserListings } from '../../engine/hooks/banners/useBrowserListings';
+import { BrowserListings } from '../../components/browser/BrowserListings';
 
 type Item = {
     key: string;
@@ -65,6 +67,7 @@ export const BrowserFragment = fragment(() => {
     const navigation = useTypedNavigation();
     const bottomBarHeight = useBottomTabBarHeight();
     const dimensions = useDimensions();
+    const listings = useBrowserListings().data || [];
 
     const [installedExtensions,] = useExtensions();
     const [inastalledConnectApps,] = useTonConnectExtensions();
@@ -161,6 +164,8 @@ export const BrowserFragment = fragment(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     }, [theme.style]));
 
+    console.log('BrowserFragment', { listings });
+
     return (
         <View style={{ flex: 1 }}>
             <TabHeader
@@ -199,30 +204,32 @@ export const BrowserFragment = fragment(() => {
             />
             {isExtensions ? (
                 (extensions.length === 0 && tonconnectApps.length === 0) ? (
-                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
-                        <View style={{
-                            justifyContent: 'center', alignItems: 'center',
-                            width: dimensions.screen.width - 32,
-                            height: (dimensions.screen.width - 32) * 0.91,
-                            borderRadius: 20, overflow: 'hidden',
-                            marginBottom: 22,
-                        }}>
-                            <Image
-                                resizeMode={'center'}
-                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
-                                source={EmptyIllustrations[theme.style]}
-                            />
-                        </View>
-                        <Text style={{
-                            fontSize: 32,
-                            fontWeight: '600',
-                            marginHorizontal: 24,
-                            textAlign: 'center',
-                            color: theme.textPrimary,
-                        }}>
-                            {t('auth.noExtensions')}
-                        </Text>
-                    </View>
+                    // <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
+                    //     <View style={{
+                    //         justifyContent: 'center', alignItems: 'center',
+                    //         width: dimensions.screen.width - 32,
+                    //         height: (dimensions.screen.width - 32) * 0.91,
+                    //         borderRadius: 20, overflow: 'hidden',
+                    //         marginBottom: 22,
+                    //     }}>
+                    //         <Image
+                    //             resizeMode={'center'}
+                    //             style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                    //             source={EmptyIllustrations[theme.style]}
+                    //         />
+                    //     </View>
+                    //     <Text style={{
+                    //         fontSize: 32,
+                    //         fontWeight: '600',
+                    //         marginHorizontal: 24,
+                    //         textAlign: 'center',
+                    //         color: theme.textPrimary,
+                    //     }}>
+                    //         {t('auth.noExtensions')}
+                    //     </Text>
+                    // </View>
+                    <BrowserListings listings={listings} />
+                    // null
                 ) : (
                     <Animated.ScrollView
                         entering={FadeIn}

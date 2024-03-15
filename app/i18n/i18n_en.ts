@@ -967,6 +967,20 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
         newAddress: 'New address',
         bannerTitle: 'Update your address',
         bannerDescription: 'From EQ to UQ',
+    },
+    browser: {
+        listings: {
+            categories: {
+                other: 'Other',
+                exchange: 'Exchanges',
+                defi: 'DeFi',
+                nft: 'NFT',
+                games: 'Games',
+                social: 'Social',
+                utils: 'Utilities',
+                services: 'Services'
+            }
+        }
     }
 };
 

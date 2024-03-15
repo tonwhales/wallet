@@ -2,9 +2,9 @@ import { memo, useCallback } from "react";
 import { BrowserListingItem } from "./BrowserListings";
 import { TypedNavigation } from "../../utils/useTypedNavigation";
 import { ThemeType } from "../../engine/state/theme";
-import { useDimensions } from "@react-native-community/hooks";
 import { View } from "react-native";
 import { ProductButton } from "../../fragments/wallet/products/ProductButton";
+import { useDimensions } from "@react-native-community/hooks";
 
 export const BrowserListItem = memo(({
     item,
@@ -16,7 +16,6 @@ export const BrowserListItem = memo(({
     theme: ThemeType
 }) => {
     const dimensions = useDimensions();
-
     const onPress = useCallback(() => {
         navigation.navigateDAppWebView({
             url: item.product_url,
@@ -35,7 +34,7 @@ export const BrowserListItem = memo(({
     return (
         <View style={{
             height: 56,
-            width: dimensions.screen.width,
+            width: dimensions.screen.width - 32,
         }}>
             <ProductButton
                 name={item.title ?? ''}
@@ -43,6 +42,7 @@ export const BrowserListItem = memo(({
                 image={item.image_url ?? undefined}
                 value={null}
                 onPress={onPress}
+                style={{ marginHorizontal: 0 }}
             />
         </View>
     );

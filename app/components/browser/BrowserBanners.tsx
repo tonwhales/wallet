@@ -13,6 +13,7 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
     const navigation = useTypedNavigation();
 
     const scrollRef = useRef<FlatList>(null);
+    const isPressed = useRef(false);
     const [activeSlide, setActiveSlide] = useState(0);
 
     const [scrollViewWidth, setScrollViewWidth] = useState(0);
@@ -25,13 +26,13 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
     useEffect(() => {
         const timerId = setTimeout(() => {
             if (banners.length === 0) return;
-            if (activeSlide < banners.length - 1) {
+            if (activeSlide < banners.length - 1 && !isPressed.current) {
                 scrollRef.current?.scrollToIndex({
                     index: activeSlide + 1,
                     viewOffset: boxWidth * 0.09,
                     animated: true
                 });
-            } else {
+            } else if (!isPressed.current) {
                 scrollRef.current?.scrollToIndex({
                     index: 0,
                     viewOffset: boxWidth * 0.09,
@@ -53,6 +54,8 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
                 left: halfBoxDistance,
                 right: halfBoxDistance,
             }}
+            onScrollBeginDrag={() => isPressed.current = true}
+            onScrollEndDrag={() => isPressed.current = false}
             contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
             onLayout={(e) => {
                 setScrollViewWidth(e.nativeEvent.layout.width);

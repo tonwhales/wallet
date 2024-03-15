@@ -5,7 +5,8 @@ import { ContractMetadata } from "../metadata/Metadata";
 export async function fetchContractMetadata(address: Address | string, isTestnet: boolean): Promise<ContractMetadata> {
     const addressString = typeof address === 'string' ? address : address.toString({ testOnly: isTestnet });
 
-    const url = `https://connect.tonhubapi.com/metadata/${addressString}`;
+    // const url = `https://connect.tonhubapi.com/metadata/${addressString}`;
+    const url = `https://10.100.102.3:3000/metadata/${addressString}`;
 
     const res = await axios.get(url);
 

@@ -164,8 +164,6 @@ export const BrowserFragment = fragment(() => {
         setStatusBarStyle(theme.style === 'dark' ? 'light' : 'dark');
     }, [theme.style]));
 
-    console.log('BrowserFragment', { listings });
-
     return (
         <View style={{ flex: 1 }}>
             <TabHeader
@@ -202,34 +200,33 @@ export const BrowserFragment = fragment(() => {
                 fontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
                 activeFontStyle={{ fontSize: 15, fontWeight: '500', color: theme.textPrimary }}
             />
-            {isExtensions ? (
+            <BrowserListings listings={listings} />
+            {/* {isExtensions ? (
                 (extensions.length === 0 && tonconnectApps.length === 0) ? (
-                    // <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
-                    //     <View style={{
-                    //         justifyContent: 'center', alignItems: 'center',
-                    //         width: dimensions.screen.width - 32,
-                    //         height: (dimensions.screen.width - 32) * 0.91,
-                    //         borderRadius: 20, overflow: 'hidden',
-                    //         marginBottom: 22,
-                    //     }}>
-                    //         <Image
-                    //             resizeMode={'center'}
-                    //             style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
-                    //             source={EmptyIllustrations[theme.style]}
-                    //         />
-                    //     </View>
-                    //     <Text style={{
-                    //         fontSize: 32,
-                    //         fontWeight: '600',
-                    //         marginHorizontal: 24,
-                    //         textAlign: 'center',
-                    //         color: theme.textPrimary,
-                    //     }}>
-                    //         {t('auth.noExtensions')}
-                    //     </Text>
-                    // </View>
-                    <BrowserListings listings={listings} />
-                    // null
+                    <View style={{ flexGrow: 1, justifyContent: 'center', alignItems: 'center', paddingBottom: bottomBarHeight }}>
+                        <View style={{
+                            justifyContent: 'center', alignItems: 'center',
+                            width: dimensions.screen.width - 32,
+                            height: (dimensions.screen.width - 32) * 0.91,
+                            borderRadius: 20, overflow: 'hidden',
+                            marginBottom: 22,
+                        }}>
+                            <Image
+                                resizeMode={'center'}
+                                style={{ height: dimensions.screen.width - 32, width: dimensions.screen.width - 32, marginTop: -20 }}
+                                source={EmptyIllustrations[theme.style]}
+                            />
+                        </View>
+                        <Text style={{
+                            fontSize: 32,
+                            fontWeight: '600',
+                            marginHorizontal: 24,
+                            textAlign: 'center',
+                            color: theme.textPrimary,
+                        }}>
+                            {t('auth.noExtensions')}
+                        </Text>
+                    </View>
                 ) : (
                     <Animated.ScrollView
                         entering={FadeIn}
@@ -326,7 +323,7 @@ export const BrowserFragment = fragment(() => {
                         <View style={{ height: Platform.OS === 'android' ? 64 : safeArea.bottom }} />
                     </Animated.ScrollView>
                 )
-            )}
+            )} */}
         </View>
     );
 });

@@ -22,11 +22,9 @@ const browserListingsResponseCodec = z.object({ banners: z.array(browserListingC
 export type BrowserListing = z.infer<typeof browserListingCodec>;
 
 export async function fetchBrowserListings(): Promise<BrowserListing[]>{
-    console.log('fetchBrowserListings');
     // const response = await axios.get('https://connect.tonhubapi.com/tonhub/banners');
-    const response = await axios.get('http://10.100.102.3:3000/tonhub/banners');
-
-    console.log('fetchBrowserListings', response.data);
+    const response = await axios.get('http://10.100.102.3:3000/tonhub/banners?refetch=true');
+    // const response = await axios.get('http://10.100.102.3:3000/tonhub/banners');
 
     if (response.status !== 200) {
         return [];
@@ -37,7 +35,6 @@ export async function fetchBrowserListings(): Promise<BrowserListing[]>{
     if (parsed.success) {
         return parsed.data.banners;
     } else {
-        console.warn('fetchBrowserListings', parsed.error);
         return [];
     }
 }

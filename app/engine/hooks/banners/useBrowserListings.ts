@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useNetwork } from "..";
 import { Queries } from "../../queries";
-import { BrowserListing, fetchBrowserListings } from "../../api/fetchBrowserListings";
+import { fetchBrowserListings } from "../../api/fetchBrowserListings";
 import { z } from 'zod';
 
 const categoryCodec = z.object({
@@ -21,32 +21,32 @@ export function useBrowserListings() {
             let res = await fetchBrowserListings();
 
             if (!isTestnet) {
-                res = res.filter(b => b.is_test);
+                res = res.filter(b => !b.is_test);
             }
 
-            const mapped = res.map((b) => {
-                if (!b.category) {
-                    return b;
-                }
+            const mapped = res
+                .filter((b) => {
+                    return b.enabled && b.start_date < Date.now() && b.expiration_date > Date.now();
+                }).map((b) => {
+                    if (!b.category) {
+                        return b;
+                    }
 
-                try {
-                    const categoryParsed = categoryCodec.safeParse(JSON.parse(b.category));
+                    try {
+                        const categoryParsed = categoryCodec.safeParse(JSON.parse(b.category));
 
-                    if (!categoryParsed.success) {
+                        if (!categoryParsed.success) {
+                            return { ...b, category: null };
+                        }
+
+                        return {
+                            ...b,
+                            category: categoryParsed.data
+                        }
+                    } catch (error) {
                         return { ...b, category: null };
                     }
-
-                    return {
-                        ...b,
-                        category: categoryParsed.data
-                    }
-                } catch (error) {
-                    console.warn('useBrowserListings', error);
-                    return { ...b, category: null };
-                }
-            });
-
-            console.log('useBrowserListings', mapped.length);
+                });
 
             return mapped;
         },

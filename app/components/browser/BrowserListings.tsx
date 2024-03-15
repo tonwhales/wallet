@@ -4,17 +4,18 @@ import { BrowserListingCategory } from "../../engine/hooks/banners/useBrowserLis
 import { t } from "../../i18n/t";
 import { View } from "react-native";
 import { BrowserBanners } from "./BrowserBanners";
+import { BrowserCategories } from "./BrowserCategories";
+import { ScrollView } from "react-native-gesture-handler";
 
-type Listing = Omit<BrowserListing, 'category'> & { category: BrowserListingCategory }
-export type BrowserBannerItem = Listing & { banner_type: 'banner' };
-export type BrowserListingItem = Listing & { banner_type: 'listing' };
-
-type ListingsCategory = {
+type Listing = Omit<BrowserListing, 'category'> & { category?: BrowserListingCategory | null}
+export type BrowserBannerItem = Listing & { banner_type: 'bannerItem' };
+export type BrowserListingItem = Listing & { banner_type: 'listItem' };
+export type ListingsCategory = {
     id: string;
     title: string;
     description?: string;
     weight: number;
-    listings: Listing[];
+    listings: BrowserListingItem[];
 };
 
 const initOthersCategory = {
@@ -29,33 +30,34 @@ const supportedCategories = ['other', 'exchange', 'defi', 'nft', 'games', 'socia
 type SupportedCategory = 'other' | 'exchange' | 'defi' | 'nft' | 'games' | 'social' | 'utils' | 'services';
 
 export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
-    console.log('BrowserListings', listings.length);
     const { banners, list } = useMemo(() => {
-        const banners: BrowserBannerItem[] = [];
+        let banners: BrowserBannerItem[] = [];
         const list = new Map<string, ListingsCategory>();
 
         for (const l of listings) {
-            console.log('BrowserListings', l.title, l.banner_type);
-            if (l.banner_type === 'banner') {
+            if (l.banner_type === 'bannerItem') {
                 banners.push(l as BrowserBannerItem);
-            } else if (l.banner_type === 'listing') {
+            } else if (l.banner_type === 'listItem') {
                 const category = l.category;
+
+                console.log('category', category);
 
                 if (!category) {
                     let others = list.get('others');
 
                     if (others) {
-                        others.listings.push(l);
+                        others.listings.push(l as BrowserListingItem);
                     } else {
                         others = { ...initOthersCategory };
-                        others.listings.push(l);
+                        others.listings.push(l as BrowserListingItem);
                         list.set('others', others);
                     }
+                    continue;
                 }
 
-                const existing = list.get(category.id);
+                const existing = list.get(category?.id ?? '');
                 if (existing) {
-                    existing.listings.push(l);
+                    existing.listings.push(l as BrowserListingItem);
                 } else {
                     const title = supportedCategories.includes(category.id)
                         ? t(`browser.listings.categories.${category.id as SupportedCategory}`)
@@ -74,22 +76,28 @@ export const BrowserListings = memo(({ listings }: { listings: Listing[] }) => {
                             title: title,
                             description: category.description,
                             weight: category.weight || 0,
-                            listings: [l]
+                            listings: [l as BrowserListingItem]
                         }
                     );
                 }
             }
         }
 
+        banners = banners.sort((a, b) => (a.weight ?? 0) - (b.weight ?? 0));
+
         return { banners, list };
 
     }, [listings]);
 
-    console.log('BrowserListings', banners.length, list.size);
-
     return (
-        <View>
+        <ScrollView
+            style={{ flexGrow: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentInset={{ top: 0, left: 0, bottom: 56 + 16, right: 0 }}
+            contentOffset={{ y: -56, x: 0 }}
+        >
             <BrowserBanners banners={banners} />
-        </View>
+            <BrowserCategories list={list} />
+        </ScrollView>
     );
 });

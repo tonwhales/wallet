@@ -1,28 +1,42 @@
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { BrowserBannerItem } from "./BrowserListings";
-import { ScrollView } from "react-native";
+import { FlatList } from "react-native";
 import { useDimensions } from "@react-native-community/hooks";
 import { BrowserBanner } from "./BrowserBanner";
+import { useSharedValue } from "react-native-reanimated";
+import { useTheme } from "../../engine/hooks";
+import { useTypedNavigation } from "../../utils/useTypedNavigation";
 
 export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] }) => {
     const dimensions = useDimensions();
+    const theme = useTheme();
+    const navigation = useTypedNavigation();
 
-    const scrollRef = useRef<ScrollView>(null);
+    const scrollRef = useRef<FlatList>(null);
     const [activeSlide, setActiveSlide] = useState(0);
 
-    const onScroll = useCallback((event: any) => {
-        const slide = Math.ceil(event.nativeEvent.contentOffset.x / event.nativeEvent.layoutMeasurement.width);
-        if (slide !== activeSlide) {
-            setActiveSlide(slide);
-        }
-    }, [activeSlide]);
+    const [scrollViewWidth, setScrollViewWidth] = useState(0);
+    const boxWidth = scrollViewWidth * 0.85;
+    const boxDistance = scrollViewWidth - boxWidth;
+    const halfBoxDistance = boxDistance / 2;
+
+    const pan = useSharedValue(0);
 
     useEffect(() => {
         const timerId = setTimeout(() => {
+            if (banners.length === 0) return;
             if (activeSlide < banners.length - 1) {
-                scrollRef.current?.scrollTo({ x: (activeSlide + 1) * dimensions.screen.width, animated: true });
+                scrollRef.current?.scrollToIndex({
+                    index: activeSlide + 1,
+                    viewOffset: boxWidth * 0.09,
+                    animated: true
+                });
             } else {
-                scrollRef.current?.scrollTo({ x: 0, animated: true });
+                scrollRef.current?.scrollToIndex({
+                    index: 0,
+                    viewOffset: boxWidth * 0.09,
+                    animated: true
+                });
             }
         }, 3500);
 
@@ -30,28 +44,48 @@ export const BrowserBanners = memo(({ banners }: { banners: BrowserBannerItem[] 
 
     }, [activeSlide, banners.length]);
 
-    console.log('BrowserBanners', banners.length);
-
     return (
-        <ScrollView
+        <FlatList
             ref={scrollRef}
             horizontal={true}
-            onScroll={onScroll}
-            pagingEnabled={true}
+            snapToInterval={boxWidth}
+            contentInset={{
+                left: halfBoxDistance,
+                right: halfBoxDistance,
+            }}
+            contentOffset={{ x: halfBoxDistance * -1, y: 0 }}
+            onLayout={(e) => {
+                setScrollViewWidth(e.nativeEvent.layout.width);
+            }}
             snapToAlignment={'center'}
-            style={{ flexGrow: 1, width: dimensions.screen.width }}
-            contentContainerStyle={{ width: dimensions.screen.width * banners.length, gap: 8 }}
-            showsHorizontalScrollIndicator={false}
-            bounces={false}
-            scrollEventThrottle={32}
-        >
-            {banners.map((banner, i) => (
+            data={banners}
+            keyExtractor={(item, index) => `${index}-${item.id}`}
+            onScroll={(e) => {
+                const scrollOffset = e.nativeEvent.contentOffset.x + halfBoxDistance;
+                const activeSlide = 1 + Math.floor(scrollOffset / boxWidth);
+                pan.value = e.nativeEvent.contentOffset.x;
+                setActiveSlide(activeSlide);
+            }}
+            renderItem={({ item, index }) => (
                 <BrowserBanner
-                    dimensions={dimensions}
-                    key={i}
-                    banner={banner}
+                    key={index}
+                    banner={item}
+                    pan={pan}
+                    boxWidth={boxWidth}
+                    index={index}
+                    halfBoxDistance={halfBoxDistance}
+                    theme={theme}
+                    navigation={navigation}
                 />
-            ))}
-        </ScrollView>
+            )}
+            style={{ flexGrow: 1, width: dimensions.screen.width }}
+            contentContainerStyle={{ paddingVertical: 16 }}
+            contentInsetAdjustmentBehavior={'never'}
+            decelerationRate={'fast'}
+            automaticallyAdjustContentInsets={false}
+            showsHorizontalScrollIndicator={false}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={16}
+        />
     );
 });

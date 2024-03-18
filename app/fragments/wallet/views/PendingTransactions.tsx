@@ -146,7 +146,13 @@ const PendingTransactionView = memo(({
                             ellipsizeMode="middle"
                             numberOfLines={1}
                         >
-                            {targetFriendly ? <AddressComponent address={Address.parse(targetFriendly)} /> : t('tx.batch')}
+                            {targetFriendly
+                                ? <AddressComponent
+                                    bounceable={body?.type === 'token' ? body.bounceable : tx.bounceable}
+                                    address={Address.parse(targetFriendly)}
+                                />
+                                : t('tx.batch')
+                            }
                             {` • ${formatTime(tx.time)}`}
                         </Text>
                     )}
@@ -248,6 +254,10 @@ export const PendingTransactions = memo(({ address, viewType = 'main' }: { addre
             return prev.filter((tx) => tx.id !== id);
         });
     }, [setPending]);
+
+    if (pending.length <= 0) {
+        return null;
+    }
 
     return (
         <View style={{ paddingHorizontal: 16 }}>

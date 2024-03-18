@@ -259,10 +259,9 @@ const SignStateLoader = memo(({ connectProps }: { connectProps: TonConnectAuthPr
                     if (!!state.returnStrategy) {
                         if (state.returnStrategy === 'back') {
                             Minimizer.goBack();
-                            return;
                         } else if (state.returnStrategy !== 'none') {
                             try {
-                                const url = new URL(state.returnStrategy);
+                                const url = new URL(decodeURIComponent(state.returnStrategy));
                                 Linking.openURL(url.toString());
                             } catch (e) {
                                 warn('Failed to open url');

@@ -8,7 +8,7 @@ import { ATextInputRef } from "../ATextInput";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { useAppState, useContact, useTheme, useWalletSettings } from "../../engine/hooks";
 import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
-import { AddressSearch } from "./AddressSearch";
+import { AddressSearch, AddressSearchItem } from "./AddressSearch";
 import { t } from "../../i18n/t";
 import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
@@ -30,6 +30,7 @@ type TransferAddressInputProps = {
     onQRCodeRead: (value: string) => void,
     isSelected?: boolean,
     onNext?: () => void,
+    onSearchItemSelected?: (item: AddressSearchItem) => void,
 }
 
 export type AddressInputState = {
@@ -275,11 +276,15 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
                 <AddressSearch
                     account={props.acc}
                     onSelect={(item) => {
+                        const friendly = item.addr.address.toString({ testOnly: props.isTestnet, bounceable: item.addr.isBounceable });
                         props.dispatch({
                             type: InputActionType.InputTarget,
-                            input: item.type !== 'unknown' ? item.title : item.address.toString({ testOnly: props.isTestnet }),
-                            target: item.address.toString({ testOnly: props.isTestnet })
-                        })
+                            input: item.type !== 'unknown' ? item.title : friendly,
+                            target: friendly
+                        });
+                        if (props.onSearchItemSelected) {
+                            props.onSearchItemSelected(item);
+                        }
                     }}
                     query={props.input.toLowerCase()}
                     transfer

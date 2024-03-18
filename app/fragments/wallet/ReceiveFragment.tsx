@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fragment } from "../../fragment";
-import { View, Text, Pressable, ScrollView, Image, Platform } from "react-native";
+import { View, Text, Pressable, ScrollView, Image, Platform, Alert } from "react-native";
 import { t } from "../../i18n/t";
 import { QRCode } from "../../components/QRCode/QRCode";
 import { useParams } from "../../utils/useParams";
@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { KnownJettonMasters } from "../../secure/KnownWallets";
 import { captureRef } from 'react-native-view-shot';
-import { useNetwork, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useNetwork, useBounceableWalletFormat, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { JettonMasterState } from "../../engine/metadata/fetchJettonMasterContent";
 import { getJettonMaster } from "../../engine/getters/getJettonMaster";
@@ -28,20 +28,24 @@ export const ReceiveFragment = fragment(() => {
     const imageRef = useRef<View>(null);
     const params = useParams<{ addr?: string, ledger?: boolean }>();
     const selected = useSelectedAccount();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const qrSize = 262;
 
     const [isSharing, setIsSharing] = useState(false);
     const [jetton, setJetton] = useState<{ master: Address, data: JettonMasterState } | null>(null);
 
-    const address = useMemo(() => {
+    const friendly = useMemo(() => {
         if (params.addr) {
-            return Address.parse(params.addr);
+            try {
+                const parsed = Address.parseFriendly(params.addr);
+                return parsed.address.toString({ testOnly: network.isTestnet, bounceable: parsed.isBounceable });
+            } catch {
+                Alert.alert(t('common.error'), t('transfer.error.invalidAddress'));
+            }
         }
-        return selected!.address;
-    }, [params, selected]);
-
-    const friendly = address.toString({ testOnly: network.isTestnet });
+        return selected!.address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat });
+    }, [params, selected, bounceableFormat]);
 
     const isVerified = useMemo(() => {
         if (!jetton) {
@@ -69,7 +73,7 @@ export const ReceiveFragment = fragment(() => {
         }
         return `https://${network.isTestnet ? 'test.' : ''}tonhub.com/transfer`
             + `/${friendly}`
-    }, [jetton, network]);
+    }, [jetton, network, friendly]);
 
     return (
         <View

@@ -15,7 +15,7 @@ import { LogBox } from 'react-native';
 import { AddressBookLoader } from './engine/AddressBookContext';
 import { ThemeProvider } from './engine/ThemeContext';
 
-const PERSISTANCE_VERSION = '17';
+const PERSISTANCE_VERSION = '18';
 
 LogBox.ignoreAllLogs()
 

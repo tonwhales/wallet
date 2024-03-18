@@ -32,6 +32,8 @@ import IcConnectLine from '@assets/ic-connect-line.svg';
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 
+import TonhubLogo from '@assets/tonhub-logo.svg';
+
 export type TonConnectSignState =
     { type: 'loading' }
     | { type: 'expired', returnStrategy?: ReturnStrategy }

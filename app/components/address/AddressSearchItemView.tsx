@@ -2,12 +2,13 @@ import React, { memo } from "react";
 import { View, Text, Pressable } from "react-native";
 import Animated from "react-native-reanimated";
 import { AddressSearchItem } from "./AddressSearch";
-import { useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useNetwork, useTheme } from "../../engine/hooks";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import { Avatar, avatarColors } from "../Avatar";
 import { AddressComponent } from "./AddressComponent";
 import { WalletSettings } from "../../engine/state/walletSettings";
 import { avatarHash } from "../../utils/avatarHash";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 
 export const AddressSearchItemView = memo(({
     item,
@@ -20,17 +21,28 @@ export const AddressSearchItemView = memo(({
 }) => {
     const theme = useTheme();
     const network = useNetwork();
-    const addressString = item.address.toString({ testOnly: network.isTestnet });
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const addressString = item.addr.address.toString({ testOnly: network.isTestnet });
+    const contractInfo = useContractInfo(addressString);
+
     const settings = walletsSettings[addressString];
 
     const avatarColorHash = settings?.color ?? avatarHash(addressString, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
+    const bounceable = (contractInfo?.kind === 'wallet')
+        ? bounceableFormat
+        : item.addr.isBounceable
+
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
 
     return (
         <Pressable
-            onPress={() => onPress ? onPress(item) : undefined}
+            onPress={
+                () => onPress
+                    ? onPress({ ...item, addr: { ...item.addr, isBounceable: bounceable } })
+                    : undefined
+            }
             onPressIn={onPressIn}
             onPressOut={onPressOut}
         >
@@ -65,7 +77,10 @@ export const AddressSearchItemView = memo(({
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        <AddressComponent address={item.address} />
+                        <AddressComponent
+                            bounceable={bounceable}
+                            address={item.addr.address}
+                        />
                     </Text>
                 </View>
             </Animated.View>

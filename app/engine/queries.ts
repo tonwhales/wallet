@@ -24,6 +24,7 @@ export const Queries = {
     }),
 
     ContractMetadata: (address: string) => (['contractMetadata', address]),
+    ContractInfo: (address: string) => (['contractInfo', address]),
     Config: (network: 'testnet' | 'mainnet') => ['config', network],
     ServerConfig: () => ['serverConfig'],
 

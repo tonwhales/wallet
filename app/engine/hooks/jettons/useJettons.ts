@@ -6,6 +6,7 @@ import { Jetton } from '../../types';
 import { useCloudValue } from '../cloud';
 
 export function useJettons(owner: string): Jetton[] {
+    // TODO sync jetton wallet
     let hints = useFilteredHints(owner, (a) => !!a.jettonWallet && a.jettonWallet?.owner === owner && !!a.jettonWallet.master);
     let masterContents = useJettonContents(hints.map(a => a.jettonWallet!.master));
     let actualBalances = useJettonWallets(hints.map(a => a.address));

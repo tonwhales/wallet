@@ -12,7 +12,7 @@ import { useTypedNavigation } from "../../../utils/useTypedNavigation";
 import { Address, fromNano, toNano } from "@ton/core";
 import { JettonMasterState } from "../../../engine/metadata/fetchJettonMasterContent";
 import { WalletSettings } from "../../../engine/state/walletSettings";
-import { useAppState, useNetwork, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
+import { useAppState, useNetwork, useBounceableWalletFormat, usePrice, useSelectedAccount, useTheme, useWalletsSettings } from "../../../engine/hooks";
 import { AddressComponent } from "../../../components/address/AddressComponent";
 import { holdersUrl } from "../../../engine/api/holders/fetchAccountState";
 import { useLedgerTransport } from "../../ledger/components/TransportContext";
@@ -56,6 +56,7 @@ export const TransferSingleView = memo(({
         balance: bigint;
         active: boolean;
         domain?: string | undefined;
+        bounceable?: boolean | undefined;
     },
     fees: bigint,
     jettonMaster: JettonMasterState | null,
@@ -76,6 +77,7 @@ export const TransferSingleView = memo(({
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const targetString = target.address.toString({ testOnly: isTestnet });
     const targetWalletSettings = walletsSettings[targetString];
@@ -223,7 +225,7 @@ export const TransferSingleView = memo(({
                                 color: theme.textPrimary,
                                 marginTop: 2
                             }}>
-                                <AddressComponent address={target.address} end={4} />
+                                <AddressComponent bounceable={target.bounceable} address={target.address} end={4} />
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -290,6 +292,7 @@ export const TransferSingleView = memo(({
                                         <AddressComponent
                                             address={fromAddress}
                                             end={4}
+                                            bounceable={bounceableFormat}
                                         />
                                     </Text>
 
@@ -312,7 +315,7 @@ export const TransferSingleView = memo(({
                                     }}
                                 >
                                     <Text style={{ color: theme.textPrimary }}>
-                                        {to.address.toString({ testOnly: isTestnet }).replaceAll('-', '\u2011')}
+                                        {to.address.toString({ testOnly: isTestnet, bounceable: target.bounceable }).replaceAll('-', '\u2011')}
                                     </Text>
                                 </Text>
                             </View>

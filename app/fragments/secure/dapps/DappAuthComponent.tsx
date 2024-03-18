@@ -13,14 +13,9 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-<<<<<<< HEAD
-import { useAppState, useTheme } from "../../../engine/hooks";
-import { CheckBox } from "../../../components/CheckBox";
-=======
 import { useBounceableWalletFormat, useNetwork, useTheme } from "../../../engine/hooks";
 import { CheckBox } from "../../../components/CheckBox";
 import IcConnectLine from '@assets/ic-connect-line.svg';
->>>>>>> develop
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";

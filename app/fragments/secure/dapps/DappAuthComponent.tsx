@@ -13,9 +13,8 @@ import { extractDomain } from "../../../engine/utils/extractDomain";
 import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
-import { useBounceableWalletFormat, useNetwork, useTheme } from "../../../engine/hooks";
 import { CheckBox } from "../../../components/CheckBox";
-import IcConnectLine from '@assets/ic-connect-line.svg';
+import { useTheme, useAppState } from "../../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -29,10 +28,6 @@ import Animated, { FadeOutDown } from "react-native-reanimated";
 
 import TonhubLogo from '@assets/tonhub-logo.svg';
 import IcConnectLine from '@assets/ic-connect-line.svg';
-
-import TonhubLogo from '@assets/tonhub-logo.svg';
-
-import TonhubLogo from '@assets/tonhub-logo.svg';
 
 export type TonConnectSignState =
     { type: 'loading' }
@@ -83,17 +78,20 @@ export const DappAuthComponent = memo(({
     const navigation = useTypedNavigation();
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
-    const network = useNetwork();
-    const [bounceable,] = useBounceableWalletFormat();
+    const appState = useAppState();
+    const accounts = useMemo(() => appState.addresses
+        .map((a, i) => ({ ...a, index: i }))
+        .sort((a, b) => {
+            if (a.index === appState.selected) {
+                return -1;
+            } else if (b.index === appState.selected) {
+                return 1;
+            }
+            return 0;
+        }), [appState]);
 
-    const addressString = useMemo(() => {
-        const address = getCurrentAddress().address;
-        const friendly = address?.toString({ testOnly: network.isTestnet, bounceable });
-        if (!friendly) {
-            return '';
-        }
-        return `${friendly.slice(0, 4)}...${friendly?.slice(-4)}`;
-    }, [bounceable]);
+    const [showMore, setShowMore] = useState(appState.addresses.length > 2 ? false : true);
+    const [selectedAccount, setSelectedAccount] = useState(getCurrentAddress());
 
     const onAddressSelected = useCallback((address: Address) => {
         const account = appState.addresses.find((a) => a.address.equals(address));

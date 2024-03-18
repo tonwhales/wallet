@@ -1,5 +1,5 @@
 import { memo, useCallback } from "react";
-import { Pressable, View, Text } from "react-native";
+import { Pressable, View, Text, StyleProp, ViewStyle } from "react-native";
 import { Avatar, avatarColors } from "../Avatar";
 import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
@@ -15,12 +15,16 @@ export const WalletItem = memo((
         index,
         address,
         selected,
-        onSelect
+        onSelect,
+        style,
+        hideSelect
     }: {
         index: number
         address: Address,
         selected?: boolean,
         onSelect?: (address: Address) => void
+        style?: StyleProp<ViewStyle>,
+        hideSelect?: boolean
     }
 ) => {
     const theme = useTheme();
@@ -57,7 +61,7 @@ export const WalletItem = memo((
 
     return (
         <Pressable
-            style={{
+            style={[{
                 backgroundColor: theme.surfaceOnElevation,
                 padding: 20,
                 marginBottom: 16,
@@ -65,7 +69,7 @@ export const WalletItem = memo((
                 flexDirection: 'row',
                 alignItems: 'center',
                 justifyContent: 'space-between'
-            }}
+            }, style]}
             onPress={onSelectAccount}
         >
             <View style={{
@@ -103,16 +107,18 @@ export const WalletItem = memo((
                     {ellipsiseAddress(address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat }))}
                 </Text>
             </View>
-            <View style={{
-                justifyContent: 'center', alignItems: 'center',
-                height: 24, width: 24,
-                backgroundColor: selected ? theme.accent : theme.divider,
-                borderRadius: 12
-            }}>
-                {selected && (
-                    <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
-                )}
-            </View>
+            {!hideSelect && (
+                <View style={{
+                    justifyContent: 'center', alignItems: 'center',
+                    height: 24, width: 24,
+                    backgroundColor: selected ? theme.accent : theme.divider,
+                    borderRadius: 12
+                }}>
+                    {selected && (
+                        <IcCheck color={'white'} height={16} width={16} style={{ height: 16, width: 16 }} />
+                    )}
+                </View>
+            )}
         </Pressable>
     )
 })

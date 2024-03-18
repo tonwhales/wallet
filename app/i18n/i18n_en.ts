@@ -242,12 +242,14 @@ const schema: PrepareSchema<LocalizationSchema, '' | '_plural'> = {
                 message: 'This will destroy link between your wallet and the extension, but you can always try to connect again.',
             },
             description: 'Applications or extensions you have authorized will be displayed here. You can revoke access from any app or extension at any time.',
-            installExtension: 'Install and open extension for this application'
+            installExtension: 'Install and open extension for this application',
+            moreWallets: 'More wallets ({{count}})',
+            connectionSecureDescription: 'No funds would be transfered to the app and no access to your coins would be granted'
         },
         consent: 'By clicking continue you accepting our',
     },
     install: {
-        title: 'Install Extension',
+        title: 'Connection request',
         message: '<strong>{{name}}</strong> wants to connect to your account',
         action: 'Install'
     },

@@ -14,7 +14,7 @@ import { warn } from "../../utils/log";
 import { KnownWallets } from "../../secure/KnownWallets";
 import { ReAnimatedCircularProgress } from "../CircularProgress/ReAnimatedCircularProgress";
 import { AddressInputAction, InputActionType } from "./TransferAddressInput";
-import { fetchContractInfo } from "../../engine/api/fetchContractInfo";
+import { resolveBounceableTag } from "../../utils/resolveBounceableTag";
 
 export const AddressDomainInput = memo(forwardRef(({
     style,
@@ -99,10 +99,7 @@ export const AddressDomainInput = memo(forwardRef(({
 
             if (resolvedDomainWallet instanceof Address) {
                 const resolvedWalletAddress = Address.parse(resolvedDomainWallet.toString());
-
-                const contractInfo = await fetchContractInfo(resolvedWalletAddress.toString({ testOnly: network.isTestnet }));
-                const bounceableContract = contractInfo?.kind !== 'wallet';
-                const bounceable = bounceableContract ? true : bounceableFormat;
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
 
                 dispatch({
                     type: InputActionType.DomainTarget,
@@ -111,10 +108,7 @@ export const AddressDomainInput = memo(forwardRef(({
                 });
             } else {
                 const resolvedWalletAddress = Address.parseRaw(resolvedDomainWallet.toString());
-
-                const contractInfo = await fetchContractInfo(resolvedWalletAddress.toString({ testOnly: network.isTestnet }));
-                const bounceableContract = contractInfo?.kind !== 'wallet';
-                const bounceable = bounceableContract ? true : bounceableFormat;
+                const bounceable = await resolveBounceableTag(resolvedWalletAddress, { testOnly: network.isTestnet, bounceableFormat });
 
                 dispatch({
                     type: InputActionType.DomainTarget,

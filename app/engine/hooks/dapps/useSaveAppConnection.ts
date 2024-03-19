@@ -1,21 +1,27 @@
-import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
+import { ConnectedApp, useSetTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { ConnectedAppConnection } from '../../tonconnect/types';
 import { extensionKey } from "./useAddExtension";
 import { useSetAppsConnectionsState } from "./useSetTonconnectConnections";
 
 export function useSaveAppConnection() {
-    const [, updateExtensions] = useTonConnectExtensions();
+    const updateAddressExtensions = useSetTonConnectExtensions();
     const setConnections = useSetAppsConnectionsState();
+
     return (async ({
+        address,
         app,
         connections
     }: {
+        address: string,
         app: { url: string, name: string, iconUrl: string, autoConnectDisabled: boolean, manifestUrl: string },
         connections: ConnectedAppConnection[]
     }) => {
         let key = extensionKey(app.url);
 
-        updateExtensions((doc) => {
+        const extensionsUpdater = (doc: { [key: string]: ConnectedApp }) => {
+            if (!doc) {
+                doc = {};
+            }
             let temp = { ...doc };
             if (!!doc[key]) {
                 temp[key].iconUrl = app.iconUrl;
@@ -23,8 +29,6 @@ export function useSaveAppConnection() {
                 temp[key].date = Date.now();
                 temp[key].autoConnectDisabled = app.autoConnectDisabled;
                 temp[key].manifestUrl = app.manifestUrl;
-
-                return temp;
             } else {
                 delete temp[key];
                 temp[key] = {
@@ -35,22 +39,26 @@ export function useSaveAppConnection() {
                     autoConnectDisabled: app.autoConnectDisabled,
                     manifestUrl: app.manifestUrl
                 }
-
-                return temp;
             }
-        });
+            return temp;
+        };
 
-        setConnections((prev) => {
-            if (prev[key]) {
+        updateAddressExtensions(address, extensionsUpdater);
+
+        setConnections(
+            address,
+            (prev) => {
+                if (prev[key]) {
+                    return {
+                        ...prev,
+                        [key]: [...prev[key], ...connections]
+                    }
+                }
                 return {
                     ...prev,
-                    [key]: [...prev[key], ...connections]
+                    [key]: [...connections]
                 }
-            }
-            return {
-                ...prev,
-                [key]: [...connections]
-            }
-        });
+            },
+        );
     });
 }

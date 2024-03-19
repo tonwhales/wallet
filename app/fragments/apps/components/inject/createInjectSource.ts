@@ -148,10 +148,10 @@ type InjectionConfig = {
 }
 
 type InjectSourceProps = {
-    config: InjectionConfig, 
-    safeArea: EdgeInsets, 
-    additionalInjections?: string, 
-    useMainButtonAPI?: boolean, 
+    config: InjectionConfig,
+    safeArea: EdgeInsets,
+    additionalInjections?: string,
+    useMainButtonAPI?: boolean,
     useStatusBarAPI?: boolean
 }
 
@@ -191,8 +191,53 @@ export function createInjectSource(sourceProps: InjectSourceProps) {
     `;
 };
 
+type TonhubBridgeSourceProps = {
+    platform: string;
+    wallet: {
+        address: string;
+        publicKey: string;
+    };
+    version: number;
+    network: 'testnet' | 'mainnet';
+}
+
+export function tonhubBridgeSource(props: TonhubBridgeSourceProps) {
+    return `
+    window['tonhub-bridge'] = (() => {
+        let requestId = 0;
+        let callbacks = {};
+        let __TONHUB_BRIDGE_AVAILIBLE = true;
+
+        const call = (name, args, callback) => {
+            let id = requestId++;
+            window.ReactNativeWebView.postMessage(JSON.stringify({ id, data: { name, args } }));
+            callbacks[id] = callback;
+        };
+
+        const __response = (ev) => {
+            if (ev && typeof ev.id === 'number' && ev.data && callbacks[ev.id]) {
+                let c = callbacks[ev.id];
+                delete callbacks[ev.id];
+                c(ev.data);
+            }
+        }
+
+        const obj = { call, __TONHUB_BRIDGE_AVAILIBLE, __response, ...${JSON.stringify(props)} };
+        Object.freeze(obj);
+        return obj;
+    })();
+    true;
+    `;
+
+}
+
 export function dispatchMainButtonResponse(webRef: React.RefObject<WebView>) {
     let injectedMessage = `window['main-button'].__response(); true;`;
+    webRef.current?.injectJavaScript(injectedMessage);
+}
+
+export function dispatchTonhubBridgeResponse(webRef: React.RefObject<WebView>, data: any) {
+    let injectedMessage = `window['tonhub-bridge'].__response(${JSON.stringify(data)}); true;`;
     webRef.current?.injectJavaScript(injectedMessage);
 }
 

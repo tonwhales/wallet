@@ -1,7 +1,7 @@
 import { Linking, Platform, Pressable, Share, View } from "react-native";
 import { fragment } from "../../fragment";
 import { StatusBar } from "expo-status-bar";
-import { useCreateDomainKeyIfNeeded, useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useCreateDomainKeyIfNeeded, useDAppBridge, useNetwork, usePrice, useTheme } from "../../engine/hooks";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { usePermissions } from "expo-notifications";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -13,7 +13,7 @@ import { ShouldStartLoadRequest } from "react-native-webview/lib/WebViewTypes";
 import { extractDomain } from "../../engine/utils/extractDomain";
 import { resolveUrl } from "../../utils/resolveUrl";
 import { protectNavigation } from "../apps/components/protect/protectNavigation";
-import { useInjectEngine } from "../apps/components/inject/useInjectEngine";
+import { useInjectEngine, useTonhubBridgeEngine } from "../apps/components/inject/useInjectEngine";
 import { injectSourceFromDomain } from "../../engine/utils/injectSourceFromDomain";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Modal from "react-native-modal";
@@ -27,10 +27,13 @@ import { useKeysAuth } from "../../components/secure/AuthWalletKeys";
 import { getDomainKey } from "../../engine/state/domainKeys";
 import { ItemButton } from "../../components/ItemButton";
 import { t } from "../../i18n/t";
+import { tonhubBridgeSource } from "../apps/components/inject/createInjectSource";
+import { getPlatform } from "../../engine/tonconnect/config";
 
 import Chevron from '@assets/ic-chevron-down.svg';
 
-const engineOptions: ('ton-x' | 'ton-connect' | 'none')[] = ['ton-x', 'ton-connect', 'none'];
+type EngineOptions = 'ton-x' | 'ton-connect' | 'none' | 'tonhub-bridge';
+const engineOptions: EngineOptions[] = ['ton-x', 'ton-connect', 'none', 'tonhub-bridge'];
 
 export const DevDAppWebViewFragment = fragment(() => {
     const authContext = useKeysAuth();
@@ -41,12 +44,13 @@ export const DevDAppWebViewFragment = fragment(() => {
     const theme = useTheme();
     const [pushPemissions,] = usePermissions();
     const [, currency] = usePrice();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
 
     const [url, setUrl] = useState(initExampleUrl);
     const [urlInput, setUrlInput] = useState(url);
-    const [engine, setEngine] = useState<'ton-x' | 'ton-connect' | 'none'>('ton-connect');
+    const [engine, setEngine] = useState<EngineOptions>('ton-connect');
     const [useMainButton, setUseMainButton] = useState(false);
     const [useStatusBar, setUseStatusBar] = useState(false);
     const [useQueryAPI, setUseQueryAPI] = useState(false);
@@ -126,6 +130,8 @@ export const DevDAppWebViewFragment = fragment(() => {
     const { ref: webViewRef, isConnected, disconnect, ...tonConnectWebViewProps } = useDAppBridge(endpoint, navigation);
     // ton-x
     const injectionEngine = useInjectEngine(domain, 'DevWebView', isTestnet, endpoint);
+    // tonhub-bridge
+    const bridgeEngine = useTonhubBridgeEngine(domain, 'DevWebView', isTestnet, endpoint);
 
     const webViewProps: DAppWebViewProps = useMemo(() => {
         if (engine === 'ton-connect') {
@@ -153,6 +159,37 @@ export const DevDAppWebViewFragment = fragment(() => {
             }
         }
 
+        if (engine === 'tonhub-bridge') {
+            const devicePlatform = getPlatform();
+
+            let platform = 'other';
+            if (devicePlatform === 'android') {
+                platform = 'android';
+            } else if (devicePlatform === 'iphone') {
+                platform = 'ios';
+            }
+
+            const injectionSource = tonhubBridgeSource({
+                platform,
+                wallet: {
+                    address: getCurrentAddress().address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }),
+                    publicKey: getCurrentAddress().publicKey.toString('base64'),
+                },
+                version: 1,
+                network: isTestnet ? 'testnet' : 'mainnet',
+            });
+
+            return {
+                injectedJavaScriptBeforeContentLoaded: injectionSource,
+                injectionEngine: bridgeEngine,
+                useStatusBar,
+                useMainButton,
+                useToaster,
+                useQueryAPI,
+                onShouldStartLoadWithRequest: loadWithRequest,
+            }
+        }
+
         return {
             useStatusBar,
             useMainButton,
@@ -160,7 +197,7 @@ export const DevDAppWebViewFragment = fragment(() => {
             useQueryAPI,
             onShouldStartLoadWithRequest: loadWithRequest
         };
-    }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, useStatusBar, useMainButton, useQueryAPI, useToaster, loadWithRequest]);
+    }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, injectionEngine, useStatusBar, useMainButton, useQueryAPI, useToaster, loadWithRequest]);
 
     useEffect(() => {
         setRenderKey(renderKey + 1);

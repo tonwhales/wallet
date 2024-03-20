@@ -14,7 +14,7 @@ import { useImageColors } from "../../../utils/useImageColors";
 import { AndroidImageColors, IOSImageColors } from "react-native-image-colors/build/types";
 import { Canvas, ImageSVG, Skia } from "@shopify/react-native-skia";
 import { CheckBox } from "../../../components/CheckBox";
-import { useTheme, useAppState } from "../../../engine/hooks";
+import { useTheme, useAppState, useBounceableWalletFormat, useNetwork } from "../../../engine/hooks";
 import { StatusBar } from "expo-status-bar";
 import { ScreenHeader } from "../../../components/ScreenHeader";
 import { useTypedNavigation } from "../../../utils/useTypedNavigation";
@@ -79,6 +79,8 @@ export const DappAuthComponent = memo(({
     const safeArea = useSafeAreaInsets();
     const theme = useTheme();
     const appState = useAppState();
+    const [bounceableFormat,] = useBounceableWalletFormat();
+    const { isTestnet } = useNetwork();
     const accounts = useMemo(() => appState.addresses
         .map((a, i) => ({ ...a, index: i }))
         .sort((a, b) => {
@@ -279,6 +281,8 @@ export const DappAuthComponent = memo(({
                             onSelect={onAddressSelected}
                             style={{ marginBottom: 0, marginTop: 16 }}
                             hideSelect
+                            bounceableFormat={bounceableFormat}
+                            isTestnet={isTestnet}
                         />
                         <View style={{ flexGrow: 1 }} />
                     </>
@@ -303,6 +307,8 @@ export const DappAuthComponent = memo(({
                                     address={addr.address}
                                     onSelect={onAddressSelected}
                                     style={{ marginBottom: 0 }}
+                                    bounceableFormat={bounceableFormat}
+                                    isTestnet={isTestnet}
                                 />
                             )
                         })}
@@ -327,6 +333,8 @@ export const DappAuthComponent = memo(({
                                         selected={selectedAccount?.address.equals(addr.address)}
                                         address={addr.address}
                                         onSelect={onAddressSelected}
+                                        bounceableFormat={bounceableFormat}
+                                        isTestnet={isTestnet}
                                     />
                                 );
                             })}

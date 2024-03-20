@@ -5,7 +5,7 @@ import { t } from "../../i18n/t";
 import { ellipsiseAddress } from "../address/WalletAddress";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Address } from "@ton/core";
-import { useAppState, useBounceableWalletFormat, useNetwork, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
+import { useAppState, useSetAppState, useTheme, useWalletSettings } from "../../engine/hooks";
 import { avatarHash } from "../../utils/avatarHash";
 
 import IcCheck from "@assets/ic-check.svg";
@@ -17,25 +17,27 @@ export const WalletItem = memo((
         selected,
         onSelect,
         style,
-        hideSelect
+        hideSelect,
+        bounceableFormat,
+        isTestnet
     }: {
         index: number
         address: Address,
         selected?: boolean,
         onSelect?: (address: Address) => void
         style?: StyleProp<ViewStyle>,
-        hideSelect?: boolean
+        hideSelect?: boolean,
+        bounceableFormat: boolean,
+        isTestnet: boolean
     }
 ) => {
     const theme = useTheme();
-    const network = useNetwork();
     const navigation = useTypedNavigation();
     const appState = useAppState();
     const updateAppState = useSetAppState();
     const [walletSettings,] = useWalletSettings(address);
-    const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: network.isTestnet }), avatarColors.length);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(address.toString({ testOnly: isTestnet }), avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     const onSelectAccount = useCallback(() => {
@@ -54,10 +56,10 @@ export const WalletItem = memo((
         }
 
         // Select new account
-        updateAppState({ ...appState, selected: index }, network.isTestnet);
+        updateAppState({ ...appState, selected: index }, isTestnet);
 
         navigation.navigateAndReplaceAll('Home');
-    }, [walletSettings, selected, address, network, onSelect]);
+    }, [walletSettings, selected, address, isTestnet, onSelect]);
 
     return (
         <Pressable
@@ -82,11 +84,11 @@ export const WalletItem = memo((
             }}>
                 <Avatar
                     borderWith={0}
-                    id={address.toString({ testOnly: network.isTestnet })}
+                    id={address.toString({ testOnly: isTestnet })}
                     size={46}
                     hash={walletSettings?.avatar}
                     theme={theme}
-                    isTestnet={network.isTestnet}
+                    isTestnet={isTestnet}
                     backgroundColor={avatarColor}
                 />
             </View>
@@ -104,7 +106,7 @@ export const WalletItem = memo((
                     {walletSettings?.name || `${t('common.wallet')} ${index + 1}`}
                 </Text>
                 <Text style={{ fontSize: 15, lineHeight: 20, fontWeight: '400', color: '#838D99' }}>
-                    {ellipsiseAddress(address.toString({ testOnly: network.isTestnet, bounceable: bounceableFormat }))}
+                    {ellipsiseAddress(address.toString({ testOnly: isTestnet, bounceable: bounceableFormat }))}
                 </Text>
             </View>
             {!hideSelect && (

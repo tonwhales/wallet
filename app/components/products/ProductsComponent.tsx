@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useHoldersIsReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -17,17 +17,15 @@ import { ValueComponent } from "../ValueComponent"
 import { PriceComponent } from "../PriceComponent"
 import { ProductBanner } from "./ProductBanner"
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState"
-import { getDomainKey } from "../../engine/state/domainKeys"
-import { extractDomain } from "../../engine/utils/extractDomain"
 import { PendingTransactions } from "../../fragments/wallet/views/PendingTransactions"
 import { Typography } from "../styles"
 import { useBanners } from "../../engine/hooks/banners"
 import { ProductAd } from "../../engine/api/fetchBanners"
 import { MixpanelEvent, trackEvent } from "../../analytics/mixpanel"
+import { AddressFormatUpdate } from "./AddressFormatUpdate"
 
 import OldWalletIcon from '@assets/ic_old_wallet.svg';
 import IcTonIcon from '@assets/ic-ton-acc.svg';
-import { AddressFormatUpdate } from "./AddressFormatUpdate"
 
 export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount }) => {
     const theme = useTheme();
@@ -39,6 +37,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners();
+    const isHoldersReady = useHoldersIsReady(holdersUrl);
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {
@@ -72,9 +71,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     }, []);
 
     const onHoldersPress = useCallback(() => {
-        const domain = extractDomain(holdersUrl);
-        const domainKey = getDomainKey(domain);
-        if (needsEnrolment || !domainKey) {
+        if (needsEnrolment || !isHoldersReady) {
             navigation.navigate(
                 'HoldersLanding',
                 {
@@ -85,7 +82,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
             return;
         }
         navigation.navigateHolders({ type: 'create' });
-    }, [needsEnrolment]);
+    }, [needsEnrolment, isHoldersReady]);
 
     const tonItem = useMemo(() => {
         return (

@@ -168,8 +168,11 @@ export const DappAuthComponent = memo(({
         <View style={[
             { flexGrow: 1 },
             Platform.select({
-                android: { backgroundColor: theme.backgroundPrimary },
-                ios: { backgroundColor: theme.elevation, }
+                android: { 
+                    backgroundColor: theme.backgroundPrimary,
+                    paddingTop: safeArea.top
+                },
+                ios: { backgroundColor: theme.elevation }
             })
         ]}>
             <StatusBar style={Platform.select({ android: theme.style === 'dark' ? 'light' : 'dark', ios: 'light' })} />
@@ -189,7 +192,7 @@ export const DappAuthComponent = memo(({
                     android: { backgroundColor: theme.backgroundPrimary }
                 })
             ]}>
-                <View style={Platform.select({ android: { flexGrow: 1 } })}>
+                <View style={Platform.select({ android: { flexGrow: single ? 1 : 0 } })}>
                     <View style={{
                         borderRadius: 20,
                         width: '100%',

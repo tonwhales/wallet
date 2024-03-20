@@ -35,7 +35,7 @@ export function useHoldersAccounts(address: string | Address) {
             let prepaidCards;
             let type = 'public';
             if (token) {
-                const res = (await fetchAccountsList(token));
+                const res = await fetchAccountsList(token);
                 type = 'private';
                 accounts = res?.accounts;
                 prepaidCards = res?.prepaidCards;

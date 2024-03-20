@@ -299,9 +299,9 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
         try {
             const powerState = DeviceInfo.getPowerStateSync();
             const biggerDelay = powerState.lowPowerMode || (powerState.batteryLevel ?? 0) <= 0.2;
-            setTimeout(() => setLoaded(true), biggerDelay ? 180 : 100);
+            setTimeout(() => setLoaded(true), biggerDelay ? 300 : 200);
         } catch {
-            setTimeout(() => setLoaded(true), 100);
+            setTimeout(() => setLoaded(true), 200);
         }
     }, []);
 

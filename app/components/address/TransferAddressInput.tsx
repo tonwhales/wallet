@@ -14,6 +14,7 @@ import { PerfText } from "../basic/PerfText";
 import { avatarHash } from "../../utils/avatarHash";
 
 import IcChevron from '@assets/ic_chevron_forward.svg';
+import { useLedgerTransport } from "../../fragments/ledger/components/TransportContext";
 
 type TransferAddressInputProps = {
     acc: Address,
@@ -130,15 +131,26 @@ export const TransferAddressInput = memo(forwardRef((props: TransferAddressInput
     const theme = useTheme();
     const validAddressFriendly = props.validAddress?.toString({ testOnly: props.isTestnet });
     const [walletSettings,] = useWalletSettings(validAddressFriendly);
+    const ledgerTransport = useLedgerTransport();
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(validAddressFriendly ?? '', avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const myWallets = appState.addresses.map((acc, index) => ({
-        address: acc.address,
-        addressString: acc.address.toString({ testOnly: props.isTestnet }),
-        index: index
-    })).filter((acc) => !acc.address.equals(props.acc));
+    const myWallets = appState.addresses
+        .map((acc, index) => ({
+            address: acc.address,
+            addressString: acc.address.toString({ testOnly: props.isTestnet }),
+            index: index
+        }))
+        .concat(ledgerTransport.addr ? [
+            {
+                address: Address.parse(ledgerTransport.addr.address),
+                addressString: Address.parse(ledgerTransport.addr.address).toString({ testOnly: props.isTestnet }),
+                index: -2
+            }
+        ]: [])
+        .filter((acc) => !acc.address.equals(props.acc));
+
     const own = !!myWallets.find((acc) => {
         if (props.validAddress) {
             return acc.address.equals(props.validAddress);

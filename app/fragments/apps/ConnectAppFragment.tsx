@@ -13,16 +13,13 @@ import { StatusBar } from 'expo-status-bar';
 export const ConnectAppFragment = fragment(() => {
     const theme = useTheme();
     const url = (useRoute().params as any).url as string;
-    const appKey = extensionKey(url)
+    const appKey = extensionKey(url);
     const [inastalledConnectApps,] = useTonConnectExtensions();
-    const manifestUrl = useMemo(() => {
-        return inastalledConnectApps?.[appKey]?.manifestUrl;
+    const app = useMemo(() => {
+        return inastalledConnectApps?.[appKey];
     }, [inastalledConnectApps, appKey]);
-    const appManifest = useAppManifest(manifestUrl ?? '');
+    const appManifest = useAppManifest(app.manifestUrl ?? '');
 
-    if (!appManifest) {
-        throw Error('No App Data');
-    }
     return (
         <View style={{
             flex: 1,
@@ -31,7 +28,7 @@ export const ConnectAppFragment = fragment(() => {
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
             <ConnectAppComponent
                 endpoint={url}
-                title={appManifest.name}
+                title={appManifest?.name ?? app.name}
             />
         </View>
     );

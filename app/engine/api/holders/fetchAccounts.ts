@@ -113,13 +113,13 @@ const cardDeliverySchema = z.object({
 
 const accountLimitsSchema = z.object({
   tzOffset: z.number(),
-  onetime: z.string(),
-  daily: z.string(),
-  dailySpent: z.string(),
-  monthly: z.string(),
-  monthlySpent: z.string(),
   dailyDeadline: z.number(),
-  monthlyDeadline: z.number()
+  dailySpent: z.string(),
+  monthlyDeadline: z.number(),
+  monthlySpent: z.string(),
+  monthly: z.string(),
+  daily: z.string(),
+  onetime: z.string()
 });
 
 const cardPendingStatusSchema = z.union([
@@ -143,22 +143,65 @@ const cardStatusSchema = z.union([
 
 const cardSchema = z.object({
   id: z.string(),
+  status: cardStatusSchema,
+  walletId: z.string(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
-  leftToPay: z.string(),
-  personalizationCode: z.string(),
   productId: z.string(),
+  personalizationCode: z.string(),
+  delivery: cardDeliverySchema.nullable().optional(),
   seed: z.string().nullable().optional(),
-  status: cardStatusSchema,
-  createdAt: z.string(),
   updatedAt: z.string(),
+  createdAt: z.string(),
 });
+
+const cardDebit = z.union([
+  z.object({
+    type: z.literal('DEBIT'),
+  }),
+  cardSchema
+]);
+
+const cardPrepaid = z.union([
+  z.object({
+    type: z.literal('PREPAID'),
+    fiatBalance: z.string(),
+  }),
+  cardSchema
+]);
 
 const cryptoCurrencyTicker = z.union([
   z.literal('TON'),
   z.literal('USDT'),
   z.literal('EURT'),
 ]);
+
+/**
+ * export type AccountT = {
+  id: string;
+  address: string;
+  name: string;
+  seed: string | null;
+  state: AccountStatusT;
+  balance: string;
+  tzOffset: number;
+  contract: string;
+  partner: AccountPartnerT;
+  network: ChainNetworkT;
+  ownerAddress: string;
+  cryptoCurrency: CryptoCurrencyT;
+
+  limits: LimitsT & {
+    tzOffset: number;
+    dailyDeadline: number;
+    dailySpent: string;
+    monthlyDeadline: number;
+    monthlySpent: string;
+  };
+
+  cards: CardDebitT[];
+};
+ */
 
 const accountSchema = z.object({
   id: z.string(),
@@ -180,13 +223,14 @@ const accountSchema = z.object({
   }),
 
   limits: accountLimitsSchema,
-  cards: z.array(cardSchema),
+  cards: z.array(cardDebit),
 });
 
 export const accountsListResCodec = z.union([
   z.object({
     ok: z.literal(true),
     list: z.array(accountSchema),
+    prepaidCards: z.array(cardPrepaid)
   }),
   z.object({
     ok: z.literal(false),
@@ -200,6 +244,7 @@ export const generalCardSchema = z.intersection(cardSchema, cardPublicSchema);
 export type GeneralHoldersAccount = z.infer<typeof generalAccountSchema>;
 export type HoldersAccount = z.infer<typeof accountSchema>;
 export type GeneralHoldersCard = z.infer<typeof generalCardSchema>;
+export type PrePaidHoldersCard = z.infer<typeof cardPrepaid>;
 
 export async function fetchAccountsList(token: string) {
   let res = await axios.post(
@@ -229,5 +274,8 @@ export async function fetchAccountsList(token: string) {
     throw Error("Invalid card list response");
   }
 
-  return res.data.list as GeneralHoldersAccount[];
+  return {
+    accounts: res.data.list as GeneralHoldersAccount[],
+    prepaidCards: res.data.prepaidCards as PrePaidHoldersCard[]
+  };
 }

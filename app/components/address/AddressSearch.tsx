@@ -117,6 +117,10 @@ export const AddressSearch = memo(({
                     title = walletSettings.name;
                 }
 
+                if (acc.index === -2) {
+                    title = 'Ledger';
+                }
+
                 let addr: {
                     isBounceable: boolean;
                     isTestOnly: boolean;

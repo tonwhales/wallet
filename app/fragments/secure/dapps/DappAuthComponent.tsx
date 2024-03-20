@@ -298,7 +298,7 @@ export const DappAuthComponent = memo(({
                             return (
                                 <WalletItem
                                     key={addr.address.toString()}
-                                    index={index}
+                                    index={addr.index}
                                     selected={selectedAccount?.address.equals(addr.address)}
                                     address={addr.address}
                                     onSelect={onAddressSelected}
@@ -323,7 +323,7 @@ export const DappAuthComponent = memo(({
                                 return (
                                     <WalletItem
                                         key={addr.address.toString()}
-                                        index={index + 2}
+                                        index={addr.index}
                                         selected={selectedAccount?.address.equals(addr.address)}
                                         address={addr.address}
                                         onSelect={onAddressSelected}

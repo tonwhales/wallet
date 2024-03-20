@@ -23,11 +23,11 @@ import { Avatar, avatarColors } from "../../../components/Avatar";
 import { AddressContact } from "../../../engine/hooks/contacts/useAddressBook";
 import { valueText } from "../../../components/ValueComponent";
 import { toBnWithDecimals } from "../../../utils/withDecimals";
+import { avatarHash } from "../../../utils/avatarHash";
 
 import WithStateInit from '@assets/ic_sign_contract.svg';
 import IcAlert from '@assets/ic-alert.svg';
 import SignLock from '@assets/ic_sign_lock.svg';
-import { avatarHash } from "../../../utils/avatarHash";
 
 export const TransferSingleView = memo(({
     operation,

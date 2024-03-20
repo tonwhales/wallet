@@ -182,7 +182,7 @@ export const HoldersAccountItem = memo((props: {
                             showsHorizontalScrollIndicator={false}
                             alwaysBounceHorizontal={props.account.cards.length > 0}
                         >
-                            {props.account.cards.map((card,) => {
+                            {props.account.cards.map((card) => {
                                 return (
                                     <HoldersAccountCard
                                         card={card as GeneralHoldersCard}

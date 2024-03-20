@@ -153,6 +153,8 @@ const cardSchema = z.object({
   seed: z.string().nullable().optional(),
   updatedAt: z.string(),
   createdAt: z.string(),
+  provider: z.string().optional().nullable(),
+  kind: z.string().optional().nullable()
 });
 
 const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);

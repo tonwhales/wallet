@@ -24,18 +24,15 @@ export const HoldersAppFragment = fragment(() => {
     const isHoldersReady = useHoldersIsReady(holdersUrl);
 
     const needsEnrollment = useMemo(() => {
-        try {
-            if (!isHoldersReady) {
-                return true;
-            }
+        if (!isHoldersReady) {
+            return true;
+        }
 
-            if (!status) {
-                return true;
-            }
-            if (status.state === HoldersAccountState.NeedEnrollment) {
-                return true;
-            }
-        } catch (error) {
+        if (!status) {
+            return true;
+        }
+
+        if (status.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
 

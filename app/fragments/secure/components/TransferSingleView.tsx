@@ -73,7 +73,7 @@ export const TransferSingleView = memo(({
     const theme = useTheme();
     const { isTestnet } = useNetwork();
     const selected = useSelectedAccount();
-    const ledgerContext = useLedgerTransport();
+    const ledgerTransport = useLedgerTransport();
     const appState = useAppState();
     const [walletsSettings,] = useWalletsSettings();
     const [price, currency] = usePrice();
@@ -100,7 +100,18 @@ export const TransferSingleView = memo(({
         );
     }, [price, currency, fees]);
 
-    const fromAddress = isLedger ? Address.parse(ledgerContext.addr!.address) : selected!.address;
+    const isTargetLedger = useMemo(() => {
+        try {
+            if (!!ledgerTransport?.addr?.address) {
+                return Address.parse(ledgerTransport.addr.address).equals(target.address);
+            }
+            return false
+        } catch {
+            return false;
+        }
+    }, [ledgerTransport.addr?.address, target.address]);
+
+    const fromAddress = isLedger ? Address.parse(ledgerTransport.addr!.address) : selected!.address;
     const name = isLedger
         ? 'Ledger'
         : `${t('common.wallet')} ${appState.addresses.findIndex((a) => fromAddress?.equals(a.address)) + 1}`;
@@ -112,18 +123,14 @@ export const TransferSingleView = memo(({
 
     const to = {
         address: target.address,
-        name: targetWalletSettings?.name
-            || known?.name
-            || target.domain
-            || null
+        name:
+            isTargetLedger
+                ? 'Ledger'
+                : targetWalletSettings?.name
+                || known?.name
+                || target.domain
+                || null
     }
-
-    const inactiveAlert = useCallback(() => {
-        navigation.navigateAlert({
-            title: t('transfer.error.addressIsNotActive'),
-            message: t('transfer.error.addressIsNotActiveDescription')
-        });
-    }, []);
 
     const jettonsGasAlert = useCallback(() => {
         if (!jettonAmountString) return;
@@ -195,21 +202,28 @@ export const TransferSingleView = memo(({
                         }} />
                         <View style={{ flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
                             <View style={{ width: 68, flexDirection: 'row', height: 68 }}>
-                                <Avatar
-                                    size={68}
-                                    id={targetString}
-                                    address={targetString}
-                                    hash={targetWalletSettings?.avatar}
-                                    spam={isSpam}
-                                    showSpambadge
-                                    borderWith={2}
-                                    borderColor={theme.surfaceOnElevation}
-                                    backgroundColor={avatarColor}
-                                    markContact={!!contact}
-                                    icProps={{ position: 'bottom' }}
-                                    theme={theme}
-                                    isTestnet={isTestnet}
-                                />
+                                {isTargetLedger ? (
+                                    <Image
+                                        source={require('@assets/ledger_device.png')}
+                                        style={{ height: 68, width: 68 }}
+                                    />
+                                ) : (
+                                    <Avatar
+                                        size={68}
+                                        id={targetString}
+                                        address={targetString}
+                                        hash={targetWalletSettings?.avatar}
+                                        spam={isSpam}
+                                        showSpambadge
+                                        borderWith={2}
+                                        borderColor={theme.surfaceOnElevation}
+                                        backgroundColor={avatarColor}
+                                        markContact={!!contact}
+                                        icProps={{ position: 'bottom' }}
+                                        theme={theme}
+                                        isTestnet={isTestnet}
+                                    />
+                                )}
                             </View>
                         </View>
                         <View style={{ width: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -226,6 +240,7 @@ export const TransferSingleView = memo(({
                                 marginTop: 2
                             }}>
                                 <AddressComponent bounceable={target.bounceable} address={target.address} end={4} />
+                                {isTargetLedger && ' (Ledger)'}
                             </Text>
                         </View>
                         <View style={{ flexDirection: 'row', paddingHorizontal: 26, flexWrap: 'wrap', justifyContent: 'center' }}>

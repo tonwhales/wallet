@@ -18,7 +18,7 @@ export function useHoldersIsReady(holdersUrl: string) {
         // check if the app has injected connection
         try {
             // we trycatch in case of invalid app.url
-            const key = extensionKey(app.url);
+            const key = extensionKey(holdersUrl);
     
             const connections = connectAppConnections(key);
     

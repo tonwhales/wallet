@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useAppConnections, useConnectApp } from "..";
-import { extensionKey } from "../dapps/useAddExtension";
+import { extensionKey } from "./useAddExtension";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 
 export function useIsConnectAppReady(appUrl: string) {

@@ -144,7 +144,7 @@ const cardStatusSchema = z.union([
 const cardSchema = z.object({
   id: z.string(),
   status: cardStatusSchema,
-  walletId: z.string(),
+  walletId: z.string().optional().nullable(),
   fiatCurrency: z.string(),
   lastFourDigits: z.string().nullable().optional(),
   productId: z.string(),
@@ -153,55 +153,23 @@ const cardSchema = z.object({
   seed: z.string().nullable().optional(),
   updatedAt: z.string(),
   createdAt: z.string(),
+  provider: z.string().optional().nullable(),
+  kind: z.string().optional().nullable()
 });
 
-const cardDebit = z.union([
-  z.object({
-    type: z.literal('DEBIT'),
-  }),
-  cardSchema
-]);
-
-const cardPrepaid = z.union([
+const cardDebit = cardSchema.and(z.object({ type: z.literal('DEBIT') }),);
+const cardPrepaid = cardSchema.and(
   z.object({
     type: z.literal('PREPAID'),
     fiatBalance: z.string(),
   }),
-  cardSchema
-]);
+);
 
 const cryptoCurrencyTicker = z.union([
   z.literal('TON'),
   z.literal('USDT'),
   z.literal('EURT'),
 ]);
-
-/**
- * export type AccountT = {
-  id: string;
-  address: string;
-  name: string;
-  seed: string | null;
-  state: AccountStatusT;
-  balance: string;
-  tzOffset: number;
-  contract: string;
-  partner: AccountPartnerT;
-  network: ChainNetworkT;
-  ownerAddress: string;
-  cryptoCurrency: CryptoCurrencyT;
-
-  limits: LimitsT & {
-    tzOffset: number;
-    dailyDeadline: number;
-    dailySpent: string;
-    monthlyDeadline: number;
-    monthlySpent: string;
-  };
-
-  cards: CardDebitT[];
-};
- */
 
 const accountSchema = z.object({
   id: z.string(),
@@ -226,7 +194,7 @@ const accountSchema = z.object({
   cards: z.array(cardDebit),
 });
 
-export const accountsListResCodec = z.union([
+export const accountsListResCodec = z.discriminatedUnion('ok', [
   z.object({
     ok: z.literal(true),
     list: z.array(accountSchema),
@@ -264,18 +232,18 @@ export async function fetchAccountsList(token: string) {
     return null;
   }
 
-  if (!res.data.ok) {
-    throw Error(`Error fetching card list: ${res.data.error}`);
-  }
-
   let parseResult = accountsListResCodec.safeParse(res.data);
   if (!parseResult.success) {
     console.warn(JSON.stringify(parseResult.error.format()));
     throw Error("Invalid card list response");
   }
 
+  if (!parseResult.data.ok) {
+    throw Error(`Error fetching card list: ${res.data.error}`);
+  }
+
   return {
-    accounts: res.data.list as GeneralHoldersAccount[],
-    prepaidCards: res.data.prepaidCards as PrePaidHoldersCard[]
+    accounts: parseResult.data.list as GeneralHoldersAccount[],
+    prepaidCards: parseResult.data.prepaidCards as PrePaidHoldersCard[]
   };
 }

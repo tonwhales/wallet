@@ -6,7 +6,7 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useAppConnections, useConnectApp, useHoldersAccountStatus, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -14,8 +14,6 @@ import { Typography } from "../styles";
 import { ScrollView, Swipeable, TouchableOpacity } from "react-native-gesture-handler";
 import { HoldersAccountCard } from "./HoldersAccountCard";
 import { Platform } from "react-native";
-import { extensionKey } from "../../engine/hooks/dapps/useAddExtension";
-import { TonConnectBridgeType } from "../../engine/tonconnect/types";
 
 import IcTonIcon from '@assets/ic-ton-acc.svg';
 
@@ -34,36 +32,23 @@ export const HoldersAccountItem = memo((props: {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-
-    const connectApp = useConnectApp();
-    const connectAppConnections = useAppConnections();
+    const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const needsEnrollment = useMemo(() => {
-        try {
-            const app = connectApp(holdersUrl);
+        if (!isHoldersReady) {
+            return true;
+        }
 
-            if (!app) {
-                return true;
-            }
- 
-            const connections = connectAppConnections(extensionKey(app.url));
+        if (!holdersAccStatus) {
+            return true;
+        }
 
-            if (!connections.find((item) => item.type === TonConnectBridgeType.Injected)) {
-                return true;
-            }
-
-            if (!holdersAccStatus) {
-                return true;
-            }
-            if (holdersAccStatus.state === HoldersAccountState.NeedEnrollment) {
-                return true;
-            }
-        } catch (error) {
+        if (holdersAccStatus.state === HoldersAccountState.NeedEnrollment) {
             return true;
         }
 
         return false;
-    }, [holdersAccStatus, connectApp, connectAppConnections]);
+    }, [holdersAccStatus, isHoldersReady]);
 
     const isPro = useMemo(() => {
         return props.account.cards.find((card) => card.personalizationCode === 'black-pro') !== undefined;
@@ -182,9 +167,10 @@ export const HoldersAccountItem = memo((props: {
                             showsHorizontalScrollIndicator={false}
                             alwaysBounceHorizontal={props.account.cards.length > 0}
                         >
-                            {props.account.cards.map((card,) => {
+                            {props.account.cards.map((card, index) => {
                                 return (
                                     <HoldersAccountCard
+                                        key={`card-item-${index}`}
                                         card={card as GeneralHoldersCard}
                                         theme={theme}
                                     />

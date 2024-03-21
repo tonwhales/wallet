@@ -9,7 +9,7 @@ const imagePreview = z.object({
 
 const contentCodec = z.object({
     name: z.string().nullable(),
-    description: z.string().nullable(),
+    description: z.string().nullable().optional(),
     symbol: z.string().nullable(),
     decimals: z.number().nullable(),
     originalImage: z.string().nullable().optional(),

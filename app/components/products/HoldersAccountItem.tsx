@@ -6,7 +6,7 @@ import { PriceComponent } from "../PriceComponent";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import Animated from "react-native-reanimated";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
-import { useHoldersAccountStatus, useHoldersIsReady, useSelectedAccount, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useIsConnectAppReady, useSelectedAccount, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { GeneralHoldersAccount, GeneralHoldersCard } from "../../engine/api/holders/fetchAccounts";
 import { PerfText } from "../basic/PerfText";
@@ -32,7 +32,7 @@ export const HoldersAccountItem = memo((props: {
     const navigation = useTypedNavigation();
     const selected = useSelectedAccount();
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
-    const isHoldersReady = useHoldersIsReady(holdersUrl);
+    const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const needsEnrollment = useMemo(() => {
         if (!isHoldersReady) {

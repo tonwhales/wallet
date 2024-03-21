@@ -5,4 +5,4 @@ export { useHoldersAccounts } from './useHoldersAccounts';
 export { useHoldersEnroll } from './useHoldersEnroll';
 export { useOfflineApp } from './useOfflineApp';
 export { useHoldersHiddenAccounts } from './useHoldersHiddenAccounts';
-export { useHoldersIsReady } from './useHoldersIsReady';
+export { useIsConnectAppReady } from './useIsConnectAppReady';

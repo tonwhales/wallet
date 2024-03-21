@@ -3,12 +3,12 @@ import { useAppConnections, useConnectApp } from "..";
 import { extensionKey } from "../dapps/useAddExtension";
 import { TonConnectBridgeType } from "../../tonconnect/types";
 
-export function useHoldersIsReady(holdersUrl: string) {
+export function useIsConnectAppReady(appUrl: string) {
     const connectApp = useConnectApp();
     const connectAppConnections = useAppConnections();
 
     return useMemo(() => {
-        const app = connectApp(holdersUrl);
+        const app = connectApp(appUrl);
 
         // check if app is saved
         if (!app) {
@@ -17,8 +17,8 @@ export function useHoldersIsReady(holdersUrl: string) {
 
         // check if the app has injected connection
         try {
-            // we trycatch in case of invalid app.url
-            const key = extensionKey(holdersUrl);
+            // we trycatch in case of invalid appUrl
+            const key = extensionKey(appUrl);
     
             const connections = connectAppConnections(key);
     

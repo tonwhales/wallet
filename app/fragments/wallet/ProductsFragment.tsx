@@ -2,7 +2,7 @@ import { View, Platform, Text, Pressable } from "react-native";
 import { useCallback, useMemo } from "react";
 import { fragment } from "../../fragment";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
-import { useHoldersAccountStatus, useHoldersIsReady, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
+import { useHoldersAccountStatus, useIsConnectAppReady, useNetwork, useSelectedAccount, useStakingApy, useTheme } from "../../engine/hooks";
 import { HoldersAccountState, holdersUrl } from "../../engine/api/holders/fetchAccountState";
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { t } from "../../i18n/t";
@@ -18,7 +18,7 @@ export const ProductsFragment = fragment(() => {
     const apy = useStakingApy()?.apy;
     const seleted = useSelectedAccount();
     const status = useHoldersAccountStatus(seleted!.address).data;
-    const isHoldersReady = useHoldersIsReady(holdersUrl);
+    const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const apyWithFee = useMemo(() => {
         if (!!apy) {

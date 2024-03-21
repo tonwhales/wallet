@@ -2,7 +2,7 @@ import React, { ReactElement, memo, useCallback, useMemo } from "react"
 import { Pressable, Text, View, Image } from "react-native"
 import { AnimatedProductButton } from "../../fragments/wallet/products/AnimatedProductButton"
 import Animated, { FadeInUp, FadeOutDown } from "react-native-reanimated"
-import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useHoldersIsReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
+import { useAccountLite, useHoldersAccountStatus, useHoldersAccounts, useIsConnectAppReady, useNetwork, useOldWalletsBalances, useStaking, useTheme } from "../../engine/hooks"
 import { useTypedNavigation } from "../../utils/useTypedNavigation"
 import { HoldersProductComponent } from "./HoldersProductComponent"
 import { t } from "../../i18n/t"
@@ -37,7 +37,7 @@ export const ProductsComponent = memo(({ selected }: { selected: SelectedAccount
     const holdersAccounts = useHoldersAccounts(selected!.address).data;
     const holdersAccStatus = useHoldersAccountStatus(selected!.address).data;
     const banners = useBanners();
-    const isHoldersReady = useHoldersIsReady(holdersUrl);
+    const isHoldersReady = useIsConnectAppReady(holdersUrl);
 
     const needsEnrolment = useMemo(() => {
         if (holdersAccStatus?.state === HoldersAccountState.NeedEnrollment) {

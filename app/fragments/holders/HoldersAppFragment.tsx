@@ -4,10 +4,9 @@ import { View } from 'react-native';
 import { HoldersAppComponent } from './components/HoldersAppComponent';
 import { useParams } from '../../utils/useParams';
 import { t } from '../../i18n/t';
-import { useEffect, useMemo } from 'react';
-import { useTypedNavigation } from '../../utils/useTypedNavigation';
-import { useHoldersAccountStatus, useHoldersIsReady, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
-import { HoldersAccountState, holdersUrl } from '../../engine/api/holders/fetchAccountState';
+import { useEffect } from 'react';
+import { useHoldersAccountStatus, useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';
+import { holdersUrl } from '../../engine/api/holders/fetchAccountState';
 import { StatusBar, setStatusBarStyle } from 'expo-status-bar';
 import { onHoldersInvalidate } from '../../engine/effects/onHoldersInvalidate';
 import { useFocusEffect } from '@react-navigation/native';
@@ -19,31 +18,7 @@ export const HoldersAppFragment = fragment(() => {
     const { isTestnet } = useNetwork();
     const params = useParams<HoldersAppParams>();
     const selected = useSelectedAccount();
-    const navigation = useTypedNavigation();
     const status = useHoldersAccountStatus(selected!.address).data;
-    const isHoldersReady = useHoldersIsReady(holdersUrl);
-
-    const needsEnrollment = useMemo(() => {
-        if (!isHoldersReady) {
-            return true;
-        }
-
-        if (!status) {
-            return true;
-        }
-
-        if (status.state === HoldersAccountState.NeedEnrollment) {
-            return true;
-        }
-
-        return false;
-    }, [status, isHoldersReady]);
-
-    useEffect(() => {
-        if (needsEnrollment) {
-            navigation.goBack();
-        }
-    }, [needsEnrollment]);
 
     useEffect(() => {
         return () => {
@@ -62,14 +37,12 @@ export const HoldersAppFragment = fragment(() => {
             backgroundColor: theme.backgroundPrimary
         }}>
             <StatusBar style={theme.style === 'dark' ? 'light' : 'dark'} />
-            {needsEnrollment ? null : (
-                <HoldersAppComponent
-                    title={t('products.holders.title')}
-                    variant={params}
-                    token={(status as { token: string }).token}
-                    endpoint={holdersUrl}
-                />
-            )}
+            <HoldersAppComponent
+                title={t('products.holders.title')}
+                variant={params}
+                token={(status as { token: string }).token}
+                endpoint={holdersUrl}
+            />
         </View>
     );
 });

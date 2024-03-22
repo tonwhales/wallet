@@ -1,12 +1,18 @@
-import { atom, atomFamily } from "recoil";
+import { atomFamily } from "recoil";
 import { Address, Cell } from "@ton/core";
-import { JettonMasterState } from "../metadata/fetchJettonMasterContent";
 import { Jetton } from "../types";
 
 export type PendingTransactionBody =
     | { type: 'payload', cell: Cell }
     | { type: 'comment', comment: string }
-    | { type: 'token', amount: bigint, master: Jetton, target: Address, comment: string | null }
+    | {
+        type: 'token',
+        amount: bigint,
+        master: Jetton,
+        target: Address,
+        bounceable?: boolean,
+        comment: string | null
+    }
     | { type: 'batch' };
 
 export type PendingTransactionStatus = 'pending' | 'sent';
@@ -16,6 +22,7 @@ export type PendingTransaction = {
     fees: bigint,
     amount: bigint,
     address: Address | null,
+    bounceable?: boolean,
     seqno: number,
     body: PendingTransactionBody | null,
     time: number,

@@ -39,6 +39,7 @@ export function TransactionView(props: {
     spamWallets: string[],
     appState?: AppState,
     jettons: Jetton[]
+    bounceableFormat: boolean
 }) {
     const {
         theme,
@@ -55,19 +56,22 @@ export function TransactionView(props: {
     const itemAmount = BigInt(item.amount);
     const absAmount = itemAmount < 0 ? itemAmount * BigInt(-1) : itemAmount;
     const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    const parsedOpAddr = Address.parseFriendly(opAddress);
+    const parsedAddress = parsedOpAddr.address;
+    const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
-    const [walletSettings,] = useWalletSettings(opAddress);
+    const [walletSettings,] = useWalletSettings(parsedAddressFriendly);
     const jetton = props.jettons.find((j) =>
         !!tx.metadata?.jettonWallet?.master
         && j.master.equals(tx.metadata?.jettonWallet?.master)
     );
 
-    const avatarColorHash = walletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
+    const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
-    const contact = contacts[opAddress];
-    const isSpam = !!denyList[opAddress]?.reason;
+    const contact = contacts[parsedAddressFriendly];
+    const isSpam = !!denyList[parsedAddressFriendly]?.reason;
 
     // Operation
     const op = useMemo(() => {
@@ -94,8 +98,8 @@ export function TransactionView(props: {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[opAddress]) {
-        known = KnownWallets(isTestnet)[opAddress];
+    if (KnownWallets(isTestnet)[parsedAddressFriendly]) {
+        known = KnownWallets(isTestnet)[parsedAddressFriendly];
     }
     if (tx.title) {
         known = { name: tx.title };
@@ -113,7 +117,7 @@ export function TransactionView(props: {
         || (
             absAmount < spamMinAmount
             && !!tx.base.operation.comment
-            && !KnownWallets(isTestnet)[opAddress]
+            && !KnownWallets(isTestnet)[parsedAddressFriendly]
             && !isTestnet
         ) && kind !== 'out';
 
@@ -143,14 +147,14 @@ export function TransactionView(props: {
                     {parsed.status === 'pending' ? (
                         <PendingTransactionAvatar
                             kind={kind}
-                            address={opAddress}
-                            avatarId={opAddress}
+                            address={parsedAddressFriendly}
+                            avatarId={parsedAddressFriendly}
                         />
                     ) : (
                         <Avatar
                             size={48}
-                            address={opAddress}
-                            id={opAddress}
+                            address={parsedAddressFriendly}
+                            id={parsedAddressFriendly}
                             borderWith={0}
                             spam={spam}
                             markContact={!!contact}
@@ -201,7 +205,7 @@ export function TransactionView(props: {
                             </PerfView>
                         )}
                     </PerfView>
-                    <PerfText
+                    <Text
                         style={[
                             { color: theme.textSecondary, marginRight: 8, marginTop: 2 },
                             Typography.regular15_20
@@ -211,10 +215,13 @@ export function TransactionView(props: {
                     >
                         {known
                             ? known.name
-                            : <AddressComponent address={Address.parse(opAddress)} />
+                            : <AddressComponent
+                                address={parsedOpAddr.address}
+                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                            />
                         }
                         {` • ${formatTime(tx.base.time)}`}
-                    </PerfText>
+                    </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
                     {parsed.status === 'failed' ? (

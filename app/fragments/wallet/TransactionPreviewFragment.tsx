@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useDontShowComments, useIsSpamWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";
@@ -50,6 +50,7 @@ const TransactionPreview = () => {
     const [price, currency] = usePrice();
     const [spamMinAmount,] = useSpamMinAmount();
     const [dontShowComments,] = useDontShowComments();
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const isLedger = route.name === 'LedgerTransactionPreview';
 
@@ -72,21 +73,25 @@ const TransactionPreview = () => {
     const operation = tx.base.operation;
     const kind = tx.base.parsed.kind;
     const item = operation.items[0];
-    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
     const fees = BigInt(tx.base.fees);
-    const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
-    const [ownWalletSettings,] = useWalletSettings(address);
-    const [opAddressWalletSettings,] = useWalletSettings(opAddress);
+    const opAddress = item.kind === 'token' ? operation.address : tx.base.parsed.resolvedAddress;
+    const isOwn = appState.addresses.findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
+    const parsedOpAddr = Address.parseFriendly(opAddress);
+    const parsedAddress = parsedOpAddr.address;
+    const opAddressBounceable = parsedAddress.toString({ testOnly: isTestnet });
+
+    const [ownWalletSettings,] = useWalletSettings(opAddressBounceable);
+    const [opAddressWalletSettings,] = useWalletSettings(opAddressBounceable);
 
     const avatarColorHash = opAddressWalletSettings?.color ?? avatarHash(opAddress, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
 
     const verified = !!tx.verified
-        || !!KnownJettonMasters(isTestnet)[opAddress];
+        || !!KnownJettonMasters(isTestnet)[opAddressBounceable];
 
-    const contact = addressBook.asContact(opAddress);
-    const isSpam = addressBook.isDenyAddress(opAddress);
+    const contact = addressBook.asContact(opAddressBounceable);
+    const isSpam = addressBook.isDenyAddress(opAddressBounceable);
 
     let dateStr = `${formatDate(tx.base.time, 'MMMM dd, yyyy')} • ${formatTime(tx.base.time)}`;
     dateStr = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
@@ -137,8 +142,8 @@ const TransactionPreview = () => {
 
     // Resolve built-in known wallets
     let known: KnownWallet | undefined = undefined;
-    if (KnownWallets(isTestnet)[opAddress]) {
-        known = KnownWallets(isTestnet)[opAddress];
+    if (KnownWallets(isTestnet)[opAddressBounceable]) {
+        known = KnownWallets(isTestnet)[opAddressBounceable];
     }
     if (!!contact) { // Resolve contact known wallet
         known = { name: contact.name }
@@ -147,12 +152,12 @@ const TransactionPreview = () => {
         known = { name: opAddressWalletSettings.name }
     }
 
-    let spam = useIsSpamWallet(opAddress)
+    let spam = useIsSpamWallet(opAddressBounceable)
         || isSpam
         || (
             BigMath.abs(BigInt(tx.base.parsed.amount)) < spamMinAmount
             && tx.base.parsed.body?.type === 'comment'
-            && !KnownWallets(isTestnet)[opAddress]
+            && !KnownWallets(isTestnet)[opAddressBounceable]
             && !isTestnet
         ) && tx.base.parsed.kind !== 'out';
 
@@ -161,14 +166,15 @@ const TransactionPreview = () => {
         const index = isLedger
             ? 'Ledger'
             : `${appState.addresses.findIndex((a) => address?.equals(a.address)) + 1}`;
+
         if (tx.base.parsed.kind === 'out') {
             return {
                 from: {
-                    address: address,
+                    address: address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                     name: ownWalletSettings?.name || `${t('common.wallet')} ${index}`
                 },
                 to: {
-                    address: Address.parse(opAddress),
+                    address: opAddress,
                     name: known?.name
                 }
             }
@@ -176,18 +182,18 @@ const TransactionPreview = () => {
 
         return {
             from: {
-                address: Address.parse(opAddress),
+                address: opAddress,
                 name: known?.name
             },
             to: {
-                address: address,
+                address: address?.toString({ testOnly: isTestnet, bounceable: bounceableFormat }) || '',
                 name: ownWalletSettings?.name || `${t('common.wallet')} ${index}`
             }
         }
-    }, [opAddress, ownWalletSettings, tx, known]);
+    }, [opAddress, ownWalletSettings, tx, known, bounceableFormat]);
 
-    const onCopyAddress = useCallback((address: Address) => {
-        copyText(address.toString({ testOnly: isTestnet }));
+    const onCopyAddress = useCallback((address: string) => {
+        copyText(address);
         toaster.show({
             message: t('common.walletAddress') + ' ' + t('common.copied').toLowerCase(),
             type: 'default',
@@ -233,8 +239,8 @@ const TransactionPreview = () => {
                     <PerfView style={{ backgroundColor: theme.divider, position: 'absolute', top: 0, left: 0, right: 0, height: 54 }} />
                     <Avatar
                         size={68}
-                        id={opAddress}
-                        address={opAddress}
+                        id={opAddressBounceable}
+                        address={opAddressBounceable}
                         spam={spam}
                         showSpambadge
                         verified={verified}
@@ -256,7 +262,7 @@ const TransactionPreview = () => {
                         style={[
                             {
                                 color: theme.textPrimary,
-                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddress]) ? 16 : 8,
+                                paddingTop: (spam || !!contact || verified || isOwn || !!KnownWallets(isTestnet)[opAddressBounceable]) ? 16 : 8,
                             },
                             Typography.semiBold17_24
                         ]}
@@ -280,7 +286,8 @@ const TransactionPreview = () => {
                                 ellipsizeMode="tail"
                             >
                                 <AddressComponent
-                                    address={Address.parse(opAddress)}
+                                    address={parsedOpAddr.address}
+                                    bounceable={parsedOpAddr.isBounceable}
                                     end={4}
                                 />
                             </PerfText>
@@ -363,6 +370,7 @@ const TransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     {(!!participants.to.address && !!participants.from.address) && (
                         <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
@@ -373,6 +381,7 @@ const TransactionPreview = () => {
                         kind={kind}
                         theme={theme}
                         isTestnet={isTestnet}
+                        bounceableFormat={bounceableFormat}
                     />
                     <PerfView style={{ height: 1, alignSelf: 'stretch', backgroundColor: theme.divider, marginVertical: 16, marginHorizontal: 10 }} />
                     <TxInfo

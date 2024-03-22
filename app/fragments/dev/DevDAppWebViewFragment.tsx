@@ -46,11 +46,12 @@ export const DevDAppWebViewFragment = fragment(() => {
     const [, currency] = usePrice();
     const [bounceableFormat,] = useBounceableWalletFormat();
 
-    const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
+    // const initExampleUrl = isTestnet ? 'https://test.tonhub.com/' : 'https://tonhub.com/';
+    const initExampleUrl = 'http://10.100.102.3:3000/tonhubbridge';
 
     const [url, setUrl] = useState(initExampleUrl);
     const [urlInput, setUrlInput] = useState(url);
-    const [engine, setEngine] = useState<EngineOptions>('ton-connect');
+    const [engine, setEngine] = useState<EngineOptions>('tonhub-bridge');
     const [useMainButton, setUseMainButton] = useState(false);
     const [useStatusBar, setUseStatusBar] = useState(false);
     const [useQueryAPI, setUseQueryAPI] = useState(false);
@@ -197,7 +198,13 @@ export const DevDAppWebViewFragment = fragment(() => {
             useQueryAPI,
             onShouldStartLoadWithRequest: loadWithRequest
         };
-    }, [engine, tonConnectWebViewProps, domain, isTestnet, safeArea, webViewRef, injectionEngine, injectionEngine, useStatusBar, useMainButton, useQueryAPI, useToaster, loadWithRequest]);
+    }, [
+        engine,
+        tonConnectWebViewProps, injectionEngine, bridgeEngine,
+        domain, isTestnet, safeArea, webViewRef,
+        useStatusBar, useMainButton, useQueryAPI, useToaster,
+        loadWithRequest
+    ]);
 
     useEffect(() => {
         setRenderKey(renderKey + 1);

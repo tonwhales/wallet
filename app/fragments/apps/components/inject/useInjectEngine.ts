@@ -156,7 +156,7 @@ export function useTonhubBridgeEngine(domain: string, name: string, isTestnet: b
 
     return React.useMemo(() => {
         const inj = new InjectEngine('tonhub-bridge');
-        inj.registerMethod('tx', txParamsCodec, transactionResponse, async (src) => {
+        inj.registerMethod('send', txParamsCodec, transactionResponse, async (src) => {
 
             // Callback
             let callback: (ok: boolean, res: Cell | null) => void;
@@ -195,5 +195,6 @@ export function useTonhubBridgeEngine(domain: string, name: string, isTestnet: b
 
             return await future;
         });
+        return inj;
     }, []);
 }

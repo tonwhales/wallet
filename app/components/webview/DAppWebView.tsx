@@ -139,7 +139,6 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
             props.onMessage(event);
         }
         const nativeEvent = event.nativeEvent;
-        console.log('handleWebViewMessage', nativeEvent);
 
         // Resolve parameters
         let data: any;
@@ -260,7 +259,7 @@ export const DAppWebView = memo(forwardRef((props: DAppWebViewProps, ref: Forwar
                         }
                     }
 
-                    dispatchTonhubBridgeResponse(ref as RefObject<WebView>, { id, data: res });
+                    dispatchTonhubBridgeResponse(ref as RefObject<WebView>, { id, data });
                 } else {
                     dispatchResponse(ref as RefObject<WebView>, { id, data: res });
                 }

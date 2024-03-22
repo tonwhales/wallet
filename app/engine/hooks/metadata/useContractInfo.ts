@@ -2,9 +2,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../../queries";
 import { fetchContractInfo } from "../../api/fetchContractInfo";
 
-export function useContractInfo(addressString: string) {
+export function useContractInfo(addressString: string | null) {
     return useQuery({
-        queryKey: Queries.ContractInfo(addressString),
+        queryKey: Queries.ContractInfo(addressString ?? ''),
         queryFn: async () => {
             if (!addressString) {
                 return null;

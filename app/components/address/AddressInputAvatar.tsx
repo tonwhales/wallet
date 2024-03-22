@@ -1,8 +1,7 @@
 import { memo } from "react";
-import { Avatar } from "../Avatar";
 import { Image } from "react-native";
 import { ThemeType } from "../../engine/state/theme";
-
+import { Avatar } from "../avatar/Avatar";
 
 export const AddressInputAvatar = memo(({
     size,

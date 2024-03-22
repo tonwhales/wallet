@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import { View, Text, Pressable } from "react-native";
 import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { AddressComponent } from "../address/AddressComponent";
-import { Avatar } from "../Avatar";
+import { Avatar } from "../avatar/Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
 import { t } from "../../i18n/t";

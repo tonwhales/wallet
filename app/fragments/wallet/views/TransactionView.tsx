@@ -2,15 +2,15 @@ import * as React from 'react';
 import { Pressable, Text } from 'react-native';
 import { ValueComponent } from '../../../components/ValueComponent';
 import { AddressComponent } from '../../../components/address/AddressComponent';
-import { Avatar, avatarColors } from '../../../components/Avatar';
-import { PendingTransactionAvatar } from '../../../components/PendingTransactionAvatar';
+import { Avatar, avatarColors } from '../../../components/avatar/Avatar';
+import { PendingTransactionAvatar } from '../../../components/avatar/PendingTransactionAvatar';
 import { KnownWallet, KnownWallets } from '../../../secure/KnownWallets';
 import { t } from '../../../i18n/t';
 import { TypedNavigation } from '../../../utils/useTypedNavigation';
 import { PriceComponent } from '../../../components/PriceComponent';
 import { Address } from '@ton/core';
 import { TransactionDescription } from '../../../engine/types';
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { ThemeType } from '../../../engine/state/theme';
 import { AddressContact } from '../../../engine/hooks/contacts/useAddressBook';
 import { formatTime } from '../../../utils/dates';
@@ -18,8 +18,67 @@ import { PerfText } from '../../../components/basic/PerfText';
 import { AppState } from '../../../storage/appState';
 import { PerfView } from '../../../components/basic/PerfView';
 import { Typography } from '../../../components/styles';
-import { useWalletSettings } from '../../../engine/hooks';
 import { avatarHash } from '../../../utils/avatarHash';
+import { WalletSettings } from '../../../engine/state/walletSettings';
+import { Ionicons } from '@expo/vector-icons';
+import { BatchAvatars } from '../../../components/avatar/BatchAvatars';
+
+const TxAvatar = memo((
+    {
+        status,
+        parsedAddressFriendly,
+        kind,
+        spam,
+        isOwn,
+        theme,
+        isTestnet,
+        walletSettings,
+        markContact,
+        avatarColor
+    }: {
+        status: "failed" | "pending" | "success",
+        parsedAddressFriendly: string,
+        kind: "in" | "out",
+        spam: boolean,
+        isOwn: boolean,
+        theme: ThemeType,
+        isTestnet: boolean,
+        walletSettings?: WalletSettings,
+        markContact?: boolean,
+        avatarColor: string
+    }
+) => {
+    if (status === "pending") {
+        return (
+            <PendingTransactionAvatar
+                kind={kind}
+                address={parsedAddressFriendly}
+                avatarId={parsedAddressFriendly}
+            />
+        );
+    }
+
+    return (
+        <Avatar
+            size={48}
+            address={parsedAddressFriendly}
+            id={parsedAddressFriendly}
+            borderWith={0}
+            spam={spam}
+            markContact={markContact}
+            icProps={{
+                isOwn,
+                backgroundColor: theme.backgroundPrimary,
+                size: 18,
+                borderWidth: 2
+            }}
+            theme={theme}
+            isTestnet={isTestnet}
+            backgroundColor={avatarColor}
+            hash={walletSettings?.avatar}
+        />
+    );
+});
 
 export function TransactionView(props: {
     own: Address,
@@ -38,7 +97,8 @@ export function TransactionView(props: {
     isTestnet: boolean,
     spamWallets: string[],
     appState?: AppState,
-    bounceableFormat: boolean
+    bounceableFormat: boolean,
+    walletsSettings: { [key: string]: WalletSettings }
 }) {
     const {
         theme,
@@ -60,7 +120,7 @@ export function TransactionView(props: {
     const parsedAddressFriendly = parsedAddress.toString({ testOnly: isTestnet });
     const isOwn = (props.appState?.addresses ?? []).findIndex((a) => a.address.equals(Address.parse(opAddress))) >= 0;
 
-    const [walletSettings,] = useWalletSettings(parsedAddressFriendly);
+    const walletSettings = props.walletsSettings[parsedAddressFriendly];
 
     const avatarColorHash = walletSettings?.color ?? avatarHash(parsedAddressFriendly, avatarColors.length);
     const avatarColor = avatarColors[avatarColorHash];
@@ -139,30 +199,38 @@ export function TransactionView(props: {
                     borderWidth: 0, marginRight: 10,
                     justifyContent: 'center', alignItems: 'center'
                 }}>
-                    {parsed.status === 'pending' ? (
-                        <PendingTransactionAvatar
-                            kind={kind}
-                            address={parsedAddressFriendly}
-                            avatarId={parsedAddressFriendly}
-                        />
-                    ) : (
-                        <Avatar
-                            size={48}
-                            address={parsedAddressFriendly}
-                            id={parsedAddressFriendly}
-                            borderWith={0}
-                            spam={spam}
-                            markContact={!!contact}
+                    {tx.outMessagesCount > 1 ? (
+                        <BatchAvatars
+                            messages={tx.outMessages}
+                            size={46}
                             icProps={{
-                                isOwn,
                                 backgroundColor: theme.backgroundPrimary,
                                 size: 18,
                                 borderWidth: 2
                             }}
                             theme={theme}
                             isTestnet={isTestnet}
-                            backgroundColor={avatarColor}
-                            hash={walletSettings?.avatar}
+                            denyList={denyList}
+                            contacts={contacts}
+                            spamWallets={spamWallets}
+                            ownAccounts={props.appState?.addresses ?? []}
+                            walletsSettings={props.walletsSettings}
+                            backgroundColor={theme.surfaceOnBg}
+                            borderColor={theme.surfaceOnBg}
+                            borderWidth={0}
+                        />
+                    ) : (
+                        <TxAvatar
+                            status={parsed.status}
+                            parsedAddressFriendly={parsedAddressFriendly}
+                            kind={kind}
+                            spam={spam}
+                            isOwn={isOwn}
+                            theme={theme}
+                            isTestnet={isTestnet}
+                            walletSettings={walletSettings}
+                            markContact={!!contact}
+                            avatarColor={avatarColor}
                         />
                     )}
                 </PerfView>
@@ -208,14 +276,19 @@ export function TransactionView(props: {
                         ellipsizeMode={'middle'}
                         numberOfLines={1}
                     >
-                        {known
-                            ? known.name
-                            : <AddressComponent
-                                address={parsedOpAddr.address}
-                                bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
-                            />
-                        }
-                        {` • ${formatTime(tx.base.time)}`}
+                        {tx.outMessagesCount <= 1 && (
+                            <>
+                                {known
+                                    ? known.name
+                                    : <AddressComponent
+                                        address={parsedOpAddr.address}
+                                        bounceable={props.bounceableFormat || parsedOpAddr.isBounceable}
+                                    />
+                                }
+                                {' • '}
+                            </>
+                        )}
+                        {`${formatTime(tx.base.time)}`}
                     </Text>
                 </PerfView>
                 <PerfView style={{ alignItems: 'flex-end' }}>
@@ -241,19 +314,25 @@ export function TransactionView(props: {
                             ]}
                             numberOfLines={1}
                         >
-                            {kind === 'in' ? '+' : '-'}
-                            <ValueComponent
-                                value={absAmount}
-                                decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
-                                precision={3}
-                                centFontStyle={{ fontSize: 15 }}
-                            />
-                            <Text style={{ fontSize: 15 }}>
-                                {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
-                            </Text>
+                            {tx.outMessagesCount > 1 ? (
+                                `${tx.outMessagesCount} ${t('common.messages').toLowerCase()}`
+                            ) : (
+                                <>
+                                    {kind === 'in' ? '+' : '-'}
+                                    <ValueComponent
+                                        value={absAmount}
+                                        decimals={item.kind === 'token' ? tx.masterMetadata?.decimals : undefined}
+                                        precision={3}
+                                        centFontStyle={{ fontSize: 15 }}
+                                    />
+                                    <Text style={{ fontSize: 15 }}>
+                                        {item.kind === 'token' ? `${tx.masterMetadata?.symbol ? ` ${tx.masterMetadata?.symbol}` : ''}` : ' TON'}
+                                    </Text>
+                                </>
+                            )}
                         </Text>
                     )}
-                    {item.kind !== 'token' && (
+                    {item.kind !== 'token' && tx.outMessagesCount <= 1 && (
                         <PriceComponent
                             amount={absAmount}
                             prefix={kind === 'in' ? '+' : '-'}

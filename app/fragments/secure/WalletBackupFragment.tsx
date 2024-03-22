@@ -13,7 +13,7 @@ import { warn } from '../../utils/log';
 import Clipboard from '@react-native-clipboard/clipboard';
 import * as Haptics from 'expo-haptics';
 import { ScreenHeader, useScreenHeader } from '../../components/ScreenHeader';
-import { Avatar, avatarColors } from '../../components/Avatar';
+import { Avatar, avatarColors } from '../../components/avatar/Avatar';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as ScreenCapture from 'expo-screen-capture';
 import { useNetwork, useSelectedAccount, useTheme } from '../../engine/hooks';

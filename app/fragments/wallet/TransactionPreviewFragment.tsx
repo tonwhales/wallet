@@ -17,7 +17,7 @@ import { ToastDuration, useToaster } from '../../components/toast/ToastProvider'
 import { ScreenHeader } from "../../components/ScreenHeader";
 import { ItemGroup } from "../../components/ItemGroup";
 import { AboutIconButton } from "../../components/AboutIconButton";
-import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useJettons, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
+import { useAppState, useBounceableWalletFormat, useDontShowComments, useIsSpamWallet, useNetwork, usePrice, useSelectedAccount, useSpamMinAmount, useTheme } from "../../engine/hooks";
 import { useRoute } from "@react-navigation/native";
 import { useWalletSettings } from "../../engine/hooks/appstate/useWalletSettings";
 import { TransactionDescription } from "../../engine/types";

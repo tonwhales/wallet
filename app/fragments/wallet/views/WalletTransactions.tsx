@@ -328,7 +328,6 @@ export const WalletTransactions = memo((props: {
                     isTestnet={isTestnet}
                     spamWallets={spamWallets}
                     appState={appState}
-                    jettons={props.jettons}
                     bounceableFormat={bounceableFormat}
                 />
             )}

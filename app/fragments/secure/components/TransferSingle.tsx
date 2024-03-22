@@ -277,7 +277,7 @@ export const TransferSingle = memo((props: ConfirmLoadedPropsSingle) => {
                 master: jetton,
                 target: jettonTarget.address,
                 bounceable: jettonTarget.bounceable,
-                amount: toBnWithDecimals(jettonAmountString, jetton.decimals ?? 9),
+                amount: toBnWithDecimals(jettonAmountString, jettonMaster.decimals ?? 9),
                 comment: text,
             }
         }

@@ -8,7 +8,7 @@ export type PendingTransactionBody =
     | {
         type: 'token',
         amount: bigint,
-        master: Jetton,
+        master: JettonMasterState,
         target: Address,
         bounceable?: boolean,
         comment: string | null

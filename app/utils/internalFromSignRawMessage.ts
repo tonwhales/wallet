@@ -1,4 +1,4 @@
-import { Address, Cell, MessageRelaxed, internal, loadStateInit } from "@ton/core";
+import { Address, Cell, internal, loadStateInit } from "@ton/core";
 
 export function internalFromSignRawMessage(message: {
     target: string;

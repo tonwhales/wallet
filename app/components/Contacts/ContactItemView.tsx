@@ -4,20 +4,26 @@ import { useTypedNavigation } from "../../utils/useTypedNavigation";
 import { Avatar } from "../Avatar";
 import { useAnimatedPressedInOut } from "../../utils/useAnimatedPressedInOut";
 import Animated from "react-native-reanimated";
-import { useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
+import { useBounceableWalletFormat, useContact, useDenyAddress, useNetwork, useTheme } from "../../engine/hooks";
 import { Address } from "@ton/core";
 import { AddressComponent } from "../address/AddressComponent";
+import { useContractInfo } from "../../engine/hooks/metadata/useContractInfo";
 
-export const ContactItemView = memo(({ addr, action }: { addr: string, action?: (address: Address) => void }) => {
+export const ContactItemView = memo(({ addressFriendly, action }: { addressFriendly: string, action?: (address: Address) => void }) => {
     const { isTestnet } = useNetwork();
-    const theme = useTheme();
-    const address = useMemo(() => Address.parse(addr), [addr])
-    const contact = useContact(addr);
-    const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
-
     const navigation = useTypedNavigation();
+    const theme = useTheme();
+    const address = useMemo(() => Address.parse(addressFriendly), [addressFriendly]);
+    const contact = useContact(addressFriendly);
+    const isSpam = useDenyAddress(address.toString({ testOnly: isTestnet }));
+    const contractInfo = useContractInfo(addressFriendly);
+    const [bounceableFormat,] = useBounceableWalletFormat();
 
     const { animatedStyle, onPressIn, onPressOut } = useAnimatedPressedInOut();
+
+    const bounceable = (contractInfo?.kind === 'wallet')
+        ? bounceableFormat
+        : true;
 
     const lastName = useMemo(() => {
         if (contact?.fields) {
@@ -30,8 +36,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
             action(address);
             return;
         }
-        navigation.navigate('Contact', { address: addr });
-    }, [addr, action, address]);
+        navigation.navigate('Contact', { address: addressFriendly });
+    }, [addressFriendly, action, address]);
 
     return (
         <Pressable
@@ -42,8 +48,8 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
             <Animated.View style={[{ paddingVertical: 10, flexDirection: 'row', alignItems: 'center' }, animatedStyle]}>
                 <View style={{ width: 46, height: 46, borderRadius: 23, borderWidth: 0, marginRight: 12 }}>
                     <Avatar
-                        address={addr}
-                        id={addr}
+                        address={address.toString({ testOnly: isTestnet })}
+                        id={address.toString({ testOnly: isTestnet })}
                         size={46}
                         borderWith={0}
                         theme={theme}
@@ -86,7 +92,10 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                 ellipsizeMode={'middle'}
                                 numberOfLines={1}
                             >
-                                <AddressComponent address={address} />
+                                <AddressComponent
+                                    address={address}
+                                    bounceable={bounceable}
+                                />
                             </Text>
                         </>
                     )
@@ -97,7 +106,10 @@ export const ContactItemView = memo(({ addr, action }: { addr: string, action?: 
                                     ellipsizeMode={'middle'}
                                     numberOfLines={1}
                                 >
-                                    <AddressComponent address={address} />
+                                    <AddressComponent
+                                        address={address}
+                                        bounceable={bounceable}
+                                    />
                                 </Text>
                                 {isSpam && (
                                     <View style={{

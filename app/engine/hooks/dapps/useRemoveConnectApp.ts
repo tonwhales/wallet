@@ -1,8 +1,8 @@
-import { useTonConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
+import { useConnectExtensions } from "../../hooks/dapps/useTonConnectExtenstions";
 import { extensionKey } from "./useAddExtension";
 
 export function useRemoveConnectApp() {
-    const [, update] = useTonConnectExtensions();
+    const [, update] = useConnectExtensions();
 
     return (url: string) => {
         update((doc) => {

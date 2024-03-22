@@ -16,13 +16,11 @@ export const DappsRequests = memo(() => {
     }
 
     return (
-        <View style={[{ paddingHorizontal: 16 }]}>
+        <View style={[{ paddingHorizontal: 16, marginBottom: 10 }]}>
             <View style={{
                 flexDirection: 'row',
                 justifyContent: 'space-between', alignItems: 'center',
-                marginTop: 20,
-                paddingVertical: 12,
-                marginBottom: 4,
+                paddingVertical: 16,
             }}>
                 <Text style={[{ color: theme.textPrimary }, Typography.semiBold20_28]}>
                     {t('products.transactionRequest.groupTitle')}

@@ -9,9 +9,10 @@ import { holdersUrl } from "../../api/holders/fetchAccountState";
 import { getAppManifest } from "../../getters/getAppManifest";
 import { AppManifest } from "../../api/fetchManifest";
 import { ConnectItemReply, TonProofItemReplySuccess } from "@tonconnect/protocol";
-import { useNetwork, useSaveAppConnection } from "..";
+import { useAppConnections, useConnectApp, useNetwork, useSaveAppConnection } from "..";
 import { deleteHoldersToken, getHoldersToken, setHoldersToken } from "./useHoldersAccountStatus";
 import { TonConnectBridgeType } from "../../tonconnect/types";
+import { extensionKey } from "../dapps/useAddExtension";
 
 export type HoldersEnrollParams = {
     acc: {
@@ -43,8 +44,19 @@ export type HoldersEnrollResult = { type: 'error', error: HoldersEnrollErrorType
 export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollParams) {
     const { isTestnet } = useNetwork();
     const saveAppConnection = useSaveAppConnection();
+    const connectApp = useConnectApp();
+    const connectAppConnections = useAppConnections();
+
     return (async () => {
         let res = await (async () => {
+
+            //
+            // Check if app is already connected
+            //
+
+            const app = connectApp(holdersUrl);
+            const connections = app ? connectAppConnections(extensionKey(app.url)) : [];
+            const isInjected = connections.find((item) => item.type === TonConnectBridgeType.Injected);
 
             // 
             // Check holders token value
@@ -52,7 +64,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
 
             let existingToken = getHoldersToken(acc.address.toString({ testOnly: isTestnet }));
 
-            if (!!existingToken && existingToken.toString().length > 0) {
+            if (!!existingToken && existingToken.toString().length > 0 && isInjected) {
                 return { type: 'success' };
             } else {
 
@@ -113,6 +125,7 @@ export function useHoldersEnroll({ acc, authContext, authStyle }: HoldersEnrollP
                 }
 
                 await saveAppConnection({
+                    address: acc.addressString,
                     app: {
                         name: manifest.name,
                         // todo: use manifest.url instead of holdersUrl on stabel static endpoint
